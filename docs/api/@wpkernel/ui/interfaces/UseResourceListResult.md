@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / UseResourceListResult
+[WP Kernel API](../README.md) / UseResourceListResult
 
 # Interface: UseResourceListResult\&lt;T\&gt;
 
@@ -21,9 +21,7 @@ Entity type in the list
 ### data
 
 ```ts
-data:
-  | ListResponse<T>
-  | undefined;
+data: ListResponse&lt;T&gt; | undefined;
 ```
 
 The fetched list response with items and metadata, or undefined if not yet loaded

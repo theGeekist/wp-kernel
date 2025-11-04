@@ -1,0 +1,23 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / WPKUICapabilityRuntime
+
+# Interface: WPKUICapabilityRuntime
+
+## Properties
+
+### capability?
+
+```ts
+optional capability: Partial&lt;CapabilityHelpers&lt;Record&lt;string, unknown&gt;&gt;&gt; & object;
+```
+
+#### Type Declaration
+
+##### cache?
+
+```ts
+optional cache: CapabilityCache;
+```

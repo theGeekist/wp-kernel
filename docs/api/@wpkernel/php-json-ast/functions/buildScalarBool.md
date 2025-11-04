@@ -1,0 +1,33 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / buildScalarBool
+
+# Function: buildScalarBool()
+
+```ts
+function buildScalarBool(value, attributes?): PhpExprConstFetch;
+```
+
+Builds a PHP boolean scalar expression (represented as a `ConstFetch` of `true` or `false`).
+
+## Parameters
+
+### value
+
+`boolean`
+
+The boolean value.
+
+### attributes?
+
+`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+
+Optional attributes for the node.
+
+## Returns
+
+[`PhpExprConstFetch`](../interfaces/PhpExprConstFetch.md)
+
+A `PhpExprConstFetch` node representing the boolean scalar.

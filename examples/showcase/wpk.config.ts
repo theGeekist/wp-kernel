@@ -15,7 +15,7 @@ import type { JobResource } from './.generated/types/job';
 /**
  * Showcase kernel configuration
  *
- * This file mirrors the kernel contract directly—no local type copies.
+ * This file mirrors the kernel contract directly-no local type copies.
  */
 
 export type JobListParams = {

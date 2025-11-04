@@ -88,7 +88,7 @@ contributing/*
     - Merge `guide/resources.md` (beginner) and keep `resources-advanced.md` as a “Deep dive” section within the same page (use `<details>`).
     - Fold `guide/repository-handbook.md` into `contributing/index.md` (dev-centric).
     - Rename `guide/showcase.md` → `examples/showcase.md` (and link from Examples).
-    - Add `guide/blocks.md` — merge your scattered block content + manifest + render.php guidance in one doc.
+    - Add `guide/blocks.md` - merge your scattered block content + manifest + render.php guidance in one doc.
 
 - **Reference**:
     - Keep `reference/contracts.md`.
@@ -194,7 +194,7 @@ export default defineConfig({
 #### Make these three pages _great_:
 
 1. **Landing (`/`)**
-    - What it is in one sentence: _“One config → a working WordPress plugin (REST, Blocks, DataViews, Policies)—generated for you.”_
+    - What it is in one sentence: _“One config → a working WordPress plugin (REST, Blocks, DataViews, Policies)-generated for you.”_
     - 3 CTAs: **Quick Start**, **See an Example**, **Why Kernel?**
     - 90-sec video embed showing `wpk init → generate → apply → start → edit block → SSR`.
 
@@ -238,7 +238,7 @@ export default defineConfig({
 **Hero**
 
 > **One config → a working WordPress plugin**
-> Define your resources, blocks, and UI once. WP Kernel generates REST controllers, block manifests, DataViews screens, and policy guards—so you can build features, not boilerplate.
+> Define your resources, blocks, and UI once. WP Kernel generates REST controllers, block manifests, DataViews screens, and policy guards-so you can build features, not boilerplate.
 
 **Three pillars**
 

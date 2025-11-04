@@ -1,0 +1,45 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / buildMethodCall
+
+# Function: buildMethodCall()
+
+```ts
+function buildMethodCall(variable, name, args, attributes?): PhpExprMethodCall;
+```
+
+Builds a PHP method call expression node.
+
+## Parameters
+
+### variable
+
+[`PhpExpr`](../type-aliases/PhpExpr.md)
+
+The variable or expression representing the object.
+
+### name
+
+The name of the method, either an identifier or an expression.
+
+[`PhpExpr`](../type-aliases/PhpExpr.md) | [`PhpIdentifier`](../interfaces/PhpIdentifier.md)
+
+### args
+
+[`PhpArg`](../interfaces/PhpArg.md)[] = `[]`
+
+An array of `PhpArg` nodes representing the method arguments.
+
+### attributes?
+
+`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+
+Optional attributes for the node.
+
+## Returns
+
+[`PhpExprMethodCall`](../interfaces/PhpExprMethodCall.md)
+
+A `PhpExprMethodCall` node.

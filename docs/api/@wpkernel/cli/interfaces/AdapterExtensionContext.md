@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / AdapterExtensionContext
+[WP Kernel API](../README.md) / AdapterExtensionContext
 
 # Interface: AdapterExtensionContext
 
@@ -13,6 +13,118 @@ Execution context provided to adapter extensions.
 - [`AdapterContext`](AdapterContext.md)
 
 ## Properties
+
+### ir
+
+```ts
+ir: IRv1;
+```
+
+#### Overrides
+
+[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
+
+---
+
+### outputDir
+
+```ts
+outputDir: string;
+```
+
+---
+
+### tempDir
+
+```ts
+tempDir: string;
+```
+
+---
+
+### queueFile()
+
+```ts
+queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
+```
+
+#### Parameters
+
+##### filePath
+
+`string`
+
+##### contents
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;
+
+---
+
+### updateIr()
+
+```ts
+updateIr: (ir) =&gt; void;
+```
+
+#### Parameters
+
+##### ir
+
+[`IRv1`](IRv1.md)
+
+#### Returns
+
+`void`
+
+---
+
+### formatPhp()
+
+```ts
+formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
+```
+
+#### Parameters
+
+##### filePath
+
+`string`
+
+##### contents
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;`string`\&gt;
+
+---
+
+### formatTs()
+
+```ts
+formatTs: (filePath, contents) =&gt; Promise&lt;string&gt;;
+```
+
+#### Parameters
+
+##### filePath
+
+`string`
+
+##### contents
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;`string`\&gt;
+
+---
 
 ### config
 
@@ -50,120 +162,8 @@ namespace: string;
 
 ---
 
-### ir
-
-```ts
-ir: IRv1;
-```
-
-#### Overrides
-
-[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
-
----
-
-### outputDir
-
-```ts
-outputDir: string;
-```
-
----
-
 ### configDirectory?
 
 ```ts
 optional configDirectory: string;
 ```
-
----
-
-### tempDir
-
-```ts
-tempDir: string;
-```
-
----
-
-### queueFile()
-
-```ts
-queueFile: (filePath, contents) => Promise<void>;
-```
-
-#### Parameters
-
-##### filePath
-
-`string`
-
-##### contents
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;`void`\&gt;
-
----
-
-### updateIr()
-
-```ts
-updateIr: (ir) => void;
-```
-
-#### Parameters
-
-##### ir
-
-[`IRv1`](IRv1.md)
-
-#### Returns
-
-`void`
-
----
-
-### formatPhp()
-
-```ts
-formatPhp: (filePath, contents) => Promise<string>;
-```
-
-#### Parameters
-
-##### filePath
-
-`string`
-
-##### contents
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;`string`\&gt;
-
----
-
-### formatTs()
-
-```ts
-formatTs: (filePath, contents) => Promise<string>;
-```
-
-#### Parameters
-
-##### filePath
-
-`string`
-
-##### contents
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;`string`\&gt;

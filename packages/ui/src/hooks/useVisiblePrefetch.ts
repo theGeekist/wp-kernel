@@ -6,11 +6,7 @@ import { useStableCallback, useLatest } from './internal/useStableCallback';
  * Options for the useVisiblePrefetch hook.
  *
  * @category Prefetching
- */
-/**
- * Options for the useVisiblePrefetch hook.
- *
- * @category Prefetching
+ * @public
  */
 export interface VisiblePrefetchOptions {
 	/**

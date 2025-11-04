@@ -1,0 +1,58 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / WordPressTestHarness
+
+# Interface: WordPressTestHarness
+
+Represents a WordPress test harness, providing mocked WordPress globals and utility functions.
+
+## Properties
+
+### wp
+
+```ts
+wp: any;
+```
+
+The mock WordPress global that has been installed.
+
+---
+
+### data
+
+```ts
+data: WordPressData;
+```
+
+Convenience access to the shared data package to avoid calling
+`ensureWpData()` repeatedly in suites.
+
+---
+
+### reset()
+
+```ts
+reset: () =&gt; void;
+```
+
+Reset namespace state and clear all jest mocks.
+
+#### Returns
+
+`void`
+
+---
+
+### teardown()
+
+```ts
+teardown: () =&gt; void;
+```
+
+Restore the previous global and perform a reset.
+
+#### Returns
+
+`void`

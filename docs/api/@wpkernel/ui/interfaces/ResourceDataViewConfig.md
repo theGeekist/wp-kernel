@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / ResourceDataViewConfig
+[WP Kernel API](../README.md) / ResourceDataViewConfig
 
 # Interface: ResourceDataViewConfig\&lt;TItem, TQuery\&gt;
 
@@ -23,7 +23,9 @@ Resource DataView configuration.
 ### fields
 
 ```ts
-fields: Field < TItem > [];
+fields: Field & lt;
+TItem & gt;
+[];
 ```
 
 ---
@@ -39,7 +41,8 @@ defaultView: View;
 ### mapQuery
 
 ```ts
-mapQuery: QueryMapping<TQuery>;
+mapQuery: QueryMapping & lt;
+TQuery & gt;
 ```
 
 ---
@@ -47,7 +50,7 @@ mapQuery: QueryMapping<TQuery>;
 ### actions?
 
 ```ts
-optional actions: ResourceDataViewActionConfig<TItem, unknown, unknown>[];
+optional actions: ResourceDataViewActionConfig&lt;TItem, unknown, unknown&gt;[];
 ```
 
 ---
@@ -71,7 +74,7 @@ optional searchLabel: string;
 ### getItemId()?
 
 ```ts
-optional getItemId: (item) => string;
+optional getItemId: (item) =&gt; string;
 ```
 
 #### Parameters
@@ -105,5 +108,21 @@ optional perPageSizes: number[];
 ### defaultLayouts?
 
 ```ts
-optional defaultLayouts: Record<string, unknown>;
+optional defaultLayouts: Record&lt;string, unknown&gt;;
+```
+
+---
+
+### views?
+
+```ts
+optional views: ResourceDataViewSavedView[];
+```
+
+---
+
+### screen?
+
+```ts
+optional screen: ResourceDataViewsScreenConfig;
 ```

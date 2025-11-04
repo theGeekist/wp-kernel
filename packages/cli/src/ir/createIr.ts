@@ -31,6 +31,7 @@ import { buildEmptyGenerationState } from '../apply/manifest';
  * Defines the environment for creating an Intermediate Representation (IR).
  *
  * @category IR
+ * @public
  */
 export interface CreateIrEnvironment {
 	/** Optional: The workspace instance to use. */

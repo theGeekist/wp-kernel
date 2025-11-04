@@ -404,7 +404,7 @@ function createActionCallback<TItem, TQuery>(
 				selection: selectionIds,
 				error: normalized,
 			});
-			const failureMessage = `“${actionLabel}” — ${__(
+			const failureMessage = `“${actionLabel}” - ${__(
 				'failed:',
 				'wpkernel'
 			)} ${normalized.message}`;

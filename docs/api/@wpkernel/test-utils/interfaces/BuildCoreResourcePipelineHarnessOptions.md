@@ -1,0 +1,53 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / BuildCoreResourcePipelineHarnessOptions
+
+# Interface: BuildCoreResourcePipelineHarnessOptions\&lt;T, TQuery\&gt;
+
+Options for building a `CoreResourcePipelineHarness`.
+
+## Type Parameters
+
+### T
+
+`T`
+
+### TQuery
+
+`TQuery`
+
+## Properties
+
+### namespace?
+
+```ts
+readonly optional namespace: string;
+```
+
+The namespace for the reporter.
+
+---
+
+### resourceName?
+
+```ts
+readonly optional resourceName: string;
+```
+
+The name of the resource.
+
+---
+
+### pipelineFactory()?
+
+```ts
+readonly optional pipelineFactory: () =&gt; ResourcePipeline&lt;T, TQuery&gt;;
+```
+
+A factory function to create the resource pipeline.
+
+#### Returns
+
+`ResourcePipeline`\&lt;`T`, `TQuery`\&gt;

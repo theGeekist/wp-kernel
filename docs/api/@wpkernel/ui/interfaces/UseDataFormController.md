@@ -1,0 +1,80 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / UseDataFormController
+
+# Interface: UseDataFormController\&lt;TResult\&gt;
+
+Interface for the Data Form Controller hook.
+
+## Type Parameters
+
+### TResult
+
+`TResult`
+
+The type of the result returned by the form submission action.
+
+## Properties
+
+### submit()
+
+```ts
+submit: (input) =&gt; Promise&lt;TResult&gt;;
+```
+
+Submits the form with the given input.
+
+#### Parameters
+
+##### input
+
+`unknown`
+
+The input data for the form.
+
+#### Returns
+
+`Promise`\&lt;`TResult`\&gt;
+
+A promise that resolves with the action's result.
+
+---
+
+### reset()
+
+```ts
+reset: () =&gt; void;
+```
+
+Resets the form's state.
+
+#### Returns
+
+`void`
+
+---
+
+### cancel()
+
+```ts
+cancel: () =&gt; void;
+```
+
+Cancels any in-flight form submissions.
+
+#### Returns
+
+`void`
+
+---
+
+### state
+
+```ts
+state: DataFormControllerState & lt;
+TResult & gt;
+```
+
+The current state of the form.

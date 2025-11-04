@@ -1,10 +1,12 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / ResourceDataViewController
+[WP Kernel API](../README.md) / ResourceDataViewController
 
 # Interface: ResourceDataViewController\&lt;TItem, TQuery\&gt;
+
+Controller for a ResourceDataView.
 
 ## Type Parameters
 
@@ -18,35 +20,33 @@
 
 ## Properties
 
-### resource?
-
-```ts
-readonly optional resource: ResourceObject<TItem, TQuery>;
-```
-
----
-
 ### resourceName
 
 ```ts
 readonly resourceName: string;
 ```
 
+The name of the resource.
+
 ---
 
 ### config
 
 ```ts
-readonly config: ResourceDataViewConfig<TItem, TQuery>;
+readonly config: ResourceDataViewConfig&lt;TItem, TQuery&gt;;
 ```
+
+The configuration for the DataView.
 
 ---
 
 ### queryMapping
 
 ```ts
-readonly queryMapping: QueryMapping<TQuery>;
+readonly queryMapping: QueryMapping&lt;TQuery&gt;;
 ```
+
+A function to map the view state to a query.
 
 ---
 
@@ -56,6 +56,8 @@ readonly queryMapping: QueryMapping<TQuery>;
 readonly runtime: DataViewsControllerRuntime;
 ```
 
+The runtime for the DataView controller.
+
 ---
 
 ### namespace
@@ -63,6 +65,8 @@ readonly runtime: DataViewsControllerRuntime;
 ```ts
 readonly namespace: string;
 ```
+
+The namespace of the project.
 
 ---
 
@@ -72,75 +76,17 @@ readonly namespace: string;
 readonly preferencesKey: string;
 ```
 
----
-
-### invalidate()?
-
-```ts
-readonly optional invalidate: (patterns) => void;
-```
-
-#### Parameters
-
-##### patterns
-
-[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
-
-#### Returns
-
-`void`
-
----
-
-### capabilities?
-
-```ts
-readonly optional capabilities: WPKUICapabilityRuntime;
-```
-
----
-
-### fetchList()?
-
-```ts
-readonly optional fetchList: (query) => Promise<ListResponse<TItem>>;
-```
-
-#### Parameters
-
-##### query
-
-`TQuery`
-
-#### Returns
-
-`Promise`\&lt;[`ListResponse`](../../../core/src/type-aliases/ListResponse.md)\&lt;`TItem`\&gt;\&gt;
-
----
-
-### prefetchList()?
-
-```ts
-readonly optional prefetchList: (query) => Promise<void>;
-```
-
-#### Parameters
-
-##### query
-
-`TQuery`
-
-#### Returns
-
-`Promise`\&lt;`void`\&gt;
+The key for storing preferences.
 
 ---
 
 ### mapViewToQuery()
 
 ```ts
-mapViewToQuery: (view) => TQuery;
+mapViewToQuery: (view) =&gt; TQuery;
 ```
+
+Maps the view state to a query.
 
 #### Parameters
 
@@ -157,8 +103,10 @@ mapViewToQuery: (view) => TQuery;
 ### deriveViewState()
 
 ```ts
-deriveViewState: (view) => object;
+deriveViewState: (view) =&gt; object;
 ```
+
+Derives the view state from a view.
 
 #### Parameters
 
@@ -174,6 +122,18 @@ deriveViewState: (view) => object;
 
 ```ts
 fields: string[];
+```
+
+##### page
+
+```ts
+page: number;
+```
+
+##### perPage
+
+```ts
+perPage: number;
 ```
 
 ##### sort?
@@ -203,19 +163,7 @@ optional search: string;
 ##### filters?
 
 ```ts
-optional filters: Record<string, unknown>;
-```
-
-##### page
-
-```ts
-page: number;
-```
-
-##### perPage
-
-```ts
-perPage: number;
+optional filters: Record&lt;string, unknown&gt;;
 ```
 
 ---
@@ -223,8 +171,10 @@ perPage: number;
 ### loadStoredView()
 
 ```ts
-loadStoredView: () => Promise<View | undefined>;
+loadStoredView: () =&gt; Promise&lt;View | undefined&gt;;
 ```
+
+Loads the stored view from preferences.
 
 #### Returns
 
@@ -235,8 +185,10 @@ loadStoredView: () => Promise<View | undefined>;
 ### saveView()
 
 ```ts
-saveView: (view) => Promise<void>;
+saveView: (view) =&gt; Promise&lt;void&gt;;
 ```
+
+Saves the view to preferences.
 
 #### Parameters
 
@@ -253,8 +205,10 @@ saveView: (view) => Promise<void>;
 ### emitViewChange()
 
 ```ts
-emitViewChange: (view) => void;
+emitViewChange: (view) =&gt; void;
 ```
+
+Emits a view change event.
 
 #### Parameters
 
@@ -271,8 +225,10 @@ emitViewChange: (view) => void;
 ### emitRegistered()
 
 ```ts
-emitRegistered: (preferencesKey) => void;
+emitRegistered: (preferencesKey) =&gt; void;
 ```
+
+Emits a registered event.
 
 #### Parameters
 
@@ -289,8 +245,10 @@ emitRegistered: (preferencesKey) => void;
 ### emitUnregistered()
 
 ```ts
-emitUnregistered: (preferencesKey) => void;
+emitUnregistered: (preferencesKey) =&gt; void;
 ```
+
+Emits an unregistered event.
 
 #### Parameters
 
@@ -307,8 +265,10 @@ emitUnregistered: (preferencesKey) => void;
 ### emitAction()
 
 ```ts
-emitAction: (payload) => void;
+emitAction: (payload) =&gt; void;
 ```
+
+Emits an action event.
 
 #### Parameters
 
@@ -343,9 +303,91 @@ emitAction: (payload) => void;
 ### getReporter()
 
 ```ts
-getReporter: () => Reporter;
+getReporter: () =&gt; Reporter;
 ```
+
+Gets the reporter for the controller.
 
 #### Returns
 
-[`Reporter`](../../../core/src/type-aliases/Reporter.md)
+`Reporter`
+
+---
+
+### resource?
+
+```ts
+readonly optional resource: ResourceObject&lt;TItem, TQuery&gt;;
+```
+
+The resource object.
+
+---
+
+### invalidate()?
+
+```ts
+readonly optional invalidate: (patterns) =&gt; void;
+```
+
+A function to invalidate cache entries.
+
+#### Parameters
+
+##### patterns
+
+`CacheKeyPattern` | `CacheKeyPattern`[]
+
+#### Returns
+
+`void`
+
+---
+
+### capabilities?
+
+```ts
+readonly optional capabilities: WPKUICapabilityRuntime;
+```
+
+The capability runtime.
+
+---
+
+### fetchList()?
+
+```ts
+readonly optional fetchList: (query) =&gt; Promise&lt;ListResponse&lt;TItem&gt;&gt;;
+```
+
+A function to fetch a list of items.
+
+#### Parameters
+
+##### query
+
+`TQuery`
+
+#### Returns
+
+`Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
+
+---
+
+### prefetchList()?
+
+```ts
+readonly optional prefetchList: (query) =&gt; Promise&lt;void&gt;;
+```
+
+A function to prefetch a list of items.
+
+#### Parameters
+
+##### query
+
+`TQuery`
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;

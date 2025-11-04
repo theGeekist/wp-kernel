@@ -14,7 +14,7 @@ import type {
 	BuildIrOptionsLike,
 	IRResourceLike,
 	IRv1Like,
-	KernelConfigV1Like,
+	WPKConfigV1Like,
 	WorkspaceLike,
 } from '../../types.js';
 
@@ -172,7 +172,7 @@ export interface BuilderArtifactOptions {
 }
 
 export interface BuilderArtifacts<
-	TConfig extends KernelConfigV1Like = KernelConfigV1Like,
+	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
 	TIr extends IRv1Like<TConfig> = IRv1Like<TConfig>,
 	TOptions extends BuildIrOptionsLike<TConfig> = BuildIrOptionsLike<TConfig>,
 > {
@@ -204,14 +204,14 @@ export function buildBuilderArtifacts(
 			: {}),
 	} as ResourceConfig;
 
-	const config: KernelConfigV1Like = {
+	const config: WPKConfigV1Like = {
 		version: 1,
 		namespace,
 		schemas: {},
 		resources: {
 			[resourceKey]: resourceConfig,
 		},
-	} as KernelConfigV1Like;
+	} as WPKConfigV1Like;
 
 	const irResource: IRResourceLike = {
 		name: resourceName,

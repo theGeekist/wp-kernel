@@ -1,13 +1,13 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / useCapability
+[WP Kernel API](../README.md) / useCapability
 
 # Function: useCapability()
 
 ```ts
-function useCapability<K>(): UseCapabilityResult<K>;
+function useCapability&lt;K&gt;(): UseCapabilityResult&lt;K&gt;;
 ```
 
 React hook that exposes the kernel capability runtime to UI components.
@@ -26,4 +26,4 @@ developer error so plugin authors remember to bootstrap via `defineCapability()`
 
 ## Returns
 
-[`UseCapabilityResult`](../../../core/src/namespaces/capability/type-aliases/UseCapabilityResult.md)\&lt;`K`\&gt;
+`UseCapabilityResult`\&lt;`K`\&gt;

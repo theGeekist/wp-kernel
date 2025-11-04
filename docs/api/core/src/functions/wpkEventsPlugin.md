@@ -7,7 +7,7 @@
 # Function: wpkEventsPlugin()
 
 ```ts
-function wpkEventsPlugin(__namedParameters): KernelReduxMiddleware;
+function wpkEventsPlugin(__namedParameters): WPKernelReduxMiddleware;
 ```
 
 ## Parameters
@@ -18,4 +18,4 @@ function wpkEventsPlugin(__namedParameters): KernelReduxMiddleware;
 
 ## Returns
 
-`KernelReduxMiddleware`
+`WPKernelReduxMiddleware`

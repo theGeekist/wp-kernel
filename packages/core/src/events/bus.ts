@@ -13,8 +13,15 @@ export type ResourceDefinedEvent<T = unknown, TQuery = unknown> = {
 	resource: ResourceObject<T, TQuery>;
 	namespace: string;
 };
-
-type GenericResourceDefinedEvent = ResourceDefinedEvent<unknown, unknown>;
+/**
+ * A generic version of ResourceDefinedEvent, used for tracking all registered resources.
+ *
+ * @public
+ */
+export type GenericResourceDefinedEvent = ResourceDefinedEvent<
+	unknown,
+	unknown
+>;
 
 export type ActionDefinedEvent = {
 	action: DefinedAction<unknown, unknown>;
@@ -50,7 +57,13 @@ export type WPKernelEventMap = {
 
 type KernelEventName = keyof WPKernelEventMap;
 
-type Listener<T> = (payload: T) => void;
+/**
+ * A generic event listener function.
+ *
+ * @template T - The type of the payload the listener expects.
+ * @public
+ */
+export type Listener<T> = (payload: T) => void;
 
 /**
  * Typed event bus used across WP Kernel to broadcast lifecycle events and

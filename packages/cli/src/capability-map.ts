@@ -32,6 +32,7 @@ export interface CapabilityCapabilityDescriptor {
  * free of side effects. Returned descriptors should be JSON-serialisable.
  *
  * @category Capability
+ * @public
  */
 export type CapabilityMapFunction = () =>
 	| string

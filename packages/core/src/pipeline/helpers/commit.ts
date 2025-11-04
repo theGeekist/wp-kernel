@@ -1,8 +1,23 @@
 import type { MaybePromise } from '../types';
+/**
+ * @typedef {Function} PipelineTask
+ * A function representing a single task within a pipeline.
+ *
+ * It can be synchronous or asynchronous (returning a Promise).
+ *
+ * @public
+ */
+export type PipelineTask = () => MaybePromise<void> | void;
 
-type PipelineTask = () => MaybePromise<void> | void;
-
-type TaskInput = PipelineTask | undefined | null;
+/**
+ * @typedef {Function | undefined | null} TaskInput
+ * Represents a single task that can be part of a pipeline's commit or rollback sequence.
+ *
+ * A task can be a function that returns a Promise or void, or it can be undefined or null.
+ *
+ * @public
+ */
+export type TaskInput = PipelineTask | undefined | null;
 
 function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
 	return (

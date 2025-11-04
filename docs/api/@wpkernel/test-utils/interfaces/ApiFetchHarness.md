@@ -1,0 +1,49 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / ApiFetchHarness
+
+# Interface: ApiFetchHarness
+
+A harness for testing `apiFetch` interactions.
+
+## Properties
+
+### harness
+
+```ts
+harness: WordPressTestHarness;
+```
+
+The underlying WordPress test harness.
+
+---
+
+### apiFetch
+
+```ts
+apiFetch: Mock;
+```
+
+The mock `apiFetch` function.
+
+---
+
+### hooks
+
+```ts
+hooks: any;
+```
+
+The mock WordPress hooks object.
+
+---
+
+### doAction
+
+```ts
+doAction: Mock;
+```
+
+The mock `doAction` function from `wp.hooks`.

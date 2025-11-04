@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / useHoverPrefetch
+[WP Kernel API](../README.md) / useHoverPrefetch
 
 # Function: useHoverPrefetch()
 
@@ -10,19 +10,27 @@
 function useHoverPrefetch(ref, fn, options): void;
 ```
 
+Triggers a prefetch when the user hovers over an element.
+
 ## Parameters
 
 ### ref
 
 `RefObject`\&lt;`HTMLElement`\&gt;
 
+A React ref to the element to monitor.
+
 ### fn
 
 () =&gt; `void`
 
+The function to call to trigger the prefetch.
+
 ### options
 
-`HoverPrefetchOptions` = `{}`
+[`HoverPrefetchOptions`](../interfaces/HoverPrefetchOptions.md) = `{}`
+
+Options for the hook.
 
 ## Returns
 

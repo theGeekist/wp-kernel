@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { WPKernelUIProvider } from '@wpkernel/ui';
-import { createKernelUITestHarness } from '@wpkernel/test-utils/ui';
+import { createWPKernelUITestHarness } from '@wpkernel/test-utils/ui';
 import {
 	createIntersectionObserverMock,
 	installRequestAnimationFrameMock,
@@ -8,7 +8,7 @@ import {
 
 describe('@wpkernel/ui test-support helpers', () => {
 	it('creates runtime and wrapper wired to the WordPress harness', () => {
-		const harness = createKernelUITestHarness({
+		const harness = createWPKernelUITestHarness({
 			provider: WPKernelUIProvider,
 		});
 		const runtime = harness.createRuntime();
@@ -25,7 +25,7 @@ describe('@wpkernel/ui test-support helpers', () => {
 	});
 
 	it('suppresses and restores console errors via predicate', () => {
-		const harness = createKernelUITestHarness({
+		const harness = createWPKernelUITestHarness({
 			provider: WPKernelUIProvider,
 		});
 		const spy = jest.spyOn(console, 'error');

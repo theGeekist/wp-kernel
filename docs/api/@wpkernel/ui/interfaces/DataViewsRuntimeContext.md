@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / DataViewsRuntimeContext
+[WP Kernel API](../README.md) / DataViewsRuntimeContext
 
 # Interface: DataViewsRuntimeContext
 
@@ -30,6 +30,14 @@ readonly dataviews: DataViewsControllerRuntime;
 
 ---
 
+### reporter
+
+```ts
+readonly reporter: Reporter;
+```
+
+---
+
 ### capabilities?
 
 ```ts
@@ -41,18 +49,18 @@ readonly optional capabilities: WPKUICapabilityRuntime;
 ### invalidate()?
 
 ```ts
-readonly optional invalidate: (patterns, options?) => void;
+readonly optional invalidate: (patterns, options?) =&gt; void;
 ```
 
 #### Parameters
 
 ##### patterns
 
-[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
+`CacheKeyPattern` | `CacheKeyPattern`[]
 
 ##### options?
 
-[`InvalidateOptions`](../../../core/src/type-aliases/InvalidateOptions.md)
+`InvalidateOptions`
 
 #### Returns
 
@@ -64,14 +72,6 @@ readonly optional invalidate: (patterns, options?) => void;
 
 ```ts
 readonly optional registry: unknown;
-```
-
----
-
-### reporter
-
-```ts
-readonly reporter: Reporter;
 ```
 
 ---

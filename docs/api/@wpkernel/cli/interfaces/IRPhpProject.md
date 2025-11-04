@@ -1,10 +1,12 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / IRPhpProject
+[WP Kernel API](../README.md) / IRPhpProject
 
 # Interface: IRPhpProject
+
+Represents an Intermediate Representation (IR) for a PHP project.
 
 ## Properties
 
@@ -14,6 +16,8 @@
 namespace: string;
 ```
 
+The PHP namespace of the project.
+
 ---
 
 ### autoload
@@ -22,6 +26,8 @@ namespace: string;
 autoload: string;
 ```
 
+The autoload path for the PHP project.
+
 ---
 
 ### outputDir
@@ -29,3 +35,5 @@ autoload: string;
 ```ts
 outputDir: string;
 ```
+
+The output directory for generated PHP files.

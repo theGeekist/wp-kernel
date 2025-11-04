@@ -1,13 +1,13 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / runCli
+[WP Kernel API](../README.md) / runCli
 
 # Function: runCli()
 
 ```ts
-function runCli(argv): Promise<void>;
+function runCli(argv): Promise&lt;void&gt;;
 ```
 
 Run the WP Kernel CLI programmatically.

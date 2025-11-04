@@ -1,6 +1,6 @@
 ## Summary
 
-Concise headline mapped to the MVP task(s). Example: “Task 5: Block Builder AST implementation — manifests, registrar, render templates”.
+Concise headline mapped to the MVP task(s). Example: “Task 5: Block Builder AST implementation - manifests, registrar, render templates”.
 
 ## Scope
 
@@ -67,9 +67,9 @@ Tick any public packages this PR changes functionally.
 
 Choose one and document in CHANGELOG.md files.
 
-- [ ] **patch** — bugfixes / alignment (0.x.1)
-- [ ] **minor** — feature sprint (default) (0.x.0)
-- [ ] **major** — breaking API (x.0.0)
+- [ ] **patch** - bugfixes / alignment (0.x.1)
+- [ ] **minor** - feature sprint (default) (0.x.0)
+- [ ] **major** - breaking API (x.0.0)
 
 > Update CHANGELOG.md files in affected packages with summary of changes.
 >

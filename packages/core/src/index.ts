@@ -198,6 +198,7 @@ export type {
 	UIIntegrationOptions,
 	WPKUICapabilityRuntime,
 	NoticeStatus,
+	WPKernelReduxMiddleware,
 } from './data/index.js';
 
 // Interactivity
@@ -235,6 +236,8 @@ export type {
 	ActionDomainEvent,
 	CacheInvalidatedEvent,
 	CustomKernelEvent,
+	GenericResourceDefinedEvent,
+	Listener,
 } from './events/index.js';
 
 // Reporter
@@ -249,6 +252,7 @@ export type {
 	Reporter,
 	ReporterOptions,
 	ReporterLevel,
+	ReporterChannel,
 } from './reporter/index.js';
 
 // Namespace detection

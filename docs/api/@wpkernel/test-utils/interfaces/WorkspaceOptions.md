@@ -1,0 +1,79 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / WorkspaceOptions
+
+# Interface: WorkspaceOptions
+
+Options for configuring a temporary workspace.
+
+## Properties
+
+### prefix?
+
+```ts
+optional prefix: string;
+```
+
+A prefix for the temporary directory name.
+
+---
+
+### chdir?
+
+```ts
+optional chdir: boolean;
+```
+
+Whether to change the current working directory to the workspace.
+
+---
+
+### files?
+
+```ts
+optional files: Record&lt;string, string | Buffer&lt;ArrayBufferLike&gt;&gt;;
+```
+
+A map of relative file paths to their content (string or Buffer).
+
+---
+
+### setup()?
+
+```ts
+optional setup: (workspace) =&gt; void | Promise&lt;void&gt;;
+```
+
+A setup function to run before the test.
+
+#### Parameters
+
+##### workspace
+
+`string`
+
+#### Returns
+
+`void` \| `Promise`\&lt;`void`\&gt;
+
+---
+
+### teardown()?
+
+```ts
+optional teardown: (workspace) =&gt; void | Promise&lt;void&gt;;
+```
+
+A teardown function to run after the test.
+
+#### Parameters
+
+##### workspace
+
+`string`
+
+#### Returns
+
+`void` \| `Promise`\&lt;`void`\&gt;

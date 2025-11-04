@@ -1,0 +1,45 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / buildTernary
+
+# Function: buildTernary()
+
+```ts
+function buildTernary(cond, ifExpr, elseExpr, attributes?): PhpExprTernary;
+```
+
+Builds a PHP ternary expression node.
+
+## Parameters
+
+### cond
+
+[`PhpExpr`](../type-aliases/PhpExpr.md)
+
+The conditional expression.
+
+### ifExpr
+
+The expression to evaluate if the condition is true (can be `null` for shorthand ternary).
+
+[`PhpExpr`](../type-aliases/PhpExpr.md) | `null`
+
+### elseExpr
+
+[`PhpExpr`](../type-aliases/PhpExpr.md)
+
+The expression to evaluate if the condition is false.
+
+### attributes?
+
+`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+
+Optional attributes for the node.
+
+## Returns
+
+[`PhpExprTernary`](../interfaces/PhpExprTernary.md)
+
+A `PhpExprTernary` node.

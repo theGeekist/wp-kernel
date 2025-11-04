@@ -34,7 +34,11 @@ export interface NormalizedDataViewsRuntimeOptions {
 	autoRegisterResources: boolean;
 }
 
-export interface KernelDataViewsRuntime {
+/**
+ * The runtime for DataViews.
+ * @public
+ */
+export interface WPKernelDataViewsRuntime {
 	registry: Map<string, DataViewRegistryEntry>;
 	controllers: Map<string, unknown>;
 	preferences: DataViewPreferencesRuntime;
@@ -106,11 +110,11 @@ export const __TESTING__ = {
 	childReporter,
 };
 
-export function createKernelDataViewsRuntime(
+export function createWPKernelDataViewsRuntime(
 	kernel: WPKInstance,
 	runtime: WPKernelUIRuntime,
 	options: NormalizedDataViewsRuntimeOptions
-): KernelDataViewsRuntime {
+): WPKernelDataViewsRuntime {
 	const reporter = childReporter(runtime.reporter, 'ui.dataviews');
 	const adapter =
 		options.preferences ??
@@ -136,6 +140,6 @@ export function createKernelDataViewsRuntime(
 
 declare module '@wpkernel/core/data' {
 	interface WPKernelUIRuntime {
-		dataviews?: KernelDataViewsRuntime;
+		dataviews?: WPKernelDataViewsRuntime;
 	}
 }

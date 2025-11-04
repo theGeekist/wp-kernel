@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / PhpAdapterConfig
+[WP Kernel API](../README.md) / PhpAdapterConfig
 
 # Interface: PhpAdapterConfig
 
@@ -29,14 +29,14 @@ optional autoload: string;
 ### customise()?
 
 ```ts
-optional customise: (builder, context) => void;
+optional customise: (builder, context) =&gt; void;
 ```
 
 #### Parameters
 
 ##### builder
 
-[`PhpAstBuilder`](PhpAstBuilder.md)
+`PhpAstBuilder`
 
 ##### context
 

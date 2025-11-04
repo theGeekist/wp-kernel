@@ -1,20 +1,24 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / WPKernelUIProvider
+[WP Kernel API](../README.md) / WPKernelUIProvider
 
 # Function: WPKernelUIProvider()
 
 ```ts
-function WPKernelUIProvider(__namedParameters): Element;
+function WPKernelUIProvider(props): Element;
 ```
+
+Provides the WP Kernel UI runtime to React components.
 
 ## Parameters
 
-### \_\_namedParameters
+### props
 
 [`WPKernelUIProviderProps`](../interfaces/WPKernelUIProviderProps.md)
+
+The provider props.
 
 ## Returns
 

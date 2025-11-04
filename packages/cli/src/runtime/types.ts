@@ -74,6 +74,7 @@ export interface PipelineStep extends HelperDescriptor {
  * Diagnostic for a conflict detected during pipeline execution.
  *
  * @category Pipeline
+ * @public
  */
 export interface ConflictDiagnostic {
 	/** The type of diagnostic, always 'conflict'. */

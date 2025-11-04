@@ -1,10 +1,12 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / IRRoute
+[WP Kernel API](../README.md) / IRRoute
 
 # Interface: IRRoute
+
+Represents an Intermediate Representation (IR) for a resource route.
 
 ## Properties
 
@@ -14,6 +16,8 @@
 method: string;
 ```
 
+The HTTP method of the route (e.g., 'GET', 'POST').
+
 ---
 
 ### path
@@ -22,13 +26,7 @@ method: string;
 path: string;
 ```
 
----
-
-### capability?
-
-```ts
-optional capability: string;
-```
+The URL path of the route.
 
 ---
 
@@ -38,6 +36,8 @@ optional capability: string;
 hash: string;
 ```
 
+A hash of the route definition for change detection.
+
 ---
 
 ### transport
@@ -45,3 +45,15 @@ hash: string;
 ```ts
 transport: IRRouteTransport;
 ```
+
+The transport mechanism for the route (local or remote).
+
+---
+
+### capability?
+
+```ts
+optional capability: string;
+```
+
+Optional: The capability required to access this route.

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / createDataViewsRuntime
+[WP Kernel API](../README.md) / createDataViewsRuntime
 
 # Function: createDataViewsRuntime()
 
@@ -10,12 +10,22 @@
 function createDataViewsRuntime(options): DataViewsStandaloneRuntime;
 ```
 
+Creates a standalone DataViews runtime instance.
+
+This function initializes and configures a `DataViewsStandaloneRuntime`,
+providing the necessary infrastructure for DataViews integration, including
+preferences management, event emission, and reporting.
+
 ## Parameters
 
 ### options
 
-`DataViewsRuntimeOptions`
+[`DataViewsRuntimeOptions`](../interfaces/DataViewsRuntimeOptions.md)
+
+Configuration options for the DataViews runtime.
 
 ## Returns
 
 [`DataViewsStandaloneRuntime`](../interfaces/DataViewsStandaloneRuntime.md)
+
+A `DataViewsStandaloneRuntime` instance.

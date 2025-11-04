@@ -4,7 +4,13 @@ import { WPKernelError } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { GenerationSummary } from './types';
 
-interface ValidateGeneratedImportsOptions {
+/**
+ * Options for validating generated imports.
+ *
+ * @category Generate Command
+ * @public
+ */
+export interface ValidateGeneratedImportsOptions {
 	projectRoot: string;
 	summary: GenerationSummary;
 	reporter: Reporter;

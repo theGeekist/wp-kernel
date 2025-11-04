@@ -1,10 +1,12 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / IRCapabilityHint
+[WP Kernel API](../README.md) / IRCapabilityHint
 
 # Interface: IRCapabilityHint
+
+Represents an Intermediate Representation (IR) for a capability hint.
 
 ## Properties
 
@@ -14,6 +16,8 @@
 key: string;
 ```
 
+The key of the capability.
+
 ---
 
 ### source
@@ -22,6 +26,8 @@ key: string;
 source: 'resource' | 'config';
 ```
 
+The source of the capability hint (resource or config).
+
 ---
 
 ### references
@@ -29,6 +35,8 @@ source: 'resource' | 'config';
 ```ts
 references: object[];
 ```
+
+References to where this capability is used.
 
 #### resource
 

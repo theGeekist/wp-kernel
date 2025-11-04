@@ -1,0 +1,45 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / PhpStmtBreak
+
+# Interface: PhpStmtBreak
+
+Represents a PHP `break` statement.
+
+## Extends
+
+- [`PhpStmtBase`](PhpStmtBase.md)
+
+## Properties
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_Break";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### num
+
+```ts
+readonly num: PhpExpr | null;
+```
+
+---
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

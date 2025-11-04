@@ -1,18 +1,32 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / DataViewsStandaloneRuntime
+[WP Kernel API](../README.md) / DataViewsStandaloneRuntime
 
 # Interface: DataViewsStandaloneRuntime
 
-Runtime shape exposed to UI consumers (kernel or standalone).
+A standalone runtime for DataViews.
 
 ## Extends
 
 - [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md)
 
 ## Properties
+
+### dataviews
+
+```ts
+readonly dataviews: WPKernelDataViewsRuntime;
+```
+
+The DataViews runtime.
+
+#### Overrides
+
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`dataviews`](DataViewsRuntimeContext.md#dataviews)
+
+---
 
 ### namespace
 
@@ -26,21 +40,47 @@ readonly namespace: string;
 
 ---
 
+### reporter
+
+```ts
+readonly reporter: Reporter;
+```
+
+#### Inherited from
+
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`reporter`](DataViewsRuntimeContext.md#reporter)
+
+---
+
+### capabilities?
+
+```ts
+readonly optional capabilities: WPKUICapabilityRuntime;
+```
+
+The capability runtime.
+
+#### Overrides
+
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`capabilities`](DataViewsRuntimeContext.md#capabilities)
+
+---
+
 ### invalidate()?
 
 ```ts
-readonly optional invalidate: (patterns, options?) => void;
+readonly optional invalidate: (patterns, options?) =&gt; void;
 ```
 
 #### Parameters
 
 ##### patterns
 
-[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
+`CacheKeyPattern` | `CacheKeyPattern`[]
 
 ##### options?
 
-[`InvalidateOptions`](../../../core/src/type-aliases/InvalidateOptions.md)
+`InvalidateOptions`
 
 #### Returns
 
@@ -64,18 +104,6 @@ readonly optional registry: unknown;
 
 ---
 
-### reporter
-
-```ts
-readonly reporter: Reporter;
-```
-
-#### Inherited from
-
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`reporter`](DataViewsRuntimeContext.md#reporter)
-
----
-
 ### kernel?
 
 ```ts
@@ -85,27 +113,3 @@ readonly optional kernel: unknown;
 #### Inherited from
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`kernel`](DataViewsRuntimeContext.md#kernel)
-
----
-
-### dataviews
-
-```ts
-readonly dataviews: KernelDataViewsRuntime;
-```
-
-#### Overrides
-
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`dataviews`](DataViewsRuntimeContext.md#dataviews)
-
----
-
-### capabilities?
-
-```ts
-readonly optional capabilities: WPKUICapabilityRuntime;
-```
-
-#### Overrides
-
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`capabilities`](DataViewsRuntimeContext.md#capabilities)

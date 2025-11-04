@@ -1,5 +1,5 @@
 /**
- * Capability runtime — defineCapability implementation
+ * Capability runtime - defineCapability implementation
  *
  * Capabilities provide declarative, type-safe capability checks for UI conditional rendering
  * and action enforcement. This module handles rule evaluation, caching, event emission,
@@ -416,7 +416,7 @@ function createDeniedError(
  *
  * Capabilities provide **type-safe, cacheable capability checks** for both UI and actions.
  * They enable conditional rendering (show/hide buttons), form validation (disable fields),
- * and enforcement (throw before writes) — all from a single source of truth.
+ * and enforcement (throw before writes) - all from a single source of truth.
  *
  * This is the foundation of **Capability-Driven UI**: Components query capabilities without
  * knowing implementation details. Rules can leverage WordPress native capabilities
@@ -425,12 +425,12 @@ function createDeniedError(
  * ## What Capabilities Do
  *
  * Every capability runtime provides:
- * - **`can(key, params?)`** — Check capability (returns boolean, never throws)
- * - **`assert(key, params?)`** — Enforce capability (throws `CapabilityDenied` if false)
- * - **Cache management** — Automatic result caching with TTL and cross-tab sync
- * - **Event emission** — Broadcast denied events via `@wordpress/hooks` and BroadcastChannel
- * - **React integration** — `useCapability()` hook (provided by `@wpkernel/ui`) for SSR-safe conditional rendering
- * - **Action integration** — `ctx.capability.assert()` in actions for write protection
+ * - **`can(key, params?)`** - Check capability (returns boolean, never throws)
+ * - **`assert(key, params?)`** - Enforce capability (throws `CapabilityDenied` if false)
+ * - **Cache management** - Automatic result caching with TTL and cross-tab sync
+ * - **Event emission** - Broadcast denied events via `@wordpress/hooks` and BroadcastChannel
+ * - **React integration** - `useCapability()` hook (provided by `@wpkernel/ui`) for SSR-safe conditional rendering
+ * - **Action integration** - `ctx.capability.assert()` in actions for write protection
  *
  * ## Basic Usage
  *
@@ -491,10 +491,10 @@ function createDeniedError(
  * ## Caching & Performance
  *
  * Results are **automatically cached** with:
- * - **Memory cache** — Instant lookups for repeated checks
- * - **Cross-tab sync** — BroadcastChannel keeps all tabs in sync
- * - **Session storage** — Optional persistence (set `cache.storage: 'session'`)
- * - **TTL support** — Cache expires after configurable timeout (default: 60s)
+ * - **Memory cache** - Instant lookups for repeated checks
+ * - **Cross-tab sync** - BroadcastChannel keeps all tabs in sync
+ * - **Session storage** - Optional persistence (set `cache.storage: 'session'`)
+ * - **TTL support** - Cache expires after configurable timeout (default: 60s)
  *
  * ```typescript
  * const capability = defineCapability(rules, {
@@ -551,9 +551,9 @@ function createDeniedError(
  * ## Event Emission
  *
  * When capabilities are denied, events are emitted to:
- * - **`@wordpress/hooks`** — `{namespace}.capability.denied` with full context
- * - **BroadcastChannel** — Cross-tab notification for UI synchronization
- * - **PHP bridge** — Optional server-side logging (when `bridged: true` in actions)
+ * - **`@wordpress/hooks`** - `{namespace}.capability.denied` with full context
+ * - **BroadcastChannel** - Cross-tab notification for UI synchronization
+ * - **PHP bridge** - Optional server-side logging (when `bridged: true` in actions)
  *
  * ```typescript
  * // Listen for denied events

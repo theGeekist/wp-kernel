@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / ensureControllerRuntime
+[WP Kernel API](../README.md) / ensureControllerRuntime
 
 # Function: ensureControllerRuntime()
 
@@ -10,12 +10,20 @@
 function ensureControllerRuntime(candidate): DataViewsControllerRuntime;
 ```
 
+Ensures that the provided runtime is a valid `DataViewsControllerRuntime`.
+
+Throws a `DataViewsConfigurationError` if the runtime is invalid.
+
 ## Parameters
 
 ### candidate
 
-`KernelDataViewsRuntime` | `DataViewsControllerRuntime`
+The runtime candidate to validate.
+
+[`WPKernelDataViewsRuntime`](../interfaces/WPKernelDataViewsRuntime.md) | [`DataViewsControllerRuntime`](../interfaces/DataViewsControllerRuntime.md)
 
 ## Returns
 
-`DataViewsControllerRuntime`
+[`DataViewsControllerRuntime`](../interfaces/DataViewsControllerRuntime.md)
+
+The validated `DataViewsControllerRuntime` instance.

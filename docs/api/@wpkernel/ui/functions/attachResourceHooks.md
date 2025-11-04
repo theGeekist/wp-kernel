@@ -1,16 +1,13 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / attachResourceHooks
+[WP Kernel API](../README.md) / attachResourceHooks
 
 # Function: attachResourceHooks()
 
 ```ts
-function attachResourceHooks<T, TQuery>(
-	resource,
-	_runtime?
-): ResourceObject<T, TQuery>;
+function attachResourceHooks&lt;T, TQuery&gt;(resource, _runtime?): ResourceObject&lt;T, TQuery&gt;;
 ```
 
 Attach `useGet` and `useList` React helpers to a resource definition.
@@ -38,18 +35,18 @@ Query parameter type
 
 ### resource
 
-[`ResourceObject`](../../../core/src/type-aliases/ResourceObject.md)\&lt;`T`, `TQuery`\&gt;
+`ResourceObject`\&lt;`T`, `TQuery`\&gt;
 
 Resource definition to augment with hooks
 
 ### \_runtime?
 
-[`WPKernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
+`WPKernelUIRuntime`
 
 Active Kernel UI runtime (unused placeholder for API symmetry)
 
 ## Returns
 
-[`ResourceObject`](../../../core/src/type-aliases/ResourceObject.md)\&lt;`T`, `TQuery`\&gt;
+`ResourceObject`\&lt;`T`, `TQuery`\&gt;
 
 The same resource object with hooks attached

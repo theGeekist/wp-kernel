@@ -1,10 +1,16 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / IRv1
+[WP Kernel API](../README.md) / IRv1
 
 # Interface: IRv1
+
+The top-level Intermediate Representation (IR) for version 1.
+
+This interface encapsulates all the processed metadata and configurations
+of a WP Kernel project, providing a structured representation that can be
+used by code generators and other tools.
 
 ## Properties
 
@@ -13,6 +19,8 @@
 ```ts
 meta: object;
 ```
+
+Metadata about the IR, including version, namespace, and source information.
 
 #### version
 
@@ -52,6 +60,8 @@ sanitizedNamespace: string;
 config: WPKernelConfigV1;
 ```
 
+The original WP Kernel configuration.
+
 ---
 
 ### schemas
@@ -59,6 +69,8 @@ config: WPKernelConfigV1;
 ```ts
 schemas: IRSchema[];
 ```
+
+An array of schema IRs.
 
 ---
 
@@ -68,6 +80,8 @@ schemas: IRSchema[];
 resources: IRResource[];
 ```
 
+An array of resource IRs.
+
 ---
 
 ### capabilities
@@ -75,6 +89,8 @@ resources: IRResource[];
 ```ts
 capabilities: IRCapabilityHint[];
 ```
+
+An array of capability hints.
 
 ---
 
@@ -84,6 +100,8 @@ capabilities: IRCapabilityHint[];
 capabilityMap: IRCapabilityMap;
 ```
 
+The capability map IR.
+
 ---
 
 ### blocks
@@ -92,6 +110,8 @@ capabilityMap: IRCapabilityMap;
 blocks: IRBlock[];
 ```
 
+An array of block IRs.
+
 ---
 
 ### php
@@ -99,3 +119,15 @@ blocks: IRBlock[];
 ```ts
 php: IRPhpProject;
 ```
+
+The PHP project IR.
+
+---
+
+### diagnostics?
+
+```ts
+optional diagnostics: IRDiagnostic[];
+```
+
+Optional: An array of diagnostic messages.

@@ -21,6 +21,12 @@ import { resolveReporter } from '../reporter/resolve';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import type { CapabilityHelpers } from './types';
 
+/**
+ * Options for creating a capability proxy, containing action metadata.
+ *
+ * This type defines the metadata associated with an action that is passed to the
+ * capability proxy for context propagation and event correlation.
+ */
 export type CapabilityProxyOptions = {
 	actionName: string;
 	requestId: string;

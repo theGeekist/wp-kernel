@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / ConfigOrigin
+[WP Kernel API](../README.md) / ConfigOrigin
 
 # Type Alias: ConfigOrigin
 

@@ -1,0 +1,32 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / buildIr
+
+# Function: buildIr()
+
+```ts
+function buildIr(options): Promise & lt;
+IRv1 & gt;
+```
+
+Builds the Intermediate Representation (IR) for a WP Kernel project.
+
+This function orchestrates the process of collecting, validating, and transforming
+project configurations and metadata into a structured IR that serves as a single
+source of truth for code generation and other CLI operations.
+
+## Parameters
+
+### options
+
+[`BuildIrOptions`](../interfaces/BuildIrOptions.md)
+
+Options for building the IR, including the project configuration and source details.
+
+## Returns
+
+`Promise`\&lt;[`IRv1`](../interfaces/IRv1.md)\&gt;
+
+A promise that resolves with the generated `IRv1` object.

@@ -1,0 +1,33 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / buildIdentifier
+
+# Function: buildIdentifier()
+
+```ts
+function buildIdentifier(name, attributes?): PhpIdentifier;
+```
+
+Builds a PHP identifier node.
+
+## Parameters
+
+### name
+
+`string`
+
+The name of the identifier.
+
+### attributes?
+
+`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+
+Optional attributes for the node.
+
+## Returns
+
+[`PhpIdentifier`](../interfaces/PhpIdentifier.md)
+
+A `PhpIdentifier` node.

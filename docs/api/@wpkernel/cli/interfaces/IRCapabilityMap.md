@@ -1,0 +1,81 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / IRCapabilityMap
+
+# Interface: IRCapabilityMap
+
+Represents an Intermediate Representation (IR) for a capability map.
+
+## Properties
+
+### definitions
+
+```ts
+definitions: IRCapabilityDefinition[];
+```
+
+An array of capability definitions.
+
+---
+
+### fallback
+
+```ts
+fallback: object;
+```
+
+Fallback capability definition.
+
+#### capability
+
+```ts
+capability: string;
+```
+
+#### appliesTo
+
+```ts
+appliesTo: IRCapabilityScope;
+```
+
+---
+
+### missing
+
+```ts
+missing: string[];
+```
+
+An array of missing capabilities.
+
+---
+
+### unused
+
+```ts
+unused: string[];
+```
+
+An array of unused capabilities.
+
+---
+
+### warnings
+
+```ts
+warnings: IRWarning[];
+```
+
+An array of warnings related to the capability map.
+
+---
+
+### sourcePath?
+
+```ts
+optional sourcePath: string;
+```
+
+Optional: The source path of the capability map definition.

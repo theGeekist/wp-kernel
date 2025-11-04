@@ -7,6 +7,7 @@ import { usePrefetcher } from './usePrefetcher';
  * Options for the useNextPagePrefetch hook.
  *
  * @category Prefetching
+ * @public
  */
 export interface NextPagePrefetchOptions<TQuery> {
 	/**

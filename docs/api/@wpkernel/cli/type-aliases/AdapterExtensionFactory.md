@@ -1,15 +1,16 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / AdapterExtensionFactory
+[WP Kernel API](../README.md) / AdapterExtensionFactory
 
 # Type Alias: AdapterExtensionFactory()
 
 ```ts
-type AdapterExtensionFactory = (
-	context
-) => AdapterExtension | AdapterExtension[] | void;
+type AdapterExtensionFactory = (context) =&gt;
+  | AdapterExtension
+  | AdapterExtension[]
+  | void;
 ```
 
 Factory responsible for returning adapter extensions.

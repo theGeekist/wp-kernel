@@ -14,8 +14,8 @@ import type {
 import type { Reporter } from '@wpkernel/core/reporter';
 import { WPKernelUIProvider } from '@wpkernel/ui';
 import {
-	createKernelUITestHarness,
-	type KernelUITestHarness,
+	createWPKernelUITestHarness,
+	type WPKernelUITestHarness,
 } from '@wpkernel/test-utils/ui';
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
@@ -91,7 +91,7 @@ function prepareWpData(
 	return invoke as jest.Mock;
 }
 
-let harness: KernelUITestHarness | undefined;
+let harness: WPKernelUITestHarness | undefined;
 
 const noopReporter: Reporter = {
 	info: jest.fn(),
@@ -116,7 +116,7 @@ interface StateMatrixCase {
 
 describe('useAction', () => {
 	beforeAll(() => {
-		harness = createKernelUITestHarness({
+		harness = createWPKernelUITestHarness({
 			provider: WPKernelUIProvider,
 		});
 		harness.suppressConsoleError((args) => {

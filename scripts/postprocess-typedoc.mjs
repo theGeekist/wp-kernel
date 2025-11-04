@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const rootDir = path.resolve(__dirname, '..');
-const generatedDir = path.join(rootDir, 'docs', 'api', 'generated');
+const generatedDir = path.join(rootDir, 'docs', 'api', '@wpkernel');
 
 function transformLine(line, inCodeFence) {
         const trimmed = line.trimStart();
@@ -19,22 +19,8 @@ function transformLine(line, inCodeFence) {
                 return { text: line, inCodeFence: !inCodeFence };
         }
 
-        if (inCodeFence || (!line.includes('<') && !line.includes('>'))) {
-                return { text: line, inCodeFence };
-        }
-
-        const segments = line.split(/(`+[^`]*`+)/g);
-        const text = segments
-                .map((segment) => {
-                        if (segment.startsWith('`')) {
-                                return segment;
-                        }
-
-                        return segment.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                })
-                .join('');
-
-        return { text, inCodeFence };
+        // Escape all angle brackets, regardless of code fence state
+        return { text: line.replace(/</g, '&lt;').replace(/>/g, '&gt;'), inCodeFence };
 }
 
 async function hasTrailingNewline(filePath) {
@@ -89,8 +75,11 @@ async function processFile(filePath) {
                                 firstLine = false;
                         }
 
-                        if (!changed && text !== line) {
-                                changed = true;
+                        // Force changed to true if angle brackets are present, for debugging
+                        if (line.includes('<') || line.includes('>')) {
+                            changed = true;
+                        } else if (!changed && text !== line) {
+                            changed = true;
                         }
 
                         writeStream.write(text);
@@ -109,11 +98,8 @@ async function processFile(filePath) {
                 throw error;
         }
 
-        if (!changed) {
-                await removeIfExists(tempFile);
-                return;
-        }
-
+        // Always rename the file, even if no changes were detected by text !== line
+        // This ensures the file is always overwritten, for debugging purposes
         await fs.rename(tempFile, filePath);
 }
 

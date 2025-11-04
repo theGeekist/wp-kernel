@@ -17,8 +17,10 @@ export {
 export type {
 	WPKernelEventMap,
 	ResourceDefinedEvent,
+	GenericResourceDefinedEvent,
 	ActionDefinedEvent,
 	ActionDomainEvent,
 	CacheInvalidatedEvent,
 	CustomKernelEvent,
+	Listener,
 } from './bus.js';

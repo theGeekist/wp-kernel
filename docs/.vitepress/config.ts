@@ -44,6 +44,13 @@ export default withMermaid(
 			/^https?:\/\/127\.0\.0\.1(?::\d+)?(?:\/|$)/,
 			// Ignore links to internal documentation (excluded from processing)
 			/\.\.\/\.\.\/internal\//,
+			// Ignore links to generated API documentation index files
+			/^\/api\/@wpkernel\/cli\/index$/,
+			/^\/api\/@wpkernel\/core\/index$/,
+			/^\/api\/@wpkernel\/ui\/index$/,
+			/^\/api\/@wpkernel\/test-utils\/index$/,
+			/^\/api\/@wpkernel\/e2e-utils\/index$/,
+			/^\/api\/@wpkernel\/create-wpk\/index$/,
 		],
 
 		// Fast path for pre-commit; set to true for PROD if you can live without SPA nav
@@ -57,10 +64,7 @@ export default withMermaid(
 
 		// Exclude heavy generated API pages from local search index (keeps render, shrinks search)
 		transformPageData(page) {
-			if (
-				page.filePath?.includes('/docs/api/@wpkernel/') ||
-				page.filePath?.includes('/docs/api/core/')
-			) {
+			if (page.filePath?.includes('/docs/api/@wpkernel/')) {
 				page.frontmatter ||= {};
 				page.frontmatter.search = false;
 			}
@@ -289,10 +293,25 @@ export default withMermaid(
 								link: '/api/@wpkernel/cli/',
 							},
 							{
+								text: '@wpkernel/core',
+								link: '/api/@wpkernel/core/',
+							},
+							{
+								text: '@wpkernel/create-wpk',
+								link: '/api/@wpkernel/create-wpk/',
+							},
+							{
+								text: '@wpkernel/e2e-utils',
+								link: '/api/@wpkernel/e2e-utils/',
+							},
+							{
+								text: '@wpkernel/test-utils',
+								link: '/api/@wpkernel/test-utils/',
+							},
+							{
 								text: '@wpkernel/ui',
 								link: '/api/@wpkernel/ui/',
 							},
-							{ text: '@wpkernel/core', link: '/api/core/src/' },
 						],
 					},
 				],

@@ -1,5 +1,5 @@
 /**
- * Action execution context — internal helpers for creating ActionContext instances.
+ * Action execution context - internal helpers for creating ActionContext instances.
  *
  * This module provides the runtime machinery that powers action execution:
  * - Context creation with dependency injection

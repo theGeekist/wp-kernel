@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / UseResourceItemResult
+[WP Kernel API](../README.md) / UseResourceItemResult
 
 # Interface: UseResourceItemResult\&lt;T\&gt;
 

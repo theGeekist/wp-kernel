@@ -15,6 +15,7 @@ export type {
 	ActionFn,
 	ActionOptions,
 	ActionLifecycleEvent,
+	ActionLifecycleEventBase,
 	ActionStartEvent,
 	ActionCompleteEvent,
 	ActionErrorEvent,
@@ -23,4 +24,7 @@ export type {
 	Reporter,
 	ActionJobs,
 	WaitOptions,
+	ReduxMiddleware,
+	ReduxMiddlewareAPI,
+	ReduxDispatch,
 } from './types';

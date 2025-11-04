@@ -9,8 +9,14 @@
  * @returns A `FragmentHelper` or `BuilderHelper` instance.
  */
 export { createHelper } from './createHelper';
+export type {
+	FragmentHelperOptions,
+	BuilderHelperOptions,
+	CliReporter,
+} from './createHelper';
 /**
  * Creates a new pipeline instance.
+  ```
  *
  * The pipeline orchestrates the execution of IR fragments and builders,
  * allowing for a modular and extensible code generation process.
@@ -25,6 +31,7 @@ export type {
 	PipelineRunResult,
 	PipelineStep,
 	PipelineDiagnostic,
+	ConflictDiagnostic,
 	PipelinePhase,
 	BuilderInput,
 	BuilderOutput,

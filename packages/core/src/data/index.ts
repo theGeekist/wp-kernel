@@ -4,6 +4,7 @@ export { wpkEventsPlugin } from './plugins/events';
 export type {
 	NoticeStatus,
 	WPKernelEventsPluginOptions,
+	WPKernelReduxMiddleware,
 } from './plugins/events';
 export type {
 	WPKernelRegistry,

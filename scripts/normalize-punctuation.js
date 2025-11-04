@@ -31,7 +31,7 @@ const REPLACEMENTS = [
 	// Example 1: Em-dash normalization
 	{
 		name: 'em dash',
-		search: /—/g, // The character to find (em dash)
+		search: /-/g, // The character to find (em dash)
 		replace: '-', // The character to use instead (hyphen)
 	},
 	// Example 2: The exact replacements you asked for (e.g., green checkmark to black checkmark)

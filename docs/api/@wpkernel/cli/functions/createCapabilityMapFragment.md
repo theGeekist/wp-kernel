@@ -1,0 +1,22 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / createCapabilityMapFragment
+
+# Function: createCapabilityMapFragment()
+
+```ts
+function createCapabilityMapFragment(): IrFragment;
+```
+
+Creates an IR fragment that resolves and assigns the capability map to the IR.
+
+This fragment depends on the resources and capabilities fragments to build a
+comprehensive map of all capabilities used within the project.
+
+## Returns
+
+[`IrFragment`](../type-aliases/IrFragment.md)
+
+An `IrFragment` instance for capability map resolution.

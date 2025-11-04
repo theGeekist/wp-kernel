@@ -1,5 +1,5 @@
 /**
- * Actions orchestration — defineAction implementation
+ * Actions orchestration - defineAction implementation
  *
  * Actions are the conductors of your WordPress application. They orchestrate
  * write operations with consistent side effects: event emission, cache invalidation,
@@ -27,7 +27,7 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
 /**
  * Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
  *
- * Actions are the conductors of your WordPress application—they orchestrate every write
+ * Actions are the conductors of your WordPress application-they orchestrate every write
  * operation with consistent, predictable side effects. This is the foundation of the
  * **Actions-First Philosophy**: UI components never call resource write methods directly;
  * they always route through actions.
@@ -35,13 +35,13 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
  * ## What Actions Do
  *
  * Every action execution automatically handles:
- * - **Resource calls** — Perform the actual write operation via REST API
- * - **Event emission** — Broadcast lifecycle events via `@wordpress/hooks` and BroadcastChannel
- * - **Cache invalidation** — Keep UI fresh without manual work
- * - **Job scheduling** — Queue background tasks without blocking users
- * - **Capability enforcement** — Check capabilities before writes
- * - **Error normalization** — Convert any error into structured `WPKernelError`
- * - **Observability** — Emit start/complete/error events for monitoring
+ * - **Resource calls** - Perform the actual write operation via REST API
+ * - **Event emission** - Broadcast lifecycle events via `@wordpress/hooks` and BroadcastChannel
+ * - **Cache invalidation** - Keep UI fresh without manual work
+ * - **Job scheduling** - Queue background tasks without blocking users
+ * - **Capability enforcement** - Check capabilities before writes
+ * - **Error normalization** - Convert any error into structured `WPKernelError`
+ * - **Observability** - Emit start/complete/error events for monitoring
  *
  * ## Basic Usage
  *
@@ -79,9 +79,9 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
  *
  * Each invocation automatically emits three lifecycle hooks via `@wordpress/hooks`:
  *
- * - **`wpk.action.start`** — Before execution, includes args and metadata
- * - **`wpk.action.complete`** — After success, includes result and duration
- * - **`wpk.action.error`** — On failure, includes normalized `WPKernelError` and duration
+ * - **`wpk.action.start`** - Before execution, includes args and metadata
+ * - **`wpk.action.complete`** - After success, includes result and duration
+ * - **`wpk.action.error`** - On failure, includes normalized `WPKernelError` and duration
  *
  * These events enable:
  * - Debugging (see exactly what actions ran and when)
@@ -91,7 +91,7 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
  *
  * ## Event Scope
  *
- * By default, actions are **cross-tab** — events broadcast to all open tabs via BroadcastChannel:
+ * By default, actions are **cross-tab** - events broadcast to all open tabs via BroadcastChannel:
  *
  * ```typescript
  * // Default: events visible in all tabs
@@ -123,15 +123,15 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
  *
  * The `ActionContext` (first parameter `ctx`) provides:
  *
- * - **`ctx.requestId`** — Unique correlation ID for this invocation
- * - **`ctx.namespace`** — Auto-detected namespace for event naming
- * - **`ctx.emit(eventName, payload)`** — Emit canonical events
- * - **`ctx.invalidate(patterns, options?)`** — Invalidate resource caches
- * - **`ctx.jobs.enqueue(name, payload)`** — Queue background jobs
- * - **`ctx.jobs.wait(name, payload, opts?)`** — Wait for job completion
- * - **`ctx.capability.assert(capability)`** — Throw if capability missing
- * - **`ctx.capability.can(capability)`** — Check capability (returns boolean)
- * - **`ctx.reporter.info/warn/error/debug(msg, ctx?)`** — Structured logging
+ * - **`ctx.requestId`** - Unique correlation ID for this invocation
+ * - **`ctx.namespace`** - Auto-detected namespace for event naming
+ * - **`ctx.emit(eventName, payload)`** - Emit canonical events
+ * - **`ctx.invalidate(patterns, options?)`** - Invalidate resource caches
+ * - **`ctx.jobs.enqueue(name, payload)`** - Queue background jobs
+ * - **`ctx.jobs.wait(name, payload, opts?)`** - Wait for job completion
+ * - **`ctx.capability.assert(capability)`** - Throw if capability missing
+ * - **`ctx.capability.can(capability)`** - Check capability (returns boolean)
+ * - **`ctx.reporter.info/warn/error/debug(msg, ctx?)`** - Structured logging
  *
  * ## Error Handling
  *
@@ -179,12 +179,10 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
  *
  * @template TArgs - Type of arguments passed to the action
  * @template TResult - Type of value returned by the action
- * @param    config                 - Configuration describing the action
- * @param    config.name            - Unique action identifier (e.g., 'Post.Create', 'User.Login')
- * @param    config.handler         - Implementation receiving the context and args
- * @param    config.options         - Optional event scope and bridging configuration
- * @param    config.options.scope   - Event visibility: 'crossTab' (default) or 'tabLocal'
- * @param    config.options.bridged - Whether to forward events to PHP (default: true for crossTab)
+ * @param    config         - Configuration describing the action.
+ * @param    config.name    - Unique action identifier (e.g., 'Post.Create', 'User.Login')
+ * @param    config.handler - Implementation receiving the context and args
+ * @param    config.options - Optional event scope and bridging configuration.
  * @return Callable action function with metadata attached
  * @throws DeveloperError if actionName is invalid or fn is not a function
  *

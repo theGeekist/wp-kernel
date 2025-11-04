@@ -1,0 +1,49 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / CreateIrEnvironment
+
+# Interface: CreateIrEnvironment
+
+Defines the environment for creating an Intermediate Representation (IR).
+
+## Properties
+
+### workspace?
+
+```ts
+readonly optional workspace: Workspace;
+```
+
+Optional: The workspace instance to use.
+
+---
+
+### reporter?
+
+```ts
+readonly optional reporter: Reporter;
+```
+
+Optional: The reporter instance for logging.
+
+---
+
+### phase?
+
+```ts
+readonly optional phase: PipelinePhase;
+```
+
+Optional: The pipeline phase to execute.
+
+---
+
+### pipeline?
+
+```ts
+readonly optional pipeline: Pipeline;
+```
+
+Optional: The pipeline instance to use.

@@ -13,16 +13,34 @@ import type { Workspace } from '../workspace';
 
 const execFile = promisify(execFileCallback);
 
-type DoctorStatus = 'pass' | 'warn' | 'fail';
+/**
+ * Status of a doctor check.
+ *
+ * @category Doctor Command
+ * @public
+ */
+export type DoctorStatus = 'pass' | 'warn' | 'fail';
 
-interface DoctorCheckResult {
+/**
+ * Result from a doctor check.
+ *
+ * @category Doctor Command
+ * @public
+ */
+export interface DoctorCheckResult {
 	readonly key: string;
 	readonly label: string;
 	readonly status: DoctorStatus;
 	readonly message: string;
 }
 
-interface CheckPhpEnvironmentOptions {
+/**
+ * Options for checking PHP environment.
+ *
+ * @category Doctor Command
+ * @public
+ */
+export interface CheckPhpEnvironmentOptions {
 	readonly reporter: Reporter;
 	readonly workspaceRoot?: string | null;
 }

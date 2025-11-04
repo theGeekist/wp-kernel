@@ -34,7 +34,7 @@ Suffix all shared helpers with `.test-support.ts`, keep them out of production b
 
 ## Working with helpers
 
-Prefer importing helpers from the package barrels instead of deep imports. For example, UI suites should call `createKernelUITestHarness()` to obtain providers and registry resetters, while CLI rule suites should instantiate `createRuleTester()` for ESLint coverage. When you need bespoke behaviour, extend the shared helpers or add new functions beside them so future work benefits from your additions.
+Prefer importing helpers from the package barrels instead of deep imports. For example, UI suites should call `createWPKernelUITestHarness()` to obtain providers and registry resetters, while CLI rule suites should instantiate `createRuleTester()` for ESLint coverage. When you need bespoke behaviour, extend the shared helpers or add new functions beside them so future work benefits from your additions.
 
 ## Extending the catalogue
 

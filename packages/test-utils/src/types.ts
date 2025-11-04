@@ -1,4 +1,4 @@
-export interface KernelConfigV1Like<
+export interface WPKConfigV1Like<
 	TSchemas extends Record<string, unknown> = Record<string, unknown>,
 	TResources extends Record<string, unknown> = Record<string, unknown>,
 	TAdapters = unknown,
@@ -10,8 +10,8 @@ export interface KernelConfigV1Like<
 	readonly adapters?: TAdapters;
 }
 
-export interface LoadedKernelConfigLike<
-	TConfig extends KernelConfigV1Like = KernelConfigV1Like,
+export interface LoadedWPKConfigV1Like<
+	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
 	TOrigin extends string = string,
 	TComposerCheck extends string = string,
 > {
@@ -87,7 +87,7 @@ export interface IRMetaLike<TVersion extends number = number> {
 }
 
 export interface IRv1Like<
-	TConfig = KernelConfigV1Like,
+	TConfig = WPKConfigV1Like,
 	TSchema = unknown,
 	TRoute extends IRRouteLike = IRRouteLike,
 	TResource extends IRResourceLike<TRoute> = IRResourceLike<TRoute>,
@@ -108,7 +108,7 @@ export interface IRv1Like<
 	readonly diagnostics?: readonly TDiagnostic[];
 }
 
-export interface BuildIrOptionsLike<TConfig = KernelConfigV1Like> {
+export interface BuildIrOptionsLike<TConfig = WPKConfigV1Like> {
 	readonly config: TConfig;
 	readonly namespace: string;
 	readonly origin: string;

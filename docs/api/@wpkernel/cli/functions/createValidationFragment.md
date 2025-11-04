@@ -1,0 +1,23 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / createValidationFragment
+
+# Function: createValidationFragment()
+
+```ts
+function createValidationFragment(): IrFragment;
+```
+
+Creates an IR fragment that performs final validation checks on the IR.
+
+This fragment depends on the meta, resources, and capability-map fragments
+to ensure that the IR is internally consistent and meets all framework contracts.
+It throws `WPKernelError` if any critical validation fails.
+
+## Returns
+
+[`IrFragment`](../type-aliases/IrFragment.md)
+
+An `IrFragment` instance for final IR validation.

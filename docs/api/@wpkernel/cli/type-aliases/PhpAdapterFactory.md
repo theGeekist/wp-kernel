@@ -1,13 +1,13 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / PhpAdapterFactory
+[WP Kernel API](../README.md) / PhpAdapterFactory
 
 # Type Alias: PhpAdapterFactory()
 
 ```ts
-type PhpAdapterFactory = (context) => PhpAdapterConfig | void;
+type PhpAdapterFactory = (context) =&gt; PhpAdapterConfig | void;
 ```
 
 Factory for producing PHP adapter configuration.

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / ResourceDataViewActionConfig
+[WP Kernel API](../README.md) / ResourceDataViewActionConfig
 
 # Interface: ResourceDataViewActionConfig\&lt;TItem, TInput, TResult\&gt;
 
@@ -37,7 +37,8 @@ Unique identifier, mirrored in events.
 ### action
 
 ```ts
-action: DefinedAction<TInput, TResult>;
+action: DefinedAction & lt;
+(TInput, TResult & gt);
 ```
 
 Action implementation to invoke.
@@ -47,10 +48,36 @@ Action implementation to invoke.
 ### label
 
 ```ts
-label: string | (items) => string;
+label: string | (items) =&gt; string;
 ```
 
 Label shown in DataViews UI.
+
+---
+
+### getActionArgs()
+
+```ts
+getActionArgs: (context) =&gt; TInput;
+```
+
+Build action input payload from the current selection and items.
+
+#### Parameters
+
+##### context
+
+###### selection
+
+(`string` \| `number`)[]
+
+###### items
+
+`TItem`[]
+
+#### Returns
+
+`TInput`
 
 ---
 
@@ -104,36 +131,10 @@ When true, render disabled instead of hiding on capability denial.
 
 ---
 
-### getActionArgs()
-
-```ts
-getActionArgs: (context) => TInput;
-```
-
-Build action input payload from the current selection and items.
-
-#### Parameters
-
-##### context
-
-###### selection
-
-(`string` \| `number`)[]
-
-###### items
-
-`TItem`[]
-
-#### Returns
-
-`TInput`
-
----
-
 ### buildMeta()?
 
 ```ts
-optional buildMeta: (context) => Record<string, unknown> | undefined;
+optional buildMeta: (context) =&gt; Record&lt;string, unknown&gt; | undefined;
 ```
 
 Optional meta object included in action triggered events.
@@ -159,9 +160,7 @@ Optional meta object included in action triggered events.
 ### invalidateOnSuccess()?
 
 ```ts
-optional invalidateOnSuccess: (result, context) =>
-  | false
-  | CacheKeyPattern[];
+optional invalidateOnSuccess: (result, context) =&gt; false | CacheKeyPattern[];
 ```
 
 Optional invalidate hook overriding the default behaviour.
@@ -188,5 +187,4 @@ Optional invalidate hook overriding the default behaviour.
 
 #### Returns
 
-\| `false`
-\| [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
+`false` \| `CacheKeyPattern`[]

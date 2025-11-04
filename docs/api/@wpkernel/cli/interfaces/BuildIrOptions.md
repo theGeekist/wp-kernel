@@ -1,10 +1,12 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / BuildIrOptions
+[WP Kernel API](../README.md) / BuildIrOptions
 
 # Interface: BuildIrOptions
+
+Options for building the Intermediate Representation (IR).
 
 ## Properties
 
@@ -14,6 +16,8 @@
 config: WPKernelConfigV1;
 ```
 
+The WP Kernel configuration.
+
 ---
 
 ### sourcePath
@@ -21,6 +25,8 @@ config: WPKernelConfigV1;
 ```ts
 sourcePath: string;
 ```
+
+The source path of the configuration file.
 
 ---
 
@@ -30,6 +36,8 @@ sourcePath: string;
 origin: string;
 ```
 
+The origin of the configuration.
+
 ---
 
 ### namespace
@@ -37,3 +45,5 @@ origin: string;
 ```ts
 namespace: string;
 ```
+
+The namespace of the project.

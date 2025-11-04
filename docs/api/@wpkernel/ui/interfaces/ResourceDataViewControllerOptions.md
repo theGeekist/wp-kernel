@@ -1,10 +1,12 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / ResourceDataViewControllerOptions
+[WP Kernel API](../README.md) / ResourceDataViewControllerOptions
 
 # Interface: ResourceDataViewControllerOptions\&lt;TItem, TQuery\&gt;
+
+Options for creating a `ResourceDataViewController`.
 
 ## Type Parameters
 
@@ -18,35 +20,14 @@
 
 ## Properties
 
-### resource?
-
-```ts
-optional resource: ResourceObject<TItem, TQuery>;
-```
-
----
-
-### resourceName?
-
-```ts
-optional resourceName: string;
-```
-
----
-
 ### config
 
 ```ts
-config: ResourceDataViewConfig<TItem, TQuery>;
+config: ResourceDataViewConfig & lt;
+(TItem, TQuery & gt);
 ```
 
----
-
-### queryMapping?
-
-```ts
-optional queryMapping: QueryMapping<TQuery>;
-```
+The configuration for the DataView.
 
 ---
 
@@ -56,6 +37,8 @@ optional queryMapping: QueryMapping<TQuery>;
 runtime: DataViewsControllerRuntime;
 ```
 
+The runtime for the DataView controller.
+
 ---
 
 ### namespace
@@ -64,19 +47,53 @@ runtime: DataViewsControllerRuntime;
 namespace: string;
 ```
 
+The namespace of the project.
+
+---
+
+### resource?
+
+```ts
+optional resource: ResourceObject&lt;TItem, TQuery&gt;;
+```
+
+The resource object.
+
+---
+
+### resourceName?
+
+```ts
+optional resourceName: string;
+```
+
+The name of the resource.
+
+---
+
+### queryMapping?
+
+```ts
+optional queryMapping: QueryMapping&lt;TQuery&gt;;
+```
+
+A function to map the view state to a query.
+
 ---
 
 ### invalidate()?
 
 ```ts
-optional invalidate: (patterns) => void;
+optional invalidate: (patterns) =&gt; void;
 ```
+
+A function to invalidate cache entries.
 
 #### Parameters
 
 ##### patterns
 
-[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
+`CacheKeyPattern` | `CacheKeyPattern`[]
 
 #### Returns
 
@@ -90,6 +107,8 @@ optional invalidate: (patterns) => void;
 optional capabilities: WPKUICapabilityRuntimeSource;
 ```
 
+The capability runtime source.
+
 ---
 
 ### preferencesKey?
@@ -98,13 +117,17 @@ optional capabilities: WPKUICapabilityRuntimeSource;
 optional preferencesKey: string;
 ```
 
+The key for storing preferences.
+
 ---
 
 ### fetchList()?
 
 ```ts
-optional fetchList: (query) => Promise<ListResponse<TItem>>;
+optional fetchList: (query) =&gt; Promise&lt;ListResponse&lt;TItem&gt;&gt;;
 ```
+
+A function to fetch a list of items.
 
 #### Parameters
 
@@ -114,15 +137,17 @@ optional fetchList: (query) => Promise<ListResponse<TItem>>;
 
 #### Returns
 
-`Promise`\&lt;[`ListResponse`](../../../core/src/type-aliases/ListResponse.md)\&lt;`TItem`\&gt;\&gt;
+`Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
 
 ---
 
 ### prefetchList()?
 
 ```ts
-optional prefetchList: (query) => Promise<void>;
+optional prefetchList: (query) =&gt; Promise&lt;void&gt;;
 ```
+
+A function to prefetch a list of items.
 
 #### Parameters
 

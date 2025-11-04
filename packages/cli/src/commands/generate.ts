@@ -27,7 +27,20 @@ import {
 	writeGenerationState,
 } from '../apply/manifest';
 
-type CommandConstructor = new () => Command & {
+// Re-export types from sub-modules for TypeDoc
+export type { GenerationSummary } from './run-generate/types';
+export type {
+	FileWriterSummary,
+	FileWriteStatus,
+	FileWriteRecord,
+} from '../utils/file-writer';
+export type { ValidateGeneratedImportsOptions } from './run-generate/validation';
+
+/**
+ * Constructor for a Clipanion command.
+ * @public
+ */
+export type CommandConstructor = new () => Command & {
 	summary: GenerationSummary | null;
 };
 

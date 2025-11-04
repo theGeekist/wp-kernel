@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / useVisiblePrefetch
+[WP Kernel API](../README.md) / useVisiblePrefetch
 
 # Function: useVisiblePrefetch()
 
@@ -10,19 +10,30 @@
 function useVisiblePrefetch(ref, fn, options): void;
 ```
 
+Triggers a prefetch when an element becomes visible in the viewport.
+
+This hook uses `IntersectionObserver` if available, otherwise it falls back to
+a scroll and resize listener.
+
 ## Parameters
 
 ### ref
 
 `RefObject`\&lt;`Element`\&gt;
 
+A React ref to the element to monitor.
+
 ### fn
 
 () =&gt; `void`
 
+The function to call to trigger the prefetch.
+
 ### options
 
-`VisiblePrefetchOptions` = `{}`
+[`VisiblePrefetchOptions`](../interfaces/VisiblePrefetchOptions.md) = `{}`
+
+Options for the hook.
 
 ## Returns
 

@@ -1,0 +1,63 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / ResourceRequestEvent
+
+# Type Alias: ResourceRequestEvent
+
+```ts
+type ResourceRequestEvent = object;
+```
+
+Event payload for wpk.resource.request
+
+## Properties
+
+### requestId
+
+```ts
+requestId: string;
+```
+
+Request ID for correlation
+
+---
+
+### method
+
+```ts
+method: HttpMethod;
+```
+
+HTTP method
+
+---
+
+### path
+
+```ts
+path: string;
+```
+
+Request path
+
+---
+
+### timestamp
+
+```ts
+timestamp: number;
+```
+
+Timestamp when request started
+
+---
+
+### query?
+
+```ts
+optional query: Record&lt;string, unknown&gt;;
+```
+
+Query parameters (if any)

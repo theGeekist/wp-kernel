@@ -1,17 +1,20 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / useAction
+[WP Kernel API](../README.md) / useAction
 
 # Function: useAction()
 
 ```ts
-function useAction<TInput, TResult>(
-	action,
-	options
-): UseActionResult<TInput, TResult>;
+function useAction&lt;TInput, TResult&gt;(action, options): UseActionResult&lt;TInput, TResult&gt;;
 ```
+
+React hook for invoking a kernel action.
+
+This hook provides a convenient way to execute a `DefinedAction` and manage its lifecycle,
+including loading states, errors, and concurrency control. It integrates with the WordPress
+data store for dispatching actions and can automatically invalidate resource caches upon success.
 
 ## Type Parameters
 
@@ -19,20 +22,30 @@ function useAction<TInput, TResult>(
 
 `TInput`
 
+The type of the input arguments for the action.
+
 ### TResult
 
 `TResult`
+
+The type of the result returned by the action.
 
 ## Parameters
 
 ### action
 
-[`DefinedAction`](../../../core/src/type-aliases/DefinedAction.md)\&lt;`TInput`, `TResult`\&gt;
+`DefinedAction`\&lt;`TInput`, `TResult`\&gt;
+
+The `DefinedAction` to be invoked.
 
 ### options
 
-`UseActionOptions`\&lt;`TInput`, `TResult`\&gt; = `{}`
+[`UseActionOptions`](../interfaces/UseActionOptions.md)\&lt;`TInput`, `TResult`\&gt; = `{}`
+
+Configuration options for the action invocation, including concurrency and invalidation.
 
 ## Returns
 
-`UseActionResult`\&lt;`TInput`, `TResult`\&gt;
+[`UseActionResult`](../interfaces/UseActionResult.md)\&lt;`TInput`, `TResult`\&gt;
+
+An object containing the action's current state (`status`, `error`, `result`, `inFlight`) and control functions (`run`, `cancel`, `reset`).

@@ -81,7 +81,7 @@ export default {
 		messages: {
 			missingCapability:
 				'Route "{{resource}}.{{routeKey}}" uses write method {{method}} but has no capability defined. ' +
-				'Without a capability, this endpoint is publicly accessible—any visitor can create, modify, or delete data. ' +
+				'Without a capability, this endpoint is publicly accessible-any visitor can create, modify, or delete data. ' +
 				'The framework maps capabilities to WordPress capabilities for authorization checks at runtime. ' +
 				'Fix: Add capability to the route (e.g., { method: "{{method}}", path: "...", capability: { capability: "edit_posts" } }) or make the route explicitly public with capability: { public: true }. ' +
 				'See {{docUrl}}.',
@@ -139,7 +139,7 @@ function validateRouteCapability(context, resource, route) {
 	const node =
 		route.property.propertyNode?.value ?? route.property.propertyNode;
 	// Framework constraint: Write operations should define capabilities for authorization.
-	// Without a capability, this endpoint is publicly accessible—any visitor can modify data.
+	// Without a capability, this endpoint is publicly accessible-any visitor can modify data.
 	// The framework maps capability.capability to WordPress current_user_can() checks at runtime.
 	// Missing capabilities are a common security vulnerability. Either add a capability check
 	// or explicitly mark the route as public with capability: { public: true }.

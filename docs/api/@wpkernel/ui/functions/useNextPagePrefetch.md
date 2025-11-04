@@ -1,18 +1,19 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / useNextPagePrefetch
+[WP Kernel API](../README.md) / useNextPagePrefetch
 
 # Function: useNextPagePrefetch()
 
 ```ts
-function useNextPagePrefetch<TRecord, TQuery>(
-	resource,
-	currentQuery,
-	options
-): void;
+function useNextPagePrefetch&lt;TRecord, TQuery&gt;(
+   resource,
+   currentQuery,
+   options): void;
 ```
+
+Prefetches the next page of a paginated resource.
 
 ## Type Parameters
 
@@ -28,15 +29,21 @@ function useNextPagePrefetch<TRecord, TQuery>(
 
 ### resource
 
-[`ResourceObject`](../../../core/src/type-aliases/ResourceObject.md)\&lt;`TRecord`, `TQuery`\&gt;
+`ResourceObject`\&lt;`TRecord`, `TQuery`\&gt;
+
+The resource to prefetch.
 
 ### currentQuery
 
 `TQuery`
 
+The current query.
+
 ### options
 
-`NextPagePrefetchOptions`\&lt;`TQuery`\&gt; = `{}`
+[`NextPagePrefetchOptions`](../interfaces/NextPagePrefetchOptions.md)\&lt;`TQuery`\&gt; = `{}`
+
+Options for the hook.
 
 ## Returns
 

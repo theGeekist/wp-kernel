@@ -89,5 +89,5 @@ optional options: UIIntegrationOptions;
 ### dataviews?
 
 ```ts
-optional dataviews: KernelDataViewsRuntime;
+optional dataviews: WPKernelDataViewsRuntime;
 ```

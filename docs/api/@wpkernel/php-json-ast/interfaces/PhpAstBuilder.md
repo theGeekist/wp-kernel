@@ -1,0 +1,167 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / PhpAstBuilder
+
+# Interface: PhpAstBuilder
+
+## Extended by
+
+- [`PhpAstBuilderAdapter`](PhpAstBuilderAdapter.md)
+
+## Properties
+
+### getNamespace()
+
+```ts
+getNamespace: () =&gt; string;
+```
+
+#### Returns
+
+`string`
+
+---
+
+### setNamespace()
+
+```ts
+setNamespace: (namespace) =&gt; void;
+```
+
+#### Parameters
+
+##### namespace
+
+`string`
+
+#### Returns
+
+`void`
+
+---
+
+### addUse()
+
+```ts
+addUse: (statement) =&gt; void;
+```
+
+#### Parameters
+
+##### statement
+
+`string`
+
+#### Returns
+
+`void`
+
+---
+
+### appendDocblock()
+
+```ts
+appendDocblock: (line) =&gt; void;
+```
+
+#### Parameters
+
+##### line
+
+`string`
+
+#### Returns
+
+`void`
+
+---
+
+### appendStatement()
+
+```ts
+appendStatement: (statement) =&gt; void;
+```
+
+#### Parameters
+
+##### statement
+
+`string`
+
+#### Returns
+
+`void`
+
+---
+
+### appendProgramStatement()
+
+```ts
+appendProgramStatement: (statement) =&gt; void;
+```
+
+#### Parameters
+
+##### statement
+
+[`PhpStmt`](../type-aliases/PhpStmt.md)
+
+#### Returns
+
+`void`
+
+---
+
+### getStatements()
+
+```ts
+getStatements: () =&gt; readonly string[];
+```
+
+#### Returns
+
+readonly `string`[]
+
+---
+
+### getMetadata()
+
+```ts
+getMetadata: () =&gt; PhpFileMetadata;
+```
+
+#### Returns
+
+[`PhpFileMetadata`](../type-aliases/PhpFileMetadata.md)
+
+---
+
+### setMetadata()
+
+```ts
+setMetadata: (metadata) =&gt; void;
+```
+
+#### Parameters
+
+##### metadata
+
+[`PhpFileMetadata`](../type-aliases/PhpFileMetadata.md)
+
+#### Returns
+
+`void`
+
+---
+
+### getProgramAst()
+
+```ts
+getProgramAst: () =&gt; PhpProgram;
+```
+
+#### Returns
+
+[`PhpProgram`](../type-aliases/PhpProgram.md)

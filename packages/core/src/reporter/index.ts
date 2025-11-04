@@ -133,7 +133,12 @@ export function createNoopReporter(): Reporter {
 	};
 }
 
-export type { Reporter, ReporterOptions, ReporterLevel } from './types';
+export type {
+	Reporter,
+	ReporterOptions,
+	ReporterLevel,
+	ReporterChannel,
+} from './types';
 export {
 	getWPKernelReporter,
 	setWPKernelReporter,

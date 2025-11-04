@@ -1,0 +1,20 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / getWPData
+
+# Variable: getWPData()
+
+```ts
+const getWPData: () =&gt; __module | undefined = globalThis.getWPData;
+```
+
+Safe accessor that works in browser & SSR contexts
+Available globally without imports
+
+## Returns
+
+`__module` \| `undefined`
+
+WordPress data package or undefined if not available

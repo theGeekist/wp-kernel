@@ -10,13 +10,13 @@ export function formatActionSuccessMessage(
 	itemCount: number
 ): string {
 	if (itemCount <= 1) {
-		return `“${actionLabel}” — ${__(
+		return `“${actionLabel}” - ${__(
 			'completed successfully.',
 			'wpkernel'
 		)}`;
 	}
 
-	return `“${actionLabel}” — ${__(
+	return `“${actionLabel}” - ${__(
 		'completed for {{count}} items.',
 		'wpkernel'
 	).replace('{{count}}', String(itemCount))}`;

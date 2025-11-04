@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / AdapterExtension
+[WP Kernel API](../README.md) / AdapterExtension
 
 # Interface: AdapterExtension
 
@@ -21,7 +21,7 @@ name: string;
 ### apply()
 
 ```ts
-apply: (context) => void | Promise<void>;
+apply: (context) =&gt; void | Promise&lt;void&gt;;
 ```
 
 #### Parameters

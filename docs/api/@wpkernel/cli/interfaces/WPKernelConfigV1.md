@@ -1,8 +1,8 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / WPKernelConfigV1
+[WP Kernel API](../README.md) / WPKernelConfigV1
 
 # Interface: WPKernelConfigV1
 

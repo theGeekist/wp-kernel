@@ -1,8 +1,16 @@
+/**
+ * A type that can be either a value or a Promise of a value.
+ * @public
+ */
 export type MaybePromise<T> = T | Promise<T>;
 
 export type HelperKind = 'fragment' | 'builder' | (string & {});
 export type HelperMode = 'extend' | 'override' | 'merge';
 
+/**
+ * Interface for reporting pipeline events and warnings.
+ * @public
+ */
 export interface PipelineReporter {
 	warn?: (message: string, context?: unknown) => void;
 }
@@ -28,6 +36,21 @@ export interface HelperApplyOptions<
 	readonly reporter: TReporter;
 }
 
+/**
+ * Function signature for a pipeline helper's apply method.
+ *
+ * This function is responsible for transforming the pipeline's input and output.
+ * It can optionally call `next()` to pass control to the next helper in the pipeline.
+ *
+ * @template TContext - The type of the pipeline context.
+ * @template TInput - The type of the input artifact.
+ * @template TOutput - The type of the output artifact.
+ * @template TReporter - The type of the reporter used for logging.
+ * @param    options - Options for the apply function, including context, input, output, and reporter.
+ * @param    next    - Optional function to call the next helper in the pipeline.
+ * @returns A promise that resolves when the helper has finished its work.
+ * @public
+ */
 export type HelperApplyFn<
 	TContext,
 	TInput,

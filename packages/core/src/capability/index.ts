@@ -14,4 +14,6 @@ export type {
 	CapabilityReporter,
 	UseCapabilityResult,
 	ParamsOf,
+	CapabilityAdapters,
 } from './types';
+export type { CapabilityProxyOptions } from './context';

@@ -3,7 +3,13 @@ import type { ActionPipeline } from '@wpkernel/core/pipeline/actions/types';
 import { createMemoryReporter } from './memory-reporter.test-support';
 import type { MemoryReporter } from './memory-reporter.test-support';
 
-interface RuntimeOverrides {
+/**
+ * Overrides for action runtime configuration.
+ *
+ * @category Action Pipeline
+ * @public
+ */
+export interface RuntimeOverrides {
 	readonly reporter?: unknown;
 	readonly [key: string]: unknown;
 }

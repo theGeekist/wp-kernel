@@ -134,7 +134,7 @@ describe('apply command helpers', () => {
 
 		expect(text).toContain('Apply summary:');
 		expect(text).toContain('Applied: 1');
-		expect(text).toContain('- [applied] php/file.php — Updated file');
+		expect(text).toContain('- [applied] php/file.php - Updated file');
 	});
 
 	it('formats manifest records with skip reasons', () => {
@@ -151,7 +151,7 @@ describe('apply command helpers', () => {
 		});
 
 		expect(text).toContain(
-			'- [skipped] inc/Rest/JobsController.php — Remove jobs shim (reason: modified-target)'
+			'- [skipped] inc/Rest/JobsController.php - Remove jobs shim (reason: modified-target)'
 		);
 	});
 

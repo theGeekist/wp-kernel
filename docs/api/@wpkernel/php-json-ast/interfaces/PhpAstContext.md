@@ -1,0 +1,63 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / PhpAstContext
+
+# Interface: PhpAstContext
+
+## Properties
+
+### namespaceParts
+
+```ts
+namespaceParts: string[];
+```
+
+---
+
+### docblockLines
+
+```ts
+readonly docblockLines: string[];
+```
+
+---
+
+### uses
+
+```ts
+readonly uses: Map&lt;string, ProgramUse&gt;;
+```
+
+---
+
+### statements
+
+```ts
+readonly statements: PhpStmt[];
+```
+
+---
+
+### statementLines
+
+```ts
+readonly statementLines: string[];
+```
+
+---
+
+### statementEntries
+
+```ts
+readonly statementEntries: PhpStatementEntry[];
+```
+
+---
+
+### pendingStatementLines
+
+```ts
+readonly pendingStatementLines: string[];
+```

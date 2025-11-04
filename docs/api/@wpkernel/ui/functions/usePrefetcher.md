@@ -1,13 +1,13 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/ui](../README.md) / usePrefetcher
+[WP Kernel API](../README.md) / usePrefetcher
 
 # Function: usePrefetcher()
 
 ```ts
-function usePrefetcher<TRecord, TQuery>(resource): Prefetcher<TQuery>;
+function usePrefetcher&lt;TRecord, TQuery&gt;(resource): Prefetcher&lt;TQuery&gt;;
 ```
 
 Exposes stable cache prefetch helpers for a resource.
@@ -30,8 +30,8 @@ re-creating callback instances on every render.
 
 ### resource
 
-[`ResourceObject`](../../../core/src/type-aliases/ResourceObject.md)\&lt;`TRecord`, `TQuery`\&gt;
+`ResourceObject`\&lt;`TRecord`, `TQuery`\&gt;
 
 ## Returns
 
-`Prefetcher`\&lt;`TQuery`\&gt;
+[`Prefetcher`](../interfaces/Prefetcher.md)\&lt;`TQuery`\&gt;

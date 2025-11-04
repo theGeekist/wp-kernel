@@ -10,9 +10,17 @@ import type {
 	PipelineContext,
 } from './types';
 
-type CliReporter = PipelineContext['reporter'];
+/**
+ * Type alias for the CLI pipeline reporter.
+ * @public
+ */
+export type CliReporter = PipelineContext['reporter'];
 
-type FragmentHelperOptions = CreateHelperOptions<
+/**
+ * Options for creating a fragment helper.
+ * @public
+ */
+export type FragmentHelperOptions = CreateHelperOptions<
 	PipelineContext,
 	FragmentInput,
 	FragmentOutput,
@@ -20,7 +28,11 @@ type FragmentHelperOptions = CreateHelperOptions<
 	FragmentHelper['kind']
 >;
 
-type BuilderHelperOptions = CreateHelperOptions<
+/**
+ * Options for creating a builder helper.
+ * @public
+ */
+export type BuilderHelperOptions = CreateHelperOptions<
 	PipelineContext,
 	BuilderInput,
 	BuilderOutput,

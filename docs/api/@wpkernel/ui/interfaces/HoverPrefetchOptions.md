@@ -1,0 +1,41 @@
+[**WP Kernel API v0.11.0**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / HoverPrefetchOptions
+
+# Interface: HoverPrefetchOptions
+
+Options for the useHoverPrefetch hook.
+
+## Properties
+
+### delayMs?
+
+```ts
+optional delayMs: number;
+```
+
+The delay in milliseconds before the prefetch is triggered.
+
+#### Default
+
+```ts
+150;
+```
+
+---
+
+### once?
+
+```ts
+optional once: boolean;
+```
+
+If true, the prefetch will only be triggered once.
+
+#### Default
+
+```ts
+true;
+```

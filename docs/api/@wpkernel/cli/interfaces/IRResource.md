@@ -1,10 +1,12 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.11.0**](../README.md)
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / IRResource
+[WP Kernel API](../README.md) / IRResource
 
 # Interface: IRResource
+
+Represents an Intermediate Representation (IR) for a resource.
 
 ## Properties
 
@@ -14,6 +16,8 @@
 name: string;
 ```
 
+The name of the resource.
+
 ---
 
 ### schemaKey
@@ -21,6 +25,8 @@ name: string;
 ```ts
 schemaKey: string;
 ```
+
+The key of the schema associated with this resource.
 
 ---
 
@@ -30,6 +36,8 @@ schemaKey: string;
 schemaProvenance: SchemaProvenance;
 ```
 
+The provenance of the schema.
+
 ---
 
 ### routes
@@ -38,6 +46,8 @@ schemaProvenance: SchemaProvenance;
 routes: IRRoute[];
 ```
 
+An array of routes defined for this resource.
+
 ---
 
 ### cacheKeys
@@ -45,6 +55,8 @@ routes: IRRoute[];
 ```ts
 cacheKeys: object;
 ```
+
+Cache key definitions for various resource operations.
 
 #### list
 
@@ -78,11 +90,33 @@ optional remove: IRResourceCacheKey;
 
 ---
 
+### hash
+
+```ts
+hash: string;
+```
+
+A hash of the resource definition for change detection.
+
+---
+
+### warnings
+
+```ts
+warnings: IRWarning[];
+```
+
+An array of warnings associated with this resource.
+
+---
+
 ### identity?
 
 ```ts
 optional identity: ResourceIdentityConfig;
 ```
+
+Optional: Identity configuration for the resource.
 
 ---
 
@@ -92,6 +126,8 @@ optional identity: ResourceIdentityConfig;
 optional storage: ResourceStorageConfig;
 ```
 
+Optional: Storage configuration for the resource.
+
 ---
 
 ### queryParams?
@@ -100,26 +136,14 @@ optional storage: ResourceStorageConfig;
 optional queryParams: ResourceQueryParams;
 ```
 
+Optional: Query parameters configuration for the resource.
+
 ---
 
 ### ui?
 
 ```ts
-optional ui: ResourceUIConfig<unknown, unknown>;
+optional ui: ResourceUIConfig&lt;unknown, unknown&gt;;
 ```
 
----
-
-### hash
-
-```ts
-hash: string;
-```
-
----
-
-### warnings
-
-```ts
-warnings: IRWarning[];
-```
+Optional: UI configuration for the resource.

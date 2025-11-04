@@ -36,7 +36,18 @@ type WordPressHooks = {
 	doAction?: (hookName: string, ...args: unknown[]) => void;
 };
 
-type KernelReduxMiddleware<TState = unknown> = {
+/**
+ * Redux middleware with an optional destroy method for cleanup.
+ *
+ * This type extends the standard ReduxMiddleware to include a `destroy` method,
+ * allowing for proper cleanup of event listeners or other resources when the
+ * middleware is no longer needed.
+ *
+ * @template TState - The Redux state type
+ * @public
+ */
+export type WPKernelReduxMiddleware<TState = unknown> = {
+	/** Optional cleanup method for middleware teardown */
 	destroy?: () => void;
 } & ReduxMiddleware<TState>;
 
@@ -119,12 +130,12 @@ export function wpkEventsPlugin({
 	reporter,
 	registry,
 	events,
-}: WPKernelEventsPluginOptions): KernelReduxMiddleware {
+}: WPKernelEventsPluginOptions): WPKernelReduxMiddleware {
 	const hooks = getHooks();
 
 	const detachListeners: Array<() => void> = [];
 
-	const middleware: KernelReduxMiddleware = () => {
+	const middleware: WPKernelReduxMiddleware = () => {
 		const hookMap: Partial<Record<keyof WPKernelEventMap, string>> = {
 			'action:start': WPK_EVENTS.ACTION_START,
 			'action:complete': WPK_EVENTS.ACTION_COMPLETE,
