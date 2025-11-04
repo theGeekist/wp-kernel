@@ -12,6 +12,16 @@ import {
 import type { CapabilityModuleWarning } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
 
+/**
+ * Creates a PHP builder helper for generating capability-related code.
+ *
+ * This helper processes the `capabilityMap` from the IR and generates PHP
+ * classes and functions that define and manage WordPress capabilities,
+ * ensuring proper access control for REST routes.
+ *
+ * @category PHP Builder
+ * @returns A `BuilderHelper` instance for generating capability code.
+ */
 export function createPhpCapabilityHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.capability',

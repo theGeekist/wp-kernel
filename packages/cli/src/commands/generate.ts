@@ -268,6 +268,18 @@ function buildCommandConstructor(
 	};
 }
 
+/**
+ * Builds the `generate` command for the CLI.
+ *
+ * This command is responsible for generating WP Kernel artifacts (PHP, TypeScript)
+ * from the `wpk.config.*` configuration files. It processes the configuration,
+ * builds an Intermediate Representation (IR), and uses various builders to
+ * produce the final generated code.
+ *
+ * @category Generate Command
+ * @param    options - Options for building the generate command, including dependencies.
+ * @returns The `CommandConstructor` class for the generate command.
+ */
 export function buildGenerateCommand(
 	options: BuildGenerateCommandOptions = {}
 ): CommandConstructor {

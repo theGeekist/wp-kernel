@@ -42,6 +42,16 @@ function mapRunOptionsToBuildOptions(
 	} satisfies BuildIrOptions;
 }
 
+/**
+ * Creates a new CLI pipeline instance.
+ *
+ * This function initializes a robust code generation pipeline that processes project
+ * configurations, builds an Intermediate Representation (IR), and executes various
+ * builder and fragment helpers to generate code and artifacts.
+ *
+ * @category Pipeline
+ * @returns A `Pipeline` instance configured for CLI operations.
+ */
 export function createPipeline(): Pipeline {
 	return createCorePipeline<
 		PipelineRunOptions,

@@ -1,239 +1,40 @@
-import { buildNode, type PhpAttributes, type PhpNode } from '../base';
+import { buildNode, type PhpAttributes } from '../base';
 import type { PhpAttrGroup } from '../attributes';
-import type { PhpConst } from '../const';
 import type { PhpDeclareItem } from '../declareItem';
 import type { PhpIdentifier } from '../identifier';
 import type { PhpName } from '../name';
 import type { PhpParam } from '../params';
 import type { PhpType } from '../types';
 import type { PhpExpr } from '../expressions';
-import type { PhpPropertyHook } from '../propertyHook';
+import type {
+	PhpStmt,
+	PhpStmtNamespace,
+	PhpStmtNop,
+	PhpStmtUseUse,
+	PhpStmtUse,
+	PhpStmtGroupUse,
+	PhpClassStmt,
+	PhpStmtClass,
+	PhpStmtDeclare,
+	PhpStmtClassMethod,
+	PhpStmtReturn,
+	PhpStmtExpression,
+	PhpStmtElseIf,
+	PhpStmtElse,
+	PhpStmtIf,
+	PhpStmtForeach,
+	PhpStmtContinue,
+} from './types';
 
-export interface PhpStmtBase extends PhpNode {
-	readonly nodeType: `Stmt_${string}` | 'UseItem' | 'PropertyItem';
-}
-
-export interface PhpStmtNamespace extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Namespace';
-	readonly name: PhpName | null;
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtUse extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Use';
-	readonly type: number;
-	readonly uses: PhpStmtUseUse[];
-}
-
-export interface PhpStmtGroupUse extends PhpStmtBase {
-	readonly nodeType: 'Stmt_GroupUse';
-	readonly type: number;
-	readonly prefix: PhpName;
-	readonly uses: PhpStmtUseUse[];
-}
-
-export interface PhpStmtUseUse extends PhpStmtBase {
-	readonly nodeType: 'UseItem';
-	readonly name: PhpName;
-	readonly alias: PhpIdentifier | null;
-	readonly type: number;
-}
-
-export interface PhpStmtClass extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Class';
-	readonly name: PhpIdentifier | null;
-	readonly flags: number;
-	readonly extends: PhpName | null;
-	readonly implements: PhpName[];
-	readonly stmts: PhpClassStmt[];
-	readonly attrGroups: PhpAttrGroup[];
-	readonly namespacedName: PhpName | null;
-}
-
-export interface PhpStmtTraitUse extends PhpStmtBase {
-	readonly nodeType: 'Stmt_TraitUse';
-	readonly traits: PhpName[];
-	readonly adaptations: PhpNode[];
-}
-
-export interface PhpStmtClassConst extends PhpStmtBase {
-	readonly nodeType: 'Stmt_ClassConst';
-	readonly flags: number;
-	readonly consts: PhpConst[];
-	readonly attrGroups: PhpAttrGroup[];
-	readonly type: PhpType | null;
-}
-
-export interface PhpStmtProperty extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Property';
-	readonly flags: number;
-	readonly type: PhpType | null;
-	readonly props: PhpStmtPropertyProperty[];
-	readonly attrGroups: PhpAttrGroup[];
-	readonly hooks: PhpPropertyHook[];
-}
-
-export interface PhpStmtPropertyProperty extends PhpStmtBase {
-	readonly nodeType: 'PropertyItem';
-	readonly name: PhpIdentifier;
-	readonly default: PhpExpr | null;
-}
-
-export interface PhpStmtClassMethod extends PhpStmtBase {
-	readonly nodeType: 'Stmt_ClassMethod';
-	readonly name: PhpIdentifier;
-	readonly byRef: boolean;
-	readonly flags: number;
-	readonly params: PhpParam[];
-	readonly returnType: PhpType | null;
-	readonly stmts: PhpStmt[] | null;
-	readonly attrGroups: PhpAttrGroup[];
-}
-
-export interface PhpStmtFunction extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Function';
-	readonly byRef: boolean;
-	readonly name: PhpIdentifier;
-	readonly params: PhpParam[];
-	readonly returnType: PhpType | null;
-	readonly stmts: PhpStmt[];
-	readonly attrGroups: PhpAttrGroup[];
-	readonly namespacedName: PhpName | null;
-}
-
-export interface PhpStmtExpression extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Expression';
-	readonly expr: PhpExpr;
-}
-
-export interface PhpStmtEcho extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Echo';
-	readonly exprs: PhpExpr[];
-}
-
-export interface PhpStmtReturn extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Return';
-	readonly expr: PhpExpr | null;
-}
-
-export interface PhpStmtDeclare extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Declare';
-	readonly declares: PhpDeclareItem[];
-	readonly stmts: PhpStmt[] | null;
-}
-
-export interface PhpStmtIf extends PhpStmtBase {
-	readonly nodeType: 'Stmt_If';
-	readonly cond: PhpExpr;
-	readonly stmts: PhpStmt[];
-	readonly elseifs: PhpStmtElseIf[];
-	readonly else: PhpStmtElse | null;
-}
-
-export interface PhpStmtElseIf extends PhpStmtBase {
-	readonly nodeType: 'Stmt_ElseIf';
-	readonly cond: PhpExpr;
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtElse extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Else';
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtForeach extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Foreach';
-	readonly expr: PhpExpr;
-	readonly valueVar: PhpExpr;
-	readonly keyVar: PhpExpr | null;
-	readonly byRef: boolean;
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtFor extends PhpStmtBase {
-	readonly nodeType: 'Stmt_For';
-	readonly init: PhpExpr[];
-	readonly cond: PhpExpr[];
-	readonly loop: PhpExpr[];
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtWhile extends PhpStmtBase {
-	readonly nodeType: 'Stmt_While';
-	readonly cond: PhpExpr;
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtDo extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Do';
-	readonly cond: PhpExpr;
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtSwitch extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Switch';
-	readonly cond: PhpExpr;
-	readonly cases: PhpStmtCase[];
-}
-
-export interface PhpStmtCase extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Case';
-	readonly cond: PhpExpr | null;
-	readonly stmts: PhpStmt[];
-}
-
-export interface PhpStmtBreak extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Break';
-	readonly num: PhpExpr | null;
-}
-
-export interface PhpStmtContinue extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Continue';
-	readonly num: PhpExpr | null;
-}
-
-export interface PhpStmtNop extends PhpStmtBase {
-	readonly nodeType: 'Stmt_Nop';
-}
-
-export type PhpClassStmt =
-	| PhpStmtTraitUse
-	| PhpStmtClassConst
-	| PhpStmtProperty
-	| PhpStmtClassMethod
-	| PhpStmtNop
-	| PhpStmtBase;
-
-export type PhpStmt =
-	| PhpStmtNamespace
-	| PhpStmtUse
-	| PhpStmtGroupUse
-	| PhpStmtClass
-	| PhpStmtDeclare
-	| PhpStmtTraitUse
-	| PhpStmtClassConst
-	| PhpStmtProperty
-	| PhpStmtClassMethod
-	| PhpStmtFunction
-	| PhpStmtExpression
-	| PhpStmtEcho
-	| PhpStmtReturn
-	| PhpStmtIf
-	| PhpStmtForeach
-	| PhpStmtFor
-	| PhpStmtWhile
-	| PhpStmtDo
-	| PhpStmtSwitch
-	| PhpStmtCase
-	| PhpStmtBreak
-	| PhpStmtContinue
-	| PhpStmtNop
-	| PhpStmtElseIf
-	| PhpStmtElse
-	| PhpStmtBase;
-
-export type PhpProgram = ReadonlyArray<PhpStmt>;
-
+/**
+ * Builds a PHP namespace statement node.
+ *
+ * @category PHP AST
+ * @param    name       - The name of the namespace, or `null` for the global namespace.
+ * @param    stmts      - An array of `PhpStmt` nodes within the namespace.
+ * @param    attributes - Optional attributes for the node.
+ * @returns A `PhpStmtNamespace` node.
+ */
 export function buildNamespace(
 	name: PhpName | null,
 	stmts: PhpStmt[],
@@ -246,10 +47,26 @@ export function buildNamespace(
 	);
 }
 
+/**
+ * Builds a PHP no-operation statement node.
+ *
+ * @category PHP AST
+ * @param    attributes - Optional attributes for the node.
+ * @returns A `PhpStmtNop` node.
+ */
 export function buildStmtNop(attributes?: PhpAttributes): PhpStmtNop {
 	return buildNode<PhpStmtNop>('Stmt_Nop', {}, attributes);
 }
 
+/**
+ * Builds a PHP `use` statement node.
+ *
+ * @category PHP AST
+ * @param    type       - The type of use statement (e.g., `USE_NORMAL`, `USE_FUNCTION`, `USE_CONST`).
+ * @param    uses       - An array of `PhpStmtUseUse` nodes representing the used items.
+ * @param    attributes - Optional attributes for the node.
+ * @returns A `PhpStmtUse` node.
+ */
 export function buildUse(
 	type: number,
 	uses: PhpStmtUseUse[],
@@ -258,6 +75,17 @@ export function buildUse(
 	return buildNode<PhpStmtUse>('Stmt_Use', { type, uses }, attributes);
 }
 
+/**
+ * Builds a PHP `use` item node.
+ *
+ * @category PHP AST
+ * @param    name               - The name of the item being used.
+ * @param    alias              - An optional alias for the item.
+ * @param    options.type
+ * @param    options.attributes
+ * @param    options            - Optional configuration for the use item (type, attributes).
+ * @returns A `PhpStmtUseUse` node.
+ */
 export function buildUseUse(
 	name: PhpName,
 	alias: PhpIdentifier | null = null,
@@ -271,6 +99,16 @@ export function buildUseUse(
 	);
 }
 
+/**
+ * Builds a PHP group `use` statement node.
+ *
+ * @category PHP AST
+ * @param    type       - The type of use statement (e.g., `USE_NORMAL`, `USE_FUNCTION`, `USE_CONST`).
+ * @param    prefix     - The common prefix for the grouped uses.
+ * @param    uses       - An array of `PhpStmtUseUse` nodes within the group.
+ * @param    attributes - Optional attributes for the node.
+ * @returns A `PhpStmtGroupUse` node.
+ */
 export function buildGroupUse(
 	type: number,
 	prefix: PhpName,
@@ -284,6 +122,21 @@ export function buildGroupUse(
 	);
 }
 
+/**
+ * Builds a PHP class declaration statement node.
+ *
+ * @category PHP AST
+ * @param    name                   - The name of the class, or `null` for an anonymous class.
+ * @param    options                - Optional configuration for the class (flags, extends, implements, statements, attribute groups, namespaced name).
+ * @param    options.flags
+ * @param    options.extends
+ * @param    options.implements
+ * @param    options.stmts
+ * @param    options.attrGroups
+ * @param    options.namespacedName
+ * @param    attributes             - Optional attributes for the node.
+ * @returns A `PhpStmtClass` node.
+ */
 export function buildClass(
 	name: PhpIdentifier | null,
 	options: {
@@ -311,6 +164,16 @@ export function buildClass(
 	);
 }
 
+/**
+ * Builds a PHP `declare` statement node.
+ *
+ * @category PHP AST
+ * @param    declares      - An array of `PhpDeclareItem` nodes.
+ * @param    options       - Optional configuration for the declare statement (statements).
+ * @param    options.stmts
+ * @param    attributes    - Optional attributes for the node.
+ * @returns A `PhpStmtDeclare` node.
+ */
 export function buildDeclare(
 	declares: PhpDeclareItem[],
 	options: { stmts?: PhpStmt[] | null } = {},
@@ -326,6 +189,21 @@ export function buildDeclare(
 	);
 }
 
+/**
+ * Builds a PHP class method declaration statement node.
+ *
+ * @category PHP AST
+ * @param    name               - The name of the method.
+ * @param    options            - Optional configuration for the method (by reference, flags, parameters, return type, statements, attribute groups).
+ * @param    options.byRef
+ * @param    options.flags
+ * @param    options.params
+ * @param    options.returnType
+ * @param    options.stmts
+ * @param    options.attrGroups
+ * @param    attributes         - Optional attributes for the node.
+ * @returns A `PhpStmtClassMethod` node.
+ */
 export function buildClassMethod(
 	name: PhpIdentifier,
 	options: {
@@ -353,6 +231,14 @@ export function buildClassMethod(
 	);
 }
 
+/**
+ * Builds a PHP `return` statement node.
+ *
+ * @category PHP AST
+ * @param    expr       - The expression to return, or `null` for an empty return.
+ * @param    attributes - Optional attributes for the node.
+ * @returns A `PhpStmtReturn` node.
+ */
 export function buildReturn(
 	expr: PhpExpr | null,
 	attributes?: PhpAttributes
@@ -360,6 +246,14 @@ export function buildReturn(
 	return buildNode<PhpStmtReturn>('Stmt_Return', { expr }, attributes);
 }
 
+/**
+ * Builds a PHP expression statement node.
+ *
+ * @category PHP AST
+ * @param    expr       - The expression to be used as a statement.
+ * @param    attributes - Optional attributes for the node.
+ * @returns A `PhpStmtExpression` node.
+ */
 export function buildExpressionStatement(
 	expr: PhpExpr,
 	attributes?: PhpAttributes
@@ -371,6 +265,18 @@ export function buildExpressionStatement(
 	);
 }
 
+/**
+ * Builds a PHP `if` statement node.
+ *
+ * @category PHP AST
+ * @param    cond               - The conditional expression.
+ * @param    stmts              - An array of `PhpStmt` nodes for the `if` block.
+ * @param    options            - Optional configuration for `elseif` and `else` branches.
+ * @param    options.elseifs
+ * @param    options.elseBranch
+ * @param    attributes         - Optional attributes for the node.
+ * @returns A `PhpStmtIf` node.
+ */
 export function buildIfStatement(
 	cond: PhpExpr,
 	stmts: PhpStmt[],
@@ -392,6 +298,19 @@ export function buildIfStatement(
 	);
 }
 
+/**
+ * Builds a PHP `foreach` loop statement node.
+ *
+ * @category PHP AST
+ * @param    expr             - The expression to iterate over.
+ * @param    options          - Configuration for the `foreach` loop (value variable, optional key variable, by reference, statements).
+ * @param    options.valueVar
+ * @param    options.keyVar
+ * @param    options.byRef
+ * @param    options.stmts
+ * @param    attributes       - Optional attributes for the node.
+ * @returns A `PhpStmtForeach` node.
+ */
 export function buildForeach(
 	expr: PhpExpr,
 	options: {
@@ -415,9 +334,19 @@ export function buildForeach(
 	);
 }
 
+/**
+ * Builds a PHP `continue` statement node.
+ *
+ * @category PHP AST
+ * @param    num        - The optional number of loops to continue (e.g., `continue 2`).
+ * @param    attributes - Optional attributes for the node.
+ * @returns A `PhpStmtContinue` node.
+ */
 export function buildContinue(
 	num: PhpExpr | null = null,
 	attributes?: PhpAttributes
 ): PhpStmtContinue {
 	return buildNode<PhpStmtContinue>('Stmt_Continue', { num }, attributes);
 }
+
+export * from './types';

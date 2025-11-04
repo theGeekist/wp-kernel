@@ -6,17 +6,42 @@ import { useAction } from '../hooks/useAction';
 import type { DataViewsRuntimeContext } from './types';
 import { normalizeActionError } from './error-utils';
 
+/**
+ * Represents the state of a data form submission.
+ *
+ * @category DataViews Integration
+ * @template TResult - The type of the result returned by the form submission action.
+ */
 interface DataFormControllerState<TResult> {
+	/** The current status of the form submission. */
 	status: 'idle' | 'running' | 'success' | 'error';
+	/** Any error that occurred during submission. */
 	error?: WPKernelError;
+	/** The number of in-flight submissions. */
 	inFlight: number;
+	/** The result of the last successful submission. */
 	result?: TResult;
 }
 
+/**
+ * Interface for the Data Form Controller hook.
+ *
+ * @category DataViews Integration
+ * @template TResult - The type of the result returned by the form submission action.
+ */
 export interface UseDataFormController<TResult> {
+	/**
+	 * Submits the form with the given input.
+	 *
+	 * @param input - The input data for the form.
+	 * @returns A promise that resolves with the action's result.
+	 */
 	submit: (input: unknown) => Promise<TResult>;
+	/** Resets the form's state. */
 	reset: () => void;
+	/** Cancels any in-flight form submissions. */
 	cancel: () => void;
+	/** The current state of the form. */
 	state: DataFormControllerState<TResult>;
 }
 
@@ -31,14 +56,31 @@ interface CreateDataFormControllerOptions<TInput, TResult, TQuery> {
 }
 
 function defaultInvalidate<TResult, TQuery>(
-	resource?: ResourceObject<unknown, TQuery>
-): (result: TResult, input: unknown) => CacheKeyPattern[] | false {
-	if (!resource) {
-		return () => false;
-	}
-	return () => [resource.key('list')];
+	resource: ResourceObject<unknown, TQuery> | undefined
+) {
+	return (_result: TResult, _input: unknown): CacheKeyPattern[] | false => {
+		if (resource) {
+			return [resource.key('list')];
+		}
+		return false;
+	};
 }
 
+/**
+ * Creates a React hook for managing data form submissions.
+ *
+ * This function returns a custom React hook (`useDataFormController`) that can be used
+ * to handle form submissions, action invocation, and state management (loading, error, success).
+ * It integrates with `useAction` for robust action handling and can automatically invalidate
+ * resource caches.
+ *
+ * @category DataViews Integration
+ * @template TInput - The type of the input arguments for the form's action.
+ * @template TResult - The type of the result returned by the form's action.
+ * @template TQuery - The type of the query parameters for the associated resource (if any).
+ * @param    options - Configuration options for the data form controller.
+ * @returns A function that returns a `UseDataFormController` hook.
+ */
 export function createDataFormController<TInput, TResult, TQuery>(
 	options: CreateDataFormControllerOptions<TInput, TResult, TQuery>
 ): () => UseDataFormController<TResult> {

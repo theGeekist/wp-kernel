@@ -7,7 +7,22 @@
  *
  * @module @wpkernel/cli
  */
+/**
+ * The current version of the `@wpkernel/cli` package.
+ *
+ * @category CLI
+ */
 export { VERSION } from './version';
+/**
+ * Runs the WP Kernel CLI application.
+ *
+ * This is the main entry point for executing CLI commands.
+ *
+ * @category CLI
+ * @param    args - Command-line arguments.
+ * @param    cwd  - The current working directory.
+ * @returns A promise that resolves to the exit code of the CLI process.
+ */
 export { runCli } from './cli/run';
 
 export type {

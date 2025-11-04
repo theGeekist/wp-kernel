@@ -37,11 +37,21 @@ interface DoctorDependencies {
 	) => Promise<DoctorCheckResult[]>;
 }
 
+/**
+ * Options for building the `doctor` command, allowing for dependency injection.
+ *
+ * @category Doctor Command
+ */
 export interface BuildDoctorCommandOptions {
+	/** Optional: Custom function to load the WP Kernel configuration. */
 	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;
+	/** Optional: Custom workspace builder function. */
 	readonly buildWorkspace?: typeof buildWorkspace;
+	/** Optional: Custom function to ensure the generated PHP directory is clean. */
 	readonly ensureGeneratedPhpClean?: typeof ensureGeneratedPhpClean;
+	/** Optional: Custom reporter builder function. */
 	readonly buildReporter?: typeof buildReporter;
+	/** Optional: Custom function to check the PHP environment. */
 	readonly checkPhpEnvironment?: (
 		options: CheckPhpEnvironmentOptions
 	) => Promise<DoctorCheckResult[]>;
@@ -65,6 +75,16 @@ function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.doctor`;
 }
 
+/**
+ * Builds the `doctor` command for the CLI.
+ *
+ * This command runs various health checks for the WP Kernel project,
+ * including configuration, Composer autoloading, PHP tooling, and workspace hygiene.
+ *
+ * @category Doctor Command
+ * @param    options - Options for building the doctor command, including dependencies.
+ * @returns The `Command` class for the doctor command.
+ */
 export function buildDoctorCommand(
 	options: BuildDoctorCommandOptions = {}
 ): new () => Command {
@@ -253,6 +273,13 @@ export function buildDoctorCommand(
 	return NextDoctorCommand;
 }
 
+/**
+ * Renders a summary of the doctor check results for display in the CLI.
+ *
+ * @category Doctor Command
+ * @param    results - An array of `DoctorCheckResult` objects.
+ * @returns A formatted string representing the summary of health checks.
+ */
 export function renderDoctorSummary(
 	results: readonly DoctorCheckResult[]
 ): string {

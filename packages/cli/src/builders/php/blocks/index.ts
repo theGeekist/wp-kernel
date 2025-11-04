@@ -24,6 +24,15 @@ type BlockModuleQueuedFile = ReturnType<
 >['files'][number];
 type PlannerWorkspace = ProgramTargetPlannerOptions['workspace'];
 
+/**
+ * Creates a PHP builder helper for generating WordPress blocks.
+ *
+ * This helper processes block configurations from the IR, collects block manifests,
+ * generates PHP artifacts for block registration, and stages render stubs for SSR blocks.
+ *
+ * @category PHP Builder
+ * @returns A `BuilderHelper` instance for generating PHP block code.
+ */
 export function createPhpBlocksHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.blocks',

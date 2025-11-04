@@ -13,6 +13,16 @@ import {
 import type { IRv1 } from '../../ir/publicTypes';
 import { getPhpBuilderChannel } from './channel';
 
+/**
+ * Creates a PHP builder helper for generating the persistence registry.
+ *
+ * This helper generates a PHP class that registers all resources and their
+ * associated storage and identity configurations, allowing the WordPress
+ * application to interact with them.
+ *
+ * @category PHP Builder
+ * @returns A `BuilderHelper` instance for generating the persistence registry.
+ */
 export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.registration.persistence',

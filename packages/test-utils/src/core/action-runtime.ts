@@ -4,11 +4,23 @@ declare global {
 	var __WP_KERNEL_ACTION_RUNTIME__: ActionRuntime | undefined;
 }
 
+/**
+ * Overrides for the action runtime.
+ *
+ * @category Action Runtime
+ */
 export interface ActionRuntimeOverrides {
+	/** Partial overrides for the entire runtime object. */
 	runtime?: Partial<ActionRuntime>;
+	/** Override for the capability object within the runtime. */
 	capability?: ActionRuntime['capability'];
 }
 
+/**
+ * A function to clean up action runtime overrides.
+ *
+ * @category Action Runtime
+ */
 export type RuntimeCleanup = () => void;
 
 function assignRuntime(
@@ -33,6 +45,13 @@ function assignRuntime(
 	return merged;
 }
 
+/**
+ * Applies overrides to the global action runtime and returns a cleanup function.
+ *
+ * @category Action Runtime
+ * @param    overrides - The overrides to apply to the action runtime.
+ * @returns A function that, when called, restores the original action runtime.
+ */
 export function applyActionRuntimeOverrides(
 	overrides: ActionRuntimeOverrides
 ): RuntimeCleanup {
@@ -57,6 +76,14 @@ export function applyActionRuntimeOverrides(
 	};
 }
 
+/**
+ * Executes a callback with temporary action runtime overrides, ensuring cleanup afterwards.
+ *
+ * @category Action Runtime
+ * @param    overrides - The overrides to apply to the action runtime.
+ * @param    callback  - The function to execute with the modified runtime.
+ * @returns The return value of the callback.
+ */
 export async function withActionRuntimeOverrides<T>(
 	overrides: ActionRuntimeOverrides,
 	callback: () => Promise<T> | T

@@ -104,6 +104,7 @@ export default [
 
 		// Custom rules for WP Kernel
 		rules: {
+			'jsdoc/check-param-names': 'off',
 			'jsdoc/check-tag-names': 'off',
 			// Disable problematic rule (ESLint 9 compatibility issue)
 			'@wordpress/no-unused-vars-before-return': 'off',

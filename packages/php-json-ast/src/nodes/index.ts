@@ -23,6 +23,11 @@ import type { PhpType } from './types';
 import type { PhpParam } from './params';
 import type { PhpPropertyHook } from './propertyHook';
 
+/**
+ * Represents any PHP AST node that can be part of the syntax tree.
+ *
+ * @category PHP AST
+ */
 export type PhpNodeLike =
 	| PhpStmt
 	| PhpExpr

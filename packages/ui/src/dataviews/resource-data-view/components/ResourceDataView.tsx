@@ -15,6 +15,25 @@ import { usePermissionState } from '../state/use-permission-state';
 import { useDataViewsProps } from '../utils/build-data-views-props';
 import { ResourceDataViewBoundary } from './boundary/ResourceDataViewBoundary';
 
+/**
+ * A React component that renders a DataViews interface for a given resource.
+ *
+ * This component integrates with the `@wordpress/dataviews` package to provide a flexible
+ * and extensible way to display and interact with resource data. It handles data fetching,
+ * state management, and action dispatching.
+ *
+ * @category DataViews Integration
+ * @param    props.resource
+ * @param    props.config
+ * @param    props.controller
+ * @param    props.runtime
+ * @param    props.fetchList
+ * @param    props.emptyState
+ * @template TItem - The type of the items in the resource list.
+ * @template TQuery - The type of the query parameters for the resource.
+ * @param    props            - The props for the component.
+ * @returns A React element that renders the DataViews interface.
+ */
 export function ResourceDataView<TItem, TQuery>({
 	resource,
 	config,

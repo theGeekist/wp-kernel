@@ -42,6 +42,17 @@ import {
 	type ResourceStorageHelperState,
 } from './resource/storageHelpers';
 
+/**
+ * Creates a PHP builder helper for resource-specific REST controllers.
+ *
+ * This helper iterates through each resource defined in the IR and generates
+ * a corresponding REST controller. It integrates with various storage helpers
+ * (transient, wp-option, wp-taxonomy, wp-post) to provide appropriate CRUD
+ * operations for each resource.
+ *
+ * @category PHP Builder
+ * @returns A `BuilderHelper` instance for generating resource REST controllers.
+ */
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources',

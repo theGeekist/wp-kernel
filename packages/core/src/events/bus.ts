@@ -59,6 +59,7 @@ type Listener<T> = (payload: T) => void;
  * The bus automatically resolves a reporter so listener failures can be logged
  * during development while remaining silent in production or when reporters are
  * muted.
+ * @category Events
  */
 export class WPKernelEventBus {
 	private reporter: Reporter;

@@ -2,8 +2,29 @@ import { useEffect, useMemo, useRef } from 'react';
 import type { RefObject } from 'react';
 import { useStableCallback, useLatest } from './internal/useStableCallback';
 
+/**
+ * Options for the useVisiblePrefetch hook.
+ *
+ * @category Prefetching
+ */
+/**
+ * Options for the useVisiblePrefetch hook.
+ *
+ * @category Prefetching
+ */
 export interface VisiblePrefetchOptions {
+	/**
+	 * The root margin for the IntersectionObserver.
+	 *
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver/rootMargin
+	 * @default '200px'
+	 */
 	rootMargin?: string;
+	/**
+	 * If true, the prefetch will only be triggered once.
+	 *
+	 * @default true
+	 */
 	once?: boolean;
 }
 
@@ -62,6 +83,17 @@ function isVisibleWithinMargin(element: Element, margin: MarginBox): boolean {
 	);
 }
 
+/**
+ * Triggers a prefetch when an element becomes visible in the viewport.
+ *
+ * This hook uses `IntersectionObserver` if available, otherwise it falls back to
+ * a scroll and resize listener.
+ *
+ * @category Prefetching
+ * @param    ref     - A React ref to the element to monitor.
+ * @param    fn      - The function to call to trigger the prefetch.
+ * @param    options - Options for the hook.
+ */
 export function useVisiblePrefetch(
 	ref: RefObject<Element>,
 	fn: () => void,

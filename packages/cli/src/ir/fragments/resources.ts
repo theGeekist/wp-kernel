@@ -6,6 +6,15 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { META_EXTENSION_KEY } from './meta';
 import { SCHEMA_EXTENSION_KEY } from './schemas';
 
+/**
+ * Creates an IR fragment that processes and builds resource definitions.
+ *
+ * This fragment depends on the meta and schemas fragments to properly construct
+ * the resource definitions, including their associated schemas and namespace information.
+ *
+ * @category IR Fragments
+ * @returns An `IrFragment` instance for resource processing.
+ */
 export function createResourcesFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.resources.core',

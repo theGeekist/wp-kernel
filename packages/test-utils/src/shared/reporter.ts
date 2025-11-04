@@ -1,10 +1,20 @@
 import type { Reporter } from '@wpkernel/core/reporter';
 
+/**
+ * A subset of the Reporter interface, focusing on logging methods.
+ *
+ * @category CLI Helpers
+ */
 export type ReporterLike = Pick<
 	Reporter,
 	'info' | 'debug' | 'warn' | 'error' | 'child'
 >;
 
+/**
+ * A mock implementation of the Reporter interface for testing purposes.
+ *
+ * @category CLI Helpers
+ */
 export type ReporterMock = Reporter & {
 	info: jest.Mock<void, [string, unknown?]>;
 	debug: jest.Mock<void, [string, unknown?]>;
@@ -13,8 +23,15 @@ export type ReporterMock = Reporter & {
 	child: jest.Mock<ReporterMock, [string]>;
 };
 
+/**
+ * Options for creating a `ReporterMock`.
+ *
+ * @category CLI Helpers
+ */
 export interface ReporterMockOptions {
+	/** A factory function to create child reporter mocks. */
 	childFactory?: (namespace: string) => ReporterMock;
+	/** Partial overrides for the reporter methods. */
 	overrides?: Partial<Reporter>;
 }
 
@@ -30,6 +47,15 @@ function createMethodMock(
 	});
 }
 
+/**
+ * Creates a mock reporter for testing purposes.
+ *
+ * @category CLI Helpers
+ * @param    options.childFactory
+ * @param    options.overrides
+ * @param    options              - Options for configuring the mock reporter.
+ * @returns A `ReporterMock` instance.
+ */
 export function createReporterMock({
 	childFactory,
 	overrides,

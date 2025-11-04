@@ -27,13 +27,31 @@ import {
 import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
 import { buildEmptyGenerationState } from '../apply/manifest';
 
+/**
+ * Defines the environment for creating an Intermediate Representation (IR).
+ *
+ * @category IR
+ */
 export interface CreateIrEnvironment {
+	/** Optional: The workspace instance to use. */
 	readonly workspace?: Workspace;
+	/** Optional: The reporter instance for logging. */
 	readonly reporter?: Reporter;
+	/** Optional: The pipeline phase to execute. */
 	readonly phase?: PipelinePhase;
+	/** Optional: The pipeline instance to use. */
 	readonly pipeline?: Pipeline;
 }
 
+/**
+ * Registers the core IR fragments with the pipeline.
+ *
+ * These fragments are responsible for extracting various pieces of information
+ * from the configuration and building up the Intermediate Representation.
+ *
+ * @category IR
+ * @param    pipeline - The pipeline instance to register fragments with.
+ */
 function registerCoreFragments(pipeline: Pipeline): void {
 	pipeline.ir.use(createMetaFragment());
 	pipeline.ir.use(createSchemasFragment());
@@ -46,6 +64,15 @@ function registerCoreFragments(pipeline: Pipeline): void {
 	pipeline.ir.use(createValidationFragment());
 }
 
+/**
+ * Registers the core builders with the pipeline.
+ *
+ * These builders are responsible for taking the Intermediate Representation
+ * and generating various output artifacts (e.g., PHP, TypeScript, bundles).
+ *
+ * @category IR
+ * @param    pipeline - The pipeline instance to register builders with.
+ */
 function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createBundler());
 	pipeline.builders.use(createPhpDriverInstaller());
@@ -56,6 +83,17 @@ function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createPatcher());
 }
 
+/**
+ * Creates an Intermediate Representation (IR) from the given build options.
+ *
+ * This function sets up a pipeline with core fragments and builders, then runs
+ * the pipeline to generate the IR based on the provided configuration.
+ *
+ * @category IR
+ * @param    options     - Options for building the IR, including configuration and source paths.
+ * @param    environment - Optional environment settings for the IR creation process.
+ * @returns A promise that resolves to the generated `IRv1` object.
+ */
 export async function createIr(
 	options: BuildIrOptions,
 	environment: CreateIrEnvironment = {}

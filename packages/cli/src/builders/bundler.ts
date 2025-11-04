@@ -102,10 +102,30 @@ export function toWordPressGlobal(slug: string): string {
 	return `wp.${formatted}`;
 }
 
+/**
+ * Converts a slug into a WordPress script handle format.
+ *
+ * For example, `my-plugin-script` becomes `wp-my-plugin-script`.
+ *
+ * @category Bundler
+ * @param    slug - The slug to convert.
+ * @returns The WordPress script handle.
+ */
 export function toWordPressHandle(slug: string): string {
 	return `wp-${slug}`;
 }
 
+/**
+ * Builds a list of external dependencies from a package.json-like object.
+ *
+ * This function combines peer dependencies, regular dependencies, and a predefined
+ * list of WordPress and React externals to create a comprehensive list of external
+ * modules that should not be bundled.
+ *
+ * @category Bundler
+ * @param    pkg - A package.json-like object containing dependency information.
+ * @returns An array of unique, sorted external dependency names.
+ */
 export function buildExternalList(pkg: PackageJsonLike | null): string[] {
 	const peerDeps = Object.keys(pkg?.peerDependencies ?? {});
 	const deps = Object.keys(pkg?.dependencies ?? {});
@@ -151,6 +171,16 @@ export function buildGlobalsMap(
 	return globals;
 }
 
+/**
+ * Builds a list of WordPress asset dependencies based on external modules.
+ *
+ * This function translates external JavaScript dependencies (especially WordPress and React)
+ * into their corresponding WordPress script handles, which are used for enqueueing assets.
+ *
+ * @category Bundler
+ * @param    externals - A list of external module names.
+ * @returns An array of unique, sorted WordPress asset handles.
+ */
 export function buildAssetDependencies(externals: readonly string[]): string[] {
 	const dependencies = new Set<string>();
 
@@ -171,6 +201,15 @@ export function buildAssetDependencies(externals: readonly string[]): string[] {
 	return Array.from(dependencies).sort();
 }
 
+/**
+ * Ensures an alias replacement path ends with a trailing slash.
+ *
+ * This is important for consistent path resolution in bundlers.
+ *
+ * @category Bundler
+ * @param    replacement - The alias replacement path.
+ * @returns The normalized alias replacement path with a trailing slash.
+ */
 export function normaliseAliasReplacement(replacement: string): string {
 	if (replacement.endsWith('/')) {
 		return replacement;
@@ -179,6 +218,19 @@ export function normaliseAliasReplacement(replacement: string): string {
 	return `${replacement}/`;
 }
 
+/**
+ * Builds the Rollup driver configuration and asset manifest artifacts.
+ *
+ * This function orchestrates the creation of the necessary configuration objects
+ * for the Rollup bundler, including external dependencies, global mappings, and
+ * the asset manifest used by WordPress.
+ *
+ * @category Bundler
+ * @param    pkg               - A package.json-like object for dependency information.
+ * @param    options           - Additional options for building the artifacts.
+ * @param    options.aliasRoot - The root path for alias replacements, defaults to './src'.
+ * @returns An object containing the `RollupDriverConfig` and `AssetManifest`.
+ */
 export function buildRollupDriverArtifacts(
 	pkg: PackageJsonLike | null,
 	options: { readonly aliasRoot?: string } = {}
@@ -255,6 +307,16 @@ async function queueManifestWrites(
 	}
 }
 
+/**
+ * Creates a builder helper for generating bundler configuration and asset manifests.
+ *
+ * This helper is responsible for analyzing the project's `package.json`,
+ * determining external dependencies, and generating the necessary configuration
+ * files for a JavaScript bundler (currently Rollup) and a WordPress asset manifest.
+ *
+ * @category Bundler
+ * @returns A `BuilderHelper` instance configured to generate bundler artifacts.
+ */
 export function createBundler(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.bundler.core',

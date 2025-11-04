@@ -24,6 +24,11 @@ import type {
 import type { Workspace } from '../workspace';
 import { cleanupWorkspaceTargets } from './apply/cleanup';
 
+/**
+ * The path to the apply log file within the workspace.
+ *
+ * @category Apply Command
+ */
 export { APPLY_LOG_PATH, PATCH_MANIFEST_PATH } from './apply/constants';
 export { createBackups } from './apply/backups';
 export { appendApplyLog } from './apply/logging';
@@ -61,6 +66,17 @@ function withCommandState(
 	command.records = manifest.records;
 }
 
+/**
+ * Builds the `apply` command for the CLI.
+ *
+ * This command is responsible for applying pending workspace patches generated
+ * by the `generate` command. It handles previewing changes, creating backups,
+ * executing the patch application, and reporting the results.
+ *
+ * @category Apply Command
+ * @param    options - Options for building the apply command, including dependencies.
+ * @returns The `ApplyCommandConstructor` class.
+ */
 export function buildApplyCommand(
 	options: BuildApplyCommandOptions = {}
 ): ApplyCommandConstructor {
@@ -179,4 +195,11 @@ export function buildApplyCommand(
 	return ApplyCommand as ApplyCommandConstructor;
 }
 
+/**
+ * The main `apply` command instance.
+ *
+ * This is the entry point for applying generated patches to the workspace.
+ *
+ * @category Apply Command
+ */
 export const ApplyCommand = buildApplyCommand();

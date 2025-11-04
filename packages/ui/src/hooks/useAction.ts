@@ -132,26 +132,74 @@ function createDispatch(runtime: WPKernelUIRuntime): DispatchFunction {
 	return dispatchFn;
 }
 
+/**
+ * Options for the useAction hook.
+ *
+ * @category Actions
+ */
 export interface UseActionOptions<TInput, TResult> {
+	/**
+	 * The concurrency strategy to use.
+	 *
+	 * - `parallel` (default): All calls run in parallel.
+	 * - `switch`: Cancels all previous calls and runs the new one.
+	 * - `queue`: Queues all calls and runs them sequentially.
+	 * - `drop`: Drops all new calls while one is running.
+	 */
 	concurrency?: 'parallel' | 'switch' | 'queue' | 'drop';
+	/**
+	 * A function that returns a string to use for deduplicating requests.
+	 *
+	 * @param input - The input to the action.
+	 * @returns A string to use for deduplication.
+	 */
 	dedupeKey?: (input: TInput) => string;
+	/**
+	 * A function that returns a list of cache key patterns to invalidate on success.
+	 *
+	 * @param result - The result of the action.
+	 * @param input  - The input to the action.
+	 * @returns A list of cache key patterns to invalidate, or false to skip invalidation.
+	 */
 	autoInvalidate?: (
 		result: TResult,
 		input: TInput
 	) => CacheKeyPattern[] | false;
 }
 
+/**
+ * The state of the useAction hook.
+ *
+ * @category Actions
+ */
 export interface UseActionState<TResult> {
+	/** The status of the action. */
 	status: 'idle' | 'running' | 'success' | 'error';
+	/** The error, if the action failed. */
 	error?: WPKernelError;
+	/** The result of the action. */
 	result?: TResult;
+	/** The number of in-flight requests. */
 	inFlight: number;
 }
 
+/**
+ * The result of the useAction hook.
+ *
+ * @category Actions
+ */
 export interface UseActionResult<TInput, TResult>
 	extends UseActionState<TResult> {
+	/**
+	 * A function to run the action.
+	 *
+	 * @param input - The input to the action.
+	 * @returns A promise that resolves with the result of the action.
+	 */
 	run: (input: TInput) => Promise<TResult>;
+	/** A function to cancel all in-flight requests. */
 	cancel: () => void;
+	/** A function to reset the state of the hook. */
 	reset: () => void;
 }
 
@@ -185,6 +233,20 @@ function normaliseToWPKernelError(
 	});
 }
 
+/**
+ * React hook for invoking a kernel action.
+ *
+ * This hook provides a convenient way to execute a `DefinedAction` and manage its lifecycle,
+ * including loading states, errors, and concurrency control. It integrates with the WordPress
+ * data store for dispatching actions and can automatically invalidate resource caches upon success.
+ *
+ * @category Actions
+ * @template TInput - The type of the input arguments for the action.
+ * @template TResult - The type of the result returned by the action.
+ * @param    action  - The `DefinedAction` to be invoked.
+ * @param    options - Configuration options for the action invocation, including concurrency and invalidation.
+ * @returns An object containing the action's current state (`status`, `error`, `result`, `inFlight`) and control functions (`run`, `cancel`, `reset`).
+ */
 export function useAction<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
 	options: UseActionOptions<TInput, TResult> = {}

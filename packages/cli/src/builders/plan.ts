@@ -81,6 +81,17 @@ interface BuildShimOptions {
 	readonly requirePath: string;
 }
 
+/**
+ * Creates a builder helper for generating an apply plan.
+ *
+ * This helper analyzes the differences between the current generation state
+ * and the desired state (based on the IR) and creates a plan of actions
+ * (writes, deletions) to bring the workspace up to date. This plan is then
+ * used by the `createPatcher` helper.
+ *
+ * @category Apply Plan
+ * @returns A `BuilderHelper` instance for generating the apply plan.
+ */
 export function createApplyPlanBuilder(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.apply.plan',

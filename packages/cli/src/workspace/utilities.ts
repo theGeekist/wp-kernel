@@ -12,25 +12,53 @@ import { serialiseError } from '../commands/apply/errors';
 
 const execFile = promisify(execFileCallback);
 
+/**
+ * Options for the `ensureGeneratedPhpClean` function.
+ *
+ * @category Workspace Utilities
+ */
 export interface EnsureGeneratedPhpCleanOptions {
+	/** The workspace instance. */
 	readonly workspace: Workspace;
+	/** The reporter instance for logging. */
 	readonly reporter: Reporter;
+	/** Whether to skip the cleanliness check (e.g., when `--yes` is provided). */
 	readonly yes: boolean;
+	/** Optional: The directory to check for generated PHP files. Defaults to `.generated/php`. */
 	readonly directory?: string;
 }
 
+/**
+ * Options for the `ensureCleanDirectory` function.
+ *
+ * @category Workspace Utilities
+ */
 export interface EnsureCleanDirectoryOptions {
+	/** The workspace instance. */
 	readonly workspace: Workspace;
+	/** The directory to ensure is clean. */
 	readonly directory: string;
+	/** Whether to force the cleanup, even if the directory is not empty. */
 	readonly force?: boolean;
+	/** Whether to create the directory if it doesn't exist. */
 	readonly create?: boolean;
+	/** Optional: The reporter instance for logging. */
 	readonly reporter?: Reporter;
 }
 
+/**
+ * Options for the `promptConfirm` function.
+ *
+ * @category Workspace Utilities
+ */
 export interface ConfirmPromptOptions {
+	/** The message to display to the user. */
 	readonly message: string;
+	/** Optional: The default value if the user just presses Enter. */
 	readonly defaultValue?: boolean;
+	/** Optional: The input stream to read from. Defaults to `process.stdin`. */
 	readonly input?: NodeJS.ReadableStream;
+	/** Optional: The output stream to write to. Defaults to `process.stdout`. */
 	readonly output?: NodeJS.WritableStream;
 }
 
@@ -90,6 +118,20 @@ function isGitRepositoryMissing(error: unknown): boolean {
 	return false;
 }
 
+/**
+ * Ensures that the generated PHP directory is clean (i.e., no uncommitted changes).
+ *
+ * This function checks the Git status of the specified directory. If uncommitted
+ * changes are found, it throws a `WPKernelError` unless the `yes` option is true.
+ *
+ * @category Workspace Utilities
+ * @param    options.workspace
+ * @param    options.reporter
+ * @param    options.yes
+ * @param    options.directory
+ * @param    options           - Options for the cleanliness check.
+ * @throws `WPKernelError` if uncommitted changes are found and `yes` is false.
+ */
 export async function ensureGeneratedPhpClean({
 	workspace,
 	reporter,
@@ -150,6 +192,21 @@ export async function ensureGeneratedPhpClean({
 	}
 }
 
+/**
+ * Ensures that a given directory is clean (empty) or creates it if it doesn't exist.
+ *
+ * If the directory exists and is not empty, it will throw a `WPKernelError`
+ * unless `force` is true, in which case it will clear the directory contents.
+ *
+ * @category Workspace Utilities
+ * @param    options.workspace
+ * @param    options.directory
+ * @param    options.force
+ * @param    options.create
+ * @param    options.reporter
+ * @param    options           - Options for ensuring the directory is clean.
+ * @throws `WPKernelError` if the directory is not empty and `force` is false, or if it's not a directory.
+ */
 export async function ensureCleanDirectory({
 	workspace,
 	directory,
@@ -232,6 +289,17 @@ function parseBooleanAnswer(
 	return defaultValue ?? false;
 }
 
+/**
+ * Prompts the user for a yes/no confirmation.
+ *
+ * @category Workspace Utilities
+ * @param    options.message
+ * @param    options.defaultValue
+ * @param    options.input
+ * @param    options.output
+ * @param    options              - Options for the confirmation prompt.
+ * @returns A promise that resolves to `true` for yes, `false` for no.
+ */
 export async function promptConfirm({
 	message,
 	defaultValue,
@@ -249,6 +317,14 @@ export async function promptConfirm({
 	}
 }
 
+/**
+ * Converts an absolute path to a path relative to the workspace root.
+ *
+ * @category Workspace Utilities
+ * @param    workspace - The workspace instance.
+ * @param    absolute  - The absolute path to convert.
+ * @returns The path relative to the workspace root, using POSIX separators.
+ */
 export { toWorkspaceRelative };
 
 export const __testing = Object.freeze({

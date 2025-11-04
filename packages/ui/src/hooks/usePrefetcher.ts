@@ -5,8 +5,19 @@ import { useStableCallback } from './internal/useStableCallback';
 type PrefetchGet = (id: string | number) => void;
 type PrefetchList<TQuery> = (query?: TQuery) => void;
 
+/**
+ * Interface for the prefetcher, which exposes stable cache prefetch helpers for a resource.
+ *
+ * @category Prefetching
+ */
 export interface Prefetcher<TQuery = unknown> {
+	/**
+	 * Prefetches a single item from the resource.
+	 */
 	prefetchGet: PrefetchGet;
+	/**
+	 * Prefetches a list of items from the resource.
+	 */
 	prefetchList: PrefetchList<TQuery>;
 }
 

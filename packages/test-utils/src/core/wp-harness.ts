@@ -4,12 +4,25 @@ import {
 	type WordPressData,
 } from '../wp/index.js';
 
+/**
+ * Overrides for the WordPress test harness.
+ *
+ * @category WordPress Harness
+ */
 export interface WordPressHarnessOverrides {
+	/** Partial overrides for `window.wp.data`. */
 	data?: Partial<WordPressData>;
+	/** A mock `apiFetch` function. */
 	apiFetch?: jest.Mock;
+	/** Partial overrides for `window.wp.hooks`. */
 	hooks?: Partial<NonNullable<Window['wp']>['hooks']>;
 }
 
+/**
+ * Represents a WordPress test harness, providing mocked WordPress globals and utility functions.
+ *
+ * @category WordPress Harness
+ */
 export interface WordPressTestHarness {
 	/** The mock WordPress global that has been installed. */
 	wp: NonNullable<Window['wp']>;
@@ -59,6 +72,13 @@ function createDefaultHooks(
 	} as NonNullable<Window['wp']>['hooks'];
 }
 
+/**
+ * Creates a WordPress test harness with mocked globals.
+ *
+ * @category WordPress Harness
+ * @param    overrides - Optional overrides for WordPress globals.
+ * @returns A `WordPressTestHarness` instance.
+ */
 export function createWordPressTestHarness(
 	overrides: WordPressHarnessOverrides = {}
 ): WordPressTestHarness {
@@ -102,10 +122,19 @@ export { ensureWpData };
 
 type WordPressHooks = NonNullable<Window['wp']>['hooks'];
 
+/**
+ * Options for the `withWordPressData` helper.
+ *
+ * @category WordPress Harness
+ */
 export interface WithWordPressDataOptions {
+	/** Optional `wp` global override. Set to `null` to unset. */
 	wp?: WordPressTestHarness['wp'] | null;
+	/** Optional `wp.data` override. Set to `null` to unset. */
 	data?: Partial<WordPressData> | null;
+	/** Optional `wp.hooks` override. Set to `null` to unset. */
 	hooks?: Partial<WordPressHooks> | null;
+	/** Optional `wp.apiFetch` override. Set to `null` to unset. */
 	apiFetch?: jest.Mock | null;
 }
 
@@ -180,6 +209,14 @@ function computeNextWordPressGlobal(
 	return base as WordPressTestHarness['wp'];
 }
 
+/**
+ * Executes a callback with a modified `window.wp` global, restoring the original afterwards.
+ *
+ * @category WordPress Harness
+ * @param    overrides - Options to temporarily override parts of the `window.wp` global.
+ * @param    callback  - The function to execute with the modified global.
+ * @returns The return value of the callback.
+ */
 export async function withWordPressData<ReturnType>(
 	overrides: WithWordPressDataOptions,
 	callback: () => ReturnType | Promise<ReturnType>
@@ -211,19 +248,43 @@ export async function withWordPressData<ReturnType>(
 	}
 }
 
+/**
+ * Options for creating an `ApiFetchHarness`.
+ *
+ * @category WordPress Harness
+ */
 export interface ApiFetchHarnessOptions {
+	/** Partial overrides for `window.wp.data`. */
 	data?: Partial<WordPressData>;
+	/** Partial overrides for `window.wp.hooks`. */
 	hooks?: Partial<WordPressHooks>;
+	/** A mock `apiFetch` function. */
 	apiFetch?: jest.Mock;
 }
 
+/**
+ * A harness for testing `apiFetch` interactions.
+ *
+ * @category WordPress Harness
+ */
 export interface ApiFetchHarness {
+	/** The underlying WordPress test harness. */
 	harness: WordPressTestHarness;
+	/** The mock `apiFetch` function. */
 	apiFetch: jest.Mock;
+	/** The mock WordPress hooks object. */
 	hooks: WordPressHooks;
+	/** The mock `doAction` function from `wp.hooks`. */
 	doAction: jest.Mock;
 }
 
+/**
+ * Creates an `ApiFetchHarness` for testing `apiFetch` interactions.
+ *
+ * @category WordPress Harness
+ * @param    options - Options for configuring the harness.
+ * @returns An `ApiFetchHarness` instance.
+ */
 export function createApiFetchHarness(
 	options: ApiFetchHarnessOptions = {}
 ): ApiFetchHarness {

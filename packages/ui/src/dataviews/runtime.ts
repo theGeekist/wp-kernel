@@ -119,6 +119,17 @@ const DEFAULT_OPTIONS: NormalizedDataViewsRuntimeOptions = {
 	autoRegisterResources: false,
 };
 
+/**
+ * Creates a standalone DataViews runtime instance.
+ *
+ * This function initializes and configures a `DataViewsStandaloneRuntime`,
+ * providing the necessary infrastructure for DataViews integration, including
+ * preferences management, event emission, and reporting.
+ *
+ * @category DataViews Integration
+ * @param    options - Configuration options for the DataViews runtime.
+ * @returns A `DataViewsStandaloneRuntime` instance.
+ */
 export function createDataViewsRuntime(
 	options: DataViewsRuntimeOptions
 ): DataViewsStandaloneRuntime {
@@ -152,6 +163,13 @@ export function createDataViewsRuntime(
 	return runtimeContext;
 }
 
+/**
+ * Checks if a given candidate object is a `DataViewsStandaloneRuntime` instance.
+ *
+ * @category DataViews Integration
+ * @param    candidate - The object to check.
+ * @returns True if the candidate is a `DataViewsStandaloneRuntime`, false otherwise.
+ */
 export function isDataViewsRuntime(
 	candidate: unknown
 ): candidate is DataViewsStandaloneRuntime {
@@ -163,6 +181,15 @@ export function isDataViewsRuntime(
 	return Boolean(runtime.dataviews && runtime.namespace);
 }
 
+/**
+ * Ensures that the provided runtime is a valid `DataViewsControllerRuntime`.
+ *
+ * Throws a `DataViewsConfigurationError` if the runtime is invalid.
+ *
+ * @category DataViews Integration
+ * @param    candidate - The runtime candidate to validate.
+ * @returns The validated `DataViewsControllerRuntime` instance.
+ */
 export function ensureControllerRuntime(
 	candidate: KernelDataViewsRuntime | DataViewsControllerRuntime
 ): DataViewsControllerRuntime {

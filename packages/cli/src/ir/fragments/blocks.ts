@@ -3,6 +3,15 @@ import { createHelper } from '../../runtime';
 import { discoverBlocks } from '../shared/block-discovery';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
+/**
+ * Creates an IR fragment that discovers and processes WordPress blocks.
+ *
+ * This fragment depends on the meta fragment to determine the workspace root
+ * and then uses `block-discovery` to find and include block definitions in the IR.
+ *
+ * @category IR Fragments
+ * @returns An `IrFragment` instance for block discovery.
+ */
 export function createBlocksFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.blocks.core',
