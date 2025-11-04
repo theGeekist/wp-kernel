@@ -32,61 +32,137 @@ import {
 } from './ts/shared';
 const GENERATED_ROOT = '.generated';
 
+/**
+ * Options for emitting a TypeScript file.
+ *
+ * @category TypeScript Builder
+ */
 export interface TsBuilderEmitOptions {
+	/** The file path where the TypeScript file will be emitted. */
 	readonly filePath: string;
+	/** The `ts-morph` SourceFile object to emit. */
 	readonly sourceFile: SourceFile;
 }
 
+/**
+ * Defines lifecycle hooks for the TypeScript builder.
+ *
+ * These hooks allow for custom logic to be executed at different stages
+ * of the TypeScript artifact generation process.
+ *
+ * @category TypeScript Builder
+ */
 export interface TsBuilderLifecycleHooks {
+	/** Hook executed before a creator generates an artifact. */
 	readonly onBeforeCreate?: (
 		context: Omit<TsBuilderCreatorContext, 'hooks'>
 	) => Promise<void>;
+	/** Hook executed after a creator generates an artifact. */
 	readonly onAfterCreate?: (
 		context: Omit<TsBuilderCreatorContext, 'hooks'>
 	) => Promise<void>;
+	/** Hook executed after all TypeScript files have been emitted. */
 	readonly onAfterEmit?: (
 		options: TsBuilderAfterEmitOptions
 	) => Promise<void>;
 }
 
+/**
+ * Options passed to the `onAfterEmit` lifecycle hook.
+ *
+ * @category TypeScript Builder
+ */
 export interface TsBuilderAfterEmitOptions {
+	/** A list of file paths that were emitted. */
 	readonly emitted: readonly string[];
+	/** The workspace instance. */
 	readonly workspace: Workspace;
+	/** The reporter instance. */
 	readonly reporter: Reporter;
 }
 
+/**
+ * Context provided to a `TsBuilderCreator` function.
+ *
+ * @category TypeScript Builder
+ */
 export interface TsBuilderCreatorContext {
+	/** The `ts-morph` project instance for managing source files. */
 	readonly project: Project;
+	/** The workspace instance. */
 	readonly workspace: Workspace;
+	/** The resource descriptor for which artifacts are being created. */
 	readonly descriptor: ResourceDescriptor;
+	/** The full WP Kernel configuration. */
 	readonly config: WPKernelConfigV1;
+	/** The source path of the configuration file. */
 	readonly sourcePath: string;
+	/** The Intermediate Representation (IR) of the project. */
 	readonly ir: IRv1;
+	/** The reporter instance for logging. */
 	readonly reporter: Reporter;
+	/** A function to emit a generated TypeScript file. */
 	readonly emit: (options: TsBuilderEmitOptions) => Promise<void>;
 }
 
+/**
+ * Defines a creator function for generating TypeScript artifacts.
+ *
+ * A creator is responsible for generating specific TypeScript files or code
+ * based on the provided context.
+ *
+ * @category TypeScript Builder
+ */
 export interface TsBuilderCreator {
+	/** A unique key for the creator. */
 	readonly key: string;
+	/** The function that creates the TypeScript artifact. */
 	create: (context: TsBuilderCreatorContext) => Promise<void>;
 }
 
+/**
+ * Options for creating a TypeScript builder.
+ *
+ * @category TypeScript Builder
+ */
 export interface CreateTsBuilderOptions {
+	/** Optional: A list of `TsBuilderCreator` instances to use. */
 	readonly creators?: readonly TsBuilderCreator[];
+	/** Optional: A factory function to create a `ts-morph` Project instance. */
 	readonly projectFactory?: () => Project;
+	/** Optional: Lifecycle hooks for the builder. */
 	readonly hooks?: TsBuilderLifecycleHooks;
 }
 
+/**
+ * Options for formatting a TypeScript file.
+ *
+ * @category TypeScript Builder
+ */
 export interface TsFormatterFormatOptions {
+	/** The file path of the TypeScript file to format. */
 	readonly filePath: string;
+	/** The content of the TypeScript file to format. */
 	readonly contents: string;
 }
 
+/**
+ * Interface for a TypeScript formatter.
+ *
+ * @category TypeScript Builder
+ */
 export interface TsFormatter {
+	/** Formats the given TypeScript file content. */
 	format: (options: TsFormatterFormatOptions) => Promise<string>;
 }
 
+/**
+ * Options for building a TypeScript formatter.
+ *
+ * @category TypeScript Builder
+ */
 export interface BuildTsFormatterOptions {
+	/** Optional: A factory function to create a `ts-morph` Project instance. */
 	readonly projectFactory?: () => Project;
 }
 
@@ -94,13 +170,33 @@ type ResourceUiConfig = NonNullable<ResourceConfig['ui']>;
 type ResourceAdminConfig = NonNullable<ResourceUiConfig['admin']>;
 type AdminDataViews = NonNullable<ResourceAdminConfig['dataviews']>;
 
+/**
+ * Describes a resource with its associated configuration and dataviews.
+ *
+ * @category TypeScript Builder
+ */
 export interface ResourceDescriptor {
+	/** The unique key of the resource. */
 	readonly key: string;
+	/** The name of the resource. */
 	readonly name: string;
+	/** The configuration object for the resource. */
 	readonly config: ResourceConfig;
+	/** The admin dataviews configuration for the resource. */
 	readonly dataviews: AdminDataViews;
 }
 
+/**
+ * Creates a builder helper for generating TypeScript artifacts.
+ *
+ * This helper orchestrates the generation of various TypeScript files,
+ * such as admin screens and dataview fixtures, based on the project's IR.
+ * It uses `ts-morph` for programmatic TypeScript code generation and formatting.
+ *
+ * @category TypeScript Builder
+ * @param    options - Options for configuring the TypeScript builder.
+ * @returns A `BuilderHelper` instance configured to generate TypeScript artifacts.
+ */
 export function createTsBuilder(
 	options: CreateTsBuilderOptions = {}
 ): BuilderHelper {
@@ -164,6 +260,15 @@ export function createTsBuilder(
 	});
 }
 
+/**
+ * Builds a `TsBuilderCreator` for generating admin screen components.
+ *
+ * This creator generates a React component for an admin screen, integrating
+ * with the `@wpkernel/ui` library to display resource data views.
+ *
+ * @category TypeScript Builder
+ * @returns A `TsBuilderCreator` instance for admin screen generation.
+ */
 export function buildAdminScreenCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.adminScreen.core',
@@ -313,6 +418,15 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 	};
 }
 
+/**
+ * Builds a `TsBuilderCreator` for generating dataview fixture files.
+ *
+ * This creator generates a TypeScript file that exports the dataview
+ * configuration for a resource, making it available for testing and development.
+ *
+ * @category TypeScript Builder
+ * @returns A `TsBuilderCreator` instance for dataview fixture generation.
+ */
 export function buildDataViewFixtureCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.dataviewFixture.core',
@@ -413,6 +527,16 @@ function buildProject(): Project {
 	});
 }
 
+/**
+ * Builds a TypeScript formatter instance.
+ *
+ * This function creates a `TsFormatter` that can be used to format TypeScript
+ * code using `ts-morph`'s built-in formatting capabilities.
+ *
+ * @category TypeScript Builder
+ * @param    options - Options for building the formatter.
+ * @returns A `TsFormatter` instance.
+ */
 export function buildTsFormatter(
 	options: BuildTsFormatterOptions = {}
 ): TsFormatter {

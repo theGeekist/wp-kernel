@@ -111,17 +111,38 @@ export interface ResourceDataViewActionConfig<
 	) => CacheKeyPattern[] | false;
 }
 
+/**
+ * Represents a saved view configuration.
+ *
+ * @category DataViews Integration
+ */
 export interface ResourceDataViewSavedView {
+	/** The unique identifier for the saved view. */
 	id: string;
+	/** The label for the saved view. */
 	label: string;
+	/** The view configuration object. */
 	view: View;
+	/** An optional description for the saved view. */
 	description?: string;
+	/** Whether this is the default view. */
 	isDefault?: boolean;
+	/** Additional properties for the saved view. */
 	[key: string]: unknown;
 }
 
+/**
+ * Configuration for the menu in a ResourceDataView.
+ *
+ * @category DataViews Integration
+ */
 export type ResourceDataViewMenuConfig = ResourceDataViewsMenuConfig;
 
+/**
+ * Configuration for the screen in a ResourceDataView.
+ *
+ * @category DataViews Integration
+ */
 export type ResourceDataViewScreenConfig = ResourceDataViewsScreenConfig;
 
 /**
@@ -142,45 +163,90 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
 	screen?: ResourceDataViewScreenConfig;
 }
 
+/**
+ * Source for the WPKUICapabilityRuntime.
+ *
+ * @category DataViews Integration
+ */
 export type WPKUICapabilityRuntimeSource =
 	| WPKUICapabilityRuntime
 	| (() => WPKUICapabilityRuntime | undefined);
 
+/**
+ * Options for creating a `ResourceDataViewController`.
+ *
+ * @category DataViews Integration
+ */
 export interface ResourceDataViewControllerOptions<TItem, TQuery> {
+	/** The resource object. */
 	resource?: ResourceObject<TItem, TQuery>;
+	/** The name of the resource. */
 	resourceName?: string;
+	/** The configuration for the DataView. */
 	config: ResourceDataViewConfig<TItem, TQuery>;
+	/** A function to map the view state to a query. */
 	queryMapping?: QueryMapping<TQuery>;
+	/** The runtime for the DataView controller. */
 	runtime: DataViewsControllerRuntime;
+	/** The namespace of the project. */
 	namespace: string;
+	/** A function to invalidate cache entries. */
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
+	/** The capability runtime source. */
 	capabilities?: WPKUICapabilityRuntimeSource;
+	/** The key for storing preferences. */
 	preferencesKey?: string;
+	/** A function to fetch a list of items. */
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
+	/** A function to prefetch a list of items. */
 	prefetchList?: (query: TQuery) => Promise<void>;
 }
 
+/**
+ * Controller for a ResourceDataView.
+ *
+ * @category DataViews Integration
+ */
 export interface ResourceDataViewController<TItem, TQuery> {
+	/** The resource object. */
 	readonly resource?: ResourceObject<TItem, TQuery>;
+	/** The name of the resource. */
 	readonly resourceName: string;
+	/** The configuration for the DataView. */
 	readonly config: ResourceDataViewConfig<TItem, TQuery>;
+	/** A function to map the view state to a query. */
 	readonly queryMapping: QueryMapping<TQuery>;
+	/** The runtime for the DataView controller. */
 	readonly runtime: DataViewsControllerRuntime;
+	/** The namespace of the project. */
 	readonly namespace: string;
+	/** The key for storing preferences. */
 	readonly preferencesKey: string;
+	/** A function to invalidate cache entries. */
 	readonly invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[]
 	) => void;
+	/** The capability runtime. */
 	readonly capabilities?: WPKUICapabilityRuntime;
+	/** A function to fetch a list of items. */
 	readonly fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
+	/** A function to prefetch a list of items. */
 	readonly prefetchList?: (query: TQuery) => Promise<void>;
+	/** Maps the view state to a query. */
 	mapViewToQuery: (view: View) => TQuery;
+	/** Derives the view state from a view. */
 	deriveViewState: (view: View) => DataViewChangedPayload['viewState'];
+	/** Loads the stored view from preferences. */
 	loadStoredView: () => Promise<View | undefined>;
+	/** Saves the view to preferences. */
 	saveView: (view: View) => Promise<void>;
+	/** Emits a view change event. */
 	emitViewChange: (view: View) => void;
+	/** Emits a registered event. */
 	emitRegistered: (preferencesKey: string) => void;
+	/** Emits an unregistered event. */
 	emitUnregistered: (preferencesKey: string) => void;
+	/** Emits an action event. */
 	emitAction: (payload: {
 		actionId: string;
 		selection: Array<string | number>;
@@ -188,19 +254,38 @@ export interface ResourceDataViewController<TItem, TQuery> {
 		reason?: string;
 		meta?: Record<string, unknown>;
 	}) => void;
+	/** Gets the reporter for the controller. */
 	getReporter: () => Reporter;
 }
 
+/**
+ * Options for creating a `DataViewsStandaloneRuntime`.
+ *
+ * @category DataViews Integration
+ */
 export interface DataViewsRuntimeOptions {
+	/** The namespace of the project. */
 	namespace: string;
+	/** The reporter for logging. */
 	reporter: Reporter;
+	/** The preferences runtime or adapter. */
 	preferences: DataViewPreferencesRuntime | DataViewPreferencesAdapter;
+	/** The capability runtime. */
 	capabilities?: WPKUICapabilityRuntime;
+	/** A function to invalidate cache entries. */
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
+	/** A function to emit events. */
 	emit?: (eventName: string, payload: unknown) => void;
 }
 
+/**
+ * A standalone runtime for DataViews.
+ *
+ * @category DataViews Integration
+ */
 export interface DataViewsStandaloneRuntime extends DataViewsRuntimeContext {
+	/** The DataViews runtime. */
 	readonly dataviews: KernelDataViewsRuntime;
+	/** The capability runtime. */
 	readonly capabilities?: WPKUICapabilityRuntime;
 }

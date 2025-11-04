@@ -2,6 +2,16 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
+/**
+ * Creates an IR fragment that performs final validation checks on the IR.
+ *
+ * This fragment depends on the meta, resources, and capability-map fragments
+ * to ensure that the IR is internally consistent and meets all framework contracts.
+ * It throws `WPKernelError` if any critical validation fails.
+ *
+ * @category IR Fragments
+ * @returns An `IrFragment` instance for final IR validation.
+ */
 export function createValidationFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.validation.core',

@@ -73,6 +73,13 @@ const resourceRouteValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
+/**
+ * Typanion validator for resource routes.
+ *
+ * Ensures that a resource defines at least one route operation (list, get, create, update, or remove).
+ *
+ * @category Config Validation
+ */
 export const resourceRoutesValidator = t.cascade(
 	t.isObject(
 		{
@@ -427,6 +434,19 @@ export function validateWPKernelConfig(
 	};
 }
 
+/**
+ * Normalizes and validates the configuration version.
+ *
+ * If the version is undefined, it defaults to 1 and issues a warning.
+ * If the version is not 1, it throws a `WPKernelError`.
+ *
+ * @category Config
+ * @param    version    - The version specified in the configuration, or `undefined`.
+ * @param    reporter   - A reporter instance for logging messages.
+ * @param    sourcePath - The path to the configuration file.
+ * @returns The normalized and validated configuration version (always 1).
+ * @throws `WPKernelError` if an unsupported version is encountered.
+ */
 export function normalizeVersion(
 	version: WPKernelConfigVersion | undefined,
 	reporter: Reporter,
@@ -467,6 +487,21 @@ export function normalizeVersion(
  * @param resourceName - Resource identifier for error messages
  * @param resource     - Resource configuration to validate
  * @param reporter     - Reporter for errors and warnings
+ * @throws When identity params are missing from routes or routes are duplicated
+ */
+/**
+ * Run resource-level validation checks.
+ *
+ * Enforces framework contracts on individual resources:
+ * - Identity parameters must appear in route paths
+ * - Routes must have unique method+path combinations
+ * - Write routes should have capabilities (warns if missing)
+ * - wp-post storage should specify postType (warns if missing)
+ *
+ * @category Config Validation
+ * @param    resourceName - Resource identifier for error messages
+ * @param    resource     - Resource configuration to validate
+ * @param    reporter     - Reporter for errors and warnings
  * @throws When identity params are missing from routes or routes are duplicated
  */
 export function runResourceChecks(
@@ -613,6 +648,15 @@ function validateStorageMode(
 	}
 }
 
+/**
+ * Formats a list of validation errors into a human-readable string.
+ *
+ * @category Config Validation
+ * @param    errors     - An array of error messages from the validation process.
+ * @param    sourcePath - The path to the configuration file where the errors occurred.
+ * @param    origin     - The origin of the configuration (e.g., 'wpk.config.ts').
+ * @returns A formatted string detailing the validation errors.
+ */
 export function formatValidationErrors(
 	errors: string[] | undefined,
 	sourcePath: string,

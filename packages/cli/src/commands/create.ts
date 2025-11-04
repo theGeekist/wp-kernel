@@ -27,30 +27,63 @@ function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.create`;
 }
 
+/**
+ * Options for building the `create` command.
+ *
+ * @category Create Command
+ */
 export interface BuildCreateCommandOptions {
+	/** Optional: Custom workspace builder function. */
 	readonly buildWorkspace?: typeof buildWorkspace;
+	/** Optional: Custom reporter builder function. */
 	readonly buildReporter?: typeof buildReporter;
+	/** Optional: Custom workflow runner function. */
 	readonly runWorkflow?: typeof runInitWorkflow;
+	/** Optional: Custom git repository checker function. */
 	readonly checkGitRepository?: typeof isGitRepository;
+	/** Optional: Custom git repository initializer function. */
 	readonly initGitRepository?: typeof initialiseGitRepository;
+	/** Optional: Custom clean directory enforcer function. */
 	readonly ensureCleanDirectory?: typeof ensureCleanDirectory;
+	/** Optional: Custom Node.js dependency installer function. */
 	readonly installNodeDependencies?: typeof installNodeDependencies;
+	/** Optional: Custom Composer dependency installer function. */
 	readonly installComposerDependencies?: typeof installComposerDependencies;
 }
 
+/**
+ * Represents an instance of the `create` command.
+ *
+ * @category Create Command
+ */
 export type CreateCommandInstance = Command & {
+	/** The target directory for the new project. */
 	target?: string;
+	/** The name of the project. */
 	name?: string;
+	/** The template to use for scaffolding. */
 	template?: string;
+	/** Whether to force overwrite existing files. */
 	force: boolean;
+	/** Whether to enable verbose logging. */
 	verbose: boolean;
+	/** Whether to prefer registry versions for dependencies. */
 	preferRegistryVersions: boolean;
+	/** Whether to skip dependency installation. */
 	skipInstall: boolean;
+	/** A summary of the creation process. */
 	summary: string | null;
+	/** The manifest of files created or modified. */
 	manifest: FileManifest | null;
+	/** The source of dependencies used. */
 	dependencySource: string | null;
 };
 
+/**
+ * The constructor type for the `create` command.
+ *
+ * @category Create Command
+ */
 export type CreateCommandConstructor = new () => CreateCommandInstance;
 
 interface CreateDependencies {
@@ -86,6 +119,16 @@ function resolveTargetDirectory(base: string, target?: string): string {
 	return path.resolve(base, candidate);
 }
 
+/**
+ * Builds the `create` command for the CLI.
+ *
+ * This command is responsible for creating a new WP Kernel project, including
+ * scaffolding files, initializing a Git repository, and installing dependencies.
+ *
+ * @category Create Command
+ * @param    options - Options for building the create command, including dependencies.
+ * @returns The `CreateCommandConstructor` class.
+ */
 export function buildCreateCommand(
 	options: BuildCreateCommandOptions = {}
 ): CreateCommandConstructor {

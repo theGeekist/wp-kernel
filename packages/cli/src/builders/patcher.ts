@@ -315,6 +315,16 @@ function recordResult(manifest: PatchManifest, record: PatchRecord): void {
 	}
 }
 
+/**
+ * Creates a builder helper for applying patches to the workspace.
+ *
+ * This helper reads a patch plan, applies file modifications (writes, merges, deletions)
+ * based on the plan, and records the outcome in a patch manifest.
+ * It uses `git merge-file` for intelligent three-way merges to handle conflicts.
+ *
+ * @category Patcher
+ * @returns A `BuilderHelper` instance for applying patches.
+ */
 export function createPatcher(): BuilderHelper {
 	return createHelper({
 		key: 'builder.apply.patch.core',

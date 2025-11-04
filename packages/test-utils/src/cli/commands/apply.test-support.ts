@@ -7,8 +7,18 @@ import type {
 	LoadedKernelConfigLike,
 } from '../../types.js';
 
+/**
+ * Prefix for temporary directories created for CLI apply command tests.
+ *
+ * @category CLI Helpers
+ */
 export const TMP_PREFIX = path.join(os.tmpdir(), 'cli-apply-command-');
 
+/**
+ * Represents the status of an apply operation in the log.
+ *
+ * @category CLI Helpers
+ */
 export type ApplyLogStatus =
 	| 'success'
 	| 'conflict'
@@ -16,18 +26,33 @@ export type ApplyLogStatus =
 	| 'cancelled'
 	| 'failed';
 
+/**
+ * Represents the flags used during an apply operation.
+ *
+ * @category CLI Helpers
+ */
 export interface ApplyLogFlags {
 	readonly yes: boolean;
 	readonly backup: boolean;
 	readonly force: boolean;
 }
 
+/**
+ * Summary of an apply operation.
+ *
+ * @category CLI Helpers
+ */
 export interface ApplyLogSummary {
 	readonly applied: number;
 	readonly conflicts: number;
 	readonly skipped: number;
 }
 
+/**
+ * Represents a single record within an apply log entry.
+ *
+ * @category CLI Helpers
+ */
 export interface ApplyLogRecord {
 	readonly file: string;
 	readonly status: 'applied' | 'conflict' | 'skipped';
@@ -35,6 +60,11 @@ export interface ApplyLogRecord {
 	readonly details?: Record<string, unknown>;
 }
 
+/**
+ * Represents a complete entry in the apply log.
+ *
+ * @category CLI Helpers
+ */
 export interface ApplyLogEntry {
 	readonly version: number;
 	readonly timestamp: string;
@@ -47,18 +77,36 @@ export interface ApplyLogEntry {
 	readonly error?: unknown;
 }
 
+/**
+ * Options for building a loaded kernel configuration.
+ *
+ * @category CLI Helpers
+ */
 export interface BuildLoadedConfigOptions<
 	TConfig extends KernelConfigV1Like = KernelConfigV1Like,
 	TOrigin extends string = string,
 	TComposerCheck extends string = string,
 > {
+	/** The kernel configuration object. */
 	readonly config?: TConfig;
+	/** The namespace of the project. */
 	readonly namespace?: string;
+	/** The source path of the configuration file. */
 	readonly sourcePath?: string;
+	/** The origin of the configuration (e.g., 'project', 'workspace'). */
 	readonly configOrigin?: TOrigin;
+	/** The composer check status. */
 	readonly composerCheck?: TComposerCheck;
 }
 
+/**
+ * Builds a loaded kernel configuration object for testing.
+ *
+ * @category CLI Helpers
+ * @param    workspace - The path to the workspace.
+ * @param    options   - Options for configuring the loaded config.
+ * @returns A `LoadedKernelConfigLike` object.
+ */
 export function buildLoadedConfig<
 	TConfig extends KernelConfigV1Like = KernelConfigV1Like,
 	TOrigin extends string = string,
@@ -91,15 +139,43 @@ export function buildLoadedConfig<
 	} satisfies LoadedKernelConfigLike<TConfig, TOrigin, TComposerCheck>;
 }
 
+/**
+ * Ensures that a directory exists, creating it if necessary.
+ *
+ * @category CLI Helpers
+ * @param    directory - The path to the directory.
+ * @returns A Promise that resolves when the directory is ensured.
+ */
 export async function ensureDirectory(directory: string): Promise<void> {
 	await fs.mkdir(directory, { recursive: true });
 }
 
+/**
+ * Converts a POSIX-style path to a file system path relative to a workspace.
+ *
+ * @category CLI Helpers
+ * @param    workspace - The path to the workspace.
+ * @param    posixPath - The POSIX-style path to convert.
+ * @returns The file system path.
+ */
 export function toFsPath(workspace: string, posixPath: string): string {
 	const segments = posixPath.split('/').filter(Boolean);
 	return path.join(workspace, ...segments);
 }
 
+/**
+ * Seeds an apply plan in a given workspace.
+ *
+ * @category CLI Helpers
+ * @param    workspace           - The path to the workspace.
+ * @param    file                - The file name for the plan.
+ * @param    options.base
+ * @param    options.incoming
+ * @param    options.description
+ * @param    options.current
+ * @param    options             - Options for seeding the plan (base content, incoming content, description, current content).
+ * @returns A Promise that resolves when the plan is seeded.
+ */
 export async function seedPlan(
 	workspace: string,
 	file: string,
@@ -144,6 +220,13 @@ export async function seedPlan(
 	}
 }
 
+/**
+ * Reads apply log entries from a workspace.
+ *
+ * @category CLI Helpers
+ * @param    workspace - The path to the workspace.
+ * @returns A Promise that resolves to an array of `ApplyLogEntry` objects.
+ */
 export async function readApplyLogEntries(
 	workspace: string
 ): Promise<ApplyLogEntry[]> {

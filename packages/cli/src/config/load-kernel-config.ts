@@ -171,6 +171,19 @@ export function getConfigOrigin(
 	throw new WPKernelError('DeveloperError', { message });
 }
 
+/**
+ * Creates a custom loader for TypeScript configuration files.
+ *
+ * This loader attempts to use a default cosmiconfig TypeScript loader first.
+ * If that fails, it falls back to dynamically importing the `tsx` ESM loader
+ * to execute TypeScript configuration files.
+ *
+ * @category Config
+ * @param    options.defaultLoader
+ * @param    options.tsImportLoader
+ * @param    options                - Options for the TypeScript loader, including an optional default loader and `tsx` import loader.
+ * @returns An asynchronous function that loads and resolves a TypeScript configuration file.
+ */
 export function createTsLoader({
 	defaultLoader = async (filepath: string, content: string) => {
 		const loader = await loadDefaultLoader('.ts');
@@ -213,6 +226,16 @@ export function createTsLoader({
 	};
 }
 
+/**
+ * Creates a custom loader for JavaScript configuration files.
+ *
+ * This loader uses dynamic `import()` to load JavaScript configuration files,
+ * supporting both CommonJS and ES module formats.
+ *
+ * @category Config
+ * @param    importModule - The import function to use for loading modules. Defaults to the native `import()`.
+ * @returns An asynchronous function that loads and resolves a JavaScript configuration file.
+ */
 export function createJsLoader(
 	importModule: (specifier: string) => Promise<unknown> = (specifier) =>
 		import(specifier)
@@ -241,6 +264,16 @@ export function createJsLoader(
  * wrappers and promises to support a wide range of authoring styles.
  *
  * @param value - Raw module export from a loader.
+ * @return The resolved kernel config candidate.
+ */
+/**
+ * Normalises nested config module exports into a raw config value.
+ *
+ * The helper unwraps default exports, `wpkConfig` wrappers, `config`
+ * wrappers and promises to support a wide range of authoring styles.
+ *
+ * @category Config
+ * @param    value - Raw module export from a loader.
  * @return The resolved kernel config candidate.
  */
 export async function resolveConfigValue(value: unknown): Promise<unknown> {
@@ -272,6 +305,20 @@ export async function resolveConfigValue(value: unknown): Promise<unknown> {
 	return current;
 }
 
+/**
+ * Validates the Composer autoload configuration for the project.
+ *
+ * This function checks if a `composer.json` file exists, reads its contents,
+ * and verifies that it contains a PSR-4 autoload mapping to an `inc/` directory,
+ * which is required for generated PHP output.
+ *
+ * @category Config
+ * @param    startDir           - The directory to start searching for `composer.json`.
+ * @param    namespace          - The namespace to validate against.
+ * @param    validationReporter - A reporter instance for logging validation messages.
+ * @returns A promise that resolves to 'ok' if the Composer autoload is valid.
+ * @throws `WPKernelError` if `composer.json` is not found, is invalid, or lacks the required PSR-4 mapping.
+ */
 export async function validateComposerAutoload(
 	startDir: string,
 	namespace: string,
@@ -309,6 +356,15 @@ export async function validateComposerAutoload(
 	return 'ok';
 }
 
+/**
+ * Reads and parses the `composer.json` file.
+ *
+ * @category Config
+ * @param    composerPath       - The absolute path to the `composer.json` file.
+ * @param    validationReporter - A reporter instance for logging validation messages.
+ * @returns A promise that resolves with the parsed JSON content of `composer.json`.
+ * @throws `WPKernelError` if the file cannot be read or parsed.
+ */
 export async function readComposerJson(
 	composerPath: string,
 	validationReporter: Reporter
@@ -328,6 +384,16 @@ export async function readComposerJson(
 	}
 }
 
+/**
+ * Extracts the PSR-4 autoload map from the Composer JSON content.
+ *
+ * @category Config
+ * @param    composerJson       - The parsed content of `composer.json`.
+ * @param    composerPath       - The absolute path to the `composer.json` file.
+ * @param    validationReporter - A reporter instance for logging validation messages.
+ * @returns The PSR-4 autoload map as a record of namespaces to paths.
+ * @throws `WPKernelError` if the `autoload` or `psr-4` fields are missing or invalid.
+ */
 export function getComposerAutoloadMap(
 	composerJson: unknown,
 	composerPath: string,
@@ -359,6 +425,17 @@ export function getComposerAutoloadMap(
 	return autoload;
 }
 
+/**
+ * Asserts that at least one PSR-4 namespace in the Composer autoload map points to `inc/`.
+ *
+ * This is a requirement for generated PHP output to be correctly loaded by Composer.
+ *
+ * @category Config
+ * @param    autoload           - The PSR-4 autoload map.
+ * @param    composerPath       - The absolute path to the `composer.json` file.
+ * @param    validationReporter - A reporter instance for logging validation messages.
+ * @throws `WPKernelError` if no namespace maps to `inc/`.
+ */
 export function assertIncMapping(
 	autoload: Record<string, unknown>,
 	composerPath: string,
@@ -388,6 +465,14 @@ export function assertIncMapping(
 	});
 }
 
+/**
+ * Searches for a file or directory by traversing up the directory tree.
+ *
+ * @category Config
+ * @param    startDir - The directory to start the search from.
+ * @param    fileName - The name of the file or directory to find.
+ * @returns A promise that resolves with the absolute path to the found file/directory, or `null` if not found.
+ */
 export async function findUp(
 	startDir: string,
 	fileName: string
@@ -407,6 +492,13 @@ export async function findUp(
 	return findUp(parent, fileName);
 }
 
+/**
+ * Checks if a file exists at the given path.
+ *
+ * @category Config
+ * @param    filePath - The absolute path to the file.
+ * @returns A promise that resolves to `true` if the file exists, `false` otherwise.
+ */
 export async function fileExists(filePath: string): Promise<boolean> {
 	try {
 		await fs.access(filePath);
@@ -427,6 +519,15 @@ function isPromise(value: unknown): value is Promise<unknown> {
 	);
 }
 
+/**
+ * Dynamically loads the `tsx` ESM loader for TypeScript module imports.
+ *
+ * This function ensures that the `tsx` dependency is only loaded when needed,
+ * making it optional for consumers who don't use TypeScript configuration files.
+ *
+ * @category Config
+ * @returns A promise that resolves with the `tsImport` function from `tsx/esm/api`.
+ */
 export async function getTsImport(): Promise<TsImport> {
 	if (!cachedTsImport) {
 		// Dynamically load the `tsx` ESM loader when needed. This keeps the
@@ -439,6 +540,14 @@ export async function getTsImport(): Promise<TsImport> {
 	return cachedTsImport;
 }
 
+/**
+ * Sets the cached `tsImport` function.
+ *
+ * This is primarily used for testing or to manually inject a `tsImport` implementation.
+ *
+ * @category Config
+ * @param    value - The promise resolving to the `tsImport` function, or `null` to clear the cache.
+ */
 export function setCachedTsImport(value: Promise<TsImport> | null): void {
 	cachedTsImport = value;
 }

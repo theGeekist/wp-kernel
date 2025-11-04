@@ -1,5 +1,10 @@
 import { Writable } from 'node:stream';
 
+/**
+ * A Writable stream that stores all written data in memory.
+ *
+ * @category CLI Helpers
+ */
 export class MemoryStream extends Writable {
 	private chunks: string[] = [];
 
@@ -21,6 +26,12 @@ export class MemoryStream extends Writable {
 	}
 }
 
+/**
+ * Creates a new `MemoryStream` instance.
+ *
+ * @category CLI Helpers
+ * @returns A new `MemoryStream` instance.
+ */
 export function createMemoryStream(): MemoryStream {
 	return new MemoryStream();
 }

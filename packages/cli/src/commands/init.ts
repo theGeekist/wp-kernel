@@ -22,24 +22,51 @@ function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.init`;
 }
 
+/**
+ * Options for building the `init` command.
+ *
+ * @category Init Command
+ */
 export interface BuildInitCommandOptions {
+	/** Optional: Custom workspace builder function. */
 	readonly buildWorkspace?: typeof buildWorkspace;
+	/** Optional: Custom reporter builder function. */
 	readonly buildReporter?: typeof buildReporter;
+	/** Optional: Custom workflow runner function. */
 	readonly runWorkflow?: typeof runInitWorkflow;
+	/** Optional: Custom git repository checker function. */
 	readonly checkGitRepository?: typeof isGitRepository;
 }
 
+/**
+ * Represents an instance of the `init` command.
+ *
+ * @category Init Command
+ */
 export type InitCommandInstance = Command & {
+	/** The name of the project. */
 	name?: string;
+	/** The template to use for scaffolding. */
 	template?: string;
+	/** Whether to force overwrite existing files. */
 	force: boolean;
+	/** Whether to enable verbose logging. */
 	verbose: boolean;
+	/** Whether to prefer registry versions for dependencies. */
 	preferRegistryVersions: boolean;
+	/** A summary of the initialization process. */
 	summary: string | null;
+	/** The manifest of files created or modified. */
 	manifest: FileManifest | null;
+	/** The source of dependencies used. */
 	dependencySource: string | null;
 };
 
+/**
+ * The constructor type for the `init` command.
+ *
+ * @category Init Command
+ */
 export type InitCommandConstructor = new () => InitCommandInstance;
 
 interface InitDependencies {
@@ -59,6 +86,16 @@ function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
 	} satisfies InitDependencies;
 }
 
+/**
+ * Builds the `init` command for the CLI.
+ *
+ * This command is responsible for initializing a new WP Kernel project by
+ * scaffolding configuration files, entry points, and linting presets.
+ *
+ * @category Init Command
+ * @param    options - Options for building the init command, including dependencies.
+ * @returns The `InitCommandConstructor` class.
+ */
 export function buildInitCommand(
 	options: BuildInitCommandOptions = {}
 ): InitCommandConstructor {

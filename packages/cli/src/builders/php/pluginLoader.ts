@@ -12,6 +12,16 @@ import {
 import { getPhpBuilderChannel } from './channel';
 import { toPascalCase } from './utils';
 
+/**
+ * Creates a PHP builder helper for generating the main plugin loader file (`plugin.php`).
+ *
+ * This helper generates the primary entry point for the WordPress plugin,
+ * which includes and initializes all other generated PHP components.
+ * It also checks for an existing `plugin.php` to avoid overwriting user-owned files.
+ *
+ * @category PHP Builder
+ * @returns A `BuilderHelper` instance for generating the plugin loader file.
+ */
 export function createPhpPluginLoaderHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.plugin-loader',

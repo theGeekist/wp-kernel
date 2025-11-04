@@ -17,7 +17,16 @@ const WP_POST_ROUTE_HELPER_SYMBOL = Symbol(
 	'@wpkernel/cli/resource/wpPost/routes'
 );
 
+/**
+ * Represents the state managed by the WP Post route helper.
+ *
+ * This state stores bundles of generated artifacts for WP Post-based routes,
+ * keyed by resource name.
+ *
+ * @category PHP Builder
+ */
 export interface WpPostRouteHelperState {
+	/** A map of resource names to their WP Post route bundles. */
 	readonly bundles: Map<string, WpPostRouteBundle>;
 }
 
@@ -25,6 +34,15 @@ interface WpPostRouteHelperHost {
 	[WP_POST_ROUTE_HELPER_SYMBOL]?: WpPostRouteHelperState;
 }
 
+/**
+ * Retrieves the singleton state object for the WP Post route helper from the pipeline context.
+ *
+ * If the state object does not exist in the context, it is initialized.
+ *
+ * @category PHP Builder
+ * @param    context - The current pipeline context.
+ * @returns The `WpPostRouteHelperState` instance.
+ */
 export function getWpPostRouteHelperState(
 	context: PipelineContext
 ): WpPostRouteHelperState {
@@ -38,6 +56,14 @@ export function getWpPostRouteHelperState(
 	return host[WP_POST_ROUTE_HELPER_SYMBOL]!;
 }
 
+/**
+ * Reads a WP Post route bundle for a given resource name from the helper state.
+ *
+ * @category PHP Builder
+ * @param    state        - The `WpPostRouteHelperState` containing the bundles.
+ * @param    resourceName - The name of the resource to retrieve the bundle for.
+ * @returns The `WpPostRouteBundle` for the specified resource, or `undefined` if not found.
+ */
 export function readWpPostRouteBundle(
 	state: WpPostRouteHelperState,
 	resourceName: string
@@ -45,6 +71,15 @@ export function readWpPostRouteBundle(
 	return state.bundles.get(resourceName);
 }
 
+/**
+ * Creates a PHP builder helper for WP Post-based routes.
+ *
+ * This helper processes resources configured to use 'wp-post' storage mode
+ * and generates the necessary route bundles for handling WP Post CRUD operations.
+ *
+ * @category PHP Builder
+ * @returns A `BuilderHelper` instance for WP Post routes.
+ */
 export function createPhpWpPostRoutesHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources.wpPostRoutes',

@@ -2,14 +2,32 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
+/**
+ * Options for configuring a temporary workspace.
+ *
+ * @category Integration
+ */
 export interface WorkspaceOptions {
+	/** A prefix for the temporary directory name. */
 	prefix?: string;
+	/** Whether to change the current working directory to the workspace. */
 	chdir?: boolean;
+	/** A map of relative file paths to their content (string or Buffer). */
 	files?: Record<string, string | Buffer>;
+	/** A setup function to run before the test. */
 	setup?: (workspace: string) => Promise<void> | void;
+	/** A teardown function to run after the test. */
 	teardown?: (workspace: string) => Promise<void> | void;
 }
 
+/**
+ * Creates and manages a temporary workspace for integration tests.
+ *
+ * @category Integration
+ * @param    run     - The test function to execute within the workspace. It receives the workspace path as an argument.
+ * @param    options - Configuration options for the workspace.
+ * @returns A Promise that resolves when the test and cleanup are complete.
+ */
 export async function withWorkspace(
 	run: (workspace: string) => Promise<void>,
 	options: WorkspaceOptions = {}
@@ -62,6 +80,13 @@ export async function withWorkspace(
 	}
 }
 
+/**
+ * Creates a workspace runner function with default options.
+ *
+ * @category Integration
+ * @param    defaultOptions - Default options to apply to all workspaces created by the runner.
+ * @returns A function that takes a test function and optional overrides, and runs it within a workspace.
+ */
 export function createWorkspaceRunner(
 	defaultOptions: WorkspaceOptions = {}
 ): (

@@ -18,17 +18,33 @@ type WPKernelUIProviderComponent = (props: {
 	children: ReactNode;
 }) => ReturnType<typeof createElement>;
 
+/**
+ * Options for creating a `KernelUITestHarness`.
+ *
+ * @category UI Harness
+ */
 export interface KernelUITestHarnessOptions {
+	/** Partial overrides for the reporter. */
 	reporter?: Partial<Reporter>;
+	/** The namespace for the runtime. */
 	namespace?: string;
+	/** The WPKernelUIProvider component to use. */
 	provider?: WPKernelUIProviderComponent;
 }
 
+/**
+ * A harness for testing UI components that interact with the WPKernel UI runtime.
+ *
+ * @category UI Harness
+ */
 export interface KernelUITestHarness {
+	/** The WordPress test harness. */
 	wordpress: WordPressTestHarness;
+	/** Creates a new `WPKernelUIRuntime` instance. */
 	createRuntime: (
 		overrides?: Partial<WPKernelUIRuntime>
 	) => WPKernelUIRuntime;
+	/** Creates a React wrapper component for the WPKernel UI runtime. */
 	createWrapper: (
 		runtime?: WPKernelUIRuntime
 	) => ({
@@ -36,9 +52,13 @@ export interface KernelUITestHarness {
 	}: {
 		children: ReactNode;
 	}) => ReturnType<typeof createElement>;
+	/** Resets the action store registration. */
 	resetActionStoreRegistration: () => void;
+	/** Suppresses console errors that match a given predicate. */
 	suppressConsoleError: (predicate: (args: unknown[]) => boolean) => void;
+	/** Restores the original console error function. */
 	restoreConsoleError: () => void;
+	/** Tears down the harness, restoring original globals. */
 	teardown: () => void;
 }
 
@@ -74,6 +94,13 @@ function createWrapper(
 
 const ACTION_STORE_MARKER = Symbol.for('wpKernelUIActionStoreRegistered');
 
+/**
+ * Creates a `KernelUITestHarness` instance.
+ *
+ * @category UI Harness
+ * @param    options - Options for configuring the harness.
+ * @returns A `KernelUITestHarness` instance.
+ */
 export function createKernelUITestHarness(
 	options: KernelUITestHarnessOptions = {}
 ): KernelUITestHarness {

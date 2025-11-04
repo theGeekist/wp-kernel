@@ -3,8 +3,24 @@ import type { ResourceObject } from '@wpkernel/core/resource';
 import { useStableCallback } from './internal/useStableCallback';
 import { usePrefetcher } from './usePrefetcher';
 
+/**
+ * Options for the useNextPagePrefetch hook.
+ *
+ * @category Prefetching
+ */
 export interface NextPagePrefetchOptions<TQuery> {
+	/**
+	 * A function that computes the next query to prefetch.
+	 *
+	 * @param query - The current query.
+	 * @returns The next query to prefetch.
+	 */
 	computeNext?: (query: TQuery) => TQuery;
+	/**
+	 * If true, the prefetch will be triggered.
+	 *
+	 * @default true
+	 */
 	when?: boolean;
 }
 
@@ -18,6 +34,14 @@ const defaultComputeNext = <TQuery extends Record<string, unknown>>(
 	};
 };
 
+/**
+ * Prefetches the next page of a paginated resource.
+ *
+ * @category Prefetching
+ * @param    resource     - The resource to prefetch.
+ * @param    currentQuery - The current query.
+ * @param    options      - Options for the hook.
+ */
 export function useNextPagePrefetch<
 	TRecord,
 	TQuery extends Record<string, unknown>,

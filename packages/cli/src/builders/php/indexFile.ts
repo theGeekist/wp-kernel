@@ -15,6 +15,16 @@ import type { IRv1 } from '../../ir/publicTypes';
 import { toPascalCase } from './utils';
 import { getPhpBuilderChannel } from './channel';
 
+/**
+ * Creates a PHP builder helper for generating the main `index.php` file.
+ *
+ * This helper generates the primary entry point for the generated PHP code,
+ * which includes and initializes all other generated components like controllers,
+ * capabilities, and the persistence registry.
+ *
+ * @category PHP Builder
+ * @returns A `BuilderHelper` instance for generating the `index.php` file.
+ */
 export function createPhpIndexFileHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.index',

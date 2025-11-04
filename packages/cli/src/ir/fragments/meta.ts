@@ -5,8 +5,22 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { toWorkspaceRelative } from '../../utils';
 import { createPhpNamespace } from '../shared/php';
 
+/**
+ * The extension key for the meta fragment.
+ *
+ * @category IR Fragments
+ */
 export const META_EXTENSION_KEY = 'ir.meta.core';
 
+/**
+ * Creates an IR fragment that processes and assigns metadata to the IR.
+ *
+ * This fragment sanitizes the project namespace, determines source paths and origins,
+ * and sets up the basic PHP configuration for the generated output.
+ *
+ * @category IR Fragments
+ * @returns An `IrFragment` instance for meta information.
+ */
 export function createMetaFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.meta.core',

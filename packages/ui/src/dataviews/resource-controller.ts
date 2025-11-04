@@ -117,6 +117,19 @@ function resolveRuntime(
 	return runtime;
 }
 
+/**
+ * Creates a controller for a ResourceDataView.
+ *
+ * This function initializes and returns a `ResourceDataViewController` instance,
+ * which manages the state and interactions for a DataViews interface tied to a specific resource.
+ * It handles view state mapping, persistence, and event emission.
+ *
+ * @category DataViews Integration
+ * @template TItem - The type of the items in the resource list.
+ * @template TQuery - The type of the query parameters for the resource.
+ * @param    options - Configuration options for the controller.
+ * @returns A `ResourceDataViewController` instance.
+ */
 export function createResourceDataViewController<TItem, TQuery>(
 	options: ResourceDataViewControllerOptions<TItem, TQuery>
 ): ResourceDataViewController<TItem, TQuery> {

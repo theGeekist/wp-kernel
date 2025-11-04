@@ -25,9 +25,23 @@ import {
 export type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 
 export interface CreatePhpBuilderOptions {
+	/**
+	 * Optional configuration options for the PHP driver.
+	 */
 	readonly driver?: PhpDriverConfigurationOptions;
 }
 
+/**
+ * Creates a builder helper for generating PHP code and artifacts.
+ *
+ * This helper orchestrates a sequence of other PHP-specific helpers to generate
+ * various components of the PHP output, such as controllers, storage implementations,
+ * capability definitions, and the main plugin loader file.
+ *
+ * @category PHP Builder
+ * @param    options - Configuration options for the PHP builder.
+ * @returns A `BuilderHelper` instance configured to generate PHP artifacts.
+ */
 export function createPhpBuilder(
 	options: CreatePhpBuilderOptions = {}
 ): BuilderHelper {

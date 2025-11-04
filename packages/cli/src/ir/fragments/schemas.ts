@@ -5,8 +5,22 @@ import {
 } from '../shared/schema';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
+/**
+ * The extension key for the schemas fragment.
+ *
+ * @category IR Fragments
+ */
 export const SCHEMA_EXTENSION_KEY = 'ir.schemas.core';
 
+/**
+ * Creates an IR fragment that processes and accumulates schema definitions.
+ *
+ * This fragment loads schemas configured in the `wpk.config.*` file and makes
+ * them available in the Intermediate Representation.
+ *
+ * @category IR Fragments
+ * @returns An `IrFragment` instance for schema processing.
+ */
 export function createSchemasFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.schemas.core',

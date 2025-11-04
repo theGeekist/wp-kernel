@@ -54,6 +54,16 @@ function mergeDelimitedValues(
 	return Array.from(segments).join(path.delimiter);
 }
 
+/**
+ * Builds an environment object suitable for running PHP integration tests.
+ *
+ * This function sets up `WPK_PHP_AUTOLOAD_PATHS` and `NODE_PATH` environment variables
+ * to ensure PHP and Node.js dependencies are correctly resolved during tests.
+ *
+ * @category Integration
+ * @param    baseEnv - The base environment variables to extend (defaults to `process.env`).
+ * @returns A new environment object with PHP integration paths configured.
+ */
 export function buildPhpIntegrationEnv(
 	baseEnv: NodeJS.ProcessEnv = process.env
 ): NodeJS.ProcessEnv {

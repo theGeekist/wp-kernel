@@ -38,6 +38,16 @@ function sortDiagnostics(values: IRDiagnostic[]): IRDiagnostic[] {
 	return values.sort((a, b) => a.key.localeCompare(b.key));
 }
 
+/**
+ * Creates an IR fragment that collects and aggregates diagnostics (warnings) from other fragments.
+ *
+ * This fragment depends on the resources and capability-map fragments to gather
+ * any warnings or issues identified during their processing and consolidates them
+ * into a single list of diagnostics in the IR.
+ *
+ * @category IR Fragments
+ * @returns An `IrFragment` instance for diagnostics collection.
+ */
 export function createDiagnosticsFragment(): IrFragment {
 	return createHelper({
 		key: DIAGNOSTICS_FRAGMENT_KEY,

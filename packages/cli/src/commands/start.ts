@@ -20,11 +20,27 @@ import { serialiseError } from './internal/serialiseError';
 
 type WatchFn = typeof chokidarModule.watch;
 
+/**
+ * Defines the tier of a file change, indicating its impact on regeneration speed.
+ *
+ * - `fast`: Changes that can be regenerated quickly.
+ * - `slow`: Changes that require a more extensive or time-consuming regeneration.
+ *
+ * @category Start Command
+ */
 export type ChangeTier = 'fast' | 'slow';
 
+/**
+ * Represents a file system change that triggers a regeneration cycle.
+ *
+ * @category Start Command
+ */
 export type Trigger = {
+	/** The tier of the change (fast or slow). */
 	tier: ChangeTier;
+	/** The type of file system event (e.g., 'add', 'change', 'unlink'). */
 	event: string;
+	/** The path to the file that triggered the change. */
 	file: string;
 };
 
@@ -34,21 +50,43 @@ interface FileSystem {
 	readonly cp: typeof fs.cp;
 }
 
+/**
+ * Defines the dependencies required by the `start` command.
+ *
+ * @category Start Command
+ */
 interface BuildStartCommandDependencies {
+	/** Function to dynamically load the `chokidar.watch` function. */
 	readonly loadWatch: () => Promise<WatchFn>;
+	/** Function to build a reporter instance. */
 	readonly buildReporter: typeof buildReporter;
+	/** Function to build the generate command. */
 	readonly buildGenerateCommand: typeof buildGenerateCommand;
+	/** Function to adopt the command environment. */
 	readonly adoptCommandEnvironment: typeof adoptCommandEnvironment;
+	/** File system utility functions. */
 	readonly fileSystem: FileSystem;
+	/** Function to spawn the Vite development server process. */
 	readonly spawnViteProcess: () => ChildProcessWithoutNullStreams;
 }
 
+/**
+ * Options for building the `start` command, allowing for dependency injection.
+ *
+ * @category Start Command
+ */
 export interface BuildStartCommandOptions {
+	/** Optional: Custom function to load the `chokidar.watch` function. */
 	readonly loadWatch?: () => Promise<WatchFn>;
+	/** Optional: Custom reporter builder function. */
 	readonly buildReporter?: typeof buildReporter;
+	/** Optional: Custom generate command builder function. */
 	readonly buildGenerateCommand?: typeof buildGenerateCommand;
+	/** Optional: Custom function to adopt the command environment. */
 	readonly adoptCommandEnvironment?: typeof adoptCommandEnvironment;
+	/** Optional: Partial file system utility functions for testing. */
 	readonly fileSystem?: Partial<FileSystem>;
+	/** Optional: Custom function to spawn the Vite development server process. */
 	readonly spawnViteProcess?: () => ChildProcessWithoutNullStreams;
 }
 
@@ -155,6 +193,17 @@ async function loadChokidarWatch(): Promise<WatchFn> {
 	});
 }
 
+/**
+ * Builds the `start` command for the CLI.
+ *
+ * This command initiates a watch mode for kernel sources, regenerating artifacts
+ * on changes and running a Vite development server. It supports debouncing
+ * changes and optionally auto-applying generated PHP artifacts.
+ *
+ * @category Start Command
+ * @param    options - Options for building the start command, including dependencies.
+ * @returns The `Command` class for the start command.
+ */
 export function buildStartCommand(
 	options: BuildStartCommandOptions = {}
 ): new () => Command {
@@ -582,6 +631,16 @@ function toWorkspaceRelativePath(absolute: string): string {
 	return relative.split(path.sep).join('/');
 }
 
+/**
+ * Detects the change tier (fast or slow) for a given file path.
+ *
+ * Files in `contracts/` or `schemas/` are considered 'slow' changes,
+ * as they often require more extensive regeneration.
+ *
+ * @category Start Command
+ * @param    filePath - The path to the changed file.
+ * @returns The `ChangeTier` for the file.
+ */
 export function detectTier(filePath: string): ChangeTier {
 	const relative = normaliseForLog(filePath).toLowerCase();
 	if (relative.startsWith('contracts/') || relative.startsWith('schemas/')) {
@@ -602,6 +661,17 @@ function normaliseForLog(filePath: string): string {
 	return relative.split(path.sep).join('/');
 }
 
+/**
+ * Prioritises a new incoming trigger over a currently queued trigger.
+ *
+ * A 'slow' incoming trigger will always override a 'fast' current trigger.
+ * If both are 'slow' or both are 'fast', the incoming trigger takes precedence.
+ *
+ * @category Start Command
+ * @param    current  - The currently queued trigger, or null if none.
+ * @param    incoming - The new incoming trigger.
+ * @returns The trigger that should be processed next.
+ */
 export function prioritiseQueued(
 	current: Trigger | null,
 	incoming: Trigger

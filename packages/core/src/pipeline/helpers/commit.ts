@@ -32,6 +32,13 @@ function normaliseTasks(inputs: readonly TaskInput[]): PipelineTask[] {
 	return inputs.filter(Boolean) as PipelineTask[];
 }
 
+/**
+ * Creates a commit function that runs a sequence of tasks.
+ *
+ * @param    tasks - The tasks to run on commit.
+ * @returns A function that runs the tasks, or undefined if no tasks are provided.
+ * @category Pipeline
+ */
 export function createPipelineCommit(
 	...tasks: readonly TaskInput[]
 ): (() => MaybePromise<void>) | undefined {
@@ -43,6 +50,13 @@ export function createPipelineCommit(
 	return () => runSequential(normalised);
 }
 
+/**
+ * Creates a rollback function that runs a sequence of tasks in reverse order.
+ *
+ * @param    tasks - The tasks to run on rollback.
+ * @returns A function that runs the tasks, or undefined if no tasks are provided.
+ * @category Pipeline
+ */
 export function createPipelineRollback(
 	...tasks: readonly TaskInput[]
 ): (() => MaybePromise<void>) | undefined {

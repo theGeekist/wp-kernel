@@ -31,6 +31,16 @@ const STUB_TRANSACTION_LABEL = 'builder.generate.ts.blocks.stubs';
 const DERIVED_TRANSACTION_LABEL =
 	'builder.generate.ts.blocks.derived-manifests';
 
+/**
+ * Creates a builder helper for generating JavaScript-only WordPress blocks.
+ *
+ * This helper processes block configurations from the IR, collects block manifests,
+ * generates JavaScript artifacts for block registration, and stages render stubs
+ * for blocks that do not have server-side rendering.
+ *
+ * @category TypeScript Builder
+ * @returns A `BuilderHelper` instance for generating JavaScript block code.
+ */
 export function createJsBlocksBuilder(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.ts.blocks',
