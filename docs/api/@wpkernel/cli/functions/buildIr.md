@@ -1,14 +1,13 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildIr
 
 # Function: buildIr()
 
 ```ts
-function buildIr(options): Promise & lt;
-IRv1 & gt;
+function buildIr(options): Promise&lt;IRv1&gt;;
 ```
 
 Builds the Intermediate Representation (IR) for a WP Kernel project.

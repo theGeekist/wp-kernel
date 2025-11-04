@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / SerializedError
 
@@ -20,7 +20,7 @@ Serialized error format (JSON-safe)
 code: ErrorCode;
 ```
 
----
+***
 
 ### message
 
@@ -28,7 +28,7 @@ code: ErrorCode;
 message: string;
 ```
 
----
+***
 
 ### name
 
@@ -36,7 +36,7 @@ message: string;
 name: string;
 ```
 
----
+***
 
 ### data?
 
@@ -44,7 +44,7 @@ name: string;
 optional data: ErrorData;
 ```
 
----
+***
 
 ### context?
 
@@ -52,7 +52,7 @@ optional data: ErrorData;
 optional context: ErrorContext;
 ```
 
----
+***
 
 ### stack?
 

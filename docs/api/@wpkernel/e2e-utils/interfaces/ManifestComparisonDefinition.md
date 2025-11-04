@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ManifestComparisonDefinition
 
@@ -11,20 +11,18 @@
 ### before
 
 ```ts
-before: Record & lt;
-(string, ManifestFileDefinition & gt);
+before: Record&lt;string, ManifestFileDefinition&gt;;
 ```
 
----
+***
 
 ### after
 
 ```ts
-after: Record & lt;
-(string, ManifestMutationDefinition & gt);
+after: Record&lt;string, ManifestMutationDefinition&gt;;
 ```
 
----
+***
 
 ### ignore?
 

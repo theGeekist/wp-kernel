@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceDataViewsMenuConfig
 
@@ -20,7 +20,7 @@
 slug: string;
 ```
 
----
+***
 
 ### title
 
@@ -28,7 +28,7 @@ slug: string;
 title: string;
 ```
 
----
+***
 
 ### capability?
 
@@ -36,7 +36,7 @@ title: string;
 optional capability: string;
 ```
 
----
+***
 
 ### parent?
 
@@ -44,7 +44,7 @@ optional capability: string;
 optional parent: string;
 ```
 
----
+***
 
 ### position?
 

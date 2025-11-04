@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / TsBuilderEmitOptions
 
@@ -18,7 +18,7 @@ readonly filePath: string;
 
 The file path where the TypeScript file will be emitted.
 
----
+***
 
 ### sourceFile
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / SchemaConfig
 
@@ -16,7 +16,7 @@ Configuration for a registered schema file.
 path: string;
 ```
 
----
+***
 
 ### generated
 
@@ -30,7 +30,7 @@ generated: object;
 types: string;
 ```
 
----
+***
 
 ### description?
 

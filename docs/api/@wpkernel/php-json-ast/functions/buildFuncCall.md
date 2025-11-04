@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildFuncCall
 
 # Function: buildFuncCall()
 
 ```ts
-function buildFuncCall(name, args, attributes?): PhpExprFuncCall;
+function buildFuncCall(
+   name, 
+   args, 
+   attributes?): PhpExprFuncCall;
 ```
 
 Builds a PHP function call expression node.

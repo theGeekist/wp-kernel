@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / createHelper
 
@@ -15,13 +15,11 @@ Creates a pipeline helper-the fundamental building block of WP Kernel's code gen
 ## Overview
 
 Helpers are composable, dependency-aware transformation units that power the entire framework:
-
 - **CLI package**: Generates PHP resources, actions, blocks, and bindings via helper chains
 - **PHP Driver**: Transforms PHP AST nodes through fragment helpers
 - **Core**: Orchestrates resource definitions and action middleware
 
 Each helper is a pure, immutable descriptor that declares:
-
 - **What it does**: Fragment transformations or artifact building
 - **When it runs**: Priority ordering and dependency relationships
 - **How it integrates**: Mode (extend/replace/before/after) and rollback behavior
@@ -29,21 +27,17 @@ Each helper is a pure, immutable descriptor that declares:
 ## Key Concepts
 
 ### Helper Kinds
-
 - `fragment`: Modifies AST nodes in-place (e.g., add PHP opening tag, inject imports)
 - `builder`: Produces final artifacts from fragments (e.g., write files, format code)
 
 ### Execution Modes
-
 - `extend`: Add to existing transformations (default)
 - `replace`: Override previous helpers with same key
 - `before`: Run before a specific helper key
 - `after`: Run after a specific helper key
 
 ### Dependency Resolution
-
 The pipeline automatically:
-
 - Topologically sorts helpers based on `dependsOn` declarations
 - Validates dependency chains and reports missing/circular dependencies
 - Ensures helpers run in correct order regardless of registration sequence
@@ -55,7 +49,6 @@ and edges represent dependencies. The pipeline executes helpers in topological o
 ensuring all dependencies complete before dependent helpers run.
 
 This design enables:
-
 - **Composability**: Combine helpers from different packages without conflicts
 - **Extensibility**: Third-party helpers integrate seamlessly via dependency declarations
 - **Reliability**: Rollback support ensures atomic operations across helper chains
@@ -77,11 +70,11 @@ This design enables:
 
 ### TReporter
 
-`TReporter` _extends_ [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
+`TReporter` *extends* [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Parameters
 

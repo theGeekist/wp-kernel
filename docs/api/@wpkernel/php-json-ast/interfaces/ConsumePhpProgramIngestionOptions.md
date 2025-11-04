@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ConsumePhpProgramIngestionOptions
 
@@ -14,7 +14,7 @@
 readonly context: PipelineContext;
 ```
 
----
+***
 
 ### source
 
@@ -22,7 +22,7 @@ readonly context: PipelineContext;
 readonly source: PhpProgramIngestionSource;
 ```
 
----
+***
 
 ### reporter?
 
@@ -30,7 +30,7 @@ readonly source: PhpProgramIngestionSource;
 readonly optional reporter: Reporter;
 ```
 
----
+***
 
 ### defaultMetadata?
 
@@ -38,7 +38,7 @@ readonly optional reporter: Reporter;
 readonly optional defaultMetadata: PhpFileMetadata;
 ```
 
----
+***
 
 ### resolveFilePath()?
 

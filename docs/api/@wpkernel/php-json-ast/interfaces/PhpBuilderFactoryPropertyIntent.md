@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpBuilderFactoryPropertyIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
----
+***
 
 ### visibility?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional visibility: "public" | "protected" | "private";
 ```
 
----
+***
 
 ### type?
 
@@ -30,7 +30,7 @@ readonly optional visibility: "public" | "protected" | "private";
 readonly optional type: string | null;
 ```
 
----
+***
 
 ### default?
 
@@ -38,7 +38,7 @@ readonly optional type: string | null;
 readonly optional default: PhpBuilderFactoryLiteral;
 ```
 
----
+***
 
 ### isStatic?
 
@@ -46,7 +46,7 @@ readonly optional default: PhpBuilderFactoryLiteral;
 readonly optional isStatic: boolean;
 ```
 
----
+***
 
 ### isReadonly?
 
@@ -54,7 +54,7 @@ readonly optional isStatic: boolean;
 readonly optional isReadonly: boolean;
 ```
 
----
+***
 
 ### docblock?
 

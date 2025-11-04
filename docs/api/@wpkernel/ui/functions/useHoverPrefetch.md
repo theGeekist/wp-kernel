@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / useHoverPrefetch
 
 # Function: useHoverPrefetch()
 
 ```ts
-function useHoverPrefetch(ref, fn, options): void;
+function useHoverPrefetch(
+   ref, 
+   fn, 
+   options): void;
 ```
 
 Triggers a prefetch when the user hovers over an element.

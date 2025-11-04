@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / BuildCoreActionPipelineHarnessOptions
 
@@ -28,7 +28,7 @@ readonly optional namespace: string;
 
 The namespace for the reporter.
 
----
+***
 
 ### runtime?
 
@@ -38,7 +38,7 @@ readonly optional runtime: RuntimeOverrides;
 
 Overrides for the action runtime.
 
----
+***
 
 ### pipelineFactory()?
 

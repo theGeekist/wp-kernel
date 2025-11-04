@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / MissingDependencyDiagnostic
 
@@ -10,7 +10,7 @@
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly type: "missing-dependency";
 ```
 
----
+***
 
 ### key
 
@@ -28,7 +28,7 @@ readonly type: "missing-dependency";
 readonly key: string;
 ```
 
----
+***
 
 ### dependency
 
@@ -36,7 +36,7 @@ readonly key: string;
 readonly dependency: string;
 ```
 
----
+***
 
 ### message
 
@@ -44,7 +44,7 @@ readonly dependency: string;
 readonly message: string;
 ```
 
----
+***
 
 ### kind?
 
@@ -52,7 +52,7 @@ readonly message: string;
 readonly optional kind: TKind;
 ```
 
----
+***
 
 ### helper?
 

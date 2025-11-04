@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CapabilityCacheOptions
 
@@ -20,7 +20,7 @@ Cache storage options for capability evaluations.
 optional ttlMs: number;
 ```
 
----
+***
 
 ### storage?
 
@@ -28,7 +28,7 @@ optional ttlMs: number;
 optional storage: "memory" | "session";
 ```
 
----
+***
 
 ### crossTab?
 

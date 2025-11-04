@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DataViewHelper
 
@@ -26,7 +26,7 @@ Root locator for the DataView wrapper.
 
 `Locator`
 
----
+***
 
 ### waitForLoaded()
 
@@ -40,7 +40,7 @@ Wait until the DataView reports that loading has finished.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### search()
 
@@ -60,7 +60,7 @@ Fill the toolbar search control.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### clearSearch()
 
@@ -74,7 +74,7 @@ Clear the search control.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### getRow()
 
@@ -94,7 +94,7 @@ Retrieve a locator for a row containing the provided text.
 
 `Locator`
 
----
+***
 
 ### selectRow()
 
@@ -114,7 +114,7 @@ Toggle selection for a row that matches the provided text.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### runBulkAction()
 
@@ -134,7 +134,7 @@ Trigger a bulk action button by its visible label.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### getSelectedCount()
 
@@ -148,7 +148,7 @@ Read the bulk selection counter rendered in the footer.
 
 `Promise`\&lt;`number`\&gt;
 
----
+***
 
 ### getTotalCount()
 

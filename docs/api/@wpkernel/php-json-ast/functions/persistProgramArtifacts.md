@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / persistProgramArtifacts
 
@@ -8,10 +8,10 @@
 
 ```ts
 function persistProgramArtifacts(
-   context,
-   output,
-   filePath,
-   code,
+   context, 
+   output, 
+   filePath, 
+   code, 
 ast): Promise&lt;void&gt;;
 ```
 

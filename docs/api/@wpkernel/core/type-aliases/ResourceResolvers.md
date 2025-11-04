@@ -1,10 +1,10 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceResolvers
 
-# Type Alias: ResourceResolvers\&lt;\_T, TQuery\&gt;
+# Type Alias: ResourceResolvers\&lt;_T, TQuery\&gt;
 
 ```ts
 type ResourceResolvers&lt;_T, TQuery&gt; = object & Record&lt;string, AnyFn&gt;;
@@ -79,7 +79,7 @@ Query parameters
 
 ## Type Parameters
 
-### \_T
+### _T
 
 `_T`
 

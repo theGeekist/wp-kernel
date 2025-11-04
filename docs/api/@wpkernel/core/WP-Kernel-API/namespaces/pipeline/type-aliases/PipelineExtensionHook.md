@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / PipelineExtensionHook
 
@@ -35,5 +35,5 @@ type PipelineExtensionHook&lt;TContext, TOptions, TArtifact&gt; = (options) =&gt
 ## Returns
 
 [`MaybePromise`](MaybePromise.md)\&lt;
-\| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)\&lt;`TArtifact`\&gt;
-\| `void`\&gt;
+  \| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)\&lt;`TArtifact`\&gt;
+  \| `void`\&gt;

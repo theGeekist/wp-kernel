@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpFileAst
 
@@ -18,7 +18,7 @@ type PhpFileAst = object;
 namespace: string;
 ```
 
----
+***
 
 ### docblock
 
@@ -26,7 +26,7 @@ namespace: string;
 docblock: string[];
 ```
 
----
+***
 
 ### uses
 
@@ -34,7 +34,7 @@ docblock: string[];
 uses: string[];
 ```
 
----
+***
 
 ### statements
 

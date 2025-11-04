@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [capability](../README.md) / CapabilityProxyOptions
 
@@ -10,6 +10,11 @@
 type CapabilityProxyOptions = object;
 ```
 
+Options for creating a capability proxy, containing action metadata.
+
+This type defines the metadata associated with an action that is passed to the
+capability proxy for context propagation and event correlation.
+
 ## Properties
 
 ### actionName
@@ -18,7 +23,7 @@ type CapabilityProxyOptions = object;
 actionName: string;
 ```
 
----
+***
 
 ### requestId
 
@@ -26,7 +31,7 @@ actionName: string;
 requestId: string;
 ```
 
----
+***
 
 ### namespace
 
@@ -34,15 +39,15 @@ requestId: string;
 namespace: string;
 ```
 
----
+***
 
 ### scope
 
 ```ts
-scope: 'crossTab' | 'tabLocal';
+scope: "crossTab" | "tabLocal";
 ```
 
----
+***
 
 ### bridged
 

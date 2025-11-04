@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildScalarCast
 
 # Function: buildScalarCast()
 
 ```ts
-function buildScalarCast(kind, expr, attributes?): PhpExprCastScalar;
+function buildScalarCast(
+   kind, 
+   expr, 
+   attributes?): PhpExprCastScalar;
 ```
 
 Builds a PHP scalar cast expression node (int, float, string, bool).

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpArg
 
@@ -24,7 +24,7 @@ readonly nodeType: "Arg";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### value
 
@@ -32,7 +32,7 @@ readonly nodeType: "Arg";
 readonly value: PhpExpr;
 ```
 
----
+***
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly value: PhpExpr;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### unpack
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly unpack: boolean;
 ```
 
----
+***
 
 ### name
 
@@ -56,7 +56,7 @@ readonly unpack: boolean;
 readonly name: PhpIdentifier | null;
 ```
 
----
+***
 
 ### attributes
 

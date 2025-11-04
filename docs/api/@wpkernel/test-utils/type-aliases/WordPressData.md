@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WordPressData
 
@@ -26,7 +26,7 @@ Shape returned by ensureWpData().
 createReduxStore: jest.Mock;
 ```
 
----
+***
 
 ### register
 
@@ -34,7 +34,7 @@ createReduxStore: jest.Mock;
 register: jest.Mock;
 ```
 
----
+***
 
 ### dispatch
 
@@ -42,7 +42,7 @@ register: jest.Mock;
 dispatch: jest.Mock;
 ```
 
----
+***
 
 ### select
 
@@ -50,7 +50,7 @@ dispatch: jest.Mock;
 select: jest.Mock;
 ```
 
----
+***
 
 ### subscribe
 

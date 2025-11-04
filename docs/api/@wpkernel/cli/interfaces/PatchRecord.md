@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PatchRecord
 
@@ -14,7 +14,7 @@
 readonly file: string;
 ```
 
----
+***
 
 ### status
 
@@ -22,7 +22,7 @@ readonly file: string;
 readonly status: PatchStatus;
 ```
 
----
+***
 
 ### description?
 
@@ -30,7 +30,7 @@ readonly status: PatchStatus;
 readonly optional description: string;
 ```
 
----
+***
 
 ### details?
 

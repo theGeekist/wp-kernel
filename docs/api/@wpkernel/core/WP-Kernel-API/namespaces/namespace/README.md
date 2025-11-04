@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../README.md) / namespace
 
@@ -14,77 +14,77 @@
 
 ## References
 
-### WPK_NAMESPACE
+### WPK\_NAMESPACE
 
 Re-exports [WPK_NAMESPACE](../../../variables/WPK_NAMESPACE.md)
 
----
+***
 
-### WPK_SUBSYSTEM_NAMESPACES
+### WPK\_SUBSYSTEM\_NAMESPACES
 
 Re-exports [WPK_SUBSYSTEM_NAMESPACES](../../../variables/WPK_SUBSYSTEM_NAMESPACES.md)
 
----
+***
 
-### WPK_INFRASTRUCTURE
+### WPK\_INFRASTRUCTURE
 
 Re-exports [WPK_INFRASTRUCTURE](../../../variables/WPK_INFRASTRUCTURE.md)
 
----
+***
 
-### WPK_EVENTS
+### WPK\_EVENTS
 
 Re-exports [WPK_EVENTS](../../../variables/WPK_EVENTS.md)
 
----
+***
 
-### WPK_CONFIG_SOURCES
+### WPK\_CONFIG\_SOURCES
 
 Re-exports [WPK_CONFIG_SOURCES](../../../variables/WPK_CONFIG_SOURCES.md)
 
----
+***
 
 ### detectNamespace
 
 Re-exports [detectNamespace](../../../functions/detectNamespace.md)
 
----
+***
 
 ### getNamespace
 
 Re-exports [getNamespace](../../../functions/getNamespace.md)
 
----
+***
 
 ### isValidNamespace
 
 Re-exports [isValidNamespace](../../../functions/isValidNamespace.md)
 
----
+***
 
 ### sanitizeNamespace
 
 Re-exports [sanitizeNamespace](../../../functions/sanitizeNamespace.md)
 
----
+***
 
 ### NamespaceDetectionOptions
 
 Re-exports [NamespaceDetectionOptions](../../../type-aliases/NamespaceDetectionOptions.md)
 
----
+***
 
 ### NamespaceDetectionResult
 
 Re-exports [NamespaceDetectionResult](../../../type-aliases/NamespaceDetectionResult.md)
 
----
+***
 
 ### NamespaceDetectionMode
 
 Re-exports [NamespaceDetectionMode](../../../type-aliases/NamespaceDetectionMode.md)
 
----
+***
 
 ### NamespaceRuntimeContext
 

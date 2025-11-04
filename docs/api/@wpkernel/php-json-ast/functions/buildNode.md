@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildNode
 
@@ -8,8 +8,8 @@
 
 ```ts
 function buildNode&lt;T&gt;(
-   nodeType,
-   props,
+   nodeType, 
+   props, 
    attributes?): T;
 ```
 
@@ -22,7 +22,7 @@ Use this generic builder for niche constructs that do not yet have a typed facto
 
 ### T
 
-`T` _extends_ [`PhpNode`](../interfaces/PhpNode.md)
+`T` *extends* [`PhpNode`](../interfaces/PhpNode.md)
 
 ## Parameters
 

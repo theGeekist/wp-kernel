@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ActionErrorEvent
 
@@ -13,7 +13,6 @@ type ActionErrorEvent = object & ActionLifecycleEventBase;
 Lifecycle event emitted when an action fails.
 
 Emitted when the action function throws an error, enabling:
-
 - Error notifications and reporting
 - Retry logic and fallback behavior
 - Error tracking in observability tools
@@ -25,7 +24,7 @@ Event name: `wpk.action.error`
 ### phase
 
 ```ts
-phase: 'error';
+phase: "error";
 ```
 
 ### error

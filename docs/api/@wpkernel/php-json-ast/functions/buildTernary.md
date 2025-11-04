@@ -1,13 +1,17 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildTernary
 
 # Function: buildTernary()
 
 ```ts
-function buildTernary(cond, ifExpr, elseExpr, attributes?): PhpExprTernary;
+function buildTernary(
+   cond, 
+   ifExpr, 
+   elseExpr, 
+   attributes?): PhpExprTernary;
 ```
 
 Builds a PHP ternary expression node.

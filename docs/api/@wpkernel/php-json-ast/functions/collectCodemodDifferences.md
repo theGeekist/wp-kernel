@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / collectCodemodDifferences
 
 # Function: collectCodemodDifferences()
 
 ```ts
-function collectCodemodDifferences(before, after, limit): string[];
+function collectCodemodDifferences(
+   before, 
+   after, 
+   limit): string[];
 ```
 
 ## Parameters

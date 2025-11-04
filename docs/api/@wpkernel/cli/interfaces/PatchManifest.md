@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PatchManifest
 
@@ -14,7 +14,7 @@
 readonly summary: PatchManifestSummary;
 ```
 
----
+***
 
 ### records
 
@@ -22,7 +22,7 @@ readonly summary: PatchManifestSummary;
 readonly records: PatchRecord[];
 ```
 
----
+***
 
 ### actions
 

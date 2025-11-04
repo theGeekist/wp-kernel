@@ -1,13 +1,13 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / createPipelineRollback
 
 # Function: createPipelineRollback()
 
 ```ts
-function createPipelineRollback(...tasks):
+function createPipelineRollback(...tasks): 
   | () =&gt; MaybePromise&lt;void&gt;
   | undefined;
 ```
@@ -24,7 +24,7 @@ The tasks to run on rollback.
 
 ## Returns
 
-\| () =&gt; [`MaybePromise`](../type-aliases/MaybePromise.md)\&lt;`void`\&gt;
-\| `undefined`
+  \| () =&gt; [`MaybePromise`](../type-aliases/MaybePromise.md)\&lt;`void`\&gt;
+  \| `undefined`
 
 A function that runs the tasks, or undefined if no tasks are provided.

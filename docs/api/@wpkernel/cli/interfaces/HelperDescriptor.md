@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / HelperDescriptor
 
@@ -15,7 +15,7 @@
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -25,7 +25,7 @@
 readonly key: string;
 ```
 
----
+***
 
 ### kind
 
@@ -33,7 +33,7 @@ readonly key: string;
 readonly kind: TKind;
 ```
 
----
+***
 
 ### mode
 
@@ -41,7 +41,7 @@ readonly kind: TKind;
 readonly mode: HelperMode;
 ```
 
----
+***
 
 ### priority
 
@@ -49,7 +49,7 @@ readonly mode: HelperMode;
 readonly priority: number;
 ```
 
----
+***
 
 ### dependsOn
 
@@ -57,7 +57,7 @@ readonly priority: number;
 readonly dependsOn: readonly string[];
 ```
 
----
+***
 
 ### origin?
 

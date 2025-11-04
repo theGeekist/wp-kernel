@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CoreResourcePipelineHarness
 
@@ -28,7 +28,7 @@ readonly pipeline: ResourcePipeline&lt;T, TQuery&gt;;
 
 The resource pipeline instance.
 
----
+***
 
 ### reporter
 
@@ -38,7 +38,7 @@ readonly reporter: MemoryReporter;
 
 The memory reporter instance.
 
----
+***
 
 ### namespace
 
@@ -48,7 +48,7 @@ readonly namespace: string;
 
 The namespace of the reporter.
 
----
+***
 
 ### resourceName
 

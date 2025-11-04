@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpBuilderFactoryMethodReturnNewStep
 
@@ -14,7 +14,7 @@
 readonly kind: "returnNew";
 ```
 
----
+***
 
 ### className
 
@@ -22,7 +22,7 @@ readonly kind: "returnNew";
 readonly className: string;
 ```
 
----
+***
 
 ### arguments?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpDeclareItem
 
@@ -24,7 +24,7 @@ readonly nodeType: "DeclareItem";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### key
 
@@ -32,7 +32,7 @@ readonly nodeType: "DeclareItem";
 readonly key: PhpIdentifier;
 ```
 
----
+***
 
 ### value
 
@@ -40,7 +40,7 @@ readonly key: PhpIdentifier;
 readonly value: PhpExpr;
 ```
 
----
+***
 
 ### attributes
 

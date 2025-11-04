@@ -1,13 +1,13 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceStorageConfig
 
 # Type Alias: ResourceStorageConfig
 
 ```ts
-type ResourceStorageConfig =
+type ResourceStorageConfig = 
   | {
   mode: "transient";
 }

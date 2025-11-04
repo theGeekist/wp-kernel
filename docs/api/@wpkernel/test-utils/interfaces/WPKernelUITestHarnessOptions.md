@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WPKernelUITestHarnessOptions
 
@@ -18,7 +18,7 @@ optional reporter: Partial&lt;Reporter&gt;;
 
 Partial overrides for the reporter.
 
----
+***
 
 ### namespace?
 
@@ -28,7 +28,7 @@ optional namespace: string;
 
 The namespace for the runtime.
 
----
+***
 
 ### provider?
 

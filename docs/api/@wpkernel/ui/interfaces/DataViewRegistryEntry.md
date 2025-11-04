@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DataViewRegistryEntry
 
@@ -14,7 +14,7 @@
 resource: string;
 ```
 
----
+***
 
 ### preferencesKey
 
@@ -22,7 +22,7 @@ resource: string;
 preferencesKey: string;
 ```
 
----
+***
 
 ### metadata?
 

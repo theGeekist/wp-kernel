@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / MergeMarkers
 
@@ -14,7 +14,7 @@
 readonly start: string;
 ```
 
----
+***
 
 ### mid
 
@@ -22,7 +22,7 @@ readonly start: string;
 readonly mid: string;
 ```
 
----
+***
 
 ### end
 

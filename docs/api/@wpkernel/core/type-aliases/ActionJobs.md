@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ActionJobs
 
@@ -20,18 +20,18 @@ job engine provided by the host application.
 
 ```typescript
 async function SendWelcomeEmail(ctx, { userId }) {
-	// Enqueue background job
-	await ctx.jobs.enqueue('email.send', {
-		to: user.email,
-		template: 'welcome',
-		userId,
-	});
+  // Enqueue background job
+  await ctx.jobs.enqueue('email.send', {
+    to: user.email,
+    template: 'welcome',
+    userId
+  });
 
-	// Or wait for job completion
-	const result = await ctx.jobs.wait('email.send', payload, {
-		timeoutMs: 30000,
-		pollIntervalMs: 1000,
-	});
+  // Or wait for job completion
+  const result = await ctx.jobs.wait('email.send', payload, {
+    timeoutMs: 30000,
+    pollIntervalMs: 1000
+  });
 }
 ```
 
@@ -63,7 +63,7 @@ enqueue: &lt;TPayload&gt;(jobName, payload) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### wait()
 

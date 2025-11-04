@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ValidateGeneratedImportsOptions
 
@@ -16,7 +16,7 @@ Options for validating generated imports.
 projectRoot: string;
 ```
 
----
+***
 
 ### summary
 
@@ -24,7 +24,7 @@ projectRoot: string;
 summary: GenerationSummary;
 ```
 
----
+***
 
 ### reporter
 

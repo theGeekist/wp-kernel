@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / UseResourceListResult
 
@@ -26,7 +26,7 @@ data: ListResponse&lt;T&gt; | undefined;
 
 The fetched list response with items and metadata, or undefined if not yet loaded
 
----
+***
 
 ### isLoading
 
@@ -36,7 +36,7 @@ isLoading: boolean;
 
 True if the data is currently being fetched or resolved
 
----
+***
 
 ### error
 

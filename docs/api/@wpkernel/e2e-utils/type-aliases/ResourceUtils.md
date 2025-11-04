@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceUtils
 
@@ -42,7 +42,7 @@ Resource data to create
 
 Created resource with ID
 
----
+***
 
 ### seedMany()
 
@@ -66,7 +66,7 @@ Array of resource data to create
 
 Array of created resources with IDs
 
----
+***
 
 ### remove()
 
@@ -88,7 +88,7 @@ Resource ID to delete
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### deleteAll()
 

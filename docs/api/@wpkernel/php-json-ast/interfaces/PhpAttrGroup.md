@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpAttrGroup
 
@@ -24,7 +24,7 @@ readonly nodeType: "AttributeGroup";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### attrs
 
@@ -32,7 +32,7 @@ readonly nodeType: "AttributeGroup";
 readonly attrs: PhpAttribute[];
 ```
 
----
+***
 
 ### attributes
 

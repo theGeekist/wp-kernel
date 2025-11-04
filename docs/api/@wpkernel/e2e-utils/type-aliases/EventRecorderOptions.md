@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / EventRecorderOptions
 
@@ -25,5 +25,5 @@ Optional regex pattern to filter events
 #### Example
 
 ```ts
-/^wpk\.job\./;
+/^wpk\.job\./
 ```

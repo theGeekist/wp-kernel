@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PipelineContext
 
@@ -14,7 +14,7 @@
 readonly workspace: Workspace;
 ```
 
----
+***
 
 ### phase
 
@@ -22,7 +22,7 @@ readonly workspace: Workspace;
 readonly phase: PipelinePhase;
 ```
 
----
+***
 
 ### reporter
 

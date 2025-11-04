@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ProgramUse
 
@@ -14,7 +14,7 @@
 readonly key: string;
 ```
 
----
+***
 
 ### parts
 
@@ -22,7 +22,7 @@ readonly key: string;
 readonly parts: readonly string[];
 ```
 
----
+***
 
 ### alias
 
@@ -30,7 +30,7 @@ readonly parts: readonly string[];
 readonly alias: string | null;
 ```
 
----
+***
 
 ### type
 
@@ -38,7 +38,7 @@ readonly alias: string | null;
 readonly type: number;
 ```
 
----
+***
 
 ### fullyQualified
 

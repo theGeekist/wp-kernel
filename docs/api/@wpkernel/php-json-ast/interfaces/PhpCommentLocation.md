@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpCommentLocation
 
@@ -20,7 +20,7 @@ Represents the location of a PHP comment in the source code.
 readonly optional line: number;
 ```
 
----
+***
 
 ### filePos?
 
@@ -28,7 +28,7 @@ readonly optional line: number;
 readonly optional filePos: number;
 ```
 
----
+***
 
 ### tokenPos?
 
@@ -36,7 +36,7 @@ readonly optional filePos: number;
 readonly optional tokenPos: number;
 ```
 
----
+***
 
 ### endLine?
 
@@ -44,7 +44,7 @@ readonly optional tokenPos: number;
 readonly optional endLine: number;
 ```
 
----
+***
 
 ### endFilePos?
 
@@ -52,7 +52,7 @@ readonly optional endLine: number;
 readonly optional endFilePos: number;
 ```
 
----
+***
 
 ### endTokenPos?
 

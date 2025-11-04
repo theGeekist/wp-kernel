@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceDataViewConfig
 
@@ -23,12 +23,10 @@ Resource DataView configuration.
 ### fields
 
 ```ts
-fields: Field & lt;
-TItem & gt;
-[];
+fields: Field&lt;TItem&gt;[];
 ```
 
----
+***
 
 ### defaultView
 
@@ -36,16 +34,15 @@ TItem & gt;
 defaultView: View;
 ```
 
----
+***
 
 ### mapQuery
 
 ```ts
-mapQuery: QueryMapping & lt;
-TQuery & gt;
+mapQuery: QueryMapping&lt;TQuery&gt;;
 ```
 
----
+***
 
 ### actions?
 
@@ -53,7 +50,7 @@ TQuery & gt;
 optional actions: ResourceDataViewActionConfig&lt;TItem, unknown, unknown&gt;[];
 ```
 
----
+***
 
 ### search?
 
@@ -61,7 +58,7 @@ optional actions: ResourceDataViewActionConfig&lt;TItem, unknown, unknown&gt;[];
 optional search: boolean;
 ```
 
----
+***
 
 ### searchLabel?
 
@@ -69,7 +66,7 @@ optional search: boolean;
 optional searchLabel: string;
 ```
 
----
+***
 
 ### getItemId()?
 
@@ -87,7 +84,7 @@ optional getItemId: (item) =&gt; string;
 
 `string`
 
----
+***
 
 ### empty?
 
@@ -95,7 +92,7 @@ optional getItemId: (item) =&gt; string;
 optional empty: ReactNode;
 ```
 
----
+***
 
 ### perPageSizes?
 
@@ -103,7 +100,7 @@ optional empty: ReactNode;
 optional perPageSizes: number[];
 ```
 
----
+***
 
 ### defaultLayouts?
 
@@ -111,7 +108,7 @@ optional perPageSizes: number[];
 optional defaultLayouts: Record&lt;string, unknown&gt;;
 ```
 
----
+***
 
 ### views?
 
@@ -119,7 +116,7 @@ optional defaultLayouts: Record&lt;string, unknown&gt;;
 optional views: ResourceDataViewSavedView[];
 ```
 
----
+***
 
 ### screen?
 

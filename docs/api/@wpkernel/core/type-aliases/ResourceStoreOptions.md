@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceStoreOptions
 
@@ -64,7 +64,7 @@ Defaults to (item) =&gt; item.id
 
 `string` \| `number`
 
----
+***
 
 ### getQueryKey()?
 
@@ -85,7 +85,7 @@ Defaults to JSON.stringify
 
 `string`
 
----
+***
 
 ### initialState?
 

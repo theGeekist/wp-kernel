@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / Workspace
 
@@ -14,7 +14,7 @@
 readonly root: string;
 ```
 
----
+***
 
 ### cwd()
 
@@ -26,7 +26,7 @@ cwd: () =&gt; string;
 
 `string`
 
----
+***
 
 ### resolve()
 
@@ -44,7 +44,7 @@ resolve: (...parts) =&gt; string;
 
 `string`
 
----
+***
 
 ### write()
 
@@ -70,7 +70,7 @@ write: (file, contents, options?) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### exists()
 

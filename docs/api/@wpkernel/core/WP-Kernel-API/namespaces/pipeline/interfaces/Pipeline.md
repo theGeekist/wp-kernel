@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / Pipeline
 
@@ -18,11 +18,11 @@
 
 ### TContext
 
-`TContext` _extends_ `object`
+`TContext` *extends* `object`
 
 ### TReporter
 
-`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
+`TReporter` *extends* [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
 
 ### TBuildOptions
 
@@ -50,23 +50,23 @@
 
 ### TDiagnostic
 
-`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ### TFragmentKind
 
-`TFragmentKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
+`TFragmentKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
 
 ### TBuilderKind
 
-`TBuilderKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
+`TBuilderKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
+`TFragmentHelper` *extends* [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
+`TBuilderHelper` *extends* [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
 
 ## Properties
 
@@ -76,7 +76,7 @@
 readonly fragmentKind: TFragmentKind;
 ```
 
----
+***
 
 ### builderKind
 
@@ -84,7 +84,7 @@ readonly fragmentKind: TFragmentKind;
 readonly builderKind: TBuilderKind;
 ```
 
----
+***
 
 ### ir
 
@@ -108,7 +108,7 @@ use: (helper) =&gt; void;
 
 `void`
 
----
+***
 
 ### builders
 
@@ -132,7 +132,7 @@ use: (helper) =&gt; void;
 
 `void`
 
----
+***
 
 ### extensions
 
@@ -156,7 +156,7 @@ use: (extension) =&gt; unknown;
 
 `unknown`
 
----
+***
 
 ### use()
 
@@ -174,7 +174,7 @@ use: (helper) =&gt; void;
 
 `void`
 
----
+***
 
 ### run()
 

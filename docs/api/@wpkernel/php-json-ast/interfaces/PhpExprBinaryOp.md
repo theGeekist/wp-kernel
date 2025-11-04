@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprBinaryOp
 
@@ -24,7 +24,7 @@ readonly nodeType: `Expr_BinaryOp_${string}`;
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### left
 
@@ -32,7 +32,7 @@ readonly nodeType: `Expr_BinaryOp_${string}`;
 readonly left: PhpExpr;
 ```
 
----
+***
 
 ### right
 
@@ -40,7 +40,7 @@ readonly left: PhpExpr;
 readonly right: PhpExpr;
 ```
 
----
+***
 
 ### attributes
 

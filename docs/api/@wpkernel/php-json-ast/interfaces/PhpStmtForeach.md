@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtForeach
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Foreach";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Foreach";
 readonly expr: PhpExpr;
 ```
 
----
+***
 
 ### valueVar
 
@@ -40,7 +40,7 @@ readonly expr: PhpExpr;
 readonly valueVar: PhpExpr;
 ```
 
----
+***
 
 ### keyVar
 
@@ -48,7 +48,7 @@ readonly valueVar: PhpExpr;
 readonly keyVar: PhpExpr | null;
 ```
 
----
+***
 
 ### byRef
 
@@ -56,7 +56,7 @@ readonly keyVar: PhpExpr | null;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### stmts
 
@@ -64,7 +64,7 @@ readonly byRef: boolean;
 readonly stmts: PhpStmt[];
 ```
 
----
+***
 
 ### attributes
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / MemoryReporterEntry
 
@@ -18,7 +18,7 @@ readonly level: ReporterLevel;
 
 The logging level of the entry.
 
----
+***
 
 ### message
 
@@ -28,7 +28,7 @@ readonly message: string;
 
 The log message.
 
----
+***
 
 ### namespace
 
@@ -38,7 +38,7 @@ readonly namespace: string;
 
 The namespace of the reporter that created the entry.
 
----
+***
 
 ### context?
 

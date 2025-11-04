@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceDataViewSavedView
 
@@ -26,7 +26,7 @@ id: string;
 
 The unique identifier for the saved view.
 
----
+***
 
 ### label
 
@@ -36,7 +36,7 @@ label: string;
 
 The label for the saved view.
 
----
+***
 
 ### view
 
@@ -46,7 +46,7 @@ view: View;
 
 The view configuration object.
 
----
+***
 
 ### description?
 
@@ -56,7 +56,7 @@ optional description: string;
 
 An optional description for the saved view.
 
----
+***
 
 ### isDefault?
 

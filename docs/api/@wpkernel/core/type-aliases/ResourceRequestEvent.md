@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceRequestEvent
 
@@ -22,7 +22,7 @@ requestId: string;
 
 Request ID for correlation
 
----
+***
 
 ### method
 
@@ -32,7 +32,7 @@ method: HttpMethod;
 
 HTTP method
 
----
+***
 
 ### path
 
@@ -42,7 +42,7 @@ path: string;
 
 Request path
 
----
+***
 
 ### timestamp
 
@@ -52,7 +52,7 @@ timestamp: number;
 
 Timestamp when request started
 
----
+***
 
 ### query?
 

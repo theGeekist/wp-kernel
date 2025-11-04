@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpNode
 
@@ -36,7 +36,7 @@ Base interface for all PHP AST nodes.
 readonly nodeType: string;
 ```
 
----
+***
 
 ### attributes
 

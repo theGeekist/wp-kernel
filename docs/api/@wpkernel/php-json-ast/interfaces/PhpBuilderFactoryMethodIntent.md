@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpBuilderFactoryMethodIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
----
+***
 
 ### visibility?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional visibility: "public" | "protected" | "private";
 ```
 
----
+***
 
 ### isStatic?
 
@@ -30,7 +30,7 @@ readonly optional visibility: "public" | "protected" | "private";
 readonly optional isStatic: boolean;
 ```
 
----
+***
 
 ### returnType?
 
@@ -38,7 +38,7 @@ readonly optional isStatic: boolean;
 readonly optional returnType: string | null;
 ```
 
----
+***
 
 ### parameters?
 
@@ -46,7 +46,7 @@ readonly optional returnType: string | null;
 readonly optional parameters: readonly PhpBuilderFactoryParameterIntent[];
 ```
 
----
+***
 
 ### docblock?
 
@@ -54,7 +54,7 @@ readonly optional parameters: readonly PhpBuilderFactoryParameterIntent[];
 readonly optional docblock: readonly string[];
 ```
 
----
+***
 
 ### body?
 

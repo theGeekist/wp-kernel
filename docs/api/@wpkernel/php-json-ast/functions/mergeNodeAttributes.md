@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / mergeNodeAttributes
 
@@ -19,7 +19,7 @@ otherwise, it returns the original node to ensure immutability where possible.
 
 ### T
 
-`T` _extends_ [`PhpNode`](../interfaces/PhpNode.md)
+`T` *extends* [`PhpNode`](../interfaces/PhpNode.md)
 
 ## Parameters
 

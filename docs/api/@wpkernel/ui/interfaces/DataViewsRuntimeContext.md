@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DataViewsRuntimeContext
 
@@ -20,7 +20,7 @@ Runtime shape exposed to UI consumers (kernel or standalone).
 readonly namespace: string;
 ```
 
----
+***
 
 ### dataviews
 
@@ -28,7 +28,7 @@ readonly namespace: string;
 readonly dataviews: DataViewsControllerRuntime;
 ```
 
----
+***
 
 ### reporter
 
@@ -36,7 +36,7 @@ readonly dataviews: DataViewsControllerRuntime;
 readonly reporter: Reporter;
 ```
 
----
+***
 
 ### capabilities?
 
@@ -44,7 +44,7 @@ readonly reporter: Reporter;
 readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
----
+***
 
 ### invalidate()?
 
@@ -66,7 +66,7 @@ readonly optional invalidate: (patterns, options?) =&gt; void;
 
 `void`
 
----
+***
 
 ### registry?
 
@@ -74,7 +74,7 @@ readonly optional invalidate: (patterns, options?) =&gt; void;
 readonly optional registry: unknown;
 ```
 
----
+***
 
 ### kernel?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [actions](../README.md) / ReduxMiddlewareAPI
 
@@ -26,7 +26,7 @@ Redux compatible middleware API signature.
 dispatch: ReduxDispatch;
 ```
 
----
+***
 
 ### getState()
 

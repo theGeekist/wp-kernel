@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PipelineExtensionHookResult
 
@@ -18,7 +18,7 @@ readonly optional artifact: IRv1;
 
 Optional: A modified IR artifact.
 
----
+***
 
 ### commit()?
 
@@ -32,7 +32,7 @@ Optional: A function to commit changes made by the hook.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### rollback()?
 

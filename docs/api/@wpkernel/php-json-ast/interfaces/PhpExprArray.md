@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprArray
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Array";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### items
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Array";
 readonly items: PhpExprArrayItem[];
 ```
 
----
+***
 
 ### attributes
 

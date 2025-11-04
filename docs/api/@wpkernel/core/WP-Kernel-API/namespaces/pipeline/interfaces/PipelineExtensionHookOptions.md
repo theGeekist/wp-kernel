@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / PipelineExtensionHookOptions
 
@@ -28,7 +28,7 @@
 readonly context: TContext;
 ```
 
----
+***
 
 ### options
 
@@ -36,7 +36,7 @@ readonly context: TContext;
 readonly options: TOptions;
 ```
 
----
+***
 
 ### artifact
 

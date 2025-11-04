@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../README.md) / contracts
 
@@ -13,8 +13,8 @@
 
 ## Variables
 
-- [ACTION_LIFECYCLE_PHASES](variables/ACTION_LIFECYCLE_PHASES.md)
-- [WPK_EXIT_CODES](variables/WPK_EXIT_CODES.md)
+- [ACTION\_LIFECYCLE\_PHASES](variables/ACTION_LIFECYCLE_PHASES.md)
+- [WPK\_EXIT\_CODES](variables/WPK_EXIT_CODES.md)
 
 ## Functions
 
@@ -26,62 +26,62 @@
 
 Re-exports [ErrorCode](../../../type-aliases/ErrorCode.md)
 
----
+***
 
 ### ErrorContext
 
 Re-exports [ErrorContext](../../../type-aliases/ErrorContext.md)
 
----
+***
 
 ### ErrorData
 
 Re-exports [ErrorData](../../../type-aliases/ErrorData.md)
 
----
+***
 
 ### SerializedError
 
 Re-exports [SerializedError](../../../type-aliases/SerializedError.md)
 
----
+***
 
 ### WPKConfigSource
 
 Re-exports [WPKConfigSource](../namespace/type-aliases/WPKConfigSource.md)
 
----
+***
 
 ### WPKernelError
 
 Re-exports [WPKernelError](../../../classes/WPKernelError.md)
 
----
+***
 
-### WPK_NAMESPACE
+### WPK\_NAMESPACE
 
 Re-exports [WPK_NAMESPACE](../../../variables/WPK_NAMESPACE.md)
 
----
+***
 
-### WPK_SUBSYSTEM_NAMESPACES
+### WPK\_SUBSYSTEM\_NAMESPACES
 
 Re-exports [WPK_SUBSYSTEM_NAMESPACES](../../../variables/WPK_SUBSYSTEM_NAMESPACES.md)
 
----
+***
 
-### WPK_INFRASTRUCTURE
+### WPK\_INFRASTRUCTURE
 
 Re-exports [WPK_INFRASTRUCTURE](../../../variables/WPK_INFRASTRUCTURE.md)
 
----
+***
 
-### WPK_EVENTS
+### WPK\_EVENTS
 
 Re-exports [WPK_EVENTS](../../../variables/WPK_EVENTS.md)
 
----
+***
 
-### WPK_CONFIG_SOURCES
+### WPK\_CONFIG\_SOURCES
 
 Re-exports [WPK_CONFIG_SOURCES](../../../variables/WPK_CONFIG_SOURCES.md)

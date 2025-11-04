@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpBuilderFactoryFileIntent
 
@@ -14,7 +14,7 @@
 readonly file: string;
 ```
 
----
+***
 
 ### namespace
 
@@ -22,7 +22,7 @@ readonly file: string;
 readonly namespace: PhpBuilderFactoryNamespaceIntent;
 ```
 
----
+***
 
 ### class
 
@@ -30,7 +30,7 @@ readonly namespace: PhpBuilderFactoryNamespaceIntent;
 readonly class: PhpBuilderFactoryClassIntent;
 ```
 
----
+***
 
 ### uses?
 

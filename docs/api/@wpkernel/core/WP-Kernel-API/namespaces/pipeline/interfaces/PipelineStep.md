@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / PipelineStep
 
@@ -14,7 +14,7 @@
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -24,7 +24,7 @@
 readonly id: string;
 ```
 
----
+***
 
 ### index
 
@@ -32,7 +32,7 @@ readonly id: string;
 readonly index: number;
 ```
 
----
+***
 
 ### key
 
@@ -44,7 +44,7 @@ readonly key: string;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`key`](HelperDescriptor.md#key)
 
----
+***
 
 ### kind
 
@@ -56,7 +56,7 @@ readonly kind: TKind;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`kind`](HelperDescriptor.md#kind)
 
----
+***
 
 ### mode
 
@@ -68,7 +68,7 @@ readonly mode: HelperMode;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`mode`](HelperDescriptor.md#mode)
 
----
+***
 
 ### priority
 
@@ -80,7 +80,7 @@ readonly priority: number;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)
 
----
+***
 
 ### dependsOn
 
@@ -92,7 +92,7 @@ readonly dependsOn: readonly string[];
 
 [`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
 
----
+***
 
 ### origin?
 

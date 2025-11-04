@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / TsBuilderCreatorContext
 
@@ -18,7 +18,7 @@ readonly project: Project;
 
 The `ts-morph` project instance for managing source files.
 
----
+***
 
 ### workspace
 
@@ -28,7 +28,7 @@ readonly workspace: Workspace;
 
 The workspace instance.
 
----
+***
 
 ### descriptor
 
@@ -38,7 +38,7 @@ readonly descriptor: ResourceDescriptor;
 
 The resource descriptor for which artifacts are being created.
 
----
+***
 
 ### config
 
@@ -48,7 +48,7 @@ readonly config: WPKernelConfigV1;
 
 The full WP Kernel configuration.
 
----
+***
 
 ### sourcePath
 
@@ -58,7 +58,7 @@ readonly sourcePath: string;
 
 The source path of the configuration file.
 
----
+***
 
 ### ir
 
@@ -68,7 +68,7 @@ readonly ir: IRv1;
 
 The Intermediate Representation (IR) of the project.
 
----
+***
 
 ### reporter
 
@@ -78,7 +78,7 @@ readonly reporter: Reporter;
 
 The reporter instance for logging.
 
----
+***
 
 ### emit()
 

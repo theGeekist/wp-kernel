@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / FileWriterSummary
 
@@ -17,11 +17,10 @@ Aggregated summary returned by the `FileWriter.summarise` helper.
 ### counts
 
 ```ts
-counts: Record & lt;
-(FileWriteStatus, number & gt);
+counts: Record&lt;FileWriteStatus, number&gt;;
 ```
 
----
+***
 
 ### entries
 

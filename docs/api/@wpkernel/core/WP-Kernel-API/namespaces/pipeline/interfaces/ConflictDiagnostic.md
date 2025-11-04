@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / ConflictDiagnostic
 
@@ -10,7 +10,7 @@
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly type: "conflict";
 ```
 
----
+***
 
 ### key
 
@@ -28,7 +28,7 @@ readonly type: "conflict";
 readonly key: string;
 ```
 
----
+***
 
 ### mode
 
@@ -36,7 +36,7 @@ readonly key: string;
 readonly mode: HelperMode;
 ```
 
----
+***
 
 ### helpers
 
@@ -44,7 +44,7 @@ readonly mode: HelperMode;
 readonly helpers: readonly string[];
 ```
 
----
+***
 
 ### message
 
@@ -52,7 +52,7 @@ readonly helpers: readonly string[];
 readonly message: string;
 ```
 
----
+***
 
 ### kind?
 

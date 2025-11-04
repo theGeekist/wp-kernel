@@ -1,13 +1,13 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CapabilityMapFunction
 
 # Type Alias: CapabilityMapFunction()
 
 ```ts
-type CapabilityMapFunction = () =&gt;
+type CapabilityMapFunction = () =&gt; 
   | string
   | CapabilityCapabilityDescriptor;
 ```
@@ -19,5 +19,5 @@ free of side effects. Returned descriptors should be JSON-serialisable.
 
 ## Returns
 
-\| `string`
-\| [`CapabilityCapabilityDescriptor`](../interfaces/CapabilityCapabilityDescriptor.md)
+  \| `string`
+  \| [`CapabilityCapabilityDescriptor`](../interfaces/CapabilityCapabilityDescriptor.md)

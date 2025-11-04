@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / seedPlan
 
@@ -8,8 +8,8 @@
 
 ```ts
 function seedPlan(
-   workspace,
-   file,
+   workspace, 
+   file, 
 options): Promise&lt;void&gt;;
 ```
 

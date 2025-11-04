@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PatchManifestSummary
 
@@ -16,7 +16,7 @@ Summary of the patch manifest.
 readonly applied: number;
 ```
 
----
+***
 
 ### conflicts
 
@@ -24,7 +24,7 @@ readonly applied: number;
 readonly conflicts: number;
 ```
 
----
+***
 
 ### skipped
 

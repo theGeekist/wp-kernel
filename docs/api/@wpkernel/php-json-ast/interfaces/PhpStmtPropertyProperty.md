@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtPropertyProperty
 
@@ -24,7 +24,7 @@ readonly nodeType: "PropertyItem";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "PropertyItem";
 readonly name: PhpIdentifier;
 ```
 
----
+***
 
 ### default
 
@@ -40,7 +40,7 @@ readonly name: PhpIdentifier;
 readonly default: PhpExpr | null;
 ```
 
----
+***
 
 ### attributes
 

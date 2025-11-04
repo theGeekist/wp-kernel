@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WPKernelUIProviderComponent
 
@@ -26,4 +26,4 @@ Component type for WP Kernel UI Provider.
 
 ## Returns
 
-`ReturnType`\&lt;_typeof_ `createElement`\&gt;
+`ReturnType`\&lt;*typeof* `createElement`\&gt;

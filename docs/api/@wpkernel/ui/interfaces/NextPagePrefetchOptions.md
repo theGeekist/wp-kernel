@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / NextPagePrefetchOptions
 
@@ -38,7 +38,7 @@ The current query.
 
 The next query to prefetch.
 
----
+***
 
 ### when?
 
@@ -51,5 +51,5 @@ If true, the prefetch will be triggered.
 #### Default
 
 ```ts
-true;
+true
 ```

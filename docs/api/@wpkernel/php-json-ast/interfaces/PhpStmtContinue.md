@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtContinue
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Continue";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### num
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Continue";
 readonly num: PhpExpr | null;
 ```
 
----
+***
 
 ### attributes
 

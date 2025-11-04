@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / IRWarning
 
@@ -18,7 +18,7 @@ code: string;
 
 A unique code for the warning.
 
----
+***
 
 ### message
 
@@ -28,7 +28,7 @@ message: string;
 
 A human-readable warning message.
 
----
+***
 
 ### context?
 

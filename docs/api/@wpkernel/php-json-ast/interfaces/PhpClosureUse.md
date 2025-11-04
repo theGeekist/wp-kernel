@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpClosureUse
 
@@ -24,7 +24,7 @@ readonly nodeType: "ClosureUse" | "Expr_ClosureUse";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### var
 
@@ -32,7 +32,7 @@ readonly nodeType: "ClosureUse" | "Expr_ClosureUse";
 readonly var: PhpExprVariable;
 ```
 
----
+***
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly var: PhpExprVariable;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### attributes
 

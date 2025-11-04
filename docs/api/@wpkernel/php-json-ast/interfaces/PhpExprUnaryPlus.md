@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprUnaryPlus
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_UnaryPlus";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_UnaryPlus";
 readonly expr: PhpExpr;
 ```
 
----
+***
 
 ### attributes
 

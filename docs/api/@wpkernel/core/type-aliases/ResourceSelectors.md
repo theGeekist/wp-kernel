@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceSelectors
 
@@ -56,7 +56,7 @@ Item ID
 
 The item or undefined if not found
 
----
+***
 
 ### getItems()
 
@@ -86,7 +86,7 @@ Query parameters
 
 Array of items
 
----
+***
 
 ### getList()
 
@@ -116,7 +116,7 @@ Query parameters
 
 List response with items and metadata
 
----
+***
 
 ### getListStatus()
 
@@ -146,7 +146,7 @@ Query parameters
 
 List status
 
----
+***
 
 ### getListError()
 
@@ -176,7 +176,7 @@ Query parameters
 
 Error message or undefined
 
----
+***
 
 ### isResolving()
 
@@ -215,7 +215,7 @@ Arguments passed to the selector
 
 True if resolving
 
----
+***
 
 ### hasStartedResolution()
 
@@ -254,7 +254,7 @@ Arguments passed to the selector
 
 True if resolution has started
 
----
+***
 
 ### hasFinishedResolution()
 
@@ -293,7 +293,7 @@ Arguments passed to the selector
 
 True if resolution has finished
 
----
+***
 
 ### getError()
 

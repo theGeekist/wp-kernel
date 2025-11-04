@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprFuncCall
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_FuncCall";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_FuncCall";
 readonly name: PhpExpr | PhpName;
 ```
 
----
+***
 
 ### args
 
@@ -40,7 +40,7 @@ readonly name: PhpExpr | PhpName;
 readonly args: PhpArg[];
 ```
 
----
+***
 
 ### attributes
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpProgramCodemodResult
 
@@ -14,7 +14,7 @@
 readonly before: PhpProgram;
 ```
 
----
+***
 
 ### after
 
@@ -22,7 +22,7 @@ readonly before: PhpProgram;
 readonly after: PhpProgram;
 ```
 
----
+***
 
 ### visitors
 
@@ -30,7 +30,7 @@ readonly after: PhpProgram;
 readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
 ```
 
----
+***
 
 ### diagnostics?
 

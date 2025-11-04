@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WPKernelUITestHarness
 
@@ -18,7 +18,7 @@ wordpress: WordPressTestHarness;
 
 The WordPress test harness.
 
----
+***
 
 ### createRuntime()
 
@@ -38,7 +38,7 @@ Creates a new `WPKernelUIRuntime` instance.
 
 `WPKernelUIRuntime`
 
----
+***
 
 ### createWrapper()
 
@@ -75,7 +75,7 @@ Creates a React wrapper component for the WPKernel UI runtime.
 `ReactElement`\&lt;\{
 \}\&gt;
 
----
+***
 
 ### resetActionStoreRegistration()
 
@@ -89,7 +89,7 @@ Resets the action store registration.
 
 `void`
 
----
+***
 
 ### suppressConsoleError()
 
@@ -109,7 +109,7 @@ Suppresses console errors that match a given predicate.
 
 `void`
 
----
+***
 
 ### restoreConsoleError()
 
@@ -123,7 +123,7 @@ Restores the original console error function.
 
 `void`
 
----
+***
 
 ### teardown()
 

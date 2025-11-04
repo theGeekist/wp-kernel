@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PipelineRunResult
 
@@ -18,7 +18,7 @@ readonly ir: IRv1;
 
 The generated Intermediate Representation (IR).
 
----
+***
 
 ### diagnostics
 
@@ -28,7 +28,7 @@ readonly diagnostics: readonly ConflictDiagnostic[];
 
 An array of diagnostic messages.
 
----
+***
 
 ### steps
 

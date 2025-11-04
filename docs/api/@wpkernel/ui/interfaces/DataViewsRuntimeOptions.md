@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DataViewsRuntimeOptions
 
@@ -18,7 +18,7 @@ namespace: string;
 
 The namespace of the project.
 
----
+***
 
 ### reporter
 
@@ -28,19 +28,19 @@ reporter: Reporter;
 
 The reporter for logging.
 
----
+***
 
 ### preferences
 
 ```ts
-preferences:
+preferences: 
   | DataViewPreferencesRuntime
   | DataViewPreferencesAdapter;
 ```
 
 The preferences runtime or adapter.
 
----
+***
 
 ### capabilities?
 
@@ -50,7 +50,7 @@ optional capabilities: WPKUICapabilityRuntime;
 
 The capability runtime.
 
----
+***
 
 ### invalidate()?
 
@@ -70,7 +70,7 @@ A function to invalidate cache entries.
 
 `void`
 
----
+***
 
 ### emit()?
 

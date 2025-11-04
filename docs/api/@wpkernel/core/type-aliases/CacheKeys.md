@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CacheKeys
 
@@ -37,7 +37,7 @@ optional list: CacheKeyFn&lt;TListParams&gt;;
 
 Cache key for list operations
 
----
+***
 
 ### get?
 
@@ -47,7 +47,7 @@ optional get: CacheKeyFn&lt;string | number&gt;;
 
 Cache key for single-item fetch
 
----
+***
 
 ### create?
 
@@ -57,7 +57,7 @@ optional create: CacheKeyFn&lt;unknown&gt;;
 
 Cache key for create operations (typically not cached)
 
----
+***
 
 ### update?
 
@@ -67,7 +67,7 @@ optional update: CacheKeyFn&lt;string | number&gt;;
 
 Cache key for update operations
 
----
+***
 
 ### remove?
 

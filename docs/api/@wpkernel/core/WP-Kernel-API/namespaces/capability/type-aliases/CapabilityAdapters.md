@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [capability](../README.md) / CapabilityAdapters
 
@@ -9,6 +9,12 @@
 ```ts
 type CapabilityAdapters = object;
 ```
+
+Adapters that capability rules can leverage when evaluating capabilities.
+
+Adapters provide standardized interfaces for capability checking across different
+systems (WordPress core, REST APIs, custom backends). The capability runtime auto-detects
+and injects wp.data.select('core').canUser() when available.
 
 ## Examples
 
@@ -28,8 +34,24 @@ const capability = defineCapability({
 });
 ```
 
-```ts
+```typescript
+// Custom adapter for REST endpoint probing
+const capability = defineCapability({
+  map: rules,
+  options: {
+    adapters: {
+      restProbe: async (key) =&gt; {
+        const res = await fetch(`/wp-json/acme/v1/capabilities/${key}`);
+        return res.ok;
+      }
+    }
+  }
+});
 
+// Use in rule
+'feature.enabled': async (ctx) =&gt; {
+  return await ctx.adapters.restProbe?.('advanced-features') ?? false;
+}
 ```
 
 ## Properties
@@ -66,7 +88,7 @@ canUser: (action, resource) =&gt; boolean | Promise&lt;boolean&gt;;
 
 `boolean` \| `Promise`\&lt;`boolean`\&gt;
 
----
+***
 
 ### restProbe()?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ActionContext
 
@@ -13,7 +13,6 @@ type ActionContext = object;
 Primary API surface passed to action implementations.
 
 The ActionContext provides actions with all the integration points they need:
-
 - Event emission for domain events
 - Cache invalidation for resource stores
 - Background job scheduling
@@ -27,25 +26,25 @@ This is the second parameter to every action function.
 
 ```typescript
 async function CreatePost(ctx: ActionContext, input: CreatePostInput) {
-	// Authorization
-	ctx.capability.assert('edit_posts');
+  // Authorization
+  ctx.capability.assert('edit_posts');
 
-	// Logging
-	ctx.reporter.info('Creating post', { input });
+  // Logging
+  ctx.reporter.info('Creating post', { input });
 
-	// Resource mutation
-	const post = await api.posts.create(input);
+  // Resource mutation
+  const post = await api.posts.create(input);
 
-	// Domain event
-	ctx.emit('post.created', { postId: post.id });
+  // Domain event
+  ctx.emit('post.created', { postId: post.id });
 
-	// Cache invalidation
-	ctx.invalidate(['posts', `post:${post.id}`]);
+  // Cache invalidation
+  ctx.invalidate(['posts', `post:${post.id}`]);
 
-	// Background job
-	await ctx.jobs.enqueue('email.notification', { postId: post.id });
+  // Background job
+  await ctx.jobs.enqueue('email.notification', { postId: post.id });
 
-	return post;
+  return post;
 }
 ```
 
@@ -59,7 +58,7 @@ readonly requestId: string;
 
 Correlation identifier shared with transport calls.
 
----
+***
 
 ### emit()
 
@@ -83,7 +82,7 @@ Emit canonical events.
 
 `void`
 
----
+***
 
 ### invalidate()
 
@@ -107,7 +106,7 @@ Invalidate cache keys.
 
 `void`
 
----
+***
 
 ### jobs
 
@@ -117,7 +116,7 @@ readonly jobs: ActionJobs;
 
 Background job helpers.
 
----
+***
 
 ### capability
 
@@ -127,7 +126,7 @@ readonly capability: Pick&lt;CapabilityHelpers&lt;Record&lt;string, unknown&gt;&
 
 Capability enforcement helpers.
 
----
+***
 
 ### reporter
 
@@ -137,7 +136,7 @@ readonly reporter: Reporter;
 
 Structured logging surface.
 
----
+***
 
 ### namespace
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DoctorCheckResult
 
@@ -16,7 +16,7 @@ Result from a doctor check.
 readonly key: string;
 ```
 
----
+***
 
 ### label
 
@@ -24,7 +24,7 @@ readonly key: string;
 readonly label: string;
 ```
 
----
+***
 
 ### status
 
@@ -32,7 +32,7 @@ readonly label: string;
 readonly status: DoctorStatus;
 ```
 
----
+***
 
 ### message
 

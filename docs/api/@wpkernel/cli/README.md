@@ -1,6 +1,6 @@
 **WP Kernel API v0.11.0**
 
----
+***
 
 # WP Kernel API v0.11.0
 
@@ -200,8 +200,8 @@ kernel and UI packages.
 
 ### IR Fragments
 
-- [META_EXTENSION_KEY](variables/META_EXTENSION_KEY.md)
-- [SCHEMA_EXTENSION_KEY](variables/SCHEMA_EXTENSION_KEY.md)
+- [META\_EXTENSION\_KEY](variables/META_EXTENSION_KEY.md)
+- [SCHEMA\_EXTENSION\_KEY](variables/SCHEMA_EXTENSION_KEY.md)
 
 ### Other
 

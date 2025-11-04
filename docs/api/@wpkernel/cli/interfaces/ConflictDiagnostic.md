@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ConflictDiagnostic
 
@@ -18,7 +18,7 @@ readonly type: "conflict";
 
 The type of diagnostic, always 'conflict'.
 
----
+***
 
 ### key
 
@@ -28,7 +28,7 @@ readonly key: string;
 
 The key of the helper that caused the conflict.
 
----
+***
 
 ### mode
 
@@ -38,7 +38,7 @@ readonly mode: HelperMode;
 
 The conflict resolution mode (e.g., 'override').
 
----
+***
 
 ### helpers
 
@@ -48,7 +48,7 @@ readonly helpers: readonly string[];
 
 A list of helpers involved in the conflict.
 
----
+***
 
 ### message
 

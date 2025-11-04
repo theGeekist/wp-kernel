@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / CorePipelineContext
 
@@ -18,7 +18,7 @@ reporter: Reporter;
 
 Structured reporter instance used for diagnostics.
 
----
+***
 
 ### namespace
 
@@ -28,7 +28,7 @@ namespace: string;
 
 Namespace owning the resource or action under orchestration.
 
----
+***
 
 ### registry?
 

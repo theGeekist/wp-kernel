@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpAstContext
 
@@ -14,7 +14,7 @@
 namespaceParts: string[];
 ```
 
----
+***
 
 ### docblockLines
 
@@ -22,7 +22,7 @@ namespaceParts: string[];
 readonly docblockLines: string[];
 ```
 
----
+***
 
 ### uses
 
@@ -30,7 +30,7 @@ readonly docblockLines: string[];
 readonly uses: Map&lt;string, ProgramUse&gt;;
 ```
 
----
+***
 
 ### statements
 
@@ -38,7 +38,7 @@ readonly uses: Map&lt;string, ProgramUse&gt;;
 readonly statements: PhpStmt[];
 ```
 
----
+***
 
 ### statementLines
 
@@ -46,7 +46,7 @@ readonly statements: PhpStmt[];
 readonly statementLines: string[];
 ```
 
----
+***
 
 ### statementEntries
 
@@ -54,7 +54,7 @@ readonly statementLines: string[];
 readonly statementEntries: PhpStatementEntry[];
 ```
 
----
+***
 
 ### pendingStatementLines
 

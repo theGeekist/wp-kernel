@@ -1,21 +1,18 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / test
 
 # Variable: test
 
 ```ts
-const test: TestType & lt;
-(PlaywrightTestArgs & PlaywrightTestOptions & object & object,
-	PlaywrightWorkerArgs & PlaywrightWorkerOptions & object & gt);
+const test: TestType&lt;PlaywrightTestArgs & PlaywrightTestOptions & object & object, PlaywrightWorkerArgs & PlaywrightWorkerOptions & object&gt;;
 ```
 
 Extended test fixture with kernel utilities
 
 Provides all WordPress E2E fixtures plus:
-
 - `kernel`: Kernel utilities factory for resources, stores, and events
 
 ## Example

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DataViewPreferencesAdapter
 
@@ -15,17 +15,17 @@ Implementations should handle scope-based preference resolution.
 
 ```typescript
 const adapter: DataViewPreferencesAdapter = {
-	async get(key) {
-		// Resolve from user → role → site scopes
-		return await resolveFromScopes(key);
-	},
-	async set(key, value) {
-		// Persist to primary scope (typically user)
-		await persistToUserScope(key, value);
-	},
-	getScopeOrder() {
-		return ['user', 'role', 'site'];
-	},
+  async get(key) {
+    // Resolve from user → role → site scopes
+    return await resolveFromScopes(key);
+  },
+  async set(key, value) {
+    // Persist to primary scope (typically user)
+    await persistToUserScope(key, value);
+  },
+  getScopeOrder() {
+    return ['user', 'role', 'site'];
+  }
 };
 ```
 
@@ -55,7 +55,7 @@ Preference key (e.g., 'job-listings')
 
 Preference value or undefined if not found
 
----
+***
 
 ### set()
 
@@ -85,7 +85,7 @@ Preference value to persist
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### getScopeOrder()?
 

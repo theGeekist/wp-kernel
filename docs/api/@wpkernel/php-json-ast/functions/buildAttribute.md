@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildAttribute
 
 # Function: buildAttribute()
 
 ```ts
-function buildAttribute(name, args, attributes?): PhpAttribute;
+function buildAttribute(
+   name, 
+   args, 
+   attributes?): PhpAttribute;
 ```
 
 Builds a PHP attribute node.

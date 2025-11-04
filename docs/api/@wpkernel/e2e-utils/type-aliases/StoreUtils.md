@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / StoreUtils
 
@@ -54,7 +54,7 @@ Max wait time in ms (default: 5000)
 
 Resolved data from selector
 
----
+***
 
 ### invalidate()
 
@@ -68,7 +68,7 @@ Invalidate store cache to trigger refetch
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### getState()
 

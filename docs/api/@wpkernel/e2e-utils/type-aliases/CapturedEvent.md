@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CapturedEvent
 
@@ -26,7 +26,7 @@ Captured event structure
 type: string;
 ```
 
----
+***
 
 ### timestamp
 
@@ -34,7 +34,7 @@ type: string;
 timestamp: number;
 ```
 
----
+***
 
 ### payload?
 

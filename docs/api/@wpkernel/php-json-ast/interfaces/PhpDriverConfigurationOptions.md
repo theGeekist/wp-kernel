@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpDriverConfigurationOptions
 
@@ -14,7 +14,7 @@
 readonly optional binary: string;
 ```
 
----
+***
 
 ### scriptPath?
 
@@ -22,7 +22,7 @@ readonly optional binary: string;
 readonly optional scriptPath: string;
 ```
 
----
+***
 
 ### importMetaUrl?
 

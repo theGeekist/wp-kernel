@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpBuilderFactoryUseIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
----
+***
 
 ### alias?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional alias: string | null;
 ```
 
----
+***
 
 ### kind?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpAstChannel
 
@@ -38,7 +38,7 @@ open: (options) =&gt; PhpAstContextEntry;
 
 [`PhpAstContextEntry`](PhpAstContextEntry.md)
 
----
+***
 
 ### get()
 
@@ -56,7 +56,7 @@ get: (key) =&gt; PhpAstContextEntry | undefined;
 
 [`PhpAstContextEntry`](PhpAstContextEntry.md) \| `undefined`
 
----
+***
 
 ### entries()
 
@@ -68,7 +68,7 @@ entries: () =&gt; readonly PhpAstContextEntry[];
 
 readonly [`PhpAstContextEntry`](PhpAstContextEntry.md)[]
 
----
+***
 
 ### reset()
 

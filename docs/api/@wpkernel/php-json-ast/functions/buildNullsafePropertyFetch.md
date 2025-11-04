@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildNullsafePropertyFetch
 
@@ -8,10 +8,9 @@
 
 ```ts
 function buildNullsafePropertyFetch(
-	variable,
-	name,
-	attributes?
-): PhpExprNullsafePropertyFetch;
+   variable, 
+   name, 
+   attributes?): PhpExprNullsafePropertyFetch;
 ```
 
 Builds a PHP nullsafe property fetch expression node.

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / BuildCoreResourcePipelineHarnessOptions
 
@@ -28,7 +28,7 @@ readonly optional namespace: string;
 
 The namespace for the reporter.
 
----
+***
 
 ### resourceName?
 
@@ -38,7 +38,7 @@ readonly optional resourceName: string;
 
 The name of the resource.
 
----
+***
 
 ### pipelineFactory()?
 

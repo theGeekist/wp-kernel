@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtBase
 
@@ -54,7 +54,7 @@ readonly nodeType: `Stmt_${string}` | "UseItem" | "PropertyItem";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### attributes
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / registerWPKernelStore
 
@@ -19,7 +19,7 @@ consistent middleware ordering and return the created store for further wiring.
 
 ### Key
 
-`Key` _extends_ `string`
+`Key` *extends* `string`
 
 ### State
 
@@ -27,7 +27,7 @@ consistent middleware ordering and return the created store for further wiring.
 
 ### Actions
 
-`Actions` _extends_ `Record`\&lt;`string`, (...`args`) =&gt; `unknown`\&gt;
+`Actions` *extends* `Record`\&lt;`string`, (...`args`) =&gt; `unknown`\&gt;
 
 ### Selectors
 

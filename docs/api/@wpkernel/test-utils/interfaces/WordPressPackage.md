@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WordPressPackage
 
@@ -16,7 +16,7 @@ Convenience interface for building synthetic WordPress package metadata.
 optional name: string;
 ```
 
----
+***
 
 ### version?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceRoutes
 
@@ -36,7 +36,7 @@ optional list: ResourceRoute;
 
 Fetch a list/collection of resources
 
----
+***
 
 ### get?
 
@@ -46,7 +46,7 @@ optional get: ResourceRoute;
 
 Fetch a single resource by identifier
 
----
+***
 
 ### create?
 
@@ -56,7 +56,7 @@ optional create: ResourceRoute;
 
 Create a new resource
 
----
+***
 
 ### update?
 
@@ -66,7 +66,7 @@ optional update: ResourceRoute;
 
 Update an existing resource
 
----
+***
 
 ### remove?
 

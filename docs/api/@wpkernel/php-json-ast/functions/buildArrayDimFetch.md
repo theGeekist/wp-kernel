@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildArrayDimFetch
 
 # Function: buildArrayDimFetch()
 
 ```ts
-function buildArrayDimFetch(variable, dim, attributes?): PhpExprArrayDimFetch;
+function buildArrayDimFetch(
+   variable, 
+   dim, 
+   attributes?): PhpExprArrayDimFetch;
 ```
 
 Builds a PHP array dimension fetch expression node.

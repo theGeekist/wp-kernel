@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / TransportError
 
@@ -12,10 +12,10 @@ Error thrown when a network/HTTP request fails
 
 ```typescript
 throw new TransportError({
-	status: 404,
-	path: '/my-plugin/v1/things/123',
-	method: 'GET',
-	message: 'Resource not found',
+  status: 404,
+  path: '/my-plugin/v1/things/123',
+  method: 'GET',
+  message: 'Resource not found'
 });
 ```
 
@@ -81,7 +81,7 @@ readonly status: number;
 
 HTTP status code
 
----
+***
 
 ### path
 
@@ -91,7 +91,7 @@ readonly path: string;
 
 Request path
 
----
+***
 
 ### method
 
@@ -101,7 +101,7 @@ readonly method: string;
 
 HTTP method
 
----
+***
 
 ### code
 
@@ -115,7 +115,7 @@ Error code - identifies the type of error
 
 [`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
 
----
+***
 
 ### data?
 
@@ -129,7 +129,7 @@ Additional data about the error
 
 [`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
 
----
+***
 
 ### context?
 
@@ -171,7 +171,7 @@ New WPKernelError instance
 
 [`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
 
----
+***
 
 ### isWPKernelError()
 
@@ -199,14 +199,14 @@ True if error is a WPKernelError
 
 [`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
 
----
+***
 
 ### wrap()
 
 ```ts
 static wrap(
-   error,
-   code,
+   error, 
+   code, 
    context?): WPKernelError;
 ```
 
@@ -242,7 +242,7 @@ New WPKernelError wrapping the original
 
 [`WPKernelError`](WPKernelError.md).[`wrap`](WPKernelError.md#wrap)
 
----
+***
 
 ### isTimeout()
 
@@ -258,7 +258,7 @@ Check if error is a network timeout
 
 True if this is a timeout error
 
----
+***
 
 ### isRetryable()
 
@@ -274,7 +274,7 @@ Check if error is retryable
 
 True if request should be retried
 
----
+***
 
 ### isClientError()
 
@@ -290,7 +290,7 @@ Check if error is a client error (4xx)
 
 True if this is a client error
 
----
+***
 
 ### isServerError()
 
@@ -306,7 +306,7 @@ Check if error is a server error (5xx)
 
 True if this is a server error
 
----
+***
 
 ### toJSON()
 

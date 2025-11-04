@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildClass
 
 # Function: buildClass()
 
 ```ts
-function buildClass(name, options, attributes?): PhpStmtClass;
+function buildClass(
+   name, 
+   options, 
+   attributes?): PhpStmtClass;
 ```
 
 Builds a PHP class declaration statement node.

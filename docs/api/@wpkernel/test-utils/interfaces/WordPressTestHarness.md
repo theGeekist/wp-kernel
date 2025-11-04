@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WordPressTestHarness
 
@@ -18,7 +18,7 @@ wp: any;
 
 The mock WordPress global that has been installed.
 
----
+***
 
 ### data
 
@@ -29,7 +29,7 @@ data: WordPressData;
 Convenience access to the shared data package to avoid calling
 `ensureWpData()` repeatedly in suites.
 
----
+***
 
 ### reset()
 
@@ -43,7 +43,7 @@ Reset namespace state and clear all jest mocks.
 
 `void`
 
----
+***
 
 ### teardown()
 

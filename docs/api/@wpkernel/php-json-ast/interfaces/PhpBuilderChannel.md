@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpBuilderChannel
 
@@ -24,7 +24,7 @@ queue: (action) =&gt; void;
 
 `void`
 
----
+***
 
 ### drain()
 
@@ -36,7 +36,7 @@ drain: () =&gt; readonly PhpProgramAction[];
 
 readonly [`PhpProgramAction`](PhpProgramAction.md)[]
 
----
+***
 
 ### reset()
 
@@ -48,7 +48,7 @@ reset: () =&gt; void;
 
 `void`
 
----
+***
 
 ### pending()
 

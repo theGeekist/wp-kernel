@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / IsolatedWorkspace
 
@@ -20,7 +20,7 @@ readonly root: string;
 
 Absolute path to the workspace root
 
----
+***
 
 ### env
 
@@ -30,7 +30,7 @@ readonly env: ProcessEnv;
 
 Normalised environment variables applied to spawned processes
 
----
+***
 
 ### tools
 
@@ -40,7 +40,7 @@ readonly tools: WorkspaceTools;
 
 Convenience accessor for pinned tooling
 
----
+***
 
 ### run()
 
@@ -74,7 +74,7 @@ spawn overrides
 
 `Promise`\&lt;[`CliTranscript`](CliTranscript.md)\&gt;
 
----
+***
 
 ### dispose()
 
@@ -89,5 +89,5 @@ dispose: () =&gt; void | Promise&lt;void&gt;;
 #### Inherited from
 
 ```ts
-Disposable.dispose;
+Disposable.dispose
 ```

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtUseUse
 
@@ -24,7 +24,7 @@ readonly nodeType: "UseItem";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "UseItem";
 readonly name: PhpName;
 ```
 
----
+***
 
 ### alias
 
@@ -40,7 +40,7 @@ readonly name: PhpName;
 readonly alias: PhpIdentifier | null;
 ```
 
----
+***
 
 ### type
 
@@ -48,7 +48,7 @@ readonly alias: PhpIdentifier | null;
 readonly type: number;
 ```
 
----
+***
 
 ### attributes
 

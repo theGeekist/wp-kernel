@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / defineInteraction
 
@@ -23,11 +23,11 @@ import { testimonial } from '@/resources/testimonial';
 import { ApproveTestimonial } from '@/actions/ApproveTestimonial';
 
 const TestimonialReview = defineInteraction({
-	resource: testimonial,
-	feature: 'review',
-	actions: {
-		approve: ApproveTestimonial,
-	},
+  resource: testimonial,
+  feature: 'review',
+  actions: {
+    approve: ApproveTestimonial,
+  },
 });
 
 await TestimonialReview.store.actions.approve({ id: 101 });
@@ -45,11 +45,11 @@ await TestimonialReview.store.actions.approve({ id: 101 });
 
 ### TStore
 
-`TStore` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TStore` *extends* `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
 
 ### TActions
 
-`TActions` _extends_ [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md) = [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
+`TActions` *extends* [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md) = [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
 
 ## Parameters
 

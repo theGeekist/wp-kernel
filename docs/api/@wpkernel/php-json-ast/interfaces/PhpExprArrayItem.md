@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprArrayItem
 
@@ -24,7 +24,7 @@ readonly nodeType: "ArrayItem";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### key
 
@@ -32,7 +32,7 @@ readonly nodeType: "ArrayItem";
 readonly key: PhpExpr | null;
 ```
 
----
+***
 
 ### value
 
@@ -40,7 +40,7 @@ readonly key: PhpExpr | null;
 readonly value: PhpExpr;
 ```
 
----
+***
 
 ### byRef
 
@@ -48,7 +48,7 @@ readonly value: PhpExpr;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### unpack
 
@@ -56,7 +56,7 @@ readonly byRef: boolean;
 readonly unpack: boolean;
 ```
 
----
+***
 
 ### attributes
 

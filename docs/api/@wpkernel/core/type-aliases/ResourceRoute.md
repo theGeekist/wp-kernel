@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceRoute
 
@@ -28,7 +28,7 @@ path: string;
 
 REST API path (may include :id, :slug patterns)
 
----
+***
 
 ### method
 
@@ -38,7 +38,7 @@ method: HttpMethod;
 
 HTTP method
 
----
+***
 
 ### capability?
 

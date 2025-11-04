@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildBinaryOperation
 
@@ -8,11 +8,10 @@
 
 ```ts
 function buildBinaryOperation(
-	operator,
-	left,
-	right,
-	attributes?
-): PhpExprBinaryOp;
+   operator, 
+   left, 
+   right, 
+   attributes?): PhpExprBinaryOp;
 ```
 
 Builds a PHP binary operation expression node.

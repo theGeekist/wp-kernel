@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / IRBlock
 
@@ -18,7 +18,7 @@ key: string;
 
 A unique key for the block.
 
----
+***
 
 ### directory
 
@@ -28,7 +28,7 @@ directory: string;
 
 The directory where the block is defined.
 
----
+***
 
 ### hasRender
 
@@ -38,7 +38,7 @@ hasRender: boolean;
 
 Indicates if the block has a render function.
 
----
+***
 
 ### manifestSource
 

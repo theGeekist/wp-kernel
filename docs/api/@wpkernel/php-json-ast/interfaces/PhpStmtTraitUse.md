@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtTraitUse
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_TraitUse";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### traits
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_TraitUse";
 readonly traits: PhpName[];
 ```
 
----
+***
 
 ### adaptations
 
@@ -40,7 +40,7 @@ readonly traits: PhpName[];
 readonly adaptations: PhpNode[];
 ```
 
----
+***
 
 ### attributes
 

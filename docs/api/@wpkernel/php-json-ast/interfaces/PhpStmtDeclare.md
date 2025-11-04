@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtDeclare
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Declare";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### declares
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Declare";
 readonly declares: PhpDeclareItem[];
 ```
 
----
+***
 
 ### stmts
 
@@ -40,7 +40,7 @@ readonly declares: PhpDeclareItem[];
 readonly stmts: PhpStmt[] | null;
 ```
 
----
+***
 
 ### attributes
 

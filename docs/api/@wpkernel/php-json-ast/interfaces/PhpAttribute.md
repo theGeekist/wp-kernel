@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpAttribute
 
@@ -24,7 +24,7 @@ readonly nodeType: "Attribute";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Attribute";
 readonly name: PhpIdentifier | PhpName;
 ```
 
----
+***
 
 ### args
 
@@ -40,7 +40,7 @@ readonly name: PhpIdentifier | PhpName;
 readonly args: PhpArg[];
 ```
 
----
+***
 
 ### attributes
 

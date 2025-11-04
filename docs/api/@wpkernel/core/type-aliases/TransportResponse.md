@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / TransportResponse
 
@@ -28,7 +28,7 @@ data: T;
 
 Response data
 
----
+***
 
 ### status
 
@@ -38,18 +38,17 @@ status: number;
 
 HTTP status code
 
----
+***
 
 ### headers
 
 ```ts
-headers: Record & lt;
-(string, string & gt);
+headers: Record&lt;string, string&gt;;
 ```
 
 Response headers
 
----
+***
 
 ### requestId
 

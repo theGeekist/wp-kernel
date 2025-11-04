@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpCodemodVisitorConfiguration
 
@@ -10,7 +10,7 @@
 
 ### TOptions
 
-`TOptions` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TOptions` *extends* `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly key: string;
 ```
 
----
+***
 
 ### options?
 

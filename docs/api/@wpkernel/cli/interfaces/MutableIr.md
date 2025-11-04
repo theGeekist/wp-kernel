@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / MutableIr
 
@@ -11,7 +11,7 @@
 ### meta
 
 ```ts
-meta:
+meta: 
   | {
   version: 1;
   namespace: string;
@@ -22,7 +22,7 @@ meta:
   | null;
 ```
 
----
+***
 
 ### config
 
@@ -30,7 +30,7 @@ meta:
 readonly config: WPKernelConfigV1;
 ```
 
----
+***
 
 ### schemas
 
@@ -38,7 +38,7 @@ readonly config: WPKernelConfigV1;
 schemas: IRSchema[];
 ```
 
----
+***
 
 ### resources
 
@@ -46,7 +46,7 @@ schemas: IRSchema[];
 resources: IRResource[];
 ```
 
----
+***
 
 ### capabilities
 
@@ -54,7 +54,7 @@ resources: IRResource[];
 capabilities: IRCapabilityHint[];
 ```
 
----
+***
 
 ### capabilityMap
 
@@ -62,7 +62,7 @@ capabilities: IRCapabilityHint[];
 capabilityMap: IRCapabilityMap | null;
 ```
 
----
+***
 
 ### blocks
 
@@ -70,7 +70,7 @@ capabilityMap: IRCapabilityMap | null;
 blocks: IRBlock[];
 ```
 
----
+***
 
 ### php
 
@@ -78,7 +78,7 @@ blocks: IRBlock[];
 php: IRPhpProject | null;
 ```
 
----
+***
 
 ### diagnostics
 
@@ -86,11 +86,10 @@ php: IRPhpProject | null;
 diagnostics: IRDiagnostic[];
 ```
 
----
+***
 
 ### extensions
 
 ```ts
-extensions: Record & lt;
-(string, unknown & gt);
+extensions: Record&lt;string, unknown&gt;;
 ```

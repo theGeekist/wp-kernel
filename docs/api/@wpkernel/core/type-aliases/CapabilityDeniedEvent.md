@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CapabilityDeniedEvent
 
@@ -20,7 +20,7 @@ Payload emitted with `{namespace}.capability.denied` events.
 capabilityKey: string;
 ```
 
----
+***
 
 ### timestamp
 
@@ -28,7 +28,7 @@ capabilityKey: string;
 timestamp: number;
 ```
 
----
+***
 
 ### context?
 
@@ -36,7 +36,7 @@ timestamp: number;
 optional context: Record&lt;string, unknown&gt;;
 ```
 
----
+***
 
 ### requestId?
 
@@ -44,7 +44,7 @@ optional context: Record&lt;string, unknown&gt;;
 optional requestId: string;
 ```
 
----
+***
 
 ### reason?
 
@@ -52,7 +52,7 @@ optional requestId: string;
 optional reason: string;
 ```
 
----
+***
 
 ### messageKey?
 

@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildArrayItem
 
 # Function: buildArrayItem()
 
 ```ts
-function buildArrayItem(value, options, attributes?): PhpExprArrayItem;
+function buildArrayItem(
+   value, 
+   options, 
+   attributes?): PhpExprArrayItem;
 ```
 
 Builds a PHP array item node.

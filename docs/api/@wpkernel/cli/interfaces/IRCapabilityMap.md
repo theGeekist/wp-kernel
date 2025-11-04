@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / IRCapabilityMap
 
@@ -18,7 +18,7 @@ definitions: IRCapabilityDefinition[];
 
 An array of capability definitions.
 
----
+***
 
 ### fallback
 
@@ -40,7 +40,7 @@ capability: string;
 appliesTo: IRCapabilityScope;
 ```
 
----
+***
 
 ### missing
 
@@ -50,7 +50,7 @@ missing: string[];
 
 An array of missing capabilities.
 
----
+***
 
 ### unused
 
@@ -60,7 +60,7 @@ unused: string[];
 
 An array of unused capabilities.
 
----
+***
 
 ### warnings
 
@@ -70,7 +70,7 @@ warnings: IRWarning[];
 
 An array of warnings related to the capability map.
 
----
+***
 
 ### sourcePath?
 

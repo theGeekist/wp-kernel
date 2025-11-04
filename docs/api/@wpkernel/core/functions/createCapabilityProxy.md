@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / createCapabilityProxy
 
@@ -35,11 +35,11 @@ Capability helpers restricted to `assert` and `can`
 
 ```ts
 const proxy = createCapabilityProxy({
-	actionName: 'Post.Publish',
-	requestId: 'req-123',
-	namespace: 'acme',
-	scope: 'crossTab',
-	bridged: false,
+  actionName: 'Post.Publish',
+  requestId: 'req-123',
+  namespace: 'acme',
+  scope: 'crossTab',
+  bridged: false,
 });
 
 await proxy.assert('posts.publish');

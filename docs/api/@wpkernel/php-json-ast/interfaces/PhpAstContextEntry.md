@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpAstContextEntry
 
@@ -14,7 +14,7 @@
 readonly key: string;
 ```
 
----
+***
 
 ### filePath
 
@@ -22,7 +22,7 @@ readonly key: string;
 readonly filePath: string;
 ```
 
----
+***
 
 ### metadata
 
@@ -30,7 +30,7 @@ readonly filePath: string;
 metadata: PhpFileMetadata;
 ```
 
----
+***
 
 ### context
 

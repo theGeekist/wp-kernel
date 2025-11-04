@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildDeclare
 
 # Function: buildDeclare()
 
 ```ts
-function buildDeclare(declares, options, attributes?): PhpStmtDeclare;
+function buildDeclare(
+   declares, 
+   options, 
+   attributes?): PhpStmtDeclare;
 ```
 
 Builds a PHP `declare` statement node.

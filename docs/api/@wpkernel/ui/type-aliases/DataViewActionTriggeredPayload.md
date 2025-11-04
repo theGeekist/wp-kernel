@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DataViewActionTriggeredPayload
 
@@ -18,7 +18,7 @@ type DataViewActionTriggeredPayload = object;
 resource: string;
 ```
 
----
+***
 
 ### actionId
 
@@ -26,7 +26,7 @@ resource: string;
 actionId: string;
 ```
 
----
+***
 
 ### selection
 
@@ -34,7 +34,7 @@ actionId: string;
 selection: (string | number)[];
 ```
 
----
+***
 
 ### permitted
 
@@ -42,7 +42,7 @@ selection: (string | number)[];
 permitted: boolean;
 ```
 
----
+***
 
 ### meta?
 
@@ -50,7 +50,7 @@ permitted: boolean;
 optional meta: Record&lt;string, unknown&gt;;
 ```
 
----
+***
 
 ### reason?
 

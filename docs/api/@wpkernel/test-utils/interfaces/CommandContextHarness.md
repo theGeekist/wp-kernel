@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CommandContextHarness
 
@@ -18,7 +18,7 @@ context: BaseContext;
 
 The created command context.
 
----
+***
 
 ### stdout
 
@@ -28,7 +28,7 @@ stdout: MemoryStream;
 
 The `MemoryStream` for standard output.
 
----
+***
 
 ### stderr
 

@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildPropertyFetch
 
 # Function: buildPropertyFetch()
 
 ```ts
-function buildPropertyFetch(variable, name, attributes?): PhpExprPropertyFetch;
+function buildPropertyFetch(
+   variable, 
+   name, 
+   attributes?): PhpExprPropertyFetch;
 ```
 
 Builds a PHP property fetch expression node.

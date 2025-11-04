@@ -1,14 +1,13 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / collectManifestState
 
 # Function: collectManifestState()
 
 ```ts
-function collectManifestState(workspace, definition): Promise & lt;
-FileManifest & gt;
+function collectManifestState(workspace, definition): Promise&lt;FileManifest&gt;;
 ```
 
 Collects the file system manifest state for comparison.

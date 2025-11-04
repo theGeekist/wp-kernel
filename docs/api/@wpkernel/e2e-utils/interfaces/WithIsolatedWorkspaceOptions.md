@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WithIsolatedWorkspaceOptions
 
@@ -14,7 +14,7 @@
 optional prefix: string;
 ```
 
----
+***
 
 ### env?
 
@@ -22,7 +22,7 @@ optional prefix: string;
 optional env: ProcessEnv;
 ```
 
----
+***
 
 ### timezone?
 
@@ -30,7 +30,7 @@ optional env: ProcessEnv;
 optional timezone: string;
 ```
 
----
+***
 
 ### locale?
 

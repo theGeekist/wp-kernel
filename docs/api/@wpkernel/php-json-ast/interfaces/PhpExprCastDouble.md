@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprCastDouble
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Cast_Double";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Cast_Double";
 readonly expr: PhpExpr;
 ```
 
----
+***
 
 ### attributes
 

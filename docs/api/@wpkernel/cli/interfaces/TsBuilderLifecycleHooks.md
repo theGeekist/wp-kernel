@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / TsBuilderLifecycleHooks
 
@@ -31,7 +31,7 @@ Hook executed before a creator generates an artifact.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### onAfterCreate()?
 
@@ -51,7 +51,7 @@ Hook executed after a creator generates an artifact.
 
 `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### onAfterEmit()?
 

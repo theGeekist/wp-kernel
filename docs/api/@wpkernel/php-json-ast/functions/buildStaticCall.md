@@ -1,13 +1,17 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildStaticCall
 
 # Function: buildStaticCall()
 
 ```ts
-function buildStaticCall(className, name, args, attributes?): PhpExprStaticCall;
+function buildStaticCall(
+   className, 
+   name, 
+   args, 
+   attributes?): PhpExprStaticCall;
 ```
 
 Builds a PHP static method call expression node.

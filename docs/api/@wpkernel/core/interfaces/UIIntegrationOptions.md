@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / UIIntegrationOptions
 
@@ -20,7 +20,7 @@
 optional suspense: boolean;
 ```
 
----
+***
 
 ### notices?
 
@@ -28,7 +28,7 @@ optional suspense: boolean;
 optional notices: boolean;
 ```
 
----
+***
 
 ### devtools?
 
@@ -36,7 +36,7 @@ optional notices: boolean;
 optional devtools: boolean;
 ```
 
----
+***
 
 ### dataviews?
 

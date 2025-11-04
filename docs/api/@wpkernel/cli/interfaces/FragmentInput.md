@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / FragmentInput
 
@@ -18,7 +18,7 @@ readonly options: BuildIrOptions;
 
 Options for building the IR.
 
----
+***
 
 ### draft
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / InteractionActionBinding
 
@@ -26,12 +26,12 @@ Declarative binding describing an action exposed to the runtime.
 readonly action: DefinedAction&lt;TArgs, TResult&gt;;
 ```
 
----
+***
 
 ### meta?
 
 ```ts
-readonly optional meta:
+readonly optional meta: 
   | Record&lt;string, unknown&gt;
 | InteractionActionMetaResolver&lt;TArgs&gt;;
 ```

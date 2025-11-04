@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / useVisiblePrefetch
 
 # Function: useVisiblePrefetch()
 
 ```ts
-function useVisiblePrefetch(ref, fn, options): void;
+function useVisiblePrefetch(
+   ref, 
+   fn, 
+   options): void;
 ```
 
 Triggers a prefetch when an element becomes visible in the viewport.

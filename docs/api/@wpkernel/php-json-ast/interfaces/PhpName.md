@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpName
 
@@ -24,7 +24,7 @@ readonly nodeType: "Name" | "Name_FullyQualified" | "Name_Relative";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### parts
 
@@ -32,7 +32,7 @@ readonly nodeType: "Name" | "Name_FullyQualified" | "Name_Relative";
 readonly parts: string[];
 ```
 
----
+***
 
 ### attributes
 

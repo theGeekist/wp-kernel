@@ -1,6 +1,6 @@
 **WP Kernel API v0.11.0**
 
----
+***
 
 # WP Kernel API v0.11.0
 
@@ -92,7 +92,7 @@
 
 ### CLI Helpers
 
-- [TMP_PREFIX](variables/TMP_PREFIX.md)
+- [TMP\_PREFIX](variables/TMP_PREFIX.md)
 
 ## Functions
 

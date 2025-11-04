@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / IRPhpProject
 
@@ -18,7 +18,7 @@ namespace: string;
 
 The PHP namespace of the project.
 
----
+***
 
 ### autoload
 
@@ -28,7 +28,7 @@ autoload: string;
 
 The autoload path for the PHP project.
 
----
+***
 
 ### outputDir
 

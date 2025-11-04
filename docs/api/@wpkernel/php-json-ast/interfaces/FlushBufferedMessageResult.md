@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / FlushBufferedMessageResult
 
@@ -14,7 +14,7 @@
 readonly remaining: string;
 ```
 
----
+***
 
 ### message?
 
@@ -22,7 +22,7 @@ readonly remaining: string;
 readonly optional message: PhpProgramIngestionMessage;
 ```
 
----
+***
 
 ### error?
 

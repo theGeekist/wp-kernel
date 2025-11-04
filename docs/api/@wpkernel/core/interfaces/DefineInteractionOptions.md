@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DefineInteractionOptions
 
@@ -20,11 +20,11 @@ Options accepted by `defineInteraction`.
 
 ### TStore
 
-`TStore` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`TStore` *extends* `Record`\&lt;`string`, `unknown`\&gt;
 
 ### TActions
 
-`TActions` _extends_ [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
+`TActions` *extends* [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
 
 ## Properties
 
@@ -34,7 +34,7 @@ Options accepted by `defineInteraction`.
 readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 ```
 
----
+***
 
 ### feature
 
@@ -42,7 +42,7 @@ readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 readonly feature: string;
 ```
 
----
+***
 
 ### store?
 
@@ -50,7 +50,7 @@ readonly feature: string;
 readonly optional store: TStore;
 ```
 
----
+***
 
 ### actions?
 
@@ -58,7 +58,7 @@ readonly optional store: TStore;
 readonly optional actions: TActions;
 ```
 
----
+***
 
 ### registry?
 
@@ -66,7 +66,7 @@ readonly optional actions: TActions;
 readonly optional registry: WPKernelRegistry;
 ```
 
----
+***
 
 ### namespace?
 
@@ -74,7 +74,7 @@ readonly optional registry: WPKernelRegistry;
 readonly optional namespace: string;
 ```
 
----
+***
 
 ### autoHydrate?
 
@@ -82,7 +82,7 @@ readonly optional namespace: string;
 readonly optional autoHydrate: boolean;
 ```
 
----
+***
 
 ### hydrateServerState()?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WithWordPressDataOptions
 
@@ -18,7 +18,7 @@ optional wp: any;
 
 Optional `wp` global override. Set to `null` to unset.
 
----
+***
 
 ### data?
 
@@ -28,7 +28,7 @@ optional data: Partial&lt;WordPressData&gt; | null;
 
 Optional `wp.data` override. Set to `null` to unset.
 
----
+***
 
 ### hooks?
 
@@ -38,7 +38,7 @@ optional hooks: Partial&lt;any&gt; | null;
 
 Optional `wp.hooks` override. Set to `null` to unset.
 
----
+***
 
 ### apiFetch?
 

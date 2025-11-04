@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / PipelineExtensionRollbackErrorMetadata
 
@@ -14,7 +14,7 @@
 readonly optional name: string;
 ```
 
----
+***
 
 ### message?
 
@@ -22,7 +22,7 @@ readonly optional name: string;
 readonly optional message: string;
 ```
 
----
+***
 
 ### stack?
 
@@ -30,7 +30,7 @@ readonly optional message: string;
 readonly optional stack: string;
 ```
 
----
+***
 
 ### cause?
 

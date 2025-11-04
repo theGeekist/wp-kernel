@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildLoadedConfig
 
@@ -16,15 +16,15 @@ Builds a loaded kernel configuration object for testing.
 
 ### TConfig
 
-`TConfig` _extends_ [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`Record`\&lt;`string`, `unknown`\&gt;, `Record`\&lt;`string`, `unknown`\&gt;, `unknown`\&gt; = [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`Record`\&lt;`string`, `unknown`\&gt;, `Record`\&lt;`string`, `unknown`\&gt;, `unknown`\&gt;
+`TConfig` *extends* [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`Record`\&lt;`string`, `unknown`\&gt;, `Record`\&lt;`string`, `unknown`\&gt;, `unknown`\&gt; = [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`Record`\&lt;`string`, `unknown`\&gt;, `Record`\&lt;`string`, `unknown`\&gt;, `unknown`\&gt;
 
 ### TOrigin
 
-`TOrigin` _extends_ `string` = `string`
+`TOrigin` *extends* `string` = `string`
 
 ### TComposerCheck
 
-`TComposerCheck` _extends_ `string` = `string`
+`TComposerCheck` *extends* `string` = `string`
 
 ## Parameters
 

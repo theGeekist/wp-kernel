@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceDataViewControllerOptions
 
@@ -23,13 +23,12 @@ Options for creating a `ResourceDataViewController`.
 ### config
 
 ```ts
-config: ResourceDataViewConfig & lt;
-(TItem, TQuery & gt);
+config: ResourceDataViewConfig&lt;TItem, TQuery&gt;;
 ```
 
 The configuration for the DataView.
 
----
+***
 
 ### runtime
 
@@ -39,7 +38,7 @@ runtime: DataViewsControllerRuntime;
 
 The runtime for the DataView controller.
 
----
+***
 
 ### namespace
 
@@ -49,7 +48,7 @@ namespace: string;
 
 The namespace of the project.
 
----
+***
 
 ### resource?
 
@@ -59,7 +58,7 @@ optional resource: ResourceObject&lt;TItem, TQuery&gt;;
 
 The resource object.
 
----
+***
 
 ### resourceName?
 
@@ -69,7 +68,7 @@ optional resourceName: string;
 
 The name of the resource.
 
----
+***
 
 ### queryMapping?
 
@@ -79,7 +78,7 @@ optional queryMapping: QueryMapping&lt;TQuery&gt;;
 
 A function to map the view state to a query.
 
----
+***
 
 ### invalidate()?
 
@@ -99,7 +98,7 @@ A function to invalidate cache entries.
 
 `void`
 
----
+***
 
 ### capabilities?
 
@@ -109,7 +108,7 @@ optional capabilities: WPKUICapabilityRuntimeSource;
 
 The capability runtime source.
 
----
+***
 
 ### preferencesKey?
 
@@ -119,7 +118,7 @@ optional preferencesKey: string;
 
 The key for storing preferences.
 
----
+***
 
 ### fetchList()?
 
@@ -139,7 +138,7 @@ A function to fetch a list of items.
 
 `Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
 
----
+***
 
 ### prefetchList()?
 

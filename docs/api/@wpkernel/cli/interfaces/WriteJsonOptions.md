@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WriteJsonOptions
 
@@ -18,7 +18,7 @@
 readonly optional pretty: boolean;
 ```
 
----
+***
 
 ### mode?
 
@@ -29,10 +29,10 @@ readonly optional mode: number;
 #### Inherited from
 
 ```ts
-WriteOptions.mode;
+WriteOptions.mode
 ```
 
----
+***
 
 ### ensureDir?
 
@@ -43,5 +43,5 @@ readonly optional ensureDir: boolean;
 #### Inherited from
 
 ```ts
-WriteOptions.ensureDir;
+WriteOptions.ensureDir
 ```

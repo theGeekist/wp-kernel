@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PipelineExtensionHookOptions
 
@@ -18,7 +18,7 @@ readonly context: PipelineContext;
 
 The current pipeline context.
 
----
+***
 
 ### options
 
@@ -28,7 +28,7 @@ readonly options: BuildIrOptions;
 
 Options for building the IR.
 
----
+***
 
 ### artifact
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / MemoryReporter
 
@@ -18,7 +18,7 @@ readonly reporter: Reporter;
 
 The reporter instance.
 
----
+***
 
 ### namespace
 
@@ -28,7 +28,7 @@ readonly namespace: string;
 
 The namespace of the reporter.
 
----
+***
 
 ### entries
 
@@ -38,7 +38,7 @@ readonly entries: MemoryReporterEntry[];
 
 An array of captured log entries.
 
----
+***
 
 ### clear()
 

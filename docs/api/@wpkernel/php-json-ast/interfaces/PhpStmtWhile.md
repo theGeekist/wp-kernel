@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtWhile
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_While";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_While";
 readonly cond: PhpExpr;
 ```
 
----
+***
 
 ### stmts
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr;
 readonly stmts: PhpStmt[];
 ```
 
----
+***
 
 ### attributes
 

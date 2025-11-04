@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / NamespaceDetectionOptions
 
@@ -22,7 +22,7 @@ optional explicit: string;
 
 Explicit namespace override
 
----
+***
 
 ### validate?
 
@@ -35,10 +35,10 @@ Whether to validate the detected namespace
 #### Default
 
 ```ts
-true;
+true
 ```
 
----
+***
 
 ### fallback?
 
@@ -51,10 +51,10 @@ Fallback namespace if detection fails
 #### Default
 
 ```ts
-'wpk';
+'wpk'
 ```
 
----
+***
 
 ### mode?
 
@@ -67,10 +67,10 @@ Detection mode - controls which methods are used
 #### Default
 
 ```ts
-'wp';
+'wp'
 ```
 
----
+***
 
 ### runtime?
 
@@ -83,10 +83,10 @@ Runtime context - affects availability of detection methods
 #### Default
 
 ```ts
-'auto'(detected);
+'auto' (detected)
 ```
 
----
+***
 
 ### moduleId?
 

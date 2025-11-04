@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / PipelineExtension
 
@@ -43,10 +43,10 @@ register: (pipeline) =&gt; MaybePromise&lt;
 #### Returns
 
 [`MaybePromise`](../type-aliases/MaybePromise.md)\&lt;
-\| `void`
-\| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\&lt;`TContext`, `TOptions`, `TArtifact`\&gt;\&gt;
+  \| `void`
+  \| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\&lt;`TContext`, `TOptions`, `TArtifact`\&gt;\&gt;
 
----
+***
 
 ### key?
 

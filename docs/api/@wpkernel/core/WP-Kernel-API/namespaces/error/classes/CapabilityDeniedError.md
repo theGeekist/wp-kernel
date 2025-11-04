@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [error](../README.md) / CapabilityDeniedError
 
@@ -12,10 +12,10 @@ Error thrown when a capability assertion fails
 
 ```typescript
 throw new CapabilityDeniedError({
-	namespace: 'my-plugin',
-	capabilityKey: 'posts.edit',
-	params: { postId: 123 },
-	message: 'You do not have permission to edit this post',
+  namespace: 'my-plugin',
+  capabilityKey: 'posts.edit',
+  params: { postId: 123 },
+  message: 'You do not have permission to edit this post'
 });
 ```
 
@@ -94,7 +94,7 @@ readonly messageKey: string;
 I18n message key for user-facing error messages
 Format: `capability.denied.{namespace}.{capabilityKey}`
 
----
+***
 
 ### capabilityKey
 
@@ -104,7 +104,7 @@ readonly capabilityKey: string;
 
 Capability key that was denied
 
----
+***
 
 ### namespace
 
@@ -114,7 +114,7 @@ readonly namespace: string;
 
 Plugin namespace
 
----
+***
 
 ### code
 
@@ -128,7 +128,7 @@ Error code - identifies the type of error
 
 [`WPKernelError`](../../../../classes/WPKernelError.md).[`code`](../../../../classes/WPKernelError.md#code)
 
----
+***
 
 ### data?
 
@@ -142,7 +142,7 @@ Additional data about the error
 
 [`WPKernelError`](../../../../classes/WPKernelError.md).[`data`](../../../../classes/WPKernelError.md#data)
 
----
+***
 
 ### context?
 
@@ -184,7 +184,7 @@ New WPKernelError instance
 
 [`WPKernelError`](../../../../classes/WPKernelError.md).[`fromJSON`](../../../../classes/WPKernelError.md#fromjson)
 
----
+***
 
 ### isWPKernelError()
 
@@ -212,14 +212,14 @@ True if error is a WPKernelError
 
 [`WPKernelError`](../../../../classes/WPKernelError.md).[`isWPKernelError`](../../../../classes/WPKernelError.md#iswpkernelerror)
 
----
+***
 
 ### wrap()
 
 ```ts
 static wrap(
-   error,
-   code,
+   error, 
+   code, 
    context?): WPKernelError;
 ```
 
@@ -255,7 +255,7 @@ New WPKernelError wrapping the original
 
 [`WPKernelError`](../../../../classes/WPKernelError.md).[`wrap`](../../../../classes/WPKernelError.md#wrap)
 
----
+***
 
 ### toJSON()
 

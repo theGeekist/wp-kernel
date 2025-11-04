@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceStore
 
@@ -36,40 +36,37 @@ storeKey: string;
 
 Store key for registration with @wordpress/data.
 
----
+***
 
 ### selectors
 
 ```ts
-selectors: ResourceSelectors & lt;
-(T, TQuery & gt);
+selectors: ResourceSelectors&lt;T, TQuery&gt;;
 ```
 
 State selectors.
 
----
+***
 
 ### actions
 
 ```ts
-actions: ResourceActions & lt;
-T & gt;
+actions: ResourceActions&lt;T&gt;;
 ```
 
 State actions.
 
----
+***
 
 ### resolvers
 
 ```ts
-resolvers: ResourceResolvers & lt;
-(T, TQuery & gt);
+resolvers: ResourceResolvers&lt;T, TQuery&gt;;
 ```
 
 Resolvers for async data fetching.
 
----
+***
 
 ### reducer()
 
@@ -93,18 +90,17 @@ Reducer function for state updates.
 
 [`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
 
----
+***
 
 ### initialState
 
 ```ts
-initialState: ResourceState & lt;
-T & gt;
+initialState: ResourceState&lt;T&gt;;
 ```
 
 Initial state.
 
----
+***
 
 ### controls?
 

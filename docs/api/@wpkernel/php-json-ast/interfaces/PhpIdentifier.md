@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpIdentifier
 
@@ -24,7 +24,7 @@ readonly nodeType: "Identifier";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Identifier";
 readonly name: string;
 ```
 
----
+***
 
 ### attributes
 

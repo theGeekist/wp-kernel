@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [capability](../README.md) / UseCapabilityResult
 
@@ -16,7 +16,7 @@ Result returned by the `useCapability()` hook.
 
 ### K
 
-`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`K` *extends* `Record`\&lt;`string`, `unknown`\&gt;
 
 ## Properties
 
@@ -30,7 +30,7 @@ can: &lt;Key&gt;(key, ...params) =&gt; boolean;
 
 ##### Key
 
-`Key` _extends_ keyof `K`
+`Key` *extends* keyof `K`
 
 #### Parameters
 
@@ -46,7 +46,7 @@ can: &lt;Key&gt;(key, ...params) =&gt; boolean;
 
 `boolean`
 
----
+***
 
 ### keys
 
@@ -54,7 +54,7 @@ can: &lt;Key&gt;(key, ...params) =&gt; boolean;
 keys: keyof K[];
 ```
 
----
+***
 
 ### isLoading
 
@@ -62,7 +62,7 @@ keys: keyof K[];
 isLoading: boolean;
 ```
 
----
+***
 
 ### error?
 

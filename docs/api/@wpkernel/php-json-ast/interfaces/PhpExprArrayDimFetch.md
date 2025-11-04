@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprArrayDimFetch
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_ArrayDimFetch";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### var
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_ArrayDimFetch";
 readonly var: PhpExpr;
 ```
 
----
+***
 
 ### dim
 
@@ -40,7 +40,7 @@ readonly var: PhpExpr;
 readonly dim: PhpExpr | null;
 ```
 
----
+***
 
 ### attributes
 

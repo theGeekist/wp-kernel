@@ -1,14 +1,13 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / runNodeSnippet
 
 # Function: runNodeSnippet()
 
 ```ts
-function runNodeSnippet(options): Promise & lt;
-CliTranscript & gt;
+function runNodeSnippet(options): Promise&lt;CliTranscript&gt;;
 ```
 
 Runs a Node.js code snippet in a separate process.

@@ -1,6 +1,6 @@
 **WP Kernel API v0.11.0**
 
----
+***
 
 # WP Kernel API v0.11.0
 
@@ -166,11 +166,11 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 - [VERSION](variables/VERSION.md)
 - [getWPData](variables/getWPData.md)
-- [WPK_CONFIG_SOURCES](variables/WPK_CONFIG_SOURCES.md)
-- [WPK_EVENTS](variables/WPK_EVENTS.md)
-- [WPK_INFRASTRUCTURE](variables/WPK_INFRASTRUCTURE.md)
-- [WPK_NAMESPACE](variables/WPK_NAMESPACE.md)
-- [WPK_SUBSYSTEM_NAMESPACES](variables/WPK_SUBSYSTEM_NAMESPACES.md)
+- [WPK\_CONFIG\_SOURCES](variables/WPK_CONFIG_SOURCES.md)
+- [WPK\_EVENTS](variables/WPK_EVENTS.md)
+- [WPK\_INFRASTRUCTURE](variables/WPK_INFRASTRUCTURE.md)
+- [WPK\_NAMESPACE](variables/WPK_NAMESPACE.md)
+- [WPK\_SUBSYSTEM\_NAMESPACES](variables/WPK_SUBSYSTEM_NAMESPACES.md)
 
 ## Functions
 
@@ -233,35 +233,35 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 ## References
 
-### ACTION_LIFECYCLE_PHASES
+### ACTION\_LIFECYCLE\_PHASES
 
 Re-exports [ACTION_LIFECYCLE_PHASES](WP-Kernel-API/namespaces/contracts/variables/ACTION_LIFECYCLE_PHASES.md)
 
----
+***
 
-### WPK_EXIT_CODES
+### WPK\_EXIT\_CODES
 
 Re-exports [WPK_EXIT_CODES](WP-Kernel-API/namespaces/contracts/variables/WPK_EXIT_CODES.md)
 
----
+***
 
 ### serializeWPKernelError
 
 Re-exports [serializeWPKernelError](WP-Kernel-API/namespaces/contracts/functions/serializeWPKernelError.md)
 
----
+***
 
 ### ActionLifecyclePhase
 
 Re-exports [ActionLifecyclePhase](WP-Kernel-API/namespaces/contracts/type-aliases/ActionLifecyclePhase.md)
 
----
+***
 
 ### WPKExitCode
 
 Re-exports [WPKExitCode](WP-Kernel-API/namespaces/contracts/type-aliases/WPKExitCode.md)
 
----
+***
 
 ### WPKernelUIRuntime
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WordPressHarnessOverrides
 
@@ -18,7 +18,7 @@ optional data: Partial&lt;WordPressData&gt;;
 
 Partial overrides for `window.wp.data`.
 
----
+***
 
 ### apiFetch?
 
@@ -28,7 +28,7 @@ optional apiFetch: any;
 
 A mock `apiFetch` function.
 
----
+***
 
 ### hooks?
 

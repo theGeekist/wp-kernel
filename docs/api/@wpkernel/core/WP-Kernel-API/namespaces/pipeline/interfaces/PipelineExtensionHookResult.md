@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / PipelineExtensionHookResult
 
@@ -20,7 +20,7 @@
 readonly optional artifact: TArtifact;
 ```
 
----
+***
 
 ### commit()?
 
@@ -32,7 +32,7 @@ readonly optional commit: () =&gt; MaybePromise&lt;void&gt;;
 
 [`MaybePromise`](../type-aliases/MaybePromise.md)\&lt;`void`\&gt;
 
----
+***
 
 ### rollback()?
 

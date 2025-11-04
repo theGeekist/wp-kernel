@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtProperty
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Property";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### flags
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Property";
 readonly flags: number;
 ```
 
----
+***
 
 ### type
 
@@ -40,7 +40,7 @@ readonly flags: number;
 readonly type: PhpType | null;
 ```
 
----
+***
 
 ### props
 
@@ -48,7 +48,7 @@ readonly type: PhpType | null;
 readonly props: PhpStmtPropertyProperty[];
 ```
 
----
+***
 
 ### attrGroups
 
@@ -56,7 +56,7 @@ readonly props: PhpStmtPropertyProperty[];
 readonly attrGroups: PhpAttrGroup[];
 ```
 
----
+***
 
 ### hooks
 
@@ -64,7 +64,7 @@ readonly attrGroups: PhpAttrGroup[];
 readonly hooks: PhpPropertyHook[];
 ```
 
----
+***
 
 ### attributes
 

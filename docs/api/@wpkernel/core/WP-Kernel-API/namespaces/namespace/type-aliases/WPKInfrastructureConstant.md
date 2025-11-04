@@ -1,14 +1,13 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [namespace](../README.md) / WPKInfrastructureConstant
 
 # Type Alias: WPKInfrastructureConstant
 
 ```ts
-type WPKInfrastructureConstant =
-	(typeof WPK_INFRASTRUCTURE)[keyof typeof WPK_INFRASTRUCTURE];
+type WPKInfrastructureConstant = typeof WPK_INFRASTRUCTURE[keyof typeof WPK_INFRASTRUCTURE];
 ```
 
 Type-safe infrastructure constant keys

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpUnionType
 
@@ -24,7 +24,7 @@ readonly nodeType: "UnionType";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### types
 
@@ -32,7 +32,7 @@ readonly nodeType: "UnionType";
 readonly types: PhpType[];
 ```
 
----
+***
 
 ### attributes
 

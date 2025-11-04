@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtClassMethod
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_ClassMethod";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_ClassMethod";
 readonly name: PhpIdentifier;
 ```
 
----
+***
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly name: PhpIdentifier;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### flags
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly flags: number;
 ```
 
----
+***
 
 ### params
 
@@ -56,7 +56,7 @@ readonly flags: number;
 readonly params: PhpParam[];
 ```
 
----
+***
 
 ### returnType
 
@@ -64,7 +64,7 @@ readonly params: PhpParam[];
 readonly returnType: PhpType | null;
 ```
 
----
+***
 
 ### stmts
 
@@ -72,7 +72,7 @@ readonly returnType: PhpType | null;
 readonly stmts: PhpStmt[] | null;
 ```
 
----
+***
 
 ### attrGroups
 
@@ -80,7 +80,7 @@ readonly stmts: PhpStmt[] | null;
 readonly attrGroups: PhpAttrGroup[];
 ```
 
----
+***
 
 ### attributes
 

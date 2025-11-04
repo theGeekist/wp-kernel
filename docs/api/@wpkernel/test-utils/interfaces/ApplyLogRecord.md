@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ApplyLogRecord
 
@@ -16,7 +16,7 @@ Represents a single record within an apply log entry.
 readonly file: string;
 ```
 
----
+***
 
 ### status
 
@@ -24,7 +24,7 @@ readonly file: string;
 readonly status: "applied" | "conflict" | "skipped";
 ```
 
----
+***
 
 ### description?
 
@@ -32,7 +32,7 @@ readonly status: "applied" | "conflict" | "skipped";
 readonly optional description: string;
 ```
 
----
+***
 
 ### details?
 

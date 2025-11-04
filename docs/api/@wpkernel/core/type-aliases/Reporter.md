@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / Reporter
 
@@ -32,7 +32,7 @@ info: (message, context?) =&gt; void;
 
 `void`
 
----
+***
 
 ### warn()
 
@@ -54,7 +54,7 @@ warn: (message, context?) =&gt; void;
 
 `void`
 
----
+***
 
 ### error()
 
@@ -76,7 +76,7 @@ error: (message, context?) =&gt; void;
 
 `void`
 
----
+***
 
 ### debug()
 
@@ -98,7 +98,7 @@ debug: (message, context?) =&gt; void;
 
 `void`
 
----
+***
 
 ### child()
 

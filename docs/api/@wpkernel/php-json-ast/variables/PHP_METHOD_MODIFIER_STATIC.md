@@ -1,10 +1,10 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
-[WP Kernel API](../README.md) / PHP_METHOD_MODIFIER_STATIC
+[WP Kernel API](../README.md) / PHP\_METHOD\_MODIFIER\_STATIC
 
-# Variable: PHP_METHOD_MODIFIER_STATIC
+# Variable: PHP\_METHOD\_MODIFIER\_STATIC
 
 ```ts
 const PHP_METHOD_MODIFIER_STATIC: 8 = 8;

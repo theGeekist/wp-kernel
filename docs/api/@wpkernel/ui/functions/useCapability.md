@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / useCapability
 
@@ -22,7 +22,7 @@ developer error so plugin authors remember to bootstrap via `defineCapability()`
 
 ### K
 
-`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`K` *extends* `Record`\&lt;`string`, `unknown`\&gt;
 
 ## Returns
 

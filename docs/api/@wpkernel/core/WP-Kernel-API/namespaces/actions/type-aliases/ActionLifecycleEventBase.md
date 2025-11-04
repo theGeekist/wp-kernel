@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [actions](../README.md) / ActionLifecycleEventBase
 
@@ -14,7 +14,6 @@ Base metadata shared across all action lifecycle events.
 
 This metadata is attached to every lifecycle event (start/complete/error) and
 domain event emitted by actions, enabling:
-
 - Request tracing and correlation
 - Cross-tab event de-duplication
 - PHP bridge integration
@@ -28,7 +27,7 @@ domain event emitted by actions, enabling:
 actionName: string;
 ```
 
----
+***
 
 ### requestId
 
@@ -36,7 +35,7 @@ actionName: string;
 requestId: string;
 ```
 
----
+***
 
 ### namespace
 
@@ -44,15 +43,15 @@ requestId: string;
 namespace: string;
 ```
 
----
+***
 
 ### scope
 
 ```ts
-scope: 'crossTab' | 'tabLocal';
+scope: "crossTab" | "tabLocal";
 ```
 
----
+***
 
 ### bridged
 
@@ -60,7 +59,7 @@ scope: 'crossTab' | 'tabLocal';
 bridged: boolean;
 ```
 
----
+***
 
 ### timestamp
 

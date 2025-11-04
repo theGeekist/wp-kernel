@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpNullableType
 
@@ -24,7 +24,7 @@ readonly nodeType: "NullableType";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### type
 
@@ -32,7 +32,7 @@ readonly nodeType: "NullableType";
 readonly type: PhpType;
 ```
 
----
+***
 
 ### attributes
 

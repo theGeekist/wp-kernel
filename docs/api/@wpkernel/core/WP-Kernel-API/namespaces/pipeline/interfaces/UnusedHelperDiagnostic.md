@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / UnusedHelperDiagnostic
 
@@ -10,7 +10,7 @@
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly type: "unused-helper";
 ```
 
----
+***
 
 ### key
 
@@ -28,7 +28,7 @@ readonly type: "unused-helper";
 readonly key: string;
 ```
 
----
+***
 
 ### message
 
@@ -36,7 +36,7 @@ readonly key: string;
 readonly message: string;
 ```
 
----
+***
 
 ### kind?
 
@@ -44,7 +44,7 @@ readonly message: string;
 readonly optional kind: TKind;
 ```
 
----
+***
 
 ### helper?
 
@@ -52,7 +52,7 @@ readonly optional kind: TKind;
 readonly optional helper: string;
 ```
 
----
+***
 
 ### dependsOn?
 

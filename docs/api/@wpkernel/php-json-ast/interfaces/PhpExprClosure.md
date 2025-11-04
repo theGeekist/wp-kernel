@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprClosure
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Closure";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### static
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Closure";
 readonly static: boolean;
 ```
 
----
+***
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly static: boolean;
 readonly byRef: boolean;
 ```
 
----
+***
 
 ### params
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly params: PhpParam[];
 ```
 
----
+***
 
 ### uses
 
@@ -56,7 +56,7 @@ readonly params: PhpParam[];
 readonly uses: PhpClosureUse[];
 ```
 
----
+***
 
 ### returnType
 
@@ -64,7 +64,7 @@ readonly uses: PhpClosureUse[];
 readonly returnType: PhpType | null;
 ```
 
----
+***
 
 ### stmts
 
@@ -72,7 +72,7 @@ readonly returnType: PhpType | null;
 readonly stmts: PhpStmt[];
 ```
 
----
+***
 
 ### attrGroups
 
@@ -80,7 +80,7 @@ readonly stmts: PhpStmt[];
 readonly attrGroups: PhpAttrGroup[];
 ```
 
----
+***
 
 ### attributes
 

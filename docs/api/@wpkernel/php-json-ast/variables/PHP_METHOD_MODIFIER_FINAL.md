@@ -1,10 +1,10 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
-[WP Kernel API](../README.md) / PHP_METHOD_MODIFIER_FINAL
+[WP Kernel API](../README.md) / PHP\_METHOD\_MODIFIER\_FINAL
 
-# Variable: PHP_METHOD_MODIFIER_FINAL
+# Variable: PHP\_METHOD\_MODIFIER\_FINAL
 
 ```ts
 const PHP_METHOD_MODIFIER_FINAL: 32 = 32;

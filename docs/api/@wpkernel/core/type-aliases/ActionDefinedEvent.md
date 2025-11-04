@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ActionDefinedEvent
 
@@ -15,11 +15,10 @@ type ActionDefinedEvent = object;
 ### action
 
 ```ts
-action: DefinedAction & lt;
-(unknown, unknown & gt);
+action: DefinedAction&lt;unknown, unknown&gt;;
 ```
 
----
+***
 
 ### namespace
 

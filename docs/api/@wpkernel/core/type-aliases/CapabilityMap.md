@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CapabilityMap
 
@@ -16,4 +16,4 @@ Mapping from capability key to rule implementation.
 
 ### Keys
 
-`Keys` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`Keys` *extends* `Record`\&lt;`string`, `unknown`\&gt;

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpConst
 
@@ -24,7 +24,7 @@ readonly nodeType: "Const";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Const";
 readonly name: PhpIdentifier;
 ```
 
----
+***
 
 ### value
 
@@ -40,7 +40,7 @@ readonly name: PhpIdentifier;
 readonly value: PhpExpr;
 ```
 
----
+***
 
 ### attributes
 

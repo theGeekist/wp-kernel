@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / DefinedInteraction
 
@@ -22,7 +22,7 @@ Result returned by `defineInteraction`.
 readonly namespace: string;
 ```
 
----
+***
 
 ### store
 
@@ -30,7 +30,7 @@ readonly namespace: string;
 readonly store: TStoreResult;
 ```
 
----
+***
 
 ### syncServerState()
 
@@ -42,7 +42,7 @@ readonly syncServerState: () =&gt; void;
 
 `void`
 
----
+***
 
 ### getServerState()
 

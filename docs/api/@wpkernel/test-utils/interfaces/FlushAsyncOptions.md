@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / FlushAsyncOptions
 
@@ -18,7 +18,7 @@ optional iterations: number;
 
 The number of microtask queue flushes to perform. Defaults to 2.
 
----
+***
 
 ### runAllTimers?
 

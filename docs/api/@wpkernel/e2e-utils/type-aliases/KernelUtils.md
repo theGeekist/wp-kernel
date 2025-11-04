@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / KernelUtils
 
@@ -42,7 +42,7 @@ Resource configuration from defineResource
 
 Resource utilities with typed methods
 
----
+***
 
 ### store()
 
@@ -72,7 +72,7 @@ WordPress data store key (e.g., 'wpk/job')
 
 Store utilities with typed methods
 
----
+***
 
 ### events()
 
@@ -102,7 +102,7 @@ Optional configuration for event filtering
 
 Event recorder with capture and query methods
 
----
+***
 
 ### dataview()
 

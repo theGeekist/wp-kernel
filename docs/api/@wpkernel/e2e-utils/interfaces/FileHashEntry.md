@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / FileHashEntry
 
@@ -14,7 +14,7 @@
 hash: string;
 ```
 
----
+***
 
 ### size
 
@@ -22,7 +22,7 @@ hash: string;
 size: number;
 ```
 
----
+***
 
 ### mode
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprConstFetch
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_ConstFetch";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_ConstFetch";
 readonly name: PhpName;
 ```
 
----
+***
 
 ### attributes
 

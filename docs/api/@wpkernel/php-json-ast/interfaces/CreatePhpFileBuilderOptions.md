@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CreatePhpFileBuilderOptions
 
@@ -14,15 +14,15 @@
 
 ### TContext
 
-`TContext` _extends_ [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
+`TContext` *extends* [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
 
 ### TInput
 
-`TInput` _extends_ [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
+`TInput` *extends* [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
 
 ### TOutput
 
-`TOutput` _extends_ [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
+`TOutput` *extends* [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
 
 ## Properties
 
@@ -46,7 +46,7 @@ readonly build: (builder, entry) =&gt; void | Promise&lt;void&gt;;
 
 `void` \| `Promise`\&lt;`void`\&gt;
 
----
+***
 
 ### key
 
@@ -57,10 +57,10 @@ readonly key: string;
 #### Inherited from
 
 ```ts
-Omit.key;
+Omit.key
 ```
 
----
+***
 
 ### filePath
 
@@ -71,10 +71,10 @@ readonly filePath: string;
 #### Inherited from
 
 ```ts
-Omit.filePath;
+Omit.filePath
 ```
 
----
+***
 
 ### namespace
 
@@ -85,10 +85,10 @@ readonly namespace: string;
 #### Inherited from
 
 ```ts
-Omit.namespace;
+Omit.namespace
 ```
 
----
+***
 
 ### metadata
 
@@ -99,10 +99,10 @@ readonly metadata: PhpFileMetadata;
 #### Inherited from
 
 ```ts
-Omit.metadata;
+Omit.metadata
 ```
 
----
+***
 
 ### dependsOn?
 
@@ -114,7 +114,7 @@ readonly optional dependsOn: readonly string[];
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
 
----
+***
 
 ### mode?
 
@@ -126,7 +126,7 @@ readonly optional mode: HelperMode;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
 
----
+***
 
 ### priority?
 
@@ -138,7 +138,7 @@ readonly optional priority: number;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)
 
----
+***
 
 ### origin?
 

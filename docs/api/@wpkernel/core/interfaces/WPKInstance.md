@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / WPKInstance
 
@@ -18,7 +18,7 @@ getNamespace: () =&gt; string;
 
 `string`
 
----
+***
 
 ### getReporter()
 
@@ -30,7 +30,7 @@ getReporter: () =&gt; Reporter;
 
 [`Reporter`](../type-aliases/Reporter.md)
 
----
+***
 
 ### invalidate()
 
@@ -52,7 +52,7 @@ invalidate: (patterns, options?) =&gt; void;
 
 `void`
 
----
+***
 
 ### emit()
 
@@ -74,7 +74,7 @@ emit: (eventName, payload) =&gt; void;
 
 `void`
 
----
+***
 
 ### teardown()
 
@@ -86,7 +86,7 @@ teardown: () =&gt; void;
 
 `void`
 
----
+***
 
 ### getRegistry()
 
@@ -98,7 +98,7 @@ getRegistry: () =&gt; WPKernelRegistry | undefined;
 
 [`WPKernelRegistry`](../type-aliases/WPKernelRegistry.md) \| `undefined`
 
----
+***
 
 ### hasUIRuntime()
 
@@ -110,22 +110,22 @@ hasUIRuntime: () =&gt; boolean;
 
 `boolean`
 
----
+***
 
 ### getUIRuntime()
 
 ```ts
-getUIRuntime: () =&gt;
+getUIRuntime: () =&gt; 
   | WPKernelUIRuntime
   | undefined;
 ```
 
 #### Returns
 
-\| [`WPKernelUIRuntime`](../@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
-\| `undefined`
+  \| [`WPKernelUIRuntime`](../@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
+  \| `undefined`
 
----
+***
 
 ### attachUIBindings()
 
@@ -147,7 +147,7 @@ attachUIBindings: (attach, options?) =&gt; WPKernelUIRuntime;
 
 [`WPKernelUIRuntime`](../@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
 
----
+***
 
 ### ui
 
@@ -171,7 +171,7 @@ isEnabled: () =&gt; boolean;
 optional options: UIIntegrationOptions;
 ```
 
----
+***
 
 ### events
 
@@ -179,7 +179,7 @@ optional options: UIIntegrationOptions;
 events: WPKernelEventBus;
 ```
 
----
+***
 
 ### defineResource()
 

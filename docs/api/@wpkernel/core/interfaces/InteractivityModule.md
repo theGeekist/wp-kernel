@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / InteractivityModule
 
@@ -43,10 +43,10 @@ store: (namespace, definition?) =&gt; InteractivityStoreResult;
 #### Inherited from
 
 ```ts
-InteractivityCore.store;
+InteractivityCore.store
 ```
 
----
+***
 
 ### getServerState
 
@@ -57,5 +57,5 @@ getServerState: InteractivityServerStateResolver;
 #### Inherited from
 
 ```ts
-InteractivityCore.getServerState;
+InteractivityCore.getServerState
 ```

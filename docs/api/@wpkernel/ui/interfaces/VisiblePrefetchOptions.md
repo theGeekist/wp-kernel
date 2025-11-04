@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / VisiblePrefetchOptions
 
@@ -25,10 +25,10 @@ https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver/rootMargin
 #### Default
 
 ```ts
-'200px';
+'200px'
 ```
 
----
+***
 
 ### once?
 
@@ -41,5 +41,5 @@ If true, the prefetch will only be triggered once.
 #### Default
 
 ```ts
-true;
+true
 ```

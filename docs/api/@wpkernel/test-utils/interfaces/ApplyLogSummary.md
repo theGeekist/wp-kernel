@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ApplyLogSummary
 
@@ -16,7 +16,7 @@ Summary of an apply operation.
 readonly applied: number;
 ```
 
----
+***
 
 ### conflicts
 
@@ -24,7 +24,7 @@ readonly applied: number;
 readonly conflicts: number;
 ```
 
----
+***
 
 ### skipped
 

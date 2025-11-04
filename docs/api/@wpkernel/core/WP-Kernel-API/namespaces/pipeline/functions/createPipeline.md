@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / createPipeline
 
@@ -22,7 +22,6 @@ The pipeline system is the **single most critical component** of the framework:
 - **Future-proof**: Designed to extract into standalone `@wpkernel/pipeline` package
 
 Pipelines provide:
-
 1. **Dependency resolution**: Topologically sorts helpers based on `dependsOn` declarations
 2. **Priority ordering**: Executes helpers in deterministic order via priority values
 3. **Error recovery**: Automatic rollback on failure via commit/rollback protocol
@@ -34,20 +33,16 @@ Pipelines provide:
 A pipeline consists of three phases:
 
 ### 1. Registration Phase
-
 ```
 pipeline.registerFragment(helper1)
 pipeline.registerBuilder(helper2)
 ```
-
 Helpers are collected but not executed. Dependency graph is constructed.
 
 ### 2. Execution Phase
-
 ```
 const result = await pipeline.run(options)
 ```
-
 - Validates dependency graph (detects missing deps, cycles)
 - Sorts helpers topologically
 - Runs fragment helpers to transform AST
@@ -55,11 +50,9 @@ const result = await pipeline.run(options)
 - Commits successful results
 
 ### 3. Rollback Phase (on error)
-
 ```
 // Automatic on failure
 ```
-
 - Walks back through executed helpers in reverse order
 - Invokes rollback functions to undo side effects
 - Aggregates diagnostics for debugging
@@ -74,7 +67,6 @@ Pipelines support hooks that intercept execution at key points:
 - `pre-commit`: Before committing results (final validation)
 
 Extensions enable:
-
 - Custom validation logic
 - Third-party integrations (ESLint, Prettier, type checkers)
 - Conditional execution (feature flags, environment checks)
@@ -83,7 +75,6 @@ Extensions enable:
 ## Type Safety
 
 The pipeline is fully generic across 16 type parameters, enabling:
-
 - Type-safe context sharing between helpers
 - Strongly-typed input/output contracts
 - Custom reporter integration (LogLayer, console, etc.)
@@ -108,11 +99,11 @@ The pipeline is fully generic across 16 type parameters, enabling:
 
 ### TContext
 
-`TContext` _extends_ `object`
+`TContext` *extends* `object`
 
 ### TReporter
 
-`TReporter` _extends_ [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
+`TReporter` *extends* [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
 
 ### TDraft
 
@@ -124,7 +115,7 @@ The pipeline is fully generic across 16 type parameters, enabling:
 
 ### TDiagnostic
 
-`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ### TRunResult
 
@@ -148,19 +139,19 @@ The pipeline is fully generic across 16 type parameters, enabling:
 
 ### TFragmentKind
 
-`TFragmentKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
+`TFragmentKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
 
 ### TBuilderKind
 
-`TBuilderKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
+`TBuilderKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
+`TFragmentHelper` *extends* [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
+`TBuilderHelper` *extends* [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
 
 ## Parameters
 
@@ -241,12 +232,12 @@ const pipeline = createPipeline({
 const result = await pipeline.run({ input: myAST });
 
 if (!result.success) {
-	console.error('Pipeline failed:', result.diagnostics);
-	// Rollback already executed automatically
-	// Files restored, temp resources cleaned up
+  console.error('Pipeline failed:', result.diagnostics);
+  // Rollback already executed automatically
+  // Files restored, temp resources cleaned up
 } else {
-	console.log('Success:', result.artifact);
-	// All commit functions executed
+  console.log('Success:', result.artifact);
+  // All commit functions executed
 }
 ```
 

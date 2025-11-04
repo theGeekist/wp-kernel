@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / HydrateServerStateInput
 
@@ -32,7 +32,7 @@ readonly serverState: object;
 [key: string]: unknown
 ```
 
----
+***
 
 ### resource
 
@@ -40,7 +40,7 @@ readonly serverState: object;
 readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 ```
 
----
+***
 
 ### syncCache
 
@@ -48,7 +48,7 @@ readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 readonly syncCache: ResourceCacheSync&lt;TEntity&gt;;
 ```
 
----
+***
 
 ### registry?
 

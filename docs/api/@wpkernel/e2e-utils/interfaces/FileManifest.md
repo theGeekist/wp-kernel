@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / FileManifest
 
@@ -14,11 +14,10 @@
 generatedAt: string;
 ```
 
----
+***
 
 ### files
 
 ```ts
-files: Record & lt;
-(string, FileHashEntry & gt);
+files: Record&lt;string, FileHashEntry&gt;;
 ```

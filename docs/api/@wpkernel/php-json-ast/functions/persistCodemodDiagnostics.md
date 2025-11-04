@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / persistCodemodDiagnostics
 
@@ -8,9 +8,9 @@
 
 ```ts
 function persistCodemodDiagnostics(
-   context,
-   output,
-   filePath,
+   context, 
+   output, 
+   filePath, 
 codemod): Promise&lt;void&gt;;
 ```
 

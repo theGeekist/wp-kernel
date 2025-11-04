@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ActionConfig
 
@@ -32,18 +32,17 @@ name: string;
 
 Unique action identifier.
 
----
+***
 
 ### handler
 
 ```ts
-handler: ActionFn & lt;
-(TArgs, TResult & gt);
+handler: ActionFn&lt;TArgs, TResult&gt;;
 ```
 
 Implementation invoked when the action is executed.
 
----
+***
 
 ### options?
 

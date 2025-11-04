@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / BuildIrOptions
 
@@ -18,7 +18,7 @@ config: WPKernelConfigV1;
 
 The WP Kernel configuration.
 
----
+***
 
 ### sourcePath
 
@@ -28,7 +28,7 @@ sourcePath: string;
 
 The source path of the configuration file.
 
----
+***
 
 ### origin
 
@@ -38,7 +38,7 @@ origin: string;
 
 The origin of the configuration.
 
----
+***
 
 ### namespace
 

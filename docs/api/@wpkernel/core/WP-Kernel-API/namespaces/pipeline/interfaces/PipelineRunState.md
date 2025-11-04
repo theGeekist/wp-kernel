@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / PipelineRunState
 
@@ -14,7 +14,7 @@
 
 ### TDiagnostic
 
-`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ## Properties
 
@@ -24,7 +24,7 @@
 readonly artifact: TArtifact;
 ```
 
----
+***
 
 ### diagnostics
 
@@ -32,7 +32,7 @@ readonly artifact: TArtifact;
 readonly diagnostics: readonly TDiagnostic[];
 ```
 
----
+***
 
 ### steps
 

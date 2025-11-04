@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtElse
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Else";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### stmts
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Else";
 readonly stmts: PhpStmt[];
 ```
 
----
+***
 
 ### attributes
 

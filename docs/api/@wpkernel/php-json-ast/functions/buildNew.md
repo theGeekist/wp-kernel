@@ -1,13 +1,16 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / buildNew
 
 # Function: buildNew()
 
 ```ts
-function buildNew(className, args, attributes?): PhpExprNew;
+function buildNew(
+   className, 
+   args, 
+   attributes?): PhpExprNew;
 ```
 
 Builds a PHP `new` expression node.

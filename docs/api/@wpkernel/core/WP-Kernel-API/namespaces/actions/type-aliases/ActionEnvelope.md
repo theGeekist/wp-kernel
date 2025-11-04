@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [actions](../README.md) / ActionEnvelope
 
@@ -13,7 +13,6 @@ type ActionEnvelope&lt;TArgs, TResult&gt; = object;
 Shape of the action envelope dispatched through Redux middleware.
 
 Action envelopes wrap WP Kernel actions in a Redux-compatible format, carrying:
-
 - The action function itself (`payload.action`)
 - The arguments to invoke it with (`payload.args`)
 - Optional metadata for middleware coordination (`meta`)
@@ -41,7 +40,7 @@ Return type from the action
 type: typeof EXECUTE_ACTION_TYPE;
 ```
 
----
+***
 
 ### payload
 
@@ -52,8 +51,7 @@ payload: object;
 #### action
 
 ```ts
-action: DefinedAction & lt;
-(TArgs, TResult & gt);
+action: DefinedAction&lt;TArgs, TResult&gt;;
 ```
 
 #### args
@@ -62,7 +60,7 @@ action: DefinedAction & lt;
 args: TArgs;
 ```
 
----
+***
 
 ### \_\_kernelAction
 
@@ -70,7 +68,7 @@ args: TArgs;
 __kernelAction: true;
 ```
 
----
+***
 
 ### meta?
 

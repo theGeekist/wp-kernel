@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ManifestStateDefinition
 
@@ -11,11 +11,10 @@
 ### files
 
 ```ts
-files: Record & lt;
-(string, ManifestFileDefinition & gt);
+files: Record&lt;string, ManifestFileDefinition&gt;;
 ```
 
----
+***
 
 ### ignore?
 

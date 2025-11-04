@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / NamespaceDetectionResult
 
@@ -22,12 +22,12 @@ namespace: string;
 
 The detected/resolved namespace
 
----
+***
 
 ### source
 
 ```ts
-source:
+source: 
   | "explicit"
   | "build-define"
   | "env-define"
@@ -39,7 +39,7 @@ source:
 
 Source of the namespace
 
----
+***
 
 ### sanitized
 
@@ -49,7 +49,7 @@ sanitized: boolean;
 
 Whether the namespace was sanitized
 
----
+***
 
 ### original?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceResponseEvent
 
@@ -28,7 +28,7 @@ requestId: string;
 
 Request ID for correlation
 
----
+***
 
 ### method
 
@@ -38,7 +38,7 @@ method: HttpMethod;
 
 HTTP method
 
----
+***
 
 ### path
 
@@ -48,7 +48,7 @@ path: string;
 
 Request path
 
----
+***
 
 ### status
 
@@ -58,7 +58,7 @@ status: number;
 
 Response status code
 
----
+***
 
 ### data
 
@@ -68,7 +68,7 @@ data: T;
 
 Response data
 
----
+***
 
 ### duration
 
@@ -78,7 +78,7 @@ duration: number;
 
 Duration in milliseconds
 
----
+***
 
 ### timestamp
 

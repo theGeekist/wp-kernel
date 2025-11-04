@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / LoadedWPKConfigV1Like
 
@@ -10,15 +10,15 @@
 
 ### TConfig
 
-`TConfig` _extends_ [`WPKConfigV1Like`](WPKConfigV1Like.md) = [`WPKConfigV1Like`](WPKConfigV1Like.md)
+`TConfig` *extends* [`WPKConfigV1Like`](WPKConfigV1Like.md) = [`WPKConfigV1Like`](WPKConfigV1Like.md)
 
 ### TOrigin
 
-`TOrigin` _extends_ `string` = `string`
+`TOrigin` *extends* `string` = `string`
 
 ### TComposerCheck
 
-`TComposerCheck` _extends_ `string` = `string`
+`TComposerCheck` *extends* `string` = `string`
 
 ## Properties
 
@@ -28,7 +28,7 @@
 readonly config: TConfig;
 ```
 
----
+***
 
 ### sourcePath
 
@@ -36,7 +36,7 @@ readonly config: TConfig;
 readonly sourcePath: string;
 ```
 
----
+***
 
 ### configOrigin
 
@@ -44,7 +44,7 @@ readonly sourcePath: string;
 readonly configOrigin: TOrigin;
 ```
 
----
+***
 
 ### composerCheck
 
@@ -52,7 +52,7 @@ readonly configOrigin: TOrigin;
 readonly composerCheck: TComposerCheck;
 ```
 
----
+***
 
 ### namespace
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpProgramAction
 
@@ -14,7 +14,7 @@
 readonly file: string;
 ```
 
----
+***
 
 ### program
 
@@ -22,7 +22,7 @@ readonly file: string;
 readonly program: PhpProgram;
 ```
 
----
+***
 
 ### metadata
 
@@ -30,7 +30,7 @@ readonly program: PhpProgram;
 readonly metadata: PhpFileMetadata;
 ```
 
----
+***
 
 ### docblock
 
@@ -38,7 +38,7 @@ readonly metadata: PhpFileMetadata;
 readonly docblock: readonly string[];
 ```
 
----
+***
 
 ### uses
 
@@ -46,7 +46,7 @@ readonly docblock: readonly string[];
 readonly uses: readonly string[];
 ```
 
----
+***
 
 ### statements
 
@@ -54,7 +54,7 @@ readonly uses: readonly string[];
 readonly statements: readonly string[];
 ```
 
----
+***
 
 ### codemod?
 

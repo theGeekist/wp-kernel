@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpAstBuilderAdapter
 
@@ -18,7 +18,7 @@
 readonly context: PhpAstContext;
 ```
 
----
+***
 
 ### getNamespace()
 
@@ -34,7 +34,7 @@ getNamespace: () =&gt; string;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`getNamespace`](PhpAstBuilder.md#getnamespace)
 
----
+***
 
 ### setNamespace()
 
@@ -56,7 +56,7 @@ setNamespace: (namespace) =&gt; void;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`setNamespace`](PhpAstBuilder.md#setnamespace)
 
----
+***
 
 ### addUse()
 
@@ -78,7 +78,7 @@ addUse: (statement) =&gt; void;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`addUse`](PhpAstBuilder.md#adduse)
 
----
+***
 
 ### appendDocblock()
 
@@ -100,7 +100,7 @@ appendDocblock: (line) =&gt; void;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`appendDocblock`](PhpAstBuilder.md#appenddocblock)
 
----
+***
 
 ### appendStatement()
 
@@ -122,7 +122,7 @@ appendStatement: (statement) =&gt; void;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`appendStatement`](PhpAstBuilder.md#appendstatement)
 
----
+***
 
 ### appendProgramStatement()
 
@@ -144,7 +144,7 @@ appendProgramStatement: (statement) =&gt; void;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`appendProgramStatement`](PhpAstBuilder.md#appendprogramstatement)
 
----
+***
 
 ### getStatements()
 
@@ -160,7 +160,7 @@ readonly `string`[]
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`getStatements`](PhpAstBuilder.md#getstatements)
 
----
+***
 
 ### getMetadata()
 
@@ -176,7 +176,7 @@ getMetadata: () =&gt; PhpFileMetadata;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`getMetadata`](PhpAstBuilder.md#getmetadata)
 
----
+***
 
 ### setMetadata()
 
@@ -198,7 +198,7 @@ setMetadata: (metadata) =&gt; void;
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`setMetadata`](PhpAstBuilder.md#setmetadata)
 
----
+***
 
 ### getProgramAst()
 

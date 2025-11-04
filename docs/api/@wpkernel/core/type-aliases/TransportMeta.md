@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / TransportMeta
 
@@ -18,7 +18,7 @@ type TransportMeta = object;
 optional reporter: Reporter;
 ```
 
----
+***
 
 ### namespace?
 
@@ -26,7 +26,7 @@ optional reporter: Reporter;
 optional namespace: string;
 ```
 
----
+***
 
 ### resourceName?
 

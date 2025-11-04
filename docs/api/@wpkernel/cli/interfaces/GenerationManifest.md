@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / GenerationManifest
 
@@ -16,7 +16,7 @@ Represents the manifest of generated files and resources.
 readonly version: 1;
 ```
 
----
+***
 
 ### resources
 
@@ -24,7 +24,7 @@ readonly version: 1;
 readonly resources: Record&lt;string, GenerationManifestResourceEntry&gt;;
 ```
 
----
+***
 
 ### pluginLoader?
 
@@ -32,7 +32,7 @@ readonly resources: Record&lt;string, GenerationManifestResourceEntry&gt;;
 readonly optional pluginLoader: GenerationManifestFilePair;
 ```
 
----
+***
 
 ### phpIndex?
 

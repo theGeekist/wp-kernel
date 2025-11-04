@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / Prefetcher
 
@@ -24,13 +24,12 @@ prefetchGet: PrefetchGet;
 
 Prefetches a single item from the resource.
 
----
+***
 
 ### prefetchList
 
 ```ts
-prefetchList: PrefetchList & lt;
-TQuery & gt;
+prefetchList: PrefetchList&lt;TQuery&gt;;
 ```
 
 Prefetches a list of items from the resource.

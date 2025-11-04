@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CapabilityDefinitionConfig
 
@@ -16,18 +16,17 @@ Configuration object accepted by `defineCapability()`.
 
 ### K
 
-`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`K` *extends* `Record`\&lt;`string`, `unknown`\&gt;
 
 ## Properties
 
 ### map
 
 ```ts
-map: CapabilityMap & lt;
-K & gt;
+map: CapabilityMap&lt;K&gt;;
 ```
 
----
+***
 
 ### options?
 

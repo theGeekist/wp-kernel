@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / HelperExecutionSnapshot
 
@@ -10,7 +10,7 @@
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly kind: TKind;
 ```
 
----
+***
 
 ### registered
 
@@ -28,7 +28,7 @@ readonly kind: TKind;
 readonly registered: readonly string[];
 ```
 
----
+***
 
 ### executed
 
@@ -36,7 +36,7 @@ readonly registered: readonly string[];
 readonly executed: readonly string[];
 ```
 
----
+***
 
 ### missing
 

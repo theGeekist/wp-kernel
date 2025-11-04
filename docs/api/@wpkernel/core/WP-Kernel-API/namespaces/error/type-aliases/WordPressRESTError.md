@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [error](../README.md) / WordPressRESTError
 
@@ -24,7 +24,7 @@ code: string;
 
 Error code from WordPress (e.g., 'rest_forbidden', 'invalid_param')
 
----
+***
 
 ### message
 
@@ -34,7 +34,7 @@ message: string;
 
 Human-readable error message
 
----
+***
 
 ### data?
 

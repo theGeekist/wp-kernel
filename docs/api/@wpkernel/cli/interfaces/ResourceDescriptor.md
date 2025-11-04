@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceDescriptor
 
@@ -18,7 +18,7 @@ readonly key: string;
 
 The unique key of the resource.
 
----
+***
 
 ### name
 
@@ -28,7 +28,7 @@ readonly name: string;
 
 The name of the resource.
 
----
+***
 
 ### config
 
@@ -38,7 +38,7 @@ readonly config: ResourceConfig;
 
 The configuration object for the resource.
 
----
+***
 
 ### dataviews
 

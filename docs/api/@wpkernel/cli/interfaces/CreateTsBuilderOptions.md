@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / CreateTsBuilderOptions
 
@@ -18,7 +18,7 @@ readonly optional creators: readonly TsBuilderCreator[];
 
 Optional: A list of `TsBuilderCreator` instances to use.
 
----
+***
 
 ### projectFactory()?
 
@@ -32,7 +32,7 @@ Optional: A factory function to create a `ts-morph` Project instance.
 
 `Project`
 
----
+***
 
 ### hooks?
 

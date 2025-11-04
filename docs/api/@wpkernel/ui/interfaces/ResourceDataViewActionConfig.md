@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ResourceDataViewActionConfig
 
@@ -32,18 +32,17 @@ id: string;
 
 Unique identifier, mirrored in events.
 
----
+***
 
 ### action
 
 ```ts
-action: DefinedAction & lt;
-(TInput, TResult & gt);
+action: DefinedAction&lt;TInput, TResult&gt;;
 ```
 
 Action implementation to invoke.
 
----
+***
 
 ### label
 
@@ -53,7 +52,7 @@ label: string | (items) =&gt; string;
 
 Label shown in DataViews UI.
 
----
+***
 
 ### getActionArgs()
 
@@ -79,7 +78,7 @@ Build action input payload from the current selection and items.
 
 `TInput`
 
----
+***
 
 ### supportsBulk?
 
@@ -89,7 +88,7 @@ optional supportsBulk: boolean;
 
 Whether bulk selection is supported.
 
----
+***
 
 ### isDestructive?
 
@@ -99,7 +98,7 @@ optional isDestructive: boolean;
 
 Flag destructive styling.
 
----
+***
 
 ### isPrimary?
 
@@ -109,7 +108,7 @@ optional isPrimary: boolean;
 
 Flag primary styling.
 
----
+***
 
 ### capability?
 
@@ -119,7 +118,7 @@ optional capability: string;
 
 Capability key to gate rendering and execution.
 
----
+***
 
 ### disabledWhenDenied?
 
@@ -129,7 +128,7 @@ optional disabledWhenDenied: boolean;
 
 When true, render disabled instead of hiding on capability denial.
 
----
+***
 
 ### buildMeta()?
 
@@ -155,7 +154,7 @@ Optional meta object included in action triggered events.
 
 `Record`\&lt;`string`, `unknown`\&gt; \| `undefined`
 
----
+***
 
 ### invalidateOnSuccess()?
 

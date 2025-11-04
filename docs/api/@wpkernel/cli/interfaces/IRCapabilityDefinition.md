@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / IRCapabilityDefinition
 
@@ -18,7 +18,7 @@ key: string;
 
 The key of the capability.
 
----
+***
 
 ### capability
 
@@ -28,7 +28,7 @@ capability: string;
 
 The underlying capability string.
 
----
+***
 
 ### appliesTo
 
@@ -38,17 +38,17 @@ appliesTo: IRCapabilityScope;
 
 The scope to which the capability applies.
 
----
+***
 
 ### source
 
 ```ts
-source: 'map' | 'fallback';
+source: "map" | "fallback";
 ```
 
 The source of the capability definition (map or fallback).
 
----
+***
 
 ### binding?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / BuildInitCommandOptions
 
@@ -59,7 +59,7 @@ Optional: Custom workspace builder function.
 
 [`Workspace`](Workspace.md)
 
----
+***
 
 #### runWorkflow()?
 
@@ -79,7 +79,7 @@ Optional: Custom workflow runner function.
 
 `Promise`\&lt;[`InitWorkflowResult`](InitWorkflowResult.md)\&gt;
 
----
+***
 
 #### checkGitRepository()?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [@wpkernel/core/data](../README.md) / WPKernelEventsPluginOptions
 
@@ -18,7 +18,7 @@ type WPKernelEventsPluginOptions = object;
 events: WPKernelEventBus;
 ```
 
----
+***
 
 ### reporter?
 
@@ -26,7 +26,7 @@ events: WPKernelEventBus;
 optional reporter: Reporter;
 ```
 
----
+***
 
 ### registry?
 

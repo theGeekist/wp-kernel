@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ActionRuntimeOverrides
 
@@ -18,7 +18,7 @@ optional runtime: Partial&lt;ActionRuntime&gt;;
 
 Partial overrides for the entire runtime object.
 
----
+***
 
 ### capability?
 

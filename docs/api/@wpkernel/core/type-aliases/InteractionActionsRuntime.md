@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / InteractionActionsRuntime
 
@@ -16,4 +16,4 @@ Runtime representation of bound interaction actions.
 
 ### TActions
 
-`TActions` _extends_ [`InteractionActionsRecord`](InteractionActionsRecord.md)
+`TActions` *extends* [`InteractionActionsRecord`](InteractionActionsRecord.md)

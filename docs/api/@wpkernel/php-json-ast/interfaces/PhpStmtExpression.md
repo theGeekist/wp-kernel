@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtExpression
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Expression";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Expression";
 readonly expr: PhpExpr;
 ```
 
----
+***
 
 ### attributes
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / BuildStartCommandOptions
 
@@ -84,7 +84,7 @@ Optional: Custom function to load the `chokidar.watch` function.
 
 `Promise`\&lt;(`paths`, `options?`) =&gt; `FSWatcher`\&gt;
 
----
+***
 
 #### adoptCommandEnvironment()?
 
@@ -108,7 +108,7 @@ Optional: Custom function to adopt the command environment.
 
 `void`
 
----
+***
 
 #### fileSystem?
 
@@ -118,7 +118,7 @@ readonly optional fileSystem: Partial&lt;FileSystem&gt;;
 
 Optional: Partial file system utility functions for testing.
 
----
+***
 
 #### spawnViteProcess()?
 

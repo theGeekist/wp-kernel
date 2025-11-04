@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / AdapterContext
 
@@ -20,7 +20,7 @@ Context shared with adapter factories while generating artifacts.
 config: WPKernelConfigV1;
 ```
 
----
+***
 
 ### reporter
 
@@ -28,7 +28,7 @@ config: WPKernelConfigV1;
 reporter: Reporter;
 ```
 
----
+***
 
 ### namespace
 
@@ -36,7 +36,7 @@ reporter: Reporter;
 namespace: string;
 ```
 
----
+***
 
 ### ir?
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpBuilderFactoryMethodAssignPropertyStep
 
@@ -14,7 +14,7 @@
 readonly kind: "assignPropertyFromParameter";
 ```
 
----
+***
 
 ### property
 
@@ -22,7 +22,7 @@ readonly kind: "assignPropertyFromParameter";
 readonly property: string;
 ```
 
----
+***
 
 ### parameter
 

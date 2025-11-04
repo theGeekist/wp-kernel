@@ -1,10 +1,10 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
-[WP Kernel API](../README.md) / TMP_PREFIX
+[WP Kernel API](../README.md) / TMP\_PREFIX
 
-# Variable: TMP_PREFIX
+# Variable: TMP\_PREFIX
 
 ```ts
 const TMP_PREFIX: string;

@@ -1,10 +1,10 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
-[WP Kernel API](../README.md) / WPK_EVENTS
+[WP Kernel API](../README.md) / WPK\_EVENTS
 
-# Variable: WPK_EVENTS
+# Variable: WPK\_EVENTS
 
 ```ts
 const WPK_EVENTS: object;
@@ -17,7 +17,7 @@ External code (plugins, themes) can listen to these events.
 
 ## Type Declaration
 
-### ACTION_START
+### ACTION\_START
 
 ```ts
 readonly ACTION_START: "wpk.action.start";
@@ -25,19 +25,19 @@ readonly ACTION_START: "wpk.action.start";
 
 Action lifecycle events
 
-### ACTION_COMPLETE
+### ACTION\_COMPLETE
 
 ```ts
 readonly ACTION_COMPLETE: "wpk.action.complete";
 ```
 
-### ACTION_ERROR
+### ACTION\_ERROR
 
 ```ts
 readonly ACTION_ERROR: "wpk.action.error";
 ```
 
-### RESOURCE_REQUEST
+### RESOURCE\_REQUEST
 
 ```ts
 readonly RESOURCE_REQUEST: "wpk.resource.request";
@@ -45,19 +45,19 @@ readonly RESOURCE_REQUEST: "wpk.resource.request";
 
 Resource transport events
 
-### RESOURCE_RESPONSE
+### RESOURCE\_RESPONSE
 
 ```ts
 readonly RESOURCE_RESPONSE: "wpk.resource.response";
 ```
 
-### RESOURCE_ERROR
+### RESOURCE\_ERROR
 
 ```ts
 readonly RESOURCE_ERROR: "wpk.resource.error";
 ```
 
-### CACHE_INVALIDATED
+### CACHE\_INVALIDATED
 
 ```ts
 readonly CACHE_INVALIDATED: "wpk.cache.invalidated";

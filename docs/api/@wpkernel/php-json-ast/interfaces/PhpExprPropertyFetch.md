@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprPropertyFetch
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_PropertyFetch";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### var
 
@@ -32,17 +32,17 @@ readonly nodeType: "Expr_PropertyFetch";
 readonly var: PhpExpr;
 ```
 
----
+***
 
 ### name
 
 ```ts
-readonly name:
+readonly name: 
   | PhpExpr
   | PhpIdentifier;
 ```
 
----
+***
 
 ### attributes
 

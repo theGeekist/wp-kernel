@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / invokeAction
 
@@ -8,8 +8,8 @@
 
 ```ts
 function invokeAction&lt;TArgs, TResult&gt;(
-   action,
-   args,
+   action, 
+   args, 
 meta): ActionEnvelope&lt;TArgs, TResult&gt;;
 ```
 
@@ -74,16 +74,16 @@ import { CreatePost } from './actions/CreatePost';
 
 // Basic usage
 const envelope = invokeAction(CreatePost, {
-	title: 'My First Post',
-	content: 'Hello world!',
+  title: 'My First Post',
+  content: 'Hello world!'
 });
 const post = await store.dispatch(envelope);
 
 // With metadata
 const envelope = invokeAction(
-	CreatePost,
-	{ title: 'Post', content: '...' },
-	{ correlationId: 'req-123', source: 'editor-ui' }
+  CreatePost,
+  { title: 'Post', content: '...' },
+  { correlationId: 'req-123', source: 'editor-ui' }
 );
 const post = await store.dispatch(envelope);
 ```

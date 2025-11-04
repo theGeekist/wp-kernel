@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [pipeline](../README.md) / CreatePipelineOptions
 
@@ -18,11 +18,11 @@
 
 ### TContext
 
-`TContext` _extends_ `object`
+`TContext` *extends* `object`
 
 ### TReporter
 
-`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
+`TReporter` *extends* [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
 
 ### TDraft
 
@@ -34,7 +34,7 @@
 
 ### TDiagnostic
 
-`TDiagnostic` _extends_ [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
+`TDiagnostic` *extends* [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md) = [`PipelineDiagnostic`](../type-aliases/PipelineDiagnostic.md)
 
 ### TRunResult
 
@@ -58,19 +58,19 @@
 
 ### TFragmentKind
 
-`TFragmentKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
+`TFragmentKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"fragment"`
 
 ### TBuilderKind
 
-`TBuilderKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
+`TBuilderKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = `"builder"`
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
+`TFragmentHelper` *extends* [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
+`TBuilderHelper` *extends* [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
 
 ## Properties
 
@@ -90,7 +90,7 @@ readonly createBuildOptions: (options) =&gt; TBuildOptions;
 
 `TBuildOptions`
 
----
+***
 
 ### createContext()
 
@@ -108,7 +108,7 @@ readonly createContext: (options) =&gt; TContext;
 
 `TContext`
 
----
+***
 
 ### createFragmentState()
 
@@ -136,7 +136,7 @@ readonly createFragmentState: (options) =&gt; TDraft;
 
 `TDraft`
 
----
+***
 
 ### createFragmentArgs()
 
@@ -172,7 +172,7 @@ readonly createFragmentArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TFr
 
 [`HelperApplyOptions`](HelperApplyOptions.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`\&gt;
 
----
+***
 
 ### finalizeFragmentState()
 
@@ -208,7 +208,7 @@ readonly finalizeFragmentState: (options) =&gt; TArtifact;
 
 `TArtifact`
 
----
+***
 
 ### createBuilderArgs()
 
@@ -244,7 +244,7 @@ readonly createBuilderArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TBui
 
 [`HelperApplyOptions`](HelperApplyOptions.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`\&gt;
 
----
+***
 
 ### fragmentKind?
 
@@ -252,7 +252,7 @@ readonly createBuilderArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TBui
 readonly optional fragmentKind: TFragmentKind;
 ```
 
----
+***
 
 ### builderKind?
 
@@ -260,7 +260,7 @@ readonly optional fragmentKind: TFragmentKind;
 readonly optional builderKind: TBuilderKind;
 ```
 
----
+***
 
 ### createRunResult()?
 
@@ -304,7 +304,7 @@ readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../type-aliases/He
 
 `TRunResult`
 
----
+***
 
 ### onDiagnostic()?
 
@@ -333,7 +333,7 @@ pipeline executes instead of waiting for the final run result.
 
 `void`
 
----
+***
 
 ### createExtensionHookOptions()?
 
@@ -365,7 +365,7 @@ readonly optional createExtensionHookOptions: (options) =&gt; PipelineExtensionH
 
 [`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)\&lt;`TContext`, `TBuildOptions`, `TArtifact`\&gt;
 
----
+***
 
 ### onExtensionRollbackError()?
 
@@ -401,7 +401,7 @@ readonly `string`[]
 
 `void`
 
----
+***
 
 ### createConflictDiagnostic()?
 
@@ -429,7 +429,7 @@ readonly optional createConflictDiagnostic: (options) =&gt; TDiagnostic;
 
 `TDiagnostic`
 
----
+***
 
 ### createMissingDependencyDiagnostic()?
 
@@ -457,7 +457,7 @@ readonly optional createMissingDependencyDiagnostic: (options) =&gt; TDiagnostic
 
 `TDiagnostic`
 
----
+***
 
 ### createUnusedHelperDiagnostic()?
 

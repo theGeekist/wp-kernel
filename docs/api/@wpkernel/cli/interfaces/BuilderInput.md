@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / BuilderInput
 
@@ -22,7 +22,7 @@ readonly options: BuildIrOptions;
 
 Options for building the IR.
 
----
+***
 
 ### ir
 
@@ -32,7 +32,7 @@ readonly ir: IRv1 | null;
 
 The finalized Intermediate Representation (IR).
 
----
+***
 
 ### phase
 
@@ -43,5 +43,5 @@ readonly phase: PipelinePhase;
 #### Inherited from
 
 ```ts
-Omit.phase;
+Omit.phase
 ```

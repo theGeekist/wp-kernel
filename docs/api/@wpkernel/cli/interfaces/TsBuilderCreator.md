@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / TsBuilderCreator
 
@@ -21,7 +21,7 @@ readonly key: string;
 
 A unique key for the creator.
 
----
+***
 
 ### create()
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../../../../README.md)
 
----
+***
 
 [WP Kernel API](../../../../README.md) / [@wpkernel/core/data](../README.md) / WPKernelUIRuntime
 
@@ -14,7 +14,7 @@
 namespace: string;
 ```
 
----
+***
 
 ### reporter
 
@@ -22,7 +22,7 @@ namespace: string;
 reporter: Reporter;
 ```
 
----
+***
 
 ### events
 
@@ -30,7 +30,7 @@ reporter: Reporter;
 events: WPKernelEventBus;
 ```
 
----
+***
 
 ### kernel?
 
@@ -38,7 +38,7 @@ events: WPKernelEventBus;
 optional kernel: WPKInstance;
 ```
 
----
+***
 
 ### registry?
 
@@ -46,7 +46,7 @@ optional kernel: WPKInstance;
 optional registry: WPKernelRegistry;
 ```
 
----
+***
 
 ### capabilities?
 
@@ -54,7 +54,7 @@ optional registry: WPKernelRegistry;
 optional capabilities: WPKUICapabilityRuntime;
 ```
 
----
+***
 
 ### invalidate()?
 
@@ -76,7 +76,7 @@ optional invalidate: (patterns, options?) =&gt; void;
 
 `void`
 
----
+***
 
 ### options?
 
@@ -84,7 +84,7 @@ optional invalidate: (patterns, options?) =&gt; void;
 optional options: UIIntegrationOptions;
 ```
 
----
+***
 
 ### dataviews?
 

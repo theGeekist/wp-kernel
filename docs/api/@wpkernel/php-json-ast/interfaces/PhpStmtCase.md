@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpStmtCase
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Case";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
----
+***
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Case";
 readonly cond: PhpExpr | null;
 ```
 
----
+***
 
 ### stmts
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr | null;
 readonly stmts: PhpStmt[];
 ```
 
----
+***
 
 ### attributes
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / UseActionOptions
 
@@ -33,7 +33,7 @@ The concurrency strategy to use.
 - `queue`: Queues all calls and runs them sequentially.
 - `drop`: Drops all new calls while one is running.
 
----
+***
 
 ### dedupeKey()?
 
@@ -57,7 +57,7 @@ The input to the action.
 
 A string to use for deduplication.
 
----
+***
 
 ### autoInvalidate()?
 

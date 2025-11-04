@@ -1,10 +1,10 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
-[WP Kernel API](../README.md) / WPK_INFRASTRUCTURE
+[WP Kernel API](../README.md) / WPK\_INFRASTRUCTURE
 
-# Variable: WPK_INFRASTRUCTURE
+# Variable: WPK\_INFRASTRUCTURE
 
 ```ts
 const WPK_INFRASTRUCTURE: object;
@@ -16,7 +16,7 @@ Keys used for browser APIs (storage, channels), WordPress hooks, and public even
 
 ## Type Declaration
 
-### POLICY_CACHE_STORAGE
+### POLICY\_CACHE\_STORAGE
 
 ```ts
 readonly POLICY_CACHE_STORAGE: "wpk.capability.cache";
@@ -24,7 +24,7 @@ readonly POLICY_CACHE_STORAGE: "wpk.capability.cache";
 
 Storage key prefix for capability cache
 
-### POLICY_CACHE_CHANNEL
+### POLICY\_CACHE\_CHANNEL
 
 ```ts
 readonly POLICY_CACHE_CHANNEL: "wpk.capability.cache";
@@ -32,7 +32,7 @@ readonly POLICY_CACHE_CHANNEL: "wpk.capability.cache";
 
 BroadcastChannel name for capability cache sync
 
-### POLICY_EVENT_CHANNEL
+### POLICY\_EVENT\_CHANNEL
 
 ```ts
 readonly POLICY_EVENT_CHANNEL: "wpk.capability.events";
@@ -40,7 +40,7 @@ readonly POLICY_EVENT_CHANNEL: "wpk.capability.events";
 
 BroadcastChannel name for capability events
 
-### ACTIONS_CHANNEL
+### ACTIONS\_CHANNEL
 
 ```ts
 readonly ACTIONS_CHANNEL: "wpk.actions";
@@ -48,7 +48,7 @@ readonly ACTIONS_CHANNEL: "wpk.actions";
 
 BroadcastChannel name for action lifecycle events
 
-### WP_HOOKS_NAMESPACE_PREFIX
+### WP\_HOOKS\_NAMESPACE\_PREFIX
 
 ```ts
 readonly WP_HOOKS_NAMESPACE_PREFIX: "wpk/notices";
@@ -56,7 +56,7 @@ readonly WP_HOOKS_NAMESPACE_PREFIX: "wpk/notices";
 
 WordPress hooks namespace prefix for WP Kernel events plugin
 
-### ACTIONS_MESSAGE_TYPE_LIFECYCLE
+### ACTIONS\_MESSAGE\_TYPE\_LIFECYCLE
 
 ```ts
 readonly ACTIONS_MESSAGE_TYPE_LIFECYCLE: "wpk.action.lifecycle";
@@ -64,7 +64,7 @@ readonly ACTIONS_MESSAGE_TYPE_LIFECYCLE: "wpk.action.lifecycle";
 
 BroadcastChannel message type for action lifecycle events
 
-### ACTIONS_MESSAGE_TYPE_EVENT
+### ACTIONS\_MESSAGE\_TYPE\_EVENT
 
 ```ts
 readonly ACTIONS_MESSAGE_TYPE_EVENT: "wpk.action.event";

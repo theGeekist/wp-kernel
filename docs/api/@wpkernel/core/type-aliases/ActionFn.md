@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / ActionFn
 
@@ -13,7 +13,6 @@ type ActionFn&lt;TArgs, TResult&gt; = (ctx, args) =&gt; Promise&lt;TResult&gt;;
 Function signature for action implementations.
 
 Actions are async functions that receive:
-
 1. **Context** (`ctx`) - Integration surfaces (emit, invalidate, jobs, capability, reporter)
 2. **Arguments** (`args`) - Input data provided by the caller
 

@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / PhpExprNullsafeMethodCall
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_NullsafeMethodCall";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
----
+***
 
 ### var
 
@@ -32,17 +32,17 @@ readonly nodeType: "Expr_NullsafeMethodCall";
 readonly var: PhpExpr;
 ```
 
----
+***
 
 ### name
 
 ```ts
-readonly name:
+readonly name: 
   | PhpExpr
   | PhpIdentifier;
 ```
 
----
+***
 
 ### args
 
@@ -50,7 +50,7 @@ readonly name:
 readonly args: PhpArg[];
 ```
 
----
+***
 
 ### attributes
 

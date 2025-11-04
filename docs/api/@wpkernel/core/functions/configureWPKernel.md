@@ -1,6 +1,6 @@
 [**WP Kernel API v0.11.0**](../README.md)
 
----
+***
 
 [WP Kernel API](../README.md) / configureWPKernel
 
@@ -37,8 +37,8 @@ import { configureWPKernel } from '@wpkernel/core/data';
 import { registerWPKernelStore } from '@wpkernel/core/data';
 
 const wpk = configureWPKernel({
-	namespace: 'acme',
-	registry: registerWPKernelStore('acme/store', storeConfig),
+  namespace: 'acme',
+  registry: registerWPKernelStore('acme/store', storeConfig),
 });
 
 wpk.invalidate(['post', 'list']);
