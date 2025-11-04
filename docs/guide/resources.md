@@ -94,4 +94,6 @@ When your kernel config includes `ui.admin.dataviews`, the CLI emits `.generated
 
 - Read the [Decision Matrix](/reference/decision-matrix) to see which printers react to specific resource options.
 - Browse the [Showcase kernel config](/examples/showcase) for a production-scale example.
-- Explore the generated Typedoc under [`/api/core/`](../api/) to inspect every helper exposed by the resource runtime.
+- Explore the generated Typedoc under [`/api/@wpkernel/core/`](../api/@wpkernel/core/) to inspect every helper exposed by the resource runtime.
+
+```
