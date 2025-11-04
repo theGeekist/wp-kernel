@@ -104,6 +104,18 @@ function finalizeBootstrapRun(
 			'wpk create completed successfully via bootstrapper.',
 			baseContext
 		);
+		context.reporter.info(
+			'\n🎉 Your WP Kernel project has been successfully created!\n'
+		);
+		context.reporter.info('Next steps:');
+		context.reporter.info('  1. `cd ' + positional[0] + '`');
+		context.reporter.info(
+			'  2. `npm install` (or `pnpm install` / `yarn install`)'
+		);
+		context.reporter.info(
+			'  3. `npm start` (or `pnpm start` / `yarn start`)'
+		);
+		context.reporter.info('\nHappy coding!\n');
 		return;
 	}
 

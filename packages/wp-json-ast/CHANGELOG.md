@@ -4,8 +4,13 @@
 
 ### In progress
 
-- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 cover the create bootstrap, plugin loader, regeneration cleanup, and activation smoke on the path to 0.11.0; no JSON AST changes are expected unless the bootstrap work uncovers schema gaps.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.11.0 - 2025-11-04
+
+### Maintenance
+
+- Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; WordPress JSON AST helpers remain unchanged.
 
 ## 0.10.0 - 2025-11-05
 

@@ -50,7 +50,7 @@ export type {
 /**
  * Current version of WP Kernel E2E Utils
  */
-export const VERSION = '0.7.0';
+export const VERSION = '0.11.0';
 
 /**
  * Creates a temporary, isolated workspace for E2E tests.

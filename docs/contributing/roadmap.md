@@ -1,7 +1,7 @@
 # WP Kernel Roadmap
 
 **Status**: Active development toward v1.0
-**Latest Release**: v0.10.0 (November 2025)
+**Latest Release**: v0.11.0 (November 2025)
 
 ---
 

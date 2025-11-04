@@ -1,6 +1,6 @@
 # @wpkernel/create-wpk
 
-## Unreleased
+## 0.11.0 - 2025-11-04
 
 ### Added
 
