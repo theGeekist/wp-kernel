@@ -53,7 +53,10 @@ export type {
 	HelperExecutionSnapshot,
 	FragmentFinalizationMetadata,
 	PipelineExecutionMetadata,
+	MaybePromise,
+	PipelineReporter,
 } from './types';
+export type { TaskInput, PipelineTask } from './helpers/commit';
 export type {
 	CorePipelineContext,
 	CorePipelineRegistryBridge,

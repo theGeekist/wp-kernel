@@ -20,7 +20,7 @@ type DispatchFunction = <TArgs, TResult>(
 ) => Promise<TResult>;
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
-const ACTION_STORE_MARKER = Symbol.for('wpKernelUIActionStoreRegistered');
+const ACTION_STORE_MARKER = Symbol.for('wpWPKernelUIActionStoreRegistered');
 
 type StoreMarkerRegistry = ResolvedRegistry & {
 	[ACTION_STORE_MARKER]?: boolean;
@@ -136,6 +136,7 @@ function createDispatch(runtime: WPKernelUIRuntime): DispatchFunction {
  * Options for the useAction hook.
  *
  * @category Actions
+ * @public
  */
 export interface UseActionOptions<TInput, TResult> {
 	/**
@@ -187,6 +188,7 @@ export interface UseActionState<TResult> {
  * The result of the useAction hook.
  *
  * @category Actions
+ * @public
  */
 export interface UseActionResult<TInput, TResult>
 	extends UseActionState<TResult> {

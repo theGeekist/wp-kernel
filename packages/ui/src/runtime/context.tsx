@@ -3,7 +3,7 @@ import { createContext, useContext, type ReactNode } from 'react';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 
-const KernelUIContext = createContext<WPKernelUIRuntime | null>(null);
+const WPKernelUIContext = createContext<WPKernelUIRuntime | null>(null);
 
 /**
  * Props for the WPKernelUIProvider component.
@@ -30,9 +30,9 @@ export function WPKernelUIProvider({
 	children,
 }: WPKernelUIProviderProps) {
 	return (
-		<KernelUIContext.Provider value={runtime}>
+		<WPKernelUIContext.Provider value={runtime}>
 			{children}
-		</KernelUIContext.Provider>
+		</WPKernelUIContext.Provider>
 	);
 }
 
@@ -45,7 +45,7 @@ export function WPKernelUIProvider({
  * @returns The WP Kernel UI runtime.
  */
 export function useWPKernelUI(): WPKernelUIRuntime {
-	const runtime = useContext(KernelUIContext);
+	const runtime = useContext(WPKernelUIContext);
 	if (!runtime) {
 		throw new WPKernelError('DeveloperError', {
 			message:
@@ -61,6 +61,6 @@ export function useWPKernelUI(): WPKernelUIRuntime {
  * @category Provider
  * @returns The WP Kernel UI runtime or null.
  */
-export function useOptionalKernelUI(): WPKernelUIRuntime | null {
-	return useContext(KernelUIContext);
+export function useOptionalWPKernelUI(): WPKernelUIRuntime | null {
+	return useContext(WPKernelUIContext);
 }

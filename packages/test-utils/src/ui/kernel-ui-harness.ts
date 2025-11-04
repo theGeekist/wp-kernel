@@ -13,17 +13,23 @@ import {
 } from '../core/wp-harness.js';
 import { createReporterMock } from '../shared/reporter.js';
 
-type WPKernelUIProviderComponent = (props: {
+/**
+ * Component type for WP Kernel UI Provider.
+ *
+ * @category UI Harness
+ * @public
+ */
+export type WPKernelUIProviderComponent = (props: {
 	runtime: WPKernelUIRuntime;
 	children: ReactNode;
 }) => ReturnType<typeof createElement>;
 
 /**
- * Options for creating a `KernelUITestHarness`.
+ * Options for creating a `WPKernelUITestHarness`.
  *
  * @category UI Harness
  */
-export interface KernelUITestHarnessOptions {
+export interface WPKernelUITestHarnessOptions {
 	/** Partial overrides for the reporter. */
 	reporter?: Partial<Reporter>;
 	/** The namespace for the runtime. */
@@ -37,7 +43,7 @@ export interface KernelUITestHarnessOptions {
  *
  * @category UI Harness
  */
-export interface KernelUITestHarness {
+export interface WPKernelUITestHarness {
 	/** The WordPress test harness. */
 	wordpress: WordPressTestHarness;
 	/** Creates a new `WPKernelUIRuntime` instance. */
@@ -64,7 +70,7 @@ export interface KernelUITestHarness {
 
 function buildRuntime(
 	registry: WPKernelRegistry | undefined,
-	options: KernelUITestHarnessOptions,
+	options: WPKernelUITestHarnessOptions,
 	overrides: Partial<WPKernelUIRuntime> = {}
 ): WPKernelUIRuntime {
 	const reporter = createReporterMock({
@@ -92,18 +98,18 @@ function createWrapper(
 	};
 }
 
-const ACTION_STORE_MARKER = Symbol.for('wpKernelUIActionStoreRegistered');
+const ACTION_STORE_MARKER = Symbol.for('wpWPKernelUIActionStoreRegistered');
 
 /**
- * Creates a `KernelUITestHarness` instance.
+ * Creates a `WPKernelUITestHarness` instance.
  *
  * @category UI Harness
  * @param    options - Options for configuring the harness.
- * @returns A `KernelUITestHarness` instance.
+ * @returns A `WPKernelUITestHarness` instance.
  */
-export function createKernelUITestHarness(
-	options: KernelUITestHarnessOptions = {}
-): KernelUITestHarness {
+export function createWPKernelUITestHarness(
+	options: WPKernelUITestHarnessOptions = {}
+): WPKernelUITestHarness {
 	const wordpress = createWordPressTestHarness();
 	let currentConsoleError = console.error;
 	const provider = options.provider;
@@ -111,7 +117,7 @@ export function createKernelUITestHarness(
 	if (!provider) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'KernelUITestHarness requires a WPKernelUIProvider. Pass options.provider when calling createKernelUITestHarness.',
+				'WPKernelUITestHarness requires a WPKernelUIProvider. Pass options.provider when calling createWPKernelUITestHarness.',
 		});
 	}
 

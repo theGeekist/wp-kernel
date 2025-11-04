@@ -13,6 +13,8 @@ export type {
 	AdapterExtensionFactory,
 	ConfigOrigin,
 	LoadedWPKernelConfig,
+	SchemaRegistry,
+	ResourceRegistry,
 } from './types';
 
 export { loadWPKernelConfig } from './load-kernel-config';

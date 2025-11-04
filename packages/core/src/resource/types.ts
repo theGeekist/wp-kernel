@@ -871,7 +871,12 @@ export type ResourceState<T> = {
 	errors: Record<string, string>;
 };
 
-type AnyFn = (...args: never[]) => unknown;
+/**
+ * Generic function type accepting any arguments and returning unknown.
+ * Used internally for flexible action type definitions.
+ * @public
+ */
+export type AnyFn = (...args: never[]) => unknown;
 
 /**
  * Actions for a resource store.

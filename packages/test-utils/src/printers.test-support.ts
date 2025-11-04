@@ -5,20 +5,20 @@ import type {
 	IRRouteLike,
 	IRWarningLike,
 	IRv1Like,
-	KernelConfigV1Like,
+	WPKConfigV1Like,
 } from './types.js';
 
 export interface MakeWPKernelConfigFixtureOptions {
 	readonly namespace?: string;
-	readonly schemas?: KernelConfigV1Like['schemas'];
-	readonly resources?: KernelConfigV1Like['resources'];
-	readonly adapters?: KernelConfigV1Like['adapters'];
+	readonly schemas?: WPKConfigV1Like['schemas'];
+	readonly resources?: WPKConfigV1Like['resources'];
+	readonly adapters?: WPKConfigV1Like['adapters'];
 }
 
 export function makeWPKernelConfigFixture(
 	options: MakeWPKernelConfigFixtureOptions = {}
-): KernelConfigV1Like {
-	const defaultSchemas: KernelConfigV1Like['schemas'] = {
+): WPKConfigV1Like {
+	const defaultSchemas: WPKConfigV1Like['schemas'] = {
 		job: {
 			path: './contracts/job.schema.json',
 			generated: {
@@ -26,7 +26,7 @@ export function makeWPKernelConfigFixture(
 			},
 		},
 	};
-	const defaultResources: KernelConfigV1Like['resources'] = {};
+	const defaultResources: WPKConfigV1Like['resources'] = {};
 
 	const {
 		namespace = 'demo-namespace',
@@ -41,7 +41,7 @@ export function makeWPKernelConfigFixture(
 		schemas: schemas ?? defaultSchemas,
 		resources: resources ?? defaultResources,
 		...(adapters ? { adapters } : {}),
-	} satisfies KernelConfigV1Like;
+	} satisfies WPKConfigV1Like;
 }
 
 export interface PrinterIRSchema {
@@ -102,7 +102,7 @@ export interface PrinterPhpProject {
 }
 
 export type PrinterIr = IRv1Like<
-	KernelConfigV1Like,
+	WPKConfigV1Like,
 	PrinterIRSchema,
 	IRRouteLike,
 	IRResourceLike,
@@ -113,7 +113,7 @@ export type PrinterIr = IRv1Like<
 >;
 
 export interface MakePrinterIrFixtureOptions {
-	readonly config?: KernelConfigV1Like;
+	readonly config?: WPKConfigV1Like;
 	readonly schemas?: PrinterIRSchema[];
 	readonly resources?: IRResourceLike[];
 	readonly capabilityMap?: PrinterIRCapabilityMap;

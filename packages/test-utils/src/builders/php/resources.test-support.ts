@@ -9,7 +9,7 @@ import type {
 	IRRouteLike,
 	IRv1Like,
 	IRWarningLike,
-	KernelConfigV1Like,
+	WPKConfigV1Like,
 } from '../../types.js';
 
 type ResourceCacheKeys<TCacheKey extends IRResourceCacheKeyLike> = {
@@ -478,7 +478,7 @@ export function makePhpIrFixture<
 	TResource extends IRResourceLike<TRoute> = IRResourceLike<TRoute>,
 >(
 	options: MakePhpIrFixtureOptions<TRoute, TResource> = {}
-): IRv1Like<KernelConfigV1Like, unknown, TRoute, TResource> {
+): IRv1Like<WPKConfigV1Like, unknown, TRoute, TResource> {
 	const resources =
 		options.resources ??
 		([
@@ -522,5 +522,5 @@ export function makePhpIrFixture<
 			autoload: 'inc/',
 			outputDir: '.generated/php',
 		},
-	} as IRv1Like<KernelConfigV1Like, unknown, TRoute, TResource>;
+	} as IRv1Like<WPKConfigV1Like, unknown, TRoute, TResource>;
 }

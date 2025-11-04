@@ -11,7 +11,7 @@ import {
 import type { ResourceObject } from '@wpkernel/core/resource';
 import { attachResourceHooks } from '../hooks/resource-hooks';
 import {
-	createKernelDataViewsRuntime,
+	createWPKernelDataViewsRuntime,
 	normalizeDataViewsOptions,
 } from './dataviews/runtime';
 import { createResourceDataViewController } from '../dataviews/resource-controller';
@@ -147,7 +147,7 @@ export const attachUIBindings: WPKernelUIAttach = (
 	const dataviewsOptions = normalizeDataViewsOptions(options?.dataviews);
 
 	if (dataviewsOptions.enable) {
-		runtime.dataviews = createKernelDataViewsRuntime(
+		runtime.dataviews = createWPKernelDataViewsRuntime(
 			kernel,
 			runtime,
 			dataviewsOptions

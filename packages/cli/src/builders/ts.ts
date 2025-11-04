@@ -124,6 +124,7 @@ export interface TsBuilderCreator {
  * Options for creating a TypeScript builder.
  *
  * @category TypeScript Builder
+ * @public
  */
 export interface CreateTsBuilderOptions {
 	/** Optional: A list of `TsBuilderCreator` instances to use. */

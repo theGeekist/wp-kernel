@@ -75,7 +75,7 @@ export function formatManifest(manifest: PatchManifest): string {
 		lines.push('', 'Records:');
 		for (const record of manifest.records) {
 			const description = record.description
-				? ` — ${record.description}`
+				? ` - ${record.description}`
 				: '';
 			const reason =
 				record.details &&

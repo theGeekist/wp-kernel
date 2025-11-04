@@ -23,6 +23,9 @@ import {
 	type InitCommandRuntimeResult,
 } from './init/command-runtime';
 
+// Re-export types from sub-modules for TypeDoc
+export type { InstallerDependencies } from './init/installers';
+
 function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.create`;
 }

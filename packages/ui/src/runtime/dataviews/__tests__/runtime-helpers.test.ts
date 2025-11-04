@@ -2,7 +2,7 @@ import type { WPKInstance, WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	__TESTING__ as runtimeTestUtils,
-	createKernelDataViewsRuntime,
+	createWPKernelDataViewsRuntime,
 	normalizeDataViewsOptions,
 } from '../runtime';
 import { DataViewsConfigurationError } from '../errors';
@@ -88,7 +88,7 @@ describe('kernel dataviews runtime helpers', () => {
 		const runtime = { reporter } as unknown as WPKernelUIRuntime;
 		const options = normalizeDataViewsOptions({ enable: true });
 
-		const dataviewsRuntime = createKernelDataViewsRuntime(
+		const dataviewsRuntime = createWPKernelDataViewsRuntime(
 			kernel,
 			runtime,
 			options

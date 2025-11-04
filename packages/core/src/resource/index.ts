@@ -86,6 +86,7 @@ export {
 } from './cache';
 export type { InvalidateOptions, CacheKeyPattern, PathParams } from './cache';
 export type {
+	AnyFn,
 	HttpMethod,
 	ResourceRoute,
 	ResourceRoutes,
@@ -101,6 +102,7 @@ export type {
 	ListResponse,
 	ResourceClient,
 	ResourceObject,
+	ResourceListStatus,
 	ResourceUIConfig,
 	ResourceAdminUIConfig,
 	ResourceDataViewsUIConfig,

@@ -20,7 +20,7 @@ import type {
 	DataViewPreferencesAdapter,
 } from '../runtime/dataviews/preferences';
 import type {
-	KernelDataViewsRuntime,
+	WPKernelDataViewsRuntime,
 	NormalizedDataViewsRuntimeOptions,
 } from '../runtime/dataviews/runtime';
 
@@ -33,6 +33,7 @@ export type QueryMapping<TQuery> = (
 
 /**
  * Context passed to DataViews controllers for logging and event emission.
+ * @public
  */
 export interface DataViewsControllerRuntime {
 	readonly registry: Map<string, unknown>;
@@ -167,6 +168,7 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
  * Source for the WPKUICapabilityRuntime.
  *
  * @category DataViews Integration
+ * @public
  */
 export type WPKUICapabilityRuntimeSource =
 	| WPKUICapabilityRuntime
@@ -262,6 +264,7 @@ export interface ResourceDataViewController<TItem, TQuery> {
  * Options for creating a `DataViewsStandaloneRuntime`.
  *
  * @category DataViews Integration
+ * @public
  */
 export interface DataViewsRuntimeOptions {
 	/** The namespace of the project. */
@@ -285,7 +288,7 @@ export interface DataViewsRuntimeOptions {
  */
 export interface DataViewsStandaloneRuntime extends DataViewsRuntimeContext {
 	/** The DataViews runtime. */
-	readonly dataviews: KernelDataViewsRuntime;
+	readonly dataviews: WPKernelDataViewsRuntime;
 	/** The capability runtime. */
 	readonly capabilities?: WPKUICapabilityRuntime;
 }

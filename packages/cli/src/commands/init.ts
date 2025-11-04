@@ -18,6 +18,11 @@ import {
 	type InitCommandRuntimeResult,
 } from './init/command-runtime';
 
+// Re-export types from sub-modules for TypeDoc
+export type { InitWorkflowOptions, InitWorkflowResult } from './init/workflow';
+export type { GitDependencies } from './init/git';
+export type { ScaffoldStatus } from './init/utils';
+
 function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.init`;
 }

@@ -26,7 +26,7 @@ WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for 
 
 ### Reference Implementations
 
-- The showcase plugin demonstrates the full stack—kernel config, resource clients, UI DataViews, actions, and generated PHP controllers—proving the workflow in a real WordPress project.【F:docs/examples/showcase.md†L1-L33】【F:examples/showcase/src/actions/jobs/CreateJob.ts†L14-L63】
+- The showcase plugin demonstrates the full stack-kernel config, resource clients, UI DataViews, actions, and generated PHP controllers-proving the workflow in a real WordPress project.【F:docs/examples/showcase.md†L1-L33】【F:examples/showcase/src/actions/jobs/CreateJob.ts†L14-L63】
 - The "Test the CLI" example keeps a minimal transient-backed resource for smoke-testing generation and apply routines without unrelated noise.【F:docs/examples/test-the-cli.md†L1-L27】【F:examples/test-the-cli/wpk.config.ts†L1-L48】
 
 ## Planned & In-Flight Work
@@ -36,15 +36,15 @@ WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for 
 
 ## Critical Outstanding Items for MVP
 
-- Phase 8B of the CLI plan—final QA, documentation audit, end-to-end init → apply validation, and release packaging—remains marked as pending and is the gating item for a formal MVP launch.【F:packages/cli/MVP-PHASES.md†L472-L511】 Delivering this phase will confirm regenerated showcase artefacts, coverage targets, and release communication.
+- Phase 8B of the CLI plan-final QA, documentation audit, end-to-end init → apply validation, and release packaging-remains marked as pending and is the gating item for a formal MVP launch.【F:packages/cli/MVP-PHASES.md†L472-L511】 Delivering this phase will confirm regenerated showcase artefacts, coverage targets, and release communication.
 - Policy integration relies on the generated helper and diagnostics outlined in Phase 7; although the printer emits policy helpers today, we still need the IR detection and warnings from that phase to prevent silent misconfiguration during launch.【F:packages/cli/MVP-PHASES.md†L341-L370】【F:packages/cli/src/printers/php/printer.ts†L12-L92】
 - Integration harness coverage across `wpk generate`, `apply`, `start`, and `build` must remain healthy; any regressions in these command-level suites would block MVP readiness, so ongoing verification is critical while the final QA phase is open.【F:packages/cli/MVP-PHASES.md†L381-L441】【F:packages/cli/src/commands/**tests**/apply-command.test.ts†L51-L200】
 
 ## Documentation Delta on This Branch
 
-- The Getting Started entry now anchors every promise—resources, actions, CLI printers, and UI integration—with inline references to the actual implementations, replacing older narrative sections that lacked code links.【F:docs/getting-started/index.md†L1-L69】
+- The Getting Started entry now anchors every promise-resources, actions, CLI printers, and UI integration-with inline references to the actual implementations, replacing older narrative sections that lacked code links.【F:docs/getting-started/index.md†L1-L69】
 - Example guides were rewritten to document the showcase and CLI smoke-test plugins that ship in-repo, providing readers direct navigation to the validated configs and generated assets.【F:docs/examples/index.md†L1-L15】【F:docs/examples/showcase.md†L1-L33】【F:docs/examples/test-the-cli.md†L1-L27】
 
 ## Release Readiness Assessment
 
-The core packages behave reliably under test—the bootstrap suite verifies middleware teardown, registry fallbacks, cache invalidation, and event emission, while CLI command suites cover guarded merges, block deployment, and error handling.【F:packages/core/src/data/**tests**/configure-kernel.test.ts†L51-L216】【F:packages/cli/src/commands/**tests**/apply-command.test.ts†L51-L200】 The feature surface exercised by the showcase plugin confirms the stack is viable for complex admin experiences.【F:docs/examples/showcase.md†L1-L33】 However, because the final QA and release-readiness checklist in Phase 8B remains open, we cannot yet consider the product ready for an external MVP or beta announcement. Completing that phase—regenerating artefacts, verifying docs, and packaging release notes—will provide the confidence we need to invite beta adopters.
+The core packages behave reliably under test-the bootstrap suite verifies middleware teardown, registry fallbacks, cache invalidation, and event emission, while CLI command suites cover guarded merges, block deployment, and error handling.【F:packages/core/src/data/**tests**/configure-kernel.test.ts†L51-L216】【F:packages/cli/src/commands/**tests**/apply-command.test.ts†L51-L200】 The feature surface exercised by the showcase plugin confirms the stack is viable for complex admin experiences.【F:docs/examples/showcase.md†L1-L33】 However, because the final QA and release-readiness checklist in Phase 8B remains open, we cannot yet consider the product ready for an external MVP or beta announcement. Completing that phase-regenerating artefacts, verifying docs, and packaging release notes-will provide the confidence we need to invite beta adopters.

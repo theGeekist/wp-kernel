@@ -11,8 +11,9 @@ import { normalizeActionError } from './error-utils';
  *
  * @category DataViews Integration
  * @template TResult - The type of the result returned by the form submission action.
+ * @public
  */
-interface DataFormControllerState<TResult> {
+export interface DataFormControllerState<TResult> {
 	/** The current status of the form submission. */
 	status: 'idle' | 'running' | 'success' | 'error';
 	/** Any error that occurred during submission. */
@@ -28,6 +29,7 @@ interface DataFormControllerState<TResult> {
  *
  * @category DataViews Integration
  * @template TResult - The type of the result returned by the form submission action.
+ * @public
  */
 export interface UseDataFormController<TResult> {
 	/**
@@ -45,7 +47,13 @@ export interface UseDataFormController<TResult> {
 	state: DataFormControllerState<TResult>;
 }
 
-interface CreateDataFormControllerOptions<TInput, TResult, TQuery> {
+/**
+ * Options for creating a `DataFormController`.
+ *
+ * @category DataViews Integration
+ * @public
+ */
+export interface CreateDataFormControllerOptions<TInput, TResult, TQuery> {
 	action: DefinedAction<TInput, TResult>;
 	runtime: DataViewsRuntimeContext;
 	resource?: ResourceObject<unknown, TQuery>;

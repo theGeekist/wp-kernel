@@ -6,6 +6,10 @@ import type { LoadedWPKernelConfig } from '../../config/types';
 import type { FileManifest, Workspace } from '../../workspace';
 import type { createPatcher } from '../../builders';
 
+/**
+ * Summary of the patch manifest.
+ * @public
+ */
 export interface PatchManifestSummary {
 	readonly applied: number;
 	readonly conflicts: number;
@@ -37,6 +41,10 @@ export type ApplyLogStatus =
 export type ReporterFactory = typeof createReporter;
 export type ReporterInstance = ReturnType<ReporterFactory>;
 
+/**
+ * Represents an entry in the apply log.
+ * @public
+ */
 export interface ApplyLogEntry {
 	readonly version: 1;
 	readonly timestamp: string;
@@ -56,6 +64,10 @@ export interface ApplyFlags {
 	readonly cleanup: readonly string[];
 }
 
+/**
+ * Represents an instance of the Apply command.
+ * @public
+ */
 export type ApplyCommandInstance = Command & {
 	yes: boolean;
 	backup: boolean;
@@ -140,6 +152,10 @@ export interface ConfirmApplyOptions {
 	readonly manifest: PatchManifest;
 }
 
+/**
+ * Options for creating backups.
+ * @public
+ */
 export interface CreateBackupsOptions {
 	readonly workspace: Workspace;
 	readonly manifest: FileManifest;

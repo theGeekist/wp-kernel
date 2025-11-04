@@ -28,6 +28,8 @@ export { runCli } from './cli/run';
 export type {
 	WPKernelConfigV1,
 	SchemaConfig,
+	SchemaRegistry,
+	ResourceRegistry,
 	AdaptersConfig,
 	PhpAdapterConfig,
 	PhpAdapterFactory,
@@ -45,6 +47,7 @@ export {
 	type CapabilityMapDefinition,
 	type CapabilityMapEntry,
 	type CapabilityMapScope,
+	type CapabilityMapFunction,
 } from './capability-map';
 
 export type {

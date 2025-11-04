@@ -1,5 +1,5 @@
 /**
- * Interactivity helper — defineInteraction implementation.
+ * Interactivity helper - defineInteraction implementation.
  *
  * This module wires WP Kernel resources and actions into the WordPress
  * interactivity runtime so UI bindings can hydrate server state and dispatch
@@ -81,7 +81,7 @@ function resolveInteractivityModule(): InteractivityModule {
 }
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
-const ACTION_STORE_MARKER = Symbol.for('wpKernelUIActionStoreRegistered');
+const ACTION_STORE_MARKER = Symbol.for('wpWPKernelUIActionStoreRegistered');
 
 function normalizeSegment(value: string, fallback: string): string {
 	const cleaned = value

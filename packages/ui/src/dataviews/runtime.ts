@@ -16,7 +16,7 @@ import {
 } from '../runtime/dataviews/events';
 import { DataViewsConfigurationError } from '../runtime/dataviews/errors';
 import type {
-	KernelDataViewsRuntime,
+	WPKernelDataViewsRuntime,
 	NormalizedDataViewsRuntimeOptions,
 	DataViewRegistryEntry,
 } from '../runtime/dataviews/runtime';
@@ -86,7 +86,7 @@ function createRuntimeSkeleton(
 	reporter: Reporter,
 	preferences: DataViewPreferencesRuntime,
 	options: NormalizedDataViewsRuntimeOptions
-): KernelDataViewsRuntime {
+): WPKernelDataViewsRuntime {
 	const runtimeReporter = childReporter(reporter, 'ui.dataviews');
 	const controllers = new Map<string, unknown>();
 	const registry = new Map<string, DataViewRegistryEntry>();
@@ -105,9 +105,9 @@ function createRuntimeSkeleton(
 }
 
 function cloneRuntime(
-	runtime: KernelDataViewsRuntime,
+	runtime: WPKernelDataViewsRuntime,
 	events: DataViewsEventEmitter
-): KernelDataViewsRuntime {
+): WPKernelDataViewsRuntime {
 	return {
 		...runtime,
 		events,
@@ -191,7 +191,7 @@ export function isDataViewsRuntime(
  * @returns The validated `DataViewsControllerRuntime` instance.
  */
 export function ensureControllerRuntime(
-	candidate: KernelDataViewsRuntime | DataViewsControllerRuntime
+	candidate: WPKernelDataViewsRuntime | DataViewsControllerRuntime
 ): DataViewsControllerRuntime {
 	const runtime = candidate as DataViewsControllerRuntime;
 	if (runtime && runtime.preferences && runtime.events) {

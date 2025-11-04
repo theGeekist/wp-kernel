@@ -10,13 +10,20 @@ const __dirname = path.dirname(__filename);
 
 const rootDir = path.resolve(__dirname, '..', '..');
 const docsDir = path.join(rootDir, 'docs');
-const generatedDir = path.join(docsDir, 'api', 'generated');
 const cacheFile = path.join(docsDir, 'api', '.typedoc-cache.json');
 const typedocConfig = path.join(rootDir, 'typedoc.json');
 const tsconfigDocs = path.join(rootDir, 'tsconfig.docs.json');
 const CACHE_VERSION = 1;
 
-const packages = ['core', 'ui', 'cli', 'test-utils', 'php-json-ast'];
+const packages = [
+	'core',
+	'ui',
+	'cli',
+	'php-json-ast',
+	'test-utils',
+	'e2e-utils',
+	'create-wpk',
+];
 
 type CacheState = {
 	version: number;
@@ -136,10 +143,13 @@ async function collectSourceFiles(): Promise<string[]> {
 	}
 
 	files.add(typedocConfig);
+	// tsconfigDocs is not used directly by Typedoc, but it's part of the dependencies, so keep it for signature calculation
 	files.add(tsconfigDocs);
 
 	for (const pkg of packages) {
 		files.add(path.join(rootDir, 'packages', pkg, 'package.json'));
+		// Add package-specific tsconfig.json to source files for signature calculation
+		files.add(path.join(rootDir, 'packages', pkg, 'tsconfig.json'));
 	}
 
 	return Array.from(files).sort();
@@ -166,6 +176,8 @@ async function computeSignature(): Promise<string> {
 	return hash.digest('hex');
 }
 
+// Build scripts often have sequential logic that naturally increases complexity
+/* eslint-disable complexity, sonarjs/cognitive-complexity */
 async function main() {
 	const args = process.argv.slice(2);
 	const force =
@@ -174,16 +186,67 @@ async function main() {
 	const passThroughArgs = args.filter((arg) => arg !== '--force');
 	const watchMode = passThroughArgs.includes('--watch');
 
+	// Clear previous generated API docs
+	if (await pathExists(path.join(docsDir, 'api', '@wpkernel'))) {
+		await fs.rm(path.join(docsDir, 'api', '@wpkernel'), {
+			recursive: true,
+			force: true,
+		});
+	}
+
 	if (watchMode) {
-		await runCommand('pnpm', ['exec', 'typedoc', ...passThroughArgs]);
+		// In watch mode, we might want to run Typedoc for all packages or a specific one.
+		// For simplicity, let's run for all in watch mode too, but without caching.
+		for (const pkg of packages) {
+			const entryPoint = path.join(
+				rootDir,
+				'packages',
+				pkg,
+				'src',
+				'index.ts'
+			);
+			const tsconfigPath = path.join(
+				rootDir,
+				'packages',
+				pkg,
+				'tsconfig.json'
+			);
+			const outDir = path.join(docsDir, 'api', '@wpkernel', pkg);
+
+			if (await pathExists(entryPoint)) {
+				console.log(`Generating API docs for @wpkernel/${pkg}...`);
+				await runCommand('pnpm', [
+					'exec',
+					'typedoc',
+					'--entryPoints',
+					entryPoint,
+					'--tsconfig',
+					tsconfigPath,
+					'--options',
+					typedocConfig, // Use the root typedoc.json for global options
+					'--out',
+					outDir,
+					...passThroughArgs,
+				]);
+			} else {
+				console.warn(
+					`Skipping API docs for @wpkernel/${pkg}: Entry point not found at ${entryPoint}`
+				);
+			}
+		}
 		await runCommand('node', ['scripts/postprocess-typedoc.mjs']);
 		return;
 	}
 
-	const generatedExists = await pathExists(generatedDir);
+	const generatedDirs = packages.map((pkg) =>
+		path.join(docsDir, 'api', '@wpkernel', pkg)
+	);
+	const allGeneratedExist = (
+		await Promise.all(generatedDirs.map((dir) => pathExists(dir)))
+	).every(Boolean);
 	const signature = await computeSignature();
 
-	if (!force && generatedExists) {
+	if (!force && allGeneratedExist) {
 		const cache = await readCache();
 
 		if (cache?.signature === signature) {
@@ -195,7 +258,43 @@ async function main() {
 	}
 
 	console.log('docs:api – changes detected, regenerating TypeDoc output...');
-	await runCommand('pnpm', ['exec', 'typedoc', ...passThroughArgs]);
+	for (const pkg of packages) {
+		const entryPoint = path.join(
+			rootDir,
+			'packages',
+			pkg,
+			'src',
+			'index.ts'
+		);
+		const tsconfigPath = path.join(
+			rootDir,
+			'packages',
+			pkg,
+			'tsconfig.json'
+		);
+		const outDir = path.join(docsDir, 'api', '@wpkernel', pkg);
+
+		if (await pathExists(entryPoint)) {
+			console.log(`Generating API docs for @wpkernel/${pkg}...`);
+			await runCommand('pnpm', [
+				'exec',
+				'typedoc',
+				'--entryPoints',
+				entryPoint,
+				'--tsconfig',
+				tsconfigPath,
+				'--options',
+				typedocConfig, // Use the root typedoc.json for global options
+				'--out',
+				outDir,
+				...passThroughArgs,
+			]);
+		} else {
+			console.warn(
+				`Skipping API docs for @wpkernel/${pkg}: Entry point not found at ${entryPoint}`
+			);
+		}
+	}
 	await runCommand('node', ['scripts/postprocess-typedoc.mjs']);
 	await writeCache(signature);
 }

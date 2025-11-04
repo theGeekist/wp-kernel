@@ -17,7 +17,7 @@ import type {
 	EventRecorder,
 	EventRecorderOptions,
 	KernelUtils,
-	KernelResourceConfig,
+	WPKernelResourceConfig,
 	ResourceUtils,
 	StoreUtils,
 	WordPressFixtures,
@@ -84,7 +84,7 @@ export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
 		 * Create resource utilities for seeding and cleanup
 		 * @param config
 		 */
-		resource: <T>(config: KernelResourceConfig): ResourceUtils<T> => {
+		resource: <T>(config: WPKernelResourceConfig): ResourceUtils<T> => {
 			return createResourceHelper<T>(config, requestUtils);
 		},
 
@@ -126,7 +126,7 @@ export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
  * @param requestUtils - WordPress REST request utilities
  */
 export function createResourceHelper<T>(
-	config: KernelResourceConfig,
+	config: WPKernelResourceConfig,
 	requestUtils: RequestUtils
 ): ResourceUtils<T> {
 	const { routes } = config;

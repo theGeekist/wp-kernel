@@ -13,4 +13,6 @@ export type {
 	InteractivityServerState,
 	InteractivityServerStateResolver,
 	HydrateServerStateInput,
+	DeepReadonly,
+	ResourceCacheSync,
 } from './types';

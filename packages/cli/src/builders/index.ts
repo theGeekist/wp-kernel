@@ -5,6 +5,15 @@ export type {
 	PhpDriverConfigurationOptions,
 } from './php';
 export { createTsBuilder } from './ts';
+export type {
+	CreateTsBuilderOptions,
+	TsBuilderCreator,
+	TsBuilderCreatorContext,
+	TsBuilderLifecycleHooks,
+	TsBuilderAfterEmitOptions,
+	TsBuilderEmitOptions,
+	ResourceDescriptor,
+} from './ts';
 export { createJsBlocksBuilder } from './ts/blocks';
 export { createPatcher } from './patcher';
 export { createApplyPlanBuilder } from './plan';

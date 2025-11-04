@@ -6,6 +6,7 @@ import { useStableCallback, useLatest } from './internal/useStableCallback';
  * Options for the useHoverPrefetch hook.
  *
  * @category Prefetching
+ * @public
  */
 export interface HoverPrefetchOptions {
 	/**

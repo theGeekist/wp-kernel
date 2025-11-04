@@ -153,7 +153,7 @@ export type ActionJobs = {
  * - PHP bridge integration
  * - Observability and debugging
  *
- * @internal
+ * @public
  */
 export type ActionLifecycleEventBase = {
 	actionName: string;
@@ -173,6 +173,7 @@ export type ActionLifecycleEventBase = {
  * - Request correlation across distributed systems
  *
  * Event name: `wpk.action.start`
+ * @public
  */
 export type ActionStartEvent = {
 	phase: 'start';
@@ -372,6 +373,7 @@ export type ReduxDispatch = (action: unknown) => unknown;
 
 /**
  * Redux compatible middleware API signature.
+ * @public
  */
 export type ReduxMiddlewareAPI<TState = unknown> = {
 	dispatch: ReduxDispatch;
@@ -380,11 +382,12 @@ export type ReduxMiddlewareAPI<TState = unknown> = {
 
 /**
  * Redux compatible middleware type without depending on redux package.
+ *
+ * @public
  */
 export type ReduxMiddleware<TState = unknown> = (
 	api: ReduxMiddlewareAPI<TState>
 ) => (next: ReduxDispatch) => (action: unknown) => unknown;
-
 /**
  * Runtime configuration surface for host applications.
  *
@@ -405,8 +408,7 @@ export type ReduxMiddleware<TState = unknown> = (
  * - Bridging events to PHP server-side code
  *
  * @internal
- */
-export type ActionRuntime = {
+ */ export type ActionRuntime = {
 	reporter?: Reporter;
 	jobs?: ActionJobs;
 	capability?: Partial<CapabilityHelpers<Record<string, unknown>>>;

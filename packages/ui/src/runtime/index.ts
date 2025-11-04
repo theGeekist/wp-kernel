@@ -2,6 +2,6 @@ export { attachUIBindings } from './attachUIBindings';
 export {
 	WPKernelUIProvider,
 	useWPKernelUI,
-	useOptionalKernelUI,
+	useOptionalWPKernelUI,
 } from './context';
 export type { WPKernelUIProviderProps } from './context';

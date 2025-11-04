@@ -384,7 +384,7 @@ describe('ResourceDataView actions', () => {
 
 		expect(createNotice).toHaveBeenCalledWith(
 			'success',
-			'“Delete” — completed successfully.',
+			'“Delete” - completed successfully.',
 			expect.objectContaining({
 				context: 'wpkernel/dataviews',
 				id: 'wp-kernel/dataviews/jobs/delete/success',
@@ -416,7 +416,7 @@ describe('ResourceDataView actions', () => {
 
 		expect(createNotice).toHaveBeenCalledWith(
 			'success',
-			'“Delete” — completed for 3 items.',
+			'“Delete” - completed for 3 items.',
 			expect.objectContaining({
 				context: 'wpkernel/dataviews',
 				id: 'wp-kernel/dataviews/jobs/delete/success',
@@ -452,7 +452,7 @@ describe('ResourceDataView actions', () => {
 
 		expect(createNotice).toHaveBeenCalledWith(
 			'error',
-			'“Delete” — failed: Request failed',
+			'“Delete” - failed: Request failed',
 			expect.objectContaining({
 				context: 'wpkernel/dataviews',
 				id: 'wp-kernel/dataviews/jobs/delete/failure',

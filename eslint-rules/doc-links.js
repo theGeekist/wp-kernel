@@ -55,7 +55,7 @@ export default {
 		messages: {
 			missingDocComment:
 				'wpk.config.ts is missing a documentation reference comment. ' +
-				'This file defines the contract between your application and the framework—resources, routes, storage, and capabilities. ' +
+				'This file defines the contract between your application and the framework-resources, routes, storage, and capabilities. ' +
 				"A @see link helps your team understand the framework's expectations and quickly reference the spec during code reviews. " +
 				'Fix: Add /** @see {{docUrl}} */ above the wpkConfig export. ' +
 				'The CLI generators preserve these comments in scaffolded code.',

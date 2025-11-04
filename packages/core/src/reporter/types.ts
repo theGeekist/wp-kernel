@@ -1,3 +1,12 @@
+/**
+ * @typedef {'console' | 'hooks' | 'bridge' | 'all'} ReporterChannel
+ * Defines the output channel for reporter messages.
+ *
+ * - `'console'`: Logs messages to the browser console.
+ * - `'hooks'`: Emits messages as WordPress hooks.
+ * - `'bridge'`: Sends messages over the PHP bridge.
+ * - `'all'`: Sends messages to all available channels.
+ */
 export type ReporterChannel = 'console' | 'hooks' | 'bridge' | 'all';
 
 export type ReporterLevel = 'debug' | 'info' | 'warn' | 'error';

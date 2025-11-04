@@ -559,7 +559,7 @@ function executeHelpers<
 }
 
 /**
- * Creates a pipeline orchestrator—the execution engine that powers WP Kernel's entire code generation infrastructure.
+ * Creates a pipeline orchestrator-the execution engine that powers WP Kernel's entire code generation infrastructure.
  *
  * ## Why Pipelines Matter
  *

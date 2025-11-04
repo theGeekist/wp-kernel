@@ -24,8 +24,17 @@ export {
 
 // New Sprint 5 hooks
 export { usePrefetcher } from './hooks/usePrefetcher';
+export type {
+	Prefetcher,
+	PrefetchGet,
+	PrefetchList,
+} from './hooks/usePrefetcher';
 export { useHoverPrefetch } from './hooks/useHoverPrefetch';
+export type { HoverPrefetchOptions } from './hooks/useHoverPrefetch';
 export { useVisiblePrefetch } from './hooks/useVisiblePrefetch';
+export type { VisiblePrefetchOptions } from './hooks/useVisiblePrefetch';
 export { useNextPagePrefetch } from './hooks/useNextPagePrefetch';
+export type { NextPagePrefetchOptions } from './hooks/useNextPagePrefetch';
 export { useAction } from './hooks/useAction';
+export type { UseActionOptions, UseActionResult } from './hooks/useAction';
 export * from './dataviews';

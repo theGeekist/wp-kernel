@@ -26,6 +26,10 @@ export interface GenerationManifestResourceEntry {
 	readonly artifacts: GenerationManifestResourceArtifacts;
 }
 
+/**
+ * Represents the manifest of generated files and resources.
+ * @public
+ */
 export interface GenerationManifest {
 	readonly version: typeof GENERATION_STATE_VERSION;
 	readonly resources: Record<string, GenerationManifestResourceEntry>;

@@ -16,7 +16,7 @@ type JobListTableProps = {
 
 const formatDate = (value?: string): string => {
 	if (!value) {
-		return '—';
+		return '-';
 	}
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) {
@@ -104,8 +104,8 @@ export function JobListTable({
 									<td>
 										<strong>{jobItem.title}</strong>
 									</td>
-									<td>{jobItem.department || '—'}</td>
-									<td>{jobItem.location || '—'}</td>
+									<td>{jobItem.department || '-'}</td>
+									<td>{jobItem.location || '-'}</td>
 									<td>
 										<span data-testid="job-status-value">
 											{jobItem.status}

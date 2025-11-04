@@ -1,5 +1,5 @@
 /**
- * Interactivity helpers — shared types
+ * Interactivity helpers - shared types
  *
  * The interactivity runtime bridges WP Kernel helpers with the WordPress
  * `@wordpress/interactivity` package. These types centralize the contracts used
@@ -24,6 +24,7 @@ import type {
  * The interactivity server state is treated as immutable. This helper mirrors
  * the WordPress runtime behaviour where any mutation is performed through data
  * layer dispatchers rather than manipulating the cached state directly.
+ * @public
  */
 export type DeepReadonly<T> = T extends (...args: infer TArgs) => infer TResult
 	? (...args: TArgs) => TResult
@@ -62,6 +63,7 @@ export interface InteractivityModule
 
 /**
  * Immutable snapshot of the WordPress interactivity runtime state.
+ * @public
  */
 export type InteractivityServerState = DeepReadonly<Record<string, unknown>>;
 
@@ -99,6 +101,7 @@ export type ResourceSnapshotItems<TEntity> = Record<
 
 /**
  * Synchronizes a resource cache with a snapshot from server state.
+ * @public
  */
 export type ResourceCacheSync<TEntity> = (
 	snapshot: Partial<ResourceState<TEntity>>
@@ -152,6 +155,7 @@ export type InteractionActionsRuntime<
 
 /**
  * Input shape forwarded to custom hydration callbacks.
+ * @public
  */
 export interface HydrateServerStateInput<TEntity, TQuery> {
 	readonly serverState: InteractivityServerState;

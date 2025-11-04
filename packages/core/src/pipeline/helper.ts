@@ -7,7 +7,7 @@ import type {
 } from './types';
 
 /**
- * Creates a pipeline helper—the fundamental building block of WP Kernel's code generation system.
+ * Creates a pipeline helper-the fundamental building block of WP Kernel's code generation system.
  *
  * ## Overview
  *

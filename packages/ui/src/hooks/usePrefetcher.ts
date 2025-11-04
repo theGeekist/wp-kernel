@@ -2,13 +2,27 @@ import { useMemo } from 'react';
 import type { ResourceObject } from '@wpkernel/core/resource';
 import { useStableCallback } from './internal/useStableCallback';
 
-type PrefetchGet = (id: string | number) => void;
-type PrefetchList<TQuery> = (query?: TQuery) => void;
+/**
+ * Function type for prefetching a single item by ID.
+ *
+ * @category Prefetching
+ * @public
+ */
+export type PrefetchGet = (id: string | number) => void;
+
+/**
+ * Function type for prefetching a list of items with optional query parameters.
+ *
+ * @category Prefetching
+ * @public
+ */
+export type PrefetchList<TQuery> = (query?: TQuery) => void;
 
 /**
  * Interface for the prefetcher, which exposes stable cache prefetch helpers for a resource.
  *
  * @category Prefetching
+ * @public
  */
 export interface Prefetcher<TQuery = unknown> {
 	/**

@@ -28,12 +28,17 @@ export interface SchemaConfig {
 /**
  * Mapping of schema identifiers to their configuration.
  */
+/**
+ * Mapping of schema identifiers to their configuration.
+ * @public
+ */
 export interface SchemaRegistry {
 	[key: string]: SchemaConfig;
 }
 
 /**
  * Mapping of resource identifiers to their kernel configuration.
+ * @public
  */
 export interface ResourceRegistry {
 	[key: string]: ResourceConfig;

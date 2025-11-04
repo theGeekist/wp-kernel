@@ -45,7 +45,33 @@ export type {
 	CapturedEvent,
 	EventRecorder,
 	KernelUtils,
+	WPKernelResourceConfig,
 } from './types.js';
+
+// Integration types
+export type {
+	FileManifest,
+	FileManifestDiff,
+	FileHashEntry,
+	CliTranscript,
+	IsolatedWorkspace,
+	WorkspaceTools,
+	WorkspaceRunOptions,
+} from './integration/types.js';
+
+// Test support types
+export type {
+	WithIsolatedWorkspaceOptions,
+	WithWorkspaceCallback,
+	WorkspaceFileTree,
+} from './test-support/isolated-workspace.test-support.js';
+export type {
+	ManifestStateDefinition,
+	ManifestComparisonDefinition,
+	ManifestFileDefinition,
+	ManifestMutationDefinition,
+} from './test-support/fs-manifest.test-support.js';
+export type { RunNodeSnippetOptions } from './test-support/cli-runner.test-support.js';
 
 /**
  * Current version of WP Kernel E2E Utils

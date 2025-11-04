@@ -44,7 +44,13 @@ export type Trigger = {
 	file: string;
 };
 
-interface FileSystem {
+/**
+ * File system operations interface for start command.
+ *
+ * @category Start Command
+ * @public
+ */
+export interface FileSystem {
 	readonly access: typeof fs.access;
 	readonly mkdir: typeof fs.mkdir;
 	readonly cp: typeof fs.cp;

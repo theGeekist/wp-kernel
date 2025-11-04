@@ -12,6 +12,10 @@ export type DataViewRegisteredPayload = {
 	preferencesKey: string;
 };
 
+/**
+ * Payload for the `viewChanged` event.
+ * @public
+ */
 export type DataViewChangedPayload = {
 	resource: string;
 	viewState: {
