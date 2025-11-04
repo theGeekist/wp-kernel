@@ -4,8 +4,13 @@
 
 ### In progress
 
-- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will ship the create bootstrap, plugin loader generator, regeneration cleanup, and activation smoke tests before the 0.11.0 release.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
+
+## 0.11.0 - 2025-11-04
+
+### Maintenance
+
+- Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; the runtime surface is unchanged beyond the exported `VERSION` constant update.
 
 ## 0.10.0 - 2025-11-05
 

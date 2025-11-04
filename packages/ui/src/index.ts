@@ -9,7 +9,7 @@
 /**
  * Current version of WP Kernel UI
  */
-export const VERSION = '0.7.0';
+export const VERSION = '0.11.0';
 
 export { attachUIBindings, WPKernelUIProvider, useWPKernelUI } from './runtime';
 export type { WPKernelUIProviderProps } from './runtime';

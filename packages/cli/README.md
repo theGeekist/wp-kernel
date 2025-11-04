@@ -17,17 +17,20 @@ The CLI turns a single `wpk.config.ts` into everything a WP Kernel plugin needs:
 
 ## Quick start
 
+To start a new project, use the `npm create` command (or `pnpm create` / `yarn create`):
+
 ```bash
-pnpm dlx @wpkernel/cli init my-plugin
+npm create @wpkernel/wpk my-plugin
 cd my-plugin
-pnpm install
+npm install
 ```
 
 This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, and package scripts wired to the CLI (`start`, `build`, `generate`, `apply`).
 
-## Core workflow: init → generate → apply
+## Core workflow: create → generate → apply
 
-1. **Initialise** a project once with `wpk init`.
+1. **Create** a new project with `npm create @wpkernel/wpk` (as shown in Quick Start).
+   Alternatively, **Initialise** an existing project with `wpk init`.
 2. **Generate** artefacts whenever `wpk.config.ts` changes:
 
     ```bash

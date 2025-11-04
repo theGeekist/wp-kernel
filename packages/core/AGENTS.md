@@ -30,5 +30,5 @@ Coordinate any cross-package dependency updates (tsconfig references, package ma
 
 ### Versioning
 
-- Core tracks the unified **v0.10.x** pre-1.0 version with the rest of the monorepo. Any change that alters the public surface should be bundled with a patch or minor bump across every package.
+- Core tracks the unified **v0.11.0** pre-1.0 version with the rest of the monorepo. Any change that alters the public surface should be bundled with a patch or minor bump across every package.
 - Record the bump in the package and root changelogs and verify the release steps in `RELEASING.md` before requesting review.

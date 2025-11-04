@@ -10,6 +10,12 @@
 
 - `ResourceDataView` renders shared loading, empty, error, and permission-denied boundaries using the controller reporter and capability runtime, while `useDataViewActions()` dispatches success/error notices through the WordPress registry and logs outcomes via the controller reporter.
 
+## 0.11.0 - 2025-11-04
+
+### Maintenance
+
+- Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; no UI runtime changes were required for this cycle.
+
 ## 0.10.0 - 2025-11-05
 
 ### Maintenance

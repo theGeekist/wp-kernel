@@ -25,7 +25,7 @@ During the `0.x` release series:
 - **`0.x.y` (Patch bump)**: Bug fixes, performance improvements, documentation updates
 - **Breaking changes are documented** in CHANGELOG with migration guides
 
-**Current Status**: v0.10.0 (Phase 6 core pipeline release)
+**Current Status**: v0.11.0 (Phase 7 plugin bootstrap flow release)
 
 ### Post-1.0 Interpretation (Future)
 

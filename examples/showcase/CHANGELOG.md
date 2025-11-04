@@ -1,10 +1,10 @@
 # wp-kernel-showcase
 
-## 0.6.0 - 2025-10-26
+## 0.11.0 - 2025-11-04
 
 ### Maintenance
 
-- Version bump to `0.6.0` to match the Phase 2 release; the showcase plugin now reflects the transient cache fixes with regenerated artefacts.
+- Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; the showcase plugin pulls in the updated CLI artefacts without additional feature changes this cycle.
 
 ## 0.5.0 - 2025-10-26
 

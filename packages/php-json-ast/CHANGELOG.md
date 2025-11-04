@@ -6,8 +6,13 @@ All notable changes to `@wpkernel/php-json-ast` will be documented in this file.
 
 ### In progress
 
-- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will deliver the create bootstrap, plugin loader, regeneration cleanup, and activation smoke; no JSON AST changes are expected unless the bootstrap helpers surface new schema needs.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.11.0 - 2025-11-04
+
+### Maintenance
+
+- Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; no JSON AST updates were required.
 
 ## 0.10.0 - 2025-11-05
 

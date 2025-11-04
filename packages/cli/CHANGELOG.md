@@ -4,8 +4,13 @@
 
 ### In progress
 
-- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the create bootstrap, emit the plugin loader, clean stale artefacts, run activation smoke, and close with the 0.11.0 release once Phase 6 wraps.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+
+## 0.11.0 - 2025-11-04
+
+### Added
+
+- **Plugin bootstrap flow** – `npm create @wpkernel/wpk` now scaffolds a new plugin with a complete, activatable bootstrap loader, and `wpk init` safely adopts existing plugins without overwriting author-owned files.
 
 ### Fixed
 

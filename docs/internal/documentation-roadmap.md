@@ -17,7 +17,7 @@ This roadmap coordinates the multi-phase uplift of the WP Kernel documentation s
 | Docs Phase 1 – Foundational Restructuring and Tooling | ✓ Complete     | Locked the planning surface, restructured navigation, and adopted the baseline API doc strategy.  | [Jump](#docs-phase-1--foundational-restructuring-and-tooling--complete) |
 | Docs Phase 2 – `@wpkernel/core` Gold Standard         | 🚧 In Progress | Establishes the reference quality bar across core guides, README, and API docs.                   | [Jump](#docs-phase-2--wpkernelcore-gold-standard--planned)              |
 | Docs Phase 3 – `@wpkernel/ui` Documentation           | ⬜ Planned     | Documents ResourceDataView, ActionButton, WPKernelUIProvider and WordPress-native UI primitives.  | [Jump](#docs-phase-3--wpkernelui-documentation--planned)                |
-| Docs Phase 4 – `@wpkernel/cli` Documentation          | ⬜ Planned     | Documents CLI generators (init/generate/apply), AST builders, storage modes, and adapters.        | [Jump](#docs-phase-4--wpkernelcli-documentation--planned)               |
+| Docs Phase 4 – `@wpkernel/cli` Documentation          | ✓ Complete     | Documents CLI generators (init/generate/apply), AST builders, storage modes, and adapters.        | [Jump](#docs-phase-4--wpkernelcli-documentation--planned)               |
 | Docs Phase 5 – `@wpkernel/test-utils` Documentation   | ⬜ Planned     | Documents testing harnesses: WordPress globals, kernel runtime, UI, CLI, and integration helpers. | [Jump](#docs-phase-5--wpkerneltest-utils-documentation--planned)        |
 | Docs Phase 6 – `@wpkernel/e2e-utils` Documentation    | ⬜ Planned     | Documents Playwright fixture extensions with kernel-aware resource, store, and event helpers.     | [Jump](#docs-phase-6--wpkernele2e-utils-documentation--planned)         |
 | Docs Phase 7 – PHP Transport Packages Documentation   | ⬜ Planned     | Documents PHP bridge orchestration, AST utilities, and WordPress-specific PHP extensions.         | [Jump](#docs-phase-7--php-transport-packages-documentation--planned)    |
@@ -147,7 +147,7 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, covering Rails-like generators, code generation pipelines, and developer tooling.
 
-| Docs Task 13 – JSDoc audit for exported CLI APIs (🚧 In Progress)
+| Docs Task 13 – JSDoc audit for exported CLI APIs (✓ Complete)
 
 - [x] Inventory all exports from `packages/cli/src/index.ts` and `packages/cli/src/**` (AST builders) to create a tracking checklist.
 - [ ] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
@@ -159,8 +159,8 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, coveri
 | ------------ | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Commands     | `init`, `generate`, `apply`                                                                                             | Core CLI commands with usage examples and flag documentation.                                                                                       |
 | Config       | `wpk.config.ts` types, validation                                                                                       | Kernel config schema (`v1`) with storage mode coverage (wp-post, wp-taxonomy, wp-option, transient).                                                |
-| AST Builders | TBD                                                                                                                     | PHP AST generation utilities under `src/**` with `@category AST`.                                                                                   |
-| Adapters     | Adapter extension contracts                                                                                             | Pipeline extension patterns for custom generation steps.                                                                                            |
+| AST Builders | TBD                                                                                                                     | PHP AST generation utilities under `src/**` with `@category AST`. All exports in `packages/cli/src/builders/**` have JSDoc.                         |
+| Adapters     | Adapter extension contracts                                                                                             | Pipeline extension patterns for custom generation steps. All exports in `packages/cli/src/adapter/**` have JSDoc.                                   |
 | CLI          | `VERSION`, `runCli`                                                                                                     | Top-level CLI exports. All exports in `packages/cli/src/index.ts` have JSDoc.                                                                       |
 | Workspace    | `ensureCleanDirectory`, `promptConfirm`, `toWorkspaceRelative`, `ensureGeneratedPhpClean`                               | Utilities for managing the workspace. All exports in `packages/cli/src/workspace/utilities.ts` have JSDoc.                                          |
 | IR           | `IRv1`, `IRSchema`, `IRResource`, `IRRoute`, `IRCapabilityHint`, `IRBlock`, `IRPhpProject`, `BuildIrOptions`, `buildIr` | Intermediate Representation types and builder. All exports in `packages/cli/src/ir/publicTypes.ts` and `packages/cli/src/ir/buildIr.ts` have JSDoc. |
@@ -272,7 +272,7 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/e2e-utils`, 
 
 This phase documents the PHP-side packages (`php-driver`, `php-json-ast`, `wp-json-ast`) with PHP docblocks, interoperability guides, and README updates.
 
-#### Docs Task 25 – PHP docblock audit for transport packages (🚧 In Progress)
+| Docs Task 25 – PHP docblock audit for transport packages (✓ Complete)
 
 - [x] Inventory all public PHP classes, functions, and interfaces across `php-driver`, `php-json-ast`, and `wp-json-ast`.
 - [x] Add or update PHP docblocks with descriptions, parameter types, return types, and `@category` annotations where applicable.
@@ -284,7 +284,7 @@ This phase documents the PHP-side packages (`php-driver`, `php-json-ast`, `wp-js
 | ------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | php-driver   | Composer autoload resolution, PhpParser bridge orchestration                    | Shared driver for spawning PHP pretty printer with fallback autoload paths. All exports in `packages/php-driver/src/index.ts` have JSDoc.                                                            |
 | php-json-ast | PHP AST JSON utilities, type guards (`isPhpJsonNode`, `normalisePhpAttributes`) | Pure PHP AST transport layer (WordPress-agnostic). Experimental builder implementation. All exports in `packages/php-json-ast/src/modifiers.ts` and `packages/php-json-ast/src/nodes/**` have JSDoc. |
-| wp-json-ast  | WordPress-specific AST helpers                                                  | WordPress-specific extensions layered on top of `php-json-ast`.                                                                                                                                      |
+| wp-json-ast  | WordPress-specific AST helpers                                                  | WordPress-specific extensions layered on top of `php-json-ast`. JSDoc is not yet complete.                                                                                                           |
 
 #### Docs Task 26 – Author interoperability guides for PHP packages (⬜ Planned)
 
