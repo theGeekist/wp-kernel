@@ -7,19 +7,6 @@
  * printers.
  */
 export {
-	WP_POST_MUTATION_CONTRACT,
-	buildCreateRouteStatements,
-	buildUpdateRouteStatements,
-	buildDeleteRouteStatements,
-} from '@wpkernel/wp-json-ast';
-export type {
-	ResourceMutationContract,
-	BuildCreateRouteStatementsOptions,
-	BuildDeleteRouteStatementsOptions,
-	BuildMutationRouteBaseOptions,
-	BuildUpdateRouteStatementsOptions,
-} from '@wpkernel/wp-json-ast';
-export {
 	buildStatusValidationStatements,
 	buildSyncMetaStatements,
 	buildSyncTaxonomiesStatements,

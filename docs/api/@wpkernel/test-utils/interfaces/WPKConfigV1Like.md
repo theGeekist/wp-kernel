@@ -10,11 +10,11 @@
 
 ### TSchemas
 
-`TSchemas` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TSchemas` _extends_ `SchemaRegistryLike` = `SchemaRegistryLike`
 
 ### TResources
 
-`TResources` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TResources` _extends_ `ResourceRegistryLike` = `ResourceRegistryLike`
 
 ### TAdapters
 
@@ -25,7 +25,7 @@
 ### version
 
 ```ts
-readonly version: number;
+readonly version: 1;
 ```
 
 ---

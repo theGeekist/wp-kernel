@@ -6,6 +6,8 @@
 
 # Interface: CreatePhpBuilderOptions
 
+Configuration options for creating the PHP builder.
+
 ## Properties
 
 ### driver?

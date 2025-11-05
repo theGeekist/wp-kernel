@@ -10,11 +10,15 @@
 type ResourceState&lt;T&gt; = object;
 ```
 
+TODO: summary.
+
 ## Type Parameters
 
 ### T
 
 `T`
+
+— TODO
 
 ## Properties
 

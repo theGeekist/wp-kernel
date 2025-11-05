@@ -4,11 +4,24 @@ import type {
 	ProcessedBlockManifest,
 } from '../../blocks/manifest';
 
+/**
+ * Options for collating PHP block artifacts during build.
+ *
+ * @category Builders
+ */
 export interface CollatePhpBlockArtifactsOptions {
 	readonly processedBlocks: readonly ProcessedBlockManifest[];
 	readonly reporter: BuilderApplyOptions['reporter'];
 }
 
+/**
+ * Collated WordPress block artifacts for PHP generation.
+ *
+ * Contains block manifest entries and PHP render callback stubs extracted
+ * from processed block definitions.
+ *
+ * @category Builders
+ */
 export interface CollatedPhpBlockArtifacts {
 	readonly manifestEntries: Record<string, BlockManifestEntry>;
 	readonly renderStubs: readonly NonNullable<
@@ -16,6 +29,19 @@ export interface CollatedPhpBlockArtifacts {
 	>[];
 }
 
+/**
+ * Collates block manifest entries and PHP render stubs from processed blocks.
+ *
+ * Aggregates block metadata and server-side render callbacks, reporting any
+ * warnings encountered during block processing. Used to prepare artifacts for
+ * PHP plugin generation.
+ *
+ * @param    options                 - Processed blocks and reporter for warnings
+ * @param    options.processedBlocks - Array of processed block definitions
+ * @param    options.reporter        - Reporter instance for warnings
+ * @returns Collated artifacts with manifest entries and render stubs
+ * @category Builders
+ */
 export function collatePhpBlockArtifacts({
 	processedBlocks,
 	reporter,

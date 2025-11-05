@@ -102,10 +102,11 @@ export default [
 			'early-return': earlyReturn,
 		},
 
-		// Custom rules for WP Kernel
+		// Custom rules forWP Kernel
 		rules: {
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/check-tag-names': 'off',
+			'jsdoc/no-undefined-types': 'off',
 			// Disable problematic rule (ESLint 9 compatibility issue)
 			'@wordpress/no-unused-vars-before-return': 'off',
 			'no-else-return': 'error',

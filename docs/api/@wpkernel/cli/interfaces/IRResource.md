@@ -153,7 +153,7 @@ Optional: UI configuration for the resource.
 ### capabilities?
 
 ```ts
-optional capabilities: any;
+optional capabilities: ResourceCapabilityMap;
 ```
 
 Optional: Inline capability mappings for the resource.

@@ -6,6 +6,8 @@
 
 # Interface: ResourceDataViewsMenuConfig
 
+TODO: summary.
+
 ## Indexable
 
 ```ts

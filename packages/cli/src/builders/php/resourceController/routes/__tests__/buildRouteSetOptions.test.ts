@@ -9,7 +9,7 @@ import {
 	type ResourceMetadataHost,
 	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
-import { ensureWpOptionStorage } from '../../../resource/wpOption/shared';
+import { ensureWpOptionStorage } from '../../../shared';
 import type { IRResource, IRRoute } from '../../../../../ir/publicTypes';
 import { buildRouteSetOptions } from '../buildRouteSetOptions';
 

@@ -4,11 +4,11 @@ import {
 	buildWpPostRouteBundle,
 	type WpPostRouteBundle,
 } from '@wpkernel/wp-json-ast';
-import type { IRResource } from '../../../../../ir/publicTypes';
-import type { BuilderOutput } from '../../../../../runtime/types';
-import type { Workspace } from '../../../../../workspace/types';
+import type { IRResource } from '../../../ir/publicTypes';
+import type { BuilderOutput } from '../../../runtime/types';
+import type { Workspace } from '../../../workspace/types';
 import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.test-support';
-import { makeWorkspaceMock } from '../../../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import {
 	createPhpWpPostRoutesHelper,
 	getWpPostRouteHelperState,

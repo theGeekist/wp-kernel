@@ -20,10 +20,15 @@
 
 ## Type Aliases
 
+### Resource
+
+- [ResourceConfig](type-aliases/ResourceConfig.md)
+
+### Other
+
 - [DataViewHelper](type-aliases/DataViewHelper.md)
 - [DataViewHelperOptions](type-aliases/DataViewHelperOptions.md)
 - [WordPressFixtures](type-aliases/WordPressFixtures.md)
-- [ResourceConfig](type-aliases/ResourceConfig.md)
 - [ResourceUtils](type-aliases/ResourceUtils.md)
 - [StoreUtils](type-aliases/StoreUtils.md)
 - [EventRecorderOptions](type-aliases/EventRecorderOptions.md)

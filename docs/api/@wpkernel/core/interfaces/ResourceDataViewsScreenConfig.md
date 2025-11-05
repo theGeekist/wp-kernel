@@ -6,6 +6,8 @@
 
 # Interface: ResourceDataViewsScreenConfig
 
+TODO: summary.
+
 ## Indexable
 
 ```ts

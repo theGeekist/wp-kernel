@@ -47,6 +47,10 @@ kernel and UI packages.
 - [IRResourceCacheKey](interfaces/IRResourceCacheKey.md)
 - [IRWarning](interfaces/IRWarning.md)
 
+### Builders
+
+- [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)
+
 ### Create Command
 
 - [BuildCreateCommandOptions](interfaces/BuildCreateCommandOptions.md)
@@ -84,7 +88,6 @@ kernel and UI packages.
 - [MutableIr](interfaces/MutableIr.md)
 - [IrFragmentInput](interfaces/IrFragmentInput.md)
 - [IrFragmentOutput](interfaces/IrFragmentOutput.md)
-- [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
 - [Workspace](interfaces/Workspace.md)
 - [FileManifest](interfaces/FileManifest.md)

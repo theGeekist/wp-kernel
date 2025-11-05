@@ -27,3 +27,6 @@ export {
 	createPhpDriverInstaller,
 	buildPhpPrettyPrinter,
 } from '@wpkernel/php-driver';
+
+export { getWpPostRouteHelperState, readWpPostRouteBundle } from './routes';
+export { resourceAccessors } from './accessors';

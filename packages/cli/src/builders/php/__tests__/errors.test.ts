@@ -2,7 +2,7 @@ import {
 	buildIsWpErrorGuard,
 	buildReturnIfWpError,
 	buildWpErrorReturn,
-} from '../errors';
+} from '@wpkernel/wp-json-ast';
 import {
 	buildReturn,
 	buildScalarString,

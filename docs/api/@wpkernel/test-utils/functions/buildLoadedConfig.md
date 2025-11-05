@@ -16,7 +16,7 @@ Builds a loaded kernel configuration object for testing.
 
 ### TConfig
 
-`TConfig` _extends_ [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`Record`\&lt;`string`, `unknown`\&gt;, `Record`\&lt;`string`, `unknown`\&gt;, `unknown`\&gt; = [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`Record`\&lt;`string`, `unknown`\&gt;, `Record`\&lt;`string`, `unknown`\&gt;, `unknown`\&gt;
+`TConfig` _extends_ [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`SchemaRegistryLike`, `ResourceRegistryLike`, `unknown`\&gt; = [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;`SchemaRegistryLike`, `ResourceRegistryLike`, `unknown`\&gt;
 
 ### TOrigin
 

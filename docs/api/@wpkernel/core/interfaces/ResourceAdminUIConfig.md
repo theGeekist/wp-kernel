@@ -6,15 +6,21 @@
 
 # Interface: ResourceAdminUIConfig\&lt;TItem, TQuery\&gt;
 
+TODO: summary.
+
 ## Type Parameters
 
 ### TItem
 
 `TItem` = `unknown`
 
+— TODO
+
 ### TQuery
 
 `TQuery` = `unknown`
+
+— TODO
 
 ## Indexable
 

@@ -5,6 +5,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
+/**
+ * Builds WordPress REST API argument definitions from resource schema.
+ *
+ * Transforms JSON Schema property definitions into WordPress REST API argument
+ * format, including validation rules, required flags, and identity metadata.
+ * Handles query parameters and merges them with schema-defined properties.
+ *
+ * @param    schemas  - Array of IR schemas containing JSON Schema definitions
+ * @param    resource - IR resource definition with schema key and query params
+ * @returns WordPress REST API argument object with schema, required, and identity metadata
+ * @category Builders
+ */
 export function buildRestArgs(
 	schemas: readonly IRSchema[],
 	resource: IRResource

@@ -3,11 +3,13 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	collectCanonicalBasePaths,
 	buildResourceControllerRouteMetadata,
+	WP_POST_MUTATION_CONTRACT,
 } from '@wpkernel/wp-json-ast';
-import type { IRResource } from '../../ir/publicTypes';
+import type { IRResource } from '../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import * as phpDriver from '@wpkernel/php-driver';
 import type {
@@ -23,7 +25,6 @@ import {
 	makeWpOptionResource,
 	makeTransientResource,
 } from '@wpkernel/test-utils/builders/php/resources.test-support';
-import { WP_POST_MUTATION_CONTRACT } from '../resource/wpPost/mutations';
 import {
 	createPhpChannelHelper,
 	createPhpTransientStorageHelper,
@@ -108,6 +109,7 @@ describe('createPhpResourceControllerHelper', () => {
 			workspace,
 			reporter,
 			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
 		};
 		const output: BuilderOutput = {
 			actions: [],
@@ -225,6 +227,7 @@ describe('createPhpResourceControllerHelper', () => {
 			workspace,
 			reporter,
 			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
 		};
 		const output: BuilderOutput = {
 			actions: [],
@@ -267,7 +270,18 @@ describe('createPhpResourceControllerHelper', () => {
 			throw new Error('Expected resource controller entry.');
 		}
 
-		const createRoute = entry.metadata.routes.find(
+		// Type assertion for resource controller routes
+		type ResourceControllerRoute = {
+			method: string;
+			path: string;
+			kind: string;
+			cacheSegments?: string[];
+			tags?: Record<string, string>;
+		};
+
+		const createRoute = (
+			entry.metadata.routes as ResourceControllerRoute[]
+		).find(
 			(route) =>
 				route.method === 'POST' && route.path === '/kernel/v1/books'
 		);
@@ -298,6 +312,7 @@ describe('createPhpResourceControllerHelper', () => {
 			workspace,
 			reporter,
 			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
 		};
 		const output: BuilderOutput = {
 			actions: [],
@@ -366,6 +381,7 @@ describe('createPhpResourceControllerHelper', () => {
 			workspace,
 			reporter,
 			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
 		};
 		const output: BuilderOutput = {
 			actions: [],
@@ -470,6 +486,7 @@ describe('createPhpResourceControllerHelper', () => {
 			workspace,
 			reporter,
 			phase: 'generate' as const,
+			generationState: buildEmptyGenerationState(),
 		};
 		const output: BuilderOutput = {
 			actions: [],

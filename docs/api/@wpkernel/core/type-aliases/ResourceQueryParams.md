@@ -10,3 +10,5 @@
 type ResourceQueryParams = Record & lt;
 (string, ResourceQueryParamDescriptor & gt);
 ```
+
+TODO: summary.

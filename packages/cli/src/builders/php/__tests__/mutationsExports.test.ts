@@ -1,22 +1,17 @@
 import {
-	WP_POST_MUTATION_CONTRACT,
 	buildArrayDimExpression,
 	buildCachePrimingStatements,
-	buildCreateRouteStatements,
-	buildDeleteRouteStatements,
 	buildPropertyExpression,
 	buildStatusValidationStatements,
 	buildSyncMetaStatements,
 	buildSyncTaxonomiesStatements,
-	buildUpdateRouteStatements,
 	buildVariableExpression,
 	prepareWpPostResponse,
 	syncWpPostMeta,
 	syncWpPostTaxonomies,
 } from '@wpkernel/wp-json-ast';
-import * as mutationHelpers from '../wpPost/mutations/helpers';
-import * as mutationMacros from '../wpPost/mutations/macros';
-import * as mutationSurface from '../wpPost/mutations';
+import * as mutationHelpers from '../mutations/helpers';
+import * as mutationMacros from '../mutations/macros';
 
 describe('wp post mutation exports', () => {
 	it('re-exports helper functions from wp-json-ast', () => {
@@ -49,30 +44,5 @@ describe('wp post mutation exports', () => {
 		expect(mutationMacros.buildPropertyExpression).toBe(
 			buildPropertyExpression
 		);
-	});
-
-	it('exposes the unified mutation surface', () => {
-		expect(mutationSurface.WP_POST_MUTATION_CONTRACT).toBe(
-			WP_POST_MUTATION_CONTRACT
-		);
-		expect(mutationSurface.buildCreateRouteStatements).toBe(
-			buildCreateRouteStatements
-		);
-		expect(mutationSurface.buildUpdateRouteStatements).toBe(
-			buildUpdateRouteStatements
-		);
-		expect(mutationSurface.buildDeleteRouteStatements).toBe(
-			buildDeleteRouteStatements
-		);
-		expect(mutationSurface.buildSyncTaxonomiesStatements).toBe(
-			buildSyncTaxonomiesStatements
-		);
-		expect(mutationSurface.buildCachePrimingStatements).toBe(
-			buildCachePrimingStatements
-		);
-		expect(mutationSurface.prepareWpPostResponse).toBe(
-			prepareWpPostResponse
-		);
-		expect(mutationSurface.syncWpPostMeta).toBe(syncWpPostMeta);
 	});
 });

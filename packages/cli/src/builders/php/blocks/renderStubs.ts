@@ -5,8 +5,18 @@ import type {
 import type { Workspace } from '../../../workspace/types';
 import type { BlockRenderStub } from '@wpkernel/wp-json-ast';
 
+/**
+ * Transaction label for block render callback generation phase.
+ *
+ * @category Builders
+ */
 export const RENDER_TRANSACTION_LABEL = 'builder.generate.php.blocks.render';
 
+/**
+ * Options for staging block render callback stubs to workspace.
+ *
+ * @category Builders
+ */
 export interface StageRenderStubsOptions {
 	readonly stubs: readonly BlockRenderStub[];
 	readonly workspace: Workspace;
@@ -14,6 +24,19 @@ export interface StageRenderStubsOptions {
 	readonly reporter: BuilderApplyOptions['reporter'];
 }
 
+/**
+ * Writes block render callback PHP files to workspace.
+ *
+ * Stages PHP render callback stubs for blocks that require server-side rendering.
+ * Wraps writes in a transaction for atomic rollback on failure.
+ *
+ * @param    options           - Stubs, workspace, output, and reporter
+ * @param    options.stubs     - Array of block render callback stubs to write
+ * @param    options.workspace - Workspace manager for file operations
+ * @param    options.output    - Builder output context
+ * @param    options.reporter  - Reporter for progress and errors
+ * @category Builders
+ */
 export async function stageRenderStubs({
 	stubs,
 	workspace,

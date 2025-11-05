@@ -1,13 +1,13 @@
-import { createHelper } from '../../../../runtime';
+import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
 	BuilderNext,
 	PipelineContext,
-} from '../../../../runtime/types';
-import type { IRv1 } from '../../../../ir/publicTypes';
-import { makeErrorCodeFactory, toPascalCase } from '../../utils';
-import { resolveIdentityConfig } from '../../identity';
+} from '../../runtime/types';
+import type { IRv1 } from '../../ir/publicTypes';
+import { makeErrorCodeFactory, toPascalCase } from './utils';
+import { resolveIdentityConfig } from './identity';
 import {
 	buildWpPostRouteBundle,
 	type WpPostRouteBundle,

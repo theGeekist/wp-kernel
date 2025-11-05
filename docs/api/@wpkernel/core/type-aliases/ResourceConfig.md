@@ -10,19 +10,27 @@
 type ResourceConfig&lt;T, TQuery, _TTypes&gt; = object;
 ```
 
+TODO: summary.
+
 ## Type Parameters
 
 ### T
 
 `T` = `unknown`
 
+— TODO
+
 ### TQuery
 
 `TQuery` = `unknown`
 
+— TODO
+
 ### \_TTypes
 
 `_TTypes` = \[`T`, `TQuery`\]
+
+— TODO
 
 ## Properties
 
@@ -167,3 +175,27 @@ optional ui: ResourceUIConfig&lt;T, TQuery&gt;;
 ```
 
 Optional UI metadata surfaced to runtime integrations (e.g., DataViews).
+
+---
+
+### capabilities?
+
+```ts
+optional capabilities: ResourceCapabilityMap;
+```
+
+Optional inline capability mappings.
+
+Maps capability keys (from route definitions) to WordPress capabilities.
+Each resource can define its own capability mappings inline, and these
+will be collected by the CLI during code generation.
+
+#### Example
+
+```ts
+capabilities: {
+  'book.create': 'edit_posts',
+  'book.update': 'edit_others_posts',
+  'book.delete': { capability: 'delete_posts', appliesTo: 'object', binding: 'id' }
+}
+```

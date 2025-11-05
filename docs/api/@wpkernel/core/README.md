@@ -35,11 +35,16 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 ## Interfaces
 
+### Resource
+
 - [ResourceUIConfig](interfaces/ResourceUIConfig.md)
 - [ResourceAdminUIConfig](interfaces/ResourceAdminUIConfig.md)
 - [ResourceDataViewsUIConfig](interfaces/ResourceDataViewsUIConfig.md)
 - [ResourceDataViewsScreenConfig](interfaces/ResourceDataViewsScreenConfig.md)
 - [ResourceDataViewsMenuConfig](interfaces/ResourceDataViewsMenuConfig.md)
+
+### Other
+
 - [ConfigureWPKernelOptions](interfaces/ConfigureWPKernelOptions.md)
 - [WPKInstance](interfaces/WPKInstance.md)
 - [WPKUIConfig](interfaces/WPKUIConfig.md)
@@ -54,6 +59,14 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [HydrateServerStateInput](interfaces/HydrateServerStateInput.md)
 
 ## Type Aliases
+
+### Resource
+
+- [ResourceQueryParams](type-aliases/ResourceQueryParams.md)
+- [ResourceConfig](type-aliases/ResourceConfig.md)
+- [ResourceState](type-aliases/ResourceState.md)
+
+### Other
 
 - [ActionLifecyclePhase](type-aliases/ActionLifecyclePhase.md)
 - [WPKExitCode](type-aliases/WPKExitCode.md)
@@ -79,12 +92,9 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [CacheKeyFn](type-aliases/CacheKeyFn.md)
 - [CacheKeys](type-aliases/CacheKeys.md)
 - [ResourceQueryParamDescriptor](type-aliases/ResourceQueryParamDescriptor.md)
-- [ResourceQueryParams](type-aliases/ResourceQueryParams.md)
-- [ResourceConfig](type-aliases/ResourceConfig.md)
 - [ListResponse](type-aliases/ListResponse.md)
 - [ResourceClient](type-aliases/ResourceClient.md)
 - [ResourceObject](type-aliases/ResourceObject.md)
-- [ResourceState](type-aliases/ResourceState.md)
 - [ResourceActions](type-aliases/ResourceActions.md)
 - [ResourceSelectors](type-aliases/ResourceSelectors.md)
 - [ResourceResolvers](type-aliases/ResourceResolvers.md)

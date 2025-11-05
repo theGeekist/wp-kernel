@@ -3,7 +3,10 @@ import type {
 	ResourceControllerCacheMetadata,
 	ResourceMetadataHost,
 } from '@wpkernel/wp-json-ast';
-import { appendResourceCacheEvent, normaliseCacheSegments } from '../cache';
+import {
+	appendResourceCacheEvent,
+	normaliseCacheSegments,
+} from '@wpkernel/wp-json-ast';
 
 describe('resource cache helpers', () => {
 	it('normalises primitive segments', () => {

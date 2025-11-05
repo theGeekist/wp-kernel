@@ -36,11 +36,11 @@ import {
 	getWpPostRouteHelperState,
 	readWpPostRouteBundle,
 	type WpPostRouteHelperState,
-} from './resource/wpPost/routes';
+} from './routes';
 import {
 	getResourceStorageHelperState,
 	type ResourceStorageHelperState,
-} from './resource/storageHelpers';
+} from './storageHelpers';
 
 /**
  * Creates a PHP builder helper for resource-specific REST controllers.

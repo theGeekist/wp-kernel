@@ -18,7 +18,14 @@ describe('cache-keys utilities', () => {
 
 	it('throws when cache key function returns non-array', () => {
 		const keys: CacheKeys<unknown> = {
-			list: () => 'not-an-array' as unknown as unknown[],
+			list: () =>
+				'not-an-array' as unknown as (
+					| string
+					| number
+					| boolean
+					| null
+					| undefined
+				)[],
 			get: () => ['demo', 'get'],
 		};
 
