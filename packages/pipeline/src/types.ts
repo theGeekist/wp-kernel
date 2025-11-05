@@ -4,8 +4,33 @@
  */
 export type MaybePromise<T> = T | Promise<T>;
 
+/**
+ * Helper kind identifier - can be 'fragment', 'builder', or any custom string.
+ * @public
+ */
 export type HelperKind = 'fragment' | 'builder' | (string & {});
+
+/**
+ * Helper execution mode - determines how it integrates with existing helpers.
+ *
+ * @remarks
+ * Currently only `extend` and `override` modes have implementation/validation logic.
+ * The `merge` mode is reserved for future use.
+ *
+ * @public
+ */
 export type HelperMode = 'extend' | 'override' | 'merge';
+
+/**
+ * Base error type for pipeline operations.
+ * Consumers can extend this to add framework-specific error codes.
+ * @public
+ */
+export interface PipelineError extends Error {
+	readonly code: string;
+	readonly data?: Record<string, unknown>;
+	readonly context?: Record<string, unknown>;
+}
 
 /**
  * Interface for reporting pipeline events and warnings.
@@ -15,6 +40,10 @@ export interface PipelineReporter {
 	warn?: (message: string, context?: unknown) => void;
 }
 
+/**
+ * Base descriptor for a pipeline helper.
+ * @public
+ */
 export interface HelperDescriptor<TKind extends HelperKind = HelperKind> {
 	readonly key: string;
 	readonly kind: TKind;
@@ -22,8 +51,19 @@ export interface HelperDescriptor<TKind extends HelperKind = HelperKind> {
 	readonly priority: number;
 	readonly dependsOn: readonly string[];
 	readonly origin?: string;
+	/**
+	 * Whether this helper is optional and may not execute.
+	 * Optional helpers won't cause validation errors if they don't run.
+	 * Useful for conditional/feature-flag helpers.
+	 * @defaultValue false
+	 */
+	readonly optional?: boolean;
 }
 
+/**
+ * Options passed to a helper's apply function.
+ * @public
+ */
 export interface HelperApplyOptions<
 	TContext,
 	TInput,
@@ -61,6 +101,10 @@ export type HelperApplyFn<
 	next?: () => MaybePromise<void>
 ) => MaybePromise<void>;
 
+/**
+ * A complete pipeline helper with descriptor and apply function.
+ * @public
+ */
 export interface Helper<
 	TContext,
 	TInput,
@@ -71,6 +115,10 @@ export interface Helper<
 	readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
 }
 
+/**
+ * Options for creating a new helper.
+ * @public
+ */
 export interface CreateHelperOptions<
 	TContext,
 	TInput,
@@ -87,12 +135,20 @@ export interface CreateHelperOptions<
 	readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
 }
 
+/**
+ * A pipeline step representing an executed helper.
+ * @public
+ */
 export interface PipelineStep<TKind extends HelperKind = HelperKind>
 	extends HelperDescriptor<TKind> {
 	readonly id: string;
 	readonly index: number;
 }
 
+/**
+ * Diagnostic for conflicting helper registrations.
+ * @public
+ */
 export interface ConflictDiagnostic<TKind extends HelperKind = HelperKind> {
 	readonly type: 'conflict';
 	readonly key: string;
@@ -102,6 +158,10 @@ export interface ConflictDiagnostic<TKind extends HelperKind = HelperKind> {
 	readonly kind?: TKind;
 }
 
+/**
+ * Diagnostic for missing helper dependencies.
+ * @public
+ */
 export interface MissingDependencyDiagnostic<
 	TKind extends HelperKind = HelperKind,
 > {
@@ -113,6 +173,10 @@ export interface MissingDependencyDiagnostic<
 	readonly helper?: string;
 }
 
+/**
+ * Diagnostic for unused helpers.
+ * @public
+ */
 export interface UnusedHelperDiagnostic<TKind extends HelperKind = HelperKind> {
 	readonly type: 'unused-helper';
 	readonly key: string;
@@ -122,11 +186,19 @@ export interface UnusedHelperDiagnostic<TKind extends HelperKind = HelperKind> {
 	readonly dependsOn?: readonly string[];
 }
 
+/**
+ * Union of all diagnostic types.
+ * @public
+ */
 export type PipelineDiagnostic<TKind extends HelperKind = HelperKind> =
 	| ConflictDiagnostic<TKind>
 	| MissingDependencyDiagnostic<TKind>
 	| UnusedHelperDiagnostic<TKind>;
 
+/**
+ * State returned from a pipeline run.
+ * @public
+ */
 export interface PipelineRunState<
 	TArtifact,
 	TDiagnostic extends PipelineDiagnostic = PipelineDiagnostic,
@@ -136,6 +208,10 @@ export interface PipelineRunState<
 	readonly steps: readonly PipelineStep[];
 }
 
+/**
+ * Snapshot of helper execution status.
+ * @public
+ */
 export interface HelperExecutionSnapshot<
 	TKind extends HelperKind = HelperKind,
 > {
@@ -145,12 +221,20 @@ export interface HelperExecutionSnapshot<
 	readonly missing: readonly string[];
 }
 
+/**
+ * Metadata from fragment helper execution.
+ * @public
+ */
 export interface FragmentFinalizationMetadata<
 	TFragmentKind extends HelperKind = HelperKind,
 > {
 	readonly fragments: HelperExecutionSnapshot<TFragmentKind>;
 }
 
+/**
+ * Complete execution metadata for all helper phases.
+ * @public
+ */
 export interface PipelineExecutionMetadata<
 	TFragmentKind extends HelperKind = HelperKind,
 	TBuilderKind extends HelperKind = HelperKind,
@@ -158,18 +242,30 @@ export interface PipelineExecutionMetadata<
 	readonly builders: HelperExecutionSnapshot<TBuilderKind>;
 }
 
+/**
+ * Options passed to pipeline extension hooks.
+ * @public
+ */
 export interface PipelineExtensionHookOptions<TContext, TOptions, TArtifact> {
 	readonly context: TContext;
 	readonly options: TOptions;
 	readonly artifact: TArtifact;
 }
 
+/**
+ * Result from a pipeline extension hook.
+ * @public
+ */
 export interface PipelineExtensionHookResult<TArtifact> {
 	readonly artifact?: TArtifact;
 	readonly commit?: () => MaybePromise<void>;
 	readonly rollback?: () => MaybePromise<void>;
 }
 
+/**
+ * Metadata about an error during extension rollback.
+ * @public
+ */
 export interface PipelineExtensionRollbackErrorMetadata {
 	readonly name?: string;
 	readonly message?: string;
@@ -177,10 +273,18 @@ export interface PipelineExtensionRollbackErrorMetadata {
 	readonly cause?: unknown;
 }
 
+/**
+ * A pipeline extension hook function.
+ * @public
+ */
 export type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>
 ) => MaybePromise<PipelineExtensionHookResult<TArtifact> | void>;
 
+/**
+ * A pipeline extension descriptor.
+ * @public
+ */
 export interface PipelineExtension<TPipeline, TContext, TOptions, TArtifact> {
 	readonly key?: string;
 	register: (
@@ -192,6 +296,10 @@ export interface PipelineExtension<TPipeline, TContext, TOptions, TArtifact> {
 	>>;
 }
 
+/**
+ * Options for creating a pipeline.
+ * @public
+ */
 export interface CreatePipelineOptions<
 	TRunOptions,
 	TBuildOptions,
@@ -236,6 +344,7 @@ export interface CreatePipelineOptions<
 > {
 	readonly fragmentKind?: TFragmentKind;
 	readonly builderKind?: TBuilderKind;
+	readonly createError?: (code: string, message: string) => Error;
 	readonly createBuildOptions: (options: TRunOptions) => TBuildOptions;
 	readonly createContext: (options: TRunOptions) => TContext;
 	readonly createFragmentState: (options: {
@@ -325,6 +434,10 @@ export interface CreatePipelineOptions<
 	}) => TDiagnostic;
 }
 
+/**
+ * A pipeline instance with helper registration and execution methods.
+ * @public
+ */
 export interface Pipeline<
 	TRunOptions,
 	TRunResult,

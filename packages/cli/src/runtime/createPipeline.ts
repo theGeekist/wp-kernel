@@ -116,10 +116,10 @@ export function createPipeline(): Pipeline {
 				steps,
 			} satisfies PipelineRunResult;
 		},
-		createExtensionHookOptions({ context, buildOptions, artifact }) {
+		createExtensionHookOptions({ context, options, artifact }) {
 			return {
 				context,
-				options: buildOptions,
+				options,
 				artifact,
 			} satisfies PipelineExtensionHookOptions;
 		},

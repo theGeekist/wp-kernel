@@ -1,0 +1,40 @@
+{
+	"name": "@wpkernel/pipeline",
+	"version": "0.0.0-dev",
+	"description": "Pipeline package for WP Kernel (Work in Progress)",
+	"private": true,
+	"type": "module",
+	"sideEffects": false,
+	"publishConfig": {
+		"access": "public"
+	},
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "vite build && tsc --project tsconfig.json",
+		"clean": "rm -rf dist dist-tests *.tsbuildinfo",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"test": "wpk-run-jest",
+		"test:coverage": "wpk-run-jest coverage",
+		"test:integration": "wpk-run-jest integration",
+		"test:watch": "wpk-run-jest --watch",
+		"typecheck": "tsc --project tsconfig.json --noEmit",
+		"typecheck:tests": "wpk-run-typecheck-tests"
+	},
+	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*"
+	}
+}

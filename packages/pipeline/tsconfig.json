@@ -1,0 +1,19 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "../../tsconfig.lib.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist",
+		// Override base paths to prevent pulling in other packages during typecheck
+		"paths": {}
+	},
+	"include": ["src/**/*", "../../types/**/*.d.ts"],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"**/*.test.ts",
+		"**/*.test.tsx",
+		"**/*.test-support.ts",
+		"**/*.test-support.tsx"
+	]
+}
