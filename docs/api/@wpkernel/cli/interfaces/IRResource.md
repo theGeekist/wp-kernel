@@ -147,3 +147,13 @@ optional ui: ResourceUIConfig&lt;unknown, unknown&gt;;
 ```
 
 Optional: UI configuration for the resource.
+
+---
+
+### capabilities?
+
+```ts
+optional capabilities: any;
+```
+
+Optional: Inline capability mappings for the resource.

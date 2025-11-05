@@ -7,12 +7,9 @@
 # Type Alias: CapabilityMapEntry
 
 ```ts
-type CapabilityMapEntry =
-	| string
-	| CapabilityCapabilityDescriptor
-	| CapabilityMapFunction;
+type CapabilityMapEntry = string | CapabilityCapabilityDescriptor;
 ```
 
 Represents a single entry in the capability map.
 
-Can be a simple string, a descriptor object, or a function returning either.
+Can be a simple string or a descriptor object.

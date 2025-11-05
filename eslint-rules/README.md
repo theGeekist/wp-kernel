@@ -41,7 +41,7 @@ createReporter({ namespace: 'kernel.capability' });
 
 // ✓ GOOD
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts';
-createReporter({ namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY });
+createReporter({ namespace: WPK_SUBSYSTEM_NAMESPACES.CAPABILITY });
 ```
 
 #### Infrastructure Identifiers

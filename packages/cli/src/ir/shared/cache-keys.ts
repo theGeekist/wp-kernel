@@ -2,6 +2,18 @@ import type { CacheKeyFn, CacheKeys } from '@wpkernel/core/resource';
 import { WPKernelError } from '@wpkernel/core/contracts';
 import type { IRResource, IRResourceCacheKey } from '../publicTypes';
 
+/**
+ * Build IR cache key descriptors for a resource from provided cache key
+ * functions or fall back to sensible defaults.
+ *
+ * Each evaluated key is validated to ensure it returns an array. Errors
+ * during evaluation are wrapped as ValidationError to aid diagnosis.
+ *
+ * @param    cacheKeys    - Optional CacheKeys configuration from a resource
+ * @param    resourceName - Resource name used in default segments
+ * @returns IR-style cache key descriptors
+ * @category IR
+ */
 export function deriveCacheKeys(
 	cacheKeys: CacheKeys<unknown> | undefined,
 	resourceName: string
@@ -82,6 +94,17 @@ export function deriveCacheKeys(
 	};
 }
 
+/**
+ * Create the default cache key segments used when a resource does not
+ * provide custom cache key functions.
+ *
+ * Defaults encode the operation and a stable placeholder token used for
+ * get/update/remove operations.
+ *
+ * @param    resourceName - Name of the resource
+ * @returns Default segments for list/get/create/update/remove keys
+ * @category IR
+ */
 export function createDefaultCacheKeySegments(resourceName: string): {
 	list: readonly unknown[];
 	get: readonly unknown[];
@@ -105,6 +128,17 @@ export function createDefaultCacheKeySegments(resourceName: string): {
 	};
 }
 
+/**
+ * Convert IRResource cache key descriptors into a plain serialisable
+ * object suitable for inclusion in generated output.
+ *
+ * Optional operations (create/update/remove) are only included when
+ * present on the descriptor.
+ *
+ * @param    cacheKeys - IR resource cache key information
+ * @returns Plain object with cache key arrays
+ * @category IR
+ */
 export function serializeCacheKeys(
 	cacheKeys: IRResource['cacheKeys']
 ): Record<string, unknown> {

@@ -13,6 +13,18 @@ interface BlockDiscoveryState {
 	workspaceRoot: string;
 }
 
+/**
+ * Recursively discover blocks in the given workspace by locating block.json
+ * manifests.
+ *
+ * This walks the workspace tree (skipping ignored directories), finds
+ * directories that contain a `block.json` manifest, validates and loads the
+ * manifest, and returns a sorted list of discovered IRBlock entries.
+ *
+ * @param    workspaceRoot - Filesystem path to the workspace root to search
+ * @returns Discovered IRBlock entries
+ * @category IR
+ */
 export async function discoverBlocks(
 	workspaceRoot: string
 ): Promise<IRBlock[]> {
@@ -53,6 +65,18 @@ function createBlockDiscoveryState(workspaceRoot: string): BlockDiscoveryState {
 	};
 }
 
+/**
+ * Return true when the candidate path is outside the provided workspace
+ * root.
+ *
+ * Used by the discovery walker to avoid traversing outside the declared
+ * workspace boundary.
+ *
+ * @param    workspaceRoot - Workspace root directory
+ * @param    candidate     - Path to test
+ * @returns True if candidate is outside workspaceRoot
+ * @category IR
+ */
 export function isOutsideWorkspace(
 	workspaceRoot: string,
 	candidate: string
@@ -108,6 +132,16 @@ function enqueueChildDirectories(options: {
 	}
 }
 
+/**
+ * Return true when a directory entry should be skipped during discovery.
+ *
+ * This excludes non-directories, symbolic links and well-known ignored
+ * directories such as node_modules or generated build output.
+ *
+ * @param    entry - Directory entry to test
+ * @returns True when the entry should be skipped
+ * @category IR
+ */
 export function shouldSkipEntry(entry: Dirent): boolean {
 	if (entry.isSymbolicLink()) {
 		return true;
@@ -120,6 +154,20 @@ export function shouldSkipEntry(entry: Dirent): boolean {
 	return IGNORED_DIRECTORIES.has(entry.name);
 }
 
+/**
+ * Load and validate a block manifest at the provided path, returning an
+ * IRBlock record.
+ *
+ * Reads the manifest JSON, validates required fields, resolves whether a
+ * render file exists, and converts absolute paths to workspace-relative
+ * values used by the IR.
+ *
+ * @param    manifestPath  - Absolute path to block.json
+ * @param    directory     - Directory containing the block
+ * @param    workspaceRoot - Workspace root used for relative paths
+ * @returns IRBlock describing the discovered block
+ * @category IR
+ */
 export async function loadBlockEntry(
 	manifestPath: string,
 	directory: string,
@@ -174,6 +222,15 @@ export async function loadBlockEntry(
 	};
 }
 
+/**
+ * Check whether a file exists and is a regular file.
+ *
+ * Returns `false` for non-existent files, and re-throws unexpected errors.
+ *
+ * @param    candidate - Path to check
+ * @returns True if the candidate exists and is a file
+ * @category IR
+ */
 export async function fileExists(candidate: string): Promise<boolean> {
 	try {
 		const stat = await fs.stat(candidate);

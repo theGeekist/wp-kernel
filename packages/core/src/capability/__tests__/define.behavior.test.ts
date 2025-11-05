@@ -309,7 +309,7 @@ describe('defineCapability behaviour', () => {
 			expect((error as { code?: string }).code).toBe('CapabilityDenied');
 		}
 		expect(warn).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY}]`,
 			'Failed to create BroadcastChannel for capability events.',
 			{ error: expect.any(Error) }
 		);
@@ -328,7 +328,7 @@ describe('defineCapability behaviour', () => {
 
 		capability.extend({ allow: () => false });
 		expect(warn).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY}]`,
 			'Capability "allow" is being overridden via extend().',
 			{ capabilityKey: 'allow' }
 		);

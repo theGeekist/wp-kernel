@@ -15,7 +15,7 @@ use WP_REST_Request;
 // WPK:BEGIN AUTO
 final class Policy
 {
-    private const POLICY_MAP = [];
+    private const CAPABILITY_MAP = [];
 
     private const FALLBACK = [
         "appliesTo" => "resource",
@@ -77,8 +77,8 @@ final class Policy
      */
     private static function get_definition(string $policy_key): array
     {
-        if (isset(self::POLICY_MAP[$policy_key])) {
-            return self::POLICY_MAP[$policy_key];
+        if (isset(self::CAPABILITY_MAP[$policy_key])) {
+            return self::CAPABILITY_MAP[$policy_key];
         }
 
         return self::FALLBACK;

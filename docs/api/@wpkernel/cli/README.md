@@ -26,6 +26,10 @@ kernel and UI packages.
 - [PipelineExtensionHookOptions](interfaces/PipelineExtensionHookOptions.md)
 - [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 
+### CLI
+
+- [CapabilityCapabilityDescriptor](interfaces/CapabilityCapabilityDescriptor.md)
+
 ### IR
 
 - [IRv1](interfaces/IRv1.md)
@@ -73,7 +77,6 @@ kernel and UI packages.
 - [AdapterExtension](interfaces/AdapterExtension.md)
 - [AdapterExtensionContext](interfaces/AdapterExtensionContext.md)
 - [LoadedWPKernelConfig](interfaces/LoadedWPKernelConfig.md)
-- [CapabilityCapabilityDescriptor](interfaces/CapabilityCapabilityDescriptor.md)
 - [Helper](interfaces/Helper.md)
 - [HelperApplyOptions](interfaces/HelperApplyOptions.md)
 - [HelperDescriptor](interfaces/HelperDescriptor.md)
@@ -136,7 +139,6 @@ kernel and UI packages.
 
 - [CapabilityMapDefinition](type-aliases/CapabilityMapDefinition.md)
 - [CapabilityMapEntry](type-aliases/CapabilityMapEntry.md)
-- [CapabilityMapFunction](type-aliases/CapabilityMapFunction.md)
 
 ### Pipeline
 

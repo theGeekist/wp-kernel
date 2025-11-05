@@ -16,26 +16,26 @@ Keys used for browser APIs (storage, channels), WordPress hooks, and public even
 
 ## Type Declaration
 
-### POLICY_CACHE_STORAGE
+### CAPABILITY_CACHE_STORAGE
 
 ```ts
-readonly POLICY_CACHE_STORAGE: "wpk.capability.cache";
+readonly CAPABILITY_CACHE_STORAGE: "wpk.capability.cache";
 ```
 
 Storage key prefix for capability cache
 
-### POLICY_CACHE_CHANNEL
+### CAPABILITY_CACHE_CHANNEL
 
 ```ts
-readonly POLICY_CACHE_CHANNEL: "wpk.capability.cache";
+readonly CAPABILITY_CACHE_CHANNEL: "wpk.capability.cache";
 ```
 
 BroadcastChannel name for capability cache sync
 
-### POLICY_EVENT_CHANNEL
+### CAPABILITY_EVENT_CHANNEL
 
 ```ts
-readonly POLICY_EVENT_CHANNEL: "wpk.capability.events";
+readonly CAPABILITY_EVENT_CHANNEL: "wpk.capability.events";
 ```
 
 BroadcastChannel name for capability events

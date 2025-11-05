@@ -27,9 +27,9 @@ export const WPK_NAMESPACE = 'wpk';
  */
 export const WPK_SUBSYSTEM_NAMESPACES = {
 	/** Capability subsystem */
-	POLICY: `${WPK_NAMESPACE}.capability`,
+	CAPABILITY: `${WPK_NAMESPACE}.capability`,
 	/** Capability cache subsystem */
-	POLICY_CACHE: `${WPK_NAMESPACE}.capability.cache`,
+	CAPABILITY_CACHE: `${WPK_NAMESPACE}.capability.cache`,
 	/** Resource cache subsystem */
 	CACHE: `${WPK_NAMESPACE}.cache`,
 	/** Action subsystem */
@@ -49,11 +49,11 @@ export const WPK_SUBSYSTEM_NAMESPACES = {
  */
 export const WPK_INFRASTRUCTURE = {
 	/** Storage key prefix for capability cache */
-	POLICY_CACHE_STORAGE: `${WPK_NAMESPACE}.capability.cache`,
+	CAPABILITY_CACHE_STORAGE: `${WPK_NAMESPACE}.capability.cache`,
 	/** BroadcastChannel name for capability cache sync */
-	POLICY_CACHE_CHANNEL: `${WPK_NAMESPACE}.capability.cache`,
+	CAPABILITY_CACHE_CHANNEL: `${WPK_NAMESPACE}.capability.cache`,
 	/** BroadcastChannel name for capability events */
-	POLICY_EVENT_CHANNEL: `${WPK_NAMESPACE}.capability.events`,
+	CAPABILITY_EVENT_CHANNEL: `${WPK_NAMESPACE}.capability.events`,
 	/** BroadcastChannel name for action lifecycle events */
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
 	/** WordPress hooks namespace prefix for WP Kernel events plugin */

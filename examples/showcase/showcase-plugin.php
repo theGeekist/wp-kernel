@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 \define( 'WPK_SHOWCASE_JOB_POST_TYPE', 'wpk_job' );
 \define( 'WPK_SHOWCASE_JOB_CLOSED_STATUS', 'wpk_job_closed' );
 \define(
-	'WPK_SHOWCASE_JOB_POLICY_CAPS',
+	'WPK_SHOWCASE_JOB_CAPABILITY_CAPS',
 	array(
 		'jobs.create' => array(
 			'capability' => 'edit_posts',
@@ -486,7 +486,7 @@ function render_admin_page(): void {
  */
 function register_rest_routes(): void {
 	$controllers = array(
-		new JobsController( WPK_SHOWCASE_JOB_POLICY_CAPS ),
+		new JobsController( WPK_SHOWCASE_JOB_CAPABILITY_CAPS ),
 	);
 
 	foreach ( $controllers as $controller ) {

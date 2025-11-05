@@ -17,18 +17,18 @@ These provide better diagnostic context than the root namespace alone.
 
 ## Type Declaration
 
-### POLICY
+### CAPABILITY
 
 ```ts
-readonly POLICY: "wpk.capability";
+readonly CAPABILITY: "wpk.capability";
 ```
 
 Capability subsystem
 
-### POLICY_CACHE
+### CAPABILITY_CACHE
 
 ```ts
-readonly POLICY_CACHE: "wpk.capability.cache";
+readonly CAPABILITY_CACHE: "wpk.capability.cache";
 ```
 
 Capability cache subsystem

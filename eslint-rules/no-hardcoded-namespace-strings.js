@@ -211,7 +211,7 @@ function getConstantSuggestion(value) {
 	// Subsystem namespaces
 	if (NAMESPACE_PATTERNS.SUBSYSTEM_NAMESPACES.includes(value)) {
 		if (value === 'kernel.capability') {
-			return 'WPK_SUBSYSTEM_NAMESPACES.POLICY (changed from kernel.capability to wpk.capability)';
+			return 'WPK_SUBSYSTEM_NAMESPACES.CAPABILITY (changed from kernel.capability to wpk.capability)';
 		}
 		const constantName = value
 			.replace('wpk.', '')

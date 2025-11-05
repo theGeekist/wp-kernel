@@ -6,6 +6,8 @@
 
 # Interface: CapabilityCapabilityDescriptor
 
+TODO: summary.
+
 ## Properties
 
 ### capability

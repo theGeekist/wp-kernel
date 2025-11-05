@@ -24,19 +24,19 @@ import {
 import type { CapabilityCache, CapabilityCacheOptions } from './types';
 
 const DEFAULT_TTL_MS = 60_000;
-const STORAGE_KEY_PREFIX = WPK_INFRASTRUCTURE.POLICY_CACHE_STORAGE;
-const BROADCAST_CHANNEL_NAME = WPK_INFRASTRUCTURE.POLICY_CACHE_CHANNEL;
+const STORAGE_KEY_PREFIX = WPK_INFRASTRUCTURE.CAPABILITY_CACHE_STORAGE;
+const BROADCAST_CHANNEL_NAME = WPK_INFRASTRUCTURE.CAPABILITY_CACHE_CHANNEL;
 
 function getCapabilityCacheReporter() {
 	return resolveReporter({
 		fallback: () =>
 			createReporter({
-				namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE,
+				namespace: WPK_SUBSYSTEM_NAMESPACES.CAPABILITY_CACHE,
 				channel: 'console',
 				level: 'warn',
 			}),
 		cache: true,
-		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}.cache`,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY_CACHE}.cache`,
 	});
 }
 

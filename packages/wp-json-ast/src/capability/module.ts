@@ -25,12 +25,12 @@ import type {
 	CapabilityModuleResult,
 } from './types';
 
-const DEFAULT_POLICY_FILE_NAME = 'Capability/Capability.php';
+const DEFAULT_CAPABILITY_FILE_NAME = 'Capability/Capability.php';
 
 export function buildCapabilityModule(
 	config: CapabilityModuleConfig
 ): CapabilityModuleResult {
-	const fileName = config.fileName ?? DEFAULT_POLICY_FILE_NAME;
+	const fileName = config.fileName ?? DEFAULT_CAPABILITY_FILE_NAME;
 	const docblock = buildCapabilityDocblock(
 		config.origin,
 		config.capabilityMap.sourcePath
