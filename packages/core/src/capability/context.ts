@@ -42,12 +42,12 @@ function getCapabilityContextReporter() {
 	return resolveReporter({
 		fallback: () =>
 			createReporter({
-				namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
+				namespace: WPK_SUBSYSTEM_NAMESPACES.CAPABILITY,
 				channel: 'console',
 				level: 'warn',
 			}),
 		cache: true,
-		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.POLICY}.context`,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY}.context`,
 	});
 }
 

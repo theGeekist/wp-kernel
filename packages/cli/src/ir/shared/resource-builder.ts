@@ -16,6 +16,14 @@ interface ResourceBuilderState {
 	postTypeRegistry: Map<string, string>;
 }
 
+/**
+ * TODO: summary.
+ * @param    options            — TODO
+ * @param    accumulator        — TODO
+ * @param    sanitizedNamespace — TODO
+ * @returns TODO
+ * @category IR
+ */
 export async function buildResources(
 	options: BuildIrOptions,
 	accumulator: SchemaAccumulator,
@@ -116,6 +124,7 @@ async function buildResourceEntry(options: {
 		storage: storageResult.storage,
 		queryParams,
 		ui: resourceConfig.ui,
+		capabilities: resourceConfig.capabilities,
 		hash: hashResource({
 			resourceConfig,
 			schemaKey: schemaResolution.schemaKey,
@@ -149,6 +158,12 @@ function collectWarnings(options: {
 	return sortWarnings(warnings);
 }
 
+/**
+ * TODO: summary.
+ * @param    warnings — TODO
+ * @returns TODO
+ * @category IR
+ */
 export function sortWarnings(warnings: IRWarning[]): IRWarning[] {
 	return warnings.slice().sort((a, b) => {
 		const codeComparison = a.code.localeCompare(b.code);
@@ -160,6 +175,12 @@ export function sortWarnings(warnings: IRWarning[]): IRWarning[] {
 	});
 }
 
+/**
+ * TODO: summary.
+ * @param    params — TODO
+ * @returns TODO
+ * @category IR
+ */
 export function normaliseQueryParams(
 	params: ResourceConfig['queryParams'] | undefined
 ): ResourceConfig['queryParams'] | undefined {
@@ -170,6 +191,15 @@ export function normaliseQueryParams(
 	return sortObject(params);
 }
 
+/**
+ * TODO: summary.
+ * @param    options               — TODO
+ * @param    options.resourceKey
+ * @param    options.registry
+ * @param    options.storageResult
+ * @returns TODO
+ * @category IR
+ */
 export function recordPostTypeCollision(options: {
 	resourceKey: string;
 	registry: Map<string, string>;
@@ -203,6 +233,15 @@ export function recordPostTypeCollision(options: {
 	return [];
 }
 
+/**
+ * TODO: summary.
+ * @param    options             — TODO
+ * @param    options.resourceKey
+ * @param    options.provided
+ * @param    options.routes
+ * @returns TODO
+ * @category IR
+ */
 export function inferIdentity(options: {
 	resourceKey: string;
 	provided: ResourceConfig['identity'];
@@ -246,6 +285,12 @@ export function inferIdentity(options: {
 	};
 }
 
+/**
+ * TODO: summary.
+ * @param    routes — TODO
+ * @returns TODO
+ * @category IR
+ */
 export function pickRoutePlaceholder(
 	routes: IRResource['routes']
 ): string | undefined {
@@ -273,6 +318,12 @@ export function pickRoutePlaceholder(
 	return first;
 }
 
+/**
+ * TODO: summary.
+ * @param    placeholder — TODO
+ * @returns TODO
+ * @category IR
+ */
 export function createIdentityFromPlaceholder(
 	placeholder: string
 ): ResourceConfig['identity'] | undefined {
@@ -288,6 +339,15 @@ export function createIdentityFromPlaceholder(
 	}
 }
 
+/**
+ * TODO: summary.
+ * @param    options                    — TODO
+ * @param    options.resourceKey
+ * @param    options.storage
+ * @param    options.sanitizedNamespace
+ * @returns TODO
+ * @category IR
+ */
 export function prepareStorage(options: {
 	resourceKey: string;
 	storage: ResourceConfig['storage'];
@@ -330,6 +390,14 @@ export function prepareStorage(options: {
 	};
 }
 
+/**
+ * TODO: summary.
+ * @param    options                    — TODO
+ * @param    options.resourceKey
+ * @param    options.sanitizedNamespace
+ * @returns TODO
+ * @category IR
+ */
 export function inferPostType(options: {
 	resourceKey: string;
 	sanitizedNamespace: string;
@@ -362,6 +430,20 @@ export function inferPostType(options: {
 	return { postType: trimmed, warnings };
 }
 
+/**
+ * TODO: summary.
+ * @param    options                  — TODO
+ * @param    options.resourceConfig
+ * @param    options.schemaKey
+ * @param    options.schemaProvenance
+ * @param    options.routes
+ * @param    options.cacheKeys
+ * @param    options.identity
+ * @param    options.storage
+ * @param    options.queryParams
+ * @returns TODO
+ * @category IR
+ */
 export function hashResource(options: {
 	resourceConfig: ResourceConfig;
 	schemaKey: string;

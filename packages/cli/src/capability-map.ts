@@ -1,20 +1,21 @@
 /**
  * Capability map contract used by the CLI when generating PHP permission helpers.
  *
- * Projects can author `src/capability-map.ts` files that export a plain object using
- * this shape. Each key represents a capability identifier referenced by resource
- * routes and maps to a capability descriptor. Values may either be:
+ * Projects can define inline capability mappings in their resource configurations.
+ * Each key represents a capability identifier referenced by resource routes and
+ * maps to a capability descriptor. Values may either be:
  *
- * - a WordPress capability string (e.g. `'manage_options'`),
- * - a descriptor object describing the capability and how it should be applied,
- * - or a function that returns either of the above for additional authoring
- *   flexibility.
+ * - a WordPress capability string (e.g. `'manage_options'`)
+ * - a descriptor object describing the capability and how it should be applied
  *
- * The CLI evaluates function entries at build time, so they must be pure and
- * free of side effects. Returned descriptors should be JSON-serialisable.
+ * All values must be JSON-serializable data (no functions).
  */
 export type CapabilityMapScope = 'resource' | 'object';
 
+/**
+ * TODO: summary.
+ * @category CLI
+ */
 export interface CapabilityCapabilityDescriptor {
 	capability: string;
 	appliesTo?: CapabilityMapScope;
@@ -26,29 +27,13 @@ export interface CapabilityCapabilityDescriptor {
 }
 
 /**
- * A function that returns a capability string or descriptor.
- *
- * The CLI evaluates function entries at build time, so they must be pure and
- * free of side effects. Returned descriptors should be JSON-serialisable.
- *
- * @category Capability
- * @public
- */
-export type CapabilityMapFunction = () =>
-	| string
-	| CapabilityCapabilityDescriptor;
-
-/**
  * Represents a single entry in the capability map.
  *
- * Can be a simple string, a descriptor object, or a function returning either.
+ * Can be a simple string or a descriptor object.
  *
  * @category Capability
  */
-export type CapabilityMapEntry =
-	| string
-	| CapabilityCapabilityDescriptor
-	| CapabilityMapFunction;
+export type CapabilityMapEntry = string | CapabilityCapabilityDescriptor;
 
 /**
  * Defines the structure of a capability map.

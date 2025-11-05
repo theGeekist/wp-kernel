@@ -17,15 +17,40 @@ import { hashCanonical, sortObject } from './canonical';
 const JSON_SCHEMA_URL = 'https://json-schema.org/draft/2020-12/schema';
 const SCHEMA_REGISTRY_BASE_URL = `https://schemas.${WPK_NAMESPACE}.dev`;
 
+/**
+ * Accumulator for discovered IR schemas.
+ *
+ * Holds an ordered `entries` array and a lookup map by schema key for
+ * quick de-duplication and resolution during IR assembly.
+ *
+ * @category IR
+ */
 export interface SchemaAccumulator {
 	entries: IRSchema[];
 	byKey: Map<string, IRSchema>;
 }
 
+/**
+ * Create an empty schema accumulator.
+ *
+ * @returns New SchemaAccumulator with an empty entries array and map
+ * @category IR
+ */
 export function createSchemaAccumulator(): SchemaAccumulator {
 	return { entries: [], byKey: new Map() };
 }
 
+/**
+ * Load schemas declared in the workspace configuration into the
+ * accumulator.
+ *
+ * Each configured schema is resolved from the configured path, loaded,
+ * hashed and stored with provenance metadata.
+ *
+ * @param    options     - Build IR options containing config and sourcePath
+ * @param    accumulator - SchemaAccumulator to populate
+ * @category IR
+ */
 export async function loadConfiguredSchemas(
 	options: BuildIrOptions,
 	accumulator: SchemaAccumulator
@@ -54,6 +79,20 @@ export async function loadConfiguredSchemas(
 	}
 }
 
+/**
+ * Resolve which schema a resource should use.
+ *
+ * If a resource declares `schema: 'auto'` a synthesised schema is created
+ * from the resource storage/meta; otherwise an explicit schema reference
+ * is looked up in the accumulator.
+ *
+ * @param    resourceKey        - Name/key of the resource
+ * @param    resource           - ResourceConfig from workspace config
+ * @param    accumulator        - SchemaAccumulator containing loaded schemas
+ * @param    sanitizedNamespace - Namespace used to generate schema $id
+ * @returns Object with chosen schemaKey and its provenance
+ * @category IR
+ */
 export async function resolveResourceSchema(
 	resourceKey: string,
 	resource: ResourceConfig,
@@ -111,6 +150,17 @@ export async function resolveResourceSchema(
 	return { schemaKey: schema, provenance: irSchema.provenance };
 }
 
+/**
+ * Infer the schema setting for a resource.
+ *
+ * Explicit `resource.schema` is honoured. If missing and the resource
+ * declares storage, `auto` is returned to indicate a generated schema
+ * should be synthesised.
+ *
+ * @param    resource - ResourceConfig to inspect
+ * @returns The explicit schema reference or 'auto'
+ * @category IR
+ */
 export function inferSchemaSetting(
 	resource: ResourceConfig
 ): ResourceConfig['schema'] | 'auto' {
@@ -125,6 +175,18 @@ export function inferSchemaSetting(
 	return resource.schema;
 }
 
+/**
+ * Resolve a configured schema path to an absolute filesystem path.
+ *
+ * The function will accept absolute paths, resolve paths relative to the
+ * config file, or resolve paths relative to the workspace root. A
+ * ValidationError is thrown when the path cannot be resolved.
+ *
+ * @param    schemaPath - Path declared in the config
+ * @param    configPath - Path to the config file for resolving relative refs
+ * @returns Absolute filesystem path to the schema file
+ * @category IR
+ */
 export async function resolveSchemaPath(
 	schemaPath: string,
 	configPath: string
@@ -152,6 +214,12 @@ export async function resolveSchemaPath(
 	});
 }
 
+/**
+ * Ensure the given file exists, throwing a ValidationError otherwise.
+ *
+ * @param    filePath - Path to verify
+ * @category IR
+ */
 export async function ensureFileExists(filePath: string): Promise<void> {
 	if (!(await fileExists(filePath))) {
 		throw new WPKernelError('ValidationError', {
@@ -161,6 +229,15 @@ export async function ensureFileExists(filePath: string): Promise<void> {
 	}
 }
 
+/**
+ * Check whether a candidate path exists and is a file.
+ *
+ * Returns false for non-existent paths and re-throws unexpected errors.
+ *
+ * @param    candidate - Path to test
+ * @returns True when candidate exists and is a regular file
+ * @category IR
+ */
 export async function fileExists(candidate: string): Promise<boolean> {
 	try {
 		const stats = await fs.stat(candidate);
@@ -174,6 +251,17 @@ export async function fileExists(candidate: string): Promise<boolean> {
 	}
 }
 
+/**
+ * Load and parse a JSON Schema file from disk.
+ *
+ * Parsing failures are reported as ValidationError with contextual
+ * information to aid debugging.
+ *
+ * @param    filePath - Filesystem path to the schema file
+ * @param    key      - Logical key/name of the schema for error messages
+ * @returns Parsed JSON schema value
+ * @category IR
+ */
 export async function loadJsonSchema(
 	filePath: string,
 	key: string
@@ -190,6 +278,18 @@ export async function loadJsonSchema(
 	}
 }
 
+/**
+ * Synthesize a JSON Schema for a resource using storage/post-meta
+ * descriptors.
+ *
+ * This produces a minimal, deterministic schema (title, $id, properties)
+ * suitable for use when resources opt into `schema: 'auto'`.
+ *
+ * @param    resource           - Resource configuration to synthesise schema from
+ * @param    sanitizedNamespace - Namespace used to compose $id values
+ * @returns A JSON Schema object for the resource
+ * @category IR
+ */
 export function synthesiseSchema(
 	resource: ResourceConfig,
 	sanitizedNamespace: string
@@ -219,6 +319,16 @@ export function synthesiseSchema(
 	return sortObject(baseSchema);
 }
 
+/**
+ * Create a small JSON Schema fragment from a post meta descriptor.
+ *
+ * Handles single vs multi-valued meta and returns either an item schema or
+ * an array schema as appropriate.
+ *
+ * @param    descriptor - Post meta descriptor from resource storage config
+ * @returns JSON Schema fragment describing the meta property
+ * @category IR
+ */
 export function createSchemaFromPostMeta(
 	descriptor: ResourcePostMetaDescriptor
 ): Record<string, unknown> {
@@ -233,6 +343,15 @@ export function createSchemaFromPostMeta(
 	return { type };
 }
 
+/**
+ * Convert a kebab/underscore/colon separated identifier into Title Case.
+ *
+ * Used to create human-friendly schema titles from resource names.
+ *
+ * @param    value - Identifier to convert
+ * @returns Title-cased string
+ * @category IR
+ */
 export function toTitleCase(value: string): string {
 	return value
 		.split(/[-_:]/)

@@ -5,13 +5,26 @@ import { createHash } from 'node:crypto';
 import type { WPKernelConfigV1 } from '../../config/types';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
+/**
+ * TODO: summary.
+ * @category IR
+ */
 export const FIXTURE_ROOT = path.join(__dirname, '__fixtures__');
+/**
+ * TODO: summary.
+ * @category IR
+ */
 export const FIXTURE_CONFIG_PATH = path.join(
 	FIXTURE_ROOT,
 	WPK_CONFIG_SOURCES.WPK_CONFIG_TS
 );
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-ir-test-');
 
+/**
+ * TODO: summary.
+ * @returns TODO
+ * @category IR
+ */
 export function createBaseConfig(): WPKernelConfigV1 {
 	return {
 		version: 1,
@@ -21,6 +34,12 @@ export function createBaseConfig(): WPKernelConfigV1 {
 	} satisfies WPKernelConfigV1;
 }
 
+/**
+ * TODO: summary.
+ * @param    contents — TODO
+ * @param    run      — TODO
+ * @category IR
+ */
 export async function withTempSchema(
 	contents: string,
 	run: (schemaPath: string) => Promise<void>
@@ -36,6 +55,12 @@ export async function withTempSchema(
 	}
 }
 
+/**
+ * TODO: summary.
+ * @param    value — TODO
+ * @returns TODO
+ * @category IR
+ */
 export function canonicalHash(value: unknown): string {
 	return createHash('sha256')
 		.update(
@@ -45,6 +70,13 @@ export function canonicalHash(value: unknown): string {
 		.digest('hex');
 }
 
+/**
+ * TODO: summary.
+ * @typeParam T — TODO
+ * @param     value — TODO
+ * @returns TODO
+ * @category IR
+ */
 export function sortValue<T>(value: T): T {
 	if (Array.isArray(value)) {
 		return value.map((entry) => sortValue(entry)) as unknown as T;
@@ -65,6 +97,12 @@ export function sortValue<T>(value: T): T {
 	return value;
 }
 
+/**
+ * TODO: summary.
+ * @param    populate — TODO
+ * @param    run      — TODO
+ * @category IR
+ */
 export async function withTempWorkspace(
 	populate: (root: string) => Promise<void>,
 	run: (root: string) => Promise<void>

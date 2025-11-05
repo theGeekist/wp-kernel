@@ -46,17 +46,17 @@ import type {
 	CapabilityDeniedEvent,
 } from './types';
 
-const POLICY_EVENT_CHANNEL = WPK_INFRASTRUCTURE.POLICY_EVENT_CHANNEL;
-const POLICY_DENIED_EVENT = 'capability.denied';
-const BRIDGE_POLICY_DENIED_EVENT = 'bridge.capability.denied';
+const CAPABILITY_EVENT_CHANNEL = WPK_INFRASTRUCTURE.CAPABILITY_EVENT_CHANNEL;
+const CAPABILITY_DENIED_EVENT = 'capability.denied';
+const BRIDGE_CAPABILITY_DENIED_EVENT = 'bridge.capability.denied';
 
-const CAPABILITY_MODULE_CACHE_KEY = `${WPK_SUBSYSTEM_NAMESPACES.POLICY}.module`;
+const CAPABILITY_MODULE_CACHE_KEY = `${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY}.module`;
 
 function getCapabilityModuleReporter(): CapabilityReporter {
 	return resolveKernelReporter({
 		fallback: () =>
 			createKernelReporter({
-				namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
+				namespace: WPK_SUBSYSTEM_NAMESPACES.CAPABILITY,
 				channel: 'all',
 				level: 'warn',
 			}),
@@ -116,7 +116,7 @@ function getEventChannel(): BroadcastChannel | null {
 	}
 
 	try {
-		eventChannel = new window.BroadcastChannel(POLICY_EVENT_CHANNEL);
+		eventChannel = new window.BroadcastChannel(CAPABILITY_EVENT_CHANNEL);
 	} catch (error) {
 		getCapabilityModuleReporter().warn(
 			'Failed to create BroadcastChannel for capability events.',
@@ -153,7 +153,7 @@ function resolveCapabilityReporter(
 				level: 'debug',
 			}),
 		cache: true,
-		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.POLICY}.definition:${namespace}`,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY}.definition:${namespace}`,
 	});
 }
 
@@ -301,7 +301,7 @@ function emitCapabilityDenied(
 		requestId: payload.requestId ?? requestContext?.requestId,
 	};
 
-	const eventName = `${resolvedNamespace}.${POLICY_DENIED_EVENT}`;
+	const eventName = `${resolvedNamespace}.${CAPABILITY_DENIED_EVENT}`;
 	emitCapabilityHooks(eventName, eventPayload);
 	broadcastCapabilityDenied(resolvedNamespace, eventPayload);
 	emitCapabilityBridge(
@@ -340,7 +340,7 @@ function broadcastCapabilityDenied(
 	payload: CapabilityDeniedEvent
 ): void {
 	getEventChannel()?.postMessage({
-		type: POLICY_DENIED_EVENT,
+		type: CAPABILITY_DENIED_EVENT,
 		namespace,
 		payload,
 	});
@@ -370,7 +370,7 @@ function emitCapabilityBridge(
 
 	const runtime = getCapabilityRuntime();
 	runtime?.bridge?.emit?.(
-		`${namespace}.${BRIDGE_POLICY_DENIED_EVENT}`,
+		`${namespace}.${BRIDGE_CAPABILITY_DENIED_EVENT}`,
 		payload,
 		{
 			...requestContext,

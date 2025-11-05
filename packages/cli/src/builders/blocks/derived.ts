@@ -8,11 +8,37 @@ import type {
 	IRv1,
 } from '../../ir/publicTypes';
 
+/**
+ * A generated resource block together with the JSON manifest produced for it.
+ *
+ * This represents a block that the builder will emit for a resource when the
+ * resource is eligible for a JS-only block (for example resources with a GET
+ * route or an admin dataview). The `block` contains IR metadata used to
+ * materialise files and the `manifest` is the contents for the block.json file
+ * that should be written into the block directory.
+ *
+ * @category Builders
+ */
 export interface DerivedResourceBlock {
 	readonly block: IRBlock;
 	readonly manifest: Record<string, unknown>;
 }
 
+/**
+ * Derive block definitions and their manifests from the IR.
+ *
+ * Scans the IR's resources and returns an array of `DerivedResourceBlock` for
+ * each resource that should have a generated JS-only block. Existing blocks
+ * are skipped (so this is safe to run against a workspace that already has
+ * some blocks). The returned manifest is a ready-to-write `block.json` shape
+ * tailored to the resource (attributes, title, icon, etc.).
+ *
+ * @param    options                — Builder input containing the IR and any pre-existing blocks
+ * @param    options.ir
+ * @param    options.existingBlocks
+ * @returns An array of derived block descriptors and their block.json manifest
+ * @category Builders
+ */
 export function deriveResourceBlocks(options: {
 	readonly ir: IRv1;
 	readonly existingBlocks: ReadonlyMap<string, IRBlock>;

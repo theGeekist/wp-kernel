@@ -1,4 +1,5 @@
 import type {
+	ResourceCapabilityMap,
 	ResourceIdentityConfig,
 	ResourceQueryParams,
 	ResourceStorageConfig,
@@ -140,6 +141,8 @@ export interface IRResource {
 	queryParams?: ResourceQueryParams;
 	/** Optional: UI configuration for the resource. */
 	ui?: ResourceUIConfig;
+	/** Optional: Inline capability mappings for the resource. */
+	capabilities?: ResourceCapabilityMap;
 	/** A hash of the resource definition for change detection. */
 	hash: string;
 	/** An array of warnings associated with this resource. */

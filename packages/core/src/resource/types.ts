@@ -170,7 +170,35 @@ export type ResourceQueryParamDescriptor = {
 	description?: string;
 };
 
+/**
+ * TODO: summary.
+ * @category Resource
+ */
 export type ResourceQueryParams = Record<string, ResourceQueryParamDescriptor>;
+
+/**
+ * Capability descriptor for object-level or resource-level checks.
+ */
+export type ResourceCapabilityDescriptor = {
+	/** WordPress capability to check (e.g., 'edit_posts') */
+	capability: string;
+	/** Whether this applies to the resource collection or individual objects */
+	appliesTo: 'resource' | 'object';
+	/** Optional parameter binding for object-level checks (e.g., 'id', 'postId') */
+	binding?: string;
+};
+
+/**
+ * Capability map for a resource.
+ *
+ * Maps capability keys to WordPress capabilities. Values can be:
+ * - String: Simple WordPress capability (e.g., 'edit_posts')
+ * - Object: Detailed descriptor with appliesTo and optional binding
+ */
+export type ResourceCapabilityMap = Record<
+	string,
+	string | ResourceCapabilityDescriptor
+>;
 
 /**
  * Complete resource definition configuration
@@ -213,6 +241,13 @@ export type ResourceStoreOptions<T, TQuery = unknown> = {
 	initialState?: Partial<ResourceState<T>>;
 };
 
+/**
+ * TODO: summary.
+ * @typeParam T — TODO
+ * @typeParam TQuery — TODO
+ * @typeParam _TTypes — TODO
+ * @category Resource
+ */
 export type ResourceConfig<
 	T = unknown,
 	TQuery = unknown,
@@ -306,8 +341,30 @@ export type ResourceConfig<
 	 * Optional UI metadata surfaced to runtime integrations (e.g., DataViews).
 	 */
 	ui?: ResourceUIConfig<T, TQuery>;
+
+	/**
+	 * Optional inline capability mappings.
+	 *
+	 * Maps capability keys (from route definitions) to WordPress capabilities.
+	 * Each resource can define its own capability mappings inline, and these
+	 * will be collected by the CLI during code generation.
+	 *
+	 * @example
+	 * ```ts
+	 * capabilities: {
+	 *   'book.create': 'edit_posts',
+	 *   'book.update': 'edit_others_posts',
+	 *   'book.delete': { capability: 'delete_posts', appliesTo: 'object', binding: 'id' }
+	 * }
+	 * ```
+	 */
+	capabilities?: ResourceCapabilityMap;
 };
 
+/**
+ * TODO: summary.
+ * @category Resource
+ */
 export interface ResourceDataViewsMenuConfig {
 	slug: string;
 	title: string;
@@ -317,6 +374,10 @@ export interface ResourceDataViewsMenuConfig {
 	[key: string]: unknown;
 }
 
+/**
+ * TODO: summary.
+ * @category Resource
+ */
 export interface ResourceDataViewsScreenConfig {
 	component?: string;
 	route?: string;
@@ -328,6 +389,12 @@ export interface ResourceDataViewsScreenConfig {
 	[key: string]: unknown;
 }
 
+/**
+ * TODO: summary.
+ * @typeParam TItem — TODO
+ * @typeParam TQuery — TODO
+ * @category Resource
+ */
 export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
 	fields?: unknown[] | readonly unknown[];
 	defaultView?: unknown;
@@ -344,12 +411,24 @@ export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
 	[key: string]: unknown;
 }
 
+/**
+ * TODO: summary.
+ * @typeParam TItem — TODO
+ * @typeParam TQuery — TODO
+ * @category Resource
+ */
 export interface ResourceAdminUIConfig<TItem = unknown, TQuery = unknown> {
 	view?: 'dataviews' | string;
 	dataviews?: ResourceDataViewsUIConfig<TItem, TQuery>;
 	[key: string]: unknown;
 }
 
+/**
+ * TODO: summary.
+ * @typeParam TItem — TODO
+ * @typeParam TQuery — TODO
+ * @category Resource
+ */
 export interface ResourceUIConfig<TItem = unknown, TQuery = unknown> {
 	admin?: ResourceAdminUIConfig<TItem, TQuery>;
 	[key: string]: unknown;
@@ -836,6 +915,11 @@ export type ResourceObject<T = unknown, TQuery = unknown> = {
  */
 export type ResourceListStatus = 'idle' | 'loading' | 'success' | 'error';
 
+/**
+ * TODO: summary.
+ * @typeParam T — TODO
+ * @category Resource
+ */
 export type ResourceState<T> = {
 	/**
 	 * Map of items by ID.

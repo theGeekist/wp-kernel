@@ -47,7 +47,6 @@ export {
 	type CapabilityMapDefinition,
 	type CapabilityMapEntry,
 	type CapabilityMapScope,
-	type CapabilityMapFunction,
 } from './capability-map';
 
 export type {

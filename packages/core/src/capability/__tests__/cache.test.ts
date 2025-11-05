@@ -109,7 +109,7 @@ describe('createCapabilityCache', () => {
 		const cache = createCapabilityCache({ storage: 'session' }, 'acme');
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY_CACHE}]`,
 			'Failed to parse persisted capability cache.',
 			expect.any(SyntaxError)
 		);
@@ -143,7 +143,7 @@ describe('createCapabilityCache', () => {
 			.mockImplementation(() => undefined);
 		cache.set('capability::void', false);
 		expect(warn).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY_CACHE}]`,
 			'Failed to persist capability cache.',
 			error
 		);
@@ -164,7 +164,7 @@ describe('createCapabilityCache', () => {
 		const cache = createCapabilityCache({ storage: 'session' }, 'acme');
 		expect(cache.keys()).toEqual([]);
 		expect(warn).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY_CACHE}]`,
 			'sessionStorage is not available for capability cache.',
 			expect.any(Error)
 		);
@@ -293,7 +293,7 @@ describe('createCapabilityCache', () => {
 			.mockImplementation(() => undefined);
 		const cache = createCapabilityCache({}, 'acme');
 		expect(warn).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY_CACHE}]`,
 			'Failed to create BroadcastChannel for capability cache.',
 			expect.any(Error)
 		);

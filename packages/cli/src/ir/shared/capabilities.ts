@@ -1,5 +1,17 @@
 import type { IRCapabilityHint, IRResource } from '../publicTypes';
 
+/**
+ * Collect capability hints from a list of IR resources.
+ *
+ * Scans each resource's routes for a declared capability and aggregates
+ * references so callers can reason about which resources and routes
+ * reference a given capability key. The returned hints are deterministically
+ * sorted for stable output.
+ *
+ * @param    resources - IR resources to scan for capability references
+ * @returns Sorted array of capability hints with their references
+ * @category IR
+ */
 export function collectCapabilityHints(
 	resources: IRResource[]
 ): IRCapabilityHint[] {

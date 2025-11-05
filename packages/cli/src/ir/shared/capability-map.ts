@@ -1,37 +1,21 @@
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { WPKernelError } from '@wpkernel/core/error';
 import type {
 	CapabilityCapabilityDescriptor,
 	CapabilityMapDefinition,
 	CapabilityMapEntry,
 } from '../../capability-map';
-import {
-	fileExists,
-	formatError,
-	getTsImport,
-	resolveConfigValue,
-} from '../../config/load-kernel-config';
 import type {
 	IRCapabilityHint,
 	IRCapabilityMap,
-	IRResource,
 	IRCapabilityScope,
+	IRResource,
+	IRWarning,
 } from '../publicTypes';
-import { toWorkspaceRelative } from '../../utils';
 
 interface ResolveCapabilityMapOptions {
-	workspaceRoot: string;
 	hints: IRCapabilityHint[];
 	resources: IRResource[];
 }
-
-const POLICY_MAP_CANDIDATES = [
-	'src/capability-map.ts',
-	'src/capability-map.js',
-	'src/capability-map.mjs',
-	'src/capability-map.cjs',
-];
 
 const FALLBACK_CAPABILITY = 'manage_options';
 
@@ -40,27 +24,33 @@ interface CapabilityResolutionContext {
 	fallback: IRCapabilityMap['fallback'];
 }
 
+/**
+ * TODO: summary.
+ * @param    options — TODO
+ * @returns TODO
+ * @category IR
+ */
 export async function resolveCapabilityMap(
 	options: ResolveCapabilityMapOptions
 ): Promise<IRCapabilityMap> {
 	const context = createResolutionContext(options);
-	const mapPath = await findCapabilityMapPath(options.workspaceRoot);
 
-	if (!mapPath) {
+	// Collect inline capability maps from resources
+	const inlineMap = collectInlineCapabilities(options.resources);
+
+	if (Object.keys(inlineMap).length === 0) {
 		return createMissingMapResult(context);
 	}
 
-	const map = await loadCapabilityMapModule(mapPath);
 	const result = await buildResolvedCapabilityMap({
-		map,
-		mapPath,
+		map: inlineMap,
 		referencedKeys: context.referencedKeys,
 		hints: options.hints,
 		resources: options.resources,
 	});
 
 	return {
-		sourcePath: toWorkspaceRelative(mapPath),
+		sourcePath: 'inline',
 		fallback: context.fallback,
 		...result,
 	};
@@ -78,6 +68,44 @@ function createResolutionContext(
 			appliesTo: 'resource',
 		},
 	};
+}
+
+function collectInlineCapabilities(
+	resources: IRResource[]
+): CapabilityMapDefinition {
+	const inlineMap: CapabilityMapDefinition = {};
+	const seen = new Map<
+		string,
+		{ resource: string; value: CapabilityMapEntry }
+	>();
+
+	for (const resource of resources) {
+		const capabilities = resource.capabilities;
+		if (!capabilities || typeof capabilities !== 'object') {
+			continue;
+		}
+
+		// Check for duplicate keys across resources
+		for (const [key, val] of Object.entries(
+			capabilities as Record<string, CapabilityMapEntry>
+		)) {
+			const prev = seen.get(key);
+			if (prev && JSON.stringify(prev.value) !== JSON.stringify(val)) {
+				throw new WPKernelError('ValidationError', {
+					message: `Conflicting capability map entry '${key}' defined in multiple resources with different values.`,
+					context: {
+						capability: key,
+						firstResource: prev.resource,
+						secondResource: resource.name,
+					},
+				});
+			}
+			seen.set(key, { resource: resource.name, value: val });
+			inlineMap[key] = val;
+		}
+	}
+
+	return inlineMap;
 }
 
 function createMissingMapResult(
@@ -107,12 +135,11 @@ function createMissingMapResult(
 
 async function buildResolvedCapabilityMap(options: {
 	map: CapabilityMapDefinition;
-	mapPath: string;
 	referencedKeys: Set<string>;
 	hints: IRCapabilityHint[];
 	resources: IRResource[];
 }): Promise<Omit<IRCapabilityMap, 'fallback' | 'sourcePath'>> {
-	const { map, mapPath, referencedKeys, hints, resources } = options;
+	const { map, referencedKeys, hints, resources } = options;
 	const missing = new Set(referencedKeys);
 	const warnings: IRCapabilityMap['warnings'] = [];
 	const definitions: IRCapabilityMap['definitions'] = [];
@@ -121,10 +148,10 @@ async function buildResolvedCapabilityMap(options: {
 		.sort();
 
 	for (const [key, entry] of Object.entries(map)) {
-		const descriptor = await normaliseEntry({
+		const descriptor = normaliseEntry({
 			key,
 			entry,
-			origin: mapPath,
+			origin: 'inline',
 		});
 
 		const appliesTo: IRCapabilityScope = descriptor.appliesTo ?? 'resource';
@@ -159,19 +186,14 @@ async function buildResolvedCapabilityMap(options: {
 	const missingList = sortKeys(missing);
 
 	if (missingList.length > 0) {
-		warnings.push({
-			code: 'capability-map.entries.missing',
-			message:
-				'Capabilities referenced by routes are missing from src/capability-map.',
-			context: { capabilities: missingList },
-		});
+		warnings.push(createMissingCapabilitiesWarning(missingList, hints));
 	}
 
 	if (unused.length > 0) {
 		warnings.push({
 			code: 'capability-map.entries.unused',
 			message:
-				'Capability map defines capabilities that are not referenced by any route.',
+				'Capability definitions exist that are not referenced by any route.',
 			context: { capabilities: unused },
 		});
 	}
@@ -186,117 +208,47 @@ async function buildResolvedCapabilityMap(options: {
 	};
 }
 
-async function findCapabilityMapPath(
-	workspaceRoot: string
-): Promise<string | undefined> {
-	for (const candidate of POLICY_MAP_CANDIDATES) {
-		const absolute = path.resolve(workspaceRoot, candidate);
-		if (await fileExists(absolute)) {
-			return absolute;
+function createMissingCapabilitiesWarning(
+	missingList: string[],
+	hints: IRCapabilityHint[]
+): IRWarning {
+	// Build a map of missing capabilities to their referencing resources
+	const missingWithResources = new Map<string, Set<string>>();
+	for (const capability of missingList) {
+		const hint = hints.find((h) => h.key === capability);
+		if (hint) {
+			const resourceNames = new Set(
+				hint.references.map((ref) => ref.resource)
+			);
+			missingWithResources.set(capability, resourceNames);
 		}
 	}
 
-	return undefined;
-}
-
-async function loadCapabilityMapModule(
-	mapPath: string
-): Promise<CapabilityMapDefinition> {
-	const extension = path.extname(mapPath);
-	let moduleExports: unknown;
-
-	try {
-		if (extension === '.ts') {
-			const tsImport = await getTsImport();
-			moduleExports = await tsImport(mapPath, {
-				parentURL: pathToFileURL(mapPath).href,
-			});
-		} else {
-			moduleExports = await import(pathToFileURL(mapPath).href);
-		}
-	} catch (error) {
-		const message = `Failed to load capability map at ${mapPath}: ${formatError(error)}`;
-		const underlying = error instanceof Error ? error : undefined;
-		throw new WPKernelError('ValidationError', {
-			message,
-			context: { capabilityMapPath: mapPath },
-			data: underlying ? { originalError: underlying } : undefined,
-		});
-	}
-
-	const resolved = await resolveConfigValue(moduleExports);
-	const map = extractCapabilityMap(resolved);
-	if (!map) {
-		const message = `Capability map module at ${mapPath} must export a capability map object.`;
-		throw new WPKernelError('ValidationError', {
-			message,
-			context: { capabilityMapPath: mapPath },
-		});
-	}
-
-	return map;
+	return {
+		code: 'capability-map.entries.missing',
+		message:
+			'Capabilities referenced by routes are missing from resource capability definitions.',
+		context: {
+			capabilities: missingList,
+			referencedBy: Object.fromEntries(
+				Array.from(missingWithResources.entries()).map(
+					([cap, resourceNames]) => [cap, Array.from(resourceNames)]
+				)
+			),
+		},
+	};
 }
 
 function sortKeys(keys: Iterable<string>): string[] {
 	return Array.from(keys).sort();
 }
 
-function extractCapabilityMap(value: unknown): CapabilityMapDefinition | null {
-	if (isCapabilityMapDefinition(value)) {
-		return value;
-	}
-
-	if (
-		isRecord(value) &&
-		'capabilityMap' in value &&
-		isCapabilityMapDefinition(
-			(value as Record<string, unknown>).capabilityMap
-		)
-	) {
-		return (value as { capabilityMap: CapabilityMapDefinition })
-			.capabilityMap;
-	}
-
-	return null;
-}
-
-async function normaliseEntry(options: {
+function normaliseEntry(options: {
 	key: string;
 	entry: CapabilityMapEntry;
 	origin: string;
-}): Promise<CapabilityCapabilityDescriptor> {
-	const candidate = await evaluateEntry(options);
-	return coerceDescriptor(candidate, options);
-}
-
-async function evaluateEntry(options: {
-	key: string;
-	entry: CapabilityMapEntry;
-	origin: string;
-}): Promise<unknown> {
-	if (typeof options.entry !== 'function') {
-		return options.entry;
-	}
-
-	try {
-		let result: unknown = options.entry();
-		while (isPromise(result)) {
-			result = await result;
-		}
-
-		return result;
-	} catch (error) {
-		const message = `Capability map entry "${options.key}" threw during evaluation.`;
-		const underlying = error instanceof Error ? error : undefined;
-		throw new WPKernelError('ValidationError', {
-			message,
-			context: {
-				capability: options.key,
-				capabilityMapPath: options.origin,
-			},
-			data: underlying ? { originalError: underlying } : undefined,
-		});
-	}
+}): CapabilityCapabilityDescriptor {
+	return coerceDescriptor(options.entry, options);
 }
 
 function coerceDescriptor(
@@ -394,30 +346,6 @@ function deriveBinding(options: {
 	return null;
 }
 
-function isCapabilityMapDefinition(
-	value: unknown
-): value is CapabilityMapDefinition {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	for (const entry of Object.values(value)) {
-		if (!isCapabilityMapEntry(entry)) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-function isCapabilityMapEntry(value: unknown): value is CapabilityMapEntry {
-	return (
-		typeof value === 'string' ||
-		typeof value === 'function' ||
-		isCapabilityCapabilityDescriptor(value)
-	);
-}
-
 function isCapabilityCapabilityDescriptor(
 	value: unknown
 ): value is CapabilityCapabilityDescriptor {
@@ -430,11 +358,4 @@ function isCapabilityCapabilityDescriptor(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
-}
-
-function isPromise(value: unknown): value is Promise<unknown> {
-	return (
-		isRecord(value) &&
-		typeof (value as { then?: unknown }).then === 'function'
-	);
 }

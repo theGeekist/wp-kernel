@@ -1,3 +1,17 @@
+/**
+ * Create a PHP namespace identifier from a hyphen/underscore-separated
+ * project namespace.
+ *
+ * The function converts segments to PascalCase, treats `wp` specially
+ * (converting `wp` to `WP` unless followed by `kernel`, in which case
+ * `WPKernel` is used), and joins segments with the PHP namespace
+ * separator (`\`). If the input contains a single segment it is returned
+ * in PascalCase.
+ *
+ * @param    namespace - Project namespace (e.g. `my-plugin` or `wp-kernel`)
+ * @returns PHP namespace string suitable for use in generated PHP code
+ * @category IR
+ */
 export function createPhpNamespace(namespace: string): string {
 	const segments = namespace.split('-').filter(Boolean);
 	if (segments.length === 0) {

@@ -89,13 +89,13 @@ describe('capability environment edge cases', () => {
 
 		expect(broadcastSpy).toHaveBeenCalled();
 		expect(warnSpy).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY_CACHE}]`,
 			'Failed to create BroadcastChannel for capability cache.',
 			broadcastError
 		);
 		expect(console as any).toHaveWarned();
 		expect(warnSpy).toHaveBeenCalledWith(
-			`[${WPK_SUBSYSTEM_NAMESPACES.POLICY}]`,
+			`[${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY}]`,
 			'Failed to create BroadcastChannel for capability events.',
 			{ error: broadcastError }
 		);

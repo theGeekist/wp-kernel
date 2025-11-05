@@ -12,6 +12,23 @@ const RESERVED_ROUTE_PREFIXES = [
 
 const ROUTE_NORMALISATION_REGEX = /\/+$/;
 
+/**
+ * Normalise and validate a resource's configured routes into IRRoute
+ * records.
+ *
+ * This performs path normalisation, transport detection (local vs remote),
+ * reserved prefix checks, duplicate detection (for local routes), and
+ * produces a deterministic hash for each route. Any warnings produced by
+ * the analysis are returned alongside the normalised routes.
+ *
+ * @param    options                    - Options for normalisation
+ * @param    options.resourceKey        - Resource key owning the routes
+ * @param    options.routes             - Raw routes from the resource config
+ * @param    options.duplicateDetector  - Shared map used to detect duplicate local routes
+ * @param    options.sanitizedNamespace - Namespace to consider local routes
+ * @returns Object containing an array of normalised `IRRoute`s and any `IRWarning`s
+ * @category IR
+ */
 export function normaliseRoutes(options: {
 	resourceKey: string;
 	routes: ResourceConfig['routes'];
