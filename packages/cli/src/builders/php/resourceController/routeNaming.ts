@@ -1,6 +1,18 @@
 import { toPascalCase } from '../utils';
 import type { IRRoute, IRv1 } from '../../../ir/publicTypes';
 
+/**
+ * Generates a PHP method name for a WordPress REST route handler.
+ *
+ * Combines the HTTP method (get, post, etc.) with PascalCase route segments
+ * to create semantic method names like `getJobById` or `postApplications`.
+ * Strips namespace prefixes to avoid redundant naming.
+ *
+ * @param    route - IR route definition with method and path
+ * @param    ir    - IR program containing namespace metadata
+ * @returns PHP method name (e.g., "getJobById", "postApplications")
+ * @category Builders
+ */
 export function buildRouteMethodName(route: IRRoute, ir: IRv1): string {
 	const method = route.method.toLowerCase();
 	const segments = deriveRouteSegments(route.path, ir);
@@ -8,6 +20,17 @@ export function buildRouteMethodName(route: IRRoute, ir: IRv1): string {
 	return `${method}${suffix}`;
 }
 
+/**
+ * Extracts meaningful path segments from a WordPress REST route.
+ *
+ * Strips namespace prefixes, leading slashes, and parameter colons from route paths.
+ * Returns normalized segments suitable for generating method names or identifiers.
+ *
+ * @param    path - REST route path (e.g., "/wpk/v1/jobs/:id")
+ * @param    ir   - IR program containing namespace to strip
+ * @returns Array of normalized path segments (e.g., ["jobs", "id"])
+ * @category Builders
+ */
 export function deriveRouteSegments(path: string, ir: IRv1): string[] {
 	const trimmed = path.replace(/^\/+/, '');
 	if (!trimmed) {

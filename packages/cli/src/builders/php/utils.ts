@@ -18,6 +18,17 @@ export function toPascalCase(value: string): string {
 	);
 }
 
+/**
+ * Converts a string to snake_case format.
+ *
+ * Transforms PascalCase, camelCase, or hyphenated strings into lowercase
+ * snake_case. Used for generating WordPress-compatible identifiers like
+ * option keys and error codes.
+ *
+ * @param    value - String to convert
+ * @returns snake_case formatted string
+ * @category Builders
+ */
 export function toSnakeCase(value: string): string {
 	return value
 		.replace(/[^a-zA-Z0-9]+/g, '_')
@@ -27,10 +38,28 @@ export function toSnakeCase(value: string): string {
 		.replace(/_+/g, '_');
 }
 
+/**
+ * Type guard to check if a value is a non-empty string.
+ *
+ * @param    value - Value to check
+ * @returns True if value is a string with non-whitespace content
+ * @category Builders
+ */
 export function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
 }
 
+/**
+ * Recursively sanitizes JSON values for stable serialization.
+ *
+ * Deeply sorts object keys alphabetically and recursively processes arrays
+ * and nested objects. Ensures consistent JSON output for generated PHP code.
+ *
+ * @typeParam T - Type of the value being sanitized
+ * @param     value - Value to sanitize
+ * @returns Sanitized value with sorted keys
+ * @category Builders
+ */
 export function sanitizeJson<T>(value: T): T {
 	if (Array.isArray(value)) {
 		return value.map((entry) => sanitizeJson(entry)) as unknown as T;
@@ -46,6 +75,17 @@ export function sanitizeJson<T>(value: T): T {
 	return value;
 }
 
+/**
+ * Creates a factory function for generating WordPress error codes.
+ *
+ * Returns a function that generates prefixed error codes in the format
+ * `wpk_{resource_name}_{suffix}`. Used to create consistent WP_Error codes
+ * for REST API responses.
+ *
+ * @param    resourceName - Resource name to include in error codes
+ * @returns Factory function that generates error codes with given suffix
+ * @category Builders
+ */
 export function makeErrorCodeFactory(
 	resourceName: string
 ): (suffix: string) => string {

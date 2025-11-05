@@ -22,6 +22,17 @@ interface BuildRouteSetOptionsContext {
 	readonly wpPostRouteBundle?: WpPostRouteBundle;
 }
 
+/**
+ * Builds route set options for WordPress REST controller generation.
+ *
+ * Resolves storage-specific route handlers (WP_Post, wp-option, transient) and
+ * assembles configuration for generating REST route registration code. Maps
+ * resource storage mode to appropriate handler bundles.
+ *
+ * @param    context - Context containing resource, route, identity, and handler artifacts
+ * @returns Route set options without execution plan (plan added separately)
+ * @category Builders
+ */
 export function buildRouteSetOptions(
 	context: BuildRouteSetOptionsContext
 ): Omit<BuildResourceControllerRouteSetOptions, 'plan'> {

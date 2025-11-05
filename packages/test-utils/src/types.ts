@@ -1,9 +1,47 @@
+/**
+ * Schema configuration compatible with CLI SchemaConfig
+ */
+export interface SchemaConfigLike {
+	path: string;
+	generated: {
+		types: string;
+	};
+	description?: string;
+}
+
+/**
+ * Schema registry compatible with CLI SchemaRegistry
+ */
+export interface SchemaRegistryLike {
+	[key: string]: SchemaConfigLike;
+}
+
+/**
+ * Resource configuration compatible with @wpkernel/core ResourceConfig
+ */
+export interface ResourceConfigLike {
+	name: string;
+	routes: unknown;
+	identity?: unknown;
+	storage?: unknown;
+	cacheKeys?: unknown;
+	ui?: unknown;
+	[key: string]: unknown;
+}
+
+/**
+ * Resource registry compatible with CLI ResourceRegistry
+ */
+export interface ResourceRegistryLike {
+	[key: string]: ResourceConfigLike;
+}
+
 export interface WPKConfigV1Like<
-	TSchemas extends Record<string, unknown> = Record<string, unknown>,
-	TResources extends Record<string, unknown> = Record<string, unknown>,
+	TSchemas extends SchemaRegistryLike = SchemaRegistryLike,
+	TResources extends ResourceRegistryLike = ResourceRegistryLike,
 	TAdapters = unknown,
 > {
-	readonly version: number;
+	readonly version: 1;
 	readonly namespace: string;
 	readonly schemas: TSchemas;
 	readonly resources: TResources;

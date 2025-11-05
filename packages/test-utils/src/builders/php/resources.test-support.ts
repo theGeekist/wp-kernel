@@ -37,13 +37,22 @@ type TransientStorageConfigLike = Extract<
 	{ mode: 'transient' }
 >;
 
-const DEFAULT_CACHE_KEYS: ResourceCacheKeys<IRResourceCacheKeyLike> = {
-	list: { segments: ['books', 'list'], source: 'default' },
-	get: { segments: ['books', 'get'], source: 'default' },
-	create: { segments: ['books', 'create'], source: 'default' },
-	update: { segments: ['books', 'update'], source: 'default' },
-	remove: { segments: ['books', 'remove'], source: 'default' },
-};
+const DEFAULT_CACHE_KEYS = {
+	list: { segments: ['books', 'list'] as const, source: 'default' as const },
+	get: { segments: ['books', 'get'] as const, source: 'default' as const },
+	create: {
+		segments: ['books', 'create'] as const,
+		source: 'default' as const,
+	},
+	update: {
+		segments: ['books', 'update'] as const,
+		source: 'default' as const,
+	},
+	remove: {
+		segments: ['books', 'remove'] as const,
+		source: 'default' as const,
+	},
+} as const;
 
 export interface MakeWpPostResourceOptions<
 	TRoute extends IRRouteLike = IRRouteLike,

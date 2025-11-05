@@ -1,4 +1,4 @@
-import { buildRequestParamAssignmentStatement } from '../index';
+import { buildRequestParamAssignmentStatement } from '@wpkernel/wp-json-ast';
 
 describe('request helpers', () => {
 	it('creates assignments without casts', () => {

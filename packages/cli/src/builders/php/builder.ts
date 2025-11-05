@@ -24,6 +24,11 @@ import {
 
 export type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 
+/**
+ * Configuration options for creating the PHP builder.
+ *
+ * @category Builders
+ */
 export interface CreatePhpBuilderOptions {
 	/**
 	 * Optional configuration options for the PHP driver.
