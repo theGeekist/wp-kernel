@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "../../tsconfig.tests.json",
+	"compilerOptions": {
+		"rootDir": "../..",
+		"outDir": "./dist-tests"
+	},
+	"include": [
+		"src/**/*",
+		"tests/**/*",
+		"../../tests/**/*",
+		"../../scripts/register-workspace.ts",
+		"../test-utils/src/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"dist-tests",
+		"**/dist",
+		"**/*.test-support.d.ts"
+	]
+}
