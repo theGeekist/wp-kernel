@@ -2,6 +2,7 @@ import { createHash as buildHash } from 'node:crypto';
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
+import type { MaybePromise } from '@wpkernel/pipeline';
 import type { Project, SourceFile } from 'ts-morph';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { IRv1 } from '../ir/publicTypes';
@@ -124,7 +125,7 @@ export interface CreateTsBuilderOptions {
 	/** Optional: A list of `TsBuilderCreator` instances to use. */
 	readonly creators?: readonly TsBuilderCreator[];
 	/** Optional: A factory function to create a `ts-morph` Project instance. */
-	readonly projectFactory?: () => Promise<Project>;
+	readonly projectFactory?: () => MaybePromise<Project>;
 	/** Optional: Lifecycle hooks for the builder. */
 	readonly hooks?: TsBuilderLifecycleHooks;
 }
@@ -158,7 +159,7 @@ export interface TsFormatter {
  */
 export interface BuildTsFormatterOptions {
 	/** Optional: A factory function to create a `ts-morph` Project instance. */
-	readonly projectFactory?: () => Promise<Project>;
+	readonly projectFactory?: () => MaybePromise<Project>;
 }
 
 type ResourceUiConfig = NonNullable<ResourceConfig['ui']>;
@@ -222,9 +223,8 @@ export function createTsBuilder(
 				return;
 			}
 
-			const project = await projectFactory();
+			const project = await Promise.resolve(projectFactory());
 			const emit = buildEmitter(context.workspace, output, emittedFiles);
-
 			await generateArtifacts({
 				descriptors,
 				creators,
@@ -545,7 +545,7 @@ export function buildTsFormatter(
 	async function format(
 		formatOptions: TsFormatterFormatOptions
 	): Promise<string> {
-		const project = await projectFactory();
+		const project = await Promise.resolve(projectFactory());
 		const sourceFile = project.createSourceFile(
 			formatOptions.filePath,
 			formatOptions.contents,

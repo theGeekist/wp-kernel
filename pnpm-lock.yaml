@@ -288,6 +288,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@loglayer/transport-simple-pretty-terminal':
+        specifier: '>=2.2.9'
+        version: 2.2.9
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
@@ -315,6 +318,9 @@ importers:
       cosmiconfig:
         specifier: ^9.0.0
         version: 9.0.0(typescript@5.9.3)
+      loglayer:
+        specifier: '>=6.7.2'
+        version: 6.9.1
       ts-morph:
         specifier: ^27.0.0
         version: 27.0.2
