@@ -40,10 +40,8 @@ async function main() {
 	/* ---------------------------------------------------------------------- */
 	tasks.push({
 		title: 'Lint staged files',
-		enabled: hasStaged && hasNonDocChanges,
-		skipMessage: hasStaged
-			? 'Docs-only changes - skipping lint-staged.'
-			: 'No staged files - skipping lint-staged.',
+		enabled: hasStaged,
+		skipMessage: 'No staged files - skipping lint-staged.',
 		async run(ctx) {
 			ctx.update('pnpm lint-staged');
 			const res = await runCommand('pnpm', ['lint-staged']);
