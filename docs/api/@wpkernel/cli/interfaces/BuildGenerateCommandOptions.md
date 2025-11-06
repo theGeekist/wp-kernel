@@ -13,7 +13,7 @@
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Create a WP Kernel reporter backed by LogLayer transports.
@@ -40,7 +40,7 @@ Reporter instance with child helpers
 #### createPipeline()?
 
 ```ts
-readonly optional createPipeline: () =&gt; Pipeline;
+readonly optional createPipeline: () => Pipeline;
 ```
 
 Creates a new CLI pipeline instance.
@@ -60,7 +60,7 @@ A `Pipeline` instance configured for CLI operations.
 #### registerFragments()?
 
 ```ts
-readonly optional registerFragments: (pipeline) =&gt; void;
+readonly optional registerFragments: (pipeline) => void;
 ```
 
 Registers the core IR fragments with the pipeline.
@@ -85,7 +85,7 @@ The pipeline instance to register fragments with.
 #### registerBuilders()?
 
 ```ts
-readonly optional registerBuilders: (pipeline) =&gt; void;
+readonly optional registerBuilders: (pipeline) => void;
 ```
 
 Registers the core builders with the pipeline.
@@ -110,7 +110,7 @@ The pipeline instance to register builders with.
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () =&gt; Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: () => Promise&lt;LoadedWPKernelConfig&gt;;
 ```
 
 Locate and load the project's kernel configuration.
@@ -135,7 +135,7 @@ WPKernelError when discovery, parsing or validation fails.
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 ##### Parameters
@@ -153,7 +153,7 @@ readonly optional buildWorkspace: (root) =&gt; Workspace;
 #### buildAdapterExtensionsExtension()?
 
 ```ts
-readonly optional buildAdapterExtensionsExtension: () =&gt; PipelineExtension;
+readonly optional buildAdapterExtensionsExtension: () => PipelineExtension;
 ```
 
 ##### Returns
@@ -165,7 +165,7 @@ readonly optional buildAdapterExtensionsExtension: () =&gt; PipelineExtension;
 #### renderSummary()?
 
 ```ts
-readonly optional renderSummary: (summary, dryRun, verbose) =&gt; string;
+readonly optional renderSummary: (summary, dryRun, verbose) => string;
 ```
 
 ##### Parameters
@@ -191,7 +191,7 @@ readonly optional renderSummary: (summary, dryRun, verbose) =&gt; string;
 #### validateGeneratedImports()?
 
 ```ts
-readonly optional validateGeneratedImports: (__namedParameters) =&gt; Promise&lt;void&gt;;
+readonly optional validateGeneratedImports: (__namedParameters) => Promise&lt;void&gt;;
 ```
 
 ##### Parameters

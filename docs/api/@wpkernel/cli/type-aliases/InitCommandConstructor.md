@@ -7,7 +7,7 @@
 # Type Alias: InitCommandConstructor()
 
 ```ts
-type InitCommandConstructor = () =&gt; InitCommandInstance;
+type InitCommandConstructor = () => InitCommandInstance;
 ```
 
 The constructor type for the `init` command.

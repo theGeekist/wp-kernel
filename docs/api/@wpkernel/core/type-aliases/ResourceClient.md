@@ -34,7 +34,7 @@ Query parameters type for list operations
 ### fetchList()?
 
 ```ts
-optional fetchList: (query?) =&gt; Promise&lt;ListResponse&lt;T&gt;&gt;;
+optional fetchList: (query?) => Promise&lt;ListResponse&lt;T&gt;&gt;;
 ```
 
 Fetch a list of resources
@@ -66,7 +66,7 @@ ServerError on REST API error
 ### fetch()?
 
 ```ts
-optional fetch: (id) =&gt; Promise&lt;T&gt;;
+optional fetch: (id) => Promise&lt;T&gt;;
 ```
 
 Fetch a single resource by ID
@@ -98,7 +98,7 @@ ServerError on REST API error (including 404)
 ### create()?
 
 ```ts
-optional create: (data) =&gt; Promise&lt;T&gt;;
+optional create: (data) => Promise&lt;T&gt;;
 ```
 
 Create a new resource
@@ -130,7 +130,7 @@ ServerError on REST API error (including validation errors)
 ### update()?
 
 ```ts
-optional update: (id, data) =&gt; Promise&lt;T&gt;;
+optional update: (id, data) => Promise&lt;T&gt;;
 ```
 
 Update an existing resource
@@ -168,7 +168,7 @@ ServerError on REST API error (including 404, validation errors)
 ### remove()?
 
 ```ts
-optional remove: (id) =&gt; Promise&lt;void | T&gt;;
+optional remove: (id) => Promise&lt;void | T&gt;;
 ```
 
 Delete a resource

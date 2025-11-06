@@ -17,7 +17,7 @@ Convenience helpers for interacting with ResourceDataView in tests.
 ### root()
 
 ```ts
-root: () =&gt; Locator;
+root: () => Locator;
 ```
 
 Root locator for the DataView wrapper.
@@ -31,7 +31,7 @@ Root locator for the DataView wrapper.
 ### waitForLoaded()
 
 ```ts
-waitForLoaded: () =&gt; Promise&lt;void&gt;;
+waitForLoaded: () => Promise&lt;void&gt;;
 ```
 
 Wait until the DataView reports that loading has finished.
@@ -45,7 +45,7 @@ Wait until the DataView reports that loading has finished.
 ### search()
 
 ```ts
-search: (value) =&gt; Promise&lt;void&gt;;
+search: (value) => Promise&lt;void&gt;;
 ```
 
 Fill the toolbar search control.
@@ -65,7 +65,7 @@ Fill the toolbar search control.
 ### clearSearch()
 
 ```ts
-clearSearch: () =&gt; Promise&lt;void&gt;;
+clearSearch: () => Promise&lt;void&gt;;
 ```
 
 Clear the search control.
@@ -79,7 +79,7 @@ Clear the search control.
 ### getRow()
 
 ```ts
-getRow: (text) =&gt; Locator;
+getRow: (text) => Locator;
 ```
 
 Retrieve a locator for a row containing the provided text.
@@ -99,7 +99,7 @@ Retrieve a locator for a row containing the provided text.
 ### selectRow()
 
 ```ts
-selectRow: (text) =&gt; Promise&lt;void&gt;;
+selectRow: (text) => Promise&lt;void&gt;;
 ```
 
 Toggle selection for a row that matches the provided text.
@@ -119,7 +119,7 @@ Toggle selection for a row that matches the provided text.
 ### runBulkAction()
 
 ```ts
-runBulkAction: (label) =&gt; Promise&lt;void&gt;;
+runBulkAction: (label) => Promise&lt;void&gt;;
 ```
 
 Trigger a bulk action button by its visible label.
@@ -139,7 +139,8 @@ Trigger a bulk action button by its visible label.
 ### getSelectedCount()
 
 ```ts
-getSelectedCount: () =&gt; Promise&lt;number&gt;;
+getSelectedCount: () => Promise & lt;
+number & gt;
 ```
 
 Read the bulk selection counter rendered in the footer.
@@ -153,7 +154,8 @@ Read the bulk selection counter rendered in the footer.
 ### getTotalCount()
 
 ```ts
-getTotalCount: () =&gt; Promise&lt;number&gt;;
+getTotalCount: () => Promise & lt;
+number & gt;
 ```
 
 Read the total item count exposed by the wrapper metadata.

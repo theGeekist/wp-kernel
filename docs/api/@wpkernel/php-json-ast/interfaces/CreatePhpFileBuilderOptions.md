@@ -29,7 +29,7 @@
 ### build()
 
 ```ts
-readonly build: (builder, entry) =&gt; void | Promise&lt;void&gt;;
+readonly build: (builder, entry) => void | Promise&lt;void&gt;;
 ```
 
 #### Parameters

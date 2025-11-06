@@ -22,8 +22,8 @@ const thing = defineResource&lt;Thing, { q?: string }&gt;({
     get: { path: '/my-plugin/v1/things/:id', method: 'GET' }
   },
   cacheKeys: {
-    list: (q) =&gt; ['thing', 'list', q?.q],
-    get: (id) =&gt; ['thing', 'get', id]
+    list: (q) => ['thing', 'list', q?.q],
+    get: (id) => ['thing', 'get', id]
   },
   schema: import('./thing.schema.json')
 })
@@ -48,11 +48,11 @@ Query parameters type for list operations (e.g., { q?: string })
 ### getId()?
 
 ```ts
-optional getId: (item) =&gt; string | number;
+optional getId: (item) => string | number;
 ```
 
 Function to extract ID from an item.
-Defaults to (item) =&gt; item.id
+Defaults to (item) => item.id
 
 #### Parameters
 
@@ -69,7 +69,7 @@ Defaults to (item) =&gt; item.id
 ### getQueryKey()?
 
 ```ts
-optional getQueryKey: (query?) =&gt; string;
+optional getQueryKey: (query?) => string;
 ```
 
 Function to generate query key from query params.

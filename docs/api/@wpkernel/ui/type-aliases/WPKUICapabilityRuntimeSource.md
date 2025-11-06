@@ -7,7 +7,7 @@
 # Type Alias: WPKUICapabilityRuntimeSource
 
 ```ts
-type WPKUICapabilityRuntimeSource = WPKUICapabilityRuntime | () =&gt; WPKUICapabilityRuntime | undefined;
+type WPKUICapabilityRuntimeSource = WPKUICapabilityRuntime | () => WPKUICapabilityRuntime | undefined;
 ```
 
 Source for the WPKUICapabilityRuntime.

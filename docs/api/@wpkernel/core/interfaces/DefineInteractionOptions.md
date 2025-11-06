@@ -87,7 +87,7 @@ readonly optional autoHydrate: boolean;
 ### hydrateServerState()?
 
 ```ts
-readonly optional hydrateServerState: (input) =&gt; void;
+readonly optional hydrateServerState: (input) => void;
 ```
 
 #### Parameters

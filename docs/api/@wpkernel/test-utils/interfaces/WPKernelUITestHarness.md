@@ -23,7 +23,7 @@ The WordPress test harness.
 ### createRuntime()
 
 ```ts
-createRuntime: (overrides?) =&gt; WPKernelUIRuntime;
+createRuntime: (overrides?) => WPKernelUIRuntime;
 ```
 
 Creates a new `WPKernelUIRuntime` instance.
@@ -43,7 +43,7 @@ Creates a new `WPKernelUIRuntime` instance.
 ### createWrapper()
 
 ```ts
-createWrapper: (runtime?) =&gt; (__namedParameters) =&gt; ReactElement&lt;{
+createWrapper: (runtime?) => (__namedParameters) => ReactElement&lt;{
 }&gt;;
 ```
 
@@ -80,7 +80,7 @@ Creates a React wrapper component for the WPKernel UI runtime.
 ### resetActionStoreRegistration()
 
 ```ts
-resetActionStoreRegistration: () =&gt; void;
+resetActionStoreRegistration: () => void;
 ```
 
 Resets the action store registration.
@@ -94,7 +94,7 @@ Resets the action store registration.
 ### suppressConsoleError()
 
 ```ts
-suppressConsoleError: (predicate) =&gt; void;
+suppressConsoleError: (predicate) => void;
 ```
 
 Suppresses console errors that match a given predicate.
@@ -103,7 +103,7 @@ Suppresses console errors that match a given predicate.
 
 ##### predicate
 
-(`args`) =&gt; `boolean`
+(`args`) => `boolean`
 
 #### Returns
 
@@ -114,7 +114,7 @@ Suppresses console errors that match a given predicate.
 ### restoreConsoleError()
 
 ```ts
-restoreConsoleError: () =&gt; void;
+restoreConsoleError: () => void;
 ```
 
 Restores the original console error function.
@@ -128,7 +128,7 @@ Restores the original console error function.
 ### teardown()
 
 ```ts
-teardown: () =&gt; void;
+teardown: () => void;
 ```
 
 Tears down the harness, restoring original globals.

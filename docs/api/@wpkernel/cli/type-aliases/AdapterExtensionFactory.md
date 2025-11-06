@@ -7,10 +7,9 @@
 # Type Alias: AdapterExtensionFactory()
 
 ```ts
-type AdapterExtensionFactory = (context) =&gt;
-  | AdapterExtension
-  | AdapterExtension[]
-  | void;
+type AdapterExtensionFactory = (
+	context
+) => AdapterExtension | AdapterExtension[] | void;
 ```
 
 Factory responsible for returning adapter extensions.

@@ -30,7 +30,7 @@ new WPKernelEventBus(): WPKernelEventBus;
 ### on()
 
 ```ts
-on&lt;K&gt;(event, listener): () =&gt; void;
+on&lt;K&gt;(event, listener): () => void;
 ```
 
 Register a listener that remains active until the returned teardown
@@ -67,7 +67,7 @@ function is called.
 ### once()
 
 ```ts
-once&lt;K&gt;(event, listener): () =&gt; void;
+once&lt;K&gt;(event, listener): () => void;
 ```
 
 Register a listener that runs only once for the next occurrence of

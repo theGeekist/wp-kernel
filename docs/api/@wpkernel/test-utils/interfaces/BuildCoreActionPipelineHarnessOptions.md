@@ -43,7 +43,7 @@ Overrides for the action runtime.
 ### pipelineFactory()?
 
 ```ts
-readonly optional pipelineFactory: () =&gt; ActionPipeline&lt;TArgs, TResult&gt;;
+readonly optional pipelineFactory: () => ActionPipeline&lt;TArgs, TResult&gt;;
 ```
 
 A factory function to create the action pipeline.

@@ -43,7 +43,7 @@ An array of captured log entries.
 ### clear()
 
 ```ts
-clear: () =&gt; void;
+clear: () => void;
 ```
 
 Clears all captured log entries.

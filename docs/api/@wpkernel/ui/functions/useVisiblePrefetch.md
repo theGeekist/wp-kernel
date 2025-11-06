@@ -25,7 +25,7 @@ A React ref to the element to monitor.
 
 ### fn
 
-() =&gt; `void`
+() => `void`
 
 The function to call to trigger the prefetch.
 

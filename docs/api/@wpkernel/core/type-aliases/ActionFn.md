@@ -7,7 +7,7 @@
 # Type Alias: ActionFn()\&lt;TArgs, TResult\&gt;
 
 ```ts
-type ActionFn&lt;TArgs, TResult&gt; = (ctx, args) =&gt; Promise&lt;TResult&gt;;
+type ActionFn&lt;TArgs, TResult&gt; = (ctx, args) => Promise&lt;TResult&gt;;
 ```
 
 Function signature for action implementations.
@@ -51,7 +51,7 @@ Return type (value returned by the action)
 
 ```typescript
 // Simple action
-const CreatePost: ActionFn&lt;CreatePostInput, Post&gt; = async (ctx, input) =&gt; {
+const CreatePost: ActionFn&lt;CreatePostInput, Post&gt; = async (ctx, input) => {
   const post = await api.posts.create(input);
   ctx.emit('post.created', { postId: post.id });
   ctx.invalidate(['posts']);

@@ -21,7 +21,7 @@ middleware is no longer needed.
 ### destroy()?
 
 ```ts
-optional destroy: () =&gt; void;
+optional destroy: () => void;
 ```
 
 Optional cleanup method for middleware teardown

@@ -53,7 +53,7 @@ The namespace of the reporter.
 ### teardown()
 
 ```ts
-teardown: () =&gt; void;
+teardown: () => void;
 ```
 
 A function to clean up the harness.

@@ -13,7 +13,7 @@ Interface for reporting pipeline events and warnings.
 ### warn()?
 
 ```ts
-optional warn: (message, context?) =&gt; void;
+optional warn: (message, context?) => void;
 ```
 
 #### Parameters

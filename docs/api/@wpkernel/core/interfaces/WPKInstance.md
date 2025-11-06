@@ -11,7 +11,7 @@
 ### getNamespace()
 
 ```ts
-getNamespace: () =&gt; string;
+getNamespace: () => string;
 ```
 
 #### Returns
@@ -23,7 +23,7 @@ getNamespace: () =&gt; string;
 ### getReporter()
 
 ```ts
-getReporter: () =&gt; Reporter;
+getReporter: () => Reporter;
 ```
 
 #### Returns
@@ -35,7 +35,7 @@ getReporter: () =&gt; Reporter;
 ### invalidate()
 
 ```ts
-invalidate: (patterns, options?) =&gt; void;
+invalidate: (patterns, options?) => void;
 ```
 
 #### Parameters
@@ -57,7 +57,7 @@ invalidate: (patterns, options?) =&gt; void;
 ### emit()
 
 ```ts
-emit: (eventName, payload) =&gt; void;
+emit: (eventName, payload) => void;
 ```
 
 #### Parameters
@@ -79,7 +79,7 @@ emit: (eventName, payload) =&gt; void;
 ### teardown()
 
 ```ts
-teardown: () =&gt; void;
+teardown: () => void;
 ```
 
 #### Returns
@@ -91,7 +91,7 @@ teardown: () =&gt; void;
 ### getRegistry()
 
 ```ts
-getRegistry: () =&gt; WPKernelRegistry | undefined;
+getRegistry: () => WPKernelRegistry | undefined;
 ```
 
 #### Returns
@@ -103,7 +103,7 @@ getRegistry: () =&gt; WPKernelRegistry | undefined;
 ### hasUIRuntime()
 
 ```ts
-hasUIRuntime: () =&gt; boolean;
+hasUIRuntime: () => boolean;
 ```
 
 #### Returns
@@ -115,7 +115,7 @@ hasUIRuntime: () =&gt; boolean;
 ### getUIRuntime()
 
 ```ts
-getUIRuntime: () =&gt; WPKernelUIRuntime | undefined;
+getUIRuntime: () => WPKernelUIRuntime | undefined;
 ```
 
 #### Returns
@@ -127,7 +127,7 @@ getUIRuntime: () =&gt; WPKernelUIRuntime | undefined;
 ### attachUIBindings()
 
 ```ts
-attachUIBindings: (attach, options?) =&gt; WPKernelUIRuntime;
+attachUIBindings: (attach, options?) => WPKernelUIRuntime;
 ```
 
 #### Parameters
@@ -155,7 +155,7 @@ ui: object;
 #### isEnabled()
 
 ```ts
-isEnabled: () =&gt; boolean;
+isEnabled: () => boolean;
 ```
 
 ##### Returns
@@ -181,7 +181,7 @@ events: WPKernelEventBus;
 ### defineResource()
 
 ```ts
-defineResource: &lt;T, TQuery&gt;(config) =&gt; ResourceObject&lt;T, TQuery&gt;;
+defineResource: &lt;T, TQuery&gt;(config) => ResourceObject&lt;T, TQuery&gt;;
 ```
 
 #### Type Parameters

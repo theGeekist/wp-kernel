@@ -15,7 +15,7 @@ Options for building the `init` command.
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Optional: Custom reporter builder function.
@@ -44,7 +44,7 @@ Reporter instance with child helpers
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 Optional: Custom workspace builder function.
@@ -64,7 +64,7 @@ Optional: Custom workspace builder function.
 #### runWorkflow()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) =&gt; Promise&lt;InitWorkflowResult&gt;;
+readonly optional runWorkflow: (__namedParameters) => Promise&lt;InitWorkflowResult&gt;;
 ```
 
 Optional: Custom workflow runner function.
@@ -84,7 +84,7 @@ Optional: Custom workflow runner function.
 #### checkGitRepository()?
 
 ```ts
-readonly optional checkGitRepository: (cwd, __namedParameters) =&gt; Promise&lt;boolean&gt;;
+readonly optional checkGitRepository: (cwd, __namedParameters) => Promise&lt;boolean&gt;;
 ```
 
 Optional: Custom git repository checker function.

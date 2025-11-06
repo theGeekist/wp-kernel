@@ -23,7 +23,7 @@ Optional: A list of `TsBuilderCreator` instances to use.
 ### projectFactory()?
 
 ```ts
-readonly optional projectFactory: () =&gt; Project;
+readonly optional projectFactory: () => Project;
 ```
 
 Optional: A factory function to create a `ts-morph` Project instance.

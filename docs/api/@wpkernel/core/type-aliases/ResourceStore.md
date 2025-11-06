@@ -74,7 +74,8 @@ Resolvers for async data fetching.
 ### reducer()
 
 ```ts
-reducer: (state, action) =&gt; ResourceState&lt;T&gt;;
+reducer: (state, action) => ResourceState & lt;
+T & gt;
 ```
 
 Reducer function for state updates.
@@ -109,7 +110,7 @@ Initial state.
 ### controls?
 
 ```ts
-optional controls: Record&lt;string, (action) =&gt; unknown&gt;;
+optional controls: Record&lt;string, (action) => unknown&gt;;
 ```
 
 Controls for handling async operations in generators.

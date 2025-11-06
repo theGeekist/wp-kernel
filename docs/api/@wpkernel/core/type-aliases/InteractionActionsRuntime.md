@@ -7,7 +7,7 @@
 # Type Alias: InteractionActionsRuntime\&lt;TActions\&gt;
 
 ```ts
-type InteractionActionsRuntime&lt;TActions&gt; = { [Key in keyof TActions]: TActions[Key] extends InteractionActionInput&lt;infer TArgs, infer TResult&gt; ? (args: TArgs) =&gt; Promise&lt;TResult&gt; : never };
+type InteractionActionsRuntime&lt;TActions&gt; = { [Key in keyof TActions]: TActions[Key] extends InteractionActionInput&lt;infer TArgs, infer TResult&gt; ? (args: TArgs) => Promise&lt;TResult&gt; : never };
 ```
 
 Runtime representation of bound interaction actions.

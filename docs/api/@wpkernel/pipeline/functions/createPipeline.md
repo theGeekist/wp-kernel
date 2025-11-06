@@ -187,19 +187,19 @@ const pipeline = createPipeline({
   fragmentKind: 'fragment',
   builderKind: 'builder',
 
-  createContext: (reporter) =&gt; ({
+  createContext: (reporter) => ({
     reporter,
     namespace: 'MyPlugin',
   }),
 
-  buildFragment: (ctx, opts) =&gt; {
+  buildFragment: (ctx, opts) => {
     // Transform AST node
     const fragment = opts.input;
     fragment.namespace = ctx.namespace;
     return { fragment };
   },
 
-  buildArtifact: (ctx, opts) =&gt; {
+  buildArtifact: (ctx, opts) => {
     // Generate final PHP code
     const code = opts.draft.toString();
     return { artifact: code };
@@ -224,7 +224,7 @@ const pipeline = createPipeline({
     {
       key: 'eslint-validation',
       hooks: {
-        'post-builder': async ({ artifact, context }) =&gt; {
+        'post-builder': async ({ artifact, context }) => {
           const lintResult = await eslint.lintText(artifact);
           if (lintResult.errorCount &gt; 0) {
             throw new Error('Linting failed');
@@ -254,21 +254,21 @@ if (!result.success) {
 // This is how `wpk generate resource` works internally:
 
 const resourcePipeline = createPipeline({
-  fragmentKind: 'fragment',
-  builderKind: 'builder',
-  createContext: (reporter) =&gt; ({
-    reporter,
-    config: loadKernelConfig(),
-  }),
-  buildFragment: (ctx, opts) =&gt; {
-    // Build PHP AST for resource class
-    return buildResourceClass(opts.input, ctx.config);
-  },
-  buildArtifact: async (ctx, opts) =&gt; {
-    // Convert AST to PHP code
-    const code = await printPhpAst(opts.draft);
-    return { artifact: code };
-  },
+	fragmentKind: 'fragment',
+	builderKind: 'builder',
+	createContext: (reporter) => ({
+		reporter,
+		config: loadKernelConfig(),
+	}),
+	buildFragment: (ctx, opts) => {
+		// Build PHP AST for resource class
+		return buildResourceClass(opts.input, ctx.config);
+	},
+	buildArtifact: async (ctx, opts) => {
+		// Convert AST to PHP code
+		const code = await printPhpAst(opts.draft);
+		return { artifact: code };
+	},
 });
 
 // Register standard helpers
@@ -281,10 +281,10 @@ resourcePipeline.registerBuilder(formatCodeHelper);
 
 // User can inject custom helpers via config
 const userHelpers = loadUserHelpers();
-userHelpers.forEach(h =&gt; resourcePipeline.registerFragment(h));
+userHelpers.forEach((h) => resourcePipeline.registerFragment(h));
 
 // Execute generation
 const result = await resourcePipeline.run({
-  input: { name: 'Post', endpoint: '/posts' }
+	input: { name: 'Post', endpoint: '/posts' },
 });
 ```

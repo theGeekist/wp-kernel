@@ -23,14 +23,14 @@ Provides all WordPress E2E fixtures plus:
 ```typescript
 import { test, expect } from '@wpkernel/e2e-utils';
 
-test('job workflow', async ({ admin, kernel, page }) =&gt; {
+test('job workflow', async ({ admin, kernel, page }) => {
   await admin.visitAdminPage('admin.php', 'page=my-plugin-jobs');
 
   const job = kernel.resource({ name: 'job', routes: {...} });
   await job.seed({ title: 'Engineer' });
 
   const jobStore = kernel.store('my-plugin/job');
-  await jobStore.wait(s =&gt; s.getList());
+  await jobStore.wait(s => s.getList());
 
   await expect(page.getByText('Engineer')).toBeVisible();
 });

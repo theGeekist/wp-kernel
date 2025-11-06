@@ -84,7 +84,7 @@ A function to map the view state to a query.
 ### invalidate()?
 
 ```ts
-optional invalidate: (patterns) =&gt; void;
+optional invalidate: (patterns) => void;
 ```
 
 A function to invalidate cache entries.
@@ -124,7 +124,7 @@ The key for storing preferences.
 ### fetchList()?
 
 ```ts
-optional fetchList: (query) =&gt; Promise&lt;ListResponse&lt;TItem&gt;&gt;;
+optional fetchList: (query) => Promise&lt;ListResponse&lt;TItem&gt;&gt;;
 ```
 
 A function to fetch a list of items.
@@ -144,7 +144,7 @@ A function to fetch a list of items.
 ### prefetchList()?
 
 ```ts
-optional prefetchList: (query) =&gt; Promise&lt;void&gt;;
+optional prefetchList: (query) => Promise&lt;void&gt;;
 ```
 
 A function to prefetch a list of items.

@@ -97,7 +97,7 @@ readonly ir: object;
 #### use()
 
 ```ts
-use: (helper) =&gt; void;
+use: (helper) => void;
 ```
 
 ##### Parameters
@@ -121,7 +121,7 @@ readonly builders: object;
 #### use()
 
 ```ts
-use: (helper) =&gt; void;
+use: (helper) => void;
 ```
 
 ##### Parameters
@@ -145,7 +145,7 @@ readonly extensions: object;
 #### use()
 
 ```ts
-use: (extension) =&gt; unknown;
+use: (extension) => unknown;
 ```
 
 ##### Parameters
@@ -163,7 +163,7 @@ use: (extension) =&gt; unknown;
 ### use()
 
 ```ts
-use: (helper) =&gt; void;
+use: (helper) => void;
 ```
 
 #### Parameters
@@ -181,7 +181,8 @@ use: (helper) =&gt; void;
 ### run()
 
 ```ts
-run: (options) =&gt; MaybePromise&lt;TRunResult&gt;;
+run: (options) => MaybePromise & lt;
+TRunResult & gt;
 ```
 
 #### Parameters

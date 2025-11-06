@@ -7,7 +7,7 @@
 # Type Alias: Listener()\&lt;T\&gt;
 
 ```ts
-type Listener&lt;T&gt; = (payload) =&gt; void;
+type Listener&lt;T&gt; = (payload) => void;
 ```
 
 A generic event listener function.

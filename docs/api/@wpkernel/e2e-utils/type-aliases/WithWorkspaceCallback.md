@@ -7,7 +7,7 @@
 # Type Alias: WithWorkspaceCallback()\&lt;TResult\&gt;
 
 ```ts
-type WithWorkspaceCallback&lt;TResult&gt; = (workspace) =&gt; Promise&lt;TResult&gt; | TResult;
+type WithWorkspaceCallback&lt;TResult&gt; = (workspace) => Promise&lt;TResult&gt; | TResult;
 ```
 
 ## Type Parameters

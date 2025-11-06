@@ -83,7 +83,7 @@ The reporter instance for logging.
 ### emit()
 
 ```ts
-readonly emit: (options) =&gt; Promise&lt;void&gt;;
+readonly emit: (options) => Promise&lt;void&gt;;
 ```
 
 A function to emit a generated TypeScript file.

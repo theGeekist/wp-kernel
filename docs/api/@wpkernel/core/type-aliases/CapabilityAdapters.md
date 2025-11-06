@@ -22,7 +22,7 @@ and injects wp.data.select('core').canUser() when available.
 // Using WordPress adapter in capability rule
 const capability = defineCapability({
   map: {
-    'posts.edit': async (ctx, postId: number) =&gt; {
+    'posts.edit': async (ctx, postId: number) => {
     // ctx.adapters.wp is auto-injected
     const result = await ctx.adapters.wp?.canUser('update', {
       kind: 'postType',
@@ -40,7 +40,7 @@ const capability = defineCapability({
   map: rules,
   options: {
     adapters: {
-      restProbe: async (key) =&gt; {
+      restProbe: async (key) => {
         const res = await fetch(`/wp-json/acme/v1/capabilities/${key}`);
         return res.ok;
       }
@@ -49,7 +49,7 @@ const capability = defineCapability({
 });
 
 // Use in rule
-'feature.enabled': async (ctx) =&gt; {
+'feature.enabled': async (ctx) => {
   return await ctx.adapters.restProbe?.('advanced-features') ?? false;
 }
 ```
@@ -65,7 +65,8 @@ optional wp: object;
 #### canUser()
 
 ```ts
-canUser: (action, resource) =&gt; boolean | Promise&lt;boolean&gt;;
+canUser: (action, resource) => boolean | (Promise & lt);
+boolean & gt;
 ```
 
 ##### Parameters
@@ -93,7 +94,7 @@ canUser: (action, resource) =&gt; boolean | Promise&lt;boolean&gt;;
 ### restProbe()?
 
 ```ts
-optional restProbe: (key) =&gt; Promise&lt;boolean&gt;;
+optional restProbe: (key) => Promise&lt;boolean&gt;;
 ```
 
 #### Parameters

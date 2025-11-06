@@ -59,7 +59,7 @@ _write(
 
 ##### callback
 
-(`error?`) =&gt; `void`
+(`error?`) => `void`
 
 #### Returns
 

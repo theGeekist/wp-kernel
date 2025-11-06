@@ -7,7 +7,7 @@
 # Type Alias: DeepReadonly\&lt;T\&gt;
 
 ```ts
-type DeepReadonly&lt;T&gt; = T extends (...args) =&gt; infer TResult ? (...args) =&gt; TResult : T extends object ? { readonly [Key in keyof T]: DeepReadonly&lt;T[Key]&gt; } : T;
+type DeepReadonly&lt;T&gt; = T extends (...args) => infer TResult ? (...args) => TResult : T extends object ? { readonly [Key in keyof T]: DeepReadonly&lt;T[Key]&gt; } : T;
 ```
 
 Recursively marks an object as read-only.

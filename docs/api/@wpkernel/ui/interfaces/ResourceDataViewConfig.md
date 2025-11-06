@@ -74,7 +74,7 @@ optional searchLabel: string;
 ### getItemId()?
 
 ```ts
-optional getItemId: (item) =&gt; string;
+optional getItemId: (item) => string;
 ```
 
 #### Parameters

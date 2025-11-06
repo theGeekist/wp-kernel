@@ -7,7 +7,7 @@
 # Type Alias: CapabilityRule()\&lt;P\&gt;
 
 ```ts
-type CapabilityRule&lt;P&gt; = (ctx, params) =&gt; boolean | Promise&lt;boolean&gt;;
+type CapabilityRule&lt;P&gt; = (ctx, params) => boolean | Promise&lt;boolean&gt;;
 ```
 
 Capability rule signature.
@@ -45,12 +45,12 @@ Parameters required by the rule. `void` indicates no params needed.
 
 ```typescript
 // Synchronous rule (no params)
-const viewRule: CapabilityRule&lt;void&gt; = (ctx) =&gt; {
+const viewRule: CapabilityRule&lt;void&gt; = (ctx) => {
   return ctx.adapters.wp?.canUser('read', { kind: 'postType', name: 'post' }) ?? false;
 };
 
 // Async rule with params
-const editRule: CapabilityRule&lt;number&gt; = async (ctx, postId) =&gt; {
+const editRule: CapabilityRule&lt;number&gt; = async (ctx, postId) => {
   const result = await ctx.adapters.wp?.canUser('update', {
     kind: 'postType',
     name: 'post',
@@ -60,7 +60,7 @@ const editRule: CapabilityRule&lt;number&gt; = async (ctx, postId) =&gt; {
 };
 
 // Complex params
-const assignRule: CapabilityRule&lt;{ userId: number; postId: number }&gt; = async (ctx, params) =&gt; {
+const assignRule: CapabilityRule&lt;{ userId: number; postId: number }&gt; = async (ctx, params) => {
   const canEdit = await ctx.adapters.wp?.canUser('update', {
     kind: 'postType',
     name: 'post',

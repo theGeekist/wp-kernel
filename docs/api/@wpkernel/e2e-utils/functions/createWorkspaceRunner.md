@@ -7,7 +7,7 @@
 # Function: createWorkspaceRunner()
 
 ```ts
-function createWorkspaceRunner(defaultOptions): (run, overrides?) =&gt; Promise&lt;void&gt;;
+function createWorkspaceRunner(defaultOptions): (run, overrides?) => Promise&lt;void&gt;;
 ```
 
 Creates a workspace runner function with default options.
@@ -32,7 +32,7 @@ A function that takes a test function and optional overrides, and runs it within
 
 #### run
 
-(`workspace`) =&gt; `Promise`\&lt;`void`\&gt;
+(`workspace`) => `Promise`\&lt;`void`\&gt;
 
 #### overrides?
 

@@ -7,7 +7,7 @@
 # Type Alias: ReduxMiddleware()\&lt;TState\&gt;
 
 ```ts
-type ReduxMiddleware&lt;TState&gt; = (api) =&gt; (next) =&gt; (action) =&gt; unknown;
+type ReduxMiddleware&lt;TState&gt; = (api) => (next) => (action) => unknown;
 ```
 
 Redux compatible middleware type without depending on redux package.
@@ -27,7 +27,7 @@ Redux compatible middleware type without depending on redux package.
 ## Returns
 
 ```ts
-(next): (action) =&gt; unknown;
+(next): (action) => unknown;
 ```
 
 ### Parameters

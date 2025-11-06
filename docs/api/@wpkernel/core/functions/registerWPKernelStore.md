@@ -27,7 +27,7 @@ consistent middleware ordering and return the created store for further wiring.
 
 ### Actions
 
-`Actions` _extends_ `Record`\&lt;`string`, (...`args`) =&gt; `unknown`\&gt;
+`Actions` _extends_ `Record`\&lt;`string`, (...`args`) => `unknown`\&gt;
 
 ### Selectors
 

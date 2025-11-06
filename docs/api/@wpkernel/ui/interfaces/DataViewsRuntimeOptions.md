@@ -55,7 +55,7 @@ The capability runtime.
 ### invalidate()?
 
 ```ts
-optional invalidate: (patterns) =&gt; void;
+optional invalidate: (patterns) => void;
 ```
 
 A function to invalidate cache entries.
@@ -75,7 +75,7 @@ A function to invalidate cache entries.
 ### emit()?
 
 ```ts
-optional emit: (eventName, payload) =&gt; void;
+optional emit: (eventName, payload) => void;
 ```
 
 A function to emit events.

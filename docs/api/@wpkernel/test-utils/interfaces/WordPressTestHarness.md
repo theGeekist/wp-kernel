@@ -34,7 +34,7 @@ Convenience access to the shared data package to avoid calling
 ### reset()
 
 ```ts
-reset: () =&gt; void;
+reset: () => void;
 ```
 
 Reset namespace state and clear all jest mocks.
@@ -48,7 +48,7 @@ Reset namespace state and clear all jest mocks.
 ### teardown()
 
 ```ts
-teardown: () =&gt; void;
+teardown: () => void;
 ```
 
 Restore the previous global and perform a reset.

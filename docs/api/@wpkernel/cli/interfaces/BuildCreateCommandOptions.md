@@ -15,7 +15,7 @@ Options for building the `create` command.
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Optional: Custom reporter builder function.
@@ -44,7 +44,7 @@ Reporter instance with child helpers
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 Optional: Custom workspace builder function.
@@ -64,7 +64,7 @@ Optional: Custom workspace builder function.
 #### runWorkflow()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) =&gt; Promise&lt;InitWorkflowResult&gt;;
+readonly optional runWorkflow: (__namedParameters) => Promise&lt;InitWorkflowResult&gt;;
 ```
 
 Optional: Custom workflow runner function.
@@ -84,7 +84,7 @@ Optional: Custom workflow runner function.
 #### checkGitRepository()?
 
 ```ts
-readonly optional checkGitRepository: (cwd, __namedParameters) =&gt; Promise&lt;boolean&gt;;
+readonly optional checkGitRepository: (cwd, __namedParameters) => Promise&lt;boolean&gt;;
 ```
 
 Optional: Custom git repository checker function.
@@ -108,7 +108,7 @@ Optional: Custom git repository checker function.
 #### initGitRepository()?
 
 ```ts
-readonly optional initGitRepository: (cwd, __namedParameters) =&gt; Promise&lt;void&gt;;
+readonly optional initGitRepository: (cwd, __namedParameters) => Promise&lt;void&gt;;
 ```
 
 Optional: Custom git repository initializer function.
@@ -132,7 +132,7 @@ Optional: Custom git repository initializer function.
 #### installNodeDependencies()?
 
 ```ts
-readonly optional installNodeDependencies: (cwd, __namedParameters) =&gt; Promise&lt;void&gt;;
+readonly optional installNodeDependencies: (cwd, __namedParameters) => Promise&lt;void&gt;;
 ```
 
 Optional: Custom Node.js dependency installer function.
@@ -156,7 +156,7 @@ Optional: Custom Node.js dependency installer function.
 #### installComposerDependencies()?
 
 ```ts
-readonly optional installComposerDependencies: (cwd, __namedParameters) =&gt; Promise&lt;void&gt;;
+readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise&lt;void&gt;;
 ```
 
 Optional: Custom Composer dependency installer function.
@@ -180,7 +180,7 @@ Optional: Custom Composer dependency installer function.
 #### ensureCleanDirectory()?
 
 ```ts
-readonly optional ensureCleanDirectory: (options) =&gt; Promise&lt;void&gt;;
+readonly optional ensureCleanDirectory: (options) => Promise&lt;void&gt;;
 ```
 
 Optional: Custom clean directory enforcer function.

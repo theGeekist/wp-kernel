@@ -31,7 +31,7 @@ The query parameter type for list operations
 ### getItem()
 
 ```ts
-getItem: (state, id) =&gt; T | undefined;
+getItem: (state, id) => T | undefined;
 ```
 
 Get a single item by ID.
@@ -61,7 +61,7 @@ The item or undefined if not found
 ### getItems()
 
 ```ts
-getItems: (state, query?) =&gt; T[];
+getItems: (state, query?) => T[];
 ```
 
 Get items from a list query.
@@ -91,7 +91,8 @@ Array of items
 ### getList()
 
 ```ts
-getList: (state, query?) =&gt; ListResponse&lt;T&gt;;
+getList: (state, query?) => ListResponse & lt;
+T & gt;
 ```
 
 Get list response with metadata.
@@ -121,7 +122,7 @@ List response with items and metadata
 ### getListStatus()
 
 ```ts
-getListStatus: (state, query?) =&gt; ResourceListStatus;
+getListStatus: (state, query?) => ResourceListStatus;
 ```
 
 Get the status for a list query.
@@ -151,7 +152,7 @@ List status
 ### getListError()
 
 ```ts
-getListError: (state, query?) =&gt; string | undefined;
+getListError: (state, query?) => string | undefined;
 ```
 
 Get the error message for a list query, if any.
@@ -181,7 +182,7 @@ Error message or undefined
 ### isResolving()
 
 ```ts
-isResolving: (state, selectorName, args?) =&gt; boolean;
+isResolving: (state, selectorName, args?) => boolean;
 ```
 
 Check if a selector is currently resolving.
@@ -220,7 +221,7 @@ True if resolving
 ### hasStartedResolution()
 
 ```ts
-hasStartedResolution: (state, selectorName, args?) =&gt; boolean;
+hasStartedResolution: (state, selectorName, args?) => boolean;
 ```
 
 Check if a selector has started resolution.
@@ -259,7 +260,7 @@ True if resolution has started
 ### hasFinishedResolution()
 
 ```ts
-hasFinishedResolution: (state, selectorName, args?) =&gt; boolean;
+hasFinishedResolution: (state, selectorName, args?) => boolean;
 ```
 
 Check if a selector has finished resolution.
@@ -298,7 +299,7 @@ True if resolution has finished
 ### getError()
 
 ```ts
-getError: (state, cacheKey) =&gt; string | undefined;
+getError: (state, cacheKey) => string | undefined;
 ```
 
 Get error for a cache key.

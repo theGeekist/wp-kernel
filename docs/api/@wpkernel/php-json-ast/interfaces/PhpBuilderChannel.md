@@ -11,7 +11,7 @@
 ### queue()
 
 ```ts
-queue: (action) =&gt; void;
+queue: (action) => void;
 ```
 
 #### Parameters
@@ -29,7 +29,7 @@ queue: (action) =&gt; void;
 ### drain()
 
 ```ts
-drain: () =&gt; readonly PhpProgramAction[];
+drain: () => readonly PhpProgramAction[];
 ```
 
 #### Returns
@@ -41,7 +41,7 @@ readonly [`PhpProgramAction`](PhpProgramAction.md)[]
 ### reset()
 
 ```ts
-reset: () =&gt; void;
+reset: () => void;
 ```
 
 #### Returns
@@ -53,7 +53,7 @@ reset: () =&gt; void;
 ### pending()
 
 ```ts
-pending: () =&gt; readonly PhpProgramAction[];
+pending: () => readonly PhpProgramAction[];
 ```
 
 #### Returns

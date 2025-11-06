@@ -27,7 +27,8 @@ The result of the useAction hook.
 ### run()
 
 ```ts
-run: (input) =&gt; Promise&lt;TResult&gt;;
+run: (input) => Promise & lt;
+TResult & gt;
 ```
 
 A function to run the action.
@@ -51,7 +52,7 @@ A promise that resolves with the result of the action.
 ### cancel()
 
 ```ts
-cancel: () =&gt; void;
+cancel: () => void;
 ```
 
 A function to cancel all in-flight requests.
@@ -65,7 +66,7 @@ A function to cancel all in-flight requests.
 ### reset()
 
 ```ts
-reset: () =&gt; void;
+reset: () => void;
 ```
 
 A function to reset the state of the hook.

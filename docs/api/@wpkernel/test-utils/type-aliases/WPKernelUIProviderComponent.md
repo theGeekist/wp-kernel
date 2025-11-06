@@ -7,7 +7,8 @@
 # Type Alias: WPKernelUIProviderComponent()
 
 ```ts
-type WPKernelUIProviderComponent = (props) =&gt; ReturnType&lt;typeof createElement&gt;;
+type WPKernelUIProviderComponent = (props) => ReturnType & lt;
+typeof createElement & gt;
 ```
 
 Component type for WP Kernel UI Provider.

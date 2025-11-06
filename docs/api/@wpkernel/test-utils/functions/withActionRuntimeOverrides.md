@@ -28,7 +28,7 @@ The overrides to apply to the action runtime.
 
 ### callback
 
-() =&gt; `T` \| `Promise`\&lt;`T`\&gt;
+() => `T` \| `Promise`\&lt;`T`\&gt;
 
 The function to execute with the modified runtime.
 

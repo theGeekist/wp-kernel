@@ -16,7 +16,7 @@ Creates and manages a temporary workspace for integration tests.
 
 ### run
 
-(`workspace`) =&gt; `Promise`\&lt;`void`\&gt;
+(`workspace`) => `Promise`\&lt;`void`\&gt;
 
 The test function to execute within the workspace. It receives the workspace path as an argument.
 

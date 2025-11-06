@@ -34,7 +34,8 @@ const adapter: DataViewPreferencesAdapter = {
 ### get()
 
 ```ts
-get: (key) =&gt; Promise&lt;unknown&gt;;
+get: (key) => Promise & lt;
+unknown & gt;
 ```
 
 Retrieve a preference value by key
@@ -60,7 +61,7 @@ Preference value or undefined if not found
 ### set()
 
 ```ts
-set: (key, value) =&gt; Promise&lt;void&gt;;
+set: (key, value) => Promise&lt;void&gt;;
 ```
 
 Persist a preference value
@@ -90,7 +91,7 @@ Preference value to persist
 ### getScopeOrder()?
 
 ```ts
-optional getScopeOrder: () =&gt; DataViewPreferenceScope[];
+optional getScopeOrder: () => DataViewPreferenceScope[];
 ```
 
 Get the preference scope resolution order

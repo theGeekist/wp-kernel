@@ -43,7 +43,7 @@ readonly optional defaultMetadata: PhpFileMetadata;
 ### resolveFilePath()?
 
 ```ts
-readonly optional resolveFilePath: (message) =&gt; string;
+readonly optional resolveFilePath: (message) => string;
 ```
 
 #### Parameters

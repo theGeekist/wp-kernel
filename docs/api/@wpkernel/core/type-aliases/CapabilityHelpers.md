@@ -23,7 +23,7 @@ Runtime helpers exposed by `defineCapability()`.
 ### can()
 
 ```ts
-can: &lt;Key&gt;(key, ...params) =&gt; boolean | Promise&lt;boolean&gt;;
+can: &lt;Key&gt;(key, ...params) => boolean | Promise&lt;boolean&gt;;
 ```
 
 #### Type Parameters
@@ -51,7 +51,7 @@ can: &lt;Key&gt;(key, ...params) =&gt; boolean | Promise&lt;boolean&gt;;
 ### assert()
 
 ```ts
-assert: &lt;Key&gt;(key, ...params) =&gt; void | Promise&lt;void&gt;;
+assert: &lt;Key&gt;(key, ...params) => void | Promise&lt;void&gt;;
 ```
 
 #### Type Parameters
@@ -79,7 +79,7 @@ assert: &lt;Key&gt;(key, ...params) =&gt; void | Promise&lt;void&gt;;
 ### keys()
 
 ```ts
-keys: () =&gt; keyof K[];
+keys: () => keyof K[];
 ```
 
 #### Returns
@@ -91,7 +91,7 @@ keyof `K`[]
 ### extend()
 
 ```ts
-extend: (additionalMap) =&gt; void;
+extend: (additionalMap) => void;
 ```
 
 #### Parameters

@@ -7,7 +7,7 @@
 # Type Alias: CommandConstructor()
 
 ```ts
-type CommandConstructor = () =&gt; Command & object;
+type CommandConstructor = () => Command & object;
 ```
 
 Constructor for a Clipanion command.

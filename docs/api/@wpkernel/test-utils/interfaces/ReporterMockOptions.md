@@ -13,7 +13,7 @@ Options for creating a `ReporterMock`.
 ### childFactory()?
 
 ```ts
-optional childFactory: (namespace) =&gt; ReporterMock;
+optional childFactory: (namespace) => ReporterMock;
 ```
 
 A factory function to create child reporter mocks.

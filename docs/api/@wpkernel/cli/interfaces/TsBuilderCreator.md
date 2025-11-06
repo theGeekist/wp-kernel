@@ -26,7 +26,7 @@ A unique key for the creator.
 ### create()
 
 ```ts
-create: (context) =&gt; Promise&lt;void&gt;;
+create: (context) => Promise&lt;void&gt;;
 ```
 
 The function that creates the TypeScript artifact.

@@ -61,7 +61,7 @@ The environment variables for the command.
 ### cwd()
 
 ```ts
-cwd: () =&gt; string;
+cwd: () => string;
 ```
 
 A function that returns the current working directory.

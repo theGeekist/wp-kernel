@@ -100,76 +100,79 @@ import { createHelper } from '@wpkernel/pipeline';
 
 // Add PHP opening tag to generated files
 const addPHPTag = createHelper({
-  key: 'add-php-opening-tag',
-  kind: 'fragment',
-  mode: 'extend',
-  priority: 100, // Run early in pipeline
-  origin: 'wp-kernel-core',
-  apply: ({ fragment }) =&gt; {
-    fragment.children.unshift({
-      kind: 'text',
-      text: '&lt;?php\n',
-    });
-  },
+	key: 'add-php-opening-tag',
+	kind: 'fragment',
+	mode: 'extend',
+	priority: 100, // Run early in pipeline
+	origin: 'wp-kernel-core',
+	apply: ({ fragment }) => {
+		fragment.children.unshift({
+			kind: 'text',
+			text: '&lt;?php\n',
+		});
+	},
 });
 ```
 
 ```typescript
 // This helper depends on namespace detection running first
 const addNamespaceDeclaration = createHelper({
-  key: 'add-namespace',
-  kind: 'fragment',
-  dependsOn: ['detect-namespace'], // Won't run until this completes
-  apply: ({ fragment, context }) =&gt; {
-    const ns = context.detectedNamespace;
-    fragment.children.push({
-      kind: 'namespace',
-      name: ns,
-    });
-  },
+	key: 'add-namespace',
+	kind: 'fragment',
+	dependsOn: ['detect-namespace'], // Won't run until this completes
+	apply: ({ fragment, context }) => {
+		const ns = context.detectedNamespace;
+		fragment.children.push({
+			kind: 'namespace',
+			name: ns,
+		});
+	},
 });
 ```
 
 ```typescript
-import { createPipelineCommit, createPipelineRollback } from '@wpkernel/pipeline';
+import {
+	createPipelineCommit,
+	createPipelineRollback,
+} from '@wpkernel/pipeline';
 
 const writeFileHelper = createHelper({
-  key: 'write-file',
-  kind: 'builder',
-  apply: ({ draft, context }) =&gt; {
-    const path = context.outputPath;
-    const backup = readFileSync(path, 'utf-8'); // Capture current state
+	key: 'write-file',
+	kind: 'builder',
+	apply: ({ draft, context }) => {
+		const path = context.outputPath;
+		const backup = readFileSync(path, 'utf-8'); // Capture current state
 
-    writeFileSync(path, draft);
+		writeFileSync(path, draft);
 
-    return {
-      commit: createPipelineCommit(
-        () =&gt; context.reporter.info(`Wrote ${path}`)
-      ),
-      rollback: createPipelineRollback(
-        () =&gt; writeFileSync(path, backup), // Restore on error
-        () =&gt; context.reporter.warn(`Rolled back ${path}`)
-      ),
-    };
-  },
+		return {
+			commit: createPipelineCommit(() =>
+				context.reporter.info(`Wrote ${path}`)
+			),
+			rollback: createPipelineRollback(
+				() => writeFileSync(path, backup), // Restore on error
+				() => context.reporter.warn(`Rolled back ${path}`)
+			),
+		};
+	},
 });
 ```
 
 ```typescript
 const formatCodeHelper = createHelper({
-  key: 'format-code',
-  kind: 'builder',
-  dependsOn: ['write-file'],
-  apply: async ({ artifact, context }) =&gt; {
-    try {
-      const formatted = await prettier.format(artifact, {
-        parser: 'php',
-      });
-      return { artifact: formatted };
-    } catch (error) {
-      context.reporter.error('Formatting failed', { error });
-      throw error;
-    }
-  },
+	key: 'format-code',
+	kind: 'builder',
+	dependsOn: ['write-file'],
+	apply: async ({ artifact, context }) => {
+		try {
+			const formatted = await prettier.format(artifact, {
+				parser: 'php',
+			});
+			return { artifact: formatted };
+		} catch (error) {
+			context.reporter.error('Formatting failed', { error });
+			throw error;
+		}
+	},
 });
 ```

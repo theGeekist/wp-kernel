@@ -45,7 +45,8 @@ Convenience accessor for pinned tooling
 ### run()
 
 ```ts
-run: (command, args?, options?) =&gt; Promise&lt;CliTranscript&gt;;
+run: (command, args?, options?) => Promise & lt;
+CliTranscript & gt;
 ```
 
 Run a command within the workspace root.
@@ -79,7 +80,7 @@ spawn overrides
 ### dispose()
 
 ```ts
-dispose: () =&gt; void | Promise&lt;void&gt;;
+dispose: () => void | Promise&lt;void&gt;;
 ```
 
 #### Returns

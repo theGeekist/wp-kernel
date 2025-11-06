@@ -28,7 +28,7 @@ Options to temporarily override parts of the `window.wp` global.
 
 ### callback
 
-() =&gt; `ReturnType` \| `Promise`\&lt;`ReturnType`\&gt;
+() => `ReturnType` \| `Promise`\&lt;`ReturnType`\&gt;
 
 The function to execute with the modified global.
 

@@ -23,7 +23,7 @@ Optional: A modified IR artifact.
 ### commit()?
 
 ```ts
-readonly optional commit: () =&gt; Promise&lt;void&gt;;
+readonly optional commit: () => Promise&lt;void&gt;;
 ```
 
 Optional: A function to commit changes made by the hook.
@@ -37,7 +37,7 @@ Optional: A function to commit changes made by the hook.
 ### rollback()?
 
 ```ts
-readonly optional rollback: () =&gt; Promise&lt;void&gt;;
+readonly optional rollback: () => Promise&lt;void&gt;;
 ```
 
 Optional: A function to rollback changes made by the hook.

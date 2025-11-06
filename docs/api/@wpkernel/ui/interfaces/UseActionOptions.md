@@ -38,7 +38,7 @@ The concurrency strategy to use.
 ### dedupeKey()?
 
 ```ts
-optional dedupeKey: (input) =&gt; string;
+optional dedupeKey: (input) => string;
 ```
 
 A function that returns a string to use for deduplicating requests.
@@ -62,7 +62,7 @@ A string to use for deduplication.
 ### autoInvalidate()?
 
 ```ts
-optional autoInvalidate: (result, input) =&gt; false | CacheKeyPattern[];
+optional autoInvalidate: (result, input) => false | CacheKeyPattern[];
 ```
 
 A function that returns a list of cache key patterns to invalidate on success.

@@ -64,7 +64,7 @@ Correlation identifier shared with transport calls.
 ### emit()
 
 ```ts
-emit: (eventName, payload) =&gt; void;
+emit: (eventName, payload) => void;
 ```
 
 Emit canonical events.
@@ -88,7 +88,7 @@ Emit canonical events.
 ### invalidate()
 
 ```ts
-invalidate: (patterns, options?) =&gt; void;
+invalidate: (patterns, options?) => void;
 ```
 
 Invalidate cache keys.

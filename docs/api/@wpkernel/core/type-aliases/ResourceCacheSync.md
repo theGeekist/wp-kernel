@@ -7,7 +7,7 @@
 # Type Alias: ResourceCacheSync()\&lt;TEntity\&gt;
 
 ```ts
-type ResourceCacheSync&lt;TEntity&gt; = (snapshot) =&gt; void;
+type ResourceCacheSync&lt;TEntity&gt; = (snapshot) => void;
 ```
 
 Synchronizes a resource cache with a snapshot from server state.

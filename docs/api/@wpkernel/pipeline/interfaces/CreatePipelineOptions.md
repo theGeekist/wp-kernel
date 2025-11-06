@@ -79,7 +79,7 @@ Options for creating a pipeline.
 ### createBuildOptions()
 
 ```ts
-readonly createBuildOptions: (options) =&gt; TBuildOptions;
+readonly createBuildOptions: (options) => TBuildOptions;
 ```
 
 #### Parameters
@@ -97,7 +97,7 @@ readonly createBuildOptions: (options) =&gt; TBuildOptions;
 ### createContext()
 
 ```ts
-readonly createContext: (options) =&gt; TContext;
+readonly createContext: (options) => TContext;
 ```
 
 #### Parameters
@@ -115,7 +115,7 @@ readonly createContext: (options) =&gt; TContext;
 ### createFragmentState()
 
 ```ts
-readonly createFragmentState: (options) =&gt; TDraft;
+readonly createFragmentState: (options) => TDraft;
 ```
 
 #### Parameters
@@ -143,7 +143,7 @@ readonly createFragmentState: (options) =&gt; TDraft;
 ### createFragmentArgs()
 
 ```ts
-readonly createFragmentArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TFragmentInput, TFragmentOutput, TReporter&gt;;
+readonly createFragmentArgs: (options) => HelperApplyOptions&lt;TContext, TFragmentInput, TFragmentOutput, TReporter&gt;;
 ```
 
 #### Parameters
@@ -179,7 +179,7 @@ readonly createFragmentArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TFr
 ### finalizeFragmentState()
 
 ```ts
-readonly finalizeFragmentState: (options) =&gt; TArtifact;
+readonly finalizeFragmentState: (options) => TArtifact;
 ```
 
 #### Parameters
@@ -215,7 +215,7 @@ readonly finalizeFragmentState: (options) =&gt; TArtifact;
 ### createBuilderArgs()
 
 ```ts
-readonly createBuilderArgs: (options) =&gt; HelperApplyOptions&lt;TContext, TBuilderInput, TBuilderOutput, TReporter&gt;;
+readonly createBuilderArgs: (options) => HelperApplyOptions&lt;TContext, TBuilderInput, TBuilderOutput, TReporter&gt;;
 ```
 
 #### Parameters
@@ -267,7 +267,7 @@ readonly optional builderKind: TBuilderKind;
 ### createError()?
 
 ```ts
-readonly optional createError: (code, message) =&gt; Error;
+readonly optional createError: (code, message) => Error;
 ```
 
 #### Parameters
@@ -289,7 +289,7 @@ readonly optional createError: (code, message) =&gt; Error;
 ### createRunResult()?
 
 ```ts
-readonly optional createRunResult: (options) =&gt; TRunResult;
+readonly optional createRunResult: (options) => TRunResult;
 ```
 
 #### Parameters
@@ -333,7 +333,7 @@ readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../type-aliases/He
 ### onDiagnostic()?
 
 ```ts
-readonly optional onDiagnostic: (options) =&gt; void;
+readonly optional onDiagnostic: (options) => void;
 ```
 
 Optional hook invoked whenever a diagnostic is emitted during a run.
@@ -362,7 +362,7 @@ pipeline executes instead of waiting for the final run result.
 ### createExtensionHookOptions()?
 
 ```ts
-readonly optional createExtensionHookOptions: (options) =&gt; PipelineExtensionHookOptions&lt;TContext, TRunOptions, TArtifact&gt;;
+readonly optional createExtensionHookOptions: (options) => PipelineExtensionHookOptions&lt;TContext, TRunOptions, TArtifact&gt;;
 ```
 
 #### Parameters
@@ -394,7 +394,7 @@ readonly optional createExtensionHookOptions: (options) =&gt; PipelineExtensionH
 ### onExtensionRollbackError()?
 
 ```ts
-readonly optional onExtensionRollbackError: (options) =&gt; void;
+readonly optional onExtensionRollbackError: (options) => void;
 ```
 
 #### Parameters
@@ -430,7 +430,7 @@ readonly `string`[]
 ### createConflictDiagnostic()?
 
 ```ts
-readonly optional createConflictDiagnostic: (options) =&gt; TDiagnostic;
+readonly optional createConflictDiagnostic: (options) => TDiagnostic;
 ```
 
 #### Parameters
@@ -458,7 +458,7 @@ readonly optional createConflictDiagnostic: (options) =&gt; TDiagnostic;
 ### createMissingDependencyDiagnostic()?
 
 ```ts
-readonly optional createMissingDependencyDiagnostic: (options) =&gt; TDiagnostic;
+readonly optional createMissingDependencyDiagnostic: (options) => TDiagnostic;
 ```
 
 #### Parameters
@@ -486,7 +486,7 @@ readonly optional createMissingDependencyDiagnostic: (options) =&gt; TDiagnostic
 ### createUnusedHelperDiagnostic()?
 
 ```ts
-readonly optional createUnusedHelperDiagnostic: (options) =&gt; TDiagnostic;
+readonly optional createUnusedHelperDiagnostic: (options) => TDiagnostic;
 ```
 
 #### Parameters

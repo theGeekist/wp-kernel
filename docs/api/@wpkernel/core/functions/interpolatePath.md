@@ -43,7 +43,7 @@ DeveloperError if required params are missing
 
 ```ts
 interpolatePath('/my-plugin/v1/things/:id', { id: 123 });
-// =&gt; '/my-plugin/v1/things/123'
+// => '/my-plugin/v1/things/123'
 
 interpolatePath('/my-plugin/v1/things/:id', {}); // throws DeveloperError
 ```

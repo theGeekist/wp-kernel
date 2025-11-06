@@ -7,7 +7,7 @@
 # Type Alias: PipelineExtensionHook()\&lt;TContext, TOptions, TArtifact\&gt;
 
 ```ts
-type PipelineExtensionHook&lt;TContext, TOptions, TArtifact&gt; = (options) =&gt; MaybePromise&lt;
+type PipelineExtensionHook&lt;TContext, TOptions, TArtifact&gt; = (options) => MaybePromise&lt;
   | PipelineExtensionHookResult&lt;TArtifact&gt;
 | void&gt;;
 ```

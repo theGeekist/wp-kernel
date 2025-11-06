@@ -23,7 +23,8 @@ Resource utilities for seeding and cleanup
 ### seed()
 
 ```ts
-seed: (data) =&gt; Promise&lt;T & object&gt;;
+seed: (data) => Promise & lt;
+T & object & gt;
 ```
 
 Seed a single resource via REST API
@@ -47,7 +48,7 @@ Created resource with ID
 ### seedMany()
 
 ```ts
-seedMany: (items) =&gt; Promise&lt;T & object[]&gt;;
+seedMany: (items) => Promise&lt;T & object[]&gt;;
 ```
 
 Seed multiple resources in bulk
@@ -71,7 +72,7 @@ Array of created resources with IDs
 ### remove()
 
 ```ts
-remove: (id) =&gt; Promise&lt;void&gt;;
+remove: (id) => Promise&lt;void&gt;;
 ```
 
 Remove a single resource by ID
@@ -93,7 +94,7 @@ Resource ID to delete
 ### deleteAll()
 
 ```ts
-deleteAll: () =&gt; Promise&lt;void&gt;;
+deleteAll: () => Promise&lt;void&gt;;
 ```
 
 Delete all resources (cleanup utility)

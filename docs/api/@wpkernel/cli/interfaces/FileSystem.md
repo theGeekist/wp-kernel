@@ -13,7 +13,7 @@ File system operations interface for start command.
 ### access()
 
 ```ts
-readonly access: (path, mode?) =&gt; Promise&lt;void&gt;;
+readonly access: (path, mode?) => Promise&lt;void&gt;;
 ```
 
 Tests a user's permissions for the file or directory specified by `path`.
@@ -181,7 +181,7 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 ### cp()
 
 ```ts
-readonly cp: (source, destination, opts?) =&gt; Promise&lt;void&gt;;
+readonly cp: (source, destination, opts?) => Promise&lt;void&gt;;
 ```
 
 **`Experimental`**
