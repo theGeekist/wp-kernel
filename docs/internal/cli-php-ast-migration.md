@@ -91,79 +91,62 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 > **MVP Plan reference:** Tasks 11-15 (Phase 2 patch band)
 
 #### Task 11 - Transient AST builders (0.5.1)
+> Status: ✓ Completed - Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
 
 - Port every transient controller/helper under `packages/cli/src/printers/php/transient.ts` to the AST-first pipeline (`packages/cli/src/builders/php/resource/transient/**`).
 - Replace bespoke JSON node literals with canonical `@wpkernel/php-json-ast` factories and ensure each helper queues `PhpProgramAction` entries instead of string payloads.
 - Thread transient cache metadata through the shared registries so option/transient storage continues to share cache keys and invalidation helpers.
 
 #### Task 12 - Transient parity tests (0.5.2)
+> Status: ✓ Completed - Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
 
 - Extend next pipeline tests to cover cache events, request validation, and error handling unique to transients (`set`, `delete`, TTL enforcement).
 - Add writer assertions that snapshot the queued `PhpProgram` output and confirm the pretty-printer persists matching PHP/AST artefacts.
 - Update `packages/cli/tests/workspace.test-support.ts` (or the shared transient fixtures) so integration harnesses exercise transient pipelines in addition to options.
 
 #### Task 13 - Transient fixtures & docs (0.5.3)
+> Status: ✓ Completed - DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
 
 - Regenerate fixtures and goldens that cover transient controllers, storage bindings, and cache invalidation flows.
 - Update documentation (`docs/index.md`, this file, `cli-migration-phases.md`, and transient-focused guides) to point at the new helpers and tests.
 - Capture any migration notes required for downstream plugin authors (e.g., storage key naming changes) in `CHANGELOG.md` and relevant READMEs.
 
 #### Task 14 - Phase 2 buffer slot (0.5.4)
+> Status: ✓ Completed - DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
 
 - Reserve room for hotfixes uncovered while landing Tasks 11-13 (e.g., AST edge cases, driver configuration gaps).
 - Ship any regressions discovered during verification-transient DELETE handlers now remove cache entries instead of returning 501 errors.
 - Close the slot unmodified if no additional regressions surface; document the validation path so future phases can reuse the pattern.
 
 #### Task 15 - Phase 2 minor release (0.6.0)
+> Status: ✓ Completed - Version 0.6.0 shipped with unified changelog entries and version bumps across the monorepo.
 
 - Once Tasks 11-14 are ✓, cut the 0.6.0 release via `RELEASING.md` (version bump, changelog rollup, unified checks across CLI/Core/PHP driver/UI).
 - Announce the transient parity milestone in `CHANGELOG.md` and ensure adapters know where to hook into the new helpers.
 - Refresh docs (`mvp-plan.md`, `cli-migration-phases.md`, adapter brief) to mark Phase 2 as complete and open the Phase 3 patch band.
 
-- **Task 11 - Implementation (0.5.1):** ✓ Completed - Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
-- **Task 12 - Tests (0.5.2):** ✓ Completed - Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
-- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed - CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
-- **Task 14 - Buffer (0.5.4):** ✓ Completed - DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
-- **Task 15 - Release (0.6.0):** ✓ Completed - Version 0.6.0 shipped with unified changelog entries and version bumps across the monorepo.
-
-- **Task 11 - Implementation (0.5.1):** ✓ Completed - Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
-- **Task 12 - Tests (0.5.2):** ✓ Completed - Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
-- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed - CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
-- **Task 14 - Buffer (0.5.4):** ✓ Completed - DELETE route fixes closed the transient buffer slot ahead of the 0.6.0 release.
-
 ### Phase 3 - Block printers (SSR & JS-only) ✓ Completed
 
 > **MVP Plan reference:** Tasks 16-19 (Phase 3 patch band)
 
-<a id="task-16"></a>
-
 #### Task 16 - Block builder implementation (0.6.1)
-
-Status: ✓ Completed - Block manifests, registrar assembly, and render stubs now stage through the next pipeline helpers with shared `ts-morph` primitives.
+> Status: ✓ Completed - Block manifests, registrar assembly, and render stubs now stage through the next pipeline helpers with shared `ts-morph` primitives.
 
 - Port block generation into the next pipeline by replacing `packages/cli/src/printers/blocks/**` with helpers under `packages/cli/src/builders/blocks/**`.
 - Introduce shared `ts-morph` primitives (module/file factories, metadata helpers) that both the block builders and `createTsBuilder` can consume when emitting TypeScript entry points.
 - Keep SSR templates on the PHP channel: emit `render.php` via the existing AST helpers while routing JS-only registrars through the new `ts-morph` utilities so both surfaces share naming and import rules.
 - Audit the legacy printers (`ssr.ts`, `js-only.ts`, and `shared/template-helpers.ts`) to mirror manifest structure, registrar wiring, warnings, and fallback `render.php` behaviour before rewriting the helpers.
 - Complexity: medium-one run touches PHP AST emitters, shared cache metadata, and the TypeScript registration surface.
-
-<a id="task-17"></a>
-
 #### Task 17 - Block parity tests (0.6.2)
-
-Status: ✓ Completed - Unit and integration coverage assert ts-morph registrars, SSR render programs, manifest caching, and cache invalidation warnings across block permutations.
+> Status: ✓ Completed - Unit and integration coverage assert ts-morph registrars, SSR render programs, manifest caching, and cache invalidation warnings across block permutations.
 
 - Extend the block builder unit suite to assert `ts-morph` output, SSR AST programs, and manifest metadata across SSR, JS-only, and hybrid scenarios.
 - Add integration coverage to the generate command harness so goldens capture registrar modules, editor scripts, style handles, and rendered PHP templates produced by the new helpers.
 - Wire cache and invalidation expectations into the tests where block controllers touch shared resource metadata, mirroring the transient/option precedent.
 - Migrate expectations from `packages/cli/src/printers/blocks/__tests__/**` so parity with the legacy manifest and `render.php` flows is asserted through the new helpers.
 - Complexity: medium-covers ts-morph emitters, PHP AST snapshots, and reporter warnings in a single run.
-
-<a id="task-18"></a>
-
 #### Task 18 - Block fixtures & documentation (0.6.3)
-
-Status: ✓ Completed - Fixtures and contributor docs describe the AST-first block builders and retired string printers, keeping showcase outputs aligned.
+> Status: ✓ Completed - Fixtures and contributor docs describe the AST-first block builders and retired string printers, keeping showcase outputs aligned.
 
 - Refresh CLI fixtures, generated artefacts, and documentation (`docs/index.md`, this file, `cli-migration-phases.md`, adapter guides) to describe the new block pipeline and the shared `ts-morph` primitives.
 - Document migration guidance for plugin authors, including how SSR templates coexist with JS-only bundles and where to hook adapter extensions.
@@ -171,11 +154,8 @@ Status: ✓ Completed - Fixtures and contributor docs describe the AST-first blo
 - Call out the retirement of `packages/cli/src/printers/blocks/**` so readers know where to audit history.
 - Complexity: medium-coordinates fixtures, docs, and changelog updates in one pass.
 
-<a id="task-19"></a>
-
 #### Task 19 - Phase 3 buffer slot (0.6.4)
-
-Status: ✓ Completed - Manifest cache invalidation bugfix closed the buffer so template and manifest edits trigger fresh processing ahead of the 0.7.0 release.
+> Status: ✓ Completed - Manifest cache invalidation bugfix closed the buffer so template and manifest edits trigger fresh processing ahead of the 0.7.0 release.
 
 - Reserve capacity for polish or regression fixes discovered while landing Tasks 16-18 (for example, `ts-morph` emit ordering or SSR template edge cases).
 - Close the slot with a bugfix if required, or document the validation path if no additional work is needed before cutting 0.7.0.
@@ -189,11 +169,8 @@ Status: ✓ Completed - Manifest cache invalidation bugfix closed the buffer so 
     - Update documentation (including this file, `cli-migration-phases.md`, and CHANGELOG entries).
     - Regenerate any golden fixtures exclusively through the next pipeline.
 
-<a id="task-24---capability-helper-parity"></a>
-
 #### Task 24 - Capability helper parity (0.7.5)
-
-Status: ✓ Completed - AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback capabilities through the next pipeline reporter.
+> Status: ✓ Completed - AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback capabilities through the next pipeline reporter.
 
 - Ported capability checks (`current_user_can` wiring), object binding resolution, and closure scaffolds into the AST helper (`packages/cli/src/builders/php/capability.ts`).
 - Restored structured `WP_Error` responses for denied capabilities and missing bindings so controller outputs stay aligned with historical behaviour.
@@ -201,19 +178,14 @@ Status: ✓ Completed - AST helper now mirrors the legacy enforcement flow, emit
 - Updated unit and integration coverage to exercise the new helper methods and refresh the generated `Capability.php` snapshot.
 - Complexity: high - touched shared helpers, reporter wiring, and integration tests.
 
-<a id="task-25---controller-safety--block-derivation"></a>
-
 #### Task 25 - Controller safety & block derivation (0.7.6)
-
-Status: ✓ Completed - The next controller helper now emits missing-capability warnings and resource-driven block derivation flows through the manifest collector.
+> Status: ✓ Completed - The next controller helper now emits missing-capability warnings and resource-driven block derivation flows through the manifest collector.
 
 - Restored `warnOnMissingCapabilities` semantics via the PHP controller helper so generation logs match the legacy CLI for write routes without capabilities.
 - Implemented resource-driven block derivation in the next pipeline, emitting JS-only manifests and staging auto-register stubs when blocks are absent.
 - Threaded derived manifests through the shared collector so TypeScript/PHP registrars consume a deterministic block map.
 - Added unit and integration coverage to snapshot controller warnings and generated manifests/stubs, guarding the transition away from string printers.
 - Complexity: medium-high - coordinated controller metadata, manifest collection, and JS block builders.
-
----
 
 ## Canonical schema & tooling
 
@@ -227,8 +199,7 @@ Status: ✓ Completed - The next controller helper now emits missing-capability 
 ## Risks & mitigations
 
 - **Incomplete node data** - rely on the shared factories and fixtures; `prettyPrint` surfaces missing data as `WPKernelError('DeveloperError', …)`.
-- **String-printer drift** - defer removal of string printers until the AST equivalents ship with coverage.
-- **Block migration complexity** - SSR blocks touch PHP, JSON, and JS outputs; plan comprehensive integration tests before decommissioning the string-based pipeline.
+- **Block migration complexity** - SSR blocks touch PHP, JSON, and JS outputs;
 
 ---
 
