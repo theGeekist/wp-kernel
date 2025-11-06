@@ -1,4 +1,3 @@
-import { SimplePrettyTerminalTransport } from '@loglayer/transport-simple-pretty-terminal';
 import { LoggerlessTransport } from '@loglayer/transport';
 import type {
 	LogLayerTransport,
@@ -11,6 +10,13 @@ import type {
 	ReporterLogMetadata,
 } from './types';
 import { WPK_NAMESPACE, WPKernelError } from '../contracts/index.js';
+
+/**
+ * @fileoverview Reporter transports for LogLayer integration.
+ *
+ * This module provides browser-safe transports and building blocks for creating reporters.
+ * CLI packages can extend these by adding their own Node.js-specific transports.
+ */
 
 function isReporterLevel(level: LogLevelType): level is ReporterLevel {
 	return (
@@ -87,7 +93,13 @@ function getConsoleMethod(level: ReporterLevel) {
 	}
 }
 
-class ConsoleTransport extends LoggerlessTransport {
+/**
+ * Console transport for browser and test environments.
+ * Outputs logs in a simple, structured format: `["[namespace]", "message", context]`
+ *
+ * @category Reporter
+ */
+export class ConsoleTransport extends LoggerlessTransport {
 	private readonly enabledByEnvironment: boolean;
 
 	public constructor(level: LogLevelType) {
@@ -122,7 +134,7 @@ class ConsoleTransport extends LoggerlessTransport {
 	}
 }
 
-class WPKernelHooksTransport extends LoggerlessTransport {
+export class WPKernelHooksTransport extends LoggerlessTransport {
 	public constructor(level: LogLevelType) {
 		super({ id: 'wpkernel-hooks', level, enabled: true });
 	}
@@ -161,45 +173,30 @@ function resolveEnvironmentEnabled(): boolean {
 	return env !== 'production';
 }
 
-function isCLIEnvironment(): boolean {
-	if (typeof process === 'undefined') {
-		return false;
-	}
-	// Check if running in Node.js (CLI) vs browser
-	return typeof window === 'undefined';
-}
-
+/**
+ * Create transports for browser/WordPress environments.
+ * CLI packages should construct their own transports using SimplePrettyTerminalTransport.
+ *
+ * @param    channel - Reporter channel ('console', 'hooks', 'all')
+ * @param    level   - Log level
+ * @return Transport or array of transports
+ * @category Reporter
+ */
 export function createTransports(
 	channel: ReporterChannel,
 	level: LogLevelType
 ): LogLayerTransport | LogLayerTransport[] {
-	const environmentEnabled = resolveEnvironmentEnabled();
-	const isCLI = isCLIEnvironment();
-
 	switch (channel) {
 		case 'console':
-			// Use pretty terminal transport for CLI, regular console for browser
-			if (isCLI) {
-				return new SimplePrettyTerminalTransport({
-					runtime: 'node',
-					level,
-					enabled: environmentEnabled,
-				});
-			}
 			return new ConsoleTransport(level);
 		case 'hooks':
 			return new WPKernelHooksTransport(level);
 
 		case 'all':
-			// Use appropriate console transport + hooks
-			const consoleTransport = isCLI
-				? new SimplePrettyTerminalTransport({
-						runtime: 'node',
-						level,
-						enabled: environmentEnabled,
-					})
-				: new ConsoleTransport(level);
-			return [consoleTransport, new WPKernelHooksTransport(level)];
+			return [
+				new ConsoleTransport(level),
+				new WPKernelHooksTransport(level),
+			];
 		case 'bridge':
 			throw new WPKernelError('NotImplementedError', {
 				message: 'Bridge transport is planned for a future sprint',
@@ -209,14 +206,6 @@ export function createTransports(
 			});
 
 		default:
-			// Default to appropriate console transport
-			if (isCLI) {
-				return new SimplePrettyTerminalTransport({
-					runtime: 'node',
-					level,
-					enabled: environmentEnabled,
-				});
-			}
 			return new ConsoleTransport(level);
 	}
 }

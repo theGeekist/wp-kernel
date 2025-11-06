@@ -53,8 +53,8 @@ function logWithLevel(
 /**
  * Create a WP Kernel reporter backed by LogLayer transports.
  *
- * The reporter honors namespace, channel, and level options while providing a
- * typed interface for child loggers used across subsystems.
+ * This is the standard reporter for browser/WordPress environments.
+ * For CLI environments, use `createReporterCLI()` for pretty terminal output.
  *
  * @param    options - Reporter configuration
  * @return Reporter instance with child helpers
@@ -144,3 +144,8 @@ export {
 	setWPKernelReporter,
 	clearWPKReporter,
 } from './context';
+export {
+	WPKernelHooksTransport,
+	ConsoleTransport,
+	createTransports,
+} from './transports';

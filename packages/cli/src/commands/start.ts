@@ -3,8 +3,8 @@ import path from 'node:path';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { Command, Option } from 'clipanion';
 import type * as chokidarModule from 'chokidar';
-import { createReporter as buildReporter } from '@wpkernel/core/reporter';
-import { type Reporter } from '@wpkernel/core/reporter';
+import { createReporterCLI as buildReporter } from '../utils/reporter.js';
+import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	WPK_NAMESPACE,
 	WPK_EXIT_CODES,

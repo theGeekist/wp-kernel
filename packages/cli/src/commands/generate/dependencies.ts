@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
-import { createReporter as buildReporter } from '@wpkernel/core/reporter';
+import { createReporterCLI as buildReporter } from '../../utils/reporter.js';
 import { loadWPKernelConfig } from '../../config';
 import { buildWorkspace } from '../../workspace';
 import { createPipeline } from '../../runtime';

@@ -245,6 +245,11 @@ export type {
 	ReporterLevel,
 	ReporterChannel,
 } from './reporter/index.js';
+export {
+	WPKernelHooksTransport,
+	ConsoleTransport,
+	createTransports,
+} from './reporter/transports.js';
 
 // Namespace detection
 export {
