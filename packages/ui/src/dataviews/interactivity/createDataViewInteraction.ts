@@ -266,10 +266,11 @@ function toRegistry(candidate: unknown): WPKernelRegistry | undefined {
 
 function updateStateFromView<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
-	state: DataViewInteractionState<TQuery>,
+	store: DataViewInteractionStore<TQuery>,
 	reporter: Reporter,
 	view: View
 ): void {
+	const state = store.state as DataViewInteractionState<TQuery>;
 	try {
 		state.view = controller.deriveViewState(view);
 	} catch (error) {
@@ -296,8 +297,9 @@ function updateStateFromView<TItem, TQuery>(
 function assignStoreState<TQuery>(
 	store: Record<string, unknown>,
 	state: DataViewInteractionState<TQuery>
-): void {
+): DataViewInteractionState<TQuery> {
 	store.state = state;
+	return (store as DataViewInteractionStore<TQuery>).state;
 }
 
 /**
@@ -337,14 +339,14 @@ export function createDataViewInteraction<
 	const controller = ensureController(runtime, options);
 	const resource = resolveResource(controller, options.resource);
 	const reporter = runtime.reporter;
-	const state = createInitialState(controller, options.store);
+	const initialState = createInitialState(controller, options.store);
 	let destroyed = false;
 
 	const registry = options.registry ?? toRegistry(runtime.registry);
 
 	const storeDefinition: Record<string, unknown> = {
 		...(options.store ?? {}),
-		state,
+		state: initialState,
 	};
 
 	const interaction = defineInteraction({
@@ -358,17 +360,18 @@ export function createDataViewInteraction<
 		hydrateServerState: options.hydrateServerState,
 	});
 
-	assignStoreState(interaction.store, state);
+	const store = interaction.store as DataViewInteractionStore<TQuery>;
+	const state = assignStoreState(store, initialState);
 
 	let currentView = controller.config.defaultView as View;
-	updateStateFromView(controller, state, reporter, currentView);
+	updateStateFromView(controller, store, reporter, currentView);
 
 	void controller.loadStoredView().then((stored) => {
 		if (!stored || destroyed) {
 			return;
 		}
 		currentView = stored as View;
-		updateStateFromView(controller, state, reporter, currentView);
+		updateStateFromView(controller, store, reporter, currentView);
 	});
 
 	const unsubscribeView = subscribeToViewChange(
@@ -379,7 +382,7 @@ export function createDataViewInteraction<
 				return;
 			}
 			currentView = view;
-			updateStateFromView(controller, state, reporter, view);
+			updateStateFromView(controller, store, reporter, view);
 		}
 	);
 
@@ -414,7 +417,7 @@ export function createDataViewInteraction<
 		...interaction,
 		controller,
 		setSelection,
-		getState: () => state,
+		getState: () => store.state as DataViewInteractionState<TQuery>,
 		teardown,
 	};
 }
