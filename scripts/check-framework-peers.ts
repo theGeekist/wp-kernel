@@ -67,7 +67,7 @@ function ensureRootDevDependencies(rootPackage: PackageJson): string[] {
 	const devDependencies = rootPackage.devDependencies ?? {};
 
 	for (const [dependency, spec] of Object.entries(FRAMEWORK_PEERS)) {
-		if (!spec.devRange) {
+		if (!('devRange' in spec) || !spec.devRange) {
 			continue;
 		}
 
@@ -133,18 +133,23 @@ function collectDependencyPlacementErrors(
 			continue;
 		}
 
-		if (spec.kind !== 'internal') {
+		// Allow 'tooling' kind dependencies to be in dependencies (they're lazy-loaded)
+		if (spec.kind !== 'internal' && spec.kind !== 'tooling') {
 			errors.push(
 				`${packageName} lists "${dependency}" under dependencies; move it to peerDependencies to keep the package external.`
 			);
 			continue;
 		}
 
-		if (dependencyRange !== 'workspace:*') {
+		// Internal workspace packages must use workspace:*
+		if (spec.kind === 'internal' && dependencyRange !== 'workspace:*') {
 			errors.push(
 				`${packageName} lists internal dependency "${dependency}" as "${dependencyRange}" (expected workspace:*).`
 			);
 		}
+
+		// Tooling packages can use regular semver ranges
+		// No validation needed for tooling kind
 	}
 
 	return errors;
@@ -162,7 +167,7 @@ function collectDevDependencyErrors(
 			continue;
 		}
 
-		if (!spec.devRange) {
+		if (!('devRange' in spec) || !spec.devRange) {
 			errors.push(
 				`${packageName} declares devDependency "${dependency}" but the shared capability does not define a version. Add a capability entry or remove the devDependency.`
 			);
