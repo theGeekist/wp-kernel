@@ -16,16 +16,49 @@ import type {
 	ResourceDataViewController,
 } from '../types';
 
+/**
+ * Snapshot of the current DataView bridge state exposed to the interactivity store.
+ *
+ * The state mirrors the controller selection, the normalized view state used to
+ * hydrate the client cache, and the derived query payload that consumers can use
+ * with resource loaders.
+ *
+ * @typeParam TQuery - The query payload shape produced by the DataView controller.
+ *
+ * @category Interactivity
+ * @public
+ */
 export type DataViewInteractionState<TQuery> = {
 	selection: string[];
 	view: DataViewChangedPayload['viewState'];
 	query: TQuery;
 };
 
+/**
+ * Shared interactivity store contract that persists the {@link DataViewInteractionState}.
+ *
+ * @typeParam TQuery - The query payload shape produced by the DataView controller.
+ *
+ * @category Interactivity
+ * @public
+ */
 export type DataViewInteractionStore<TQuery> = Record<string, unknown> & {
 	state: DataViewInteractionState<TQuery>;
 };
 
+/**
+ * Configuration required to bridge a DataView controller into the interactivity runtime.
+ *
+ * Provide either an explicit controller instance or the resource metadata so the helper
+ * can resolve the registered controller automatically.
+ *
+ * @typeParam TItem - The resource record type handled by the DataView controller.
+ * @typeParam TQuery - The query payload shape produced by the DataView controller.
+ * @typeParam TActions - Optional interactivity actions map to augment the interaction.
+ *
+ * @category Interactivity
+ * @public
+ */
 export interface CreateDataViewInteractionOptions<
 	TItem,
 	TQuery,
@@ -33,26 +66,87 @@ export interface CreateDataViewInteractionOptions<
 		| InteractionActionsRecord
 		| undefined = InteractionActionsRecord,
 > {
+	/**
+	 * Runtime context containing the registered controllers and reporter hooks.
+	 */
 	runtime: DataViewsRuntimeContext;
+	/**
+	 * Namespaced identifier used to scope the interaction within the interactivity
+	 * runtime. Typically matches the UI feature slug.
+	 */
 	feature: string;
+	/**
+	 * Optional controller instance. When omitted, the helper resolves the
+	 * controller from the runtime registry using {@link resourceName}.
+	 */
 	controller?: ResourceDataViewController<TItem, TQuery>;
+	/**
+	 * Optional resource reference that will be passed through to
+	 * {@link defineInteraction}. Provide it when the controller does not embed the
+	 * resource definition.
+	 */
 	resource?: ResourceObject<TItem, TQuery>;
+	/**
+	 * Resource identifier used to look up the controller from the runtime when
+	 * {@link controller} is not provided.
+	 */
 	resourceName?: string;
+	/**
+	 * Optional store object that will be extended with the DataView state before
+	 * being provided to {@link defineInteraction}.
+	 */
 	store?: Record<string, unknown>;
+	/**
+	 * Additional interactivity actions exposed alongside the default resource
+	 * actions.
+	 */
 	actions?: TActions;
+	/**
+	 * Custom registry implementation to use for dispatch and selectors. Defaults
+	 * to the registry registered with the runtime.
+	 */
 	registry?: WPKernelRegistry;
+	/**
+	 * Optional namespace override that will be forwarded to
+	 * {@link defineInteraction}. Defaults to the runtime namespace.
+	 */
 	namespace?: string;
+	/**
+	 * When true, hydrates cached state from the server automatically using the
+	 * controller schema.
+	 */
 	autoHydrate?: boolean;
+	/**
+	 * Custom server-state hydration handler invoked when {@link autoHydrate} is
+	 * enabled.
+	 */
 	hydrateServerState?: (
 		input: HydrateServerStateInput<TItem, TQuery>
 	) => void;
 }
 
+/**
+ * Contract returned by {@link createDataViewInteraction} that exposes the controller,
+ * underlying interaction, and convenience helpers to inspect and mutate the bridge state.
+ *
+ * @typeParam TItem - The resource record type handled by the DataView controller.
+ * @typeParam TQuery - The query payload shape produced by the DataView controller.
+ *
+ * @category Interactivity
+ * @public
+ */
 export interface DataViewInteractionResult<TItem, TQuery>
 	extends DefinedInteraction<InteractivityStoreResult> {
+	/** The resolved DataView controller bound to the interaction. */
 	readonly controller: ResourceDataViewController<TItem, TQuery>;
+	/**
+	 * Updates the mirrored selection state. Useful for synchronising custom UI
+	 * elements that mutate the DataView selection outside controller events.
+	 */
 	readonly setSelection: (selection: Array<string | number>) => void;
+	/** Returns the latest computed DataView interaction state. */
 	readonly getState: () => DataViewInteractionState<TQuery>;
+	/** Restores controller emitters to their original implementations. */
 	readonly teardown: () => void;
 }
 
@@ -202,6 +296,30 @@ function assignStoreState<TQuery>(
 	store.state = state;
 }
 
+/**
+ * Creates a typed interactivity binding for a DataView controller.
+ *
+ * @param     options
+ * @example
+ * ```ts
+ * const runtime = createDataViewsRuntime({ namespace: 'acme/jobs' });
+ * const interaction = createDataViewInteraction({
+ *     runtime,
+ *     feature: 'jobs-table',
+ *     resourceName: 'jobs',
+ * });
+ *
+ * const { store } = interaction;
+ * // store.state.selection => []
+ * ```
+ *
+ * @typeParam TItem - The resource record type handled by the DataView controller.
+ * @typeParam TQuery - The query payload shape produced by the DataView controller.
+ * @typeParam TActions - Optional interactivity actions map to augment the interaction.
+ *
+ * @category Interactivity
+ * @public
+ */
 export function createDataViewInteraction<
 	TItem,
 	TQuery,
