@@ -111,9 +111,9 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 
 | Docs Task 9 - JSDoc audit for exported UI APIs (✓ Complete)
 
-- [ ] Inventory all exports from `packages/ui/src/index.ts` and supporting modules to create a tracking checklist.
-- [ ] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
-- [ ] Add runnable `@example` snippets for component usage patterns, especially ResourceDataView integration and action bindings.
+- [x] Inventory all exports from `packages/ui/src/index.ts` and supporting modules to create a tracking checklist.
+- [x] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
+- [x] Add runnable `@example` snippets for component usage patterns, especially ResourceDataView integration and action bindings.
 
 ##### Docs Task 9 artifact - UI export checklist
 
