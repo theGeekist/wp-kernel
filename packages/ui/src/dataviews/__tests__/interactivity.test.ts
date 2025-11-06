@@ -293,6 +293,62 @@ it('restores controller methods on teardown', () => {
 	expect(controller.emitAction).toBe(originalEmitAction);
 });
 
+it('supports multiple interactions bound to the same controller', () => {
+	const reporter = createReporter();
+	const originalEmitViewChange = jest.fn();
+	const originalEmitAction = jest.fn();
+	const controller = createController(reporter, {
+		emitViewChange: originalEmitViewChange,
+		emitAction: originalEmitAction,
+	});
+
+	const runtime = createRuntime(controller, reporter);
+
+	const first = createDataViewInteraction({
+		runtime,
+		feature: 'alpha',
+		controller,
+	});
+
+	const second = createDataViewInteraction({
+		runtime,
+		feature: 'beta',
+		controller,
+	});
+
+	const changedView = buildView({ page: 4 });
+	controller.emitViewChange(changedView);
+
+	expect(first.getState().query.page).toBe(4);
+	expect(second.getState().query.page).toBe(4);
+	expect(originalEmitViewChange).toHaveBeenCalledWith(changedView);
+
+	const payload = { actionId: 'select', selection: ['10'], permitted: true };
+	controller.emitAction(payload);
+
+	expect(second.getState().selection).toEqual(['10']);
+	expect(first.getState().selection).toEqual(['10']);
+	expect(originalEmitAction).toHaveBeenCalledWith(payload);
+
+	first.teardown();
+
+	const nextPayload = {
+		actionId: 'other',
+		selection: ['11'],
+		permitted: true,
+	};
+	controller.emitAction(nextPayload);
+
+	expect(second.getState().selection).toEqual(['11']);
+	expect(first.getState().selection).toEqual(['10']);
+	expect(controller.emitViewChange).not.toBe(originalEmitViewChange);
+
+	second.teardown();
+
+	expect(controller.emitViewChange).toBe(originalEmitViewChange);
+	expect(controller.emitAction).toBe(originalEmitAction);
+});
+
 it('hydrates stored views into the interaction state', async () => {
 	const reporter = createReporter();
 	const storedView = buildView({
