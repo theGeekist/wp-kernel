@@ -378,6 +378,51 @@ it('hydrates stored views into the interaction state', async () => {
 	});
 });
 
+it('preserves auto-hydrated interactivity state', () => {
+	const reporter = createReporter();
+	const controller = createController(reporter);
+	const runtime = createRuntime(controller, reporter);
+	const hydratedView = controller.deriveViewState(
+		buildView({
+			page: 5,
+			filters: [{ field: 'status', operator: 'is', value: 'pending' }],
+		})
+	);
+	const hydratedQuery = controller.mapViewToQuery(
+		buildView({
+			page: 5,
+			filters: [{ field: 'status', operator: 'is', value: 'pending' }],
+		})
+	);
+
+	defineInteractionMock.mockImplementationOnce((config) => {
+		(config.store as { state: unknown }).state = {
+			selection: [101, '102'],
+			view: hydratedView,
+			query: hydratedQuery,
+		};
+
+		return {
+			namespace: config.namespace ?? 'tests',
+			store: config.store as InteractivityStoreResult,
+			syncServerState: jest.fn(),
+			getServerState: jest.fn(() => ({}) as InteractivityStoreResult),
+		};
+	});
+
+	const interaction = createDataViewInteraction({
+		runtime,
+		feature: 'list',
+		controller,
+	});
+
+	expect(interaction.getState()).toEqual({
+		selection: ['101', '102'],
+		view: hydratedView,
+		query: hydratedQuery,
+	});
+});
+
 it('throws when controller resolution fails', () => {
 	const reporter = createReporter();
 	const controller = createController(reporter);
