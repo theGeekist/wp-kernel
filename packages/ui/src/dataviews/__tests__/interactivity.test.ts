@@ -378,6 +378,49 @@ it('hydrates stored views into the interaction state', async () => {
 	});
 });
 
+it('keeps the latest view when stored preferences resolve after a view change', async () => {
+	const reporter = createReporter();
+	let resolveStored: (value: View | undefined) => void = () => {};
+	const storedViewPromise = new Promise<View | undefined>((resolve) => {
+		resolveStored = resolve;
+	});
+	const storedView = buildView({
+		page: 2,
+		filters: [{ field: 'status', operator: 'is', value: 'archived' }],
+	});
+	const controller = createController(reporter, {
+		loadStoredView: jest.fn().mockImplementation(() => storedViewPromise),
+	});
+	const runtime = createRuntime(controller, reporter);
+
+	const interaction = createDataViewInteraction({
+		runtime,
+		feature: 'list',
+		controller,
+	});
+
+	const updatedView = buildView({
+		page: 5,
+		filters: [{ field: 'status', operator: 'is', value: 'pending' }],
+	});
+
+	controller.emitViewChange(updatedView);
+
+	expect(interaction.getState().query.page).toBe(5);
+
+	resolveStored(storedView);
+	await storedViewPromise;
+	await Promise.resolve();
+
+	expect(interaction.getState().query.page).toBe(5);
+	expect(interaction.getState().view).toEqual(
+		expect.objectContaining({
+			page: 5,
+			filters: { status: 'pending' },
+		})
+	);
+});
+
 it('preserves auto-hydrated interactivity state', () => {
 	const reporter = createReporter();
 	const controller = createController(reporter);
