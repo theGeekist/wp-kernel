@@ -74,8 +74,7 @@ Resolvers for async data fetching.
 ### reducer()
 
 ```ts
-reducer: (state, action) => ResourceState & lt;
-T & gt;
+reducer: (state, action) => ResourceState<T>;
 ```
 
 Reducer function for state updates.

@@ -15,11 +15,17 @@ import type {
 import type { RequestParamAssignmentOptions } from '../common/request';
 import type { ModuleIndexEntry } from '../module/types';
 
+/**
+ * @category WordPress AST
+ */
 export interface RestRouteRequestParameter
 	extends Omit<RequestParamAssignmentOptions, 'requestVariable'> {
 	readonly requestVariable?: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestRouteConfig {
 	readonly methodName: string;
 	readonly metadata: ResourceControllerRouteMetadata;
@@ -30,11 +36,17 @@ export interface RestRouteConfig {
 	readonly statements: readonly PhpStmt[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerIdentity {
 	readonly type: 'number' | 'string';
 	readonly param: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerClassConfig {
 	readonly className: string;
 	readonly resourceName: string;
@@ -46,21 +58,33 @@ export interface RestControllerClassConfig {
 	readonly capabilityClass?: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerClassBuildResult {
 	readonly classNode: PhpStmtClass;
 	readonly uses: readonly string[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestRouteIdentityPlan {
 	readonly identity: RestControllerIdentity;
 	readonly route: RestRouteConfig;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerImportDerivationOptions {
 	readonly capabilityClass?: string;
 	readonly helperMethods?: readonly PhpStmtClassMethod[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerModuleControllerConfig
 	extends RestControllerClassConfig {
 	readonly resourceName: string;
@@ -69,13 +93,22 @@ export interface RestControllerModuleControllerConfig
 	readonly metadata?: ResourceControllerMetadata;
 }
 
+/**
+ * @category WordPress AST
+ */
 export type RestControllerModuleIndexEntry = ModuleIndexEntry;
 
+/**
+ * @category WordPress AST
+ */
 export type RestControllerModuleMetadata =
 	| BaseControllerMetadata
 	| ResourceControllerMetadata
 	| IndexFileMetadata;
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerModuleFile {
 	readonly fileName: string;
 	readonly namespace: string | null;
@@ -84,10 +117,16 @@ export interface RestControllerModuleFile {
 	readonly program: PhpProgram;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerModuleResult {
 	readonly files: readonly RestControllerModuleFile[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerModuleConfig {
 	readonly origin: string;
 	readonly sanitizedNamespace: string;
@@ -98,6 +137,9 @@ export interface RestControllerModuleConfig {
 	readonly includeBaseController?: boolean;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerIndexEntriesOptions {
 	readonly namespace: string;
 	readonly includeBase: boolean;

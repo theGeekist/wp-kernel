@@ -61,6 +61,8 @@
 		"IR",
 		"Runtime",
 		"Builders",
+		"PHP AST",
+		"WordPress AST",
 		"WordPress Post",
 		"WordPress Taxonomy",
 		"WordPress Options",

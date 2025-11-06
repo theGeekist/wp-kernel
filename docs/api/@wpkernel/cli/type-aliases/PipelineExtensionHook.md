@@ -18,7 +18,7 @@ Represents a pipeline extension hook function.
 
 ### options
 
-[`PipelineExtensionHookOptions`](../interfaces/PipelineExtensionHookOptions.md)
+[`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)
 
 ## Returns
 

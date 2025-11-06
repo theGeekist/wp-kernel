@@ -43,6 +43,10 @@ interface ManifestSanitizerOptions {
 	readonly errors: MutableManifestErrors;
 }
 
+/**
+ * @param    entries
+ * @category WordPress AST
+ */
 export function buildManifestMetadata(
 	entries: BlockManifestEntries
 ): BlockManifestMetadataResult {
@@ -66,6 +70,11 @@ export function buildManifestMetadata(
 	} satisfies BlockManifestMetadataResult;
 }
 
+/**
+ * @param    origin
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildBlockManifestFile(
 	origin: string,
 	config: BlockManifestConfig

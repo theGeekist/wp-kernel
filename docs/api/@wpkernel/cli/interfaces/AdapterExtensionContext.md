@@ -85,8 +85,7 @@ updateIr: (ir) => void;
 ### formatPhp()
 
 ```ts
-formatPhp: (filePath, contents) => Promise & lt;
-string & gt;
+formatPhp: (filePath, contents) => Promise<string>;
 ```
 
 #### Parameters
@@ -108,8 +107,7 @@ string & gt;
 ### formatTs()
 
 ```ts
-formatTs: (filePath, contents) => Promise & lt;
-string & gt;
+formatTs: (filePath, contents) => Promise<string>;
 ```
 
 #### Parameters

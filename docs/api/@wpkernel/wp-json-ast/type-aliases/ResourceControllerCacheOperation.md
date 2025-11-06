@@ -1,0 +1,17 @@
+[**@wpkernel/wp-json-ast v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / ResourceControllerCacheOperation
+
+# Type Alias: ResourceControllerCacheOperation
+
+```ts
+type ResourceControllerCacheOperation = 'read' | 'prime' | 'invalidate';
+```
+
+The operation of a resource controller cache event.
+
+## See
+
+ResourceControllerCacheEvent

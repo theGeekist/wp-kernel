@@ -20,10 +20,12 @@ readonly optional buildReporter: (options) => Reporter;
 
 Optional: Custom reporter builder function.
 
-Create a WP Kernel reporter backed by LogLayer transports.
+Create a CLI reporter with pretty terminal output.
 
-The reporter honors namespace, channel, and level options while providing a
-typed interface for child loggers used across subsystems.
+This is the recommended reporter for CLI/Node.js environments. It uses
+SimplePrettyTerminalTransport for enhanced formatting with colors and structure.
+
+For browser/WordPress environments, use `createReporter()` from `@wpkernel/core`.
 
 ##### Parameters
 
@@ -38,6 +40,15 @@ Reporter configuration
 `Reporter`
 
 Reporter instance with child helpers
+
+##### Example
+
+```typescript
+import { createReporterCLI } from '@wpkernel/cli/utils/reporter';
+
+const reporter = createReporterCLI({ level: 'debug' });
+reporter.info('Starting build process');
+```
 
 ### Other
 

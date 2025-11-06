@@ -1,0 +1,31 @@
+[**@wpkernel/wp-json-ast v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / RestControllerRouteDefinition
+
+# Interface: RestControllerRouteDefinition
+
+## Properties
+
+### method
+
+```ts
+readonly method: string;
+```
+
+---
+
+### path
+
+```ts
+readonly path: string;
+```
+
+---
+
+### capability?
+
+```ts
+readonly optional capability: string;
+```

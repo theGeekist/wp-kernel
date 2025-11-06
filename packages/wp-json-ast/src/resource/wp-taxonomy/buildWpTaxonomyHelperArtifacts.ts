@@ -6,14 +6,24 @@ import {
 	type WpTaxonomyHelperMethod,
 } from './helpers';
 
+/**
+ * @category WordPress AST
+ */
 export type BuildWpTaxonomyHelperArtifactsOptions =
 	BuildWpTaxonomyHelperMethodsOptions;
 
+/**
+ * @category WordPress AST
+ */
 export interface WpTaxonomyHelperArtifacts {
 	readonly helperMethods: readonly PhpStmtClassMethod[];
 	readonly helperSignatures: readonly string[];
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpTaxonomyHelperArtifacts(
 	options: BuildWpTaxonomyHelperArtifactsOptions
 ): WpTaxonomyHelperArtifacts {

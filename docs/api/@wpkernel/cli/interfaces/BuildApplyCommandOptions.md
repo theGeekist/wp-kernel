@@ -18,8 +18,8 @@ readonly optional buildReporter: (options) => Reporter;
 
 Create a WP Kernel reporter backed by LogLayer transports.
 
-The reporter honors namespace, channel, and level options while providing a
-typed interface for child loggers used across subsystems.
+This is the standard reporter for browser/WordPress environments.
+For CLI environments, use `createReporterCLI()` for pretty terminal output.
 
 ##### Parameters
 

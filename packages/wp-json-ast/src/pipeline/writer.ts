@@ -10,8 +10,14 @@ import type {
 } from '@wpkernel/php-json-ast';
 import { createPhpProgramWriterHelper as createBasePhpProgramWriterHelper } from '@wpkernel/php-json-ast';
 
+/**
+ * @category WordPress AST
+ */
 export type { CreatePhpProgramWriterHelperOptions } from '@wpkernel/php-json-ast';
 
+/**
+ * @category WordPress AST
+ */
 export interface ProgramTargetFile<
 	TMetadata extends PhpFileMetadata = PhpFileMetadata,
 > {
@@ -23,11 +29,17 @@ export interface ProgramTargetFile<
 	readonly statements?: readonly string[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface QueueProgramFileOptions {
 	readonly docblockPrefix?: readonly string[];
 	readonly filePath?: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface QueueModuleFilesOptions<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 > {
@@ -45,6 +57,9 @@ type ProgramTargetQueueMany<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 > = (options: QueueModuleFilesOptions<TFile>) => void;
 
+/**
+ * @category WordPress AST
+ */
 export interface ResolveFilePathStrategyContext<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 > {
@@ -54,6 +69,9 @@ export interface ResolveFilePathStrategyContext<
 	readonly overrides?: QueueProgramFileOptions;
 }
 
+/**
+ * @category WordPress AST
+ */
 export type ProgramTargetPlannerStrategy<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 > = {
@@ -62,6 +80,9 @@ export type ProgramTargetPlannerStrategy<
 	) => string;
 };
 
+/**
+ * @category WordPress AST
+ */
 export type ProgramTargetPlannerOptions<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 > = {
@@ -72,6 +93,9 @@ export type ProgramTargetPlannerOptions<
 	readonly strategy?: ProgramTargetPlannerStrategy<TFile>;
 };
 
+/**
+ * @category WordPress AST
+ */
 export interface ProgramTargetPlanner<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 > {
@@ -79,9 +103,17 @@ export interface ProgramTargetPlanner<
 	readonly queueFiles: ProgramTargetQueueMany<TFile>;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildProgramTargetPlanner(
 	options: ProgramTargetPlannerOptions
 ): ProgramTargetPlanner;
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildProgramTargetPlanner<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 >(options: ProgramTargetPlannerOptions<TFile>): ProgramTargetPlanner<TFile> {
@@ -141,6 +173,10 @@ export function buildProgramTargetPlanner<
 	return { queueFile, queueFiles };
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function createPhpProgramWriterHelper<
 	TContext extends PipelineContext = PipelineContext,
 	TInput extends BuilderInput = BuilderInput,

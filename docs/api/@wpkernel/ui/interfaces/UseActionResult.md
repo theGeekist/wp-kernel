@@ -27,8 +27,7 @@ The result of the useAction hook.
 ### run()
 
 ```ts
-run: (input) => Promise & lt;
-TResult & gt;
+run: (input) => Promise<TResult>;
 ```
 
 A function to run the action.

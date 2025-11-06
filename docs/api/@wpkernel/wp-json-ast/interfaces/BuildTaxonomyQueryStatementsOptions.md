@@ -1,0 +1,17 @@
+[**@wpkernel/wp-json-ast v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / BuildTaxonomyQueryStatementsOptions
+
+# Interface: BuildTaxonomyQueryStatementsOptions
+
+## Properties
+
+### entries
+
+```ts
+readonly entries: [string, {
+  taxonomy: string;
+}][];
+```

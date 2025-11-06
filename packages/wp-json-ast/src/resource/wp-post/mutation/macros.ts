@@ -29,6 +29,9 @@ import {
 } from '../../common/utils';
 import { buildReturnIfWpError } from '../../errors';
 
+/**
+ * @category WordPress AST
+ */
 export interface MutationMetadataKeys {
 	readonly cacheSegment: string;
 	readonly channelTag: string;
@@ -38,11 +41,18 @@ export interface MutationMetadataKeys {
 	readonly cachePriming: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface MacroExpression {
 	readonly expression: PhpExpr;
 	readonly display: string;
 }
 
+/**
+ * @param    name
+ * @category WordPress AST
+ */
 export function buildVariableExpression(name: string): MacroExpression {
 	return {
 		expression: buildVariable(name),
@@ -50,6 +60,11 @@ export function buildVariableExpression(name: string): MacroExpression {
 	};
 }
 
+/**
+ * @param    array
+ * @param    key
+ * @category WordPress AST
+ */
 export function buildArrayDimExpression(
 	array: string,
 	key: string
@@ -60,6 +75,11 @@ export function buildArrayDimExpression(
 	};
 }
 
+/**
+ * @param    object
+ * @param    property
+ * @category WordPress AST
+ */
 export function buildPropertyExpression(
 	object: string,
 	property: string
@@ -74,6 +94,9 @@ interface MacroOptionsBase {
 	readonly metadataKeys: MutationMetadataKeys;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface StatusValidationMacroOptions extends MacroOptionsBase {
 	readonly pascalName: string;
 	readonly target: MacroExpression;
@@ -83,12 +106,18 @@ export interface StatusValidationMacroOptions extends MacroOptionsBase {
 	readonly guardWithNullCheck?: boolean;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface SyncMetaMacroOptions extends MacroOptionsBase {
 	readonly pascalName: string;
 	readonly postId: MacroExpression;
 	readonly requestVariable?: MacroExpression;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface SyncTaxonomiesMacroOptions extends MacroOptionsBase {
 	readonly pascalName: string;
 	readonly postId: MacroExpression;
@@ -96,6 +125,9 @@ export interface SyncTaxonomiesMacroOptions extends MacroOptionsBase {
 	readonly requestVariable?: MacroExpression;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CachePrimingMacroOptions extends MacroOptionsBase {
 	readonly pascalName: string;
 	readonly postId: MacroExpression;
@@ -105,6 +137,10 @@ export interface CachePrimingMacroOptions extends MacroOptionsBase {
 	readonly postVariableName?: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildStatusValidationStatements(
 	options: StatusValidationMacroOptions
 ): PhpStmt[] {
@@ -163,6 +199,10 @@ export function buildStatusValidationStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildSyncMetaStatements(
 	options: SyncMetaMacroOptions
 ): PhpStmt[] {
@@ -185,6 +225,10 @@ export function buildSyncMetaStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildSyncTaxonomiesStatements(
 	options: SyncTaxonomiesMacroOptions
 ): PhpStmt[] {
@@ -217,6 +261,10 @@ export function buildSyncTaxonomiesStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildCachePrimingStatements(
 	options: CachePrimingMacroOptions
 ): PhpStmt[] {

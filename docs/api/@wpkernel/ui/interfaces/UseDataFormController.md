@@ -21,8 +21,7 @@ The type of the result returned by the form submission action.
 ### submit()
 
 ```ts
-submit: (input) => Promise & lt;
-TResult & gt;
+submit: (input) => Promise<TResult>;
 ```
 
 Submits the form with the given input.

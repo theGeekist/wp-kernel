@@ -27,11 +27,16 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 - [WPKernelEventBus](classes/WPKernelEventBus.md)
 
+### Reporter
+
+- [ConsoleTransport](classes/ConsoleTransport.md)
+
 ### Other
 
 - [WPKernelError](classes/WPKernelError.md)
 - [TransportError](classes/TransportError.md)
 - [ServerError](classes/ServerError.md)
+- [WPKernelHooksTransport](classes/WPKernelHooksTransport.md)
 
 ## Interfaces
 
@@ -229,6 +234,7 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [getWPKernelReporter](functions/getWPKernelReporter.md)
 - [setWPKernelReporter](functions/setWPKernelReporter.md)
 - [clearWPKReporter](functions/clearWPKReporter.md)
+- [createTransports](functions/createTransports.md)
 
 ### Namespace
 

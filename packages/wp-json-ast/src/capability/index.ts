@@ -1,4 +1,7 @@
 export { buildCapabilityModule } from './module';
+/**
+ * @category WordPress AST
+ */
 export type {
 	CapabilityDefinition,
 	CapabilityFallback,

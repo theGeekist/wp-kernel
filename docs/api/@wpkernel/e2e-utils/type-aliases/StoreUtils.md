@@ -73,8 +73,7 @@ Invalidate store cache to trigger refetch
 ### getState()
 
 ```ts
-getState: () => Promise & lt;
-T & gt;
+getState: () => Promise<T>;
 ```
 
 Get current store state

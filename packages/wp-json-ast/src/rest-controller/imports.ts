@@ -27,6 +27,11 @@ const IGNORED_NAMES = new Set([
 	'Capability',
 ]);
 
+/**
+ * @param    routes
+ * @param    options
+ * @category WordPress AST
+ */
 export function deriveRestControllerImports(
 	routes: readonly RestRouteConfig[],
 	options: RestControllerImportDerivationOptions = {}

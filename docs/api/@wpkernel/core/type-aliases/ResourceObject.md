@@ -572,8 +572,7 @@ Useful for refresh actions or real-time data requirements.
 #### get.item()
 
 ```ts
-item: (id) => Promise & lt;
-T & gt;
+item: (id) => Promise<T>;
 ```
 
 Get item from server (bypass cache)
@@ -633,8 +632,7 @@ Write operations that modify server state.
 #### mutate.create()
 
 ```ts
-create: (data) => Promise & lt;
-T & gt;
+create: (data) => Promise<T>;
 ```
 
 Create new item
@@ -652,8 +650,7 @@ Create new item
 #### mutate.update()
 
 ```ts
-update: (id, data) => Promise & lt;
-T & gt;
+update: (id, data) => Promise<T>;
 ```
 
 Update existing item

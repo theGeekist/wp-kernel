@@ -19,6 +19,9 @@ import {
 	buildCapabilityCallbackDocblock,
 } from '../common/docblock';
 
+/**
+ * @category WordPress AST
+ */
 export function buildCallbackMethod(): PhpStmtClassMethod {
 	const docblock = buildCapabilityCallbackDocblock();
 

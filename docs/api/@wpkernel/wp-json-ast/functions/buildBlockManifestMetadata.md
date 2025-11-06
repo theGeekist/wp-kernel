@@ -1,0 +1,23 @@
+[**@wpkernel/wp-json-ast v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / buildBlockManifestMetadata
+
+# Function: buildBlockManifestMetadata()
+
+```ts
+function buildBlockManifestMetadata(options?): BlockManifestMetadata;
+```
+
+## Parameters
+
+### options?
+
+#### validationErrors?
+
+readonly [`BlockManifestValidationError`](../interfaces/BlockManifestValidationError.md)[]
+
+## Returns
+
+[`BlockManifestMetadata`](../type-aliases/BlockManifestMetadata.md)

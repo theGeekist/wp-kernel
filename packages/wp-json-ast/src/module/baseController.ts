@@ -18,6 +18,10 @@ import type {
 const DEFAULT_CLASS_NAME = 'BaseController';
 const DEFAULT_METHOD_NAME = 'get_namespace';
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildBaseControllerProgram(
 	config: BaseControllerProgramConfig
 ): BaseControllerProgram {

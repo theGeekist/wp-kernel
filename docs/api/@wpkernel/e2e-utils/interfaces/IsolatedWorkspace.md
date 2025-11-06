@@ -45,8 +45,7 @@ Convenience accessor for pinned tooling
 ### run()
 
 ```ts
-run: (command, args?, options?) => Promise & lt;
-CliTranscript & gt;
+run: (command, args?, options?) => Promise<CliTranscript>;
 ```
 
 Run a command within the workspace root.

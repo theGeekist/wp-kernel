@@ -91,8 +91,7 @@ Array of items
 ### getList()
 
 ```ts
-getList: (state, query?) => ListResponse & lt;
-T & gt;
+getList: (state, query?) => ListResponse<T>;
 ```
 
 Get list response with metadata.

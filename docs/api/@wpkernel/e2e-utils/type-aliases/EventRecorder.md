@@ -23,10 +23,7 @@ Event utilities for capturing and asserting on kernel events
 ### list()
 
 ```ts
-list: () => Promise & lt;
-CapturedEvent & lt;
-P & gt;
-[] & gt;
+list: () => Promise<CapturedEvent<P>[]>;
 ```
 
 Get all captured events
@@ -64,10 +61,7 @@ First matching event or undefined
 ### findAll()
 
 ```ts
-findAll: (type) => Promise & lt;
-CapturedEvent & lt;
-P & gt;
-[] & gt;
+findAll: (type) => Promise<CapturedEvent<P>[]>;
 ```
 
 Find all events matching type

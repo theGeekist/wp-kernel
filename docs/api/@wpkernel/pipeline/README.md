@@ -28,6 +28,7 @@
 
 ## Type Aliases
 
+- [CreatePipelineExtensionOptions](type-aliases/CreatePipelineExtensionOptions.md)
 - [ErrorFactory](type-aliases/ErrorFactory.md)
 - [PipelineExtensionHook](type-aliases/PipelineExtensionHook.md)
 - [PipelineDiagnostic](type-aliases/PipelineDiagnostic.md)
@@ -42,6 +43,7 @@
 
 - [createHelper](functions/createHelper.md)
 - [createPipeline](functions/createPipeline.md)
+- [createPipelineExtension](functions/createPipelineExtension.md)
 
 ### Other
 

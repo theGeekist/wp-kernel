@@ -33,6 +33,9 @@ import type { MutationHelperResource } from '../mutation';
 const isNonEmptyString = (value: unknown): value is string =>
 	typeof value === 'string' && value.trim().length > 0;
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpPostListRouteStatementsOptions {
 	readonly resource: MutationHelperResource;
 	readonly pascalName: string;
@@ -40,6 +43,10 @@ export interface BuildWpPostListRouteStatementsOptions {
 	readonly cacheSegments: readonly unknown[];
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpPostListRouteStatements(
 	options: BuildWpPostListRouteStatementsOptions
 ): PhpStmt[] | null {

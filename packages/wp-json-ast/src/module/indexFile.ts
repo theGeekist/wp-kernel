@@ -20,6 +20,10 @@ import type {
 	ModuleIndexEntry,
 } from './types';
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildIndexProgram(config: IndexProgramConfig): IndexProgram {
 	const docblock = buildRestIndexDocblock({ origin: config.origin });
 	const plannedEntries = applyModuleIndexAugmentors(

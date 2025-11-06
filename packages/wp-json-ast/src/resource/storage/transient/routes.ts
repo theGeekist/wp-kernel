@@ -22,6 +22,9 @@ import { buildCacheInvalidators, type ResourceMetadataHost } from '../../cache';
 import { buildWpErrorReturn } from '../../errors';
 import type { ResolvedIdentity } from '../../../pipeline/identity';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildTransientRouteBaseOptions {
 	readonly pascalName: string;
 	readonly metadataHost: ResourceMetadataHost;
@@ -30,11 +33,18 @@ export interface BuildTransientRouteBaseOptions {
 	readonly usesIdentity: boolean;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildTransientUnsupportedRouteOptions
 	extends BuildTransientRouteBaseOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTransientGetRouteStatements(
 	options: BuildTransientRouteBaseOptions
 ): PhpStmt[] {
@@ -95,6 +105,10 @@ export function buildTransientGetRouteStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTransientSetRouteStatements(
 	options: BuildTransientRouteBaseOptions
 ): PhpStmt[] {
@@ -220,6 +234,10 @@ export function buildTransientSetRouteStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTransientDeleteRouteStatements(
 	options: BuildTransientRouteBaseOptions
 ): PhpStmt[] {
@@ -296,6 +314,10 @@ export function buildTransientDeleteRouteStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTransientUnsupportedRouteStatements(
 	options: BuildTransientUnsupportedRouteOptions
 ): PhpStmt[] {

@@ -1,0 +1,23 @@
+[**@wpkernel/wp-json-ast v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / WpErrorGuardOptions
+
+# Interface: WpErrorGuardOptions
+
+## Properties
+
+### expression
+
+```ts
+readonly expression: PhpExpr;
+```
+
+---
+
+### statements
+
+```ts
+readonly statements: readonly PhpStmt[];
+```

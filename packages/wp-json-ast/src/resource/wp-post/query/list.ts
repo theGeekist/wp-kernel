@@ -22,14 +22,24 @@ import {
 	buildPropertyFetch,
 } from '../../common/utils';
 
+/**
+ * @category WordPress AST
+ */
 export function buildListItemsInitialiserStatement(): PhpStmt {
 	return buildArrayInitialiserStatement({ variable: 'items' });
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ListForeachOptions {
 	readonly pascalName: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildListForeachStatement(
 	options: ListForeachOptions
 ): PhpStmtForeach {

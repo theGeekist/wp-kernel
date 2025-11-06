@@ -38,6 +38,10 @@ import { buildRequestParamAssignmentStatement } from '../../../../common/request
 import type { BuildUpdateRouteStatementsOptions } from './types';
 import { makeErrorCodeFactory } from './utils';
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildUpdateRouteStatements(
 	options: BuildUpdateRouteStatementsOptions
 ): PhpStmt[] | null {

@@ -31,6 +31,9 @@ import {
 	buildCapabilityEnforceDocblock,
 } from '../common/docblock';
 
+/**
+ * @category WordPress AST
+ */
 export function buildEnforceMethod(): PhpStmtClassMethod {
 	const docblock = buildCapabilityEnforceDocblock();
 

@@ -1,0 +1,21 @@
+[**@wpkernel/wp-json-ast v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / buildIsWpErrorGuard
+
+# Function: buildIsWpErrorGuard()
+
+```ts
+function buildIsWpErrorGuard(options): PhpStmtIf;
+```
+
+## Parameters
+
+### options
+
+[`WpErrorGuardOptions`](../interfaces/WpErrorGuardOptions.md)
+
+## Returns
+
+`PhpStmtIf`

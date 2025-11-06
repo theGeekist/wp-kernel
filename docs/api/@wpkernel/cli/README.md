@@ -22,8 +22,6 @@ kernel and UI packages.
 - [FragmentInput](interfaces/FragmentInput.md)
 - [FragmentOutput](interfaces/FragmentOutput.md)
 - [PipelineContext](interfaces/PipelineContext.md)
-- [PipelineExtension](interfaces/PipelineExtension.md)
-- [PipelineExtensionHookOptions](interfaces/PipelineExtensionHookOptions.md)
 - [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 
 ### CLI
@@ -151,7 +149,9 @@ kernel and UI packages.
 - [BuilderWriteAction](type-aliases/BuilderWriteAction.md)
 - [BuilderHelper](type-aliases/BuilderHelper.md)
 - [FragmentHelper](type-aliases/FragmentHelper.md)
+- [PipelineExtension](type-aliases/PipelineExtension.md)
 - [PipelineExtensionHook](type-aliases/PipelineExtensionHook.md)
+- [PipelineExtensionHookOptions](type-aliases/PipelineExtensionHookOptions.md)
 
 ### IR
 

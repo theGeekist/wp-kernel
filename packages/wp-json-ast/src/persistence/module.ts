@@ -41,6 +41,10 @@ import type {
 const DEFAULT_FILE_NAME = 'Registration/PersistenceRegistry.php';
 const PERSISTENCE_METADATA = { kind: 'persistence-registry' } as const;
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildPersistenceRegistryModule(
 	config: PersistenceRegistryModuleConfig
 ): PersistenceRegistryModuleResult {

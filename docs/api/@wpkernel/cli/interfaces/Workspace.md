@@ -45,8 +45,7 @@ read: (file) => Promise<Buffer<ArrayBufferLike> | null>;
 ### readText()
 
 ```ts
-readText: (file) => Promise & lt;
-string | (null & gt);
+readText: (file) => Promise<string | null>;
 ```
 
 #### Parameters
@@ -162,8 +161,8 @@ glob: (pattern) => Promise<string[]>;
 ### threeWayMerge()
 
 ```ts
-threeWayMerge: (file, base, current, incoming, options?) => Promise & lt;
-'conflict' | ('clean' & gt);
+threeWayMerge: (file, base, current, incoming, options?) =>
+	Promise<'conflict' | 'clean'>;
 ```
 
 #### Parameters
@@ -215,8 +214,7 @@ begin: (label?) => void;
 ### commit()
 
 ```ts
-commit: (label?) => Promise & lt;
-FileManifest & gt;
+commit: (label?) => Promise<FileManifest>;
 ```
 
 #### Parameters
@@ -234,8 +232,7 @@ FileManifest & gt;
 ### rollback()
 
 ```ts
-rollback: (label?) => Promise & lt;
-FileManifest & gt;
+rollback: (label?) => Promise<FileManifest>;
 ```
 
 #### Parameters
@@ -284,8 +281,7 @@ dryRun: <T>(fn) =>
 ### tmpDir()
 
 ```ts
-tmpDir: (prefix?) => Promise & lt;
-string & gt;
+tmpDir: (prefix?) => Promise<string>;
 ```
 
 #### Parameters
@@ -341,8 +337,7 @@ WorkspaceLike.resolve;
 ### exists()
 
 ```ts
-exists: (target) => Promise & lt;
-boolean & gt;
+exists: (target) => Promise<boolean>;
 ```
 
 #### Parameters

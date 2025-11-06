@@ -139,8 +139,7 @@ Trigger a bulk action button by its visible label.
 ### getSelectedCount()
 
 ```ts
-getSelectedCount: () => Promise & lt;
-number & gt;
+getSelectedCount: () => Promise<number>;
 ```
 
 Read the bulk selection counter rendered in the footer.
@@ -154,8 +153,7 @@ Read the bulk selection counter rendered in the footer.
 ### getTotalCount()
 
 ```ts
-getTotalCount: () => Promise & lt;
-number & gt;
+getTotalCount: () => Promise<number>;
 ```
 
 Read the total item count exposed by the wrapper metadata.

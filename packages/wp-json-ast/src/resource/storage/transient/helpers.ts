@@ -31,11 +31,18 @@ import {
 
 import { toSnakeCase } from '../../common/string';
 
+/**
+ * @category WordPress AST
+ */
 export interface ResolveTransientKeyOptions {
 	readonly resourceName: string;
 	readonly namespace?: string | null;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function resolveTransientKey(
 	options: ResolveTransientKeyOptions
 ): string {
@@ -51,11 +58,18 @@ export function resolveTransientKey(
 	return keyParts.join('_');
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildTransientHelperMethodsOptions {
 	readonly pascalName: string;
 	readonly key: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTransientHelperMethods(
 	options: BuildTransientHelperMethodsOptions
 ): PhpStmtClassMethod[] {

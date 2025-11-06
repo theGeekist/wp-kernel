@@ -1,0 +1,15 @@
+[**@wpkernel/wp-json-ast v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / ArrayInitialiserStatementOptions
+
+# Interface: ArrayInitialiserStatementOptions
+
+## Properties
+
+### variable
+
+```ts
+readonly variable: string;
+```

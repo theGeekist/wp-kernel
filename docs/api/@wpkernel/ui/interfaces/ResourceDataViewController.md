@@ -171,8 +171,7 @@ optional filters: Record<string, unknown>;
 ### loadStoredView()
 
 ```ts
-loadStoredView: () => Promise & lt;
-View | (undefined & gt);
+loadStoredView: () => Promise<View | undefined>;
 ```
 
 Loads the stored view from preferences.

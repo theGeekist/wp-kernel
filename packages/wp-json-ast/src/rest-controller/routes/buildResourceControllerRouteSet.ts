@@ -19,10 +19,16 @@ import type {
 
 const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH']);
 
+/**
+ * @category WordPress AST
+ */
 export type RestControllerRouteStatementsBuilder = (
 	context: RestControllerRouteStatementsContext
 ) => readonly PhpStmt[] | null | undefined;
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerRouteHandlers {
 	readonly list?: RestControllerRouteStatementsBuilder;
 	readonly get?: RestControllerRouteStatementsBuilder;
@@ -32,6 +38,9 @@ export interface RestControllerRouteHandlers {
 	readonly custom?: RestControllerRouteStatementsBuilder;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerRouteTransientHandlers {
 	readonly get?: RestControllerRouteStatementsBuilder;
 	readonly set?: RestControllerRouteStatementsBuilder;
@@ -39,12 +48,18 @@ export interface RestControllerRouteTransientHandlers {
 	readonly unsupported?: RestControllerRouteStatementsBuilder;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerRouteOptionHandlers {
 	readonly get?: RestControllerRouteStatementsBuilder;
 	readonly update?: RestControllerRouteStatementsBuilder;
 	readonly unsupported?: RestControllerRouteStatementsBuilder;
 }
 
+/**
+ * @category WordPress AST
+ */
 export type RestControllerRouteStorageMode =
 	| 'transient'
 	| 'wp-option'
@@ -54,6 +69,9 @@ export type RestControllerRouteStorageMode =
 	| 'custom'
 	| (string & {});
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildResourceControllerRouteSetOptions {
 	readonly plan: Pick<
 		RestControllerRoutePlan,
@@ -67,10 +85,16 @@ export interface BuildResourceControllerRouteSetOptions {
 	readonly fallbackContext?: RestControllerRouteFallbackContext;
 }
 
+/**
+ * @category WordPress AST
+ */
 export type BuildRouteFallbackStatements = (
 	definition: RestControllerRouteDefinition
 ) => readonly PhpStmt[];
 
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerRouteFallbackContext {
 	readonly resource?: string;
 	readonly transport?: string;
@@ -80,6 +104,10 @@ export interface RestControllerRouteFallbackContext {
 	readonly hint?: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildResourceControllerRouteSet(
 	options: BuildResourceControllerRouteSetOptions
 ): RestControllerRoutePlan {

@@ -69,6 +69,10 @@ function buildRegistry(
 	};
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildResourceAccessors<TStorageKind extends string>(
 	options: BuildResourceAccessorsOptions<TStorageKind>
 ): ResourceAccessors<TStorageKind> {

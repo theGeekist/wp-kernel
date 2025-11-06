@@ -44,6 +44,9 @@ import {
 	ensureWpTaxonomyStorage,
 } from '../helpers';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpTaxonomyListRouteStatementsOptions {
 	readonly pascalName: string;
 	readonly storage: ResourceStorageConfig | undefined;
@@ -54,6 +57,10 @@ export interface BuildWpTaxonomyListRouteStatementsOptions {
 	readonly taxonomyVariable?: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpTaxonomyListRouteStatements(
 	options: BuildWpTaxonomyListRouteStatementsOptions
 ): PhpStmt[] {

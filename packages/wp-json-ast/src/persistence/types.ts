@@ -5,12 +5,18 @@ import type {
 	ResourceStorageConfig,
 } from '@wpkernel/core/resource';
 
+/**
+ * @category WordPress AST
+ */
 export interface PersistenceRegistryResourceConfig {
 	readonly name: string;
 	readonly identity?: ResourceIdentityConfig | null;
 	readonly storage?: ResourceStorageConfig | null;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface PersistenceRegistryModuleConfig {
 	readonly origin: string;
 	readonly namespace: string;
@@ -18,6 +24,9 @@ export interface PersistenceRegistryModuleConfig {
 	readonly fileName?: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface PersistenceRegistryModuleFile {
 	readonly fileName: string;
 	readonly namespace: string;
@@ -28,6 +37,9 @@ export interface PersistenceRegistryModuleFile {
 	readonly statements: readonly string[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface PersistenceRegistryModuleResult {
 	readonly files: readonly PersistenceRegistryModuleFile[];
 }

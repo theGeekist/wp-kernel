@@ -181,8 +181,7 @@ use: (helper) => void;
 ### run()
 
 ```ts
-run: (options) => MaybePromise & lt;
-TRunResult & gt;
+run: (options) => MaybePromise<TRunResult>;
 ```
 
 #### Parameters

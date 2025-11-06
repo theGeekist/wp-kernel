@@ -42,16 +42,27 @@ import {
 } from '../../common/utils';
 import type { ResolvedIdentity } from '../../../pipeline/identity';
 
+/**
+ * @category WordPress AST
+ */
 export interface WpTaxonomyStorageConfig {
 	readonly mode: 'wp-taxonomy';
 	readonly taxonomy: string;
 	readonly hierarchical?: boolean;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface EnsureWpTaxonomyStorageOptions {
 	readonly resourceName?: string;
 }
 
+/**
+ * @param    storage
+ * @param    options
+ * @category WordPress AST
+ */
 export function ensureWpTaxonomyStorage(
 	storage: ResourceStorageConfig | undefined,
 	options: EnsureWpTaxonomyStorageOptions = {}
@@ -69,6 +80,9 @@ export function ensureWpTaxonomyStorage(
 	return storage;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpTaxonomyHelperMethodsOptions {
 	readonly pascalName: string;
 	readonly storage: WpTaxonomyStorageConfig;
@@ -76,11 +90,18 @@ export interface BuildWpTaxonomyHelperMethodsOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface WpTaxonomyHelperMethod {
 	readonly node: PhpStmtClassMethod;
 	readonly signature: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpTaxonomyHelperMethods(
 	options: BuildWpTaxonomyHelperMethodsOptions
 ): ReadonlyArray<WpTaxonomyHelperMethod> {
@@ -585,11 +606,18 @@ function buildValidateIdentityHelper(
 	};
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildTaxonomyAssignmentStatementOptions {
 	readonly pascalName: string;
 	readonly targetVariable?: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTaxonomyAssignmentStatement(
 	options: BuildTaxonomyAssignmentStatementOptions
 ): PhpStmtExpression {
@@ -602,6 +630,10 @@ export function buildTaxonomyAssignmentStatement(
 	return buildExpressionStatement(assignment);
 }
 
+/**
+ * @param    pascalName
+ * @category WordPress AST
+ */
 export function buildGetTaxonomyCall(pascalName: string): PhpExprMethodCall {
 	return buildMethodCall(
 		buildVariable('this'),
@@ -610,6 +642,11 @@ export function buildGetTaxonomyCall(pascalName: string): PhpExprMethodCall {
 	);
 }
 
+/**
+ * @param    pascalName
+ * @param    identityVariable
+ * @category WordPress AST
+ */
 export function buildResolveTaxonomyTermCall(
 	pascalName: string,
 	identityVariable = 'identity'
@@ -621,6 +658,11 @@ export function buildResolveTaxonomyTermCall(
 	);
 }
 
+/**
+ * @param    pascalName
+ * @param    termVariable
+ * @category WordPress AST
+ */
 export function buildPrepareTaxonomyTermResponseCall(
 	pascalName: string,
 	termVariable = 'term'

@@ -23,8 +23,7 @@ Resource utilities for seeding and cleanup
 ### seed()
 
 ```ts
-seed: (data) => Promise & lt;
-T & object & gt;
+seed: (data) => Promise<T & object>;
 ```
 
 Seed a single resource via REST API

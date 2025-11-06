@@ -1,8 +1,14 @@
 import type { CapabilityHelperMetadata } from '../types';
 import type { PhpProgram } from '@wpkernel/php-json-ast';
 
+/**
+ * @category WordPress AST
+ */
 export type CapabilityScope = 'resource' | 'object';
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityDefinition {
 	readonly key: string;
 	readonly capability: string;
@@ -11,17 +17,26 @@ export interface CapabilityDefinition {
 	readonly source: 'map' | 'fallback';
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityFallback {
 	readonly capability: string;
 	readonly appliesTo: CapabilityScope;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityMapWarning {
 	readonly code: string;
 	readonly message: string;
 	readonly context?: Record<string, unknown>;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityMapConfig {
 	readonly sourcePath?: string;
 	readonly definitions: readonly CapabilityDefinition[];
@@ -31,6 +46,9 @@ export interface CapabilityMapConfig {
 	readonly warnings: readonly CapabilityMapWarning[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityModuleConfig {
 	readonly origin: string;
 	readonly namespace: string;
@@ -39,6 +57,9 @@ export interface CapabilityModuleConfig {
 	readonly hooks?: CapabilityModuleHooks;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityModuleFile {
 	readonly fileName: string;
 	readonly namespace: string;
@@ -49,10 +70,16 @@ export interface CapabilityModuleFile {
 	readonly statements: readonly string[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityModuleResult {
 	readonly files: readonly CapabilityModuleFile[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export type CapabilityModuleWarning =
 	| {
 			readonly kind: 'capability-map-warning';
@@ -70,6 +97,9 @@ export type CapabilityModuleWarning =
 			readonly scope?: CapabilityScope;
 	  };
 
+/**
+ * @category WordPress AST
+ */
 export interface CapabilityModuleHooks {
 	readonly onWarning?: (warning: CapabilityModuleWarning) => void;
 }

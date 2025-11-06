@@ -27,6 +27,10 @@ import type {
 
 const DEFAULT_CAPABILITY_FILE_NAME = 'Capability/Capability.php';
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildCapabilityModule(
 	config: CapabilityModuleConfig
 ): CapabilityModuleResult {

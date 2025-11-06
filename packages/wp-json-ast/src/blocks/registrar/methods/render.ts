@@ -27,6 +27,9 @@ import {
 	buildIfStatementNode,
 } from '../../../resource/common/utils';
 
+/**
+ * @category WordPress AST
+ */
 export function buildBuildRenderArgumentsMethod(): PhpStmtClassMethod {
 	const closure = buildClosure({
 		static: true,
@@ -84,6 +87,9 @@ export function buildBuildRenderArgumentsMethod(): PhpStmtClassMethod {
 	});
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildRenderTemplateMethod(): PhpStmtClassMethod {
 	const stmts: PhpStmt[] = [
 		buildIfStatementNode({

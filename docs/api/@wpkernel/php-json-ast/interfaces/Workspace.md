@@ -75,8 +75,7 @@ write: (file, contents, options?) => Promise<void>;
 ### exists()
 
 ```ts
-exists: (target) => Promise & lt;
-boolean & gt;
+exists: (target) => Promise<boolean>;
 ```
 
 #### Parameters

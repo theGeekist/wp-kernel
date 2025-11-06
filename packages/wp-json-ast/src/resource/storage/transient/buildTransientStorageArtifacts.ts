@@ -16,6 +16,9 @@ import {
 	type BuildTransientRouteBaseOptions,
 } from './routes';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildTransientStorageArtifactsOptions {
 	readonly pascalName: string;
 	readonly key: string;
@@ -24,6 +27,9 @@ export interface BuildTransientStorageArtifactsOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface TransientStorageArtifacts {
 	readonly helperMethods: readonly PhpStmtClassMethod[];
 	readonly routeHandlers: RestControllerRouteTransientHandlers;
@@ -33,6 +39,10 @@ type BuildTransientRouteStatements = (
 	options: BuildTransientRouteBaseOptions
 ) => ReturnType<RestControllerRouteStatementsBuilder>;
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTransientStorageArtifacts(
 	options: BuildTransientStorageArtifactsOptions
 ): TransientStorageArtifacts {

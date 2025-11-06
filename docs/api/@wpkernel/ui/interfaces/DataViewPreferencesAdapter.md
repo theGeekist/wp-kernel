@@ -34,8 +34,7 @@ const adapter: DataViewPreferencesAdapter = {
 ### get()
 
 ```ts
-get: (key) => Promise & lt;
-unknown & gt;
+get: (key) => Promise<unknown>;
 ```
 
 Retrieve a preference value by key

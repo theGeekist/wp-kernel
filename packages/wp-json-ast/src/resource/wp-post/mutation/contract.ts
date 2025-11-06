@@ -1,3 +1,6 @@
+/**
+ * @category WordPress AST
+ */
 export interface ResourceMutationContract {
 	readonly mutationKinds: readonly ('create' | 'update' | 'delete')[];
 	readonly helperFactories: {
@@ -18,6 +21,9 @@ export interface ResourceMutationContract {
 	};
 }
 
+/**
+ * @category WordPress AST
+ */
 export const WP_POST_MUTATION_CONTRACT: ResourceMutationContract = {
 	mutationKinds: ['create', 'update', 'delete'],
 	helperFactories: {

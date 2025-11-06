@@ -27,10 +27,16 @@ import {
 } from '../../common/utils';
 import { toSnakeCase } from './utils';
 
+/**
+ * @category WordPress AST
+ */
 export interface WpPostTaxonomyConfigEntry {
 	readonly taxonomy?: string | null;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface WpPostTaxonomyQueryConfig {
 	readonly taxonomies?: Record<
 		string,
@@ -38,6 +44,10 @@ export interface WpPostTaxonomyQueryConfig {
 	> | null;
 }
 
+/**
+ * @param    storage
+ * @category WordPress AST
+ */
 export function collectTaxonomyQueryEntries(
 	storage: WpPostTaxonomyQueryConfig
 ): Array<[string, { taxonomy: string }]> {
@@ -54,10 +64,17 @@ export function collectTaxonomyQueryEntries(
 	return entries;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildTaxonomyQueryStatementsOptions {
 	readonly entries: Array<[string, { taxonomy: string }]>;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildTaxonomyQueryStatements(
 	options: BuildTaxonomyQueryStatementsOptions
 ): readonly PhpStmt[] {

@@ -26,6 +26,10 @@ import type {
 	RestRouteRequestParameter,
 } from './types';
 
+/**
+ * @param    plan
+ * @category WordPress AST
+ */
 export function buildRestRoute(
 	plan: RestRouteIdentityPlan
 ): PhpStmtClassMethod {

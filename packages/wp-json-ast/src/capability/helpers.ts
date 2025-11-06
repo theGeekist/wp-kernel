@@ -11,6 +11,10 @@ import {
 
 import type { CapabilityDefinition, CapabilityFallback } from './types';
 
+/**
+ * @param    definitions
+ * @category WordPress AST
+ */
 export function createCapabilityMapExpr(
 	definitions: readonly CapabilityDefinition[]
 ): PhpExpr {
@@ -27,6 +31,10 @@ export function createCapabilityMapExpr(
 	return renderStructuredValue(record);
 }
 
+/**
+ * @param    fallback
+ * @category WordPress AST
+ */
 export function createFallbackExpr(fallback: CapabilityFallback): PhpExpr {
 	return renderStructuredValue(sanitizeValue(fallback));
 }

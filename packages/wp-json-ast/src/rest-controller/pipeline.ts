@@ -35,6 +35,9 @@ import type {
  * heavy lifting of docblocks, metadata, and identity plumbing while allowing
  * callers to focus on the statements that implement the route behaviour.
  */
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerRouteDefinition {
 	readonly method: string;
 	readonly path: string;
@@ -44,6 +47,9 @@ export interface RestControllerRouteDefinition {
 /**
  * Context passed to route statement builders. The metadata host allows a plan
  * to append cache events or tweak route annotations as statements are emitted.
+ */
+/**
+ * @category WordPress AST
  */
 export interface RestControllerRouteStatementsContext {
 	readonly metadata: ResourceControllerRouteMetadata;
@@ -62,6 +68,9 @@ type BuildRestControllerRouteFallbackStatements = () => readonly PhpStmt[];
  * updates happen through the supplied context so the planner can track cache
  * hints and annotations consistently across routes.
  */
+/**
+ * @category WordPress AST
+ */
 export interface RestControllerRoutePlan {
 	readonly definition: RestControllerRouteDefinition;
 	readonly methodName: string;
@@ -74,6 +83,9 @@ export interface RestControllerRoutePlan {
  * High-level configuration for a generated REST controller class. Plans mirror
  * the CLI IR but avoid any direct AST work so the pipeline can remain readable
  * and accessible to developers adding new resources or routes.
+ */
+/**
+ * @category WordPress AST
  */
 export interface RestControllerResourcePlan {
 	readonly name: string;
@@ -94,6 +106,9 @@ export interface RestControllerResourcePlan {
  * surrounding namespace information alongside the resource plans so the planner
  * can enqueue controller programs and an index file in a single call.
  */
+/**
+ * @category WordPress AST
+ */
 export interface BuildRestControllerModuleFromPlanOptions {
 	readonly origin: string;
 	readonly pluginNamespace: string;
@@ -111,6 +126,10 @@ export interface BuildRestControllerModuleFromPlanOptions {
  * files plus `index.php`) while keeping implementation details inside the
  * `wp-json-ast` pipeline.
  * @param options
+ */
+/**
+ * @param    options
+ * @category WordPress AST
  */
 export function buildRestControllerModuleFromPlan(
 	options: BuildRestControllerModuleFromPlanOptions

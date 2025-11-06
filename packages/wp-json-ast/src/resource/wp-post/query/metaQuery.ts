@@ -34,10 +34,16 @@ import {
 } from '../../common/utils';
 import { toSnakeCase } from './utils';
 
+/**
+ * @category WordPress AST
+ */
 export interface WpPostMetaConfigEntry {
 	readonly single?: boolean | null;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface WpPostMetaQueryConfig {
 	readonly meta?: Record<
 		string,
@@ -45,6 +51,10 @@ export interface WpPostMetaQueryConfig {
 	> | null;
 }
 
+/**
+ * @param    storage
+ * @category WordPress AST
+ */
 export function collectMetaQueryEntries(
 	storage: WpPostMetaQueryConfig
 ): Array<[string, { single?: boolean | null } | undefined]> {
@@ -63,10 +73,17 @@ export function collectMetaQueryEntries(
 	return entries;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildMetaQueryStatementsOptions {
 	readonly entries: Array<[string, { single?: boolean | null } | undefined]>;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildMetaQueryStatements(
 	options: BuildMetaQueryStatementsOptions
 ): readonly PhpStmt[] {

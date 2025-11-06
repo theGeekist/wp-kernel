@@ -14,6 +14,9 @@ import {
 	type PhpExpr,
 } from '@wpkernel/php-json-ast';
 
+/**
+ * @category WordPress AST
+ */
 export type JsonValue =
 	| string
 	| number
@@ -22,6 +25,10 @@ export type JsonValue =
 	| readonly JsonValue[]
 	| { readonly [key: string]: JsonValue };
 
+/**
+ * @param    value
+ * @category WordPress AST
+ */
 export function sanitizeJsonValue<T extends JsonValue | undefined>(
 	value: T
 ): T {
@@ -41,6 +48,10 @@ export function sanitizeJsonValue<T extends JsonValue | undefined>(
 	return value;
 }
 
+/**
+ * @param    identity
+ * @category WordPress AST
+ */
 export function normalizeIdentityConfig(
 	identity?: ResourceIdentityConfig | null
 ): JsonValue | null {
@@ -67,6 +78,10 @@ export function normalizeIdentityConfig(
 	return sanitizeJsonValue(payload);
 }
 
+/**
+ * @param    storage
+ * @category WordPress AST
+ */
 export function normalizeStorageConfig(
 	storage?: ResourceStorageConfig | null
 ): JsonValue | null {
@@ -180,6 +195,10 @@ function sortRecord<T extends Record<string, JsonValue | undefined>>(
 	};
 }
 
+/**
+ * @param    value
+ * @category WordPress AST
+ */
 export function buildPhpLiteral(value: JsonValue): PhpExpr {
 	if (Array.isArray(value)) {
 		return buildArray(

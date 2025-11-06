@@ -45,6 +45,9 @@ import type {
 } from './types';
 import { buildRestControllerClass } from './class';
 
+/**
+ * @category WordPress AST
+ */
 export type {
 	RestControllerModuleConfig,
 	RestControllerModuleControllerConfig,
@@ -58,6 +61,10 @@ const DEFAULT_INDEX_METADATA: RestControllerModuleMetadata = {
 	kind: 'index-file',
 };
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildRestControllerModule(
 	config: RestControllerModuleConfig
 ): RestControllerModuleResult {

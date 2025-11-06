@@ -65,8 +65,7 @@ optional wp: object;
 #### canUser()
 
 ```ts
-canUser: (action, resource) => boolean | (Promise & lt);
-boolean & gt;
+canUser: (action, resource) => boolean | Promise<boolean>;
 ```
 
 ##### Parameters

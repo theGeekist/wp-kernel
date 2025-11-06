@@ -202,6 +202,7 @@ Phase 8 shifts to the UI package so authors can describe a resource once and imm
 
 - ✓ Task 46 - DataViews schema expansion: UI runtime now ingests saved views, menu metadata, and richer column definitions automatically during `attachUIBindings()` setup so the CLI can follow with generator updates.
 - ✓ Task 47 - Async boundaries & notices: Resource screens share loading/empty/error/permission boundaries and emit success/failure notices through `core/notices`, keeping reporter diagnostics aligned with the runtime.
+- ✓ Task 48 - Published a `createDataViewInteraction()` helper that syncs DataView controllers with `defineInteraction`, forwarding selections, filters, and cache hydration.
 
 ### Phase 9 - Post-MVP polish (⬜ Planned)
 
