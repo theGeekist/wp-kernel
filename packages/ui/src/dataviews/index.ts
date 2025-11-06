@@ -7,6 +7,7 @@ export type {
 	DataFormControllerState,
 } from './data-form-controller';
 export { createDataViewsRuntime, ensureControllerRuntime } from './runtime';
+export { createDataViewInteraction } from './interactivity/createDataViewInteraction';
 export type {
 	ResourceDataViewController,
 	ResourceDataViewControllerOptions,
@@ -22,6 +23,11 @@ export type {
 	WPKUICapabilityRuntimeSource,
 	QueryMapping,
 } from './types';
+export type {
+	CreateDataViewInteractionOptions,
+	DataViewInteractionResult,
+	DataViewInteractionState,
+} from './interactivity/createDataViewInteraction';
 export type {
 	WPKernelDataViewsRuntime,
 	NormalizedDataViewsRuntimeOptions,
