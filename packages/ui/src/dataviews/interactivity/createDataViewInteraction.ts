@@ -15,6 +15,10 @@ import type {
 	DataViewsRuntimeContext,
 	ResourceDataViewController,
 } from '../types';
+import {
+	subscribeToAction,
+	subscribeToViewChange,
+} from './controllerSubscriptions';
 
 /**
  * Snapshot of the current DataView bridge state exposed to the interactivity store.
@@ -367,22 +371,28 @@ export function createDataViewInteraction<
 		updateStateFromView(controller, state, reporter, currentView);
 	});
 
-	const originalEmitViewChange = controller.emitViewChange;
-	controller.emitViewChange = (view: View) => {
-		if (!destroyed) {
+	const unsubscribeView = subscribeToViewChange(
+		controller,
+		reporter,
+		(view) => {
+			if (destroyed) {
+				return;
+			}
 			currentView = view;
 			updateStateFromView(controller, state, reporter, view);
 		}
-		originalEmitViewChange.call(controller, view);
-	};
+	);
 
-	const originalEmitAction = controller.emitAction;
-	controller.emitAction = (payload) => {
-		if (!destroyed) {
+	const unsubscribeAction = subscribeToAction(
+		controller,
+		reporter,
+		(payload) => {
+			if (destroyed) {
+				return;
+			}
 			state.selection = normalizeSelection(payload.selection);
 		}
-		originalEmitAction.call(controller, payload);
-	};
+	);
 
 	const setSelection = (selection: Array<string | number>) => {
 		if (destroyed) {
@@ -396,8 +406,8 @@ export function createDataViewInteraction<
 			return;
 		}
 		destroyed = true;
-		controller.emitViewChange = originalEmitViewChange;
-		controller.emitAction = originalEmitAction;
+		unsubscribeView();
+		unsubscribeAction();
 	};
 
 	return {
