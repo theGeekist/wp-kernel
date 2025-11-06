@@ -40,19 +40,77 @@ Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivit
 
 To **build your WordPress plugin** with WP Kernel:
 
+**Requirements:**
+
 - **Node.js**: 20.x LTS or higher ([nvm](https://github.com/nvm-sh/nvm) recommended)
 - **pnpm**: 9.x or higher (`npm install -g pnpm`) or npm
 - **WordPress**: 6.7+ (required for [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/) - core to the framework architecture)
 
 > **Why WordPress 6.7+?** WP Kernel builds on WordPress Core primitives (Script Modules, Block Bindings, Interactivity API). Script Modules enable native ESM support, which is fundamental to the framework's design.
 
-**Installation:**
+#### Option 1: Scaffold a New Plugin (Recommended)
+
+The fastest way to get started is using the scaffolding command:
+
+```bash
+# Create a new plugin with the CLI
+npm create @wpkernel/wpk my-plugin
+cd my-plugin
+
+# Start development
+npm start
+```
+
+This creates a complete WP Kernel plugin with pre-configured `wpk.config.ts`, TypeScript setup, example resources and actions, and a development server ready to go.
+
+**Core Workflow:**
+
+```bash
+# 1. Edit wpk.config.ts to define resources, actions, capabilities
+# 2. Generate PHP/TS code
+wpk generate
+
+# 3. Apply changes to existing code (with Git safety)
+wpk apply
+
+# 4. Validate everything is correct
+wpk doctor
+```
+
+**Available Commands After Creation:**
+
+```bash
+wpk generate    # Generate PHP/TS from wpk.config.*
+wpk doctor      # Check project health and dependencies
+wpk start       # Start development server
+wpk init        # Initialize WP Kernel in existing project
+wpk apply       # Apply generated code patches
+```
+
+> 💡 **Tip**: Add these as scripts in your `package.json` for convenience:
+>
+> ```json
+> {
+> 	"scripts": {
+> 		"generate": "wpk generate",
+> 		"doctor": "wpk doctor",
+> 		"dev": "wpk start"
+> 	}
+> }
+> ```
+
+#### Option 2: Manual Installation
+
+If you prefer to set up manually or add WP Kernel to an existing project:
 
 ```bash
 # In your plugin directory
 npm install @wpkernel/core
 # or
 pnpm add @wpkernel/core
+
+# Add the CLI as dev dependency
+npm install -D @wpkernel/cli
 ```
 
 **Bootstrap the runtime:**

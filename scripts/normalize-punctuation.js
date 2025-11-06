@@ -30,9 +30,9 @@ const logger = new LogLayer({
 const REPLACEMENTS = [
 	// Example 1: Em-dash normalization
 	{
-		name: 'em dash',
-		search: /-/g, // The character to find (em dash)
-		replace: '-', // The character to use instead (hyphen)
+		search: /(?<=\w)\u2014(?=\w)/g, // only dash between word chars
+		name: 'em dash normalization (inline only)',
+		replace: ' - ',
 	},
 	// Example 2: The exact replacements you asked for (e.g., green checkmark to black checkmark)
 	// Note: The specific Unicode character for a checkmark is U+2714 (✓)
@@ -47,6 +47,41 @@ const REPLACEMENTS = [
 		name: 'colored cross mark',
 		search: /❌/g, // The colored cross mark (U+274C)
 		replace: '✗', // The black cross mark (U+2717)
+	},
+	{
+		search: /=&gt;/g,
+		name: 'arrow encoding =>',
+		replace: '=>',
+	},
+	{
+		search: /&lt;/g,
+		name: 'generic left <',
+		replace: '<',
+	},
+	{
+		search: /&gt;/g,
+		name: 'generic right >',
+		replace: '>',
+	},
+	{
+		search: /&amp;/g,
+		name: 'ampersand encoding &',
+		replace: '&',
+	},
+	{
+		search: /\\&lt;/g,
+		name: 'escaped < (typedoc double-escape)',
+		replace: '<',
+	},
+	{
+		search: /\\&gt;/g,
+		name: 'escaped > (typedoc double-escape)',
+		replace: '>',
+	},
+	{
+		search: /&quot;/g,
+		name: 'double quote encoding "',
+		replace: '"',
 	},
 	// Add any other replacements here:
 	// {
