@@ -15,6 +15,10 @@ import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '../constants';
 import { buildGeneratedFileDocComment } from '../common/docblock';
 import type { ModuleProgramFile } from './types';
 
+/**
+ * @param    program
+ * @category WordPress AST
+ */
 export function buildGeneratedModuleProgram<TMetadata>(
 	program: ModuleProgramFile<TMetadata>
 ): PhpProgram {

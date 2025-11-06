@@ -29,6 +29,9 @@ import type { MutationHelperResource } from '../mutation';
 
 type WpPostStorage = Extract<ResourceStorageConfig, { mode: 'wp-post' }>;
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpPostGetRouteStatementsOptions {
 	readonly resource: MutationHelperResource;
 	readonly identity: ResolvedIdentity;
@@ -47,6 +50,10 @@ function isWpPostStorage(storage: unknown): storage is WpPostStorage {
 	);
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpPostGetRouteStatements(
 	options: BuildWpPostGetRouteStatementsOptions
 ): PhpStmt[] | null {

@@ -321,6 +321,10 @@ export default withMermaid(
 								text: '@wpkernel/ui',
 								link: '/api/@wpkernel/ui/',
 							},
+							{
+								text: '@wpkernel/wp-json-ast',
+								link: '/api/@wpkernel/wp-json-ast/',
+							},
 						],
 					},
 				],

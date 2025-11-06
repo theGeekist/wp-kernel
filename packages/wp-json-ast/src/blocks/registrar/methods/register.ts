@@ -28,6 +28,9 @@ import {
 	buildContinueStatement,
 } from '../common';
 
+/**
+ * @category WordPress AST
+ */
 export function buildRegisterMethod(): PhpStmtClassMethod {
 	const manifestVariable = 'manifest_path';
 	const entriesVariable = 'entries';

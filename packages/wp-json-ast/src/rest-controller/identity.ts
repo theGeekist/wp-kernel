@@ -14,6 +14,10 @@ import type { RestRouteIdentityPlan } from './types';
  *
  * @param plan
  */
+/**
+ * @param    plan
+ * @category WordPress AST
+ */
 export function buildIdentityPlumbing(
 	plan: RestRouteIdentityPlan
 ): readonly PhpStmt[] {

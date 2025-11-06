@@ -27,6 +27,10 @@ import { buildReturnIfWpError, buildWpErrorReturn } from '../../../errors';
 import type { BuildCreateRouteStatementsOptions } from './types';
 import { makeErrorCodeFactory } from './utils';
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildCreateRouteStatements(
 	options: BuildCreateRouteStatementsOptions
 ): PhpStmt[] | null {

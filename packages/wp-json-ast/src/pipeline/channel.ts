@@ -13,15 +13,24 @@ export {
 	resetPhpBuilderChannel,
 	resetPhpAstChannel,
 } from '@wpkernel/php-json-ast';
+/**
+ * @category WordPress AST
+ */
 export type {
 	PhpBuilderChannel,
 	PhpProgramAction,
 } from '@wpkernel/php-json-ast';
 
+/**
+ * @category WordPress AST
+ */
 export interface PhpChannelHelperOptions {
 	readonly key?: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface PhpChannelHelpers<
 	TContext extends PipelineContext = PipelineContext,
 	TInput extends BuilderInput = BuilderInput,
@@ -30,6 +39,10 @@ export interface PhpChannelHelpers<
 	readonly channel: BuilderHelper<TContext, TInput, TOutput>;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildPhpChannelHelpers<
 	TContext extends PipelineContext = PipelineContext,
 	TInput extends BuilderInput = BuilderInput,
@@ -42,6 +55,10 @@ export function buildPhpChannelHelpers<
 	};
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function createPhpChannelHelper<
 	TContext extends PipelineContext = PipelineContext,
 	TInput extends BuilderInput = BuilderInput,

@@ -1,19 +1,48 @@
+/**
+ * Represents a segment of a module namespace.
+ *
+ * @category WordPress AST
+ */
 export interface ModuleNamespaceSegment {
+	/** The name of the segment. */
 	readonly name: string;
+	/** An optional sanitized version of the segment name. */
 	readonly sanitized?: string | null;
 }
 
+/**
+ * Configuration for deriving a module namespace.
+ *
+ * @category WordPress AST
+ */
 export interface ModuleNamespaceConfig {
+	/** The root namespace of the plugin. */
 	readonly pluginNamespace: string;
+	/** An optional sanitized version of the plugin namespace. */
 	readonly sanitizedPluginNamespace?: string | null;
+	/** Optional namespace segments to append to the root namespace. */
 	readonly segments?: readonly ModuleNamespaceSegment[];
 }
 
+/**
+ * Represents a derived module namespace.
+ *
+ * @category WordPress AST
+ */
 export interface ModuleNamespaceDerivation {
+	/** The full, derived namespace. */
 	readonly namespace: string;
+	/** The sanitized version of the derived namespace. */
 	readonly sanitizedNamespace: string;
 }
 
+/**
+ * Derives a module namespace from a configuration.
+ *
+ * @param    config - The namespace configuration.
+ * @returns The derived namespace.
+ * @category WordPress AST
+ */
 export function deriveModuleNamespace(
 	config: ModuleNamespaceConfig
 ): ModuleNamespaceDerivation {
@@ -26,6 +55,14 @@ export function deriveModuleNamespace(
 	} satisfies ModuleNamespaceDerivation;
 }
 
+/**
+ * Creates a module namespace segment.
+ *
+ * @param    name      - The name of the segment.
+ * @param    sanitized - An optional sanitized version of the segment name.
+ * @returns A module namespace segment.
+ * @category WordPress AST
+ */
 export function moduleSegment(
 	name: string,
 	sanitized?: string | null

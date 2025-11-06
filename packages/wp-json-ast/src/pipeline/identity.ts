@@ -22,39 +22,66 @@ import {
 } from '../resource/common/utils';
 import { buildWpErrorReturn } from '../resource/errors';
 
+/**
+ * @category WordPress AST
+ */
 export interface IdentityResolutionSource {
 	readonly identity?: ResourceIdentityConfig | null;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ResolvedNumberIdentity {
 	readonly type: 'number';
 	readonly param: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ResolvedStringIdentity {
 	readonly type: 'string';
 	readonly param: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export type ResolvedIdentity = ResolvedNumberIdentity | ResolvedStringIdentity;
 
+/**
+ * @category WordPress AST
+ */
 export interface BaseIdentityGuardOptions {
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface NumericIdentityGuardOptions extends BaseIdentityGuardOptions {
 	readonly identity: ResolvedNumberIdentity;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface StringIdentityGuardOptions extends BaseIdentityGuardOptions {
 	readonly identity: ResolvedStringIdentity;
 }
 
+/**
+ * @category WordPress AST
+ */
 export type IdentityGuardOptions =
 	| NumericIdentityGuardOptions
 	| StringIdentityGuardOptions;
 
+/**
+ * @category WordPress AST
+ */
 export interface IdentityHelpers {
 	readonly resolveIdentityConfig: (
 		resource: IdentityResolutionSource
@@ -64,6 +91,9 @@ export interface IdentityHelpers {
 	) => readonly PhpStmt[];
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildIdentityHelpers(): IdentityHelpers {
 	return {
 		resolveIdentityConfig: resolveIdentityConfigInternal,
@@ -71,24 +101,40 @@ export function buildIdentityHelpers(): IdentityHelpers {
 	};
 }
 
+/**
+ * @param    resource
+ * @category WordPress AST
+ */
 export function resolveIdentityConfig(
 	resource: IdentityResolutionSource
 ): ResolvedIdentity {
 	return resolveIdentityConfigInternal(resource);
 }
 
+/**
+ * @param    identity
+ * @category WordPress AST
+ */
 export function isNumericIdentity(
 	identity: ResolvedIdentity
 ): identity is ResolvedNumberIdentity {
 	return identity.type === 'number';
 }
 
+/**
+ * @param    identity
+ * @category WordPress AST
+ */
 export function isStringIdentity(
 	identity: ResolvedIdentity
 ): identity is ResolvedStringIdentity {
 	return identity.type === 'string';
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildIdentityGuardStatements(
 	options: IdentityGuardOptions
 ): readonly PhpStmt[] {

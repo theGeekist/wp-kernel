@@ -38,6 +38,9 @@ import {
 	type PhpStmtFunction,
 } from '@wpkernel/php-json-ast';
 
+/**
+ * @category WordPress AST
+ */
 export interface PluginLoaderProgramConfig {
 	readonly origin: string;
 	readonly namespace: string;
@@ -45,6 +48,10 @@ export interface PluginLoaderProgramConfig {
 	readonly resourceClassNames: readonly string[];
 }
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildPluginLoaderProgram(
 	config: PluginLoaderProgramConfig
 ): PhpProgram {

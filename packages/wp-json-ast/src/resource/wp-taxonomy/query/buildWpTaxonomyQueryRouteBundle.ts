@@ -5,6 +5,9 @@ import type { WpTaxonomyStorageConfig } from '../helpers';
 import { buildWpTaxonomyListRouteStatements } from './list';
 import { buildWpTaxonomyGetRouteStatements } from './get';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpTaxonomyQueryRouteBundleOptions {
 	readonly pascalName: string;
 	readonly storage: WpTaxonomyStorageConfig;
@@ -13,6 +16,9 @@ export interface BuildWpTaxonomyQueryRouteBundleOptions {
 	readonly resourceName?: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface WpTaxonomyQueryRouteBundle {
 	readonly routeHandlers: RestControllerRouteHandlers;
 }
@@ -22,6 +28,10 @@ interface RouteMetadataContext {
 	readonly cacheSegments: readonly unknown[];
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpTaxonomyQueryRouteBundle(
 	options: BuildWpTaxonomyQueryRouteBundleOptions
 ): WpTaxonomyQueryRouteBundle {

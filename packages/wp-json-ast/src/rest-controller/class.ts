@@ -19,6 +19,10 @@ import type {
 import { buildRestRoute } from './route';
 import { deriveRestControllerImports } from './imports';
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildRestControllerClass(
 	config: RestControllerClassConfig
 ): RestControllerClassBuildResult {

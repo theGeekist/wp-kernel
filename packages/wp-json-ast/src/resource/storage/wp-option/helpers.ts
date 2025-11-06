@@ -27,11 +27,18 @@ import {
 	normaliseVariableReference,
 } from '../../common/utils';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpOptionHelperMethodsOptions {
 	readonly pascalName: string;
 	readonly optionName: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpOptionHelperMethods(
 	options: BuildWpOptionHelperMethodsOptions
 ): PhpStmtClassMethod[] {

@@ -19,6 +19,10 @@ interface BuildCapabilityClassOptions {
 	readonly capabilityMap: CapabilityMapConfig;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildCapabilityClass(
 	options: BuildCapabilityClassOptions
 ): PhpStmtClass {

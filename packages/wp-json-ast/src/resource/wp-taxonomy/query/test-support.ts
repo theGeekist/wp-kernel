@@ -11,6 +11,9 @@ import type {
 import type { ResourceMetadataHost } from '../../cache';
 import type { ResourceControllerMetadata } from '../../../types';
 
+/**
+ * @category WordPress AST
+ */
 export function createMetadataHost(): {
 	metadata: ResourceControllerMetadata;
 	host: ResourceMetadataHost;
@@ -33,12 +36,21 @@ export function createMetadataHost(): {
 	};
 }
 
+/**
+ * @param    statement
+ * @category WordPress AST
+ */
 export function isExpressionStatement(
 	statement: PhpStmt | undefined
 ): statement is PhpStmtExpression {
 	return statement?.nodeType === 'Stmt_Expression';
 }
 
+/**
+ * @param    statement
+ * @param    variableName
+ * @category WordPress AST
+ */
 export function isVariableAssignment(
 	statement: PhpStmt | undefined,
 	variableName: string
@@ -62,6 +74,10 @@ export function isVariableAssignment(
 	return variable.name === variableName;
 }
 
+/**
+ * @param    statement
+ * @category WordPress AST
+ */
 export function expectReturnStatement(
 	statement: PhpStmt | undefined
 ): PhpStmtReturn {
@@ -72,6 +88,11 @@ export function expectReturnStatement(
 	throw new Error('Expected return statement');
 }
 
+/**
+ * @param    statement
+ * @param    methodName
+ * @category WordPress AST
+ */
 export function expectMethodCall(
 	statement: PhpStmtReturn,
 	methodName: string
@@ -92,6 +113,12 @@ export function expectMethodCall(
 	return methodCall;
 }
 
+/**
+ * @param    statement
+ * @param    variableName
+ * @param    className
+ * @category WordPress AST
+ */
 export function isNewAssignment(
 	statement: PhpStmt | undefined,
 	variableName: string,

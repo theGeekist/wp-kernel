@@ -27,6 +27,10 @@ import { buildRequestParamAssignmentStatement } from '../../../../common/request
 import type { BuildDeleteRouteStatementsOptions } from './types';
 import { makeErrorCodeFactory } from './utils';
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildDeleteRouteStatements(
 	options: BuildDeleteRouteStatementsOptions
 ): PhpStmt[] | null {

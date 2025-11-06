@@ -12,16 +12,25 @@ import {
 } from '@wpkernel/php-json-ast';
 import { normaliseVariableReference } from '../../common/request';
 
+/**
+ * @category WordPress AST
+ */
 export interface VariableValueDescriptor {
 	readonly kind: 'variable';
 	readonly name: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ExpressionValueDescriptor {
 	readonly kind: 'expression';
 	readonly expr: PhpExpr;
 }
 
+/**
+ * @category WordPress AST
+ */
 export type StructuredPhpValue =
 	| string
 	| number
@@ -31,19 +40,34 @@ export type StructuredPhpValue =
 	| readonly unknown[]
 	| Record<string, unknown>;
 
+/**
+ * @category WordPress AST
+ */
 export type PhpValueDescriptor =
 	| StructuredPhpValue
 	| VariableValueDescriptor
 	| ExpressionValueDescriptor;
 
+/**
+ * @param    name
+ * @category WordPress AST
+ */
 export function variable(name: string): VariableValueDescriptor {
 	return { kind: 'variable', name };
 }
 
+/**
+ * @param    expr
+ * @category WordPress AST
+ */
 export function expression(expr: PhpExpr): ExpressionValueDescriptor {
 	return { kind: 'expression', expr };
 }
 
+/**
+ * @param    value
+ * @category WordPress AST
+ */
 export function renderPhpValue(value: PhpValueDescriptor): PhpExpr {
 	if (isVariableDescriptor(value)) {
 		return renderVariable(value);

@@ -11,6 +11,9 @@ import {
 	buildWpOptionUpdateRouteStatements,
 } from './routes';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpOptionStorageArtifactsOptions {
 	readonly pascalName: string;
 	readonly optionName: string;
@@ -26,11 +29,18 @@ type WpOptionRouteStatementsBuilder = (
 	options: WpOptionRouteBaseOptions
 ) => readonly PhpStmt[];
 
+/**
+ * @category WordPress AST
+ */
 export interface WpOptionStorageArtifacts {
 	readonly helperMethods: readonly PhpStmtClassMethod[];
 	readonly routeHandlers: RestControllerRouteOptionHandlers;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpOptionStorageArtifacts(
 	options: BuildWpOptionStorageArtifactsOptions
 ): WpOptionStorageArtifacts {

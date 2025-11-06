@@ -37,6 +37,12 @@ import type { BlockModuleFile } from '../types';
 
 const DEFAULT_REGISTRAR_FILE = 'Blocks/Register.php';
 
+/**
+ * @param    origin
+ * @param    namespace
+ * @param    fileName
+ * @category WordPress AST
+ */
 export function buildBlockRegistrarFile(
 	origin: string,
 	namespace: string,

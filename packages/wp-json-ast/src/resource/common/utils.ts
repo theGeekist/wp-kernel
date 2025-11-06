@@ -37,10 +37,19 @@ import {
 	type ScalarCastKind,
 } from '../../common/request';
 
+/**
+ * @category WordPress AST
+ */
 export type { NormalisedVariableReference, ScalarCastKind };
 
 export { normaliseVariableReference, buildScalarCast };
 
+/**
+ * @param    operator
+ * @param    left
+ * @param    right
+ * @category WordPress AST
+ */
 export function buildBinaryOperation(
 	operator: PhpBinaryOperator,
 	left: PhpExpr,
@@ -49,15 +58,27 @@ export function buildBinaryOperation(
 	return buildBinaryOperationPrimitive(operator, left, right);
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface IfStatementOptions {
 	readonly condition: PhpExpr;
 	readonly statements: readonly PhpStmt[];
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildIfStatementNode(options: IfStatementOptions): PhpStmtIf {
 	return buildIfStatement(options.condition, [...options.statements]);
 }
 
+/**
+ * @param    target
+ * @param    dim
+ * @category WordPress AST
+ */
 export function buildArrayDimFetch(
 	target: string,
 	dim: PhpExpr | null
@@ -65,6 +86,11 @@ export function buildArrayDimFetch(
 	return buildArrayDimFetchNode(buildVariable(target), dim);
 }
 
+/**
+ * @param    target
+ * @param    property
+ * @category WordPress AST
+ */
 export function buildPropertyFetch(target: string, property: string): PhpExpr {
 	return buildPropertyFetchNode(
 		buildVariable(target),
@@ -72,18 +98,35 @@ export function buildPropertyFetch(target: string, property: string): PhpExpr {
 	);
 }
 
+/**
+ * @param    subject
+ * @param    className
+ * @category WordPress AST
+ */
 export function buildInstanceof(subject: string, className: string): PhpExpr {
 	return buildInstanceofExpr(buildVariable(subject), buildName([className]));
 }
 
+/**
+ * @param    expr
+ * @category WordPress AST
+ */
 export function buildBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
 	return buildBooleanNotExpr(expr);
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildReturnVoid(): PhpStmtReturn {
 	return buildReturn(null);
 }
 
+/**
+ * @param    target
+ * @param    expression
+ * @category WordPress AST
+ */
 export function buildVariableAssignment(
 	target: NormalisedVariableReference,
 	expression: PhpExpr
@@ -93,14 +136,24 @@ export function buildVariableAssignment(
 	);
 }
 
+/**
+ * @category WordPress AST
+ */
 export type MethodCallSubject = string | PhpExpr;
 
+/**
+ * @category WordPress AST
+ */
 export interface MethodCallExpressionOptions {
 	readonly subject: MethodCallSubject;
 	readonly method: string;
 	readonly args?: readonly PhpArg[];
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildMethodCallExpression(
 	options: MethodCallExpressionOptions
 ): PhpExprMethodCall {
@@ -114,11 +167,18 @@ export function buildMethodCallExpression(
 	return buildMethodCall(receiver, buildIdentifier(options.method), args);
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface MethodCallAssignmentOptions
 	extends MethodCallExpressionOptions {
 	readonly variable: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildMethodCallAssignmentStatement(
 	options: MethodCallAssignmentOptions
 ): PhpStmtExpression {
@@ -131,6 +191,11 @@ export function buildMethodCallAssignmentStatement(
 	);
 }
 
+/**
+ * @param    functionName
+ * @param    args
+ * @category WordPress AST
+ */
 export function buildFunctionCall(
 	functionName: string,
 	args: readonly PhpArg[] = []
@@ -138,12 +203,19 @@ export function buildFunctionCall(
 	return buildFuncCall(buildName([functionName]), [...args]);
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface FunctionCallAssignmentOptions {
 	readonly variable: string;
 	readonly functionName: string;
 	readonly args?: readonly PhpArg[];
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildFunctionCallAssignmentStatement(
 	options: FunctionCallAssignmentOptions
 ): PhpStmtExpression {
@@ -153,6 +225,11 @@ export function buildFunctionCallAssignmentStatement(
 	);
 }
 
+/**
+ * @param    target
+ * @param    statements
+ * @category WordPress AST
+ */
 export function appendStatementsWithSpacing(
 	target: PhpStmt[],
 	statements: readonly PhpStmt[]
@@ -169,10 +246,17 @@ export function appendStatementsWithSpacing(
 	}
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ArrayInitialiserStatementOptions {
 	readonly variable: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildArrayInitialiserStatement(
 	options: ArrayInitialiserStatementOptions
 ): PhpStmtExpression {
@@ -182,11 +266,18 @@ export function buildArrayInitialiserStatement(
 	);
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ArrayLiteralEntry {
 	readonly key?: string;
 	readonly value: PhpExpr;
 }
 
+/**
+ * @param    entries
+ * @category WordPress AST
+ */
 export function buildArrayLiteral(
 	entries: readonly ArrayLiteralEntry[]
 ): PhpExpr {
@@ -202,6 +293,9 @@ export function buildArrayLiteral(
 	return buildArray(items);
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ForeachStatementOptions {
 	readonly iterable: PhpExpr;
 	readonly value: string | PhpExpr;
@@ -210,6 +304,10 @@ export interface ForeachStatementOptions {
 	readonly byRef?: boolean;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildForeachStatement(
 	options: ForeachStatementOptions
 ): PhpStmtForeach {

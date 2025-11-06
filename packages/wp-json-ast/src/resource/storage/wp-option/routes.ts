@@ -23,16 +23,26 @@ import {
 } from '../../common/utils';
 import { buildWpErrorReturn } from '../../errors';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpOptionRouteBaseOptions {
 	readonly pascalName: string;
 	readonly optionName: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpOptionUnsupportedRouteOptions
 	extends BuildWpOptionRouteBaseOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpOptionGetRouteStatements(
 	options: BuildWpOptionRouteBaseOptions
 ): PhpStmt[] {
@@ -75,6 +85,10 @@ export function buildWpOptionGetRouteStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpOptionUpdateRouteStatements(
 	options: BuildWpOptionRouteBaseOptions
 ): PhpStmt[] {
@@ -195,6 +209,10 @@ export function buildWpOptionUpdateRouteStatements(
 	return statements;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpOptionUnsupportedRouteStatements(
 	options: BuildWpOptionUnsupportedRouteOptions
 ): PhpStmt[] {

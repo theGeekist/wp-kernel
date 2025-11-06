@@ -20,6 +20,9 @@ import {
 	buildDeleteRouteStatements,
 } from './mutation';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpPostRouteBundleOptions {
 	readonly resource: MutationHelperResource;
 	readonly pascalName: string;
@@ -27,12 +30,19 @@ export interface BuildWpPostRouteBundleOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface WpPostRouteBundle {
 	readonly routeHandlers: RestControllerRouteHandlers;
 	readonly helperMethods: readonly PhpStmtClassMethod[];
 	readonly mutationMetadata: RouteMutationMetadataPlan;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpPostRouteBundle(
 	options: BuildWpPostRouteBundleOptions
 ): WpPostRouteBundle {

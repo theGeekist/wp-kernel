@@ -5,6 +5,10 @@ interface RenderStubTemplateOptions {
 	readonly manifest: BlockRenderStubDescriptor['manifest'];
 }
 
+/**
+ * @param    descriptor
+ * @category WordPress AST
+ */
 export function buildRenderStub(
 	descriptor: BlockRenderStubDescriptor
 ): BlockRenderStub {

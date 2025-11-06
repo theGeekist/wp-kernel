@@ -28,6 +28,9 @@ import {
 	ensureWpTaxonomyStorage,
 } from '../helpers';
 
+/**
+ * @category WordPress AST
+ */
 export interface BuildWpTaxonomyGetRouteStatementsOptions {
 	readonly pascalName: string;
 	readonly identity: ResolvedIdentity;
@@ -40,6 +43,10 @@ export interface BuildWpTaxonomyGetRouteStatementsOptions {
 	readonly identityVariable?: string;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpTaxonomyGetRouteStatements(
 	options: BuildWpTaxonomyGetRouteStatementsOptions
 ): PhpStmt[] {

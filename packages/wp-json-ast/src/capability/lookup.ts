@@ -27,6 +27,9 @@ import {
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
 
+/**
+ * @category WordPress AST
+ */
 export function buildGetDefinitionMethod(): PhpStmtClassMethod {
 	return buildClassMethod(buildIdentifier('get_definition'), {
 		flags: PHP_METHOD_MODIFIER_PRIVATE + PHP_METHOD_MODIFIER_STATIC,
@@ -76,6 +79,9 @@ export function buildGetDefinitionMethod(): PhpStmtClassMethod {
 	});
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildGetBindingMethod(): PhpStmtClassMethod {
 	const statements: PhpStmt[] = [
 		buildExpressionStatement(
@@ -110,6 +116,9 @@ export function buildGetBindingMethod(): PhpStmtClassMethod {
 	});
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildCreateErrorMethod(): PhpStmtClassMethod {
 	return buildClassMethod(buildIdentifier('create_error'), {
 		flags: PHP_METHOD_MODIFIER_PRIVATE + PHP_METHOD_MODIFIER_STATIC,

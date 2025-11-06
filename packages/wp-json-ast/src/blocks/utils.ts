@@ -8,6 +8,10 @@ import {
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '../constants';
 import { buildGeneratedFileDocComment } from '../common/docblock';
 
+/**
+ * @param    statements
+ * @category WordPress AST
+ */
 export function buildGuardedBlock(
 	statements: readonly PhpStmt[]
 ): readonly PhpStmt[] {
@@ -20,6 +24,11 @@ export function buildGuardedBlock(
 	return guarded;
 }
 
+/**
+ * @param    statement
+ * @param    docblock
+ * @category WordPress AST
+ */
 export function withGeneratedDocComment<TStatement extends PhpStmt>(
 	statement: TStatement,
 	docblock: readonly string[]

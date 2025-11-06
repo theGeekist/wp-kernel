@@ -7,6 +7,10 @@ import type {
 	BlockModuleResult,
 } from './types';
 
+/**
+ * @param    config
+ * @category WordPress AST
+ */
 export function buildBlockModule(config: BlockModuleConfig): BlockModuleResult {
 	const files: BlockModuleFileEntry[] = [];
 	const hooks = config.hooks ?? {};

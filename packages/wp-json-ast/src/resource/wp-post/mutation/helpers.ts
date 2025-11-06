@@ -48,22 +48,35 @@ type WpPostTaxonomyDescriptor = NonNullable<
 	WpPostStorage['taxonomies']
 >[string];
 
+/**
+ * @category WordPress AST
+ */
 export interface MutationIdentity {
 	readonly type: 'number' | 'string';
 	readonly param: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface MutationHelperResource {
 	readonly name: string;
 	readonly storage?: ResourceStorageConfig | null;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface MutationHelperOptions {
 	readonly resource: MutationHelperResource;
 	readonly pascalName: string;
 	readonly identity: MutationIdentity;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function syncWpPostMeta(
 	options: MutationHelperOptions
 ): PhpStmtClassMethod {
@@ -187,6 +200,10 @@ export function syncWpPostMeta(
 	});
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function syncWpPostTaxonomies(
 	options: MutationHelperOptions
 ): PhpStmtClassMethod {
@@ -323,6 +340,10 @@ export function syncWpPostTaxonomies(
 	});
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function prepareWpPostResponse(
 	options: MutationHelperOptions
 ): PhpStmtClassMethod {

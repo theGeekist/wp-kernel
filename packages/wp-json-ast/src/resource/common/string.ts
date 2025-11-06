@@ -1,3 +1,7 @@
+/**
+ * @param    value
+ * @category WordPress AST
+ */
 export function toSnakeCase(value: string): string {
 	return value
 		.replace(/[^a-zA-Z0-9]+/g, '_')

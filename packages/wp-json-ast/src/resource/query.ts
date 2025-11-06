@@ -37,16 +37,26 @@ import {
 import { buildRequestParamAssignmentStatement } from '../common/request';
 import type { ResourceMetadataHost } from '../common/metadata';
 
+/**
+ * @category WordPress AST
+ */
 export interface QueryArgEntry {
 	readonly key: string;
 	readonly value: PhpValueDescriptor;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface QueryArgsAssignmentOptions {
 	readonly targetVariable: string;
 	readonly entries: readonly QueryArgEntry[];
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildQueryArgsAssignmentStatement(
 	options: QueryArgsAssignmentOptions
 ): PhpStmtExpression {
@@ -62,6 +72,9 @@ export function buildQueryArgsAssignmentStatement(
 	return buildVariableAssignment(target, buildArray(items));
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface PaginationNormalisationOptions {
 	readonly requestVariable: string;
 	readonly targetVariable: string;
@@ -71,6 +84,10 @@ export interface PaginationNormalisationOptions {
 	readonly nonPositiveGuard?: number;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildPaginationNormalisationStatements(
 	options: PaginationNormalisationOptions
 ): readonly [PhpStmtExpression, PhpStmtIf, PhpStmtIf] {
@@ -136,12 +153,19 @@ function buildConditionalAssignment(
 	});
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface PageExpressionOptions {
 	readonly requestVariable: string;
 	readonly param?: string;
 	readonly minimum?: number;
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildPageExpression(
 	options: PageExpressionOptions
 ): PhpValueDescriptor {
@@ -163,6 +187,9 @@ export function buildPageExpression(
 	return expression(funcCall);
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface ExecuteWpQueryOptions {
 	readonly target: string;
 	readonly argsVariable: string;
@@ -176,6 +203,10 @@ export interface ExecuteWpQueryOptions {
 	};
 }
 
+/**
+ * @param    options
+ * @category WordPress AST
+ */
 export function buildWpQueryExecutionStatement(
 	options: ExecuteWpQueryOptions
 ): PhpStmtExpression {

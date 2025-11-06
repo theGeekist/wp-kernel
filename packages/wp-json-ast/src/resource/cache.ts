@@ -9,6 +9,9 @@ import type {
 	ResourceControllerCacheScope,
 } from '../types';
 
+/**
+ * @category WordPress AST
+ */
 export interface CacheInvalidationDescriptor {
 	readonly scope: ResourceControllerCacheScope;
 	readonly operation: ResourceControllerCacheOperation;
@@ -16,11 +19,18 @@ export interface CacheInvalidationDescriptor {
 	readonly description?: string;
 }
 
+/**
+ * @category WordPress AST
+ */
 export interface CacheInvalidationPlan {
 	readonly host: ResourceMetadataHost;
 	readonly events: readonly CacheInvalidationDescriptor[];
 }
 
+/**
+ * @param    plan
+ * @category WordPress AST
+ */
 export function buildCacheInvalidators(plan: CacheInvalidationPlan): void {
 	for (const event of plan.events) {
 		appendEvent({
@@ -34,4 +44,7 @@ export function buildCacheInvalidators(plan: CacheInvalidationPlan): void {
 }
 
 export { appendEvent as appendResourceCacheEvent, normaliseCacheSegments };
+/**
+ * @category WordPress AST
+ */
 export type { ResourceMetadataHost, RestRouteCacheEventPlan };

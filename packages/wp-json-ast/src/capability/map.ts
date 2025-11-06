@@ -10,6 +10,10 @@ import {
 import { createFallbackExpr, createCapabilityMapExpr } from './helpers';
 import type { CapabilityDefinition, CapabilityFallback } from './types';
 
+/**
+ * @param    definitions
+ * @category WordPress AST
+ */
 export function buildCapabilityMapMethod(
 	definitions: readonly CapabilityDefinition[]
 ): PhpStmtClassMethod {
@@ -20,6 +24,10 @@ export function buildCapabilityMapMethod(
 	});
 }
 
+/**
+ * @param    fallback
+ * @category WordPress AST
+ */
 export function buildFallbackMethod(
 	fallback: CapabilityFallback
 ): PhpStmtClassMethod {

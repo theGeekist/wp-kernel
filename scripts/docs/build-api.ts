@@ -21,6 +21,7 @@ const packages = [
 	'cli',
 	'pipeline',
 	'php-json-ast',
+	'wp-json-ast',
 	'test-utils',
 	'e2e-utils',
 	'create-wpk',

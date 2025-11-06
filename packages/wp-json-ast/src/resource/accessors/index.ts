@@ -1,4 +1,7 @@
 export { buildResourceAccessors } from './buildResourceAccessors';
+/**
+ * @category WordPress AST
+ */
 export type {
 	BuildResourceAccessorsOptions,
 	ResourceAccessors,

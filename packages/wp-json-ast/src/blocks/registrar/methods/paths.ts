@@ -26,6 +26,9 @@ import {
 } from '../../../resource/common/utils';
 import { buildConcat, buildConstFetchExpr } from '../common';
 
+/**
+ * @category WordPress AST
+ */
 export function buildResolveConfigPathMethod(): PhpStmtClassMethod {
 	const stmts: PhpStmt[] = [
 		buildIfStatementNode({
@@ -88,6 +91,9 @@ export function buildResolveConfigPathMethod(): PhpStmtClassMethod {
 	});
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildResolveRenderPathMethod(): PhpStmtClassMethod {
 	const stmts: PhpStmt[] = [
 		buildVariableAssignment(
@@ -157,6 +163,9 @@ export function buildResolveRenderPathMethod(): PhpStmtClassMethod {
 	});
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildResolveDirectoryFallbackMethod(): PhpStmtClassMethod {
 	const stmts: PhpStmt[] = [
 		buildReturn(
@@ -187,6 +196,9 @@ export function buildResolveDirectoryFallbackMethod(): PhpStmtClassMethod {
 	});
 }
 
+/**
+ * @category WordPress AST
+ */
 export function buildNormaliseRelativeMethod(): PhpStmtClassMethod {
 	const stmts: PhpStmt[] = [
 		buildVariableAssignment(
