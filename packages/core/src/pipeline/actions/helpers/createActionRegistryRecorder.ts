@@ -1,4 +1,4 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/pipeline';
 import type {
 	ActionBuilderHelper,
 	ActionBuilderInput,

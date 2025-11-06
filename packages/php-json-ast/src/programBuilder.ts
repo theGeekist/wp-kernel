@@ -2,8 +2,8 @@ import {
 	createHelper,
 	type CreateHelperOptions,
 	type Helper,
-} from '@wpkernel/core/pipeline';
-export { createHelper } from '@wpkernel/core/pipeline';
+} from '@wpkernel/pipeline';
+export { createHelper } from '@wpkernel/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 
 export type {
@@ -14,7 +14,7 @@ export type {
 	HelperDescriptor,
 	HelperKind,
 	HelperMode,
-} from '@wpkernel/core/pipeline';
+} from '@wpkernel/pipeline';
 export type PipelinePhase = 'init' | 'generate' | 'apply' | `custom:${string}`;
 
 export interface WorkspaceWriteOptions {

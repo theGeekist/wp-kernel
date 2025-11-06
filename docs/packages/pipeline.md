@@ -1,6 +1,6 @@
 # @wpkernel/pipeline
 
-**Framework-agnostic pipeline orchestration primitives for building composable, dependency-aware execution pipelines with atomic operations support.**
+Framework-agnostic pipeline orchestration primitives for building composable, dependency-aware execution pipelines with atomic operations support.
 
 ## Overview
 
@@ -12,57 +12,34 @@ The `@wpkernel/pipeline` package provides the foundational pipeline system used 
 - **DAG-Based Dependency Resolution**: Helpers declare `dependsOn` constraints; pipeline automatically resolves execution order and validates cycles
 - **Extension System**: Pre-run and post-build hooks enable atomic operations with automatic rollback on failure
 - **Framework-Agnostic**: No WordPress or kernel-specific dependencies; pure TypeScript orchestration primitives
-- **Modular Architecture**: Clean separation of concerns across focused modules (async-utils, dependency-graph, extensions, executor)
 - **Type-Safe**: Fully typed helper contracts, diagnostic interfaces, and extension hooks
 
 ## Architecture
 
-The package is organized into focused modules:
+### Pipeline Phases
 
-### Core Modules
+1. **Fragment Phase**: Helpers build an intermediate representation (IR) or mutable draft state
+2. **Builder Phase**: Helpers transform the IR/draft into final artifacts (files, objects, configurations)
+3. **Extension Phase**: Pre-run hooks prepare execution context; post-build hooks commit changes or rollback on error
 
-- **`createPipeline.ts`** (~1093 lines) - Main pipeline orchestrator with comprehensive JSDoc
-- **`helper.ts`** (~179 lines) - Factory for creating pipeline helpers with full documentation
-- **`types.ts`** (~519 lines) - All TypeScript interfaces and type definitions
-- **`executor.ts`** (~123 lines) - Helper execution engine with middleware-style `next()` support
-- **`async-utils.ts`** (~124 lines) - Promise-aware utilities (`isPromiseLike`, `maybeThen`, `maybeTry`, `processSequentially`)
-- **`dependency-graph.ts`** (~310 lines) - Topological sorting and dependency resolution
-- **`extensions.ts`** (~230 lines) - Extension hook execution, commit, and rollback logic
-- **`error-factory.ts`** (~50 lines) - Pluggable error factory system for framework independence
-- **`registration.ts`** (~129 lines) - Helper and extension registration utilities
-- **`index.ts`** - Public API surface
+### Helper System
 
-### Design Principles
+Helpers are the building blocks of pipelines. Each helper:
 
-#### 1. No External Dependencies
+- Declares a unique `key` for identification
+- Specifies a `kind` (`fragment`, `builder`, or custom)
+- Defines a `mode` (`extend`, `override`, `merge`)
+- Lists `dependsOn` keys for execution ordering
+- Implements an `apply` function that receives context, input, output, and reporter
 
-All modules are self-contained. No imports from `@wpkernel/core` or other framework packages.
+### Extension System
 
-#### 2. Generic Error Handling
+Extensions provide lifecycle hooks for atomic operations:
 
-Instead of `WPKernelError`, modules accept an error factory function:
-
-```typescript
-import { createPipeline, createDefaultError } from '@wpkernel/pipeline';
-
-const pipeline = createPipeline({
-	// ... pipeline options
-	createError: createDefaultError, // or your custom error factory
-});
-```
-
-#### 3. Framework-Agnostic
-
-The pipeline system works with any:
-
-- Reporter implementation (LogLayer, console, custom)
-- Error handling strategy
-- Context object shape
-- Artifact types (strings, AST nodes, binary data)
-
-#### 4. TypeScript-First
-
-All modules export proper TypeScript types. No inline type aliases.
+- **Register**: Extensions register with the pipeline and return optional hook functions
+- **Pre-Run**: Hooks execute before any helpers run (setup, validation)
+- **Post-Build**: Hooks execute after all builders complete (commit changes, write files)
+- **Rollback**: Automatic rollback of all committed extensions on any failure
 
 ## Installation
 
@@ -139,34 +116,20 @@ console.log(result.artifact.result); // "item1, item2"
 
 ## API Documentation
 
-See the [API reference](../../docs/api/@wpkernel/pipeline/) for comprehensive type definitions and examples.
+See the [API reference](/api/@wpkernel/pipeline/) for comprehensive type definitions and examples.
+
+## Guides
+
+- [Architecture Guide](./pipeline/architecture.md) - Deep dive into the 3-phase execution model
+- [Framework Contributors](./pipeline/framework-contributors.md) - Creating domain-specific pipelines
+- [Migration Guide](./pipeline/migration.md) - Migrating from `@wpkernel/core/pipeline`
 
 ## Key Concepts
 
-### Pipeline Phases
+### Helpers vs. Extensions
 
-1. **Fragment Phase**: Helpers build an intermediate representation (IR) or mutable draft state
-2. **Builder Phase**: Helpers transform the IR/draft into final artifacts (files, objects, configurations)
-3. **Extension Phase**: Pre-run hooks prepare execution context; post-build hooks commit changes or rollback on error
-
-### Helper System
-
-Helpers are the building blocks of pipelines. Each helper:
-
-- Declares a unique `key` for identification
-- Specifies a `kind` (`fragment`, `builder`, or custom)
-- Defines a `mode` (`extend`, `override`, `merge`)
-- Lists `dependsOn` keys for execution ordering
-- Implements an `apply` function that receives context, input, output, and reporter
-
-### Extension System
-
-Extensions provide lifecycle hooks for atomic operations:
-
-- **Register**: Extensions register with the pipeline and return optional hook functions
-- **Pre-Run**: Hooks execute before any helpers run (setup, validation)
-- **Post-Build**: Hooks execute after all builders complete (commit changes, write files)
-- **Rollback**: Automatic rollback of all committed extensions on any failure
+- **Helpers**: Execute during the fragment and builder phases to build artifacts
+- **Extensions**: Execute before/after the pipeline to perform atomic operations (writes, registry updates)
 
 ### Dependency Resolution
 
@@ -205,20 +168,8 @@ The package is fully typed with comprehensive generics for:
 
 ## Contributing
 
-This package follows the same conventions as `@wpkernel/core`:
-
-- All modules use `.ts` extension
-- Internal helpers are documented with `@internal` tags
-- Public API is minimal and well-typed
-- No `any` types allowed
-- JSDoc annotations with `@category Pipeline` for all public exports
-
-## Testing
-
-```bash
-pnpm --filter @wpkernel/pipeline test
-```
+See [Framework Contributors](./pipeline/framework-contributors.md) for guidance on extending the pipeline system.
 
 ## License
 
-EUPL-1.2 - See root LICENSE file.
+EUPL-1.2

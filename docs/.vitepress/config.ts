@@ -190,6 +190,10 @@ export default withMermaid(
 								link: '/packages/php-json-ast',
 							},
 							{
+								text: '@wpkernel/pipeline',
+								link: '/packages/pipeline',
+							},
+							{
 								text: '@wpkernel/test-utils',
 								link: '/packages/test-utils',
 							},

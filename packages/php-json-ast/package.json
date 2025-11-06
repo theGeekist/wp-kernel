@@ -74,6 +74,7 @@
 	},
 	"peerDependencies": {
 		"@wpkernel/core": "workspace:*",
+		"@wpkernel/pipeline": "workspace:*",
 		"@wpkernel/test-utils": "workspace:*"
 	},
 	"dependencies": {

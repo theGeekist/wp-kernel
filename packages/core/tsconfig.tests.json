@@ -10,7 +10,8 @@
 		"tests/**/*",
 		"../../tests/**/*",
 		"../../scripts/register-workspace.ts",
-		"../../packages/test-utils/src/**/*"
+		"../../packages/test-utils/src/**/*",
+		"src/pipeline/__tests__"
 	],
 	"exclude": [
 		"node_modules",
@@ -19,5 +20,8 @@
 		"**/dist",
 		"**/*.test-support.d.ts"
 	],
-	"references": [{ "path": "../cli/tsconfig.json" }]
+	"references": [
+		{ "path": "../pipeline/tsconfig.json" },
+		{ "path": "../cli/tsconfig.json" }
+	]
 }

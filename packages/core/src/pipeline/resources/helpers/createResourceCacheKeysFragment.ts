@@ -1,4 +1,4 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/pipeline';
 import { createDefaultCacheKeys } from '../../../resource/utils';
 import type { CacheKeys } from '../../../resource/types';
 import type {

@@ -1,6 +1,6 @@
-import { createPipeline } from '../createPipeline';
-import { createHelper } from '../helper';
+import { createPipeline, createHelper } from '@wpkernel/pipeline';
 import { reportPipelineDiagnostic } from '../reporting';
+import { WPKernelError } from '../../error';
 import type { Reporter } from '../../reporter/types';
 import type {
 	HelperApplyOptions,
@@ -9,7 +9,7 @@ import type {
 	PipelineExtensionHook,
 	PipelineExtensionHookResult,
 	PipelineRunState,
-} from '../types';
+} from '@wpkernel/pipeline';
 
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
 	return (
@@ -81,6 +81,13 @@ describe('createPipeline.run', () => {
 			void,
 			string[]
 		>({
+			createError(code, message) {
+				const errorCode = code as
+					| 'ValidationError'
+					| 'DeveloperError'
+					| 'UnknownError';
+				return new WPKernelError(errorCode, { message });
+			},
 			createBuildOptions() {
 				return {};
 			},
@@ -376,7 +383,7 @@ describe('createPipeline.run', () => {
 		);
 
 		expect(() => pipeline.run({})).toThrow(
-			'depends on unknown helper "fragment.missing"'
+			'Helpers depend on unknown helpers: "fragment.audit" → ["fragment.missing"]'
 		);
 
 		expect(reporter.warn).toHaveBeenCalledWith(
@@ -422,7 +429,7 @@ describe('createPipeline.run', () => {
 		);
 
 		expect(() => pipeline.run({})).toThrow(
-			'depends on unknown helper "fragment.missing"'
+			'Helpers depend on unknown helpers: "fragment.audit" → ["fragment.missing"]'
 		);
 
 		expect(firstReporter.warn).toHaveBeenCalledWith(
@@ -446,7 +453,7 @@ describe('createPipeline.run', () => {
 		currentReporter = secondReporter;
 
 		expect(() => pipeline.run({})).toThrow(
-			'depends on unknown helper "fragment.missing"'
+			'Helpers depend on unknown helpers: "fragment.audit" → ["fragment.missing"]'
 		);
 
 		expect(firstReporter.warn).toHaveBeenCalledTimes(2);

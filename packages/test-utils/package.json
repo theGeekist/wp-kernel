@@ -122,6 +122,7 @@
 	},
 	"peerDependencies": {
 		"@wpkernel/core": "workspace:*",
+		"@wpkernel/pipeline": "workspace:*",
 		"@wpkernel/ui": "workspace:*",
 		"react": ">=18.0.0"
 	},

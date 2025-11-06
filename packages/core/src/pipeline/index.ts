@@ -1,61 +1,15 @@
 /**
- * Creates a generic pipeline helper.
+ * Domain-specific pipeline orchestrators and helpers for WP Kernel.
  *
- * This function provides a standardized way to define pipeline steps (fragments or builders)
- * with a key, kind, and an `apply` method, along with optional dependencies.
+ * For generic pipeline primitives (createHelper, createPipeline, types),
+ * import directly from '@wpkernel/pipeline'.
  *
- * @category Pipeline
- * @param    options - Options for creating the helper, including key, kind, and apply logic.
- * @returns A `Helper` instance.
- */
-export { createHelper } from './helper';
-/**
- * Creates a new pipeline instance.
- *
- * The pipeline orchestrates the execution of helpers (fragments and builders),
- * allowing for a modular and extensible code generation process.
- *
- * @category Pipeline
- * @returns A `Pipeline` instance.
- */
-export { createPipeline } from './createPipeline';
-/**
- * Creates a pipeline helper for committing changes.
- *
- * This helper is typically used at the end of a pipeline phase to finalize
- * any pending changes or artifacts.
- *
- * @category Pipeline
- * @returns A pipeline helper for committing changes.
+ * This module exports:
+ * - createPipelineCommit, createPipelineRollback: Domain-specific commit helpers
+ * - CorePipelineContext: Context bridge for framework integration
+ * - TaskInput, PipelineTask: Task-related types
  */
 export { createPipelineCommit, createPipelineRollback } from './helpers/commit';
-export type {
-	Helper,
-	HelperApplyFn,
-	HelperApplyOptions,
-	HelperDescriptor,
-	HelperKind,
-	HelperMode,
-	CreateHelperOptions,
-	Pipeline,
-	PipelineDiagnostic,
-	MissingDependencyDiagnostic,
-	UnusedHelperDiagnostic,
-	PipelineExtension,
-	PipelineExtensionHook,
-	PipelineExtensionHookOptions,
-	PipelineExtensionHookResult,
-	PipelineExtensionRollbackErrorMetadata,
-	PipelineRunState,
-	PipelineStep,
-	CreatePipelineOptions,
-	ConflictDiagnostic,
-	HelperExecutionSnapshot,
-	FragmentFinalizationMetadata,
-	PipelineExecutionMetadata,
-	MaybePromise,
-	PipelineReporter,
-} from './types';
 export type { TaskInput, PipelineTask } from './helpers/commit';
 export type {
 	CorePipelineContext,

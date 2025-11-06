@@ -31,6 +31,12 @@
 			"path": "./packages/e2e-utils"
 		},
 		{
+			"path": "./packages/pipeline"
+		},
+		{
+			"path": "./packages/pipeline/tsconfig.tests.json"
+		},
+		{
 			"path": "./packages/php-json-ast"
 		},
 		{

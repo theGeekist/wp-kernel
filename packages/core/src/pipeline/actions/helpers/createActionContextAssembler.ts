@@ -1,4 +1,4 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/pipeline';
 import { createActionContext } from '../../../actions/context';
 import { WPKernelError } from '../../../error/WPKernelError';
 import type {
