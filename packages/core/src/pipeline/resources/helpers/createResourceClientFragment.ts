@@ -1,4 +1,4 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/pipeline';
 import { createClient } from '../../../resource/client';
 import type {
 	ResourceFragmentHelper,

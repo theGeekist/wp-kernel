@@ -59,7 +59,8 @@
 		"access": "public"
 	},
 	"peerDependencies": {
-		"@wpkernel/core": "workspace:*"
+		"@wpkernel/core": "workspace:*",
+		"@wpkernel/pipeline": "workspace:*"
 	},
 	"dependencies": {}
 }

@@ -14,7 +14,7 @@ import type {
 	ResourcePipelineRunOptions,
 	ResourcePipelineRunResult,
 } from '../pipeline/resources/types';
-import type { MaybePromise } from '../pipeline/types';
+import type { MaybePromise } from '@wpkernel/pipeline';
 import { resolveNamespaceAndName } from './namespace';
 import { resolveResourceReporter } from './reporter';
 import type { NormalizedResourceConfig } from './buildResourceObject';

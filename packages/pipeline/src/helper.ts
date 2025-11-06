@@ -28,10 +28,10 @@ import type {
  * - `builder`: Produces final artifacts from fragments (e.g., write files, format code)
  *
  * ### Execution Modes
- * - `extend`: Add to existing transformations (default)
- * - `replace`: Override previous helpers with same key
- * - `before`: Run before a specific helper key
- * - `after`: Run after a specific helper key
+ * - `extend` (default): Add to existing transformations; multiple helpers with same key can coexist
+ * - `override`: Only one override helper per key is allowed; prevents duplicate override registrations
+ *
+ * Note: Mode primarily affects registration validation. For execution ordering, use `priority` and `dependsOn`.
  *
  * ### Dependency Resolution
  * The pipeline automatically:
@@ -56,7 +56,7 @@ import type {
  *
  * @example Basic fragment helper
  * ```typescript
- * import { createHelper } from '@wpkernel/core/pipeline';
+ * import { createHelper } from '@wpkernel/pipeline';
  *
  * // Add PHP opening tag to generated files
  * const addPHPTag = createHelper({
@@ -93,7 +93,7 @@ import type {
  *
  * @example Builder helper with rollback
  * ```typescript
- * import { createPipelineCommit, createPipelineRollback } from '@wpkernel/core/pipeline';
+ * import { createPipelineCommit, createPipelineRollback } from '@wpkernel/pipeline';
  *
  * const writeFileHelper = createHelper({
  *   key: 'write-file',

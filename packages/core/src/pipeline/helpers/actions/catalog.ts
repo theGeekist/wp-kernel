@@ -1,5 +1,5 @@
 import { ACTION_BUILDER_KIND, ACTION_FRAGMENT_KIND } from '../../actions/types';
-import type { HelperDescriptor } from '../../types';
+import type { HelperDescriptor } from '@wpkernel/pipeline';
 
 export type ActionLifecycleResponsibility =
 	| 'options'

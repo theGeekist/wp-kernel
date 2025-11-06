@@ -1,4 +1,22 @@
-import { WPKernelError } from '../error/index.js';
+import { maybeThen, maybeTry } from './async-utils.js';
+import {
+	type RegisteredHelper,
+	type CreateDependencyGraphOptions,
+	createDependencyGraph,
+} from './dependency-graph.js';
+import {
+	commitExtensionResults,
+	createRollbackErrorMetadata,
+	type ExtensionHookEntry,
+	rollbackExtensionResults,
+	runExtensionHooks,
+} from './extensions.js';
+import { executeHelpers } from './executor.js';
+import {
+	registerHelper,
+	handleExtensionRegisterResult as handleExtensionRegisterResultUtil,
+} from './registration.js';
+import type { ErrorFactory } from './error-factory.js';
 import type {
 	CreatePipelineOptions,
 	Helper,
@@ -10,553 +28,13 @@ import type {
 	PipelineDiagnostic,
 	PipelineReporter,
 	PipelineExtension,
-	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
-	PipelineExtensionHookResult,
 	PipelineExtensionRollbackErrorMetadata,
 	HelperExecutionSnapshot,
 	PipelineExecutionMetadata,
 	PipelineRunState,
 	PipelineStep,
 } from './types';
-
-interface RegisteredHelper<THelper> {
-	readonly helper: THelper;
-	readonly id: string;
-	readonly index: number;
-}
-
-interface DependencyGraphState<THelper> {
-	readonly adjacency: Map<string, Set<string>>;
-	readonly indegree: Map<string, number>;
-	readonly entryById: Map<string, RegisteredHelper<THelper>>;
-}
-
-interface MissingDependencyIssue<THelper> {
-	readonly dependant: RegisteredHelper<THelper>;
-	readonly dependencyKey: string;
-}
-
-interface CreateDependencyGraphOptions<THelper> {
-	readonly onMissingDependency?: (
-		issue: MissingDependencyIssue<THelper>
-	) => void;
-	readonly onUnresolvedHelpers?: (options: {
-		readonly unresolved: RegisteredHelper<THelper>[];
-	}) => void;
-}
-
-interface ExtensionHookEntry<TContext, TOptions, TArtifact> {
-	readonly key: string;
-	readonly hook: PipelineExtensionHook<TContext, TOptions, TArtifact>;
-}
-
-interface ExtensionHookExecution<TContext, TOptions, TArtifact> {
-	readonly hook: ExtensionHookEntry<TContext, TOptions, TArtifact>;
-	readonly result: PipelineExtensionHookResult<TArtifact>;
-}
-
-interface RollbackErrorArgs {
-	readonly error: unknown;
-	readonly extensionKeys: readonly string[];
-	readonly hookSequence: readonly string[];
-}
-
-function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
-	if (
-		(typeof value !== 'object' || value === null) &&
-		typeof value !== 'function'
-	) {
-		return false;
-	}
-
-	return typeof (value as PromiseLike<unknown>).then === 'function';
-}
-
-function maybeThen<T, TResult>(
-	value: MaybePromise<T>,
-	onFulfilled: (value: T) => MaybePromise<TResult>
-): MaybePromise<TResult> {
-	if (isPromiseLike(value)) {
-		return Promise.resolve(value).then(onFulfilled);
-	}
-
-	return onFulfilled(value);
-}
-
-function maybeTry<T>(
-	run: () => MaybePromise<T>,
-	onError: (error: unknown) => MaybePromise<T>
-): MaybePromise<T> {
-	try {
-		const result = run();
-
-		if (isPromiseLike(result)) {
-			return Promise.resolve(result).catch((error) => onError(error));
-		}
-
-		return result;
-	} catch (error) {
-		return onError(error);
-	}
-}
-
-function createRollbackErrorMetadata(
-	error: unknown
-): PipelineExtensionRollbackErrorMetadata {
-	if (error instanceof Error) {
-		const { name, message, stack } = error;
-		const cause = (error as Error & { cause?: unknown }).cause;
-
-		return {
-			name,
-			message,
-			stack,
-			cause,
-		};
-	}
-
-	if (typeof error === 'string') {
-		return {
-			message: error,
-		};
-	}
-
-	return {};
-}
-
-function processSequentially<T>(
-	items: readonly T[],
-	handler: (item: T, index: number) => MaybePromise<void>,
-	direction: 'forward' | 'reverse' = 'forward'
-): MaybePromise<void> {
-	const length = items.length;
-
-	if (length === 0) {
-		return;
-	}
-
-	const shouldContinue = (index: number) =>
-		direction === 'forward' ? index < length : index >= 0;
-	const advance = (index: number) =>
-		direction === 'forward' ? index + 1 : index - 1;
-
-	const iterate = (startIndex: number): MaybePromise<void> => {
-		for (
-			let index = startIndex;
-			shouldContinue(index);
-			index = advance(index)
-		) {
-			const item = items[index]!;
-			const result = handler(item, index);
-
-			if (isPromiseLike(result)) {
-				return Promise.resolve(result).then(() =>
-					iterate(advance(index))
-				);
-			}
-		}
-	};
-
-	const start = direction === 'forward' ? 0 : length - 1;
-
-	return iterate(start);
-}
-
-function runExtensionHooks<TContext, TOptions, TArtifact>(
-	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
-	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>,
-	onRollbackError: (args: RollbackErrorArgs) => void
-): MaybePromise<{
-	artifact: TArtifact;
-	results: ExtensionHookExecution<TContext, TOptions, TArtifact>[];
-}> {
-	let artifact = options.artifact;
-	const results: ExtensionHookExecution<TContext, TOptions, TArtifact>[] = [];
-
-	const process = () =>
-		processSequentially(hooks, (entry) => {
-			const hookResult = entry.hook({
-				context: options.context,
-				options: options.options,
-				artifact,
-			});
-
-			if (isPromiseLike(hookResult)) {
-				return Promise.resolve(hookResult).then((resolved) => {
-					if (!resolved) {
-						return undefined;
-					}
-
-					if (resolved.artifact !== undefined) {
-						artifact = resolved.artifact;
-					}
-
-					results.push({
-						hook: entry,
-						result: resolved,
-					});
-
-					return undefined;
-				});
-			}
-
-			if (!hookResult) {
-				return undefined;
-			}
-
-			if (hookResult.artifact !== undefined) {
-				artifact = hookResult.artifact;
-			}
-
-			return void results.push({
-				hook: entry,
-				result: hookResult,
-			});
-		});
-
-	const processed = maybeTry(process, (error) =>
-		maybeThen(
-			rollbackExtensionResults(results, hooks, onRollbackError),
-			() => {
-				throw error;
-			}
-		)
-	);
-
-	return maybeThen(processed, () => ({ artifact, results }));
-}
-
-function commitExtensionResults<TContext, TOptions, TArtifact>(
-	results: readonly ExtensionHookExecution<TContext, TOptions, TArtifact>[]
-): MaybePromise<void> {
-	return processSequentially(results, (execution) => {
-		const commit = execution.result.commit;
-		if (!commit) {
-			return undefined;
-		}
-
-		const commitResult = commit();
-		if (isPromiseLike(commitResult)) {
-			return commitResult.then(() => undefined);
-		}
-
-		return undefined;
-	});
-}
-
-function rollbackExtensionResults<TContext, TOptions, TArtifact>(
-	results: readonly ExtensionHookExecution<TContext, TOptions, TArtifact>[],
-	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
-	onRollbackError: (args: RollbackErrorArgs) => void
-): MaybePromise<void> {
-	const hookKeys = hooks.map((entry) => entry.key);
-	const hookSequence = hookKeys;
-
-	return processSequentially(
-		[...results].reverse(),
-		(execution) => {
-			const rollback = execution.result.rollback;
-			if (!rollback) {
-				return;
-			}
-
-			return maybeTry(
-				() => rollback(),
-				(error) => {
-					onRollbackError({
-						error,
-						extensionKeys: hookKeys,
-						hookSequence,
-					});
-
-					return undefined;
-				}
-			);
-		},
-		'forward'
-	);
-}
-
-function createHelperId(
-	helper: { kind: HelperKind; key: string },
-	index: number
-): string {
-	return `${helper.kind}:${helper.key}#${index}`;
-}
-
-function compareHelpers<THelper extends HelperDescriptor>(
-	a: RegisteredHelper<THelper>,
-	b: RegisteredHelper<THelper>
-): number {
-	if (a.helper.priority !== b.helper.priority) {
-		return b.helper.priority - a.helper.priority;
-	}
-
-	if (a.helper.key !== b.helper.key) {
-		return a.helper.key.localeCompare(b.helper.key);
-	}
-
-	return a.index - b.index;
-}
-
-function createGraphState<THelper>(
-	entries: RegisteredHelper<THelper>[]
-): DependencyGraphState<THelper> {
-	const adjacency = new Map<string, Set<string>>();
-	const indegree = new Map<string, number>();
-	const entryById = new Map<string, RegisteredHelper<THelper>>();
-
-	for (const entry of entries) {
-		adjacency.set(entry.id, new Set());
-		indegree.set(entry.id, 0);
-		entryById.set(entry.id, entry);
-	}
-
-	return { adjacency, indegree, entryById };
-}
-
-function registerHelperDependencies<THelper extends HelperDescriptor>(
-	entries: RegisteredHelper<THelper>[],
-	graph: DependencyGraphState<THelper>
-): MissingDependencyIssue<THelper>[] {
-	const missing: MissingDependencyIssue<THelper>[] = [];
-
-	for (const entry of entries) {
-		for (const dependencyKey of entry.helper.dependsOn) {
-			const linked = linkDependency(
-				entries,
-				graph,
-				dependencyKey,
-				entry.id
-			);
-
-			if (!linked) {
-				missing.push({
-					dependant: entry,
-					dependencyKey,
-				});
-			}
-		}
-	}
-
-	return missing;
-}
-
-function linkDependency<THelper extends HelperDescriptor>(
-	entries: RegisteredHelper<THelper>[],
-	graph: DependencyGraphState<THelper>,
-	dependencyKey: string,
-	dependantId: string
-): boolean {
-	const related = entries.filter(
-		({ helper }) => helper.key === dependencyKey
-	);
-
-	if (related.length === 0) {
-		return false;
-	}
-
-	for (const dependency of related) {
-		const neighbours = graph.adjacency.get(dependency.id);
-		if (!neighbours) {
-			continue;
-		}
-
-		neighbours.add(dependantId);
-		const current = graph.indegree.get(dependantId) ?? 0;
-		graph.indegree.set(dependantId, current + 1);
-	}
-
-	return true;
-}
-
-function sortByDependencies<THelper extends HelperDescriptor>(
-	entries: RegisteredHelper<THelper>[],
-	graph: DependencyGraphState<THelper>
-): {
-	ordered: RegisteredHelper<THelper>[];
-	unresolved: RegisteredHelper<THelper>[];
-} {
-	const ready = entries.filter(
-		(entry) => (graph.indegree.get(entry.id) ?? 0) === 0
-	);
-	ready.sort(compareHelpers);
-
-	const ordered: RegisteredHelper<THelper>[] = [];
-	const indegree = new Map(graph.indegree);
-	const visited = new Set<string>();
-
-	while (ready.length > 0) {
-		const current = ready.shift();
-		if (!current) {
-			break;
-		}
-
-		ordered.push(current);
-		visited.add(current.id);
-
-		const neighbours = graph.adjacency.get(current.id);
-		if (!neighbours) {
-			continue;
-		}
-
-		for (const neighbourId of neighbours) {
-			const nextValue = (indegree.get(neighbourId) ?? 0) - 1;
-			indegree.set(neighbourId, nextValue);
-			if (nextValue !== 0) {
-				continue;
-			}
-
-			const neighbour = graph.entryById.get(neighbourId);
-			if (!neighbour) {
-				continue;
-			}
-
-			ready.push(neighbour);
-			ready.sort(compareHelpers);
-		}
-	}
-
-	const unresolved = entries.filter((entry) => !visited.has(entry.id));
-
-	return { ordered, unresolved };
-}
-
-function createDependencyGraph<THelper extends HelperDescriptor>(
-	entries: RegisteredHelper<THelper>[],
-	options?: CreateDependencyGraphOptions<THelper>
-): {
-	order: RegisteredHelper<THelper>[];
-	adjacency: Map<string, Set<string>>;
-} {
-	const graph = createGraphState(entries);
-	const missing = registerHelperDependencies(entries, graph);
-
-	if (missing.length > 0) {
-		for (const issue of missing) {
-			options?.onMissingDependency?.(issue);
-		}
-
-		const [firstIssue] = missing;
-		if (firstIssue) {
-			const dependantKey = firstIssue.dependant.helper.key;
-			throw new WPKernelError('ValidationError', {
-				message: `Helper "${dependantKey}" depends on unknown helper "${firstIssue.dependencyKey}".`,
-			});
-		}
-
-		throw new WPKernelError('ValidationError', {
-			message: 'Detected unresolved helper dependencies.',
-		});
-	}
-
-	const { ordered, unresolved } = sortByDependencies(entries, graph);
-
-	if (unresolved.length > 0) {
-		options?.onUnresolvedHelpers?.({ unresolved });
-		const unresolvedKeys = unresolved.map((entry) => entry.helper.key);
-
-		throw new WPKernelError('ValidationError', {
-			message: `Detected unresolved pipeline helpers: ${unresolvedKeys.join(', ')}.`,
-		});
-	}
-
-	return { order: ordered, adjacency: graph.adjacency };
-}
-
-function executeHelpers<
-	TContext,
-	TInput,
-	TOutput,
-	TReporter extends PipelineReporter,
-	TKind extends HelperKind,
-	THelper extends Helper<TContext, TInput, TOutput, TReporter, TKind>,
-	TArgs extends HelperApplyOptions<TContext, TInput, TOutput, TReporter>,
->(
-	ordered: RegisteredHelper<THelper>[],
-	makeArgs: (entry: RegisteredHelper<THelper>) => TArgs,
-	invoke: (
-		helper: THelper,
-		args: TArgs,
-		next: () => MaybePromise<void>
-	) => MaybePromise<void>,
-	recordStep: (entry: RegisteredHelper<THelper>) => void
-): MaybePromise<Set<string>> {
-	const visited = new Set<string>();
-
-	function runAtAsync(index: number): Promise<void> {
-		const continuation = runAt(index);
-		if (isPromiseLike(continuation)) {
-			return Promise.resolve(continuation).then(() => undefined);
-		}
-
-		return Promise.resolve();
-	}
-
-	function runAt(index: number): MaybePromise<void> {
-		if (index >= ordered.length) {
-			return;
-		}
-
-		const entry = ordered[index];
-		if (!entry) {
-			return runAt(index + 1);
-		}
-
-		if (visited.has(entry.id)) {
-			return runAt(index + 1);
-		}
-
-		visited.add(entry.id);
-		recordStep(entry);
-
-		let nextCalled = false;
-		let nextResult: MaybePromise<void> | undefined;
-		const args = makeArgs(entry);
-
-		const next = (): MaybePromise<void> => {
-			if (nextCalled) {
-				return nextResult;
-			}
-
-			nextCalled = true;
-			const continuation = runAt(index + 1);
-			nextResult = continuation;
-			return continuation;
-		};
-
-		const invocation = invoke(entry.helper, args, next);
-
-		if (isPromiseLike(invocation)) {
-			return Promise.resolve(invocation).then(() => {
-				if (!nextCalled) {
-					return runAtAsync(index + 1);
-				}
-
-				if (isPromiseLike(nextResult)) {
-					return nextResult;
-				}
-
-				return undefined;
-			});
-		}
-
-		if (nextCalled) {
-			return nextResult;
-		}
-
-		return runAt(index + 1);
-	}
-
-	const execution = runAt(0);
-
-	if (isPromiseLike(execution)) {
-		return execution.then(() => visited);
-	}
-
-	return visited;
-}
 
 /**
  * Creates a pipeline orchestrator-the execution engine that powers WP Kernel's entire code generation infrastructure.
@@ -838,6 +316,11 @@ export function createPipeline<
 	const fragmentKind = options.fragmentKind ?? ('fragment' as TFragmentKind);
 	const builderKind = options.builderKind ?? ('builder' as TBuilderKind);
 
+	// Create error factory (use provided or default to generic Error)
+	const createError: ErrorFactory =
+		options.createError ??
+		((code, message) => new Error(`[${code}] ${message}`));
+
 	const fragmentEntries: RegisteredHelper<TFragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<TBuilderHelper>[] = [];
 	const diagnostics: TDiagnostic[] = [];
@@ -848,7 +331,7 @@ export function createPipeline<
 	let diagnosticReporter: TReporter | undefined;
 	const extensionHooks: ExtensionHookEntry<
 		TContext,
-		TBuildOptions,
+		TRunOptions,
 		TArtifact
 	>[] = [];
 
@@ -1036,126 +519,79 @@ export function createPipeline<
 			return;
 		}
 
-		const missingDescriptions = entries
-			.filter((entry) => snapshot.missing.includes(entry.helper.key))
-			.map((entry) =>
-				describeHelper(
-					kind,
-					entry.helper as unknown as HelperDescriptor
-				)
-			);
+		// Filter out optional helpers from missing list
+		const requiredMissing = entries.filter(
+			(entry) =>
+				snapshot.missing.includes(entry.helper.key) &&
+				!entry.helper.optional
+		);
 
-		throw new WPKernelError('ValidationError', {
-			message: `Pipeline finalisation aborted because ${missingDescriptions.join(
-				', '
-			)} did not execute.`,
-		});
-	}
-
-	function registerFragment(helper: TFragmentHelper): void {
-		if (helper.kind !== fragmentKind) {
-			throw new WPKernelError('ValidationError', {
-				message: `Attempted to register helper "${helper.key}" as ${fragmentKind} but received kind "${helper.kind}".`,
-			});
+		if (requiredMissing.length === 0) {
+			return;
 		}
 
-		if (helper.mode === 'override') {
-			const existingOverride = fragmentEntries.find(
-				(entry) =>
-					entry.helper.key === helper.key &&
-					entry.helper.mode === 'override'
-			);
+		const missingDescriptions = requiredMissing.map((entry) =>
+			describeHelper(kind, entry.helper as unknown as HelperDescriptor)
+		);
 
-			if (existingOverride) {
-				const message = `Multiple overrides registered for helper "${helper.key}".`;
+		throw createError(
+			'ValidationError',
+			`Pipeline finalisation aborted because ${missingDescriptions.join(', ')} did not execute.`
+		);
+	}
+
+	// Wrapper functions that close over mutable state
+	const registerFragmentHelper = (helper: TFragmentHelper) =>
+		registerHelper<
+			TContext,
+			TFragmentInput,
+			TFragmentOutput,
+			TReporter,
+			TFragmentKind,
+			TFragmentHelper
+		>(
+			helper,
+			fragmentKind,
+			fragmentEntries,
+			fragmentKindValue,
+			(h, existing, message) =>
 				pushConflictDiagnosticFor(
-					helper,
-					existingOverride.helper,
+					h,
+					existing,
 					fragmentKindValue,
 					message
-				);
+				),
+			createError
+		);
 
-				throw new WPKernelError('ValidationError', {
-					message,
-				});
-			}
-		}
-
-		const index = fragmentEntries.length;
-		fragmentEntries.push({
+	const registerBuilderHelper = (helper: TBuilderHelper) =>
+		registerHelper<
+			TContext,
+			TBuilderInput,
+			TBuilderOutput,
+			TReporter,
+			TBuilderKind,
+			TBuilderHelper
+		>(
 			helper,
-			id: createHelperId(helper, index),
-			index,
-		});
-	}
-
-	function registerBuilder(helper: TBuilderHelper): void {
-		if (helper.kind !== builderKind) {
-			throw new WPKernelError('ValidationError', {
-				message: `Attempted to register helper "${helper.key}" as ${builderKind} but received kind "${helper.kind}".`,
-			});
-		}
-
-		if (helper.mode === 'override') {
-			const existingOverride = builderEntries.find(
-				(entry) =>
-					entry.helper.key === helper.key &&
-					entry.helper.mode === 'override'
-			);
-
-			if (existingOverride) {
-				const message = `Multiple overrides registered for helper "${helper.key}".`;
+			builderKind,
+			builderEntries,
+			builderKindValue,
+			(h, existing, message) =>
 				pushConflictDiagnosticFor(
-					helper,
-					existingOverride.helper,
+					h,
+					existing,
 					builderKindValue,
 					message
-				);
+				),
+			createError
+		);
 
-				throw new WPKernelError('ValidationError', {
-					message,
-				});
-			}
-		}
-
-		const index = builderEntries.length;
-		builderEntries.push({
-			helper,
-			id: createHelperId(helper, index),
-			index,
-		});
-	}
-
-	function registerExtensionHook(
-		key: string | undefined,
-		hook: PipelineExtensionHook<TContext, TBuildOptions, TArtifact>
-	): void {
-		const resolvedKey =
-			key ?? `pipeline.extension#${extensionHooks.length + 1}`;
-		extensionHooks.push({
-			key: resolvedKey,
-			hook,
-		});
-	}
-
-	function handleExtensionRegisterResult(
+	const handleExtensionResult = (
 		extensionKey: string | undefined,
 		result: unknown
-	): unknown {
-		if (typeof result === 'function') {
-			registerExtensionHook(
-				extensionKey,
-				result as PipelineExtensionHook<
-					TContext,
-					TBuildOptions,
-					TArtifact
-				>
-			);
-			return undefined;
-		}
-
-		return result;
-	}
+	) =>
+		handleExtensionRegisterResultUtil(extensionKey, result, extensionHooks);
 
 	interface PipelineRunContext {
 		readonly runOptions: TRunOptions;
@@ -1168,7 +604,7 @@ export function createPipeline<
 		readonly builderGraphOptions: CreateDependencyGraphOptions<TBuilderHelper>;
 		readonly createHookOptions: (
 			artifact: TArtifact
-		) => PipelineExtensionHookOptions<TContext, TBuildOptions, TArtifact>;
+		) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact>;
 		readonly handleRollbackError: (options: {
 			readonly error: unknown;
 			readonly extensionKeys: readonly string[];
@@ -1191,33 +627,37 @@ export function createPipeline<
 			buildOptions,
 		});
 
-		const fragmentOrder = createDependencyGraph(fragmentEntries, {
-			onMissingDependency: ({ dependant, dependencyKey }) => {
-				const helper = dependant.helper as HelperDescriptor;
-				pushMissingDependencyDiagnosticFor(
-					helper,
-					dependencyKey,
-					fragmentKindValue
-				);
-				pushUnusedHelperDiagnosticFor(
-					helper,
-					fragmentKindValue,
-					`could not execute because dependency "${dependencyKey}" was not found`,
-					helper.dependsOn
-				);
-			},
-			onUnresolvedHelpers: ({ unresolved }) => {
-				for (const entry of unresolved) {
-					const helper = entry.helper as HelperDescriptor;
+		const fragmentOrder = createDependencyGraph(
+			fragmentEntries,
+			{
+				onMissingDependency: ({ dependant, dependencyKey }) => {
+					const helper = dependant.helper as HelperDescriptor;
+					pushMissingDependencyDiagnosticFor(
+						helper,
+						dependencyKey,
+						fragmentKindValue
+					);
 					pushUnusedHelperDiagnosticFor(
 						helper,
 						fragmentKindValue,
-						'could not execute because its dependencies never resolved',
+						`could not execute because dependency "${dependencyKey}" was not found`,
 						helper.dependsOn
 					);
-				}
+				},
+				onUnresolvedHelpers: ({ unresolved }) => {
+					for (const entry of unresolved) {
+						const helper = entry.helper as HelperDescriptor;
+						pushUnusedHelperDiagnosticFor(
+							helper,
+							fragmentKindValue,
+							'could not execute because its dependencies never resolved',
+							helper.dependsOn
+						);
+					}
+				},
 			},
-		}).order;
+			createError
+		).order;
 
 		const steps: PipelineStep[] = [];
 		const pushStep = (entry: RegisteredHelper<unknown>) => {
@@ -1263,7 +703,12 @@ export function createPipeline<
 				},
 			};
 
-		const createHookOptionsFn =
+		const createHookOptionsFn: (hookOptions: {
+			context: TContext;
+			options: TRunOptions;
+			buildOptions: TBuildOptions;
+			artifact: TArtifact;
+		}) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact> =
 			options.createExtensionHookOptions ??
 			((hookOptions: {
 				context: TContext;
@@ -1272,11 +717,11 @@ export function createPipeline<
 				artifact: TArtifact;
 			}): PipelineExtensionHookOptions<
 				TContext,
-				TBuildOptions,
+				TRunOptions,
 				TArtifact
 			> => ({
 				context: hookOptions.context,
-				options: hookOptions.buildOptions,
+				options: hookOptions.options,
 				artifact: hookOptions.artifact,
 			}));
 
@@ -1425,7 +870,8 @@ export function createPipeline<
 
 			const builderOrder = createDependencyGraph(
 				builderEntries,
-				builderGraphOptions
+				builderGraphOptions,
+				createError
 			).order;
 
 			const extensionResult = runExtensionHooks(
@@ -1587,12 +1033,12 @@ export function createPipeline<
 		builderKind,
 		ir: {
 			use(helper) {
-				registerFragment(helper);
+				registerFragmentHelper(helper);
 			},
 		},
 		builders: {
 			use(helper) {
-				registerBuilder(helper);
+				registerBuilderHelper(helper);
 			},
 		},
 		extensions: {
@@ -1600,7 +1046,7 @@ export function createPipeline<
 				extension: PipelineExtension<
 					PipelineInstance,
 					TContext,
-					TBuildOptions,
+					TRunOptions,
 					TArtifact
 				>
 			) {
@@ -1613,33 +1059,28 @@ export function createPipeline<
 				) {
 					return (registrationResult as Promise<unknown>).then(
 						(resolved) =>
-							handleExtensionRegisterResult(
-								extension.key,
-								resolved
-							)
+							handleExtensionResult(extension.key, resolved)
 					);
 				}
 
-				return handleExtensionRegisterResult(
-					extension.key,
-					registrationResult
-				);
+				return handleExtensionResult(extension.key, registrationResult);
 			},
 		},
 		use(helper) {
 			if (helper.kind === fragmentKind) {
-				registerFragment(helper as TFragmentHelper);
+				registerFragmentHelper(helper as TFragmentHelper);
 				return;
 			}
 
 			if (helper.kind === builderKind) {
-				registerBuilder(helper as TBuilderHelper);
+				registerBuilderHelper(helper as TBuilderHelper);
 				return;
 			}
 
-			throw new WPKernelError('ValidationError', {
-				message: `Unsupported helper kind "${helper.kind}".`,
-			});
+			throw createError(
+				'ValidationError',
+				`Unsupported helper kind "${helper.kind}".`
+			);
 		},
 		run(runOptions: TRunOptions) {
 			const runContext = createRunContext(runOptions);

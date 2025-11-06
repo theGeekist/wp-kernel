@@ -1,4 +1,4 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/pipeline';
 import { validateConfig } from '../../../resource/validation';
 import { RESOURCE_LOG_MESSAGES } from '../../../resource/logMessages';
 import type {

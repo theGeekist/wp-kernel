@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '@wpkernel/pipeline';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import type {
 	BuilderHelper,

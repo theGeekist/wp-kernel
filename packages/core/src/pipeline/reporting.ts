@@ -9,7 +9,7 @@
  */
 
 import type { Reporter } from '../reporter/types';
-import type { PipelineDiagnostic } from './types';
+import type { PipelineDiagnostic } from '@wpkernel/pipeline';
 
 interface BaseReporterOptions {
 	readonly reporter: Reporter;

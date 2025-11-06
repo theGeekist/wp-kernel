@@ -40,6 +40,8 @@ export default {
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
 		'^@eslint/eslintrc$':
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
+		'^@wpkernel/pipeline$': '<rootDir>/packages/pipeline/src',
+		'^@wpkernel/pipeline/(.*)$': '<rootDir>/packages/pipeline/src/$1',
 		'^@wpkernel/php-json-ast$': '<rootDir>/packages/php-json-ast/src',
 		'^@wpkernel/php-json-ast/(.*)$':
 			'<rootDir>/packages/php-json-ast/src/$1',

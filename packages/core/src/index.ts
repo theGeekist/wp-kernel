@@ -104,6 +104,8 @@ export type {
 	ResourceQueryParamDescriptor,
 	ResourceQueryParams,
 	ResourceConfig,
+	ResourceCapabilityMap,
+	ResourceCapabilityDescriptor,
 	ListResponse,
 	ResourceClient,
 	ResourceObject,
