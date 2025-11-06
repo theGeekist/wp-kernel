@@ -13,5 +13,8 @@ describe('dataviews public index', () => {
 		expect(typeof dataViewsExports.ensureControllerRuntime).toBe(
 			'function'
 		);
+		expect(typeof dataViewsExports.createDataViewInteraction).toBe(
+			'function'
+		);
 	});
 });
