@@ -40,6 +40,9 @@ export default {
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
 		'^@eslint/eslintrc$':
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
+		// Mock ESM-only loglayer transport for CLI tests
+		'^@loglayer/transport-simple-pretty-terminal$':
+			'<rootDir>/tests/mocks/loglayer-transport-simple-pretty-terminal.ts',
 		'^@wpkernel/pipeline$': '<rootDir>/packages/pipeline/src',
 		'^@wpkernel/pipeline/(.*)$': '<rootDir>/packages/pipeline/src/$1',
 		'^@wpkernel/php-json-ast$': '<rootDir>/packages/php-json-ast/src',
