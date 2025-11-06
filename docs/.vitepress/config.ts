@@ -46,6 +46,7 @@ export default withMermaid(
 			/\.\.\/\.\.\/internal\//,
 			// Ignore links to generated API documentation index files
 			/^\/api\/@wpkernel\/cli\/index$/,
+			/^\/api\/@wpkernel\/pipeline\/index$/,
 			/^\/api\/@wpkernel\/core\/index$/,
 			/^\/api\/@wpkernel\/ui\/index$/,
 			/^\/api\/@wpkernel\/test-utils\/index$/,
@@ -299,6 +300,10 @@ export default withMermaid(
 							{
 								text: '@wpkernel/core',
 								link: '/api/@wpkernel/core/',
+							},
+							{
+								text: '@wpkernel/pipeline',
+								link: '/api/@wpkernel/pipeline/',
 							},
 							{
 								text: '@wpkernel/create-wpk',
