@@ -2,14 +2,7 @@ import { createHash as buildHash } from 'node:crypto';
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
-import {
-	IndentationText,
-	NewLineKind,
-	Project,
-	QuoteKind,
-	type SourceFile,
-	VariableDeclarationKind,
-} from 'ts-morph';
+import type { Project, SourceFile } from 'ts-morph';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { IRv1 } from '../ir/publicTypes';
 import type { WPKernelConfigV1 } from '../config/types';
@@ -23,6 +16,7 @@ import type {
 import type { Workspace } from '../workspace/types';
 import { validateGeneratedImports } from '../commands/run-generate/validation';
 import type { GenerationSummary } from '../commands/run-generate/types';
+import { loadTsMorph } from './ts/loader';
 import {
 	buildModuleSpecifier,
 	resolveKernelImport,
@@ -130,7 +124,7 @@ export interface CreateTsBuilderOptions {
 	/** Optional: A list of `TsBuilderCreator` instances to use. */
 	readonly creators?: readonly TsBuilderCreator[];
 	/** Optional: A factory function to create a `ts-morph` Project instance. */
-	readonly projectFactory?: () => Project;
+	readonly projectFactory?: () => Promise<Project>;
 	/** Optional: Lifecycle hooks for the builder. */
 	readonly hooks?: TsBuilderLifecycleHooks;
 }
@@ -164,7 +158,7 @@ export interface TsFormatter {
  */
 export interface BuildTsFormatterOptions {
 	/** Optional: A factory function to create a `ts-morph` Project instance. */
-	readonly projectFactory?: () => Project;
+	readonly projectFactory?: () => Promise<Project>;
 }
 
 type ResourceUiConfig = NonNullable<ResourceConfig['ui']>;
@@ -228,7 +222,7 @@ export function createTsBuilder(
 				return;
 			}
 
-			const project = projectFactory();
+			const project = await projectFactory();
 			const emit = buildEmitter(context.workspace, output, emittedFiles);
 
 			await generateArtifacts({
@@ -274,6 +268,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.adminScreen.core',
 		async create(context) {
+			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
 			const screenConfig = descriptor.dataviews.screen ?? {};
 			const componentName =
@@ -432,6 +427,7 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.dataviewFixture.core',
 		async create(context) {
+			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
 			const fixturePath = path.join(
 				GENERATED_ROOT,
@@ -517,7 +513,10 @@ function collectResourceDescriptors(
 	return descriptors;
 }
 
-function buildProject(): Project {
+async function buildProject(): Promise<Project> {
+	const { Project, IndentationText, QuoteKind, NewLineKind } =
+		await loadTsMorph();
+
 	return new Project({
 		useInMemoryFileSystem: true,
 		manipulationSettings: {
@@ -542,11 +541,11 @@ export function buildTsFormatter(
 	options: BuildTsFormatterOptions = {}
 ): TsFormatter {
 	const projectFactory = options.projectFactory ?? buildProject;
-	const project = projectFactory();
 
 	async function format(
 		formatOptions: TsFormatterFormatOptions
 	): Promise<string> {
+		const project = await projectFactory();
 		const sourceFile = project.createSourceFile(
 			formatOptions.filePath,
 			formatOptions.contents,

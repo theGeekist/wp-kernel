@@ -126,7 +126,8 @@
 		"@wordpress/interactivity": ">=6.34.0",
 		"loglayer": ">=6.7.2",
 		"@loglayer/shared": ">=2.4.0",
-		"@loglayer/transport": ">=2.3.0"
+		"@loglayer/transport": ">=2.3.0",
+		"@loglayer/transport-simple-pretty-terminal": ">=2.2.9"
 	},
 	"publishConfig": {
 		"access": "public"

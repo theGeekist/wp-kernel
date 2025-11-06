@@ -68,10 +68,21 @@ export const FRAMEWORK_PEERS = {
 	'@wpkernel/test-utils': {
 		kind: 'internal',
 		peerRange: 'workspace:*',
+		devRange: 'workspace:*',
 	},
 	'@wpkernel/ui': {
 		kind: 'internal',
 		peerRange: 'workspace:*',
+	},
+	'ts-morph': {
+		kind: 'internal',
+		peerRange: '>=27.0.0',
+		devRange: '^27.0.2',
+	},
+	typescript: {
+		kind: 'internal',
+		peerRange: '>=5.0.0',
+		devRange: '^5.9.3',
 	},
 } satisfies Record<string, FrameworkPeerSpec>;
 

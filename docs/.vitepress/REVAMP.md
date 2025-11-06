@@ -203,15 +203,15 @@ export default defineConfig({
 
         ```
         pnpm add -D @wpk/cli
-        npx wpk init my-plugin
+        wpk init my-plugin
         cd my-plugin
-        pnpm wpk generate
-        pnpm wpk apply
-        pnpm wpk start
+        wpk generate
+        wpk apply
+        wpk start
         ```
 
     - Show the single `src/index.ts` using `configureWPKernel`.
-    - Link to **Decision Matrix** for “what got generated”.
+    - Link to **Decision Matrix** for "what got generated".
 
 3. **Kernel Config (`/reference/wpk-config`)**
     - The **commented** canonical template (the one we discussed).

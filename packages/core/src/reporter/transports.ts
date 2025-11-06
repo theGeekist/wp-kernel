@@ -1,3 +1,4 @@
+import { SimplePrettyTerminalTransport } from '@loglayer/transport-simple-pretty-terminal';
 import { LoggerlessTransport } from '@loglayer/transport';
 import type {
 	LogLayerTransport,
@@ -55,20 +56,6 @@ function parseMetadata(
 	};
 }
 
-function getConsoleMethod(level: ReporterLevel) {
-	switch (level) {
-		case 'error':
-			return console.error.bind(console);
-		case 'warn':
-			return console.warn.bind(console);
-		case 'debug':
-			return console.debug.bind(console);
-		case 'info':
-		default:
-			return console.info.bind(console);
-	}
-}
-
 type WordPressHooks = {
 	doAction: (eventName: string, payload: unknown) => void;
 };
@@ -84,6 +71,20 @@ function getHooks(): WordPressHooks | null {
 	}
 
 	return wp.hooks;
+}
+
+function getConsoleMethod(level: ReporterLevel) {
+	switch (level) {
+		case 'error':
+			return console.error.bind(console);
+		case 'warn':
+			return console.warn.bind(console);
+		case 'debug':
+			return console.debug.bind(console);
+		case 'info':
+		default:
+			return console.info.bind(console);
+	}
 }
 
 class ConsoleTransport extends LoggerlessTransport {
@@ -121,9 +122,9 @@ class ConsoleTransport extends LoggerlessTransport {
 	}
 }
 
-class HooksTransport extends LoggerlessTransport {
+class WPKernelHooksTransport extends LoggerlessTransport {
 	public constructor(level: LogLevelType) {
-		super({ id: 'hooks', level, enabled: true });
+		super({ id: 'wpkernel-hooks', level, enabled: true });
 	}
 
 	public override shipToLogger(params: LogLayerTransportParams): unknown[] {
@@ -160,17 +161,45 @@ function resolveEnvironmentEnabled(): boolean {
 	return env !== 'production';
 }
 
+function isCLIEnvironment(): boolean {
+	if (typeof process === 'undefined') {
+		return false;
+	}
+	// Check if running in Node.js (CLI) vs browser
+	return typeof window === 'undefined';
+}
+
 export function createTransports(
 	channel: ReporterChannel,
 	level: LogLevelType
 ): LogLayerTransport | LogLayerTransport[] {
+	const environmentEnabled = resolveEnvironmentEnabled();
+	const isCLI = isCLIEnvironment();
+
 	switch (channel) {
 		case 'console':
+			// Use pretty terminal transport for CLI, regular console for browser
+			if (isCLI) {
+				return new SimplePrettyTerminalTransport({
+					runtime: 'node',
+					level,
+					enabled: environmentEnabled,
+				});
+			}
 			return new ConsoleTransport(level);
 		case 'hooks':
-			return new HooksTransport(level);
+			return new WPKernelHooksTransport(level);
+
 		case 'all':
-			return [new ConsoleTransport(level), new HooksTransport(level)];
+			// Use appropriate console transport + hooks
+			const consoleTransport = isCLI
+				? new SimplePrettyTerminalTransport({
+						runtime: 'node',
+						level,
+						enabled: environmentEnabled,
+					})
+				: new ConsoleTransport(level);
+			return [consoleTransport, new WPKernelHooksTransport(level)];
 		case 'bridge':
 			throw new WPKernelError('NotImplementedError', {
 				message: 'Bridge transport is planned for a future sprint',
@@ -178,7 +207,16 @@ export function createTransports(
 					channel: 'bridge',
 				},
 			});
+
 		default:
+			// Default to appropriate console transport
+			if (isCLI) {
+				return new SimplePrettyTerminalTransport({
+					runtime: 'node',
+					level,
+					enabled: environmentEnabled,
+				});
+			}
 			return new ConsoleTransport(level);
 	}
 }

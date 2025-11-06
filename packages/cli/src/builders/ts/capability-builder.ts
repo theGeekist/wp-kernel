@@ -13,8 +13,8 @@ export function createTsCapabilityBuilder() {
 				return;
 			}
 
-			const contents = printCapabilityModule(input.ir);
-			await output.queueWrite({
+			const contents = await printCapabilityModule(input.ir);
+			output.queueWrite({
 				file: '.generated/js/capabilities.ts',
 				contents,
 			});

@@ -6,7 +6,7 @@ Spin up a new plugin, add a resource, and run the generation workflow end to end
 
 ```bash
 pnpm add -D @wpk/cli
-npx wpk init my-plugin
+wpk init my-plugin
 cd my-plugin
 ```
 
@@ -50,8 +50,8 @@ export const wpkConfig: WPKernelConfigV1 = {
 ## 3. Generate and apply artifacts
 
 ```bash
-pnpm wpk generate
-pnpm wpk apply
+wpk generate
+wpk apply
 ```
 
 - `wpk generate` writes `.generated/types/*.d.ts`, `.generated/php/**`, optional `.generated/ui/**`, and block registration files based on the config.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/cli/src/builders/php/builder.ts†L1-L80】 The command summary lists how many files were written, skipped, or removed.
@@ -77,7 +77,7 @@ Once attached, components call `job.useList()` or render `<ResourceDataView>` wh
 ## 5. Iterate in watch mode
 
 ```bash
-pnpm wpk start
+wpk start
 ```
 
 `wpk start` watches `wpk.config.*`, `contracts/**`, `schemas/**`, and your source tree. When files change it reruns the builders and proxies Vite output from the current project so the admin UI reloads automatically.【F:packages/cli/src/commands/start.ts†L1-L320】 Use `--auto-apply-php` to copy PHP artifacts on every cycle when you trust the diff.

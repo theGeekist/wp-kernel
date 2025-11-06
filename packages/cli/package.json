@@ -78,26 +78,22 @@
 		"test:integration": "wpk-run-jest integration"
 	},
 	"peerDependencies": {
-		"@prettier/plugin-php": ">=0.24.0",
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/pipeline": "workspace:*",
 		"@wpkernel/test-utils": "workspace:*",
+		"@wpkernel/ui": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*",
-		"json-schema-to-typescript": ">=15.0.4",
-		"prettier": ">=3.6.0",
-		"tsx": ">=4.20.6",
+		"ts-morph": ">=27.0.0",
 		"typescript": ">=5.0.0"
 	},
 	"dependencies": {
 		"@wpkernel/php-driver": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
-		"@wpkernel/test-utils": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*",
 		"chokidar": "^4.0.3",
 		"clipanion": "4.0.0-rc.4",
 		"cosmiconfig": "^9.0.0",
-		"ts-morph": "^27.0.2",
 		"typanion": "^3.14.0"
 	},
 	"publishConfig": {
@@ -105,6 +101,7 @@
 	},
 	"devDependencies": {
 		"@wpkernel/scripts": "workspace:*",
+		"@wpkernel/test-utils": "workspace:*",
 		"lodash": "^4.17.21"
 	}
 }
