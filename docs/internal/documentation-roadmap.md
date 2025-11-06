@@ -61,7 +61,7 @@ The foundational phase created the scaffolding required to scale the documentati
 
 The second phase applies the documentation playbook to `@wpkernel/core`, producing a reference package that illustrates the desired quality bar.
 
-| Docs Task 5 - JSDoc audit for exported core APIs (✓ Complete)
+#### Docs Task 5 - JSDoc audit for exported core APIs (✓ Complete)
 
 - [x] Inventory all exports from `packages/core/src/index.ts` and supporting modules to create a tracking checklist.
 - [x] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
@@ -91,17 +91,17 @@ The second phase applies the documentation playbook to `@wpkernel/core`, produci
 - [x] Draft a framework contributor guide that explains extension points, lifecycle hooks, and diagnostics under `docs/packages/core/framework-contributors.md` (new).
 - [x] Update `docs/packages/index.md` and any guide landing pages to surface both guides with clear audience labeling.
 
-#### Docs Task 7 - Refresh `packages/core/README.md` (⬜ Planned)
+#### Docs Task 7 - Refresh `packages/core/README.md` (🚧 In Progress)
 
 - [ ] Reorganize the README into overview, quick links, and contribution guidance sections, pointing to the new guides and API reference.
-- [ ] Replace legacy implementation details with references to the pipeline specs to avoid duplication.
+- [x] Replace legacy implementation details with references to the pipeline specs to avoid duplication.
 - [ ] Validate that badges, build instructions, and package metadata (e.g., npm scope) are current.
 
-#### Docs Task 8 - Apply the API doc strategy to core (⬜ Planned)
+#### Docs Task 8 - Apply the API doc strategy to core (🚧 In Progress)
 
-- [ ] Tag all relevant exports with `@category` values that map cleanly to end-user concepts before regenerating Typedoc output.
-- [ ] Configure Typedoc category ordering (via `typedoc.json` `categorizeByGroup` / frontmatter) so core symbols render in a predictable order.
-- [ ] Publish the refreshed Markdown under `docs/api/@wpkernel/core/` and update any references in guide pages.
+- [x] Tag all relevant exports with `@category` values that map cleanly to end-user concepts before regenerating Typedoc output.
+- [x] Configure Typedoc category ordering (via `typedoc.json` `categorizeByGroup` / frontmatter) so core symbols render in a predictable order.
+- [ ] Publish the refreshed Markdown under `docs/api/@wpkernel/core/` and update any references in guide pages (**awating Task 7 completion**)
 
 ---
 
@@ -109,7 +109,7 @@ The second phase applies the documentation playbook to `@wpkernel/core`, produci
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which provides WordPress-native UI primitives aligned with kernel resources, actions, and events.
 
-| Docs Task 9 - JSDoc audit for exported UI APIs (✓ Complete)
+#### Docs Task 9 - JSDoc audit for exported UI APIs (✓ Complete)
 
 - [x] Inventory all exports from `packages/ui/src/index.ts` and supporting modules to create a tracking checklist.
 - [x] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
@@ -124,7 +124,7 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 | Provider              | `WPKernelUIProvider`, `attachUIBindings`                                                          | Bootstrap and share kernel runtime with React components. All exports in `packages/ui/src/runtime/index.ts` and its sub-modules have JSDoc.                                                                                                                                                                       |
 | Utilities             | `useCapability`, `usePrefetcher`, `useHoverPrefetch`, `useVisiblePrefetch`, `useNextPagePrefetch` | Helper hooks and utilities for UI state management. All exports in `packages/ui/src/hooks/useCapability.ts`, `packages/ui/src/hooks/usePrefetcher.ts`, `packages/ui/src/hooks/useHoverPrefetch.ts`, `packages/ui/src/hooks/useVisiblePrefetch.ts`, and `packages/ui/src/hooks/useNextPagePrefetch.ts` have JSDoc. |
 
-#### Docs Task 10 - Author segmented guides for UI (✓ Complete)
+#### Docs Task 10 - Author segmented guides for UI (⬜ Planned)
 
 - [ ] Draft a plugin developer guide covering ResourceDataView setup, action buttons, and admin integration patterns under `docs/packages/ui/plugin-developers.md` (new).
 - [ ] Draft a framework contributor guide explaining component architecture, binding contracts, and extension points under `docs/packages/ui/framework-contributors.md` (new).
@@ -148,11 +148,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, covering Rails-like generators, code generation pipelines, and developer tooling.
 
-| Docs Task 13 - JSDoc audit for exported CLI APIs (✓ Complete)
+#### Docs Task 13 - JSDoc audit for exported CLI APIs (✓ Complete)
 
 - [x] Inventory all exports from `packages/cli/src/index.ts` and `packages/cli/src/**` (AST builders) to create a tracking checklist.
-- [ ] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
-- [ ] Add runnable `@example` snippets for command workflows (`init`, `generate`, `apply`) and adapter extension patterns.
+- [x] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
+- [x] Add runnable `@example` snippets for command workflows (`init`, `generate`, `apply`) and adapter extension patterns.
 
 ##### Docs Task 13 artifact - CLI export checklist
 
