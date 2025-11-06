@@ -14,6 +14,10 @@ type MockPipeline = {
 jest.mock('@wpkernel/pipeline', () => ({
 	createPipeline: jest.fn(),
 	createHelper: jest.fn((options) => options),
+	createPipelineExtension: jest.fn(() => ({
+		key: 'test-extension',
+		register: () => undefined,
+	})),
 }));
 
 describe('createResourcePipeline diagnostics reporting', () => {

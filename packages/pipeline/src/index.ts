@@ -1,6 +1,8 @@
 // Main API exports
 export { createHelper } from './helper';
 export { createPipeline } from './createPipeline';
+export { createPipelineExtension } from './createExtension';
+export type { CreatePipelineExtensionOptions } from './createExtension';
 export { executeHelpers } from './executor';
 export type { ErrorFactory } from './error-factory';
 export { createDefaultError, createErrorFactory } from './error-factory';
