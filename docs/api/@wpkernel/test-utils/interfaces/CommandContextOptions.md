@@ -13,7 +13,7 @@ Options for creating a command context.
 ### cwd?
 
 ```ts
-optional cwd: string | () =&gt; string;
+optional cwd: string | () => string;
 ```
 
 The current working directory for the command. Can be a string or a function returning a string.

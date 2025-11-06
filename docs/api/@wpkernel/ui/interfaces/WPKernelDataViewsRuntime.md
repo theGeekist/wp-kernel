@@ -63,7 +63,7 @@ options: NormalizedDataViewsRuntimeOptions;
 ### getResourceReporter()
 
 ```ts
-getResourceReporter: (resource) =&gt; Reporter;
+getResourceReporter: (resource) => Reporter;
 ```
 
 #### Parameters

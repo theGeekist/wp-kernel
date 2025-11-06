@@ -11,7 +11,7 @@
 ### registered()
 
 ```ts
-registered: (payload) =&gt; void;
+registered: (payload) => void;
 ```
 
 #### Parameters
@@ -29,7 +29,7 @@ registered: (payload) =&gt; void;
 ### unregistered()
 
 ```ts
-unregistered: (payload) =&gt; void;
+unregistered: (payload) => void;
 ```
 
 #### Parameters
@@ -47,7 +47,7 @@ unregistered: (payload) =&gt; void;
 ### viewChanged()
 
 ```ts
-viewChanged: (payload) =&gt; void;
+viewChanged: (payload) => void;
 ```
 
 #### Parameters
@@ -65,7 +65,7 @@ viewChanged: (payload) =&gt; void;
 ### actionTriggered()
 
 ```ts
-actionTriggered: (payload) =&gt; void;
+actionTriggered: (payload) => void;
 ```
 
 #### Parameters

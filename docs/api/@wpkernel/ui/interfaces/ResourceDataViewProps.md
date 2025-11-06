@@ -69,7 +69,7 @@ The runtime context for the DataView.
 ### fetchList()?
 
 ```ts
-optional fetchList: (query) =&gt; Promise&lt;ListResponse&lt;TItem&gt;&gt;;
+optional fetchList: (query) => Promise&lt;ListResponse&lt;TItem&gt;&gt;;
 ```
 
 An optional function to fetch a list of items, overriding the resource's fetchList.

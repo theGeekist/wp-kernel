@@ -35,7 +35,7 @@ readonly store: TStoreResult;
 ### syncServerState()
 
 ```ts
-readonly syncServerState: () =&gt; void;
+readonly syncServerState: () => void;
 ```
 
 #### Returns
@@ -47,7 +47,7 @@ readonly syncServerState: () =&gt; void;
 ### getServerState()
 
 ```ts
-readonly getServerState: () =&gt; object;
+readonly getServerState: () => object;
 ```
 
 #### Returns

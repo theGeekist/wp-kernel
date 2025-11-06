@@ -7,7 +7,7 @@
 # Type Alias: PipelineExtensionHook()
 
 ```ts
-type PipelineExtensionHook = (options) =&gt; Promise&lt;
+type PipelineExtensionHook = (options) => Promise&lt;
   | PipelineExtensionHookResult
 | void&gt;;
 ```

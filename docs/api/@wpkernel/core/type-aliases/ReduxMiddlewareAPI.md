@@ -31,7 +31,7 @@ dispatch: ReduxDispatch;
 ### getState()
 
 ```ts
-getState: () =&gt; TState;
+getState: () => TState;
 ```
 
 #### Returns

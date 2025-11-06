@@ -49,7 +49,7 @@ readonly optional capabilities: WPKUICapabilityRuntime;
 ### invalidate()?
 
 ```ts
-readonly optional invalidate: (patterns, options?) =&gt; void;
+readonly optional invalidate: (patterns, options?) => void;
 ```
 
 #### Parameters

@@ -82,7 +82,7 @@ Reporter instance used for resource instrumentation.
 ### invalidate()
 
 ```ts
-invalidate: (patterns) =&gt; void;
+invalidate: (patterns) => void;
 ```
 
 Invalidate cached data for this resource
@@ -118,7 +118,7 @@ thing.invalidate([['thing', 'list']]); // Also invalidate lists
 ### key()
 
 ```ts
-key: (operation, params?) =&gt; (string | number | boolean)[];
+key: (operation, params?) => (string | number | boolean)[];
 ```
 
 Generate a cache key for this resource
@@ -149,10 +149,10 @@ Cache key array
 
 ```ts
 const key = thing.key('list', { status: 'active' });
-// =&gt; ['thing', 'list', '{"status":"active"}']
+// => ['thing', 'list', '{"status":"active"}']
 
 const key2 = thing.key('get', 123);
-// =&gt; ['thing', 'get', 123]
+// => ['thing', 'get', 123]
 ```
 
 ### cache
@@ -176,7 +176,7 @@ Prefetch operations (eager loading)
 #### cache.prefetch.item()
 
 ```ts
-item: (id) =&gt; Promise&lt;void&gt;;
+item: (id) => Promise&lt;void&gt;;
 ```
 
 Prefetch single item into cache
@@ -194,7 +194,7 @@ Prefetch single item into cache
 #### cache.prefetch.list()
 
 ```ts
-list: (query?) =&gt; Promise&lt;void&gt;;
+list: (query?) => Promise&lt;void&gt;;
 ```
 
 Prefetch list into cache
@@ -220,7 +220,7 @@ Cache invalidation operations
 #### cache.invalidate.item()
 
 ```ts
-item: (id) =&gt; void;
+item: (id) => void;
 ```
 
 Invalidate cached item by ID
@@ -238,7 +238,7 @@ Invalidate cached item by ID
 #### cache.invalidate.list()
 
 ```ts
-list: (query?) =&gt; void;
+list: (query?) => void;
 ```
 
 Invalidate cached list by query
@@ -256,7 +256,7 @@ Invalidate cached list by query
 #### cache.invalidate.all()
 
 ```ts
-all: () =&gt; void;
+all: () => void;
 ```
 
 Invalidate all cached data for this resource
@@ -268,7 +268,7 @@ Invalidate all cached data for this resource
 #### cache.key()
 
 ```ts
-key: (operation, params?) =&gt; (string | number | boolean)[];
+key: (operation, params?) => (string | number | boolean)[];
 ```
 
 Generate cache key
@@ -316,7 +316,7 @@ Store descriptor (lazy-loaded)
 ### useGet()?
 
 ```ts
-optional useGet: (id) =&gt; object;
+optional useGet: (id) => object;
 ```
 
 React hook to fetch a single item
@@ -370,7 +370,7 @@ function ThingView({ id }: { id: number }) {
 ### useList()?
 
 ```ts
-optional useList: (query?) =&gt; object;
+optional useList: (query?) => object;
 ```
 
 React hook to fetch a list of items
@@ -424,7 +424,7 @@ function ThingList({ status }: { status: string }) {
 ### prefetchGet()?
 
 ```ts
-optional prefetchGet: (id) =&gt; Promise&lt;void&gt;;
+optional prefetchGet: (id) => Promise&lt;void&gt;;
 ```
 
 Prefetch a single item into the cache
@@ -450,7 +450,7 @@ Promise resolving when prefetch completes
 
 ```ts
 // Prefetch on hover
-&lt;Link onMouseEnter={() =&gt; thing.prefetchGet(123)}&gt;
+&lt;Link onMouseEnter={() => thing.prefetchGet(123)}&gt;
   View Thing
 &lt;/Link&gt;
 ```
@@ -458,7 +458,7 @@ Promise resolving when prefetch completes
 ### prefetchList()?
 
 ```ts
-optional prefetchList: (query?) =&gt; Promise&lt;void&gt;;
+optional prefetchList: (query?) => Promise&lt;void&gt;;
 ```
 
 Prefetch a list of items into the cache
@@ -484,8 +484,8 @@ Promise resolving when prefetch completes
 
 ```ts
 // Prefetch on app mount
-useEffect(() =&gt; {
-  thing.prefetchList({ status: 'active' });
+useEffect(() => {
+	thing.prefetchList({ status: 'active' });
 }, []);
 ```
 
@@ -503,7 +503,7 @@ Ideal for computed values and derived state.
 #### select.item()
 
 ```ts
-item: (id) =&gt; T | undefined;
+item: (id) => T | undefined;
 ```
 
 Get cached item by ID (no fetch)
@@ -525,7 +525,7 @@ Cached item or undefined
 #### select.items()
 
 ```ts
-items: () =&gt; T[];
+items: () => T[];
 ```
 
 Get all cached items (no fetch)
@@ -539,7 +539,7 @@ Array of all cached items
 #### select.list()
 
 ```ts
-list: (query?) =&gt; T[];
+list: (query?) => T[];
 ```
 
 Get cached list by query (no fetch)
@@ -572,7 +572,8 @@ Useful for refresh actions or real-time data requirements.
 #### get.item()
 
 ```ts
-item: (id) =&gt; Promise&lt;T&gt;;
+item: (id) => Promise & lt;
+T & gt;
 ```
 
 Get item from server (bypass cache)
@@ -597,7 +598,7 @@ Promise resolving to the item
 #### get.list()
 
 ```ts
-list: (query?) =&gt; Promise&lt;ListResponse&lt;T&gt;&gt;;
+list: (query?) => Promise&lt;ListResponse&lt;T&gt;&gt;;
 ```
 
 Get list from server (bypass cache)
@@ -632,7 +633,8 @@ Write operations that modify server state.
 #### mutate.create()
 
 ```ts
-create: (data) =&gt; Promise&lt;T&gt;;
+create: (data) => Promise & lt;
+T & gt;
 ```
 
 Create new item
@@ -650,7 +652,8 @@ Create new item
 #### mutate.update()
 
 ```ts
-update: (id, data) =&gt; Promise&lt;T&gt;;
+update: (id, data) => Promise & lt;
+T & gt;
 ```
 
 Update existing item
@@ -672,7 +675,7 @@ Update existing item
 #### mutate.remove()
 
 ```ts
-remove: (id) =&gt; Promise&lt;void&gt;;
+remove: (id) => Promise&lt;void&gt;;
 ```
 
 Delete item

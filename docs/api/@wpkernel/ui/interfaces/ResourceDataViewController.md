@@ -83,7 +83,7 @@ The key for storing preferences.
 ### mapViewToQuery()
 
 ```ts
-mapViewToQuery: (view) =&gt; TQuery;
+mapViewToQuery: (view) => TQuery;
 ```
 
 Maps the view state to a query.
@@ -103,7 +103,7 @@ Maps the view state to a query.
 ### deriveViewState()
 
 ```ts
-deriveViewState: (view) =&gt; object;
+deriveViewState: (view) => object;
 ```
 
 Derives the view state from a view.
@@ -171,7 +171,8 @@ optional filters: Record&lt;string, unknown&gt;;
 ### loadStoredView()
 
 ```ts
-loadStoredView: () =&gt; Promise&lt;View | undefined&gt;;
+loadStoredView: () => Promise & lt;
+View | (undefined & gt);
 ```
 
 Loads the stored view from preferences.
@@ -185,7 +186,7 @@ Loads the stored view from preferences.
 ### saveView()
 
 ```ts
-saveView: (view) =&gt; Promise&lt;void&gt;;
+saveView: (view) => Promise&lt;void&gt;;
 ```
 
 Saves the view to preferences.
@@ -205,7 +206,7 @@ Saves the view to preferences.
 ### emitViewChange()
 
 ```ts
-emitViewChange: (view) =&gt; void;
+emitViewChange: (view) => void;
 ```
 
 Emits a view change event.
@@ -225,7 +226,7 @@ Emits a view change event.
 ### emitRegistered()
 
 ```ts
-emitRegistered: (preferencesKey) =&gt; void;
+emitRegistered: (preferencesKey) => void;
 ```
 
 Emits a registered event.
@@ -245,7 +246,7 @@ Emits a registered event.
 ### emitUnregistered()
 
 ```ts
-emitUnregistered: (preferencesKey) =&gt; void;
+emitUnregistered: (preferencesKey) => void;
 ```
 
 Emits an unregistered event.
@@ -265,7 +266,7 @@ Emits an unregistered event.
 ### emitAction()
 
 ```ts
-emitAction: (payload) =&gt; void;
+emitAction: (payload) => void;
 ```
 
 Emits an action event.
@@ -303,7 +304,7 @@ Emits an action event.
 ### getReporter()
 
 ```ts
-getReporter: () =&gt; Reporter;
+getReporter: () => Reporter;
 ```
 
 Gets the reporter for the controller.
@@ -327,7 +328,7 @@ The resource object.
 ### invalidate()?
 
 ```ts
-readonly optional invalidate: (patterns) =&gt; void;
+readonly optional invalidate: (patterns) => void;
 ```
 
 A function to invalidate cache entries.
@@ -357,7 +358,7 @@ The capability runtime.
 ### fetchList()?
 
 ```ts
-readonly optional fetchList: (query) =&gt; Promise&lt;ListResponse&lt;TItem&gt;&gt;;
+readonly optional fetchList: (query) => Promise&lt;ListResponse&lt;TItem&gt;&gt;;
 ```
 
 A function to fetch a list of items.
@@ -377,7 +378,7 @@ A function to fetch a list of items.
 ### prefetchList()?
 
 ```ts
-readonly optional prefetchList: (query) =&gt; Promise&lt;void&gt;;
+readonly optional prefetchList: (query) => Promise&lt;void&gt;;
 ```
 
 A function to prefetch a list of items.

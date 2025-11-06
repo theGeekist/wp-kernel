@@ -15,7 +15,7 @@ Options for building the `start` command, allowing for dependency injection.
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Optional: Custom reporter builder function.
@@ -44,7 +44,7 @@ Reporter instance with child helpers
 #### buildGenerateCommand()?
 
 ```ts
-readonly optional buildGenerateCommand: (options) =&gt; CommandConstructor;
+readonly optional buildGenerateCommand: (options) => CommandConstructor;
 ```
 
 Optional: Custom generate command builder function.
@@ -75,21 +75,21 @@ The `CommandConstructor` class for the generate command.
 #### loadWatch()?
 
 ```ts
-readonly optional loadWatch: () =&gt; Promise&lt;(paths, options?) =&gt; FSWatcher&gt;;
+readonly optional loadWatch: () => Promise&lt;(paths, options?) => FSWatcher&gt;;
 ```
 
 Optional: Custom function to load the `chokidar.watch` function.
 
 ##### Returns
 
-`Promise`\&lt;(`paths`, `options?`) =&gt; `FSWatcher`\&gt;
+`Promise`\&lt;(`paths`, `options?`) => `FSWatcher`\&gt;
 
 ---
 
 #### adoptCommandEnvironment()?
 
 ```ts
-readonly optional adoptCommandEnvironment: (source, target) =&gt; void;
+readonly optional adoptCommandEnvironment: (source, target) => void;
 ```
 
 Optional: Custom function to adopt the command environment.
@@ -123,7 +123,7 @@ Optional: Partial file system utility functions for testing.
 #### spawnViteProcess()?
 
 ```ts
-readonly optional spawnViteProcess: () =&gt; ChildProcessWithoutNullStreams;
+readonly optional spawnViteProcess: () => ChildProcessWithoutNullStreams;
 ```
 
 Optional: Custom function to spawn the Vite development server process.

@@ -60,7 +60,7 @@ optional resource: ResourceObject&lt;unknown, TQuery&gt;;
 ### invalidate()?
 
 ```ts
-optional invalidate: (result, input) =&gt; false | CacheKeyPattern[];
+optional invalidate: (result, input) => false | CacheKeyPattern[];
 ```
 
 #### Parameters
@@ -82,7 +82,7 @@ optional invalidate: (result, input) =&gt; false | CacheKeyPattern[];
 ### onSuccess()?
 
 ```ts
-optional onSuccess: (result) =&gt; void;
+optional onSuccess: (result) => void;
 ```
 
 #### Parameters
@@ -100,7 +100,7 @@ optional onSuccess: (result) =&gt; void;
 ### onError()?
 
 ```ts
-optional onError: (error) =&gt; void;
+optional onError: (error) => void;
 ```
 
 #### Parameters

@@ -45,7 +45,7 @@ tempDir: string;
 ### queueFile()
 
 ```ts
-queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
+queueFile: (filePath, contents) => Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -67,7 +67,7 @@ queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
 ### updateIr()
 
 ```ts
-updateIr: (ir) =&gt; void;
+updateIr: (ir) => void;
 ```
 
 #### Parameters
@@ -85,7 +85,8 @@ updateIr: (ir) =&gt; void;
 ### formatPhp()
 
 ```ts
-formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
+formatPhp: (filePath, contents) => Promise & lt;
+string & gt;
 ```
 
 #### Parameters
@@ -107,7 +108,8 @@ formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
 ### formatTs()
 
 ```ts
-formatTs: (filePath, contents) =&gt; Promise&lt;string&gt;;
+formatTs: (filePath, contents) => Promise & lt;
+string & gt;
 ```
 
 #### Parameters

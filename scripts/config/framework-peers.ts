@@ -1,4 +1,4 @@
-export type FrameworkPeerKind = 'wordpress' | 'react' | 'internal';
+export type FrameworkPeerKind = 'wordpress' | 'react' | 'internal' | 'tooling';
 
 export interface FrameworkPeerSpec {
 	readonly kind: FrameworkPeerKind;
@@ -68,10 +68,21 @@ export const FRAMEWORK_PEERS = {
 	'@wpkernel/test-utils': {
 		kind: 'internal',
 		peerRange: 'workspace:*',
+		devRange: 'workspace:*',
 	},
 	'@wpkernel/ui': {
 		kind: 'internal',
 		peerRange: 'workspace:*',
+	},
+	'ts-morph': {
+		kind: 'tooling',
+		peerRange: '>=27.0.0',
+		devRange: '^27.0.2',
+	},
+	typescript: {
+		kind: 'tooling',
+		peerRange: '>=5.0.0',
+		devRange: '^5.9.3',
 	},
 } satisfies Record<string, FrameworkPeerSpec>;
 

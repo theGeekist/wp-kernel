@@ -48,7 +48,7 @@ Action implementation to invoke.
 ### label
 
 ```ts
-label: string | (items) =&gt; string;
+label: string | (items) => string;
 ```
 
 Label shown in DataViews UI.
@@ -58,7 +58,7 @@ Label shown in DataViews UI.
 ### getActionArgs()
 
 ```ts
-getActionArgs: (context) =&gt; TInput;
+getActionArgs: (context) => TInput;
 ```
 
 Build action input payload from the current selection and items.
@@ -134,7 +134,7 @@ When true, render disabled instead of hiding on capability denial.
 ### buildMeta()?
 
 ```ts
-optional buildMeta: (context) =&gt; Record&lt;string, unknown&gt; | undefined;
+optional buildMeta: (context) => Record&lt;string, unknown&gt; | undefined;
 ```
 
 Optional meta object included in action triggered events.
@@ -160,7 +160,7 @@ Optional meta object included in action triggered events.
 ### invalidateOnSuccess()?
 
 ```ts
-optional invalidateOnSuccess: (result, context) =&gt; false | CacheKeyPattern[];
+optional invalidateOnSuccess: (result, context) => false | CacheKeyPattern[];
 ```
 
 Optional invalidate hook overriding the default behaviour.

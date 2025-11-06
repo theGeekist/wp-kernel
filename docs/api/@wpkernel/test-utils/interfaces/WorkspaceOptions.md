@@ -43,7 +43,7 @@ A map of relative file paths to their content (string or Buffer).
 ### setup()?
 
 ```ts
-optional setup: (workspace) =&gt; void | Promise&lt;void&gt;;
+optional setup: (workspace) => void | Promise&lt;void&gt;;
 ```
 
 A setup function to run before the test.
@@ -63,7 +63,7 @@ A setup function to run before the test.
 ### teardown()?
 
 ```ts
-optional teardown: (workspace) =&gt; void | Promise&lt;void&gt;;
+optional teardown: (workspace) => void | Promise&lt;void&gt;;
 ```
 
 A teardown function to run after the test.

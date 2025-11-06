@@ -7,7 +7,7 @@
 # Type Alias: CreateCommandConstructor()
 
 ```ts
-type CreateCommandConstructor = () =&gt; CreateCommandInstance;
+type CreateCommandConstructor = () => CreateCommandInstance;
 ```
 
 The constructor type for the `create` command.

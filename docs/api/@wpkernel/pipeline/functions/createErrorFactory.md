@@ -16,7 +16,7 @@ Creates an error factory that wraps a custom error class.
 
 ### create
 
-(`code`, `message`) =&gt; `Error`
+(`code`, `message`) => `Error`
 
 ## Returns
 
@@ -28,13 +28,13 @@ An error factory function
 
 ```typescript
 class WPKernelError extends Error {
-  constructor(code: string, options: { message: string }) {
-    super(options.message);
-    this.name = code;
-  }
+	constructor(code: string, options: { message: string }) {
+		super(options.message);
+		this.name = code;
+	}
 }
 
 const createError = createErrorFactory(
-  (code, message) =&gt; new WPKernelError(code, { message })
+	(code, message) => new WPKernelError(code, { message })
 );
 ```

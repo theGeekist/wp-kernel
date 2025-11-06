@@ -7,7 +7,7 @@
 # Function: buildStartCommand()
 
 ```ts
-function buildStartCommand(options): () =&gt; Command;
+function buildStartCommand(options): () => Command;
 ```
 
 Builds the `start` command for the CLI.

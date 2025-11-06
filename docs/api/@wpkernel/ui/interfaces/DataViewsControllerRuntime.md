@@ -61,7 +61,7 @@ readonly options: NormalizedDataViewsRuntimeOptions;
 ### getResourceReporter()
 
 ```ts
-readonly getResourceReporter: (resource) =&gt; Reporter;
+readonly getResourceReporter: (resource) => Reporter;
 ```
 
 #### Parameters

@@ -17,7 +17,7 @@ Main kernel utilities object returned by factory
 ### resource()
 
 ```ts
-resource: &lt;T&gt;(config) =&gt; ResourceUtils&lt;T&gt;;
+resource: &lt;T&gt;(config) => ResourceUtils&lt;T&gt;;
 ```
 
 Create resource utilities for a given resource config
@@ -47,7 +47,7 @@ Resource utilities with typed methods
 ### store()
 
 ```ts
-store: &lt;T&gt;(storeKey) =&gt; StoreUtils&lt;T&gt;;
+store: &lt;T&gt;(storeKey) => StoreUtils&lt;T&gt;;
 ```
 
 Create store utilities for a given store key
@@ -77,7 +77,7 @@ Store utilities with typed methods
 ### events()
 
 ```ts
-events: &lt;P&gt;(options?) =&gt; Promise&lt;EventRecorder&lt;P&gt;&gt;;
+events: &lt;P&gt;(options?) => Promise&lt;EventRecorder&lt;P&gt;&gt;;
 ```
 
 Create event recorder for capturing kernel events
@@ -107,7 +107,7 @@ Event recorder with capture and query methods
 ### dataview()
 
 ```ts
-dataview: (options) =&gt; DataViewHelper;
+dataview: (options) => DataViewHelper;
 ```
 
 Interact with a DataView rendered via ResourceDataView.

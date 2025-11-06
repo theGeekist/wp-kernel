@@ -7,7 +7,7 @@
 # Type Alias: PrefetchList()\&lt;TQuery\&gt;
 
 ```ts
-type PrefetchList&lt;TQuery&gt; = (query?) =&gt; void;
+type PrefetchList&lt;TQuery&gt; = (query?) => void;
 ```
 
 Function type for prefetching a list of items with optional query parameters.

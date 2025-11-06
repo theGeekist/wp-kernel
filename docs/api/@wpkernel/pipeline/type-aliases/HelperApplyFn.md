@@ -7,7 +7,7 @@
 # Type Alias: HelperApplyFn()\&lt;TContext, TInput, TOutput, TReporter\&gt;
 
 ```ts
-type HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt; = (options, next?) =&gt; MaybePromise&lt;void&gt;;
+type HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt; = (options, next?) => MaybePromise&lt;void&gt;;
 ```
 
 Function signature for a pipeline helper's apply method.
@@ -51,7 +51,7 @@ Options for the apply function, including context, input, output, and reporter.
 
 ### next?
 
-() =&gt; [`MaybePromise`](MaybePromise.md)\&lt;`void`\&gt;
+() => [`MaybePromise`](MaybePromise.md)\&lt;`void`\&gt;
 
 Optional function to call the next helper in the pipeline.
 

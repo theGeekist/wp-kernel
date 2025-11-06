@@ -22,10 +22,43 @@ To start a new project, use the `npm create` command (or `pnpm create` / `yarn c
 ```bash
 npm create @wpkernel/wpk my-plugin
 cd my-plugin
-npm install
+npm start
 ```
 
-This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, and package scripts wired to the CLI (`start`, `build`, `generate`, `apply`).
+This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, and installs `@wpkernel/cli` as a devDependency. The `wpk` binary is automatically available in your project.
+
+**Core workflow:**
+
+```bash
+# 1. Edit wpk.config.ts to define resources, actions, capabilities
+# 2. Generate PHP/TS code
+wpk generate
+
+# 3. Apply changes to existing code (with Git safety)
+wpk apply
+
+# 4. Validate everything is correct
+wpk doctor
+```
+
+**All wpk commands:**
+
+```bash
+wpk generate    # Generate PHP/TS from wpk.config.*
+wpk apply       # Apply generated code patches
+wpk doctor      # Check project health and dependencies
+wpk start       # Start development server with watch mode
+wpk build       # Production build
+wpk init        # Initialize WP Kernel in existing project
+```
+
+**Manual installation** in an existing project:
+
+```bash
+npm install -D @wpkernel/cli
+# or
+pnpm add -D @wpkernel/cli
+```
 
 ## Core workflow: create → generate → apply
 

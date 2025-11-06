@@ -34,12 +34,12 @@ Kernel utilities object with helper factories
 ```typescript
 import { test, expect } from '@wpkernel/e2e-utils';
 
-test('job workflow', async ({ page, admin, requestUtils, kernel }) =&gt; {
+test('job workflow', async ({ page, admin, requestUtils, kernel }) => {
   const job = kernel.resource({ name: 'job', routes: {...} });
   await job.seed({ title: 'Engineer' });
 
   const jobStore = kernel.store('my-plugin/job');
-  await jobStore.wait(s =&gt; s.getList());
+  await jobStore.wait(s => s.getList());
 
   const recorder = await kernel.events({ pattern: /^my-plugin\.job\./ });
   expect(recorder.list()).toHaveLength(1);

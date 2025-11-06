@@ -19,7 +19,7 @@ readonly actions: BuilderWriteAction[];
 ### queueWrite()
 
 ```ts
-queueWrite: (action) =&gt; void;
+queueWrite: (action) => void;
 ```
 
 #### Parameters

@@ -16,8 +16,8 @@ Cache key generators for all CRUD operations
 
 ```ts
 {
-  list: (q) =&gt; ['thing', 'list', q?.search, q?.page],
-  get: (id) =&gt; ['thing', 'get', id]
+  list: (q) => ['thing', 'list', q?.search, q?.page],
+  get: (id) => ['thing', 'get', id]
 }
 ```
 

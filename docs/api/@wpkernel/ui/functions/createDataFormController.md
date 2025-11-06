@@ -7,7 +7,7 @@
 # Function: createDataFormController()
 
 ```ts
-function createDataFormController&lt;TInput, TResult, TQuery&gt;(options): () =&gt; UseDataFormController&lt;TResult&gt;;
+function createDataFormController&lt;TInput, TResult, TQuery&gt;(options): () => UseDataFormController&lt;TResult&gt;;
 ```
 
 Creates a React hook for managing data form submissions.

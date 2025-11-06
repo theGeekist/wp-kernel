@@ -7,7 +7,7 @@
 # Type Alias: CacheKeyFn()\&lt;TParams\&gt;
 
 ```ts
-type CacheKeyFn&lt;TParams&gt; = (params?) =&gt; (string | number | boolean | null | undefined)[];
+type CacheKeyFn&lt;TParams&gt; = (params?) => (string | number | boolean | null | undefined)[];
 ```
 
 Cache key generator function
@@ -38,6 +38,6 @@ Array of cache key segments
 ## Example
 
 ```ts
-(params) =&gt; ['thing', 'list', params?.q, params?.cursor]
-(id) =&gt; ['thing', 'get', id]
+(params) => ['thing', 'list', params?.q, params?.cursor]
+(id) => ['thing', 'get', id]
 ```

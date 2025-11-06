@@ -38,7 +38,7 @@ import { testimonial } from '@/resources/testimonial';
 export const CreateTestimonial = defineAction&lt;
   { data: Testimonial },
   Testimonial
-&gt;('Testimonial.Create', async (ctx, { data }) =&gt; {
+&gt;('Testimonial.Create', async (ctx, { data }) => {
   // 1. Capability check
   ctx.capability.assert('testimonials.create');
 
@@ -82,13 +82,13 @@ By default, actions are **cross-tab** - events broadcast to all open tabs via Br
 
 ```typescript
 // Default: events visible in all tabs
-defineAction('Post.Create', async (ctx, args) =&gt; { ... });
+defineAction('Post.Create', async (ctx, args) => { ... });
 
 // Explicit cross-tab
-defineAction('Post.Create', async (ctx, args) =&gt; { ... }, { scope: 'crossTab' });
+defineAction('Post.Create', async (ctx, args) => { ... }, { scope: 'crossTab' });
 
 // Tab-local: events stay in current tab only
-defineAction('UI.ToggleSidebar', async (ctx, args) =&gt; { ... }, { scope: 'tabLocal' });
+defineAction('UI.ToggleSidebar', async (ctx, args) => { ... }, { scope: 'tabLocal' });
 ```
 
 **Important**: Tab-local actions (`scope: 'tabLocal'`) **never bridge to PHP** even
@@ -100,10 +100,10 @@ Set `bridged: true` (default for cross-tab) to forward events to PHP via REST:
 
 ```typescript
 // Events bridge to PHP (default)
-defineAction('Post.Publish', async (ctx, args) =&gt; { ... });
+defineAction('Post.Publish', async (ctx, args) => { ... });
 
 // Disable PHP bridge
-defineAction('Post.Draft', async (ctx, args) =&gt; { ... }, { bridged: false });
+defineAction('Post.Draft', async (ctx, args) => { ... }, { bridged: false });
 ```
 
 ## Context Surface
@@ -130,8 +130,8 @@ All errors are automatically normalized to `WPKernelError` instances with:
 - Structured error data
 
 ```typescript
-defineAction('TestAction', async (ctx, args) =&gt; {
-  throw new WPKernelError('DeveloperError', { message: 'Something broke' });
+defineAction('TestAction', async (ctx, args) => {
+	throw new WPKernelError('DeveloperError', { message: 'Something broke' });
 });
 ```
 
@@ -202,41 +202,38 @@ DeveloperError if actionName is invalid or fn is not a function
 ```ts
 // Basic action
 export const CreatePost = defineAction(
-  'Post.Create',
-  async (ctx, { title, content }) =&gt; {
-    const post = await postResource.create!({ title, content });
-    ctx.invalidate(['post', 'list']);
-    return post;
-  }
+	'Post.Create',
+	async (ctx, { title, content }) => {
+		const post = await postResource.create!({ title, content });
+		ctx.invalidate(['post', 'list']);
+		return post;
+	}
 );
 ```
 
 ```ts
 // With full orchestration
-export const PublishPost = defineAction(
-  'Post.Publish',
-  async (ctx, { id }) =&gt; {
-    ctx.capability.assert('posts.publish');
-    const post = await postResource.update!({ id, status: 'publish' });
-    ctx.emit(postResource.events.updated, { id, data: post });
-    ctx.invalidate(['post', 'list'], { storeKey: 'my-plugin/post' });
-    await ctx.jobs.enqueue('SendPublishNotifications', { postId: id });
-    ctx.reporter.info('Post published', { postId: id });
-    return post;
-  }
-);
+export const PublishPost = defineAction('Post.Publish', async (ctx, { id }) => {
+	ctx.capability.assert('posts.publish');
+	const post = await postResource.update!({ id, status: 'publish' });
+	ctx.emit(postResource.events.updated, { id, data: post });
+	ctx.invalidate(['post', 'list'], { storeKey: 'my-plugin/post' });
+	await ctx.jobs.enqueue('SendPublishNotifications', { postId: id });
+	ctx.reporter.info('Post published', { postId: id });
+	return post;
+});
 ```
 
 ```ts
 // Tab-local UI action
 export const ToggleSidebar = defineAction({
-  name: 'UI.ToggleSidebar',
-  handler: async (ctx, { isOpen }) =&gt; {
-    // Events stay in this tab only
-    ctx.emit('ui.sidebar.toggled', { isOpen });
-    return { isOpen };
-  },
-  options: { scope: 'tabLocal' }
+	name: 'UI.ToggleSidebar',
+	handler: async (ctx, { isOpen }) => {
+		// Events stay in this tab only
+		ctx.emit('ui.sidebar.toggled', { isOpen });
+		return { isOpen };
+	},
+	options: { scope: 'tabLocal' },
 });
 ```
 

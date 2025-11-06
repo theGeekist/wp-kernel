@@ -16,7 +16,7 @@ of the TypeScript artifact generation process.
 ### onBeforeCreate()?
 
 ```ts
-readonly optional onBeforeCreate: (context) =&gt; Promise&lt;void&gt;;
+readonly optional onBeforeCreate: (context) => Promise&lt;void&gt;;
 ```
 
 Hook executed before a creator generates an artifact.
@@ -36,7 +36,7 @@ Hook executed before a creator generates an artifact.
 ### onAfterCreate()?
 
 ```ts
-readonly optional onAfterCreate: (context) =&gt; Promise&lt;void&gt;;
+readonly optional onAfterCreate: (context) => Promise&lt;void&gt;;
 ```
 
 Hook executed after a creator generates an artifact.
@@ -56,7 +56,7 @@ Hook executed after a creator generates an artifact.
 ### onAfterEmit()?
 
 ```ts
-readonly optional onAfterEmit: (options) =&gt; Promise&lt;void&gt;;
+readonly optional onAfterEmit: (options) => Promise&lt;void&gt;;
 ```
 
 Hook executed after all TypeScript files have been emitted.

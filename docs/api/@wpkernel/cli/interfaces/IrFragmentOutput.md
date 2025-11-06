@@ -19,7 +19,7 @@ readonly draft: MutableIr;
 ### assign()
 
 ```ts
-assign: (partial) =&gt; void;
+assign: (partial) => void;
 ```
 
 #### Parameters

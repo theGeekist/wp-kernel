@@ -29,7 +29,7 @@ optional autoload: string;
 ### customise()?
 
 ```ts
-optional customise: (builder, context) =&gt; void;
+optional customise: (builder, context) => void;
 ```
 
 #### Parameters

@@ -13,7 +13,7 @@ Represents a pipeline extension.
 ### register()
 
 ```ts
-register: (pipeline) =&gt;
+register: (pipeline) =>
   | void
   | PipelineExtensionHook
   | Promise&lt;

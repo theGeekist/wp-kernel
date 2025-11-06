@@ -21,7 +21,8 @@ The type of the result returned by the form submission action.
 ### submit()
 
 ```ts
-submit: (input) =&gt; Promise&lt;TResult&gt;;
+submit: (input) => Promise & lt;
+TResult & gt;
 ```
 
 Submits the form with the given input.
@@ -45,7 +46,7 @@ A promise that resolves with the action's result.
 ### reset()
 
 ```ts
-reset: () =&gt; void;
+reset: () => void;
 ```
 
 Resets the form's state.
@@ -59,7 +60,7 @@ Resets the form's state.
 ### cancel()
 
 ```ts
-cancel: () =&gt; void;
+cancel: () => void;
 ```
 
 Cancels any in-flight form submissions.

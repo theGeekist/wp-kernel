@@ -6,7 +6,7 @@
 
 # Interface: PhpExprArrowFunction
 
-Represents a PHP arrow function expression (e.g., `fn($x) =&gt; $x * 2`).
+Represents a PHP arrow function expression (e.g., `fn($x) => $x * 2`).
 
 ## Extends
 

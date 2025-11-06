@@ -17,7 +17,7 @@ Resolvers for a resource store.
 ### getItem()
 
 ```ts
-getItem: (id) =&gt; Generator&lt;unknown, void, unknown&gt;;
+getItem: (id) => Generator&lt;unknown, void, unknown&gt;;
 ```
 
 Resolver for getItem selector.
@@ -38,7 +38,7 @@ Item ID
 ### getItems()
 
 ```ts
-getItems: (query?) =&gt; Generator&lt;unknown, void, unknown&gt;;
+getItems: (query?) => Generator&lt;unknown, void, unknown&gt;;
 ```
 
 Resolver for getItems selector.
@@ -59,7 +59,7 @@ Query parameters
 ### getList()
 
 ```ts
-getList: (query?) =&gt; Generator&lt;unknown, void, unknown&gt;;
+getList: (query?) => Generator&lt;unknown, void, unknown&gt;;
 ```
 
 Resolver for getList selector.

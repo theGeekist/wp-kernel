@@ -7,7 +7,7 @@
 # Type Alias: PhpAdapterFactory()
 
 ```ts
-type PhpAdapterFactory = (context) =&gt; PhpAdapterConfig | void;
+type PhpAdapterFactory = (context) => PhpAdapterConfig | void;
 ```
 
 Factory for producing PHP adapter configuration.

@@ -7,7 +7,7 @@
 # Type Alias: RuntimeCleanup()
 
 ```ts
-type RuntimeCleanup = () =&gt; void;
+type RuntimeCleanup = () => void;
 ```
 
 A function to clean up action runtime overrides.

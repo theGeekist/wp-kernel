@@ -43,7 +43,7 @@ The name of the resource.
 ### pipelineFactory()?
 
 ```ts
-readonly optional pipelineFactory: () =&gt; ResourcePipeline&lt;T, TQuery&gt;;
+readonly optional pipelineFactory: () => ResourcePipeline&lt;T, TQuery&gt;;
 ```
 
 A factory function to create the resource pipeline.

@@ -7,7 +7,7 @@
 # Type Alias: InteractionActionMetaResolver()\&lt;TArgs\&gt;
 
 ```ts
-type InteractionActionMetaResolver&lt;TArgs&gt; = (args) =&gt; Record&lt;string, unknown&gt; | undefined;
+type InteractionActionMetaResolver&lt;TArgs&gt; = (args) => Record&lt;string, unknown&gt; | undefined;
 ```
 
 Optional metadata resolver attached to interaction action bindings.

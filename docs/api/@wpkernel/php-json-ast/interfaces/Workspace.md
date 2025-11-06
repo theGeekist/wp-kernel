@@ -19,7 +19,7 @@ readonly root: string;
 ### cwd()
 
 ```ts
-cwd: () =&gt; string;
+cwd: () => string;
 ```
 
 #### Returns
@@ -31,7 +31,7 @@ cwd: () =&gt; string;
 ### resolve()
 
 ```ts
-resolve: (...parts) =&gt; string;
+resolve: (...parts) => string;
 ```
 
 #### Parameters
@@ -49,7 +49,7 @@ resolve: (...parts) =&gt; string;
 ### write()
 
 ```ts
-write: (file, contents, options?) =&gt; Promise&lt;void&gt;;
+write: (file, contents, options?) => Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -75,7 +75,8 @@ write: (file, contents, options?) =&gt; Promise&lt;void&gt;;
 ### exists()
 
 ```ts
-exists: (target) =&gt; Promise&lt;boolean&gt;;
+exists: (target) => Promise & lt;
+boolean & gt;
 ```
 
 #### Parameters

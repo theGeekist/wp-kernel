@@ -15,7 +15,7 @@
 ### cwd()
 
 ```ts
-cwd: () =&gt; string;
+cwd: () => string;
 ```
 
 #### Returns
@@ -27,7 +27,7 @@ cwd: () =&gt; string;
 ### read()
 
 ```ts
-read: (file) =&gt; Promise&lt;Buffer&lt;ArrayBufferLike&gt; | null&gt;;
+read: (file) => Promise&lt;Buffer&lt;ArrayBufferLike&gt; | null&gt;;
 ```
 
 #### Parameters
@@ -45,7 +45,8 @@ read: (file) =&gt; Promise&lt;Buffer&lt;ArrayBufferLike&gt; | null&gt;;
 ### readText()
 
 ```ts
-readText: (file) =&gt; Promise&lt;string | null&gt;;
+readText: (file) => Promise & lt;
+string | (null & gt);
 ```
 
 #### Parameters
@@ -63,7 +64,7 @@ readText: (file) =&gt; Promise&lt;string | null&gt;;
 ### write()
 
 ```ts
-write: (file, data, options?) =&gt; Promise&lt;void&gt;;
+write: (file, data, options?) => Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -89,7 +90,7 @@ write: (file, data, options?) =&gt; Promise&lt;void&gt;;
 ### writeJson()
 
 ```ts
-writeJson: &lt;T&gt;(file, value, options?) =&gt; Promise&lt;void&gt;;
+writeJson: &lt;T&gt;(file, value, options?) => Promise&lt;void&gt;;
 ```
 
 #### Type Parameters
@@ -121,7 +122,7 @@ writeJson: &lt;T&gt;(file, value, options?) =&gt; Promise&lt;void&gt;;
 ### rm()
 
 ```ts
-rm: (target, options?) =&gt; Promise&lt;void&gt;;
+rm: (target, options?) => Promise&lt;void&gt;;
 ```
 
 #### Parameters
@@ -143,7 +144,7 @@ rm: (target, options?) =&gt; Promise&lt;void&gt;;
 ### glob()
 
 ```ts
-glob: (pattern) =&gt; Promise&lt;string[]&gt;;
+glob: (pattern) => Promise&lt;string[]&gt;;
 ```
 
 #### Parameters
@@ -161,7 +162,8 @@ glob: (pattern) =&gt; Promise&lt;string[]&gt;;
 ### threeWayMerge()
 
 ```ts
-threeWayMerge: (file, base, current, incoming, options?) =&gt; Promise&lt;"conflict" | "clean"&gt;;
+threeWayMerge: (file, base, current, incoming, options?) => Promise & lt;
+'conflict' | ('clean' & gt);
 ```
 
 #### Parameters
@@ -195,7 +197,7 @@ threeWayMerge: (file, base, current, incoming, options?) =&gt; Promise&lt;"confl
 ### begin()
 
 ```ts
-begin: (label?) =&gt; void;
+begin: (label?) => void;
 ```
 
 #### Parameters
@@ -213,7 +215,8 @@ begin: (label?) =&gt; void;
 ### commit()
 
 ```ts
-commit: (label?) =&gt; Promise&lt;FileManifest&gt;;
+commit: (label?) => Promise & lt;
+FileManifest & gt;
 ```
 
 #### Parameters
@@ -231,7 +234,8 @@ commit: (label?) =&gt; Promise&lt;FileManifest&gt;;
 ### rollback()
 
 ```ts
-rollback: (label?) =&gt; Promise&lt;FileManifest&gt;;
+rollback: (label?) => Promise & lt;
+FileManifest & gt;
 ```
 
 #### Parameters
@@ -249,7 +253,7 @@ rollback: (label?) =&gt; Promise&lt;FileManifest&gt;;
 ### dryRun()
 
 ```ts
-dryRun: &lt;T&gt;(fn) =&gt; Promise&lt;{
+dryRun: &lt;T&gt;(fn) => Promise&lt;{
   result: T;
   manifest: FileManifest;
 }&gt;;
@@ -265,7 +269,7 @@ dryRun: &lt;T&gt;(fn) =&gt; Promise&lt;{
 
 ##### fn
 
-() =&gt; `Promise`\&lt;`T`\&gt;
+() => `Promise`\&lt;`T`\&gt;
 
 #### Returns
 
@@ -279,7 +283,8 @@ dryRun: &lt;T&gt;(fn) =&gt; Promise&lt;{
 ### tmpDir()
 
 ```ts
-tmpDir: (prefix?) =&gt; Promise&lt;string&gt;;
+tmpDir: (prefix?) => Promise & lt;
+string & gt;
 ```
 
 #### Parameters
@@ -311,7 +316,7 @@ WorkspaceLike.root;
 ### resolve()
 
 ```ts
-resolve: (...parts) =&gt; string;
+resolve: (...parts) => string;
 ```
 
 #### Parameters
@@ -335,7 +340,8 @@ WorkspaceLike.resolve;
 ### exists()
 
 ```ts
-exists: (target) =&gt; Promise&lt;boolean&gt;;
+exists: (target) => Promise & lt;
+boolean & gt;
 ```
 
 #### Parameters

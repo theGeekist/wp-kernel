@@ -23,7 +23,7 @@ Store utilities for waiting on resolvers and state
 ### wait()
 
 ```ts
-wait: &lt;R&gt;(selector, timeout?) =&gt; Promise&lt;R&gt;;
+wait: &lt;R&gt;(selector, timeout?) => Promise&lt;R&gt;;
 ```
 
 Wait for store selector to return truthy value
@@ -38,7 +38,7 @@ Wait for store selector to return truthy value
 
 ##### selector
 
-(`state`) =&gt; `R`
+(`state`) => `R`
 
 Function that receives store state and returns data
 
@@ -59,7 +59,7 @@ Resolved data from selector
 ### invalidate()
 
 ```ts
-invalidate: () =&gt; Promise&lt;void&gt;;
+invalidate: () => Promise&lt;void&gt;;
 ```
 
 Invalidate store cache to trigger refetch
@@ -73,7 +73,8 @@ Invalidate store cache to trigger refetch
 ### getState()
 
 ```ts
-getState: () =&gt; Promise&lt;T&gt;;
+getState: () => Promise & lt;
+T & gt;
 ```
 
 Get current store state

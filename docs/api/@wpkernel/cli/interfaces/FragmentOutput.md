@@ -23,7 +23,7 @@ The mutable Intermediate Representation draft.
 ### assign()
 
 ```ts
-assign: (partial) =&gt; void;
+assign: (partial) => void;
 ```
 
 Assigns a partial `MutableIr` to the current draft.

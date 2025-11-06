@@ -57,7 +57,7 @@ optional actions: unknown[];
 ### mapQuery()?
 
 ```ts
-optional mapQuery: (viewState) =&gt; TQuery;
+optional mapQuery: (viewState) => TQuery;
 ```
 
 #### Parameters
@@ -91,7 +91,7 @@ optional searchLabel: string;
 ### getItemId()?
 
 ```ts
-optional getItemId: (item) =&gt; string;
+optional getItemId: (item) => string;
 ```
 
 #### Parameters

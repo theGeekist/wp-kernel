@@ -67,15 +67,15 @@
 		"test:integration": "wpk-run-jest integration"
 	},
 	"devDependencies": {
-		"@wpkernel/scripts": "workspace:*"
+		"@wpkernel/scripts": "workspace:*",
+		"@wpkernel/test-utils": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"peerDependencies": {
 		"@wpkernel/core": "workspace:*",
-		"@wpkernel/pipeline": "workspace:*",
-		"@wpkernel/test-utils": "workspace:*"
+		"@wpkernel/pipeline": "workspace:*"
 	},
 	"dependencies": {
 		"@wpkernel/php-driver": "workspace:*"

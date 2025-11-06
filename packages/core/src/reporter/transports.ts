@@ -11,6 +11,13 @@ import type {
 } from './types';
 import { WPK_NAMESPACE, WPKernelError } from '../contracts/index.js';
 
+/**
+ * @fileoverview Reporter transports for LogLayer integration.
+ *
+ * This module provides browser-safe transports and building blocks for creating reporters.
+ * CLI packages can extend these by adding their own Node.js-specific transports.
+ */
+
 function isReporterLevel(level: LogLevelType): level is ReporterLevel {
 	return (
 		level === 'debug' ||
@@ -55,20 +62,6 @@ function parseMetadata(
 	};
 }
 
-function getConsoleMethod(level: ReporterLevel) {
-	switch (level) {
-		case 'error':
-			return console.error.bind(console);
-		case 'warn':
-			return console.warn.bind(console);
-		case 'debug':
-			return console.debug.bind(console);
-		case 'info':
-		default:
-			return console.info.bind(console);
-	}
-}
-
 type WordPressHooks = {
 	doAction: (eventName: string, payload: unknown) => void;
 };
@@ -86,7 +79,27 @@ function getHooks(): WordPressHooks | null {
 	return wp.hooks;
 }
 
-class ConsoleTransport extends LoggerlessTransport {
+function getConsoleMethod(level: ReporterLevel) {
+	switch (level) {
+		case 'error':
+			return console.error.bind(console);
+		case 'warn':
+			return console.warn.bind(console);
+		case 'debug':
+			return console.debug.bind(console);
+		case 'info':
+		default:
+			return console.info.bind(console);
+	}
+}
+
+/**
+ * Console transport for browser and test environments.
+ * Outputs logs in a simple, structured format: `["[namespace]", "message", context]`
+ *
+ * @category Reporter
+ */
+export class ConsoleTransport extends LoggerlessTransport {
 	private readonly enabledByEnvironment: boolean;
 
 	public constructor(level: LogLevelType) {
@@ -121,9 +134,9 @@ class ConsoleTransport extends LoggerlessTransport {
 	}
 }
 
-class HooksTransport extends LoggerlessTransport {
+export class WPKernelHooksTransport extends LoggerlessTransport {
 	public constructor(level: LogLevelType) {
-		super({ id: 'hooks', level, enabled: true });
+		super({ id: 'wpkernel-hooks', level, enabled: true });
 	}
 
 	public override shipToLogger(params: LogLayerTransportParams): unknown[] {
@@ -160,6 +173,15 @@ function resolveEnvironmentEnabled(): boolean {
 	return env !== 'production';
 }
 
+/**
+ * Create transports for browser/WordPress environments.
+ * CLI packages should construct their own transports using SimplePrettyTerminalTransport.
+ *
+ * @param    channel - Reporter channel ('console', 'hooks', 'all')
+ * @param    level   - Log level
+ * @return Transport or array of transports
+ * @category Reporter
+ */
 export function createTransports(
 	channel: ReporterChannel,
 	level: LogLevelType
@@ -168,9 +190,13 @@ export function createTransports(
 		case 'console':
 			return new ConsoleTransport(level);
 		case 'hooks':
-			return new HooksTransport(level);
+			return new WPKernelHooksTransport(level);
+
 		case 'all':
-			return [new ConsoleTransport(level), new HooksTransport(level)];
+			return [
+				new ConsoleTransport(level),
+				new WPKernelHooksTransport(level),
+			];
 		case 'bridge':
 			throw new WPKernelError('NotImplementedError', {
 				message: 'Bridge transport is planned for a future sprint',
@@ -178,6 +204,7 @@ export function createTransports(
 					channel: 'bridge',
 				},
 			});
+
 		default:
 			return new ConsoleTransport(level);
 	}

@@ -7,7 +7,9 @@
 # Type Alias: InteractivityServerStateResolver
 
 ```ts
-type InteractivityServerStateResolver = (namespace) =&gt; InteractivityServerState & object;
+type InteractivityServerStateResolver = (
+	namespace
+) => InteractivityServerState & object;
 ```
 
 Signature for retrieving server state snapshots from the runtime.

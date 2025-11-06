@@ -7,7 +7,7 @@
 # Type Alias: WPKernelUIAttach()
 
 ```ts
-type WPKernelUIAttach = (wpKernel, options?) =&gt; WPKernelUIRuntime;
+type WPKernelUIAttach = (wpKernel, options?) => WPKernelUIRuntime;
 ```
 
 ## Parameters

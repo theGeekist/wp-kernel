@@ -15,7 +15,7 @@ Options for building the `doctor` command, allowing for dependency injection.
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Optional: Custom reporter builder function.
@@ -44,7 +44,7 @@ Reporter instance with child helpers
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () =&gt; Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: () => Promise&lt;LoadedWPKernelConfig&gt;;
 ```
 
 Optional: Custom function to load the WP Kernel configuration.
@@ -71,7 +71,7 @@ WPKernelError when discovery, parsing or validation fails.
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 Optional: Custom workspace builder function.
@@ -91,7 +91,7 @@ Optional: Custom workspace builder function.
 #### checkPhpEnvironment()?
 
 ```ts
-readonly optional checkPhpEnvironment: (options) =&gt; Promise&lt;DoctorCheckResult[]&gt;;
+readonly optional checkPhpEnvironment: (options) => Promise&lt;DoctorCheckResult[]&gt;;
 ```
 
 Optional: Custom function to check the PHP environment.
@@ -111,7 +111,7 @@ Optional: Custom function to check the PHP environment.
 #### ensureGeneratedPhpClean()?
 
 ```ts
-readonly optional ensureGeneratedPhpClean: (options) =&gt; Promise&lt;void&gt;;
+readonly optional ensureGeneratedPhpClean: (options) => Promise&lt;void&gt;;
 ```
 
 Optional: Custom function to ensure the generated PHP directory is clean.

@@ -7,7 +7,7 @@
 # Type Alias: AnyFn()
 
 ```ts
-type AnyFn = (...args) =&gt; unknown;
+type AnyFn = (...args) => unknown;
 ```
 
 Generic function type accepting any arguments and returning unknown.

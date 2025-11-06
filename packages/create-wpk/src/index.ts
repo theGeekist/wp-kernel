@@ -49,7 +49,7 @@ function logBootstrapStart(
 	const hasTarget = positional.length > 0;
 	const hasSkipInstall = forwardedFlagNames.includes('skip-install');
 
-	reporter.info('Launching wpk create via bootstrapper.', {
+	reporter.debug('Launching wpk create via bootstrapper.', {
 		positionalCount: positional.length,
 		forwardedFlags: forwardedFlagNames,
 		targetProvided: hasTarget,
@@ -100,22 +100,42 @@ function finalizeBootstrapRun(
 	}
 
 	if (typeof result.exitCode === 'number' && result.exitCode === 0) {
-		context.reporter.info(
+		context.reporter.debug(
 			'wpk create completed successfully via bootstrapper.',
 			baseContext
 		);
+		context.reporter.info('');
 		context.reporter.info(
-			'\n🎉 Your WP Kernel project has been successfully created!\n'
+			'🎉 Your WP Kernel project has been successfully created!'
 		);
-		context.reporter.info('Next steps:');
-		context.reporter.info('  1. `cd ' + positional[0] + '`');
+		context.reporter.info('');
+		if (context.positional.length > 0) {
+			context.reporter.info('Next steps:');
+			context.reporter.info(`  1. cd ${context.positional[0]}`);
+			context.reporter.info(
+				'  2. npm start  (or pnpm start / yarn start)'
+			);
+		} else {
+			context.reporter.info('Next steps:');
+			context.reporter.info(
+				'  1. npm start  (or pnpm start / yarn start)'
+			);
+		}
+		context.reporter.info('');
+		context.reporter.info('Development workflow:');
 		context.reporter.info(
-			'  2. `npm install` (or `pnpm install` / `yarn install`)'
+			'  1. Edit wpk.config.*  # Define resources/actions'
 		);
+		context.reporter.info('  2. wpk generate       # Generate PHP/TS code');
+		context.reporter.info('  3. wpk apply          # Apply changes safely');
+		context.reporter.info('  4. wpk doctor         # Validate everything');
+		context.reporter.info('');
 		context.reporter.info(
-			'  3. `npm start` (or `pnpm start` / `yarn start`)'
+			'📖 Docs: https://theGeekist.github.io/wp-kernel/'
 		);
-		context.reporter.info('\nHappy coding!\n');
+		context.reporter.info('');
+		context.reporter.info('Happy coding! 🚀');
+		context.reporter.info('');
 		return;
 	}
 
@@ -141,6 +161,15 @@ const cliArguments = ['create', ...positional, ...forwarded];
 const forwardedFlagNames = extractForwardedFlagNames(forwarded);
 const reporter = createBootstrapReporter();
 const startedAt = performance.now();
+
+// Log immediately so users know something is happening
+reporter.info('🚀 WP Kernel Project Creator');
+reporter.info('');
+reporter.info('Preparing to create your WordPress plugin...');
+if (positional.length > 0) {
+	reporter.info(`Target directory: ${positional[0]}`);
+}
+reporter.info('');
 
 logBootstrapStart(reporter, positional, forwardedFlagNames);
 

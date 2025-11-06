@@ -7,7 +7,7 @@
 # Type Alias: QueryMapping()\&lt;TQuery\&gt;
 
 ```ts
-type QueryMapping&lt;TQuery&gt; = (state) =&gt; TQuery;
+type QueryMapping&lt;TQuery&gt; = (state) => TQuery;
 ```
 
 Mapping function transforming DataViews state into resource queries.

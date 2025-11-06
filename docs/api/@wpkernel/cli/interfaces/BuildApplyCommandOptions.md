@@ -13,7 +13,7 @@
 #### buildReporter()?
 
 ```ts
-readonly optional buildReporter: (options) =&gt; Reporter;
+readonly optional buildReporter: (options) => Reporter;
 ```
 
 Create a WP Kernel reporter backed by LogLayer transports.
@@ -40,7 +40,7 @@ Reporter instance with child helpers
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () =&gt; Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: () => Promise&lt;LoadedWPKernelConfig&gt;;
 ```
 
 ##### Returns
@@ -52,7 +52,7 @@ readonly optional loadWPKernelConfig: () =&gt; Promise&lt;LoadedWPKernelConfig&g
 #### buildWorkspace()?
 
 ```ts
-readonly optional buildWorkspace: (root) =&gt; Workspace;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 ##### Parameters
@@ -70,7 +70,7 @@ readonly optional buildWorkspace: (root) =&gt; Workspace;
 #### buildBuilderOutput()?
 
 ```ts
-readonly optional buildBuilderOutput: () =&gt; BuilderOutput;
+readonly optional buildBuilderOutput: () => BuilderOutput;
 ```
 
 ##### Returns
@@ -82,7 +82,7 @@ readonly optional buildBuilderOutput: () =&gt; BuilderOutput;
 #### readManifest()?
 
 ```ts
-readonly optional readManifest: (workspace) =&gt; Promise&lt;PatchManifest | null&gt;;
+readonly optional readManifest: (workspace) => Promise&lt;PatchManifest | null&gt;;
 ```
 
 ##### Parameters
@@ -100,7 +100,7 @@ readonly optional readManifest: (workspace) =&gt; Promise&lt;PatchManifest | nul
 #### resolveWorkspaceRoot()?
 
 ```ts
-readonly optional resolveWorkspaceRoot: (loaded) =&gt; string;
+readonly optional resolveWorkspaceRoot: (loaded) => string;
 ```
 
 ##### Parameters
@@ -118,7 +118,7 @@ readonly optional resolveWorkspaceRoot: (loaded) =&gt; string;
 #### promptConfirm()?
 
 ```ts
-readonly optional promptConfirm: (options) =&gt; Promise&lt;boolean&gt;;
+readonly optional promptConfirm: (options) => Promise&lt;boolean&gt;;
 ```
 
 ##### Parameters
@@ -150,7 +150,7 @@ readonly optional promptConfirm: (options) =&gt; Promise&lt;boolean&gt;;
 #### ensureGitRepository()?
 
 ```ts
-readonly optional ensureGitRepository: (workspace) =&gt; Promise&lt;void&gt;;
+readonly optional ensureGitRepository: (workspace) => Promise&lt;void&gt;;
 ```
 
 ##### Parameters
@@ -168,7 +168,7 @@ readonly optional ensureGitRepository: (workspace) =&gt; Promise&lt;void&gt;;
 #### createBackups()?
 
 ```ts
-readonly optional createBackups: (options) =&gt; Promise&lt;void&gt;;
+readonly optional createBackups: (options) => Promise&lt;void&gt;;
 ```
 
 ##### Parameters
@@ -186,7 +186,7 @@ readonly optional createBackups: (options) =&gt; Promise&lt;void&gt;;
 #### appendApplyLog()?
 
 ```ts
-readonly optional appendApplyLog: (workspace, entry) =&gt; Promise&lt;void&gt;;
+readonly optional appendApplyLog: (workspace, entry) => Promise&lt;void&gt;;
 ```
 
 ##### Parameters
@@ -208,7 +208,7 @@ readonly optional appendApplyLog: (workspace, entry) =&gt; Promise&lt;void&gt;;
 #### createPatcher()?
 
 ```ts
-readonly optional createPatcher: () =&gt; BuilderHelper;
+readonly optional createPatcher: () => BuilderHelper;
 ```
 
 Creates a builder helper for applying patches to the workspace.

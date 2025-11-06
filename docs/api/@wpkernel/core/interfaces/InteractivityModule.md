@@ -23,7 +23,7 @@ Ambient interface exposed by `@wordpress/interactivity`.
 ### store()
 
 ```ts
-store: (namespace, definition?) =&gt; InteractivityStoreResult;
+store: (namespace, definition?) => InteractivityStoreResult;
 ```
 
 #### Parameters

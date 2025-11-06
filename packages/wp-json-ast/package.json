@@ -36,11 +36,11 @@
 		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
-		"@wpkernel/php-json-ast": "workspace:*",
-		"@wpkernel/core": "workspace:*"
+		"@wpkernel/core": "workspace:*",
+		"@wpkernel/php-json-ast": "workspace:*"
 	},
 	"dependencies": {
-		"@wpkernel/php-json-ast": "workspace:*",
-		"@wpkernel/core": "workspace:*"
+		"@wpkernel/core": "workspace:*",
+		"@wpkernel/php-json-ast": "workspace:*"
 	}
 }

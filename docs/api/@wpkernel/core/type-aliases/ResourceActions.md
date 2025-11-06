@@ -17,7 +17,7 @@ Actions for a resource store.
 ### receiveItem()
 
 ```ts
-receiveItem: (item) =&gt; void;
+receiveItem: (item) => void;
 ```
 
 Receive a single item.
@@ -37,7 +37,7 @@ The item to store
 ### receiveItems()
 
 ```ts
-receiveItems: (queryKey, items, meta?) =&gt; void;
+receiveItems: (queryKey, items, meta?) => void;
 ```
 
 Receive multiple items from a list query.
@@ -83,7 +83,7 @@ List metadata (total, hasMore, nextCursor)
 ### receiveError()
 
 ```ts
-receiveError: (cacheKey, error) =&gt; void;
+receiveError: (cacheKey, error) => void;
 ```
 
 Store an error for a given cache key.
@@ -109,7 +109,7 @@ Error message
 ### invalidate()
 
 ```ts
-invalidate: (cacheKeys) =&gt; void;
+invalidate: (cacheKeys) => void;
 ```
 
 Clear cached data for specific cache keys.
@@ -129,7 +129,7 @@ Array of cache keys to invalidate
 ### invalidateAll()
 
 ```ts
-invalidateAll: () =&gt; void;
+invalidateAll: () => void;
 ```
 
 Clear all cached data for this resource.
@@ -141,7 +141,7 @@ Clear all cached data for this resource.
 ### setListStatus()
 
 ```ts
-setListStatus: (queryKey, status) =&gt; void;
+setListStatus: (queryKey, status) => void;
 ```
 
 Update the status of a list query.

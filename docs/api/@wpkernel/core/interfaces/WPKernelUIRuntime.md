@@ -59,7 +59,7 @@ optional capabilities: WPKUICapabilityRuntime;
 ### invalidate()?
 
 ```ts
-optional invalidate: (patterns, options?) =&gt; void;
+optional invalidate: (patterns, options?) => void;
 ```
 
 #### Parameters

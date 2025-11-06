@@ -23,7 +23,10 @@ Event utilities for capturing and asserting on kernel events
 ### list()
 
 ```ts
-list: () =&gt; Promise&lt;CapturedEvent&lt;P&gt;[]&gt;;
+list: () => Promise & lt;
+CapturedEvent & lt;
+P & gt;
+[] & gt;
 ```
 
 Get all captured events
@@ -37,7 +40,7 @@ Get all captured events
 ### find()
 
 ```ts
-find: (type) =&gt; Promise&lt;CapturedEvent&lt;P&gt; | undefined&gt;;
+find: (type) => Promise&lt;CapturedEvent&lt;P&gt; | undefined&gt;;
 ```
 
 Find first event matching type
@@ -61,7 +64,10 @@ First matching event or undefined
 ### findAll()
 
 ```ts
-findAll: (type) =&gt; Promise&lt;CapturedEvent&lt;P&gt;[]&gt;;
+findAll: (type) => Promise & lt;
+CapturedEvent & lt;
+P & gt;
+[] & gt;
 ```
 
 Find all events matching type
@@ -85,7 +91,7 @@ Array of matching events
 ### clear()
 
 ```ts
-clear: () =&gt; Promise&lt;void&gt;;
+clear: () => Promise&lt;void&gt;;
 ```
 
 Clear all captured events
@@ -99,7 +105,7 @@ Clear all captured events
 ### stop()
 
 ```ts
-stop: () =&gt; Promise&lt;void&gt;;
+stop: () => Promise&lt;void&gt;;
 ```
 
 Stop recording events

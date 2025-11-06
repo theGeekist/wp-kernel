@@ -27,7 +27,7 @@ readonly optional artifact: TArtifact;
 ### commit()?
 
 ```ts
-readonly optional commit: () =&gt; MaybePromise&lt;void&gt;;
+readonly optional commit: () => MaybePromise&lt;void&gt;;
 ```
 
 #### Returns
@@ -39,7 +39,7 @@ readonly optional commit: () =&gt; MaybePromise&lt;void&gt;;
 ### rollback()?
 
 ```ts
-readonly optional rollback: () =&gt; MaybePromise&lt;void&gt;;
+readonly optional rollback: () => MaybePromise&lt;void&gt;;
 ```
 
 #### Returns

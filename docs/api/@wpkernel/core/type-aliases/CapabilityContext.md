@@ -19,7 +19,7 @@ first parameter and use it to make capability decisions.
 ## Example
 
 ```typescript
-const rule: CapabilityRule&lt;number&gt; = async (ctx, postId) =&gt; {
+const rule: CapabilityRule&lt;number&gt; = async (ctx, postId) => {
   // Log evaluation
   ctx.reporter?.debug('Checking edit capability', { postId });
 

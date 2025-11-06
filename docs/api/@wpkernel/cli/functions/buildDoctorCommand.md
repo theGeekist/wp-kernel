@@ -7,7 +7,7 @@
 # Function: buildDoctorCommand()
 
 ```ts
-function buildDoctorCommand(options): () =&gt; Command;
+function buildDoctorCommand(options): () => Command;
 ```
 
 Builds the `doctor` command for the CLI.
