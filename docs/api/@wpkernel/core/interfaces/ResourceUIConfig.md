@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceUIConfig
 
-# Interface: ResourceUIConfig\&lt;TItem, TQuery\&gt;
+# Interface: ResourceUIConfig\<TItem, TQuery\>
 
 TODO: summary.
 
@@ -33,5 +33,5 @@ TODO: summary.
 ### admin?
 
 ```ts
-optional admin: ResourceAdminUIConfig&lt;TItem, TQuery&gt;;
+optional admin: ResourceAdminUIConfig<TItem, TQuery>;
 ```

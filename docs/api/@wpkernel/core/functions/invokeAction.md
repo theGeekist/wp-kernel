@@ -7,10 +7,10 @@
 # Function: invokeAction()
 
 ```ts
-function invokeAction&lt;TArgs, TResult&gt;(
+function invokeAction<TArgs, TResult>(
    action,
    args,
-meta): ActionEnvelope&lt;TArgs, TResult&gt;;
+meta): ActionEnvelope<TArgs, TResult>;
 ```
 
 Create an action envelope for dispatching a WP Kernel action through Redux.
@@ -44,7 +44,7 @@ Return type from the action
 
 ### action
 
-[`DefinedAction`](../type-aliases/DefinedAction.md)\&lt;`TArgs`, `TResult`\&gt;
+[`DefinedAction`](../type-aliases/DefinedAction.md)\<`TArgs`, `TResult`\>
 
 The defined WP Kernel action to execute
 
@@ -56,13 +56,13 @@ Arguments to pass to the action function
 
 ### meta
 
-`Record`\&lt;`string`, `unknown`\&gt; = `{}`
+`Record`\<`string`, `unknown`\> = `{}`
 
 Optional metadata for middleware coordination
 
 ## Returns
 
-[`ActionEnvelope`](../type-aliases/ActionEnvelope.md)\&lt;`TArgs`, `TResult`\&gt;
+[`ActionEnvelope`](../type-aliases/ActionEnvelope.md)\<`TArgs`, `TResult`\>
 
 Action envelope ready for Redux dispatch
 

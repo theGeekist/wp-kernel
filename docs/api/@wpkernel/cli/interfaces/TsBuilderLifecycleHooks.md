@@ -16,7 +16,7 @@ of the TypeScript artifact generation process.
 ### onBeforeCreate()?
 
 ```ts
-readonly optional onBeforeCreate: (context) => Promise&lt;void&gt;;
+readonly optional onBeforeCreate: (context) => Promise<void>;
 ```
 
 Hook executed before a creator generates an artifact.
@@ -25,18 +25,18 @@ Hook executed before a creator generates an artifact.
 
 ##### context
 
-`Omit`\&lt;[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\&gt;
+`Omit`\<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\>
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### onAfterCreate()?
 
 ```ts
-readonly optional onAfterCreate: (context) => Promise&lt;void&gt;;
+readonly optional onAfterCreate: (context) => Promise<void>;
 ```
 
 Hook executed after a creator generates an artifact.
@@ -45,18 +45,18 @@ Hook executed after a creator generates an artifact.
 
 ##### context
 
-`Omit`\&lt;[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\&gt;
+`Omit`\<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\>
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### onAfterEmit()?
 
 ```ts
-readonly optional onAfterEmit: (options) => Promise&lt;void&gt;;
+readonly optional onAfterEmit: (options) => Promise<void>;
 ```
 
 Hook executed after all TypeScript files have been emitted.
@@ -69,4 +69,4 @@ Hook executed after all TypeScript files have been emitted.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

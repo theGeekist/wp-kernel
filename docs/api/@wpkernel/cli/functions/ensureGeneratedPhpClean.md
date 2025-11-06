@@ -7,7 +7,7 @@
 # Function: ensureGeneratedPhpClean()
 
 ```ts
-function ensureGeneratedPhpClean(options): Promise&lt;void&gt;;
+function ensureGeneratedPhpClean(options): Promise<void>;
 ```
 
 Ensures that the generated PHP directory is clean (i.e., no uncommitted changes).
@@ -25,7 +25,7 @@ Options for the cleanliness check.
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ## Throws
 

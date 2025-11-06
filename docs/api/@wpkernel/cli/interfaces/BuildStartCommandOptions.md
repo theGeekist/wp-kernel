@@ -75,14 +75,14 @@ The `CommandConstructor` class for the generate command.
 #### loadWatch()?
 
 ```ts
-readonly optional loadWatch: () => Promise&lt;(paths, options?) => FSWatcher&gt;;
+readonly optional loadWatch: () => Promise<(paths, options?) => FSWatcher>;
 ```
 
 Optional: Custom function to load the `chokidar.watch` function.
 
 ##### Returns
 
-`Promise`\&lt;(`paths`, `options?`) => `FSWatcher`\&gt;
+`Promise`\<(`paths`, `options?`) => `FSWatcher`\>
 
 ---
 
@@ -113,7 +113,7 @@ Optional: Custom function to adopt the command environment.
 #### fileSystem?
 
 ```ts
-readonly optional fileSystem: Partial&lt;FileSystem&gt;;
+readonly optional fileSystem: Partial<FileSystem>;
 ```
 
 Optional: Partial file system utility functions for testing.

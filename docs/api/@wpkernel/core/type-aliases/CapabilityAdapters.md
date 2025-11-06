@@ -87,14 +87,14 @@ boolean & gt;
 
 ##### Returns
 
-`boolean` \| `Promise`\&lt;`boolean`\&gt;
+`boolean` \| `Promise`\<`boolean`\>
 
 ---
 
 ### restProbe()?
 
 ```ts
-optional restProbe: (key) => Promise&lt;boolean&gt;;
+optional restProbe: (key) => Promise<boolean>;
 ```
 
 #### Parameters
@@ -105,4 +105,4 @@ optional restProbe: (key) => Promise&lt;boolean&gt;;
 
 #### Returns
 
-`Promise`\&lt;`boolean`\&gt;
+`Promise`\<`boolean`\>

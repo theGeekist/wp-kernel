@@ -7,7 +7,7 @@
 # Function: createDataFormController()
 
 ```ts
-function createDataFormController&lt;TInput, TResult, TQuery&gt;(options): () => UseDataFormController&lt;TResult&gt;;
+function createDataFormController<TInput, TResult, TQuery>(options): () => UseDataFormController<TResult>;
 ```
 
 Creates a React hook for managing data form submissions.
@@ -41,7 +41,7 @@ The type of the query parameters for the associated resource (if any).
 
 ### options
 
-[`CreateDataFormControllerOptions`](../interfaces/CreateDataFormControllerOptions.md)\&lt;`TInput`, `TResult`, `TQuery`\&gt;
+[`CreateDataFormControllerOptions`](../interfaces/CreateDataFormControllerOptions.md)\<`TInput`, `TResult`, `TQuery`\>
 
 Configuration options for the data form controller.
 
@@ -50,9 +50,9 @@ Configuration options for the data form controller.
 A function that returns a `UseDataFormController` hook.
 
 ```ts
-(): UseDataFormController&lt;TResult&gt;;
+(): UseDataFormController<TResult>;
 ```
 
 ### Returns
 
-[`UseDataFormController`](../interfaces/UseDataFormController.md)\&lt;`TResult`\&gt;
+[`UseDataFormController`](../interfaces/UseDataFormController.md)\<`TResult`\>

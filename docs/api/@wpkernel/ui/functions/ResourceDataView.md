@@ -7,7 +7,7 @@
 # Function: ResourceDataView()
 
 ```ts
-function ResourceDataView&lt;TItem, TQuery&gt;(props): Element;
+function ResourceDataView<TItem, TQuery>(props): Element;
 ```
 
 A React component that renders a DataViews interface for a given resource.
@@ -34,7 +34,7 @@ The type of the query parameters for the resource.
 
 ### props
 
-[`ResourceDataViewProps`](../interfaces/ResourceDataViewProps.md)\&lt;`TItem`, `TQuery`\&gt;
+[`ResourceDataViewProps`](../interfaces/ResourceDataViewProps.md)\<`TItem`, `TQuery`\>
 
 The props for the component.
 

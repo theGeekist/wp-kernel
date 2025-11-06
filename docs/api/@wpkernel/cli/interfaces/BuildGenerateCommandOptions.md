@@ -110,7 +110,7 @@ The pipeline instance to register builders with.
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () => Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
 Locate and load the project's kernel configuration.
@@ -122,7 +122,7 @@ correctly.
 
 ##### Returns
 
-`Promise`\&lt;[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\&gt;
+`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
 
 The validated kernel config and associated metadata.
 
@@ -191,7 +191,7 @@ readonly optional renderSummary: (summary, dryRun, verbose) => string;
 #### validateGeneratedImports()?
 
 ```ts
-readonly optional validateGeneratedImports: (__namedParameters) => Promise&lt;void&gt;;
+readonly optional validateGeneratedImports: (__namedParameters) => Promise<void>;
 ```
 
 ##### Parameters
@@ -202,4 +202,4 @@ readonly optional validateGeneratedImports: (__namedParameters) => Promise&lt;vo
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

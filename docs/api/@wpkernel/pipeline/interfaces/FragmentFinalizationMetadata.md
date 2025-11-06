@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / FragmentFinalizationMetadata
 
-# Interface: FragmentFinalizationMetadata\&lt;TFragmentKind\&gt;
+# Interface: FragmentFinalizationMetadata\<TFragmentKind\>
 
 Metadata from fragment helper execution.
 
@@ -23,5 +23,5 @@ Metadata from fragment helper execution.
 ### fragments
 
 ```ts
-readonly fragments: HelperExecutionSnapshot&lt;TFragmentKind&gt;;
+readonly fragments: HelperExecutionSnapshot<TFragmentKind>;
 ```

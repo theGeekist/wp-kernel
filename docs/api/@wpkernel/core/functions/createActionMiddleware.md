@@ -7,7 +7,7 @@
 # Function: createActionMiddleware()
 
 ```ts
-function createActionMiddleware&lt;TState&gt;(): ReduxMiddleware&lt;TState&gt;;
+function createActionMiddleware<TState>(): ReduxMiddleware<TState>;
 ```
 
 Create a Redux-compatible middleware that intercepts and executes WP Kernel actions.
@@ -33,7 +33,7 @@ Redux store state type
 
 ## Returns
 
-[`ReduxMiddleware`](../type-aliases/ReduxMiddleware.md)\&lt;`TState`\&gt;
+[`ReduxMiddleware`](../type-aliases/ReduxMiddleware.md)\<`TState`\>
 
 Redux middleware function
 

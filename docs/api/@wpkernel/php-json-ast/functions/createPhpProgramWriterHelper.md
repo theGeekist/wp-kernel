@@ -7,7 +7,7 @@
 # Function: createPhpProgramWriterHelper()
 
 ```ts
-function createPhpProgramWriterHelper&lt;TContext, TInput, TOutput&gt;(options): BuilderHelper&lt;TContext, TInput, TOutput&gt;;
+function createPhpProgramWriterHelper<TContext, TInput, TOutput>(options): BuilderHelper<TContext, TInput, TOutput>;
 ```
 
 ## Type Parameters
@@ -32,4 +32,4 @@ function createPhpProgramWriterHelper&lt;TContext, TInput, TOutput&gt;(options):
 
 ## Returns
 
-[`BuilderHelper`](../type-aliases/BuilderHelper.md)\&lt;`TContext`, `TInput`, `TOutput`\&gt;
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)\<`TContext`, `TInput`, `TOutput`\>

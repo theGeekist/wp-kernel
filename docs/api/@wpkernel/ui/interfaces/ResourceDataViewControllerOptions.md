@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewControllerOptions
 
-# Interface: ResourceDataViewControllerOptions\&lt;TItem, TQuery\&gt;
+# Interface: ResourceDataViewControllerOptions\<TItem, TQuery\>
 
 Options for creating a `ResourceDataViewController`.
 
@@ -54,7 +54,7 @@ The namespace of the project.
 ### resource?
 
 ```ts
-optional resource: ResourceObject&lt;TItem, TQuery&gt;;
+optional resource: ResourceObject<TItem, TQuery>;
 ```
 
 The resource object.
@@ -74,7 +74,7 @@ The name of the resource.
 ### queryMapping?
 
 ```ts
-optional queryMapping: QueryMapping&lt;TQuery&gt;;
+optional queryMapping: QueryMapping<TQuery>;
 ```
 
 A function to map the view state to a query.
@@ -124,7 +124,7 @@ The key for storing preferences.
 ### fetchList()?
 
 ```ts
-optional fetchList: (query) => Promise&lt;ListResponse&lt;TItem&gt;&gt;;
+optional fetchList: (query) => Promise<ListResponse<TItem>>;
 ```
 
 A function to fetch a list of items.
@@ -137,14 +137,14 @@ A function to fetch a list of items.
 
 #### Returns
 
-`Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
+`Promise`\<`ListResponse`\<`TItem`\>\>
 
 ---
 
 ### prefetchList()?
 
 ```ts
-optional prefetchList: (query) => Promise&lt;void&gt;;
+optional prefetchList: (query) => Promise<void>;
 ```
 
 A function to prefetch a list of items.
@@ -157,4 +157,4 @@ A function to prefetch a list of items.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

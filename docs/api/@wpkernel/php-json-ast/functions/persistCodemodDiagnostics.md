@@ -11,7 +11,7 @@ function persistCodemodDiagnostics(
    context,
    output,
    filePath,
-codemod): Promise&lt;void&gt;;
+codemod): Promise<void>;
 ```
 
 ## Parameters
@@ -34,4 +34,4 @@ codemod): Promise&lt;void&gt;;
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

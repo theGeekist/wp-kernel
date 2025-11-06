@@ -4,10 +4,10 @@
 
 [@wpkernel/e2e-utils](../README.md) / EventRecorder
 
-# Type Alias: EventRecorder\&lt;P\&gt;
+# Type Alias: EventRecorder\<P\>
 
 ```ts
-type EventRecorder&lt;P&gt; = object;
+type EventRecorder<P> = object;
 ```
 
 Event utilities for capturing and asserting on kernel events
@@ -33,14 +33,14 @@ Get all captured events
 
 #### Returns
 
-`Promise`\&lt;[`CapturedEvent`](CapturedEvent.md)\&lt;`P`\&gt;[]\&gt;
+`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\>[]\>
 
 ---
 
 ### find()
 
 ```ts
-find: (type) => Promise&lt;CapturedEvent&lt;P&gt; | undefined&gt;;
+find: (type) => Promise<CapturedEvent<P> | undefined>;
 ```
 
 Find first event matching type
@@ -55,7 +55,7 @@ Event type to search for
 
 #### Returns
 
-`Promise`\&lt;[`CapturedEvent`](CapturedEvent.md)\&lt;`P`\&gt; \| `undefined`\&gt;
+`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\> \| `undefined`\>
 
 First matching event or undefined
 
@@ -82,7 +82,7 @@ Event type to search for
 
 #### Returns
 
-`Promise`\&lt;[`CapturedEvent`](CapturedEvent.md)\&lt;`P`\&gt;[]\&gt;
+`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\>[]\>
 
 Array of matching events
 
@@ -91,25 +91,25 @@ Array of matching events
 ### clear()
 
 ```ts
-clear: () => Promise&lt;void&gt;;
+clear: () => Promise<void>;
 ```
 
 Clear all captured events
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### stop()
 
 ```ts
-stop: () => Promise&lt;void&gt;;
+stop: () => Promise<void>;
 ```
 
 Stop recording events
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

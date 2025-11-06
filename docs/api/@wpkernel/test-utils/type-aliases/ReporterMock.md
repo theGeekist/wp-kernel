@@ -17,25 +17,25 @@ A mock implementation of the Reporter interface for testing purposes.
 ### info
 
 ```ts
-info: jest.Mock&lt;void, [string, unknown?]&gt;;
+info: jest.Mock<void, [string, unknown?]>;
 ```
 
 ### debug
 
 ```ts
-debug: jest.Mock&lt;void, [string, unknown?]&gt;;
+debug: jest.Mock<void, [string, unknown?]>;
 ```
 
 ### warn
 
 ```ts
-warn: jest.Mock&lt;void, [string, unknown?]&gt;;
+warn: jest.Mock<void, [string, unknown?]>;
 ```
 
 ### error
 
 ```ts
-error: jest.Mock&lt;void, [string, unknown?]&gt;;
+error: jest.Mock<void, [string, unknown?]>;
 ```
 
 ### child

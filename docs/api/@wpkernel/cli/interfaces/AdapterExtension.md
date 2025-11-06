@@ -21,7 +21,7 @@ name: string;
 ### apply()
 
 ```ts
-apply: (context) => void | Promise&lt;void&gt;;
+apply: (context) => void | Promise<void>;
 ```
 
 #### Parameters
@@ -32,4 +32,4 @@ apply: (context) => void | Promise&lt;void&gt;;
 
 #### Returns
 
-`void` \| `Promise`\&lt;`void`\&gt;
+`void` \| `Promise`\<`void`\>

@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ListResponse
 
-# Type Alias: ListResponse\&lt;T\&gt;
+# Type Alias: ListResponse\<T\>
 
 ```ts
-type ListResponse&lt;T&gt; = object;
+type ListResponse<T> = object;
 ```
 
 List response with pagination metadata

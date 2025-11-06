@@ -7,7 +7,7 @@
 # Function: ensureCleanDirectory()
 
 ```ts
-function ensureCleanDirectory(options): Promise&lt;void&gt;;
+function ensureCleanDirectory(options): Promise<void>;
 ```
 
 Ensures that a given directory is clean (empty) or creates it if it doesn't exist.
@@ -25,7 +25,7 @@ Options for ensuring the directory is clean.
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ## Throws
 

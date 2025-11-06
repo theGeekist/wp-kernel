@@ -6,7 +6,7 @@
 
 # Interface: PhpExprNullsafeMethodCall
 
-Represents a PHP nullsafe method call expression (e.g., `$object?-&gt;method()`).
+Represents a PHP nullsafe method call expression (e.g., `$object?->method()`).
 
 ## Extends
 

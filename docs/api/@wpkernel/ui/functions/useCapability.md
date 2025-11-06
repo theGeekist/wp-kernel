@@ -7,7 +7,7 @@
 # Function: useCapability()
 
 ```ts
-function useCapability&lt;K&gt;(): UseCapabilityResult&lt;K&gt;;
+function useCapability<K>(): UseCapabilityResult<K>;
 ```
 
 React hook that exposes the kernel capability runtime to UI components.
@@ -22,8 +22,8 @@ developer error so plugin authors remember to bootstrap via `defineCapability()`
 
 ### K
 
-`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`K` _extends_ `Record`\<`string`, `unknown`\>
 
 ## Returns
 
-`UseCapabilityResult`\&lt;`K`\&gt;
+`UseCapabilityResult`\<`K`\>

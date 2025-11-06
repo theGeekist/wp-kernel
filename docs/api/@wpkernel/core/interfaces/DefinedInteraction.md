@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / DefinedInteraction
 
-# Interface: DefinedInteraction\&lt;TStoreResult\&gt;
+# Interface: DefinedInteraction\<TStoreResult\>
 
 Result returned by `defineInteraction`.
 

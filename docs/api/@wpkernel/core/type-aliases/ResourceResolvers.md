@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ResourceResolvers
 
-# Type Alias: ResourceResolvers\&lt;\_T, TQuery\&gt;
+# Type Alias: ResourceResolvers\<\_T, TQuery\>
 
 ```ts
-type ResourceResolvers&lt;_T, TQuery&gt; = object & Record&lt;string, AnyFn&gt;;
+type ResourceResolvers<_T, TQuery> = object & Record<string, AnyFn>;
 ```
 
 Resolvers for a resource store.
@@ -17,7 +17,7 @@ Resolvers for a resource store.
 ### getItem()
 
 ```ts
-getItem: (id) => Generator&lt;unknown, void, unknown&gt;;
+getItem: (id) => Generator<unknown, void, unknown>;
 ```
 
 Resolver for getItem selector.
@@ -33,12 +33,12 @@ Item ID
 
 #### Returns
 
-`Generator`\&lt;`unknown`, `void`, `unknown`\&gt;
+`Generator`\<`unknown`, `void`, `unknown`\>
 
 ### getItems()
 
 ```ts
-getItems: (query?) => Generator&lt;unknown, void, unknown&gt;;
+getItems: (query?) => Generator<unknown, void, unknown>;
 ```
 
 Resolver for getItems selector.
@@ -54,12 +54,12 @@ Query parameters
 
 #### Returns
 
-`Generator`\&lt;`unknown`, `void`, `unknown`\&gt;
+`Generator`\<`unknown`, `void`, `unknown`\>
 
 ### getList()
 
 ```ts
-getList: (query?) => Generator&lt;unknown, void, unknown&gt;;
+getList: (query?) => Generator<unknown, void, unknown>;
 ```
 
 Resolver for getList selector.
@@ -75,7 +75,7 @@ Query parameters
 
 #### Returns
 
-`Generator`\&lt;`unknown`, `void`, `unknown`\&gt;
+`Generator`\<`unknown`, `void`, `unknown`\>
 
 ## Type Parameters
 

@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewController
 
-# Interface: ResourceDataViewController\&lt;TItem, TQuery\&gt;
+# Interface: ResourceDataViewController\<TItem, TQuery\>
 
 Controller for a ResourceDataView.
 
@@ -33,7 +33,7 @@ The name of the resource.
 ### config
 
 ```ts
-readonly config: ResourceDataViewConfig&lt;TItem, TQuery&gt;;
+readonly config: ResourceDataViewConfig<TItem, TQuery>;
 ```
 
 The configuration for the DataView.
@@ -43,7 +43,7 @@ The configuration for the DataView.
 ### queryMapping
 
 ```ts
-readonly queryMapping: QueryMapping&lt;TQuery&gt;;
+readonly queryMapping: QueryMapping<TQuery>;
 ```
 
 A function to map the view state to a query.
@@ -163,7 +163,7 @@ optional search: string;
 ##### filters?
 
 ```ts
-optional filters: Record&lt;string, unknown&gt;;
+optional filters: Record<string, unknown>;
 ```
 
 ---
@@ -179,14 +179,14 @@ Loads the stored view from preferences.
 
 #### Returns
 
-`Promise`\&lt;`View` \| `undefined`\&gt;
+`Promise`\<`View` \| `undefined`\>
 
 ---
 
 ### saveView()
 
 ```ts
-saveView: (view) => Promise&lt;void&gt;;
+saveView: (view) => Promise<void>;
 ```
 
 Saves the view to preferences.
@@ -199,7 +199,7 @@ Saves the view to preferences.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
@@ -293,7 +293,7 @@ Emits an action event.
 
 ###### meta?
 
-`Record`\&lt;`string`, `unknown`\&gt;
+`Record`\<`string`, `unknown`\>
 
 #### Returns
 
@@ -318,7 +318,7 @@ Gets the reporter for the controller.
 ### resource?
 
 ```ts
-readonly optional resource: ResourceObject&lt;TItem, TQuery&gt;;
+readonly optional resource: ResourceObject<TItem, TQuery>;
 ```
 
 The resource object.
@@ -358,7 +358,7 @@ The capability runtime.
 ### fetchList()?
 
 ```ts
-readonly optional fetchList: (query) => Promise&lt;ListResponse&lt;TItem&gt;&gt;;
+readonly optional fetchList: (query) => Promise<ListResponse<TItem>>;
 ```
 
 A function to fetch a list of items.
@@ -371,14 +371,14 @@ A function to fetch a list of items.
 
 #### Returns
 
-`Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
+`Promise`\<`ListResponse`\<`TItem`\>\>
 
 ---
 
 ### prefetchList()?
 
 ```ts
-readonly optional prefetchList: (query) => Promise&lt;void&gt;;
+readonly optional prefetchList: (query) => Promise<void>;
 ```
 
 A function to prefetch a list of items.
@@ -391,4 +391,4 @@ A function to prefetch a list of items.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

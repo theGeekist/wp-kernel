@@ -7,7 +7,7 @@
 # Function: getPhpAstChannel()
 
 ```ts
-function getPhpAstChannel&lt;TContext&gt;(context): PhpAstChannel;
+function getPhpAstChannel<TContext>(context): PhpAstChannel;
 ```
 
 ## Type Parameters

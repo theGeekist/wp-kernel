@@ -4,7 +4,7 @@
 
 [@wpkernel/php-json-ast](../README.md) / PhpPrintable
 
-# Interface: PhpPrintable\&lt;TNode\&gt;
+# Interface: PhpPrintable\<TNode\>
 
 ## Type Parameters
 

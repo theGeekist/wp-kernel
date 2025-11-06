@@ -4,10 +4,10 @@
 
 [@wpkernel/e2e-utils](../README.md) / ResourceConfig
 
-# Type Alias: ResourceConfig\&lt;T, TQuery, \_TTypes\&gt;
+# Type Alias: ResourceConfig\<T, TQuery, \_TTypes\>
 
 ```ts
-type ResourceConfig&lt;T, TQuery, _TTypes&gt; = object;
+type ResourceConfig<T, TQuery, _TTypes> = object;
 ```
 
 TODO: summary.
@@ -85,7 +85,7 @@ The runtime ignores this field; CLI tooling can emit registration scaffolding.
 ### store?
 
 ```ts
-optional store: ResourceStoreOptions&lt;T, TQuery&gt;;
+optional store: ResourceStoreOptions<T, TQuery>;
 ```
 
 Optional overrides for store configuration.
@@ -97,7 +97,7 @@ Provided for forward compatibility with CLI-generated descriptors.
 ### cacheKeys?
 
 ```ts
-optional cacheKeys: CacheKeys&lt;TQuery&gt;;
+optional cacheKeys: CacheKeys<TQuery>;
 ```
 
 Cache key generators
@@ -130,7 +130,7 @@ name: 'my-plugin:job'; // Shorthand namespace:name format
 ### schema?
 
 ```ts
-optional schema: Promise&lt;unknown&gt; | unknown | string;
+optional schema: Promise<unknown> | unknown | string;
 ```
 
 JSON Schema for runtime validation
@@ -171,7 +171,7 @@ reporter instead of creating a child reporter from the WP Kernel instance.
 ### ui?
 
 ```ts
-optional ui: ResourceUIConfig&lt;T, TQuery&gt;;
+optional ui: ResourceUIConfig<T, TQuery>;
 ```
 
 Optional UI metadata surfaced to runtime integrations (e.g., DataViews).

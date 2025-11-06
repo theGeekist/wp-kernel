@@ -7,7 +7,7 @@
 # Function: defineCapability()
 
 ```ts
-function defineCapability&lt;K&gt;(config): CapabilityHelpers&lt;K&gt;;
+function defineCapability<K>(config): CapabilityHelpers<K>;
 ```
 
 Define a capability runtime with declarative capability rules.
@@ -37,11 +37,11 @@ Every capability runtime provides:
 import { defineCapability } from '@wpkernel/core/capability';
 
 // Define capability rules
-const capability = defineCapability&lt;{
+const capability = defineCapability<{
   'posts.view': void;           // No params needed
   'posts.edit': number;         // Requires post ID
   'posts.delete': number;       // Requires post ID
-}&gt;({
+}>({
   'posts.view': (ctx) => {
     // Sync rule: immediate boolean
     return ctx.adapters.wp?.canUser('read', { kind: 'postType', name: 'post' }) ?? false;
@@ -74,15 +74,15 @@ export const DeletePost = defineAction('Post.Delete', async (ctx, { id }) => {
 
 // Use in UI (conditional rendering)
 function PostActions({ postId }: { postId: number }) {
-  const capability = useCapability&lt;typeof capability&gt;();
+  const capability = useCapability<typeof capability>();
   const canEdit = capability.can('posts.edit', postId);
   const canDelete = capability.can('posts.delete', postId);
 
   return (
-    &lt;div&gt;
-      &lt;Button disabled={!canEdit}&gt;Edit&lt;/Button&gt;
-      &lt;Button disabled={!canDelete}&gt;Delete&lt;/Button&gt;
-    &lt;/div&gt;
+    <div>
+      <Button disabled={!canEdit}>Edit</Button>
+      <Button disabled={!canDelete}>Delete</Button>
+    </div>
   );
 }
 ```
@@ -225,7 +225,7 @@ type MyCapabilities = {
   'posts.assign': { userId: number; postId: number }; // Requires object
 };
 
-const capability = defineCapability&lt;MyCapabilities&gt;({ ... });
+const capability = defineCapability<MyCapabilities>({ ... });
 
 capability.can('posts.view');           // ✓ OK
 capability.can('posts.edit', 123);      // ✓ OK
@@ -235,7 +235,7 @@ capability.can('posts.unknown');        // ✗ Type error: unknown key
 
 ## Async vs Sync Rules
 
-Rules can be **synchronous** (return `boolean`) or **asynchronous** (return `Promise&lt;boolean&gt;`).
+Rules can be **synchronous** (return `boolean`) or **asynchronous** (return `Promise<boolean>`).
 Async rules are automatically detected and cached to avoid redundant API calls:
 
 ```typescript
@@ -257,7 +257,7 @@ In React components, async rules return `false` during evaluation and update whe
 
 ### K
 
-`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`K` _extends_ `Record`\<`string`, `unknown`\>
 
 Capability map type defining capability keys and their parameter types
 
@@ -265,13 +265,13 @@ Capability map type defining capability keys and their parameter types
 
 ### config
 
-[`CapabilityDefinitionConfig`](../type-aliases/CapabilityDefinitionConfig.md)\&lt;`K`\&gt;
+[`CapabilityDefinitionConfig`](../type-aliases/CapabilityDefinitionConfig.md)\<`K`\>
 
 Configuration object mapping capability keys to rule functions and runtime options
 
 ## Returns
 
-[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)\&lt;`K`\&gt;
+[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)\<`K`\>
 
 Capability helpers object with can(), assert(), keys(), extend(), and cache API
 

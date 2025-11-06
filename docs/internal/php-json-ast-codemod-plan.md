@@ -42,104 +42,117 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 ### Completed phases
 
 #### Phase 0 - Baseline verification
+
 > **Status:** Complete
 
 - [x] Document the TypeScript ↔ PHP schema mapping by cross-referencing `PhpParser\Node` classes with our `src/nodes/**` definitions. See [PHP Parser Schema Parity](./schema-parity.md).
 - [x] Add automated checks (script or test harness) that diff upstream `Node::getSubNodeNames()` against our TypeScript interfaces to catch drift early. Covered by `nodeSchemaParity.test.ts` and the PHP reflection helper.
 - [x] Extend developer docs with a quick-start on running the composer-backed driver locally (preparing the ground for codemod experimentation). Refer to [PHP Driver Quick-start](./driver-quickstart.md).
 
-
 #### Phase 1 - Ingestion scaffolding
+
 > **Status:** Complete
 
 ##### Task 1 - Establish the parser ingestion bridge
+
 > **Task status:** Complete - Delivered by [`php/ingest-program.php`](../php/ingest-program.php) with fixtures covered in [`php/tests/ProgramIngestionTest.php`](../php/tests/ProgramIngestionTest.php).
 
 - [x] Expose a PHP entry point that accepts file paths, routes them through `ParserFactory`, and streams each decoded node as JSON that already matches our `PhpProgram` surface.
 - [x] Keep the script co-located with the existing driver helpers so the CLI can reuse bootstrap logic (autoloading, binary overrides, temporary output paths) without branching.
 - [x] Guard the utility with PHPUnit coverage that snapshots namespace, modifier, and attribute metadata to prove the JSON payload preserves upstream attributes.
-  _Expectation: The PHP driver can emit schema-faithful JSON for arbitrary files without breaking the current pretty-print path._
+      _Expectation: The PHP driver can emit schema-faithful JSON for arbitrary files without breaking the current pretty-print path._
 
 ##### Task 2 - Land the TypeScript ingestion helper
+
 > **Task status:** Complete - The helper and its end-to-end coverage are green.
 
 - [x] Add a consumer under `src/driver/**` that accepts the streamed JSON, hydrates `PhpProgram` builders, and forwards them to `createPhpProgramWriterHelper` with zero manual mapping.
 - [x] Provide Jest coverage that feeds representative payloads through the helper and asserts the writer flushes identical `.php` and `.ast.json` artefacts.
 - [x] Document the helper usage in the driver quick-start so contributors can round-trip fixtures locally.
-  _Expectation: TypeScript callers can translate the raw PHP stream into queued `PhpProgram` entries in a single helper call._
-  **Status:** ✓ Implemented in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts), which streams JSON-line payloads into queued `PhpProgram` entries while preserving the writer metadata contract. [`programIngestion.integration.test.ts`](../src/__tests__/driver/programIngestion.integration.test.ts) now runs in full, with the PHP bridge falling back to the packaged Composer autoloader when the workspace lacks dependencies, and the workflow is documented in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript).
+      _Expectation: TypeScript callers can translate the raw PHP stream into queued `PhpProgram` entries in a single helper call._
+      **Status:** ✓ Implemented in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts), which streams JSON-line payloads into queued `PhpProgram` entries while preserving the writer metadata contract. [`programIngestion.integration.test.ts`](../src/__tests__/driver/programIngestion.integration.test.ts) now runs in full, with the PHP bridge falling back to the packaged Composer autoloader when the workspace lacks dependencies, and the workflow is documented in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript).
 
 ##### Task 3 - Capture ingestion fixtures and snapshots
+
 > **Task status:** Complete - Shared fixtures anchor cross-runtime snapshots and round-trip validation.
 
 - [x] Introduce fixtures covering namespaces, class modifiers, doc comments, and attributes inside `fixtures/ingestion/**`.
 - [x] Snapshot the fixture round-trip in both PHPUnit and Jest to confirm attribute fidelity across the PHP ↔ TypeScript boundary.
 - [x] Record the validation procedure in this plan once green so future phases inherit the ingestion contract.
-  _Expectation: Shared fixtures guarantee the ingestion bridge reproduces upstream metadata end-to-end._
-  **Status:** ✓ Canonical fixtures now live under [`fixtures/ingestion/`](../fixtures/ingestion) with shared AST snapshots. `ProgramIngestionTest` decodes the PHP driver output and compares it to [`CodifiedController.ast.json`](../fixtures/ingestion/CodifiedController.ast.json), while [`programIngestion.integration.test.ts`](../src/__tests__/driver/programIngestion.integration.test.ts) hydrates the same fixture in its sandbox and verifies that the streamed payload, writer-emitted `.php`, and `.ast.json` artefacts exactly match the stored snapshots.
+      _Expectation: Shared fixtures guarantee the ingestion bridge reproduces upstream metadata end-to-end._
+      **Status:** ✓ Canonical fixtures now live under [`fixtures/ingestion/`](../fixtures/ingestion) with shared AST snapshots. `ProgramIngestionTest` decodes the PHP driver output and compares it to [`CodifiedController.ast.json`](../fixtures/ingestion/CodifiedController.ast.json), while [`programIngestion.integration.test.ts`](../src/__tests__/driver/programIngestion.integration.test.ts) hydrates the same fixture in its sandbox and verifies that the streamed payload, writer-emitted `.php`, and `.ast.json` artefacts exactly match the stored snapshots.
 
 #### Phase 2 - Codemod execution framework
+
 > **Status:** Complete
 
 ##### Task 4 - Register codemod stacks through the driver
+
 > **Task status:** Complete - Codemod stacks now flow from TypeScript helpers into the PHP ingestion driver with validation and tests.
 
 - [x] The new [`driver/codemods.ts`](../src/driver/codemods.ts) module defines the `PhpCodemodConfiguration` contract, a default stack key, and helpers to serialise configuration payloads for the PHP bridge. The helper suite is covered in [`driver/codemods.test.ts`](../src/__tests__/driver/codemods.test.ts).
 - [x] [`php/ingest-program.php`](../php/ingest-program.php) now accepts an optional `--config <path>` argument. When provided, it resolves and validates the declared stacks, instantiates supported visitors (starting with the upstream `NameResolver`), and runs them through a single `NodeTraverser` pass before emitting AST payloads.
 - [x] [`ProgramIngestionTest`](../php/tests/ProgramIngestionTest.php) now exercises the codemod path: it asserts that `NameResolver` annotations appear in the streamed AST and that the driver fails fast on unknown visitor keys or invalid option types.
-  _Expectation: A single driver invocation can execute a caller-specified visitor stack without manual script edits._
+      _Expectation: A single driver invocation can execute a caller-specified visitor stack without manual script edits._
 
 ##### Task 5 - Ship a baseline codemod pack
+
 > **Task status:** Complete - Baseline visitors for name canonicalisation and `use` grouping now ship with fixtures and end-to-end coverage.
 
 - [x] `php/Codemods/BaselineNameCanonicaliserVisitor.php` wraps PhpParser's `NameResolver` with sane defaults, while `SortUseStatementsVisitor.php` reorders class, function, and constant imports (including grouped declarations) deterministically.
 - [x] The new [`createBaselineCodemodConfiguration`](../src/codemods/baselinePack.ts) helper emits stack definitions targeting the baseline visitors, and `ProgramIngestionTest` plus the ingestion integration suite assert both AST and pretty-printed output against [`fixtures/codemods/BaselinePack.*`](../fixtures/codemods).
 - [x] TypeScript callers can serialise the configuration with [`serialisePhpCodemodConfiguration`](../src/driver/codemods.ts) to drive the PHP bridge; baseline coverage exercises success and failure paths for option validation.
-  _Expectation: Contributors can opt into vetted visitor bundles and observe consistent transformations across runs._
+      _Expectation: Contributors can opt into vetted visitor bundles and observe consistent transformations across runs._
 
 ##### Task 6 - Snapshot codemod outcomes for observability
+
 > **Task status:** Complete - Codemod executions now emit before/after snapshots with reviewer-facing summaries.
 
 - [x] The PHP ingestion bridge records codemod diagnostics (pre/post programs plus visitor stack metadata) whenever the driver applies a stack from `serialisePhpCodemodConfiguration`.
 - [x] `createPhpProgramWriterHelper` persists `.codemod.before.ast.json`, `.codemod.after.ast.json`, and `.codemod.summary.txt` alongside the standard `.ast.json` file. The summary includes visitor identifiers, SHA hashes for each AST, and the first twenty structural differences so reviewers can triage changes without re-running the driver.
 - [x] `programWriter.test.ts` and the ingestion integration suite assert that the new artefacts are written, queued for CLI consumers, and match the streamed diagnostics end-to-end.
 - [x] Snapshotting is automatic-any CLI build that threads a codemod configuration through the writer will emit the diagnostics bundle. During review, diff the summary (and, if needed, the before/after AST files) to understand what changed.
-  _Expectation: Every codemod execution leaves auditable artefacts that reviewers can diff without rerunning the pipeline._
-
+      _Expectation: Every codemod execution leaves auditable artefacts that reviewers can diff without rerunning the pipeline._
 
 #### Phase 3 - Advanced utilities & debugging
+
 > **Status:** Complete
 
 ##### Task 7 - Expose `NodeFinder` query endpoints
+
 > **Task status:** Complete - Baseline queries now execute through PHP and surface structured results to TypeScript helpers.
 
 - [x] `php/query-nodefinder.php` implements the read-only query command, wiring `PhpParser\NodeFinder` to the initial catalog (`class.readonly-properties`, `constructor.promoted-parameters`, `enum.case-lookups`) and emitting labelled JSON payloads per file.
 - [x] The TypeScript helper in [`queries/nodeFinder.ts`](../src/queries/nodeFinder.ts) defines the configuration/result schema, offers serialization utilities, and exposes the curated query keys to downstream tooling.
 - [x] End-to-end coverage in [`queries/nodeFinder.integration.test.ts`](../src/__tests__/queries/nodeFinder.integration.test.ts) boots the PHP script against [`fixtures/queries/NodeFinderTargets.php`](../fixtures/queries/NodeFinderTargets.php) to assert deterministic match counts and summaries for each baseline query.
-  _Expectation: Teams can inventory AST hotspots programmatically before they schedule transformations._
+      _Expectation: Teams can inventory AST hotspots programmatically before they schedule transformations._
 
 ##### Task 8 - Layer diagnostics and dumps
+
 > **Task status:** Complete - Diagnostics mode now persists NodeDumper dumps with cross-runtime toggles and regression coverage.
 
 - [x] `persistCodemodDiagnostics` writes `.codemod.before.dump.txt` and `.codemod.after.dump.txt` alongside the existing JSON snapshots, normalising trailing newlines so automation can diff the results consistently.
 - [x] `php/ingest-program.php` accepts a `--diagnostics` flag and recognises `diagnostics.nodeDumps` in codemod configuration files. When enabled, codemod executions capture NodeDumper output (including flags, attributes, and replacements) for both the pre- and post-visitor trees.
 - [x] TypeScript consumers can toggle diagnostics through `PhpCodemodConfiguration.diagnostics`, and integration tests assert the dumps surface modifier flags and attribute payloads while mirroring the streamed diagnostics in the emitted files.
-  _Expectation: Debug builds surface rich context (flags, attributes, replacements) whenever a codemod modifies the tree._
+      _Expectation: Debug builds surface rich context (flags, attributes, replacements) whenever a codemod modifies the tree._
 
 ##### Task 9 - Prototype generation helpers with `BuilderFactory`
+
 > **Task status:** Complete - Intent-driven generation flows now round-trip through PHP and TypeScript with fixture-backed parity.
 
 - [x] `php/generate-builderfactory.php` accepts intent manifests, feeds them through `BuilderFactory`, and emits ready-to-queue `PhpProgram` payloads (declare + namespace) without manual wiring.
 - [x] TypeScript surfaces the shared schema in [`generation/builderFactory.ts`](../src/generation/builderFactory.ts), including literal/argument helpers so pipelines can author intents ergonomically.
 - [x] Fixture coverage lives under [`fixtures/generation/`](../fixtures/generation) with [`builderFactory.integration.test.ts`](../src/__tests__/generation/builderFactory.integration.test.ts) asserting that PHP output matches the TypeScript factories and the stored AST snapshots.
-  _Expectation: Structured generation tasks can stay inside PHP while still flowing through the shared writer helper._
+      _Expectation: Structured generation tasks can stay inside PHP while still flowing through the shared writer helper._
 
 ### Upcoming phases
 
 #### Phase 4 - CLI and pipeline adoption
+
 > **Status:** Planned
 
 ##### Task 10 - Wire codemods into the CLI build pipeline
+
 > **Task status:** Pending - Capture CLI integration notes and regression coverage when this work is complete.
 
 - Teach the CLI builders to invoke the codemod driver when feature flags or project config requests it.
@@ -148,6 +161,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
   _Expectation: CLI builds can opt into codemods without regressing existing projects._
 
 ##### Task 11 - Add end-to-end codemod regression coverage
+
 > **Task status:** Pending - Record regression suite scope, fixtures, and failure-path handling post-delivery.
 
 - Author integration tests that queue a migration, execute the codemod, and snapshot the resulting PHP + AST outputs.
@@ -156,6 +170,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
   _Expectation: Every CLI codemod path is guarded by reproducible tests that assert both success and failure flows._
 
 ##### Task 12 - Document rollout and contributor workflows
+
 > **Task status:** Pending - Summarise documentation updates, migration notes, and contributor guidance once published.
 
 - Update CLI docs, READMEs, and this plan with instructions for enabling codemods, selecting visitor packs, and reading diagnostics.

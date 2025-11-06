@@ -4,10 +4,10 @@
 
 [@wpkernel/pipeline](../README.md) / HelperApplyFn
 
-# Type Alias: HelperApplyFn()\&lt;TContext, TInput, TOutput, TReporter\&gt;
+# Type Alias: HelperApplyFn()\<TContext, TInput, TOutput, TReporter\>
 
 ```ts
-type HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt; = (options, next?) => MaybePromise&lt;void&gt;;
+type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (options, next?) => MaybePromise<void>;
 ```
 
 Function signature for a pipeline helper's apply method.
@@ -45,18 +45,18 @@ The type of the reporter used for logging.
 
 ### options
 
-[`HelperApplyOptions`](../interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TInput`, `TOutput`, `TReporter`\&gt;
+[`HelperApplyOptions`](../interfaces/HelperApplyOptions.md)\<`TContext`, `TInput`, `TOutput`, `TReporter`\>
 
 Options for the apply function, including context, input, output, and reporter.
 
 ### next?
 
-() => [`MaybePromise`](MaybePromise.md)\&lt;`void`\&gt;
+() => [`MaybePromise`](MaybePromise.md)\<`void`\>
 
 Optional function to call the next helper in the pipeline.
 
 ## Returns
 
-[`MaybePromise`](MaybePromise.md)\&lt;`void`\&gt;
+[`MaybePromise`](MaybePromise.md)\<`void`\>
 
 A promise that resolves when the helper has finished its work.

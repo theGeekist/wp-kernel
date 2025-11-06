@@ -11,7 +11,7 @@
 ### summary
 
 ```ts
-readonly summary: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
+readonly summary: Readonly<Record<string, unknown>>;
 ```
 
 ---
@@ -19,7 +19,7 @@ readonly summary: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
 ### attributes
 
 ```ts
-readonly attributes: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
+readonly attributes: Readonly<Record<string, unknown>>;
 ```
 
 ---

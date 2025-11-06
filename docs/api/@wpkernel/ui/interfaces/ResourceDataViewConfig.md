@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewConfig
 
-# Interface: ResourceDataViewConfig\&lt;TItem, TQuery\&gt;
+# Interface: ResourceDataViewConfig\<TItem, TQuery\>
 
 Resource DataView configuration.
 
@@ -50,7 +50,7 @@ TQuery & gt;
 ### actions?
 
 ```ts
-optional actions: ResourceDataViewActionConfig&lt;TItem, unknown, unknown&gt;[];
+optional actions: ResourceDataViewActionConfig<TItem, unknown, unknown>[];
 ```
 
 ---
@@ -108,7 +108,7 @@ optional perPageSizes: number[];
 ### defaultLayouts?
 
 ```ts
-optional defaultLayouts: Record&lt;string, unknown&gt;;
+optional defaultLayouts: Record<string, unknown>;
 ```
 
 ---

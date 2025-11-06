@@ -7,7 +7,7 @@
 # Type Alias: PhpAttributes
 
 ```ts
-type PhpAttributes = Readonly&lt;Record&lt;string, unknown&gt;&gt;;
+type PhpAttributes = Readonly<Record<string, unknown>>;
 ```
 
 Represents the attributes of a PHP AST node.

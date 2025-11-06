@@ -7,7 +7,7 @@
 # Function: buildNode()
 
 ```ts
-function buildNode&lt;T&gt;(
+function buildNode<T>(
    nodeType,
    props,
    attributes?): T;
@@ -34,13 +34,13 @@ The type of the PHP AST node.
 
 ### props
 
-`Omit`\&lt;`T`, `"nodeType"` \| `"attributes"`\&gt;
+`Omit`\<`T`, `"nodeType"` \| `"attributes"`\>
 
 The properties of the node, excluding `nodeType` and `attributes`.
 
 ### attributes?
 
-`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+`Readonly`\<`Record`\<`string`, `unknown`\>\>
 
 Optional attributes for the node.
 

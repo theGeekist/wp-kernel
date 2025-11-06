@@ -32,6 +32,6 @@ Optional environment settings for the IR creation process.
 
 ## Returns
 
-`Promise`\&lt;[`IRv1`](../interfaces/IRv1.md)\&gt;
+`Promise`\<[`IRv1`](../interfaces/IRv1.md)\>
 
 A promise that resolves to the generated `IRv1` object.

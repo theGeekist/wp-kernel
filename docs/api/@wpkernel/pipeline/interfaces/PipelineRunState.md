@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineRunState
 
-# Interface: PipelineRunState\&lt;TArtifact, TDiagnostic\&gt;
+# Interface: PipelineRunState\<TArtifact, TDiagnostic\>
 
 State returned from a pipeline run.
 
@@ -39,5 +39,5 @@ readonly diagnostics: readonly TDiagnostic[];
 ### steps
 
 ```ts
-readonly steps: readonly PipelineStep&lt;HelperKind&gt;[];
+readonly steps: readonly PipelineStep<HelperKind>[];
 ```

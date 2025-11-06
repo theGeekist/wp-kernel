@@ -4,10 +4,10 @@
 
 [@wpkernel/e2e-utils](../README.md) / CapturedEvent
 
-# Type Alias: CapturedEvent\&lt;P\&gt;
+# Type Alias: CapturedEvent\<P\>
 
 ```ts
-type CapturedEvent&lt;P&gt; = object;
+type CapturedEvent<P> = object;
 ```
 
 Captured event structure

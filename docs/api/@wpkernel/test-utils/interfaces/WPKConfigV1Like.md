@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / WPKConfigV1Like
 
-# Interface: WPKConfigV1Like\&lt;TSchemas, TResources, TAdapters\&gt;
+# Interface: WPKConfigV1Like\<TSchemas, TResources, TAdapters\>
 
 ## Type Parameters
 

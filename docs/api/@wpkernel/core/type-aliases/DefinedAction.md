@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / DefinedAction
 
-# Type Alias: DefinedAction()\&lt;TArgs, TResult\&gt;
+# Type Alias: DefinedAction()\<TArgs, TResult\>
 
 ```ts
-type DefinedAction&lt;TArgs, TResult&gt; = Promise&lt;TResult&gt;;
+type DefinedAction<TArgs, TResult> = Promise<TResult>;
 ```
 
 Callable action returned by `defineAction()`.
@@ -52,7 +52,7 @@ Input type (arguments passed to the action)
 Return type (value returned by the action)
 
 ```ts
-type DefinedAction(args): Promise&lt;TResult&gt;;
+type DefinedAction(args): Promise<TResult>;
 ```
 
 Callable action returned by `defineAction()`.
@@ -72,7 +72,7 @@ After wrapping with `defineAction()`, actions become callable functions that:
 
 ## Returns
 
-`Promise`\&lt;`TResult`\&gt;
+`Promise`\<`TResult`\>
 
 ## Example
 

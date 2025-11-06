@@ -42,7 +42,7 @@ Configuration for the `foreach` loop (value variable, optional key variable, by 
 
 ### attributes?
 
-`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+`Readonly`\<`Record`\<`string`, `unknown`\>\>
 
 Optional attributes for the node.
 

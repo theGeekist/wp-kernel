@@ -52,7 +52,7 @@ Preference key (e.g., 'job-listings')
 
 #### Returns
 
-`Promise`\&lt;`unknown`\&gt;
+`Promise`\<`unknown`\>
 
 Preference value or undefined if not found
 
@@ -61,7 +61,7 @@ Preference value or undefined if not found
 ### set()
 
 ```ts
-set: (key, value) => Promise&lt;void&gt;;
+set: (key, value) => Promise<void>;
 ```
 
 Persist a preference value
@@ -84,7 +84,7 @@ Preference value to persist
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 

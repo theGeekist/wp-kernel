@@ -22,7 +22,7 @@ The expression to cast to an array.
 
 ### attributes?
 
-`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+`Readonly`\<`Record`\<`string`, `unknown`\>\>
 
 Optional attributes for the node.
 

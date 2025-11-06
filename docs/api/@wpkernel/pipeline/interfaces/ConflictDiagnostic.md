@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / ConflictDiagnostic
 
-# Interface: ConflictDiagnostic\&lt;TKind\&gt;
+# Interface: ConflictDiagnostic\<TKind\>
 
 Diagnostic for conflicting helper registrations.
 

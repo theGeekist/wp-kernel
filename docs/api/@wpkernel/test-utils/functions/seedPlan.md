@@ -10,7 +10,7 @@
 function seedPlan(
    workspace,
    file,
-options): Promise&lt;void&gt;;
+options): Promise<void>;
 ```
 
 Seeds an apply plan in a given workspace.
@@ -51,6 +51,6 @@ Options for seeding the plan (base content, incoming content, description, curre
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 A Promise that resolves when the plan is seeded.

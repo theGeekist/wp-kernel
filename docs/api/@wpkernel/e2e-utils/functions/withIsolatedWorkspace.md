@@ -14,7 +14,7 @@ do not interfere with each other's file system state.
 ## Call Signature
 
 ```ts
-function withIsolatedWorkspace&lt;TResult&gt;(options, callback): Promise&lt;TResult&gt;;
+function withIsolatedWorkspace<TResult>(options, callback): Promise<TResult>;
 ```
 
 ### Type Parameters
@@ -31,16 +31,16 @@ function withIsolatedWorkspace&lt;TResult&gt;(options, callback): Promise&lt;TRe
 
 #### callback
 
-[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)\&lt;`TResult`\&gt;
+[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)\<`TResult`\>
 
 ### Returns
 
-`Promise`\&lt;`TResult`\&gt;
+`Promise`\<`TResult`\>
 
 ## Call Signature
 
 ```ts
-function withIsolatedWorkspace&lt;TResult&gt;(callback): Promise&lt;TResult&gt;;
+function withIsolatedWorkspace<TResult>(callback): Promise<TResult>;
 ```
 
 ### Type Parameters
@@ -53,8 +53,8 @@ function withIsolatedWorkspace&lt;TResult&gt;(callback): Promise&lt;TResult&gt;;
 
 #### callback
 
-[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)\&lt;`TResult`\&gt;
+[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)\<`TResult`\>
 
 ### Returns
 
-`Promise`\&lt;`TResult`\&gt;
+`Promise`\<`TResult`\>

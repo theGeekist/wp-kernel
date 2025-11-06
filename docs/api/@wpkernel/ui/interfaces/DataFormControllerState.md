@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / DataFormControllerState
 
-# Interface: DataFormControllerState\&lt;TResult\&gt;
+# Interface: DataFormControllerState\<TResult\>
 
 Represents the state of a data form submission.
 

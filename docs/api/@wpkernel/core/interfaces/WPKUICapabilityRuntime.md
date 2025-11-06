@@ -11,7 +11,7 @@
 ### capability?
 
 ```ts
-optional capability: Partial&lt;CapabilityHelpers&lt;Record&lt;string, unknown&gt;&gt;&gt; & object;
+optional capability: Partial<CapabilityHelpers<Record<string, unknown>>> & object;
 ```
 
 #### Type Declaration

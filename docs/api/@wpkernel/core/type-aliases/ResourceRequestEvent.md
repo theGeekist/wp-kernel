@@ -57,7 +57,7 @@ Timestamp when request started
 ### query?
 
 ```ts
-optional query: Record&lt;string, unknown&gt;;
+optional query: Record<string, unknown>;
 ```
 
 Query parameters (if any)

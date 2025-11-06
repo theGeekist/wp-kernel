@@ -7,7 +7,7 @@
 # Function: ensureDirectory()
 
 ```ts
-function ensureDirectory(directory): Promise&lt;void&gt;;
+function ensureDirectory(directory): Promise<void>;
 ```
 
 Ensures that a directory exists, creating it if necessary.
@@ -22,6 +22,6 @@ The path to the directory.
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 A Promise that resolves when the directory is ensured.

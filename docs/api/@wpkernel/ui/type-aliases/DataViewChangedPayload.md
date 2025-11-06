@@ -73,5 +73,5 @@ optional search: string;
 #### filters?
 
 ```ts
-optional filters: Record&lt;string, unknown&gt;;
+optional filters: Record<string, unknown>;
 ```

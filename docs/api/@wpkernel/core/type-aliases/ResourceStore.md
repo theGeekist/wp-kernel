@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ResourceStore
 
-# Type Alias: ResourceStore\&lt;T, TQuery\&gt;
+# Type Alias: ResourceStore\<T, TQuery\>
 
 ```ts
-type ResourceStore&lt;T, TQuery&gt; = object;
+type ResourceStore<T, TQuery> = object;
 ```
 
 Complete store descriptor returned by createStore.
@@ -84,7 +84,7 @@ Reducer function for state updates.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt; | `undefined`
+[`ResourceState`](ResourceState.md)\<`T`\> | `undefined`
 
 ##### action
 
@@ -92,7 +92,7 @@ Reducer function for state updates.
 
 #### Returns
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 ---
 
@@ -110,7 +110,7 @@ Initial state.
 ### controls?
 
 ```ts
-optional controls: Record&lt;string, (action) => unknown&gt;;
+optional controls: Record<string, (action) => unknown>;
 ```
 
 Controls for handling async operations in generators.

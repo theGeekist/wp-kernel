@@ -7,7 +7,7 @@
 # Function: createStore()
 
 ```ts
-function createStore&lt;T, TQuery&gt;(config): ResourceStore&lt;T, TQuery&gt;;
+function createStore<T, TQuery>(config): ResourceStore<T, TQuery>;
 ```
 
 Creates a resource store with selectors, actions, and resolvers.
@@ -30,13 +30,13 @@ The query parameter type for list operations
 
 ### config
 
-[`ResourceStoreConfig`](../type-aliases/ResourceStoreConfig.md)\&lt;`T`, `TQuery`\&gt;
+[`ResourceStoreConfig`](../type-aliases/ResourceStoreConfig.md)\<`T`, `TQuery`\>
 
 Store configuration
 
 ## Returns
 
-[`ResourceStore`](../type-aliases/ResourceStore.md)\&lt;`T`, `TQuery`\&gt;
+[`ResourceStore`](../type-aliases/ResourceStore.md)\<`T`, `TQuery`\>
 
 Complete store descriptor
 

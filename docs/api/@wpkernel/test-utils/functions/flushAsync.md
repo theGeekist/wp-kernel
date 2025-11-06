@@ -7,7 +7,7 @@
 # Function: flushAsync()
 
 ```ts
-function flushAsync(options): Promise&lt;void&gt;;
+function flushAsync(options): Promise<void>;
 ```
 
 Flushes the microtask queue and optionally advances Jest timers.
@@ -24,6 +24,6 @@ Options for flushing, either a number of iterations or an object.
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 A Promise that resolves after the microtask queue is flushed.

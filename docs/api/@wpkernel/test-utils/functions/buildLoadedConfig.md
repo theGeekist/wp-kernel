@@ -7,7 +7,7 @@
 # Function: buildLoadedConfig()
 
 ```ts
-function buildLoadedConfig&lt;TConfig, TOrigin, TComposerCheck&gt;(workspace, options): LoadedWPKConfigV1Like&lt;TConfig, TOrigin, TComposerCheck&gt;;
+function buildLoadedConfig<TConfig, TOrigin, TComposerCheck>(workspace, options): LoadedWPKConfigV1Like<TConfig, TOrigin, TComposerCheck>;
 ```
 
 Builds a loaded kernel configuration object for testing.
@@ -16,7 +16,7 @@ Builds a loaded kernel configuration object for testing.
 
 ### TConfig
 
-`TConfig` _extends_ [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;[`SchemaRegistryLike`](../interfaces/SchemaRegistryLike.md), [`ResourceRegistryLike`](../interfaces/ResourceRegistryLike.md), `unknown`\&gt; = [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\&lt;[`SchemaRegistryLike`](../interfaces/SchemaRegistryLike.md), [`ResourceRegistryLike`](../interfaces/ResourceRegistryLike.md), `unknown`\&gt;
+`TConfig` _extends_ [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\<[`SchemaRegistryLike`](../interfaces/SchemaRegistryLike.md), [`ResourceRegistryLike`](../interfaces/ResourceRegistryLike.md), `unknown`\> = [`WPKConfigV1Like`](../interfaces/WPKConfigV1Like.md)\<[`SchemaRegistryLike`](../interfaces/SchemaRegistryLike.md), [`ResourceRegistryLike`](../interfaces/ResourceRegistryLike.md), `unknown`\>
 
 ### TOrigin
 
@@ -36,12 +36,12 @@ The path to the workspace.
 
 ### options
 
-[`BuildLoadedConfigOptions`](../interfaces/BuildLoadedConfigOptions.md)\&lt;`TConfig`, `TOrigin`, `TComposerCheck`\&gt; = `{}`
+[`BuildLoadedConfigOptions`](../interfaces/BuildLoadedConfigOptions.md)\<`TConfig`, `TOrigin`, `TComposerCheck`\> = `{}`
 
 Options for configuring the loaded config.
 
 ## Returns
 
-[`LoadedWPKConfigV1Like`](../interfaces/LoadedWPKConfigV1Like.md)\&lt;`TConfig`, `TOrigin`, `TComposerCheck`\&gt;
+[`LoadedWPKConfigV1Like`](../interfaces/LoadedWPKConfigV1Like.md)\<`TConfig`, `TOrigin`, `TComposerCheck`\>
 
 A `LoadedWPKConfigV1Like` object.

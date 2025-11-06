@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewProps
 
-# Interface: ResourceDataViewProps\&lt;TItem, TQuery\&gt;
+# Interface: ResourceDataViewProps\<TItem, TQuery\>
 
 Props for the ResourceDataView component.
 
@@ -27,7 +27,7 @@ The type of the query parameters for the resource.
 ### resource?
 
 ```ts
-optional resource: ResourceObject&lt;TItem, TQuery&gt;;
+optional resource: ResourceObject<TItem, TQuery>;
 ```
 
 The resource object to display.
@@ -37,7 +37,7 @@ The resource object to display.
 ### config?
 
 ```ts
-optional config: ResourceDataViewConfig&lt;TItem, TQuery&gt;;
+optional config: ResourceDataViewConfig<TItem, TQuery>;
 ```
 
 The configuration for the DataView.
@@ -47,7 +47,7 @@ The configuration for the DataView.
 ### controller?
 
 ```ts
-optional controller: ResourceDataViewController&lt;TItem, TQuery&gt;;
+optional controller: ResourceDataViewController<TItem, TQuery>;
 ```
 
 An optional pre-configured controller for the DataView.
@@ -69,7 +69,7 @@ The runtime context for the DataView.
 ### fetchList()?
 
 ```ts
-optional fetchList: (query) => Promise&lt;ListResponse&lt;TItem&gt;&gt;;
+optional fetchList: (query) => Promise<ListResponse<TItem>>;
 ```
 
 An optional function to fetch a list of items, overriding the resource's fetchList.
@@ -82,7 +82,7 @@ An optional function to fetch a list of items, overriding the resource's fetchLi
 
 #### Returns
 
-`Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
+`Promise`\<`ListResponse`\<`TItem`\>\>
 
 ---
 

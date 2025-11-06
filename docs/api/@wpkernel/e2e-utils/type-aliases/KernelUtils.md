@@ -17,7 +17,7 @@ Main kernel utilities object returned by factory
 ### resource()
 
 ```ts
-resource: &lt;T&gt;(config) => ResourceUtils&lt;T&gt;;
+resource: <T>(config) => ResourceUtils<T>;
 ```
 
 Create resource utilities for a given resource config
@@ -38,7 +38,7 @@ Resource configuration from defineResource
 
 #### Returns
 
-[`ResourceUtils`](ResourceUtils.md)\&lt;`T`\&gt;
+[`ResourceUtils`](ResourceUtils.md)\<`T`\>
 
 Resource utilities with typed methods
 
@@ -47,7 +47,7 @@ Resource utilities with typed methods
 ### store()
 
 ```ts
-store: &lt;T&gt;(storeKey) => StoreUtils&lt;T&gt;;
+store: <T>(storeKey) => StoreUtils<T>;
 ```
 
 Create store utilities for a given store key
@@ -68,7 +68,7 @@ WordPress data store key (e.g., 'wpk/job')
 
 #### Returns
 
-[`StoreUtils`](StoreUtils.md)\&lt;`T`\&gt;
+[`StoreUtils`](StoreUtils.md)\<`T`\>
 
 Store utilities with typed methods
 
@@ -77,7 +77,7 @@ Store utilities with typed methods
 ### events()
 
 ```ts
-events: &lt;P&gt;(options?) => Promise&lt;EventRecorder&lt;P&gt;&gt;;
+events: <P>(options?) => Promise<EventRecorder<P>>;
 ```
 
 Create event recorder for capturing kernel events
@@ -98,7 +98,7 @@ Optional configuration for event filtering
 
 #### Returns
 
-`Promise`\&lt;[`EventRecorder`](EventRecorder.md)\&lt;`P`\&gt;\&gt;
+`Promise`\<[`EventRecorder`](EventRecorder.md)\<`P`\>\>
 
 Event recorder with capture and query methods
 

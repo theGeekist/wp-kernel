@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / NextPagePrefetchOptions
 
-# Interface: NextPagePrefetchOptions\&lt;TQuery\&gt;
+# Interface: NextPagePrefetchOptions\<TQuery\>
 
 Options for the useNextPagePrefetch hook.
 

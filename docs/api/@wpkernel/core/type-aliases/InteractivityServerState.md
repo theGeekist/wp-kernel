@@ -7,7 +7,7 @@
 # Type Alias: InteractivityServerState
 
 ```ts
-type InteractivityServerState = DeepReadonly&lt;Record&lt;string, unknown&gt;&gt;;
+type InteractivityServerState = DeepReadonly<Record<string, unknown>>;
 ```
 
 Immutable snapshot of the WordPress interactivity runtime state.

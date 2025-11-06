@@ -7,7 +7,7 @@
 # Type Alias: PhpFileMetadata
 
 ```ts
-type PhpFileMetadata = Readonly&lt;Record&lt;string, unknown&gt;&gt; & object;
+type PhpFileMetadata = Readonly<Record<string, unknown>> & object;
 ```
 
 ## Type Declaration

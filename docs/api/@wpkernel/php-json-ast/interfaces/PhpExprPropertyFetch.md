@@ -6,7 +6,7 @@
 
 # Interface: PhpExprPropertyFetch
 
-Represents a PHP property fetch expression (e.g., `$object-&gt;property`).
+Represents a PHP property fetch expression (e.g., `$object->property`).
 
 ## Extends
 

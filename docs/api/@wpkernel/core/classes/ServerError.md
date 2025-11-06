@@ -62,7 +62,7 @@ Server error options
 
 ###### serverData?
 
-`Record`\&lt;`string`, `unknown`\&gt;
+`Record`\<`string`, `unknown`\>
 
 ###### context?
 
@@ -145,7 +145,7 @@ Error code - identifies the type of error
 ### serverData?
 
 ```ts
-readonly optional serverData: Record&lt;string, unknown&gt;;
+readonly optional serverData: Record<string, unknown>;
 ```
 
 Additional server data

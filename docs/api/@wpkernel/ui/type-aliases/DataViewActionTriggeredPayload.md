@@ -47,7 +47,7 @@ permitted: boolean;
 ### meta?
 
 ```ts
-optional meta: Record&lt;string, unknown&gt;;
+optional meta: Record<string, unknown>;
 ```
 
 ---

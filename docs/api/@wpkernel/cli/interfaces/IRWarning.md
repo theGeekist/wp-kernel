@@ -33,7 +33,7 @@ A human-readable warning message.
 ### context?
 
 ```ts
-optional context: Record&lt;string, unknown&gt;;
+optional context: Record<string, unknown>;
 ```
 
 Optional: Additional context for the warning.

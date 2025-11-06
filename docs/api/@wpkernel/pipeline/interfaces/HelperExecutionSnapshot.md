@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / HelperExecutionSnapshot
 
-# Interface: HelperExecutionSnapshot\&lt;TKind\&gt;
+# Interface: HelperExecutionSnapshot\<TKind\>
 
 Snapshot of helper execution status.
 

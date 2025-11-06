@@ -40,12 +40,12 @@ Reporter instance with child helpers
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () => Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
 ##### Returns
 
-`Promise`\&lt;[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\&gt;
+`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
 
 ---
 
@@ -82,7 +82,7 @@ readonly optional buildBuilderOutput: () => BuilderOutput;
 #### readManifest()?
 
 ```ts
-readonly optional readManifest: (workspace) => Promise&lt;PatchManifest | null&gt;;
+readonly optional readManifest: (workspace) => Promise<PatchManifest | null>;
 ```
 
 ##### Parameters
@@ -93,7 +93,7 @@ readonly optional readManifest: (workspace) => Promise&lt;PatchManifest | null&g
 
 ##### Returns
 
-`Promise`\&lt;[`PatchManifest`](PatchManifest.md) \| `null`\&gt;
+`Promise`\<[`PatchManifest`](PatchManifest.md) \| `null`\>
 
 ---
 
@@ -118,7 +118,7 @@ readonly optional resolveWorkspaceRoot: (loaded) => string;
 #### promptConfirm()?
 
 ```ts
-readonly optional promptConfirm: (options) => Promise&lt;boolean&gt;;
+readonly optional promptConfirm: (options) => Promise<boolean>;
 ```
 
 ##### Parameters
@@ -143,14 +143,14 @@ readonly optional promptConfirm: (options) => Promise&lt;boolean&gt;;
 
 ##### Returns
 
-`Promise`\&lt;`boolean`\&gt;
+`Promise`\<`boolean`\>
 
 ---
 
 #### ensureGitRepository()?
 
 ```ts
-readonly optional ensureGitRepository: (workspace) => Promise&lt;void&gt;;
+readonly optional ensureGitRepository: (workspace) => Promise<void>;
 ```
 
 ##### Parameters
@@ -161,14 +161,14 @@ readonly optional ensureGitRepository: (workspace) => Promise&lt;void&gt;;
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 #### createBackups()?
 
 ```ts
-readonly optional createBackups: (options) => Promise&lt;void&gt;;
+readonly optional createBackups: (options) => Promise<void>;
 ```
 
 ##### Parameters
@@ -179,14 +179,14 @@ readonly optional createBackups: (options) => Promise&lt;void&gt;;
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 #### appendApplyLog()?
 
 ```ts
-readonly optional appendApplyLog: (workspace, entry) => Promise&lt;void&gt;;
+readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
 ```
 
 ##### Parameters
@@ -201,7 +201,7 @@ readonly optional appendApplyLog: (workspace, entry) => Promise&lt;void&gt;;
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ### Patcher
 

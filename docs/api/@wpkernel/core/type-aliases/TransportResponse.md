@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / TransportResponse
 
-# Type Alias: TransportResponse\&lt;T\&gt;
+# Type Alias: TransportResponse\<T\>
 
 ```ts
-type TransportResponse&lt;T&gt; = object;
+type TransportResponse<T> = object;
 ```
 
 Response from transport.fetch()

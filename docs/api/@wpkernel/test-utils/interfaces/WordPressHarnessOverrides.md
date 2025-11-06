@@ -13,7 +13,7 @@ Overrides for the WordPress test harness.
 ### data?
 
 ```ts
-optional data: Partial&lt;WordPressData&gt;;
+optional data: Partial<WordPressData>;
 ```
 
 Partial overrides for `window.wp.data`.
@@ -33,7 +33,7 @@ A mock `apiFetch` function.
 ### hooks?
 
 ```ts
-optional hooks: Partial&lt;any&gt;;
+optional hooks: Partial<any>;
 ```
 
 Partial overrides for `window.wp.hooks`.

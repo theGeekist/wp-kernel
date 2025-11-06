@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / HydrateServerStateInput
 
-# Interface: HydrateServerStateInput\&lt;TEntity, TQuery\&gt;
+# Interface: HydrateServerStateInput\<TEntity, TQuery\>
 
 Input shape forwarded to custom hydration callbacks.
 
@@ -37,7 +37,7 @@ readonly serverState: object;
 ### resource
 
 ```ts
-readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
+readonly resource: ResourceObject<TEntity, TQuery>;
 ```
 
 ---
@@ -45,7 +45,7 @@ readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 ### syncCache
 
 ```ts
-readonly syncCache: ResourceCacheSync&lt;TEntity&gt;;
+readonly syncCache: ResourceCacheSync<TEntity>;
 ```
 
 ---

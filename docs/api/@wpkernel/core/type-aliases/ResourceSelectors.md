@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ResourceSelectors
 
-# Type Alias: ResourceSelectors\&lt;T, TQuery\&gt;
+# Type Alias: ResourceSelectors\<T, TQuery\>
 
 ```ts
-type ResourceSelectors&lt;T, TQuery&gt; = object;
+type ResourceSelectors<T, TQuery> = object;
 ```
 
 Selectors for a resource store.
@@ -40,7 +40,7 @@ Get a single item by ID.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -70,7 +70,7 @@ Get items from a list query.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -101,7 +101,7 @@ Get list response with metadata.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -113,7 +113,7 @@ Query parameters
 
 #### Returns
 
-[`ListResponse`](ListResponse.md)\&lt;`T`\&gt;
+[`ListResponse`](ListResponse.md)\<`T`\>
 
 List response with items and metadata
 
@@ -131,7 +131,7 @@ Get the status for a list query.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -161,7 +161,7 @@ Get the error message for a list query, if any.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -194,7 +194,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -233,7 +233,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -272,7 +272,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 
@@ -308,7 +308,7 @@ Get error for a cache key.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+[`ResourceState`](ResourceState.md)\<`T`\>
 
 Store state
 

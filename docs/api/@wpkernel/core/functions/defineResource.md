@@ -7,7 +7,7 @@
 # Function: defineResource()
 
 ```ts
-function defineResource&lt;T, TQuery&gt;(config): ResourceObject&lt;T, TQuery&gt;;
+function defineResource<T, TQuery>(config): ResourceObject<T, TQuery>;
 ```
 
 Define a resource with typed REST client
@@ -39,13 +39,13 @@ Query parameters type for list operations (e.g., { search?: string })
 
 ### config
 
-[`ResourceConfig`](../type-aliases/ResourceConfig.md)\&lt;`T`, `TQuery`\&gt;
+[`ResourceConfig`](../type-aliases/ResourceConfig.md)\<`T`, `TQuery`\>
 
 Resource configuration
 
 ## Returns
 
-[`ResourceObject`](../type-aliases/ResourceObject.md)\&lt;`T`, `TQuery`\&gt;
+[`ResourceObject`](../type-aliases/ResourceObject.md)\<`T`, `TQuery`\>
 
 Resource object with client methods and metadata
 

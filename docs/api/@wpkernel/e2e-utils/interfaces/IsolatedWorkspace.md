@@ -73,19 +73,19 @@ spawn overrides
 
 #### Returns
 
-`Promise`\&lt;[`CliTranscript`](CliTranscript.md)\&gt;
+`Promise`\<[`CliTranscript`](CliTranscript.md)\>
 
 ---
 
 ### dispose()
 
 ```ts
-dispose: () => void | Promise&lt;void&gt;;
+dispose: () => void | Promise<void>;
 ```
 
 #### Returns
 
-`void` \| `Promise`\&lt;`void`\&gt;
+`void` \| `Promise`\<`void`\>
 
 #### Inherited from
 

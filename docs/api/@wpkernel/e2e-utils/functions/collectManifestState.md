@@ -28,4 +28,4 @@ which can then be compared against a previous state to detect changes.
 
 ## Returns
 
-`Promise`\&lt;[`FileManifest`](../interfaces/FileManifest.md)\&gt;
+`Promise`\<[`FileManifest`](../interfaces/FileManifest.md)\>

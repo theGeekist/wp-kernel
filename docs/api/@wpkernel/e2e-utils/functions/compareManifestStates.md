@@ -7,11 +7,11 @@
 # Function: compareManifestStates()
 
 ```ts
-function compareManifestStates(workspace, definition): Promise&lt;{
+function compareManifestStates(workspace, definition): Promise<{
   before: FileManifest;
   after: FileManifest;
   diff: FileManifestDiff;
-}&gt;;
+}>;
 ```
 
 Collects the file system manifest state for comparison.
@@ -31,8 +31,8 @@ which can then be compared against a previous state to detect changes.
 
 ## Returns
 
-`Promise`\&lt;\{
+`Promise`\<\{
 `before`: [`FileManifest`](../interfaces/FileManifest.md);
 `after`: [`FileManifest`](../interfaces/FileManifest.md);
 `diff`: [`FileManifestDiff`](../interfaces/FileManifestDiff.md);
-\}\&gt;
+\}\>

@@ -13,7 +13,7 @@ Context passed to DataViews controllers for logging and event emission.
 ### registry
 
 ```ts
-readonly registry: Map&lt;string, unknown&gt;;
+readonly registry: Map<string, unknown>;
 ```
 
 ---
@@ -21,7 +21,7 @@ readonly registry: Map&lt;string, unknown&gt;;
 ### controllers
 
 ```ts
-readonly controllers: Map&lt;string, unknown&gt;;
+readonly controllers: Map<string, unknown>;
 ```
 
 ---

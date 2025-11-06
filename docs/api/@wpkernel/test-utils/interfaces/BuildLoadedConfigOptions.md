@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / BuildLoadedConfigOptions
 
-# Interface: BuildLoadedConfigOptions\&lt;TConfig, TOrigin, TComposerCheck\&gt;
+# Interface: BuildLoadedConfigOptions\<TConfig, TOrigin, TComposerCheck\>
 
 Options for building a loaded kernel configuration.
 

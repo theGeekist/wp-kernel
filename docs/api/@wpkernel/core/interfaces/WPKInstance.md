@@ -181,7 +181,7 @@ events: WPKernelEventBus;
 ### defineResource()
 
 ```ts
-defineResource: &lt;T, TQuery&gt;(config) => ResourceObject&lt;T, TQuery&gt;;
+defineResource: <T, TQuery>(config) => ResourceObject<T, TQuery>;
 ```
 
 #### Type Parameters
@@ -198,8 +198,8 @@ defineResource: &lt;T, TQuery&gt;(config) => ResourceObject&lt;T, TQuery&gt;;
 
 ##### config
 
-[`ResourceConfig`](../type-aliases/ResourceConfig.md)\&lt;`T`, `TQuery`\&gt;
+[`ResourceConfig`](../type-aliases/ResourceConfig.md)\<`T`, `TQuery`\>
 
 #### Returns
 
-[`ResourceObject`](../type-aliases/ResourceObject.md)\&lt;`T`, `TQuery`\&gt;
+[`ResourceObject`](../type-aliases/ResourceObject.md)\<`T`, `TQuery`\>

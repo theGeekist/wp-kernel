@@ -7,7 +7,7 @@
 # Function: readApplyLogEntries()
 
 ```ts
-function readApplyLogEntries(workspace): Promise&lt;ApplyLogEntry[]&gt;;
+function readApplyLogEntries(workspace): Promise<ApplyLogEntry[]>;
 ```
 
 Reads apply log entries from a workspace.
@@ -22,6 +22,6 @@ The path to the workspace.
 
 ## Returns
 
-`Promise`\&lt;[`ApplyLogEntry`](../interfaces/ApplyLogEntry.md)[]\&gt;
+`Promise`\<[`ApplyLogEntry`](../interfaces/ApplyLogEntry.md)[]\>
 
 A Promise that resolves to an array of `ApplyLogEntry` objects.

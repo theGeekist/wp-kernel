@@ -49,7 +49,7 @@ resolve: (...parts) => string;
 ### write()
 
 ```ts
-write: (file, contents, options?) => Promise&lt;void&gt;;
+write: (file, contents, options?) => Promise<void>;
 ```
 
 #### Parameters
@@ -60,7 +60,7 @@ write: (file, contents, options?) => Promise&lt;void&gt;;
 
 ##### contents
 
-`string` | `Buffer`\&lt;`ArrayBufferLike`\&gt;
+`string` | `Buffer`\<`ArrayBufferLike`\>
 
 ##### options?
 
@@ -68,7 +68,7 @@ write: (file, contents, options?) => Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
@@ -87,4 +87,4 @@ boolean & gt;
 
 #### Returns
 
-`Promise`\&lt;`boolean`\&gt;
+`Promise`\<`boolean`\>

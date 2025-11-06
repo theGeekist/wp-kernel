@@ -4,11 +4,11 @@
 
 [@wpkernel/php-json-ast](../README.md) / CreatePhpProgramBuilderOptions
 
-# Interface: CreatePhpProgramBuilderOptions\&lt;TContext, TInput, TOutput\&gt;
+# Interface: CreatePhpProgramBuilderOptions\<TContext, TInput, TOutput\>
 
 ## Extends
 
-- `Pick`\&lt;[`CreateHelperOptions`](CreateHelperOptions.md)\&lt;`TContext`, `TInput`, `TOutput`\&gt;, `"dependsOn"` \| `"mode"` \| `"priority"` \| `"origin"`\&gt;
+- `Pick`\<[`CreateHelperOptions`](CreateHelperOptions.md)\<`TContext`, `TInput`, `TOutput`\>, `"dependsOn"` \| `"mode"` \| `"priority"` \| `"origin"`\>
 
 ## Type Parameters
 
@@ -61,7 +61,7 @@ readonly metadata: PhpFileMetadata;
 ### build()
 
 ```ts
-readonly build: (builder, entry) => void | Promise&lt;void&gt;;
+readonly build: (builder, entry) => void | Promise<void>;
 ```
 
 #### Parameters
@@ -76,7 +76,7 @@ readonly build: (builder, entry) => void | Promise&lt;void&gt;;
 
 #### Returns
 
-`void` \| `Promise`\&lt;`void`\&gt;
+`void` \| `Promise`\<`void`\>
 
 ---
 

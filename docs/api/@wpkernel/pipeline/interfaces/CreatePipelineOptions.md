@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / CreatePipelineOptions
 
-# Interface: CreatePipelineOptions\&lt;TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper\&gt;
+# Interface: CreatePipelineOptions\<TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper\>
 
 Options for creating a pipeline.
 
@@ -40,7 +40,7 @@ Options for creating a pipeline.
 
 ### TRunResult
 
-`TRunResult` = [`PipelineRunState`](PipelineRunState.md)\&lt;`TArtifact`, `TDiagnostic`\&gt;
+`TRunResult` = [`PipelineRunState`](PipelineRunState.md)\<`TArtifact`, `TDiagnostic`\>
 
 ### TFragmentInput
 
@@ -68,11 +68,11 @@ Options for creating a pipeline.
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
+`TFragmentHelper` _extends_ [`Helper`](Helper.md)\<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\> = [`Helper`](Helper.md)\<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\>
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
+`TBuilderHelper` _extends_ [`Helper`](Helper.md)\<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\> = [`Helper`](Helper.md)\<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\>
 
 ## Properties
 
@@ -143,7 +143,7 @@ readonly createFragmentState: (options) => TDraft;
 ### createFragmentArgs()
 
 ```ts
-readonly createFragmentArgs: (options) => HelperApplyOptions&lt;TContext, TFragmentInput, TFragmentOutput, TReporter&gt;;
+readonly createFragmentArgs: (options) => HelperApplyOptions<TContext, TFragmentInput, TFragmentOutput, TReporter>;
 ```
 
 #### Parameters
@@ -172,7 +172,7 @@ readonly createFragmentArgs: (options) => HelperApplyOptions&lt;TContext, TFragm
 
 #### Returns
 
-[`HelperApplyOptions`](HelperApplyOptions.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`\&gt;
+[`HelperApplyOptions`](HelperApplyOptions.md)\<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`\>
 
 ---
 
@@ -204,7 +204,7 @@ readonly finalizeFragmentState: (options) => TArtifact;
 
 ###### helpers
 
-[`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)\&lt;`TFragmentKind`\&gt;
+[`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)\<`TFragmentKind`\>
 
 #### Returns
 
@@ -215,7 +215,7 @@ readonly finalizeFragmentState: (options) => TArtifact;
 ### createBuilderArgs()
 
 ```ts
-readonly createBuilderArgs: (options) => HelperApplyOptions&lt;TContext, TBuilderInput, TBuilderOutput, TReporter&gt;;
+readonly createBuilderArgs: (options) => HelperApplyOptions<TContext, TBuilderInput, TBuilderOutput, TReporter>;
 ```
 
 #### Parameters
@@ -244,7 +244,7 @@ readonly createBuilderArgs: (options) => HelperApplyOptions&lt;TContext, TBuilde
 
 #### Returns
 
-[`HelperApplyOptions`](HelperApplyOptions.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`\&gt;
+[`HelperApplyOptions`](HelperApplyOptions.md)\<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`\>
 
 ---
 
@@ -306,7 +306,7 @@ readonly `TDiagnostic`[]
 
 ###### steps
 
-readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../type-aliases/HelperKind.md)\&gt;[]
+readonly [`PipelineStep`](PipelineStep.md)\<[`HelperKind`](../type-aliases/HelperKind.md)\>[]
 
 ###### context
 
@@ -322,7 +322,7 @@ readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../type-aliases/He
 
 ###### helpers
 
-[`PipelineExecutionMetadata`](PipelineExecutionMetadata.md)\&lt;`TFragmentKind`, `TBuilderKind`\&gt;
+[`PipelineExecutionMetadata`](PipelineExecutionMetadata.md)\<`TFragmentKind`, `TBuilderKind`\>
 
 #### Returns
 
@@ -362,7 +362,7 @@ pipeline executes instead of waiting for the final run result.
 ### createExtensionHookOptions()?
 
 ```ts
-readonly optional createExtensionHookOptions: (options) => PipelineExtensionHookOptions&lt;TContext, TRunOptions, TArtifact&gt;;
+readonly optional createExtensionHookOptions: (options) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact>;
 ```
 
 #### Parameters
@@ -387,7 +387,7 @@ readonly optional createExtensionHookOptions: (options) => PipelineExtensionHook
 
 #### Returns
 
-[`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)\&lt;`TContext`, `TRunOptions`, `TArtifact`\&gt;
+[`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)\<`TContext`, `TRunOptions`, `TArtifact`\>
 
 ---
 

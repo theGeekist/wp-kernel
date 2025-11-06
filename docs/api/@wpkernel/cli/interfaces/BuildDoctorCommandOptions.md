@@ -44,7 +44,7 @@ Reporter instance with child helpers
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () => Promise&lt;LoadedWPKernelConfig&gt;;
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
 Optional: Custom function to load the WP Kernel configuration.
@@ -58,7 +58,7 @@ correctly.
 
 ##### Returns
 
-`Promise`\&lt;[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\&gt;
+`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
 
 The validated kernel config and associated metadata.
 
@@ -91,7 +91,7 @@ Optional: Custom workspace builder function.
 #### checkPhpEnvironment()?
 
 ```ts
-readonly optional checkPhpEnvironment: (options) => Promise&lt;DoctorCheckResult[]&gt;;
+readonly optional checkPhpEnvironment: (options) => Promise<DoctorCheckResult[]>;
 ```
 
 Optional: Custom function to check the PHP environment.
@@ -104,14 +104,14 @@ Optional: Custom function to check the PHP environment.
 
 ##### Returns
 
-`Promise`\&lt;[`DoctorCheckResult`](DoctorCheckResult.md)[]\&gt;
+`Promise`\<[`DoctorCheckResult`](DoctorCheckResult.md)[]\>
 
 ### Workspace Utilities
 
 #### ensureGeneratedPhpClean()?
 
 ```ts
-readonly optional ensureGeneratedPhpClean: (options) => Promise&lt;void&gt;;
+readonly optional ensureGeneratedPhpClean: (options) => Promise<void>;
 ```
 
 Optional: Custom function to ensure the generated PHP directory is clean.
@@ -131,7 +131,7 @@ Options for the cleanliness check.
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ##### Throws
 

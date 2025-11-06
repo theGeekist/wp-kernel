@@ -12,7 +12,7 @@ function persistProgramArtifacts(
    output,
    filePath,
    code,
-ast): Promise&lt;void&gt;;
+ast): Promise<void>;
 ```
 
 ## Parameters
@@ -39,4 +39,4 @@ ast): Promise&lt;void&gt;;
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

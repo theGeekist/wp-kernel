@@ -23,6 +23,6 @@ Options for the confirmation prompt.
 
 ## Returns
 
-`Promise`\&lt;`boolean`\&gt;
+`Promise`\<`boolean`\>
 
 A promise that resolves to `true` for yes, `false` for no.

@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / WPKernelReduxMiddleware
 
-# Type Alias: WPKernelReduxMiddleware\&lt;TState\&gt;
+# Type Alias: WPKernelReduxMiddleware\<TState\>
 
 ```ts
-type WPKernelReduxMiddleware&lt;TState&gt; = object & ReduxMiddleware&lt;TState&gt;;
+type WPKernelReduxMiddleware<TState> = object & ReduxMiddleware<TState>;
 ```
 
 Redux middleware with an optional destroy method for cleanup.

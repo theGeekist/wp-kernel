@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewActionConfig
 
-# Interface: ResourceDataViewActionConfig\&lt;TItem, TInput, TResult\&gt;
+# Interface: ResourceDataViewActionConfig\<TItem, TInput, TResult\>
 
 Action configuration for ResourceDataView.
 
@@ -134,7 +134,7 @@ When true, render disabled instead of hiding on capability denial.
 ### buildMeta()?
 
 ```ts
-optional buildMeta: (context) => Record&lt;string, unknown&gt; | undefined;
+optional buildMeta: (context) => Record<string, unknown> | undefined;
 ```
 
 Optional meta object included in action triggered events.
@@ -153,7 +153,7 @@ Optional meta object included in action triggered events.
 
 #### Returns
 
-`Record`\&lt;`string`, `unknown`\&gt; \| `undefined`
+`Record`\<`string`, `unknown`\> \| `undefined`
 
 ---
 

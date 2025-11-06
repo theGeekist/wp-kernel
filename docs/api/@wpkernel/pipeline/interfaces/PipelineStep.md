@@ -4,13 +4,13 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineStep
 
-# Interface: PipelineStep\&lt;TKind\&gt;
+# Interface: PipelineStep\<TKind\>
 
 A pipeline step representing an executed helper.
 
 ## Extends
 
-- [`HelperDescriptor`](HelperDescriptor.md)\&lt;`TKind`\&gt;
+- [`HelperDescriptor`](HelperDescriptor.md)\<`TKind`\>
 
 ## Type Parameters
 

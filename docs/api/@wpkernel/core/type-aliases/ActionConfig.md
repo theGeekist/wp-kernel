@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ActionConfig
 
-# Type Alias: ActionConfig\&lt;TArgs, TResult\&gt;
+# Type Alias: ActionConfig\<TArgs, TResult\>
 
 ```ts
-type ActionConfig&lt;TArgs, TResult&gt; = object;
+type ActionConfig<TArgs, TResult> = object;
 ```
 
 Configuration object accepted by `defineAction()`.

@@ -143,7 +143,7 @@ Optional: Query parameters configuration for the resource.
 ### ui?
 
 ```ts
-optional ui: ResourceUIConfig&lt;unknown, unknown&gt;;
+optional ui: ResourceUIConfig<unknown, unknown>;
 ```
 
 Optional: UI configuration for the resource.

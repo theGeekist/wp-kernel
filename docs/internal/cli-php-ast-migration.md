@@ -91,6 +91,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 > **MVP Plan reference:** Tasks 11-15 (Phase 2 patch band)
 
 #### Task 11 - Transient AST builders (0.5.1)
+
 > Status: ✓ Completed - Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
 
 - Port every transient controller/helper under `packages/cli/src/printers/php/transient.ts` to the AST-first pipeline (`packages/cli/src/builders/php/resource/transient/**`).
@@ -98,6 +99,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Thread transient cache metadata through the shared registries so option/transient storage continues to share cache keys and invalidation helpers.
 
 #### Task 12 - Transient parity tests (0.5.2)
+
 > Status: ✓ Completed - Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
 
 - Extend next pipeline tests to cover cache events, request validation, and error handling unique to transients (`set`, `delete`, TTL enforcement).
@@ -105,6 +107,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Update `packages/cli/tests/workspace.test-support.ts` (or the shared transient fixtures) so integration harnesses exercise transient pipelines in addition to options.
 
 #### Task 13 - Transient fixtures & docs (0.5.3)
+
 > Status: ✓ Completed - DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
 
 - Regenerate fixtures and goldens that cover transient controllers, storage bindings, and cache invalidation flows.
@@ -112,6 +115,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Capture any migration notes required for downstream plugin authors (e.g., storage key naming changes) in `CHANGELOG.md` and relevant READMEs.
 
 #### Task 14 - Phase 2 buffer slot (0.5.4)
+
 > Status: ✓ Completed - DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
 
 - Reserve room for hotfixes uncovered while landing Tasks 11-13 (e.g., AST edge cases, driver configuration gaps).
@@ -119,6 +123,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Close the slot unmodified if no additional regressions surface; document the validation path so future phases can reuse the pattern.
 
 #### Task 15 - Phase 2 minor release (0.6.0)
+
 > Status: ✓ Completed - Version 0.6.0 shipped with unified changelog entries and version bumps across the monorepo.
 
 - Once Tasks 11-14 are ✓, cut the 0.6.0 release via `RELEASING.md` (version bump, changelog rollup, unified checks across CLI/Core/PHP driver/UI).
@@ -130,6 +135,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 > **MVP Plan reference:** Tasks 16-19 (Phase 3 patch band)
 
 #### Task 16 - Block builder implementation (0.6.1)
+
 > Status: ✓ Completed - Block manifests, registrar assembly, and render stubs now stage through the next pipeline helpers with shared `ts-morph` primitives.
 
 - Port block generation into the next pipeline by replacing `packages/cli/src/printers/blocks/**` with helpers under `packages/cli/src/builders/blocks/**`.
@@ -137,7 +143,9 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Keep SSR templates on the PHP channel: emit `render.php` via the existing AST helpers while routing JS-only registrars through the new `ts-morph` utilities so both surfaces share naming and import rules.
 - Audit the legacy printers (`ssr.ts`, `js-only.ts`, and `shared/template-helpers.ts`) to mirror manifest structure, registrar wiring, warnings, and fallback `render.php` behaviour before rewriting the helpers.
 - Complexity: medium-one run touches PHP AST emitters, shared cache metadata, and the TypeScript registration surface.
+
 #### Task 17 - Block parity tests (0.6.2)
+
 > Status: ✓ Completed - Unit and integration coverage assert ts-morph registrars, SSR render programs, manifest caching, and cache invalidation warnings across block permutations.
 
 - Extend the block builder unit suite to assert `ts-morph` output, SSR AST programs, and manifest metadata across SSR, JS-only, and hybrid scenarios.
@@ -145,7 +153,9 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Wire cache and invalidation expectations into the tests where block controllers touch shared resource metadata, mirroring the transient/option precedent.
 - Migrate expectations from `packages/cli/src/printers/blocks/__tests__/**` so parity with the legacy manifest and `render.php` flows is asserted through the new helpers.
 - Complexity: medium-covers ts-morph emitters, PHP AST snapshots, and reporter warnings in a single run.
+
 #### Task 18 - Block fixtures & documentation (0.6.3)
+
 > Status: ✓ Completed - Fixtures and contributor docs describe the AST-first block builders and retired string printers, keeping showcase outputs aligned.
 
 - Refresh CLI fixtures, generated artefacts, and documentation (`docs/index.md`, this file, `cli-migration-phases.md`, adapter guides) to describe the new block pipeline and the shared `ts-morph` primitives.
@@ -155,6 +165,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Complexity: medium-coordinates fixtures, docs, and changelog updates in one pass.
 
 #### Task 19 - Phase 3 buffer slot (0.6.4)
+
 > Status: ✓ Completed - Manifest cache invalidation bugfix closed the buffer so template and manifest edits trigger fresh processing ahead of the 0.7.0 release.
 
 - Reserve capacity for polish or regression fixes discovered while landing Tasks 16-18 (for example, `ts-morph` emit ordering or SSR template edge cases).
@@ -170,6 +181,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
     - Regenerate any golden fixtures exclusively through the next pipeline.
 
 #### Task 24 - Capability helper parity (0.7.5)
+
 > Status: ✓ Completed - AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback capabilities through the next pipeline reporter.
 
 - Ported capability checks (`current_user_can` wiring), object binding resolution, and closure scaffolds into the AST helper (`packages/cli/src/builders/php/capability.ts`).
@@ -179,6 +191,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Complexity: high - touched shared helpers, reporter wiring, and integration tests.
 
 #### Task 25 - Controller safety & block derivation (0.7.6)
+
 > Status: ✓ Completed - The next controller helper now emits missing-capability warnings and resource-driven block derivation flows through the manifest collector.
 
 - Restored `warnOnMissingCapabilities` semantics via the PHP controller helper so generation logs match the legacy CLI for write routes without capabilities.

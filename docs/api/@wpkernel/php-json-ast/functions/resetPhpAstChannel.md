@@ -7,7 +7,7 @@
 # Function: resetPhpAstChannel()
 
 ```ts
-function resetPhpAstChannel&lt;TContext&gt;(context): void;
+function resetPhpAstChannel<TContext>(context): void;
 ```
 
 ## Type Parameters

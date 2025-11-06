@@ -35,5 +35,5 @@ readonly optional description: string;
 ### details?
 
 ```ts
-readonly optional details: Record&lt;string, unknown&gt;;
+readonly optional details: Record<string, unknown>;
 ```

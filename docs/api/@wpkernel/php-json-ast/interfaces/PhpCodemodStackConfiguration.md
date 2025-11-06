@@ -19,5 +19,5 @@ readonly key: string;
 ### visitors
 
 ```ts
-readonly visitors: readonly PhpCodemodVisitorConfiguration&lt;Record&lt;string, unknown&gt;&gt;[];
+readonly visitors: readonly PhpCodemodVisitorConfiguration<Record<string, unknown>>[];
 ```

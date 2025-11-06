@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / CapabilityHelpers
 
-# Type Alias: CapabilityHelpers\&lt;K\&gt;
+# Type Alias: CapabilityHelpers\<K\>
 
 ```ts
-type CapabilityHelpers&lt;K&gt; = object;
+type CapabilityHelpers<K> = object;
 ```
 
 Runtime helpers exposed by `defineCapability()`.
@@ -16,14 +16,14 @@ Runtime helpers exposed by `defineCapability()`.
 
 ### K
 
-`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+`K` _extends_ `Record`\<`string`, `unknown`\>
 
 ## Properties
 
 ### can()
 
 ```ts
-can: &lt;Key&gt;(key, ...params) => boolean | Promise&lt;boolean&gt;;
+can: <Key>(key, ...params) => boolean | Promise<boolean>;
 ```
 
 #### Type Parameters
@@ -40,18 +40,18 @@ can: &lt;Key&gt;(key, ...params) => boolean | Promise&lt;boolean&gt;;
 
 ##### params
 
-...[`ParamsOf`](ParamsOf.md)\&lt;`K`, `Key`\&gt;
+...[`ParamsOf`](ParamsOf.md)\<`K`, `Key`\>
 
 #### Returns
 
-`boolean` \| `Promise`\&lt;`boolean`\&gt;
+`boolean` \| `Promise`\<`boolean`\>
 
 ---
 
 ### assert()
 
 ```ts
-assert: &lt;Key&gt;(key, ...params) => void | Promise&lt;void&gt;;
+assert: <Key>(key, ...params) => void | Promise<void>;
 ```
 
 #### Type Parameters
@@ -68,11 +68,11 @@ assert: &lt;Key&gt;(key, ...params) => void | Promise&lt;void&gt;;
 
 ##### params
 
-...[`ParamsOf`](ParamsOf.md)\&lt;`K`, `Key`\&gt;
+...[`ParamsOf`](ParamsOf.md)\<`K`, `Key`\>
 
 #### Returns
 
-`void` \| `Promise`\&lt;`void`\&gt;
+`void` \| `Promise`\<`void`\>
 
 ---
 
@@ -98,7 +98,7 @@ extend: (additionalMap) => void;
 
 ##### additionalMap
 
-`Partial`\&lt;[`CapabilityMap`](CapabilityMap.md)\&lt;`K`\&gt;\&gt;
+`Partial`\<[`CapabilityMap`](CapabilityMap.md)\<`K`\>\>
 
 #### Returns
 

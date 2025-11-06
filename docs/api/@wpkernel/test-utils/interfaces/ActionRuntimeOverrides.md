@@ -13,7 +13,7 @@ Overrides for the action runtime.
 ### runtime?
 
 ```ts
-optional runtime: Partial&lt;ActionRuntime&gt;;
+optional runtime: Partial<ActionRuntime>;
 ```
 
 Partial overrides for the entire runtime object.
@@ -23,7 +23,7 @@ Partial overrides for the entire runtime object.
 ### capability?
 
 ```ts
-optional capability: Partial&lt;CapabilityHelpers&lt;Record&lt;string, unknown&gt;&gt;&gt;;
+optional capability: Partial<CapabilityHelpers<Record<string, unknown>>>;
 ```
 
 Override for the capability object within the runtime.

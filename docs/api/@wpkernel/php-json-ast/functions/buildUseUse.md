@@ -36,7 +36,7 @@ Optional configuration for the use item (type, attributes).
 
 #### attributes?
 
-`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+`Readonly`\<`Record`\<`string`, `unknown`\>\>
 
 ## Returns
 

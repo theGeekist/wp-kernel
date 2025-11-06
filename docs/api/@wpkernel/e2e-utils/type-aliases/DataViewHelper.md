@@ -31,21 +31,21 @@ Root locator for the DataView wrapper.
 ### waitForLoaded()
 
 ```ts
-waitForLoaded: () => Promise&lt;void&gt;;
+waitForLoaded: () => Promise<void>;
 ```
 
 Wait until the DataView reports that loading has finished.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### search()
 
 ```ts
-search: (value) => Promise&lt;void&gt;;
+search: (value) => Promise<void>;
 ```
 
 Fill the toolbar search control.
@@ -58,21 +58,21 @@ Fill the toolbar search control.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### clearSearch()
 
 ```ts
-clearSearch: () => Promise&lt;void&gt;;
+clearSearch: () => Promise<void>;
 ```
 
 Clear the search control.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
@@ -99,7 +99,7 @@ Retrieve a locator for a row containing the provided text.
 ### selectRow()
 
 ```ts
-selectRow: (text) => Promise&lt;void&gt;;
+selectRow: (text) => Promise<void>;
 ```
 
 Toggle selection for a row that matches the provided text.
@@ -112,14 +112,14 @@ Toggle selection for a row that matches the provided text.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### runBulkAction()
 
 ```ts
-runBulkAction: (label) => Promise&lt;void&gt;;
+runBulkAction: (label) => Promise<void>;
 ```
 
 Trigger a bulk action button by its visible label.
@@ -132,7 +132,7 @@ Trigger a bulk action button by its visible label.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
@@ -147,7 +147,7 @@ Read the bulk selection counter rendered in the footer.
 
 #### Returns
 
-`Promise`\&lt;`number`\&gt;
+`Promise`\<`number`\>
 
 ---
 
@@ -162,4 +162,4 @@ Read the total item count exposed by the wrapper metadata.
 
 #### Returns
 
-`Promise`\&lt;`number`\&gt;
+`Promise`\<`number`\>

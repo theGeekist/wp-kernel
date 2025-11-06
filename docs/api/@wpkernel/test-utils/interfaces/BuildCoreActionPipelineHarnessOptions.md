@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / BuildCoreActionPipelineHarnessOptions
 
-# Interface: BuildCoreActionPipelineHarnessOptions\&lt;TArgs, TResult\&gt;
+# Interface: BuildCoreActionPipelineHarnessOptions\<TArgs, TResult\>
 
 Options for building a `CoreActionPipelineHarness`.
 
@@ -43,11 +43,11 @@ Overrides for the action runtime.
 ### pipelineFactory()?
 
 ```ts
-readonly optional pipelineFactory: () => ActionPipeline&lt;TArgs, TResult&gt;;
+readonly optional pipelineFactory: () => ActionPipeline<TArgs, TResult>;
 ```
 
 A factory function to create the action pipeline.
 
 #### Returns
 
-`ActionPipeline`\&lt;`TArgs`, `TResult`\&gt;
+`ActionPipeline`\<`TArgs`, `TResult`\>

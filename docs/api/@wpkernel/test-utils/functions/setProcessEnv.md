@@ -16,7 +16,7 @@ Set process.env values in a test-safe way.
 
 ### env
 
-`Record`\&lt;`string`, `string`\&gt;
+`Record`\<`string`, `string`\>
 
 ## Returns
 

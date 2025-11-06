@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceDataViewsUIConfig
 
-# Interface: ResourceDataViewsUIConfig\&lt;TItem, TQuery\&gt;
+# Interface: ResourceDataViewsUIConfig\<TItem, TQuery\>
 
 TODO: summary.
 
@@ -64,7 +64,7 @@ optional mapQuery: (viewState) => TQuery;
 
 ##### viewState
 
-`Record`\&lt;`string`, `unknown`\&gt;
+`Record`\<`string`, `unknown`\>
 
 #### Returns
 
@@ -125,7 +125,7 @@ optional perPageSizes: number[];
 ### defaultLayouts?
 
 ```ts
-optional defaultLayouts: Record&lt;string, unknown&gt;;
+optional defaultLayouts: Record<string, unknown>;
 ```
 
 ---

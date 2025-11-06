@@ -7,7 +7,7 @@
 # Function: buildPrintable()
 
 ```ts
-function buildPrintable&lt;TNode&gt;(node, lines): PhpPrintable&lt;TNode&gt;;
+function buildPrintable<TNode>(node, lines): PhpPrintable<TNode>;
 ```
 
 ## Type Parameters
@@ -28,4 +28,4 @@ readonly `string`[]
 
 ## Returns
 
-[`PhpPrintable`](../interfaces/PhpPrintable.md)\&lt;`TNode`\&gt;
+[`PhpPrintable`](../interfaces/PhpPrintable.md)\<`TNode`\>

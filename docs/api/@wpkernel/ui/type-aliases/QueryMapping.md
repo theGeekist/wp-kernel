@@ -4,10 +4,10 @@
 
 [@wpkernel/ui](../README.md) / QueryMapping
 
-# Type Alias: QueryMapping()\&lt;TQuery\&gt;
+# Type Alias: QueryMapping()\<TQuery\>
 
 ```ts
-type QueryMapping&lt;TQuery&gt; = (state) => TQuery;
+type QueryMapping<TQuery> = (state) => TQuery;
 ```
 
 Mapping function transforming DataViews state into resource queries.

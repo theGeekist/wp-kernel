@@ -19,5 +19,5 @@ readonly file: string;
 ### contents
 
 ```ts
-readonly contents: string | Buffer&lt;ArrayBufferLike&gt;;
+readonly contents: string | Buffer<ArrayBufferLike>;
 ```

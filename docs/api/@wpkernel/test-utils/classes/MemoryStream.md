@@ -24,7 +24,7 @@ new MemoryStream(opts?): MemoryStream;
 
 ##### opts?
 
-`WritableOptions`\&lt;`Writable`\&gt;
+`WritableOptions`\<`Writable`\>
 
 #### Returns
 
@@ -51,7 +51,7 @@ _write(
 
 ##### chunk
 
-`string` | `Buffer`\&lt;`ArrayBufferLike`\&gt;
+`string` | `Buffer`\<`ArrayBufferLike`\>
 
 ##### \_encoding
 

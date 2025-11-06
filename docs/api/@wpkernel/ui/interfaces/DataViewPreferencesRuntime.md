@@ -42,7 +42,7 @@ Preference key
 
 #### Returns
 
-`Promise`\&lt;`unknown`\&gt;
+`Promise`\<`unknown`\>
 
 Preference value or undefined
 
@@ -51,7 +51,7 @@ Preference value or undefined
 ### set()
 
 ```ts
-set: (key, value) => Promise&lt;void&gt;;
+set: (key, value) => Promise<void>;
 ```
 
 Persist a preference value
@@ -72,7 +72,7 @@ Preference value
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 

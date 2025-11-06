@@ -7,7 +7,7 @@
 # Function: createHelper()
 
 ```ts
-function createHelper&lt;TContext, TInput, TOutput, TReporter, TKind&gt;(options): Helper&lt;TContext, TInput, TOutput, TReporter, TKind&gt;;
+function createHelper<TContext, TInput, TOutput, TReporter, TKind>(options): Helper<TContext, TInput, TOutput, TReporter, TKind>;
 ```
 
 Creates a pipeline helper-the fundamental building block of WP Kernel's code generation system.
@@ -87,11 +87,11 @@ This design enables:
 
 ### options
 
-[`CreateHelperOptions`](../interfaces/CreateHelperOptions.md)\&lt;`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`\&gt;
+[`CreateHelperOptions`](../interfaces/CreateHelperOptions.md)\<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`\>
 
 ## Returns
 
-[`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`\&gt;
+[`Helper`](../interfaces/Helper.md)\<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`\>
 
 ## Examples
 
@@ -108,7 +108,7 @@ const addPHPTag = createHelper({
 	apply: ({ fragment }) => {
 		fragment.children.unshift({
 			kind: 'text',
-			text: '&lt;?php\n',
+			text: '<?php\n',
 		});
 	},
 });

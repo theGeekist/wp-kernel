@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceAdminUIConfig
 
-# Interface: ResourceAdminUIConfig\&lt;TItem, TQuery\&gt;
+# Interface: ResourceAdminUIConfig\<TItem, TQuery\>
 
 TODO: summary.
 
@@ -41,5 +41,5 @@ optional view: string;
 ### dataviews?
 
 ```ts
-optional dataviews: ResourceDataViewsUIConfig&lt;TItem, TQuery&gt;;
+optional dataviews: ResourceDataViewsUIConfig<TItem, TQuery>;
 ```

@@ -7,7 +7,7 @@
 # Function: registerWPKernelStore()
 
 ```ts
-function registerWPKernelStore&lt;Key, State, Actions, Selectors&gt;(key, config): StoreDescriptor&lt;ReduxStoreConfig&lt;State, Actions, Selectors&gt;&gt;;
+function registerWPKernelStore<Key, State, Actions, Selectors>(key, config): StoreDescriptor<ReduxStoreConfig<State, Actions, Selectors>>;
 ```
 
 Register a WordPress data store using WP Kernel defaults.
@@ -27,7 +27,7 @@ consistent middleware ordering and return the created store for further wiring.
 
 ### Actions
 
-`Actions` _extends_ `Record`\&lt;`string`, (...`args`) => `unknown`\&gt;
+`Actions` _extends_ `Record`\<`string`, (...`args`) => `unknown`\>
 
 ### Selectors
 
@@ -43,12 +43,12 @@ Store key used for registration
 
 ### config
 
-`ReduxStoreConfig`\&lt;`State`, `Actions`, `Selectors`\&gt;
+`ReduxStoreConfig`\<`State`, `Actions`, `Selectors`\>
 
 Store configuration passed to `createReduxStore`
 
 ## Returns
 
-`StoreDescriptor`\&lt;`ReduxStoreConfig`\&lt;`State`, `Actions`, `Selectors`\&gt;\&gt;
+`StoreDescriptor`\<`ReduxStoreConfig`\<`State`, `Actions`, `Selectors`\>\>
 
 Registered WordPress data store

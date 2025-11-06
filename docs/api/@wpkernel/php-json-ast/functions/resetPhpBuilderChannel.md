@@ -7,7 +7,7 @@
 # Function: resetPhpBuilderChannel()
 
 ```ts
-function resetPhpBuilderChannel&lt;TContext&gt;(context): void;
+function resetPhpBuilderChannel<TContext>(context): void;
 ```
 
 ## Type Parameters

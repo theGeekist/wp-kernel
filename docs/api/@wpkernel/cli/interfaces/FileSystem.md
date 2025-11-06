@@ -13,7 +13,7 @@ File system operations interface for start command.
 ### access()
 
 ```ts
-readonly access: (path, mode?) => Promise&lt;void&gt;;
+readonly access: (path, mode?) => Promise<void>;
 ```
 
 Tests a user's permissions for the file or directory specified by `path`.
@@ -56,7 +56,7 @@ the error raised if the file is not accessible.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 Fulfills with `undefined` upon success.
 
@@ -70,16 +70,16 @@ v10.0.0
 
 ```ts
 readonly mkdir: {
-  (path, options): Promise&lt;string | undefined&gt;;
-  (path, options?): Promise&lt;void&gt;;
-  (path, options?): Promise&lt;string | undefined&gt;;
+  (path, options): Promise<string | undefined>;
+  (path, options?): Promise<void>;
+  (path, options?): Promise<string | undefined>;
 };
 ```
 
 #### Call Signature
 
 ```ts
-(path, options): Promise&lt;string | undefined&gt;;
+(path, options): Promise<string | undefined>;
 ```
 
 Asynchronously creates a directory.
@@ -114,7 +114,7 @@ try {
 
 ##### Returns
 
-`Promise`\&lt;`string` \| `undefined`\&gt;
+`Promise`\<`string` \| `undefined`\>
 
 Upon success, fulfills with `undefined` if `recursive` is `false`, or the first directory path created if `recursive` is `true`.
 
@@ -125,7 +125,7 @@ v10.0.0
 #### Call Signature
 
 ```ts
-(path, options?): Promise&lt;void&gt;;
+(path, options?): Promise<void>;
 ```
 
 Asynchronous mkdir(2) - create a directory.
@@ -147,12 +147,12 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 #### Call Signature
 
 ```ts
-(path, options?): Promise&lt;string | undefined&gt;;
+(path, options?): Promise<string | undefined>;
 ```
 
 Asynchronous mkdir(2) - create a directory.
@@ -174,14 +174,14 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 
 ##### Returns
 
-`Promise`\&lt;`string` \| `undefined`\&gt;
+`Promise`\<`string` \| `undefined`\>
 
 ---
 
 ### cp()
 
 ```ts
-readonly cp: (source, destination, opts?) => Promise&lt;void&gt;;
+readonly cp: (source, destination, opts?) => Promise<void>;
 ```
 
 **`Experimental`**
@@ -208,7 +208,7 @@ behavior is similar to `cp dir1/ dir2/`.
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 Fulfills with `undefined` upon success.
 

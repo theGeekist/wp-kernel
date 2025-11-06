@@ -122,7 +122,7 @@ Background job helpers.
 ### capability
 
 ```ts
-readonly capability: Pick&lt;CapabilityHelpers&lt;Record&lt;string, unknown&gt;&gt;, "assert" | "can"&gt;;
+readonly capability: Pick<CapabilityHelpers<Record<string, unknown>>, "assert" | "can">;
 ```
 
 Capability enforcement helpers.

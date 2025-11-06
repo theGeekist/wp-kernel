@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ReduxMiddlewareAPI
 
-# Type Alias: ReduxMiddlewareAPI\&lt;TState\&gt;
+# Type Alias: ReduxMiddlewareAPI\<TState\>
 
 ```ts
-type ReduxMiddlewareAPI&lt;TState&gt; = object;
+type ReduxMiddlewareAPI<TState> = object;
 ```
 
 Redux compatible middleware API signature.

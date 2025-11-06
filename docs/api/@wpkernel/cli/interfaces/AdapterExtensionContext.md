@@ -45,7 +45,7 @@ tempDir: string;
 ### queueFile()
 
 ```ts
-queueFile: (filePath, contents) => Promise&lt;void&gt;;
+queueFile: (filePath, contents) => Promise<void>;
 ```
 
 #### Parameters
@@ -60,7 +60,7 @@ queueFile: (filePath, contents) => Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
@@ -101,7 +101,7 @@ string & gt;
 
 #### Returns
 
-`Promise`\&lt;`string`\&gt;
+`Promise`\<`string`\>
 
 ---
 
@@ -124,7 +124,7 @@ string & gt;
 
 #### Returns
 
-`Promise`\&lt;`string`\&gt;
+`Promise`\<`string`\>
 
 ---
 

@@ -27,4 +27,4 @@ Component type for WP Kernel UI Provider.
 
 ## Returns
 
-`ReturnType`\&lt;_typeof_ `createElement`\&gt;
+`ReturnType`\<_typeof_ `createElement`\>

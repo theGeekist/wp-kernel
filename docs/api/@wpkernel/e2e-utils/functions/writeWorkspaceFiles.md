@@ -7,7 +7,7 @@
 # Function: writeWorkspaceFiles()
 
 ```ts
-function writeWorkspaceFiles(workspace, files): Promise&lt;void&gt;;
+function writeWorkspaceFiles(workspace, files): Promise<void>;
 ```
 
 Creates a temporary, isolated workspace for E2E tests.
@@ -27,4 +27,4 @@ do not interfere with each other's file system state.
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

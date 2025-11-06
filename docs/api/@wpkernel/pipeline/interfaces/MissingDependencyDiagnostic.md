@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / MissingDependencyDiagnostic
 
-# Interface: MissingDependencyDiagnostic\&lt;TKind\&gt;
+# Interface: MissingDependencyDiagnostic\<TKind\>
 
 Diagnostic for missing helper dependencies.
 

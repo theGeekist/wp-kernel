@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / CoreResourcePipelineHarness
 
-# Interface: CoreResourcePipelineHarness\&lt;T, TQuery\&gt;
+# Interface: CoreResourcePipelineHarness\<T, TQuery\>
 
 A harness for testing resource pipelines.
 
@@ -23,7 +23,7 @@ A harness for testing resource pipelines.
 ### pipeline
 
 ```ts
-readonly pipeline: ResourcePipeline&lt;T, TQuery&gt;;
+readonly pipeline: ResourcePipeline<T, TQuery>;
 ```
 
 The resource pipeline instance.

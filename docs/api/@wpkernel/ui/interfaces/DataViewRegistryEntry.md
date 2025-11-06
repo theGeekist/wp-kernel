@@ -27,5 +27,5 @@ preferencesKey: string;
 ### metadata?
 
 ```ts
-optional metadata: Record&lt;string, unknown&gt;;
+optional metadata: Record<string, unknown>;
 ```

@@ -7,7 +7,7 @@
 # Function: consumePhpProgramIngestion()
 
 ```ts
-function consumePhpProgramIngestion(options): Promise&lt;void&gt;;
+function consumePhpProgramIngestion(options): Promise<void>;
 ```
 
 ## Parameters
@@ -18,4 +18,4 @@ function consumePhpProgramIngestion(options): Promise&lt;void&gt;;
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>

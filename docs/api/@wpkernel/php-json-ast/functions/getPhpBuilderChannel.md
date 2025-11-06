@@ -7,7 +7,7 @@
 # Function: getPhpBuilderChannel()
 
 ```ts
-function getPhpBuilderChannel&lt;TContext&gt;(context): PhpBuilderChannel;
+function getPhpBuilderChannel<TContext>(context): PhpBuilderChannel;
 ```
 
 ## Type Parameters

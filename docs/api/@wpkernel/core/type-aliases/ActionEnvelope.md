@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ActionEnvelope
 
-# Type Alias: ActionEnvelope\&lt;TArgs, TResult\&gt;
+# Type Alias: ActionEnvelope\<TArgs, TResult\>
 
 ```ts
-type ActionEnvelope&lt;TArgs, TResult&gt; = object;
+type ActionEnvelope<TArgs, TResult> = object;
 ```
 
 Shape of the action envelope dispatched through Redux middleware.
@@ -75,5 +75,5 @@ __kernelAction: true;
 ### meta?
 
 ```ts
-optional meta: Record&lt;string, unknown&gt;;
+optional meta: Record<string, unknown>;
 ```

@@ -7,7 +7,7 @@
 # Function: createPipeline()
 
 ```ts
-function createPipeline&lt;TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper&gt;(options): Pipeline&lt;TRunOptions, TRunResult, TContext, TReporter, TBuildOptions, TArtifact, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TDiagnostic, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper&gt;;
+function createPipeline<TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper>(options): Pipeline<TRunOptions, TRunResult, TContext, TReporter, TBuildOptions, TArtifact, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TDiagnostic, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper>;
 ```
 
 Creates a pipeline orchestrator-the execution engine that powers WP Kernel's entire code generation infrastructure.
@@ -128,7 +128,7 @@ The pipeline is fully generic across 16 type parameters, enabling:
 
 ### TRunResult
 
-`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)\&lt;`TArtifact`, `TDiagnostic`\&gt;
+`TRunResult` = [`PipelineRunState`](../interfaces/PipelineRunState.md)\<`TArtifact`, `TDiagnostic`\>
 
 ### TFragmentInput
 
@@ -156,21 +156,21 @@ The pipeline is fully generic across 16 type parameters, enabling:
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
+`TFragmentHelper` _extends_ [`Helper`](../interfaces/Helper.md)\<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\> = [`Helper`](../interfaces/Helper.md)\<`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\>
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
+`TBuilderHelper` _extends_ [`Helper`](../interfaces/Helper.md)\<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\> = [`Helper`](../interfaces/Helper.md)\<`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\>
 
 ## Parameters
 
 ### options
 
-[`CreatePipelineOptions`](../interfaces/CreatePipelineOptions.md)\&lt;`TRunOptions`, `TBuildOptions`, `TContext`, `TReporter`, `TDraft`, `TArtifact`, `TDiagnostic`, `TRunResult`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`\&gt;
+[`CreatePipelineOptions`](../interfaces/CreatePipelineOptions.md)\<`TRunOptions`, `TBuildOptions`, `TContext`, `TReporter`, `TDraft`, `TArtifact`, `TDiagnostic`, `TRunResult`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`\>
 
 ## Returns
 
-[`Pipeline`](../interfaces/Pipeline.md)\&lt;`TRunOptions`, `TRunResult`, `TContext`, `TReporter`, `TBuildOptions`, `TArtifact`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TDiagnostic`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`\&gt;
+[`Pipeline`](../interfaces/Pipeline.md)\<`TRunOptions`, `TRunResult`, `TContext`, `TReporter`, `TBuildOptions`, `TArtifact`, `TFragmentInput`, `TFragmentOutput`, `TBuilderInput`, `TBuilderOutput`, `TDiagnostic`, `TFragmentKind`, `TBuilderKind`, `TFragmentHelper`, `TBuilderHelper`\>
 
 ## Examples
 
@@ -179,7 +179,7 @@ import { createPipeline, createHelper } from '@wpkernel/core/pipeline';
 import { createReporter } from '@wpkernel/core';
 
 interface MyContext {
-  reporter: ReturnType&lt;typeof createReporter&gt;;
+  reporter: ReturnType<typeof createReporter>;
   namespace: string;
 }
 
@@ -226,7 +226,7 @@ const pipeline = createPipeline({
       hooks: {
         'post-builder': async ({ artifact, context }) => {
           const lintResult = await eslint.lintText(artifact);
-          if (lintResult.errorCount &gt; 0) {
+          if (lintResult.errorCount > 0) {
             throw new Error('Linting failed');
           }
           return { artifact };

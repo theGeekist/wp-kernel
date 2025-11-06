@@ -4,10 +4,10 @@
 
 [@wpkernel/e2e-utils](../README.md) / WithWorkspaceCallback
 
-# Type Alias: WithWorkspaceCallback()\&lt;TResult\&gt;
+# Type Alias: WithWorkspaceCallback()\<TResult\>
 
 ```ts
-type WithWorkspaceCallback&lt;TResult&gt; = (workspace) => Promise&lt;TResult&gt; | TResult;
+type WithWorkspaceCallback<TResult> = (workspace) => Promise<TResult> | TResult;
 ```
 
 ## Type Parameters
@@ -24,4 +24,4 @@ type WithWorkspaceCallback&lt;TResult&gt; = (workspace) => Promise&lt;TResult&gt
 
 ## Returns
 
-`Promise`\&lt;`TResult`\&gt; \| `TResult`
+`Promise`\<`TResult`\> \| `TResult`

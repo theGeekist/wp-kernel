@@ -10,7 +10,7 @@ Input for a builder helper.
 
 ## Extends
 
-- `Omit`\&lt;`BaseBuilderInput`, `"options"` \| `"ir"`\&gt;
+- `Omit`\<`BaseBuilderInput`, `"options"` \| `"ir"`\>
 
 ## Properties
 

@@ -4,10 +4,10 @@
 
 [@wpkernel/php-json-ast](../README.md) / BuilderHelper
 
-# Type Alias: BuilderHelper\&lt;TContext, TInput, TOutput\&gt;
+# Type Alias: BuilderHelper\<TContext, TInput, TOutput\>
 
 ```ts
-type BuilderHelper&lt;TContext, TInput, TOutput&gt; = Helper&lt;TContext, TInput, TOutput, TContext["reporter"], "builder"&gt;;
+type BuilderHelper<TContext, TInput, TOutput> = Helper<TContext, TInput, TOutput, TContext["reporter"], "builder">;
 ```
 
 ## Type Parameters

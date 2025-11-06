@@ -43,7 +43,7 @@ The severity of the diagnostic.
 ### context?
 
 ```ts
-optional context: Record&lt;string, unknown&gt;;
+optional context: Record<string, unknown>;
 ```
 
 Optional: Additional context for the diagnostic.

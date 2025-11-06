@@ -6,7 +6,7 @@
 
 # Interface: PhpExprMethodCall
 
-Represents a PHP method call expression (e.g., `$object-&gt;method()`).
+Represents a PHP method call expression (e.g., `$object->method()`).
 
 ## Extends
 

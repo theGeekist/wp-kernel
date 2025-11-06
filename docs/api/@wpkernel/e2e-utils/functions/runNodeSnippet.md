@@ -24,4 +24,4 @@ in an isolated environment.
 
 ## Returns
 
-`Promise`\&lt;[`CliTranscript`](../interfaces/CliTranscript.md)\&gt;
+`Promise`\<[`CliTranscript`](../interfaces/CliTranscript.md)\>

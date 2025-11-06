@@ -64,7 +64,7 @@ Optional: Custom workspace builder function.
 #### runWorkflow()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) => Promise&lt;InitWorkflowResult&gt;;
+readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
 ```
 
 Optional: Custom workflow runner function.
@@ -77,14 +77,14 @@ Optional: Custom workflow runner function.
 
 ##### Returns
 
-`Promise`\&lt;[`InitWorkflowResult`](InitWorkflowResult.md)\&gt;
+`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>
 
 ---
 
 #### checkGitRepository()?
 
 ```ts
-readonly optional checkGitRepository: (cwd, __namedParameters) => Promise&lt;boolean&gt;;
+readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolean>;
 ```
 
 Optional: Custom git repository checker function.
@@ -101,14 +101,14 @@ Optional: Custom git repository checker function.
 
 ##### Returns
 
-`Promise`\&lt;`boolean`\&gt;
+`Promise`\<`boolean`\>
 
 ---
 
 #### initGitRepository()?
 
 ```ts
-readonly optional initGitRepository: (cwd, __namedParameters) => Promise&lt;void&gt;;
+readonly optional initGitRepository: (cwd, __namedParameters) => Promise<void>;
 ```
 
 Optional: Custom git repository initializer function.
@@ -125,14 +125,14 @@ Optional: Custom git repository initializer function.
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 #### installNodeDependencies()?
 
 ```ts
-readonly optional installNodeDependencies: (cwd, __namedParameters) => Promise&lt;void&gt;;
+readonly optional installNodeDependencies: (cwd, __namedParameters) => Promise<void>;
 ```
 
 Optional: Custom Node.js dependency installer function.
@@ -149,14 +149,14 @@ Optional: Custom Node.js dependency installer function.
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 #### installComposerDependencies()?
 
 ```ts
-readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise&lt;void&gt;;
+readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise<void>;
 ```
 
 Optional: Custom Composer dependency installer function.
@@ -173,14 +173,14 @@ Optional: Custom Composer dependency installer function.
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ### Workspace Utilities
 
 #### ensureCleanDirectory()?
 
 ```ts
-readonly optional ensureCleanDirectory: (options) => Promise&lt;void&gt;;
+readonly optional ensureCleanDirectory: (options) => Promise<void>;
 ```
 
 Optional: Custom clean directory enforcer function.
@@ -200,7 +200,7 @@ Options for ensuring the directory is clean.
 
 ##### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ##### Throws
 

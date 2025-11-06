@@ -32,7 +32,7 @@ Creates a new `WPKernelUIRuntime` instance.
 
 ##### overrides?
 
-`Partial`\&lt;`WPKernelUIRuntime`\&gt;
+`Partial`\<`WPKernelUIRuntime`\>
 
 #### Returns
 
@@ -43,8 +43,8 @@ Creates a new `WPKernelUIRuntime` instance.
 ### createWrapper()
 
 ```ts
-createWrapper: (runtime?) => (__namedParameters) => ReactElement&lt;{
-}&gt;;
+createWrapper: (runtime?) => (__namedParameters) => ReactElement<{
+}>;
 ```
 
 Creates a React wrapper component for the WPKernel UI runtime.
@@ -58,8 +58,8 @@ Creates a React wrapper component for the WPKernel UI runtime.
 #### Returns
 
 ```ts
-(__namedParameters): ReactElement&lt;{
-}&gt;;
+(__namedParameters): ReactElement<{
+}>;
 ```
 
 ##### Parameters
@@ -72,8 +72,8 @@ Creates a React wrapper component for the WPKernel UI runtime.
 
 ##### Returns
 
-`ReactElement`\&lt;\{
-\}\&gt;
+`ReactElement`\<\{
+\}\>
 
 ---
 

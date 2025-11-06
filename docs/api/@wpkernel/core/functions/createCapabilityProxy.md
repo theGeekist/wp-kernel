@@ -7,7 +7,7 @@
 # Function: createCapabilityProxy()
 
 ```ts
-function createCapabilityProxy(options): Pick&lt;CapabilityHelpers&lt;Record&lt;string, unknown&gt;&gt;, "assert" | "can"&gt;;
+function createCapabilityProxy(options): Pick<CapabilityHelpers<Record<string, unknown>>, "assert" | "can">;
 ```
 
 Create an action-scoped capability proxy for `ctx.capability`.
@@ -27,7 +27,7 @@ Action metadata captured during middleware execution
 
 ## Returns
 
-`Pick`\&lt;[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;, `"assert"` \| `"can"`\&gt;
+`Pick`\<[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)\<`Record`\<`string`, `unknown`\>\>, `"assert"` \| `"can"`\>
 
 Capability helpers restricted to `assert` and `can`
 

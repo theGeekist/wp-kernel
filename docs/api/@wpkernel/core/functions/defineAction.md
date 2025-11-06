@@ -7,7 +7,7 @@
 # Function: defineAction()
 
 ```ts
-function defineAction&lt;TArgs, TResult&gt;(config): DefinedAction&lt;TArgs, TResult&gt;;
+function defineAction<TArgs, TResult>(config): DefinedAction<TArgs, TResult>;
 ```
 
 Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
@@ -35,10 +35,10 @@ Every action execution automatically handles:
 import { defineAction } from '@wpkernel/core/actions';
 import { testimonial } from '@/resources/testimonial';
 
-export const CreateTestimonial = defineAction&lt;
+export const CreateTestimonial = defineAction<
   { data: Testimonial },
   Testimonial
-&gt;('Testimonial.Create', async (ctx, { data }) => {
+>('Testimonial.Create', async (ctx, { data }) => {
   // 1. Capability check
   ctx.capability.assert('testimonials.create');
 
@@ -183,13 +183,13 @@ Type of value returned by the action
 
 ### config
 
-[`ActionConfig`](../type-aliases/ActionConfig.md)\&lt;`TArgs`, `TResult`\&gt;
+[`ActionConfig`](../type-aliases/ActionConfig.md)\<`TArgs`, `TResult`\>
 
 Configuration describing the action.
 
 ## Returns
 
-[`DefinedAction`](../type-aliases/DefinedAction.md)\&lt;`TArgs`, `TResult`\&gt;
+[`DefinedAction`](../type-aliases/DefinedAction.md)\<`TArgs`, `TResult`\>
 
 Callable action function with metadata attached
 

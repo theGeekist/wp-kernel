@@ -40,7 +40,7 @@ async function SendWelcomeEmail(ctx, { userId }) {
 ### enqueue()
 
 ```ts
-enqueue: &lt;TPayload&gt;(jobName, payload) => Promise&lt;void&gt;;
+enqueue: <TPayload>(jobName, payload) => Promise<void>;
 ```
 
 #### Type Parameters
@@ -61,14 +61,14 @@ enqueue: &lt;TPayload&gt;(jobName, payload) => Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### wait()
 
 ```ts
-wait: &lt;TPayload, TResult&gt;(jobName, payload, options?) => Promise&lt;TResult&gt;;
+wait: <TPayload, TResult>(jobName, payload, options?) => Promise<TResult>;
 ```
 
 #### Type Parameters
@@ -97,4 +97,4 @@ wait: &lt;TPayload, TResult&gt;(jobName, payload, options?) => Promise&lt;TResul
 
 #### Returns
 
-`Promise`\&lt;`TResult`\&gt;
+`Promise`\<`TResult`\>

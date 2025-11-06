@@ -7,7 +7,7 @@
 # Function: createResourceDataViewController()
 
 ```ts
-function createResourceDataViewController&lt;TItem, TQuery&gt;(options): ResourceDataViewController&lt;TItem, TQuery&gt;;
+function createResourceDataViewController<TItem, TQuery>(options): ResourceDataViewController<TItem, TQuery>;
 ```
 
 Creates a controller for a ResourceDataView.
@@ -34,12 +34,12 @@ The type of the query parameters for the resource.
 
 ### options
 
-[`ResourceDataViewControllerOptions`](../interfaces/ResourceDataViewControllerOptions.md)\&lt;`TItem`, `TQuery`\&gt;
+[`ResourceDataViewControllerOptions`](../interfaces/ResourceDataViewControllerOptions.md)\<`TItem`, `TQuery`\>
 
 Configuration options for the controller.
 
 ## Returns
 
-[`ResourceDataViewController`](../interfaces/ResourceDataViewController.md)\&lt;`TItem`, `TQuery`\&gt;
+[`ResourceDataViewController`](../interfaces/ResourceDataViewController.md)\<`TItem`, `TQuery`\>
 
 A `ResourceDataViewController` instance.

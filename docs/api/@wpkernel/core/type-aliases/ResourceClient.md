@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ResourceClient
 
-# Type Alias: ResourceClient\&lt;T, TQuery\&gt;
+# Type Alias: ResourceClient\<T, TQuery\>
 
 ```ts
-type ResourceClient&lt;T, TQuery&gt; = object;
+type ResourceClient<T, TQuery> = object;
 ```
 
 Client methods for REST operations
@@ -34,7 +34,7 @@ Query parameters type for list operations
 ### fetchList()?
 
 ```ts
-optional fetchList: (query?) => Promise&lt;ListResponse&lt;T&gt;&gt;;
+optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
 
 Fetch a list of resources
@@ -49,7 +49,7 @@ Query parameters (filters, pagination, etc.)
 
 #### Returns
 
-`Promise`\&lt;[`ListResponse`](ListResponse.md)\&lt;`T`\&gt;\&gt;
+`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
 
 Promise resolving to list response
 
@@ -66,7 +66,7 @@ ServerError on REST API error
 ### fetch()?
 
 ```ts
-optional fetch: (id) => Promise&lt;T&gt;;
+optional fetch: (id) => Promise<T>;
 ```
 
 Fetch a single resource by ID
@@ -81,7 +81,7 @@ Resource identifier
 
 #### Returns
 
-`Promise`\&lt;`T`\&gt;
+`Promise`\<`T`\>
 
 Promise resolving to resource entity
 
@@ -98,7 +98,7 @@ ServerError on REST API error (including 404)
 ### create()?
 
 ```ts
-optional create: (data) => Promise&lt;T&gt;;
+optional create: (data) => Promise<T>;
 ```
 
 Create a new resource
@@ -107,13 +107,13 @@ Create a new resource
 
 ##### data
 
-`Partial`\&lt;`T`\&gt;
+`Partial`\<`T`\>
 
 Resource data to create
 
 #### Returns
 
-`Promise`\&lt;`T`\&gt;
+`Promise`\<`T`\>
 
 Promise resolving to created resource
 
@@ -130,7 +130,7 @@ ServerError on REST API error (including validation errors)
 ### update()?
 
 ```ts
-optional update: (id, data) => Promise&lt;T&gt;;
+optional update: (id, data) => Promise<T>;
 ```
 
 Update an existing resource
@@ -145,13 +145,13 @@ Resource identifier
 
 ##### data
 
-`Partial`\&lt;`T`\&gt;
+`Partial`\<`T`\>
 
 Partial resource data to update
 
 #### Returns
 
-`Promise`\&lt;`T`\&gt;
+`Promise`\<`T`\>
 
 Promise resolving to updated resource
 
@@ -168,7 +168,7 @@ ServerError on REST API error (including 404, validation errors)
 ### remove()?
 
 ```ts
-optional remove: (id) => Promise&lt;void | T&gt;;
+optional remove: (id) => Promise<void | T>;
 ```
 
 Delete a resource
@@ -183,7 +183,7 @@ Resource identifier
 
 #### Returns
 
-`Promise`\&lt;`void` \| `T`\&gt;
+`Promise`\<`void` \| `T`\>
 
 Promise resolving to void or deleted resource
 
@@ -200,7 +200,7 @@ ServerError on REST API error (including 404)
 ### ui?
 
 ```ts
-optional ui: ResourceUIConfig&lt;T, TQuery&gt;;
+optional ui: ResourceUIConfig<T, TQuery>;
 ```
 
 Optional UI metadata carried over from ResourceConfig.ui.

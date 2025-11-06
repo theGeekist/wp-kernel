@@ -10,7 +10,7 @@ Context object passed through the entire pipeline execution.
 
 ## Extends
 
-- `Omit`\&lt;`BasePipelineContext`, `"workspace"`\&gt;
+- `Omit`\<`BasePipelineContext`, `"workspace"`\>
 
 ## Properties
 

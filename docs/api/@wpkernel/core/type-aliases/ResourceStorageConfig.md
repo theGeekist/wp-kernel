@@ -16,12 +16,12 @@ type ResourceStorageConfig =
   postType?: string;
   statuses?: string[];
   supports?: ("title" | "editor" | "excerpt" | "custom-fields")[];
-  meta?: Record&lt;string, ResourcePostMetaDescriptor&gt;;
-  taxonomies?: Record&lt;string, {
+  meta?: Record<string, ResourcePostMetaDescriptor>;
+  taxonomies?: Record<string, {
      taxonomy: string;
      hierarchical?: boolean;
      register?: boolean;
-  }&gt;;
+  }>;
 }
   | {
   mode: "wp-taxonomy";

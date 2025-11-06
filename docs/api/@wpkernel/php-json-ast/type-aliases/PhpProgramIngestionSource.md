@@ -8,7 +8,7 @@
 
 ```ts
 type PhpProgramIngestionSource =
-  | AsyncIterable&lt;string | Buffer&gt;
-  | Iterable&lt;string | Buffer&gt;
+  | AsyncIterable<string | Buffer>
+  | Iterable<string | Buffer>
   | NodeJS.ReadableStream;
 ```

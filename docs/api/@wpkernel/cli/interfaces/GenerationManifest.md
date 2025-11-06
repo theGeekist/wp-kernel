@@ -21,7 +21,7 @@ readonly version: 1;
 ### resources
 
 ```ts
-readonly resources: Record&lt;string, GenerationManifestResourceEntry&gt;;
+readonly resources: Record<string, GenerationManifestResourceEntry>;
 ```
 
 ---

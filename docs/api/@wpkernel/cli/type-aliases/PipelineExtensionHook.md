@@ -7,9 +7,9 @@
 # Type Alias: PipelineExtensionHook()
 
 ```ts
-type PipelineExtensionHook = (options) => Promise&lt;
+type PipelineExtensionHook = (options) => Promise<
   | PipelineExtensionHookResult
-| void&gt;;
+| void>;
 ```
 
 Represents a pipeline extension hook function.
@@ -22,6 +22,6 @@ Represents a pipeline extension hook function.
 
 ## Returns
 
-`Promise`\&lt;
+`Promise`\<
 \| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)
-\| `void`\&gt;
+\| `void`\>

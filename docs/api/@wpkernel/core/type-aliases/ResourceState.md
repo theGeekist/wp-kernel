@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ResourceState
 
-# Type Alias: ResourceState\&lt;T\&gt;
+# Type Alias: ResourceState\<T\>
 
 ```ts
-type ResourceState&lt;T&gt; = object;
+type ResourceState<T> = object;
 ```
 
 TODO: summary.
@@ -36,7 +36,7 @@ Map of items by ID.
 ### lists
 
 ```ts
-lists: Record&lt;string, (string | number)[]&gt;;
+lists: Record<string, (string | number)[]>;
 ```
 
 List queries and their results.
@@ -47,12 +47,12 @@ Key is stringified query params, value is array of IDs.
 ### listMeta
 
 ```ts
-listMeta: Record&lt;string, {
+listMeta: Record<string, {
   total?: number;
   hasMore?: boolean;
   nextCursor?: string;
   status?: ResourceListStatus;
-}&gt;;
+}>;
 ```
 
 List metadata (total count, pagination, etc).

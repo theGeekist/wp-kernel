@@ -64,7 +64,7 @@ Optional: Custom workspace builder function.
 #### runWorkflow()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) => Promise&lt;InitWorkflowResult&gt;;
+readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
 ```
 
 Optional: Custom workflow runner function.
@@ -77,14 +77,14 @@ Optional: Custom workflow runner function.
 
 ##### Returns
 
-`Promise`\&lt;[`InitWorkflowResult`](InitWorkflowResult.md)\&gt;
+`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>
 
 ---
 
 #### checkGitRepository()?
 
 ```ts
-readonly optional checkGitRepository: (cwd, __namedParameters) => Promise&lt;boolean&gt;;
+readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolean>;
 ```
 
 Optional: Custom git repository checker function.
@@ -101,4 +101,4 @@ Optional: Custom git repository checker function.
 
 ##### Returns
 
-`Promise`\&lt;`boolean`\&gt;
+`Promise`\<`boolean`\>

@@ -27,7 +27,7 @@ readonly docblockLines: string[];
 ### uses
 
 ```ts
-readonly uses: Map&lt;string, ProgramUse&gt;;
+readonly uses: Map<string, ProgramUse>;
 ```
 
 ---

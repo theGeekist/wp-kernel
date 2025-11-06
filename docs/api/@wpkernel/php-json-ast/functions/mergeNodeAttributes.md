@@ -7,7 +7,7 @@
 # Function: mergeNodeAttributes()
 
 ```ts
-function mergeNodeAttributes&lt;T&gt;(node, attributes?): T;
+function mergeNodeAttributes<T>(node, attributes?): T;
 ```
 
 Merges new attributes into an existing PHP AST node's attributes.
@@ -31,7 +31,7 @@ The original PHP AST node.
 
 ### attributes?
 
-`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+`Readonly`\<`Record`\<`string`, `unknown`\>\>
 
 The attributes to merge into the node.
 

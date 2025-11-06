@@ -22,7 +22,7 @@ An array of strings representing the parts of the name (e.g., ['MyNamespace', 'M
 
 ### attributes?
 
-`Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+`Readonly`\<`Record`\<`string`, `unknown`\>\>
 
 Optional attributes for the node.
 

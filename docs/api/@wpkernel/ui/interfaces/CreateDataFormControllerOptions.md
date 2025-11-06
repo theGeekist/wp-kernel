@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / CreateDataFormControllerOptions
 
-# Interface: CreateDataFormControllerOptions\&lt;TInput, TResult, TQuery\&gt;
+# Interface: CreateDataFormControllerOptions\<TInput, TResult, TQuery\>
 
 Options for creating a `DataFormController`.
 
@@ -52,7 +52,7 @@ resourceName: string;
 ### resource?
 
 ```ts
-optional resource: ResourceObject&lt;unknown, TQuery&gt;;
+optional resource: ResourceObject<unknown, TQuery>;
 ```
 
 ---

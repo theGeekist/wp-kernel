@@ -4,10 +4,10 @@
 
 [@wpkernel/core](../README.md) / ResourceStoreOptions
 
-# Type Alias: ResourceStoreOptions\&lt;T, TQuery\&gt;
+# Type Alias: ResourceStoreOptions\<T, TQuery\>
 
 ```ts
-type ResourceStoreOptions&lt;T, TQuery&gt; = object;
+type ResourceStoreOptions<T, TQuery> = object;
 ```
 
 Complete resource definition configuration
@@ -15,7 +15,7 @@ Complete resource definition configuration
 ## Example
 
 ```ts
-const thing = defineResource&lt;Thing, { q?: string }&gt;({
+const thing = defineResource<Thing, { q?: string }>({
   name: 'thing',
   routes: {
     list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -90,7 +90,7 @@ Defaults to JSON.stringify
 ### initialState?
 
 ```ts
-optional initialState: Partial&lt;ResourceState&lt;T&gt;&gt;;
+optional initialState: Partial<ResourceState<T>>;
 ```
 
 Initial state overrides for the store.

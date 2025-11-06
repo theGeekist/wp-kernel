@@ -6,7 +6,7 @@
 
 # Interface: PhpExprNullsafePropertyFetch
 
-Represents a PHP nullsafe property fetch expression (e.g., `$object?-&gt;property`).
+Represents a PHP nullsafe property fetch expression (e.g., `$object?->property`).
 
 ## Extends
 

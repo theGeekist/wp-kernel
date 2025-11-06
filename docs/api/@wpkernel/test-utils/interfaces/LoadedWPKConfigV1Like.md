@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / LoadedWPKConfigV1Like
 
-# Interface: LoadedWPKConfigV1Like\&lt;TConfig, TOrigin, TComposerCheck\&gt;
+# Interface: LoadedWPKConfigV1Like\<TConfig, TOrigin, TComposerCheck\>
 
 ## Type Parameters
 

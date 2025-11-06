@@ -27,7 +27,7 @@ cwd: () => string;
 ### read()
 
 ```ts
-read: (file) => Promise&lt;Buffer&lt;ArrayBufferLike&gt; | null&gt;;
+read: (file) => Promise<Buffer<ArrayBufferLike> | null>;
 ```
 
 #### Parameters
@@ -38,7 +38,7 @@ read: (file) => Promise&lt;Buffer&lt;ArrayBufferLike&gt; | null&gt;;
 
 #### Returns
 
-`Promise`\&lt;`Buffer`\&lt;`ArrayBufferLike`\&gt; \| `null`\&gt;
+`Promise`\<`Buffer`\<`ArrayBufferLike`\> \| `null`\>
 
 ---
 
@@ -57,14 +57,14 @@ string | (null & gt);
 
 #### Returns
 
-`Promise`\&lt;`string` \| `null`\&gt;
+`Promise`\<`string` \| `null`\>
 
 ---
 
 ### write()
 
 ```ts
-write: (file, data, options?) => Promise&lt;void&gt;;
+write: (file, data, options?) => Promise<void>;
 ```
 
 #### Parameters
@@ -75,7 +75,7 @@ write: (file, data, options?) => Promise&lt;void&gt;;
 
 ##### data
 
-`string` | `Buffer`\&lt;`ArrayBufferLike`\&gt;
+`string` | `Buffer`\<`ArrayBufferLike`\>
 
 ##### options?
 
@@ -83,14 +83,14 @@ write: (file, data, options?) => Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### writeJson()
 
 ```ts
-writeJson: &lt;T&gt;(file, value, options?) => Promise&lt;void&gt;;
+writeJson: <T>(file, value, options?) => Promise<void>;
 ```
 
 #### Type Parameters
@@ -115,14 +115,14 @@ writeJson: &lt;T&gt;(file, value, options?) => Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### rm()
 
 ```ts
-rm: (target, options?) => Promise&lt;void&gt;;
+rm: (target, options?) => Promise<void>;
 ```
 
 #### Parameters
@@ -137,14 +137,14 @@ rm: (target, options?) => Promise&lt;void&gt;;
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\<`void`\>
 
 ---
 
 ### glob()
 
 ```ts
-glob: (pattern) => Promise&lt;string[]&gt;;
+glob: (pattern) => Promise<string[]>;
 ```
 
 #### Parameters
@@ -155,7 +155,7 @@ glob: (pattern) => Promise&lt;string[]&gt;;
 
 #### Returns
 
-`Promise`\&lt;`string`[]\&gt;
+`Promise`\<`string`[]\>
 
 ---
 
@@ -190,7 +190,7 @@ threeWayMerge: (file, base, current, incoming, options?) => Promise & lt;
 
 #### Returns
 
-`Promise`\&lt;`"conflict"` \| `"clean"`\&gt;
+`Promise`\<`"conflict"` \| `"clean"`\>
 
 ---
 
@@ -227,7 +227,7 @@ FileManifest & gt;
 
 #### Returns
 
-`Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
+`Promise`\<[`FileManifest`](FileManifest.md)\>
 
 ---
 
@@ -246,17 +246,17 @@ FileManifest & gt;
 
 #### Returns
 
-`Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
+`Promise`\<[`FileManifest`](FileManifest.md)\>
 
 ---
 
 ### dryRun()
 
 ```ts
-dryRun: &lt;T&gt;(fn) => Promise&lt;{
+dryRun: <T>(fn) => Promise<{
   result: T;
   manifest: FileManifest;
-}&gt;;
+}>;
 ```
 
 #### Type Parameters
@@ -269,14 +269,14 @@ dryRun: &lt;T&gt;(fn) => Promise&lt;{
 
 ##### fn
 
-() => `Promise`\&lt;`T`\&gt;
+() => `Promise`\<`T`\>
 
 #### Returns
 
-`Promise`\&lt;\{
+`Promise`\<\{
 `result`: `T`;
 `manifest`: [`FileManifest`](FileManifest.md);
-\}\&gt;
+\}\>
 
 ---
 
@@ -295,7 +295,7 @@ string & gt;
 
 #### Returns
 
-`Promise`\&lt;`string`\&gt;
+`Promise`\<`string`\>
 
 ---
 
@@ -352,7 +352,7 @@ boolean & gt;
 
 #### Returns
 
-`Promise`\&lt;`boolean`\&gt;
+`Promise`\<`boolean`\>
 
 #### Inherited from
 

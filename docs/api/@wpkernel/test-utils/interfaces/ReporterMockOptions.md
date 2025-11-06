@@ -33,7 +33,7 @@ A factory function to create child reporter mocks.
 ### overrides?
 
 ```ts
-optional overrides: Partial&lt;Reporter&gt;;
+optional overrides: Partial<Reporter>;
 ```
 
 Partial overrides for the reporter methods.

@@ -16,9 +16,9 @@ Represents a pipeline extension.
 register: (pipeline) =>
   | void
   | PipelineExtensionHook
-  | Promise&lt;
+  | Promise<
   | void
-| PipelineExtensionHook&gt;;
+| PipelineExtensionHook>;
 ```
 
 The registration function for the extension.
@@ -36,9 +36,9 @@ The pipeline instance to register with.
 
 \| `void`
 \| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)
-\| `Promise`\&lt;
+\| `Promise`\<
 \| `void`
-\| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\&gt;
+\| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\>
 
 An optional `PipelineExtensionHook` or a promise resolving to one.
 

@@ -7,7 +7,7 @@
 # Function: defineInteraction()
 
 ```ts
-function defineInteraction&lt;TEntity, TQuery, TStore, TActions&gt;(options): DefinedInteraction&lt;InteractivityStoreResult&gt;;
+function defineInteraction<TEntity, TQuery, TStore, TActions>(options): DefinedInteraction<InteractivityStoreResult>;
 ```
 
 Define an interactivity store that bridges a resource and optional actions to
@@ -45,7 +45,7 @@ await TestimonialReview.store.actions.approve({ id: 101 });
 
 ### TStore
 
-`TStore` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TStore` _extends_ `Record`\<`string`, `unknown`\> = `Record`\<`string`, `unknown`\>
 
 ### TActions
 
@@ -55,8 +55,8 @@ await TestimonialReview.store.actions.approve({ id: 101 });
 
 ### options
 
-[`DefineInteractionOptions`](../interfaces/DefineInteractionOptions.md)\&lt;`TEntity`, `TQuery`, `TStore`, `TActions`\&gt;
+[`DefineInteractionOptions`](../interfaces/DefineInteractionOptions.md)\<`TEntity`, `TQuery`, `TStore`, `TActions`\>
 
 ## Returns
 
-[`DefinedInteraction`](../interfaces/DefinedInteraction.md)\&lt;[`InteractivityStoreResult`](../type-aliases/InteractivityStoreResult.md)\&gt;
+[`DefinedInteraction`](../interfaces/DefinedInteraction.md)\<[`InteractivityStoreResult`](../type-aliases/InteractivityStoreResult.md)\>
