@@ -83,9 +83,7 @@
 		"@wpkernel/pipeline": "workspace:*",
 		"@wpkernel/test-utils": "workspace:*",
 		"@wpkernel/ui": "workspace:*",
-		"@wpkernel/wp-json-ast": "workspace:*",
-		"ts-morph": ">=27.0.0",
-		"typescript": ">=5.0.0"
+		"@wpkernel/wp-json-ast": "workspace:*"
 	},
 	"dependencies": {
 		"@wpkernel/php-driver": "workspace:*",
@@ -94,7 +92,9 @@
 		"chokidar": "^4.0.3",
 		"clipanion": "4.0.0-rc.4",
 		"cosmiconfig": "^9.0.0",
-		"typanion": "^3.14.0"
+		"ts-morph": "^27.0.0",
+		"typanion": "^3.14.0",
+		"typescript": "^5.0.0"
 	},
 	"publishConfig": {
 		"access": "public"

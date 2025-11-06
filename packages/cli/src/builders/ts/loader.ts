@@ -1,9 +1,13 @@
 /**
- * Lazy loader for ts-morph to reduce CLI install size.
+ * Lazy loader for ts-morph to optimize CLI startup performance.
  *
- * ts-morph (~12MB) + typescript (~23MB) = ~35MB that only runs during `wpk generate`,
- * not during `npm create @wpkernel/wpk` bootstrap. By lazy-loading, we defer this
- * heavy dependency until the builder actually executes.
+ * ts-morph (~12MB) + typescript (~23MB) = ~35MB of dependencies that are only
+ * needed during code generation. By lazy-loading, we defer parsing and loading
+ * these heavy modules until `wpk generate` actually executes, keeping the CLI
+ * responsive for other commands like `wpk --help`, `wpk doctor`, etc.
+ *
+ * Note: ts-morph and typescript are installed as regular dependencies, but
+ * loading is deferred for performance optimization.
  *
  * @module
  */
