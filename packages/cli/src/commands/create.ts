@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { Command, Option } from 'clipanion';
-import { createReporter as buildReporter } from '@wpkernel/core/reporter';
+import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import { WPKernelError } from '@wpkernel/core/error';
 import {
 	WPK_NAMESPACE,

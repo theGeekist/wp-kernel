@@ -1,4 +1,4 @@
-import { createReporter } from '@wpkernel/core/reporter';
+import { createReporterCLI as createReporter } from '../../utils/reporter.js';
 import { loadWPKernelConfig } from '../../config';
 import { buildWorkspace, promptConfirm } from '../../workspace';
 import { createPatcher } from '../../builders';
