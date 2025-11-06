@@ -12,7 +12,7 @@ import type {
 	Pipeline,
 	PipelineDiagnostic,
 	PipelineRunState,
-} from '../types';
+} from '@wpkernel/pipeline';
 import type { CorePipelineContext } from '../helpers/context';
 
 /**

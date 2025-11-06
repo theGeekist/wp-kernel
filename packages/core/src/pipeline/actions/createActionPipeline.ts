@@ -1,4 +1,5 @@
-import { createPipeline } from '../createPipeline';
+import { createPipeline } from '@wpkernel/pipeline';
+import { WPKernelError } from '../../error';
 import { reportPipelineDiagnostic } from '../reporting';
 import { generateActionRequestId } from '../../actions/context';
 import { resolveActionReporter } from '../../actions/resolveReporter';
@@ -54,6 +55,13 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 	const pipelineOptions = {
 		fragmentKind: ACTION_FRAGMENT_KIND,
 		builderKind: ACTION_BUILDER_KIND,
+		createError(code, message) {
+			const errorCode = code as
+				| 'ValidationError'
+				| 'DeveloperError'
+				| 'UnknownError';
+			return new WPKernelError(errorCode, { message });
+		},
 		createBuildOptions(runOptions) {
 			return {
 				config: runOptions.config,
@@ -110,7 +118,9 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 		onDiagnostic({ reporter, diagnostic }) {
 			reportPipelineDiagnostic({ reporter, diagnostic });
 		},
-	} satisfies ActionPipelineOptions<TArgs, TResult>;
+	} satisfies Omit<ActionPipelineOptions<TArgs, TResult>, 'createError'> & {
+		createError?: (code: string, message: string) => Error;
+	};
 
 	const pipeline: ActionPipeline<TArgs, TResult> =
 		createPipeline(pipelineOptions);

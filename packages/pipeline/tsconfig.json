@@ -4,10 +4,11 @@
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
-		// Override base paths to prevent pulling in other packages during typecheck
-		"paths": {}
+		// Override base paths to prevent pulling in other packages
+		"paths": {},
+		"baseUrl": "."
 	},
-	"include": ["src/**/*", "../../types/**/*.d.ts"],
+	"include": ["src/**/*"],
 	"exclude": [
 		"node_modules",
 		"dist",

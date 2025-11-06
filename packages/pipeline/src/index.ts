@@ -1,5 +1,6 @@
 // Main API exports
 export { createHelper } from './helper';
+export { createPipeline } from './createPipeline';
 export { executeHelpers } from './executor';
 export type { ErrorFactory } from './error-factory';
 export { createDefaultError, createErrorFactory } from './error-factory';
@@ -20,9 +21,13 @@ export type {
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
 	PipelineDiagnostic,
+	ConflictDiagnostic,
+	MissingDependencyDiagnostic,
+	UnusedHelperDiagnostic,
 
 	// Helper types
 	Helper,
+	HelperApplyFn,
 	HelperDescriptor,
 	HelperKind,
 	HelperMode,
@@ -35,6 +40,7 @@ export type {
 	PipelineRunState,
 	HelperExecutionSnapshot,
 	PipelineExecutionMetadata,
+	FragmentFinalizationMetadata,
 	PipelineExtensionRollbackErrorMetadata,
 } from './types';
 

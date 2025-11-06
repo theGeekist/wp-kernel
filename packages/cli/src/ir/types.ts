@@ -15,7 +15,7 @@ import type {
 	FragmentFinalizationMetadata,
 	Helper,
 	HelperApplyOptions,
-} from '@wpkernel/core/pipeline';
+} from '@wpkernel/pipeline';
 import type { PipelineContext } from '../runtime/types';
 
 export interface MutableIr {

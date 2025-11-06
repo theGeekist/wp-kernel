@@ -1,7 +1,7 @@
+import { createPipeline } from '@wpkernel/pipeline';
 import { createResourcePipeline } from '../createResourcePipeline';
 import type { Reporter } from '../../../reporter/types';
-import type { PipelineDiagnostic } from '../../types';
-import { createPipeline } from '../../createPipeline';
+import type { PipelineDiagnostic } from '@wpkernel/pipeline';
 import * as reportingModule from '../../reporting';
 
 type MockPipeline = {
@@ -11,8 +11,9 @@ type MockPipeline = {
 	run: jest.Mock;
 };
 
-jest.mock('../../createPipeline', () => ({
+jest.mock('@wpkernel/pipeline', () => ({
 	createPipeline: jest.fn(),
+	createHelper: jest.fn((options) => options),
 }));
 
 describe('createResourcePipeline diagnostics reporting', () => {

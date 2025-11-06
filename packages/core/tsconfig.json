@@ -5,7 +5,7 @@
 		"rootDir": "./src",
 		"outDir": "./dist"
 	},
-	"include": ["src/**/*", "../../types/**/*.d.ts"],
+	"include": ["src/**/*", "../../types/**/*.d.ts", "src/pipeline/__tests__"],
 	"exclude": [
 		"node_modules",
 		"dist",
@@ -13,5 +13,6 @@
 		"**/*.test.tsx",
 		"**/*.test-support.ts",
 		"**/*.test-support.tsx"
-	]
+	],
+	"references": [{ "path": "../pipeline" }]
 }

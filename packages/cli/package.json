@@ -81,6 +81,7 @@
 		"@prettier/plugin-php": ">=0.24.0",
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
+		"@wpkernel/pipeline": "workspace:*",
 		"@wpkernel/test-utils": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*",
 		"json-schema-to-typescript": ">=15.0.4",

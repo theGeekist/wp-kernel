@@ -18,6 +18,9 @@
 			"path": "../core"
 		},
 		{
+			"path": "../pipeline"
+		},
+		{
 			"path": "../wp-json-ast"
 		},
 		{

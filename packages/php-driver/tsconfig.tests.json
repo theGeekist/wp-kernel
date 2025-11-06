@@ -20,5 +20,9 @@
 		"**/dist",
 		"**/*.test-support.d.ts"
 	],
-	"references": [{ "path": "./tsconfig.json" }, { "path": "../core" }]
+	"references": [
+		{ "path": "./tsconfig.json" },
+		{ "path": "../core" },
+		{ "path": "../pipeline" }
+	]
 }

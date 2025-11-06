@@ -1,5 +1,5 @@
-import type { CreateHelperOptions, Helper } from '@wpkernel/core/pipeline';
-import { createHelper } from '@wpkernel/core/pipeline';
+import type { CreateHelperOptions, Helper } from '@wpkernel/pipeline';
+import { createHelper } from '@wpkernel/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 
 export interface BuildPipelineExtensionOptions<

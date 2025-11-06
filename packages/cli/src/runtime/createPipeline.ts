@@ -1,4 +1,5 @@
-import { createPipeline as createCorePipeline } from '@wpkernel/core/pipeline';
+import { createPipeline as createCorePipeline } from '@wpkernel/pipeline';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { BuildIrOptions } from '../ir/publicTypes';
 import {
 	buildIrDraft,
@@ -71,6 +72,14 @@ export function createPipeline(): Pipeline {
 		FragmentHelper,
 		BuilderHelper
 	>({
+		createError(code, message) {
+			// Map pipeline error codes to WPKernel ErrorCode
+			const errorCode = code as
+				| 'ValidationError'
+				| 'DeveloperError'
+				| 'UnknownError';
+			return new WPKernelError(errorCode, { message });
+		},
 		createBuildOptions: mapRunOptionsToBuildOptions,
 		createContext(runOptions) {
 			return {

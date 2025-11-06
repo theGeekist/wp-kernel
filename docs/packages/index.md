@@ -10,6 +10,7 @@ This section provides detailed documentation for each package in the WP Kernel m
 - [@wpkernel/e2e-utils](./e2e-utils.md)
 - [@wpkernel/php-driver](./php-driver.md)
 - [@wpkernel/php-json-ast](./php-json-ast.md)
+- [@wpkernel/pipeline](./pipeline.md)
 - [@wpkernel/test-utils](./test-utils.md)
 - [@wpkernel/ui](./ui.md)
 - [@wpkernel/wp-json-ast](./wp-json-ast.md)
