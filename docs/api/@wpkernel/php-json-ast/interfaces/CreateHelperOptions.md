@@ -6,6 +6,8 @@
 
 # Interface: CreateHelperOptions\&lt;TContext, TInput, TOutput, TReporter, TKind\&gt;
 
+Options for creating a new helper.
+
 ## Type Parameters
 
 ### TContext

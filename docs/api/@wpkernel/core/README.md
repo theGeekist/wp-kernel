@@ -92,6 +92,8 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [CacheKeyFn](type-aliases/CacheKeyFn.md)
 - [CacheKeys](type-aliases/CacheKeys.md)
 - [ResourceQueryParamDescriptor](type-aliases/ResourceQueryParamDescriptor.md)
+- [ResourceCapabilityMap](type-aliases/ResourceCapabilityMap.md)
+- [ResourceCapabilityDescriptor](type-aliases/ResourceCapabilityDescriptor.md)
 - [ListResponse](type-aliases/ListResponse.md)
 - [ResourceClient](type-aliases/ResourceClient.md)
 - [ResourceObject](type-aliases/ResourceObject.md)

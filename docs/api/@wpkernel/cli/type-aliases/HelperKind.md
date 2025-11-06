@@ -9,3 +9,5 @@
 ```ts
 type HelperKind = 'fragment' | 'builder' | (string & object);
 ```
+
+Helper kind identifier - can be 'fragment', 'builder', or any custom string.

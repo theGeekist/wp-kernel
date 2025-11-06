@@ -6,6 +6,8 @@
 
 # Interface: HelperApplyOptions\&lt;TContext, TInput, TOutput, TReporter\&gt;
 
+Options passed to a helper's apply function.
+
 ## Type Parameters
 
 ### TContext

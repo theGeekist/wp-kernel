@@ -1,16 +1,22 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/pipeline v0.11.0**](../README.md)
 
 ---
 
-[@wpkernel/cli](../README.md) / PipelineStep
+[@wpkernel/pipeline](../README.md) / PipelineStep
 
-# Interface: PipelineStep
+# Interface: PipelineStep\&lt;TKind\&gt;
 
-Represents a single step executed within the pipeline.
+A pipeline step representing an executed helper.
 
 ## Extends
 
-- [`HelperDescriptor`](HelperDescriptor.md)
+- [`HelperDescriptor`](HelperDescriptor.md)\&lt;`TKind`\&gt;
+
+## Type Parameters
+
+### TKind
+
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -20,8 +26,6 @@ Represents a single step executed within the pipeline.
 readonly id: string;
 ```
 
-A unique identifier for the step.
-
 ---
 
 ### index
@@ -29,8 +33,6 @@ A unique identifier for the step.
 ```ts
 readonly index: number;
 ```
-
-The execution order of the step.
 
 ---
 
@@ -49,7 +51,7 @@ readonly key: string;
 ### kind
 
 ```ts
-readonly kind: HelperKind;
+readonly kind: TKind;
 ```
 
 #### Inherited from

@@ -60,6 +60,10 @@
 ### Other
 
 - [WordPressPackage](interfaces/WordPressPackage.md)
+- [SchemaConfigLike](interfaces/SchemaConfigLike.md)
+- [SchemaRegistryLike](interfaces/SchemaRegistryLike.md)
+- [ResourceConfigLike](interfaces/ResourceConfigLike.md)
+- [ResourceRegistryLike](interfaces/ResourceRegistryLike.md)
 - [WPKConfigV1Like](interfaces/WPKConfigV1Like.md)
 - [LoadedWPKConfigV1Like](interfaces/LoadedWPKConfigV1Like.md)
 

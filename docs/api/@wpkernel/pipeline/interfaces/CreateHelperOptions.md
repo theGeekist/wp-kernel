@@ -1,8 +1,8 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/pipeline v0.11.0**](../README.md)
 
 ---
 
-[@wpkernel/cli](../README.md) / CreateHelperOptions
+[@wpkernel/pipeline](../README.md) / CreateHelperOptions
 
 # Interface: CreateHelperOptions\&lt;TContext, TInput, TOutput, TReporter, TKind\&gt;
 
@@ -24,7 +24,7 @@ Options for creating a new helper.
 
 ### TReporter
 
-`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
+`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
 
 ### TKind
 

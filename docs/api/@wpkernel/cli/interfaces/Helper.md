@@ -6,6 +6,8 @@
 
 # Interface: Helper\&lt;TContext, TInput, TOutput, TReporter, TKind\&gt;
 
+A complete pipeline helper with descriptor and apply function.
+
 ## Extends
 
 - [`HelperDescriptor`](HelperDescriptor.md)\&lt;`TKind`\&gt;
@@ -111,3 +113,25 @@ readonly optional origin: string;
 #### Inherited from
 
 [`HelperDescriptor`](HelperDescriptor.md).[`origin`](HelperDescriptor.md#origin)
+
+---
+
+### optional?
+
+```ts
+readonly optional optional: boolean;
+```
+
+Whether this helper is optional and may not execute.
+Optional helpers won't cause validation errors if they don't run.
+Useful for conditional/feature-flag helpers.
+
+#### Default Value
+
+```ts
+false;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](HelperDescriptor.md).[`optional`](HelperDescriptor.md#optional)

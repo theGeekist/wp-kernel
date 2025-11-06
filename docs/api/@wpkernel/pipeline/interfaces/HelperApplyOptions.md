@@ -1,8 +1,8 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/pipeline v0.11.0**](../README.md)
 
 ---
 
-[@wpkernel/cli](../README.md) / HelperApplyOptions
+[@wpkernel/pipeline](../README.md) / HelperApplyOptions
 
 # Interface: HelperApplyOptions\&lt;TContext, TInput, TOutput, TReporter\&gt;
 
@@ -24,7 +24,7 @@ Options passed to a helper's apply function.
 
 ### TReporter
 
-`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
+`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
 
 ## Properties
 

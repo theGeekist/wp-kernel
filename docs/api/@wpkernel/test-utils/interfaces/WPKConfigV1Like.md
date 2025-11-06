@@ -10,11 +10,11 @@
 
 ### TSchemas
 
-`TSchemas` _extends_ `SchemaRegistryLike` = `SchemaRegistryLike`
+`TSchemas` _extends_ [`SchemaRegistryLike`](SchemaRegistryLike.md) = [`SchemaRegistryLike`](SchemaRegistryLike.md)
 
 ### TResources
 
-`TResources` _extends_ `ResourceRegistryLike` = `ResourceRegistryLike`
+`TResources` _extends_ [`ResourceRegistryLike`](ResourceRegistryLike.md) = [`ResourceRegistryLike`](ResourceRegistryLike.md)
 
 ### TAdapters
 

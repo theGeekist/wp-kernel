@@ -1,8 +1,8 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/pipeline v0.11.0**](../README.md)
 
 ---
 
-[@wpkernel/cli](../README.md) / HelperDescriptor
+[@wpkernel/pipeline](../README.md) / HelperDescriptor
 
 # Interface: HelperDescriptor\&lt;TKind\&gt;
 

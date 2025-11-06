@@ -6,6 +6,8 @@
 
 # Interface: HelperDescriptor\&lt;TKind\&gt;
 
+Base descriptor for a pipeline helper.
+
 ## Extended by
 
 - [`Helper`](Helper.md)
@@ -62,4 +64,22 @@ readonly dependsOn: readonly string[];
 
 ```ts
 readonly optional origin: string;
+```
+
+---
+
+### optional?
+
+```ts
+readonly optional optional: boolean;
+```
+
+Whether this helper is optional and may not execute.
+Optional helpers won't cause validation errors if they don't run.
+Useful for conditional/feature-flag helpers.
+
+#### Default Value
+
+```ts
+false;
 ```

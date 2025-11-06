@@ -1,8 +1,8 @@
-[**@wpkernel/php-json-ast v0.11.0**](../README.md)
+[**@wpkernel/pipeline v0.11.0**](../README.md)
 
 ---
 
-[@wpkernel/php-json-ast](../README.md) / createHelper
+[@wpkernel/pipeline](../README.md) / createHelper
 
 # Function: createHelper()
 
@@ -77,7 +77,7 @@ This design enables:
 
 ### TReporter
 
-`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
+`TReporter` _extends_ [`PipelineReporter`](../interfaces/PipelineReporter.md) = [`PipelineReporter`](../interfaces/PipelineReporter.md)
 
 ### TKind
 

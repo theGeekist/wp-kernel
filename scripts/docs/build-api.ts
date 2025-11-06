@@ -19,6 +19,7 @@ const packages = [
 	'core',
 	'ui',
 	'cli',
+	'pipeline',
 	'php-json-ast',
 	'test-utils',
 	'e2e-utils',

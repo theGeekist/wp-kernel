@@ -118,12 +118,6 @@ console.log(result.artifact.result); // "item1, item2"
 
 See the [API reference](/api/@wpkernel/pipeline/) for comprehensive type definitions and examples.
 
-## Guides
-
-- [Architecture Guide](./pipeline/architecture.md) - Deep dive into the 3-phase execution model
-- [Framework Contributors](./pipeline/framework-contributors.md) - Creating domain-specific pipelines
-- [Migration Guide](./pipeline/migration.md) - Migrating from `@wpkernel/core/pipeline`
-
 ## Key Concepts
 
 ### Helpers vs. Extensions
@@ -165,10 +159,6 @@ The package is fully typed with comprehensive generics for:
 - Domain-specific input/output types
 - Custom reporter interfaces
 - Framework-specific diagnostic types
-
-## Contributing
-
-See [Framework Contributors](./pipeline/framework-contributors.md) for guidance on extending the pipeline system.
 
 ## License
 

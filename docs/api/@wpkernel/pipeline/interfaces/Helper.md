@@ -1,36 +1,46 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/pipeline v0.11.0**](../README.md)
 
 ---
 
-[@wpkernel/cli](../README.md) / PipelineStep
+[@wpkernel/pipeline](../README.md) / Helper
 
-# Interface: PipelineStep
+# Interface: Helper\&lt;TContext, TInput, TOutput, TReporter, TKind\&gt;
 
-Represents a single step executed within the pipeline.
+A complete pipeline helper with descriptor and apply function.
 
 ## Extends
 
-- [`HelperDescriptor`](HelperDescriptor.md)
+- [`HelperDescriptor`](HelperDescriptor.md)\&lt;`TKind`\&gt;
+
+## Type Parameters
+
+### TContext
+
+`TContext`
+
+### TInput
+
+`TInput`
+
+### TOutput
+
+`TOutput`
+
+### TReporter
+
+`TReporter` _extends_ [`PipelineReporter`](PipelineReporter.md) = [`PipelineReporter`](PipelineReporter.md)
+
+### TKind
+
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
-### id
+### apply
 
 ```ts
-readonly id: string;
+readonly apply: HelperApplyFn&lt;TContext, TInput, TOutput, TReporter&gt;;
 ```
-
-A unique identifier for the step.
-
----
-
-### index
-
-```ts
-readonly index: number;
-```
-
-The execution order of the step.
 
 ---
 
@@ -49,7 +59,7 @@ readonly key: string;
 ### kind
 
 ```ts
-readonly kind: HelperKind;
+readonly kind: TKind;
 ```
 
 #### Inherited from
