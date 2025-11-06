@@ -3,6 +3,8 @@ import type {
 	Helper,
 	HelperDescriptor,
 	Pipeline as CorePipeline,
+	PipelineExtension as CorePipelineExtension,
+	PipelineExtensionHookOptions as CorePipelineExtensionHookOptions,
 } from '@wpkernel/pipeline';
 import type {
 	BuilderHelper as PhpBuilderHelper,
@@ -189,16 +191,16 @@ export type BuilderHelper = PhpBuilderHelper<
 /**
  * Options passed to a pipeline extension hook.
  *
+ * Re-exports the core pipeline contract so extensions receive the full
+ * `PipelineRunOptions` payload instead of the build-only subset.
+ *
  * @category Pipeline
  */
-export interface PipelineExtensionHookOptions {
-	/** The current pipeline context. */
-	readonly context: PipelineContext;
-	/** Options for building the IR. */
-	readonly options: BuildIrOptions;
-	/** The finalized Intermediate Representation (IR). */
-	readonly artifact: IRv1;
-}
+export type PipelineExtensionHookOptions = CorePipelineExtensionHookOptions<
+	PipelineContext,
+	PipelineRunOptions,
+	IRv1
+>;
 
 /**
  * Result returned by a pipeline extension hook.
@@ -251,20 +253,12 @@ export type Pipeline = CorePipeline<
  *
  * @category Pipeline
  */
-export interface PipelineExtension {
-	/** Optional: A unique key for the extension. */
-	readonly key?: string;
-	/**
-	 * The registration function for the extension.
-	 * It receives the pipeline instance and can register hooks or modify its behavior.
-	 *
-	 * @param pipeline - The pipeline instance to register with.
-	 * @returns An optional `PipelineExtensionHook` or a promise resolving to one.
-	 */
-	register: (
-		pipeline: Pipeline
-	) => void | PipelineExtensionHook | Promise<void | PipelineExtensionHook>;
-}
+export type PipelineExtension = CorePipelineExtension<
+	Pipeline,
+	PipelineContext,
+	PipelineRunOptions,
+	IRv1
+>;
 
 /**
  * Options for applying a fragment helper.

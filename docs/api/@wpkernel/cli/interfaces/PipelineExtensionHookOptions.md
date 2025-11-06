@@ -8,6 +8,8 @@
 
 Options passed to a pipeline extension hook.
 
+Re-export of [`PipelineExtensionHookOptions`](../../../@wpkernel/pipeline/interfaces/PipelineExtensionHookOptions.md) from `@wpkernel/pipeline` with the CLI runtime generics applied.
+
 ## Properties
 
 ### context
@@ -23,10 +25,10 @@ The current pipeline context.
 ### options
 
 ```ts
-readonly options: BuildIrOptions;
+readonly options: PipelineRunOptions;
 ```
 
-Options for building the IR.
+Options provided to the pipeline run, including configuration metadata, namespace helpers, reporter wiring, and workspace context.
 
 ---
 

@@ -58,6 +58,8 @@ The next pipeline wires adapter extensions automatically when `createIr` execute
 
 The workspace writer that persists files is the same transactional layer used by the builders, so adapters gain atomic writes “for free”.
 
+> **Upgrade note:** Extension hooks now expose the full `PipelineRunOptions` surface as the `options` argument. Internal adapters should read from `options.config`, `options.workspace`, `options.reporter`, and `options.sourcePath` instead of chaining through `options.options`. This mirrors the public contract and grants immediate access to new pipeline metadata as it lands.
+
 ---
 
 ## 3. Extension contract
@@ -81,6 +83,8 @@ export interface AdapterExtension {
 - `reporter` - a child reporter scoped to `adapter` for structured logging.
 
 Any uncaught error is logged and normalised before propagating back to the pipeline (`packages/cli/src/adapters/extensions.ts:129-173`); the sandbox is torn down automatically.
+
+The CLI registers this bridge with the shared orchestrator via `createPipelineExtension`, so adapter authors can focus on implementing `AdapterExtension` factories without constructing pipeline wiring by hand.【F:packages/cli/src/runtime/adapterExtensions.ts†L12-L181】
 
 ---
 

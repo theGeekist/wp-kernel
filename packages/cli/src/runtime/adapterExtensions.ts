@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
+import { createPipelineExtension } from '@wpkernel/pipeline';
 import { runAdapterExtensions } from '../adapters';
 import type {
 	AdapterContext,
@@ -12,6 +13,7 @@ import type {
 	PipelineExtension,
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
+	Pipeline,
 } from './types';
 import { buildTsFormatter } from '../builders/ts';
 
@@ -90,24 +92,25 @@ async function ensureDirectory(
 	await fs.mkdir(absolute, { recursive: true });
 }
 
-async function runExtensions(
-	options: PipelineExtensionHookOptions
-): Promise<PipelineExtensionHookResult | void> {
-	if (options.context.phase !== 'generate') {
+async function runExtensions({
+	options: runOptions,
+	artifact,
+}: PipelineExtensionHookOptions): Promise<PipelineExtensionHookResult | void> {
+	if (runOptions.phase !== 'generate') {
 		return undefined;
 	}
 
-	const factories = options.options.config.adapters?.extensions ?? [];
+	const factories = runOptions.config.adapters?.extensions ?? [];
 	if (factories.length === 0) {
 		return undefined;
 	}
 
-	const adapterReporter = options.context.reporter.child('adapter');
+	const adapterReporter = runOptions.reporter.child('adapter');
 	const adapterContext: AdapterContext = {
-		config: options.options.config,
+		config: runOptions.config,
 		reporter: adapterReporter,
-		namespace: options.artifact.meta.sanitizedNamespace,
-		ir: options.artifact,
+		namespace: artifact.meta.sanitizedNamespace,
+		ir: artifact,
 	};
 
 	const resolved = resolveAdapterExtensions(factories, adapterContext);
@@ -129,23 +132,23 @@ async function runExtensions(
 		count: resolved.length,
 	});
 
-	const workspaceRoot = options.context.workspace.root;
-	const outputDir = options.context.workspace.resolve(GENERATED_ROOT);
-	const configDirectory = path.dirname(options.options.sourcePath);
+	const workspaceRoot = runOptions.workspace.root;
+	const outputDir = runOptions.workspace.resolve(GENERATED_ROOT);
+	const configDirectory = path.dirname(runOptions.sourcePath);
 
 	const tsFormatter = buildTsFormatter();
 
 	const runResult = await runAdapterExtensions({
 		extensions: resolved,
 		adapterContext,
-		ir: options.artifact,
+		ir: artifact,
 		outputDir,
 		configDirectory,
 		ensureDirectory: async (directoryPath) => {
 			await ensureDirectory(workspaceRoot, directoryPath);
 		},
 		writeFile: async (filePath, contents) => {
-			await options.context.workspace.write(filePath, contents, {
+			await runOptions.workspace.write(filePath, contents, {
 				ensureDir: true,
 			});
 		},
@@ -168,10 +171,15 @@ async function runExtensions(
 }
 
 export function buildAdapterExtensionsExtension(): PipelineExtension {
-	return {
+	return createPipelineExtension<
+		Pipeline,
+		PipelineExtensionHookOptions['context'],
+		PipelineExtensionHookOptions['options'],
+		PipelineExtensionHookOptions['artifact']
+	>({
 		key: 'pipeline.extensions.adapters',
-		register() {
-			return (options) => runExtensions(options);
+		hook(options) {
+			return runExtensions(options);
 		},
-	};
+	});
 }
