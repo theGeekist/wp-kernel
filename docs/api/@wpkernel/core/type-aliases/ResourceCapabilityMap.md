@@ -7,9 +7,10 @@
 # Type Alias: ResourceCapabilityMap
 
 ```ts
-type ResourceCapabilityMap = Record<string,
-  | string
-| ResourceCapabilityDescriptor>;
+type ResourceCapabilityMap = Record<
+	string,
+	string | ResourceCapabilityDescriptor
+>;
 ```
 
 Capability map for a resource.

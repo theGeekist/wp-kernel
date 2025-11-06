@@ -7,7 +7,10 @@
 # Function: buildLoadedConfig()
 
 ```ts
-function buildLoadedConfig<TConfig, TOrigin, TComposerCheck>(workspace, options): LoadedWPKConfigV1Like<TConfig, TOrigin, TComposerCheck>;
+function buildLoadedConfig<TConfig, TOrigin, TComposerCheck>(
+	workspace,
+	options
+): LoadedWPKConfigV1Like<TConfig, TOrigin, TComposerCheck>;
 ```
 
 Builds a loaded kernel configuration object for testing.

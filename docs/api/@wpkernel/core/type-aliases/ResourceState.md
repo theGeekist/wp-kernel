@@ -47,12 +47,15 @@ Key is stringified query params, value is array of IDs.
 ### listMeta
 
 ```ts
-listMeta: Record<string, {
-  total?: number;
-  hasMore?: boolean;
-  nextCursor?: string;
-  status?: ResourceListStatus;
-}>;
+listMeta: Record<
+	string,
+	{
+		total?: number;
+		hasMore?: boolean;
+		nextCursor?: string;
+		status?: ResourceListStatus;
+	}
+>;
 ```
 
 List metadata (total count, pagination, etc).

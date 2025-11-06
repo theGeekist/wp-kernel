@@ -7,7 +7,10 @@
 # Function: assignCommandContext()
 
 ```ts
-function assignCommandContext<T>(command, options): CommandContextHarness & object;
+function assignCommandContext<T>(
+	command,
+	options
+): CommandContextHarness & object;
 ```
 
 Assigns a newly created command context to an existing command object.

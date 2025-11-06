@@ -36,25 +36,25 @@ import { defineAction } from '@wpkernel/core/actions';
 import { testimonial } from '@/resources/testimonial';
 
 export const CreateTestimonial = defineAction<
-  { data: Testimonial },
-  Testimonial
+	{ data: Testimonial },
+	Testimonial
 >('Testimonial.Create', async (ctx, { data }) => {
-  // 1. Capability check
-  ctx.capability.assert('testimonials.create');
+	// 1. Capability check
+	ctx.capability.assert('testimonials.create');
 
-  // 2. Resource call (the actual write)
-  const created = await testimonial.create!(data);
+	// 2. Resource call (the actual write)
+	const created = await testimonial.create!(data);
 
-  // 3. Emit canonical event
-  ctx.emit(testimonial.events.created, { id: created.id, data: created });
+	// 3. Emit canonical event
+	ctx.emit(testimonial.events.created, { id: created.id, data: created });
 
-  // 4. Invalidate cache
-  ctx.invalidate(['testimonial', 'list']);
+	// 4. Invalidate cache
+	ctx.invalidate(['testimonial', 'list']);
 
-  // 5. Queue background job
-  await ctx.jobs.enqueue('IndexTestimonial', { id: created.id });
+	// 5. Queue background job
+	await ctx.jobs.enqueue('IndexTestimonial', { id: created.id });
 
-  return created;
+	return created;
 });
 
 // Use in UI

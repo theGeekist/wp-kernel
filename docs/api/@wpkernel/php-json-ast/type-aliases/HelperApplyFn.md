@@ -7,7 +7,10 @@
 # Type Alias: HelperApplyFn()\<TContext, TInput, TOutput, TReporter\>
 
 ```ts
-type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (options, next?) => MaybePromise<void>;
+type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (
+	options,
+	next?
+) => MaybePromise<void>;
 ```
 
 Function signature for a pipeline helper's apply method.

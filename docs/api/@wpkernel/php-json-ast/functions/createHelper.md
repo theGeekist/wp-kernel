@@ -7,7 +7,9 @@
 # Function: createHelper()
 
 ```ts
-function createHelper<TContext, TInput, TOutput, TReporter, TKind>(options): Helper<TContext, TInput, TOutput, TReporter, TKind>;
+function createHelper<TContext, TInput, TOutput, TReporter, TKind>(
+	options
+): Helper<TContext, TInput, TOutput, TReporter, TKind>;
 ```
 
 Creates a pipeline helper-the fundamental building block of WP Kernel's code generation system.

@@ -7,7 +7,42 @@
 # Function: createPipeline()
 
 ```ts
-function createPipeline<TRunOptions, TBuildOptions, TContext, TReporter, TDraft, TArtifact, TDiagnostic, TRunResult, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper>(options): Pipeline<TRunOptions, TRunResult, TContext, TReporter, TBuildOptions, TArtifact, TFragmentInput, TFragmentOutput, TBuilderInput, TBuilderOutput, TDiagnostic, TFragmentKind, TBuilderKind, TFragmentHelper, TBuilderHelper>;
+function createPipeline<
+	TRunOptions,
+	TBuildOptions,
+	TContext,
+	TReporter,
+	TDraft,
+	TArtifact,
+	TDiagnostic,
+	TRunResult,
+	TFragmentInput,
+	TFragmentOutput,
+	TBuilderInput,
+	TBuilderOutput,
+	TFragmentKind,
+	TBuilderKind,
+	TFragmentHelper,
+	TBuilderHelper,
+>(
+	options
+): Pipeline<
+	TRunOptions,
+	TRunResult,
+	TContext,
+	TReporter,
+	TBuildOptions,
+	TArtifact,
+	TFragmentInput,
+	TFragmentOutput,
+	TBuilderInput,
+	TBuilderOutput,
+	TDiagnostic,
+	TFragmentKind,
+	TBuilderKind,
+	TFragmentHelper,
+	TBuilderHelper
+>;
 ```
 
 Creates a pipeline orchestrator-the execution engine that powers WP Kernel's entire code generation infrastructure.
@@ -179,31 +214,31 @@ import { createPipeline, createHelper } from '@wpkernel/core/pipeline';
 import { createReporter } from '@wpkernel/core';
 
 interface MyContext {
-  reporter: ReturnType<typeof createReporter>;
-  namespace: string;
+	reporter: ReturnType<typeof createReporter>;
+	namespace: string;
 }
 
 const pipeline = createPipeline({
-  fragmentKind: 'fragment',
-  builderKind: 'builder',
+	fragmentKind: 'fragment',
+	builderKind: 'builder',
 
-  createContext: (reporter) => ({
-    reporter,
-    namespace: 'MyPlugin',
-  }),
+	createContext: (reporter) => ({
+		reporter,
+		namespace: 'MyPlugin',
+	}),
 
-  buildFragment: (ctx, opts) => {
-    // Transform AST node
-    const fragment = opts.input;
-    fragment.namespace = ctx.namespace;
-    return { fragment };
-  },
+	buildFragment: (ctx, opts) => {
+		// Transform AST node
+		const fragment = opts.input;
+		fragment.namespace = ctx.namespace;
+		return { fragment };
+	},
 
-  buildArtifact: (ctx, opts) => {
-    // Generate final PHP code
-    const code = opts.draft.toString();
-    return { artifact: code };
-  },
+	buildArtifact: (ctx, opts) => {
+		// Generate final PHP code
+		const code = opts.draft.toString();
+		return { artifact: code };
+	},
 });
 
 // Register helpers
@@ -218,22 +253,22 @@ console.log(result.artifact); // Generated PHP code
 
 ```typescript
 const pipeline = createPipeline({
-  // ... base config ...
+	// ... base config ...
 
-  extensions: [
-    {
-      key: 'eslint-validation',
-      hooks: {
-        'post-builder': async ({ artifact, context }) => {
-          const lintResult = await eslint.lintText(artifact);
-          if (lintResult.errorCount > 0) {
-            throw new Error('Linting failed');
-          }
-          return { artifact };
-        },
-      },
-    },
-  ],
+	extensions: [
+		{
+			key: 'eslint-validation',
+			hooks: {
+				'post-builder': async ({ artifact, context }) => {
+					const lintResult = await eslint.lintText(artifact);
+					if (lintResult.errorCount > 0) {
+						throw new Error('Linting failed');
+					}
+					return { artifact };
+				},
+			},
+		},
+	],
 });
 ```
 

@@ -8,9 +8,10 @@
 
 ```ts
 function invokeAction<TArgs, TResult>(
-   action,
-   args,
-meta): ActionEnvelope<TArgs, TResult>;
+	action,
+	args,
+	meta
+): ActionEnvelope<TArgs, TResult>;
 ```
 
 Create an action envelope for dispatching a WP Kernel action through Redux.

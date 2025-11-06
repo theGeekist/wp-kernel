@@ -7,10 +7,7 @@
 # Function: seedPlan()
 
 ```ts
-function seedPlan(
-   workspace,
-   file,
-options): Promise<void>;
+function seedPlan(workspace, file, options): Promise<void>;
 ```
 
 Seeds an apply plan in a given workspace.

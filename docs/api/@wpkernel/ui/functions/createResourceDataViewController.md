@@ -7,7 +7,9 @@
 # Function: createResourceDataViewController()
 
 ```ts
-function createResourceDataViewController<TItem, TQuery>(options): ResourceDataViewController<TItem, TQuery>;
+function createResourceDataViewController<TItem, TQuery>(
+	options
+): ResourceDataViewController<TItem, TQuery>;
 ```
 
 Creates a controller for a ResourceDataView.

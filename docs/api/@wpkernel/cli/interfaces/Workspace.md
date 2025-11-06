@@ -253,10 +253,11 @@ FileManifest & gt;
 ### dryRun()
 
 ```ts
-dryRun: <T>(fn) => Promise<{
-  result: T;
-  manifest: FileManifest;
-}>;
+dryRun: <T>(fn) =>
+	Promise<{
+		result: T;
+		manifest: FileManifest;
+	}>;
 ```
 
 #### Type Parameters

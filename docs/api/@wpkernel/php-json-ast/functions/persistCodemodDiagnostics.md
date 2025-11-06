@@ -8,10 +8,11 @@
 
 ```ts
 function persistCodemodDiagnostics(
-   context,
-   output,
-   filePath,
-codemod): Promise<void>;
+	context,
+	output,
+	filePath,
+	codemod
+): Promise<void>;
 ```
 
 ## Parameters
