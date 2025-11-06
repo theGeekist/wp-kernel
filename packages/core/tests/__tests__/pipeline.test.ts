@@ -1,4 +1,4 @@
-import { createHelper, createPipeline } from '../../src/pipeline/index.js';
+import { createHelper, createPipeline } from '@wpkernel/pipeline';
 import type {
 	CreatePipelineOptions,
 	Helper,
@@ -6,7 +6,7 @@ import type {
 	PipelineStep,
 	FragmentFinalizationMetadata,
 	PipelineExecutionMetadata,
-} from '../../src/pipeline/index.js';
+} from '@wpkernel/pipeline';
 import { createNoopReporter } from '../../src/reporter/index.js';
 import type { Reporter } from '../../src/reporter/types.js';
 import { WPKernelError } from '../../src/error/index.js';
@@ -87,6 +87,13 @@ describe('pipeline primitives', () => {
 		const options: TestPipelineOptions = {
 			fragmentKind: 'fragment',
 			builderKind: 'builder',
+			createError(code, message) {
+				const errorCode = code as
+					| 'ValidationError'
+					| 'DeveloperError'
+					| 'UnknownError';
+				return new WPKernelError(errorCode, { message });
+			},
 			createBuildOptions(runOptions) {
 				return { seed: runOptions.seed } satisfies TestBuildOptions;
 			},

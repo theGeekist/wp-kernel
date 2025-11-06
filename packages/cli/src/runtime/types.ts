@@ -3,7 +3,7 @@ import type {
 	Helper,
 	HelperDescriptor,
 	Pipeline as CorePipeline,
-} from '@wpkernel/core/pipeline';
+} from '@wpkernel/pipeline';
 import type {
 	BuilderHelper as PhpBuilderHelper,
 	BuilderInput as BaseBuilderInput,

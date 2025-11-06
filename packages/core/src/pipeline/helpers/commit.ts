@@ -1,4 +1,4 @@
-import type { MaybePromise } from '../types';
+import type { MaybePromise } from '@wpkernel/pipeline';
 /**
  * @typedef {Function} PipelineTask
  * A function representing a single task within a pipeline.

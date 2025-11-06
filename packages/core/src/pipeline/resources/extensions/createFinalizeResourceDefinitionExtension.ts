@@ -4,7 +4,7 @@ import {
 	removeResourceDefined,
 } from '../../../events/bus';
 import type { ResourceDefinedEvent } from '../../../events/bus';
-import type { PipelineExtension } from '../../types';
+import type { PipelineExtension } from '@wpkernel/pipeline';
 import type {
 	ResourcePipeline,
 	ResourcePipelineArtifact,

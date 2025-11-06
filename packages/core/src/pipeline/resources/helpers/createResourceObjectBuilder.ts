@@ -1,4 +1,4 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/pipeline';
 import { buildResourceObject } from '../../../resource/buildResourceObject';
 import type {
 	ResourceBuilderHelper,

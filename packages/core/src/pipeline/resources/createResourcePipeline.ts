@@ -1,4 +1,5 @@
-import { createPipeline } from '../createPipeline';
+import { createPipeline } from '@wpkernel/pipeline';
+import { WPKernelError } from '../../error';
 import { reportPipelineDiagnostic } from '../reporting';
 import { createResourceValidationFragment } from './helpers/createResourceValidationFragment';
 import { createResourceClientFragment } from './helpers/createResourceClientFragment';
@@ -38,6 +39,13 @@ export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 	const pipelineOptions = {
 		fragmentKind: RESOURCE_FRAGMENT_KIND,
 		builderKind: RESOURCE_BUILDER_KIND,
+		createError(code, message) {
+			const errorCode = code as
+				| 'ValidationError'
+				| 'DeveloperError'
+				| 'UnknownError';
+			return new WPKernelError(errorCode, { message });
+		},
 		createBuildOptions(runOptions) {
 			return { ...runOptions };
 		},
@@ -79,7 +87,9 @@ export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 		onDiagnostic({ reporter, diagnostic }) {
 			reportPipelineDiagnostic({ reporter, diagnostic });
 		},
-	} satisfies ResourcePipelineOptions<T, TQuery>;
+	} satisfies Omit<ResourcePipelineOptions<T, TQuery>, 'createError'> & {
+		createError?: (code: string, message: string) => Error;
+	};
 
 	const pipeline: ResourcePipeline<T, TQuery> =
 		createPipeline(pipelineOptions);

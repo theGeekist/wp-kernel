@@ -1,7 +1,7 @@
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
 import { WPKernelError } from '@wpkernel/core/error';
-import { createHelper, type Helper } from '@wpkernel/core/pipeline';
+import { createHelper, type Helper } from '@wpkernel/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { DriverWorkspace } from './types';
 

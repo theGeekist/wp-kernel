@@ -294,6 +294,9 @@ importers:
       '@wpkernel/php-json-ast':
         specifier: workspace:*
         version: link:../php-json-ast
+      '@wpkernel/pipeline':
+        specifier: workspace:*
+        version: link:../pipeline
       '@wpkernel/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -358,6 +361,9 @@ importers:
       '@wordpress/interactivity':
         specifier: '>=6.34.0'
         version: 6.34.0
+      '@wpkernel/pipeline':
+        specifier: workspace:*
+        version: link:../pipeline
       loglayer:
         specifier: '>=6.7.2'
         version: 6.9.1
@@ -403,6 +409,9 @@ importers:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
+      '@wpkernel/pipeline':
+        specifier: workspace:*
+        version: link:../pipeline
     devDependencies:
       '@wpkernel/scripts':
         specifier: workspace:*
@@ -416,9 +425,18 @@ importers:
       '@wpkernel/php-driver':
         specifier: workspace:*
         version: link:../php-driver
+      '@wpkernel/pipeline':
+        specifier: workspace:*
+        version: link:../pipeline
       '@wpkernel/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
+
+  packages/pipeline:
     devDependencies:
       '@wpkernel/scripts':
         specifier: workspace:*
@@ -429,6 +447,9 @@ importers:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
+      '@wpkernel/pipeline':
+        specifier: workspace:*
+        version: link:../pipeline
       '@wpkernel/ui':
         specifier: workspace:*
         version: link:../ui

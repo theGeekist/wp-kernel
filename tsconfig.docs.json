@@ -11,6 +11,7 @@
 		"packages/core/src/**/*",
 		"packages/ui/src/**/*",
 		"packages/cli/src/**/*",
+		"packages/pipeline/src/**/*",
 		"packages/php-json-ast/src/**/*",
 		"packages/test-utils/src/**/*",
 		"packages/e2e-utils/src/**/*",
