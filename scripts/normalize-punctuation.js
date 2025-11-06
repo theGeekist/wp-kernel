@@ -48,6 +48,11 @@ const REPLACEMENTS = [
 		search: /❌/g, // The colored cross mark (U+274C)
 		replace: '✗', // The black cross mark (U+2717)
 	},
+	{
+		search: /=&gt;/g,
+		name: 'arrow encoding =>',
+		replace: '=>',
+	},
 	// Add any other replacements here:
 	// {
 	//   name: 'copyright symbol',
