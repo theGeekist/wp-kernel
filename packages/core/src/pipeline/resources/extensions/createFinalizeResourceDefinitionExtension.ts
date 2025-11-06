@@ -4,6 +4,7 @@ import {
 	removeResourceDefined,
 } from '../../../events/bus';
 import type { ResourceDefinedEvent } from '../../../events/bus';
+import { createPipelineExtension } from '@wpkernel/pipeline';
 import type { PipelineExtension } from '@wpkernel/pipeline';
 import type {
 	ResourcePipeline,
@@ -40,54 +41,50 @@ export function createFinalizeResourceDefinitionExtension<
 	ResourcePipelineBuildOptions<T, TQuery>,
 	ResourcePipelineArtifact<T, TQuery>
 > {
-	return {
-		key: 'core.resource.finalize-definition',
-		register: () => {
-			return ({ artifact, context }) => {
-				let definition: ResourceDefinedEvent<T, TQuery> | undefined;
-
-				return {
-					commit() {
-						const resource = artifact.resource;
-
-						if (!resource) {
-							return;
-						}
-
-						const resourceDefinition: ResourceDefinedEvent<
-							T,
-							TQuery
-						> = {
-							namespace: context.namespace,
-							resource,
-						};
-
-						definition = resourceDefinition;
-
-						recordResourceDefined(resourceDefinition);
-						getWPKernelEventBus().emit(
-							'resource:defined',
-							resourceDefinition as ResourceDefinedEvent<
-								unknown,
-								unknown
-							>
-						);
-					},
-					rollback() {
-						if (!definition) {
-							return;
-						}
-
-						removeResourceDefined(definition);
-						definition = undefined;
-					},
-				};
-			};
-		},
-	} satisfies PipelineExtension<
+	return createPipelineExtension<
 		ResourcePipeline<T, TQuery>,
 		ResourcePipelineContext<T, TQuery>,
 		ResourcePipelineBuildOptions<T, TQuery>,
 		ResourcePipelineArtifact<T, TQuery>
-	>;
+	>({
+		key: 'core.resource.finalize-definition',
+		hook({ artifact, context }) {
+			let definition: ResourceDefinedEvent<T, TQuery> | undefined;
+
+			return {
+				commit() {
+					const resource = artifact.resource;
+
+					if (!resource) {
+						return;
+					}
+
+					const resourceDefinition: ResourceDefinedEvent<T, TQuery> =
+						{
+							namespace: context.namespace,
+							resource,
+						};
+
+					definition = resourceDefinition;
+
+					recordResourceDefined(resourceDefinition);
+					getWPKernelEventBus().emit(
+						'resource:defined',
+						resourceDefinition as ResourceDefinedEvent<
+							unknown,
+							unknown
+						>
+					);
+				},
+				rollback() {
+					if (!definition) {
+						return;
+					}
+
+					removeResourceDefined(definition);
+					definition = undefined;
+				},
+			};
+		},
+	});
 }

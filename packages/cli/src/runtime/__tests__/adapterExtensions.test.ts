@@ -80,18 +80,24 @@ function buildOptions(
 		},
 	} as unknown as IRv1;
 
+	const generationState = buildEmptyGenerationState();
+
 	const base: PipelineExtensionHookOptions = {
 		context: {
 			phase: 'generate',
 			workspace,
 			reporter,
-			generationState: buildEmptyGenerationState(),
+			generationState,
 		},
 		options: {
+			phase: 'generate',
 			config,
 			namespace: 'test',
 			origin: 'typescript',
 			sourcePath: '/tmp/workspace/wpk.config.ts',
+			workspace,
+			reporter,
+			generationState,
 		},
 		artifact,
 	};
@@ -148,6 +154,7 @@ describe('buildAdapterExtensionsExtension', () => {
 		const result = await hook({
 			...options,
 			context: { ...options.context, phase: 'apply' },
+			options: { ...options.options, phase: 'apply' },
 		});
 
 		expect(result).toBeUndefined();
@@ -185,8 +192,8 @@ describe('buildAdapterExtensionsExtension', () => {
 
 		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
-		expect(options.context.reporter.child).toHaveBeenCalledWith('adapter');
-		expect(options.context.reporter.error).toHaveBeenCalledWith(
+		expect(options.options.reporter.child).toHaveBeenCalledWith('adapter');
+		expect(options.options.reporter.error).toHaveBeenCalledWith(
 			'Adapter extensions failed to initialise.',
 			{
 				error: expect.stringContaining(
@@ -227,13 +234,13 @@ describe('buildAdapterExtensionsExtension', () => {
 			expect.objectContaining({ namespace: 'TestNamespace' })
 		);
 		expect(runAdapterExtensionsMock).toHaveBeenCalledTimes(1);
-		expect(options.context.reporter.child).toHaveBeenCalledWith('adapter');
-		expect(options.context.reporter.info).toHaveBeenNthCalledWith(
+		expect(options.options.reporter.child).toHaveBeenCalledWith('adapter');
+		expect(options.options.reporter.info).toHaveBeenNthCalledWith(
 			1,
 			'Running adapter extensions.',
 			{ count: 1 }
 		);
-		expect(options.context.reporter.info).toHaveBeenNthCalledWith(
+		expect(options.options.reporter.info).toHaveBeenNthCalledWith(
 			2,
 			'Adapter extensions completed successfully.',
 			{ count: 1 }
@@ -245,7 +252,7 @@ describe('buildAdapterExtensionsExtension', () => {
 		]);
 		expect(args?.adapterContext.ir).toBe(ir);
 		expect(args?.outputDir).toBe(
-			options.context.workspace.resolve('.generated')
+			options.options.workspace.resolve('.generated')
 		);
 		expect(args?.configDirectory).toBe(
 			path.dirname(options.options.sourcePath)
@@ -253,7 +260,7 @@ describe('buildAdapterExtensionsExtension', () => {
 
 		await args?.ensureDirectory('relative/path');
 		expect(mkdirMock).toHaveBeenCalledWith(
-			path.join(options.context.workspace.root, 'relative/path'),
+			path.join(options.options.workspace.root, 'relative/path'),
 			{ recursive: true }
 		);
 
@@ -263,7 +270,7 @@ describe('buildAdapterExtensionsExtension', () => {
 		});
 
 		await args?.writeFile('file.ts', 'contents');
-		expect(options.context.workspace.write).toHaveBeenCalledWith(
+		expect(options.options.workspace.write).toHaveBeenCalledWith(
 			'file.ts',
 			'contents',
 			{ ensureDir: true }
@@ -290,7 +297,7 @@ describe('buildAdapterExtensionsExtension', () => {
 
 		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
-		expect(options.context.reporter.error).toHaveBeenCalledWith(
+		expect(options.options.reporter.error).toHaveBeenCalledWith(
 			'Adapter extensions failed to initialise.',
 			{ error: 'boom' }
 		);
@@ -326,7 +333,7 @@ describe('buildAdapterExtensionsExtension', () => {
 
 			await expect(hook(options)).rejects.toThrow(WPKernelError);
 			expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
-			expect(options.context.reporter.error).toHaveBeenCalledWith(
+			expect(options.options.reporter.error).toHaveBeenCalledWith(
 				'Adapter extensions failed to initialise.',
 				{ error: message }
 			);
@@ -350,8 +357,8 @@ describe('buildAdapterExtensionsExtension', () => {
 		expect(result).toBeUndefined();
 		expect(skip).toHaveBeenCalledTimes(1);
 		expect(empty).toHaveBeenCalledTimes(1);
-		expect(options.context.reporter.child).toHaveBeenCalledWith('adapter');
-		expect(options.context.reporter.info).not.toHaveBeenCalled();
+		expect(options.options.reporter.child).toHaveBeenCalledWith('adapter');
+		expect(options.options.reporter.info).not.toHaveBeenCalled();
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
 	});
 
