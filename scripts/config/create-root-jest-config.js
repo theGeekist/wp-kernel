@@ -22,6 +22,8 @@ export function createRootJestConfig(options = {}) {
 			'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
 			'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
 			'^@wordpress/element/jsx-runtime$': 'react/jsx-runtime',
+			'^@loglayer/transport-simple-pretty-terminal$':
+				'<rootDir>/tests/mocks/loglayer-transport-simple-pretty-terminal.ts',
 			'^@wpkernel/core$': '<rootDir>/packages/core/src',
 			'^@wpkernel/core/(.*)$': '<rootDir>/packages/core/src/$1',
 			'^@wpkernel/ui$': '<rootDir>/packages/ui/src',

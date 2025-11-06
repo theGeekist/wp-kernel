@@ -14,6 +14,29 @@ yarn create @wpkernel/wpk
 
 Using `npx`/`pnpm dlx`/`yarn dlx` also works because the published package exposes the `create-wpk` binary.
 
+### After Project Creation
+
+The bootstrapper automatically installs `@wpkernel/cli` as a devDependency in your project. This means the `wpk` command is available via your package manager:
+
+```bash
+# Run wpk commands directly
+wpk generate
+wpk doctor
+wpk start
+
+# Or via package.json scripts
+# Add to your package.json:
+{
+  "scripts": {
+    "generate": "wpk generate",
+    "doctor": "wpk doctor",
+    "dev": "wpk start"
+  }
+}
+```
+
+The `wpk` binary is installed to `node_modules/.bin/wpk` automatically when npm installs the devDependencies.
+
 ## Features
 
 - Forwards positional arguments and `--`-delimited flags into `wpk create`, so targets such as `npm create @wpkernel/wpk demo -- --skip-install` behave the same as running the CLI directly.

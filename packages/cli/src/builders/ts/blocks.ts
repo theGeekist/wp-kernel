@@ -1,11 +1,5 @@
 import path from 'node:path';
-import {
-	IndentationText,
-	NewLineKind,
-	Project,
-	QuoteKind,
-	type SourceFile,
-} from 'ts-morph';
+import type { Project, SourceFile } from 'ts-morph';
 import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
@@ -26,6 +20,7 @@ import {
 	generateBlockImportPath,
 } from './shared/registrar';
 import { buildBlockRegistrarMetadata } from './shared/metadata';
+import { loadTsMorph } from './loader';
 
 const STUB_TRANSACTION_LABEL = 'builder.generate.ts.blocks.stubs';
 const DERIVED_TRANSACTION_LABEL =
@@ -127,7 +122,7 @@ async function runJsBlocksGeneration(options: {
 	});
 	const registrarPath = options.workspace.resolve(registrarMetadata.filePath);
 
-	const project = buildProject();
+	const project = await buildProject();
 	const sourceFile = project.createSourceFile(registrarPath, '', {
 		overwrite: true,
 	});
@@ -235,7 +230,10 @@ interface StubFile {
 	readonly contents: string;
 }
 
-function buildProject(): Project {
+async function buildProject(): Promise<Project> {
+	const { Project, IndentationText, QuoteKind, NewLineKind } =
+		await loadTsMorph();
+
 	return new Project({
 		useInMemoryFileSystem: true,
 		manipulationSettings: {

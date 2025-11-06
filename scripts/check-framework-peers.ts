@@ -17,7 +17,7 @@ const REQUIRED_PEERS: Record<string, readonly string[]> = {
 	'@wpkernel/cli': [
 		'@wpkernel/core',
 		'@wpkernel/php-json-ast',
-		'@wpkernel/test-utils',
+		'@wpkernel/ui',
 	],
 	'@wpkernel/core': [
 		'@wordpress/api-fetch',
@@ -28,7 +28,7 @@ const REQUIRED_PEERS: Record<string, readonly string[]> = {
 	],
 	'@wpkernel/e2e-utils': ['@wpkernel/core'],
 	'@wpkernel/php-driver': ['@wpkernel/core'],
-	'@wpkernel/php-json-ast': ['@wpkernel/core', '@wpkernel/test-utils'],
+	'@wpkernel/php-json-ast': ['@wpkernel/core'],
 	'@wpkernel/test-utils': ['@wpkernel/core', '@wpkernel/ui', 'react'],
 	'@wpkernel/ui': [
 		'@wpkernel/core',

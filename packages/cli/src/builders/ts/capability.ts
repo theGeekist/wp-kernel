@@ -1,7 +1,8 @@
 import type { IRv1 } from '../../ir';
-import { Project, VariableDeclarationKind } from 'ts-morph';
+import { loadTsMorph } from './loader';
 
-export function printCapabilityModule(ir: IRv1): string {
+export async function printCapabilityModule(ir: IRv1): Promise<string> {
+	const { Project, VariableDeclarationKind } = await loadTsMorph();
 	const project = new Project({ useInMemoryFileSystem: true });
 	const sourceFile = project.createSourceFile('capabilities.ts');
 

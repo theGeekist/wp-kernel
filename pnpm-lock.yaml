@@ -38,6 +38,9 @@ importers:
       '@kucrut/vite-for-wp':
         specifier: ^0.12.0
         version: 0.12.0(rollup-plugin-external-globals@0.13.0(rollup@4.52.4))(vite-plugin-external@6.2.2)(vite@7.1.9(@types/node@24.7.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
+      '@loglayer/transport-simple-pretty-terminal':
+        specifier: ^2.2.9
+        version: 2.2.9
       '@playwright/test':
         specifier: ^1.56.0
         version: 1.56.0
@@ -128,6 +131,9 @@ importers:
       '@wpkernel/scripts':
         specifier: workspace:*
         version: link:scripts
+      '@wpkernel/test-utils':
+        specifier: workspace:*
+        version: link:packages/test-utils
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -282,9 +288,6 @@ importers:
 
   packages/cli:
     dependencies:
-      '@prettier/plugin-php':
-        specifier: '>=0.24.0'
-        version: 0.24.0(prettier@3.6.2)
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
@@ -297,9 +300,9 @@ importers:
       '@wpkernel/pipeline':
         specifier: workspace:*
         version: link:../pipeline
-      '@wpkernel/test-utils':
+      '@wpkernel/ui':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../ui
       '@wpkernel/wp-json-ast':
         specifier: workspace:*
         version: link:../wp-json-ast
@@ -312,18 +315,9 @@ importers:
       cosmiconfig:
         specifier: ^9.0.0
         version: 9.0.0(typescript@5.9.3)
-      json-schema-to-typescript:
-        specifier: '>=15.0.4'
-        version: 15.0.4
-      prettier:
-        specifier: '>=3.6.0'
-        version: 3.6.2
       ts-morph:
-        specifier: ^27.0.2
+        specifier: '>=27.0.0'
         version: 27.0.2
-      tsx:
-        specifier: '>=4.20.6'
-        version: 4.20.6
       typanion:
         specifier: ^3.14.0
         version: 3.14.0
@@ -334,6 +328,9 @@ importers:
       '@wpkernel/scripts':
         specifier: workspace:*
         version: link:../../scripts
+      '@wpkernel/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -346,6 +343,9 @@ importers:
       '@loglayer/transport':
         specifier: '>=2.3.0'
         version: 2.3.4
+      '@loglayer/transport-simple-pretty-terminal':
+        specifier: '>=2.2.9'
+        version: 2.2.9
       '@wordpress/api-fetch':
         specifier: '>=7.32.0'
         version: 7.32.0
@@ -428,13 +428,13 @@ importers:
       '@wpkernel/pipeline':
         specifier: workspace:*
         version: link:../pipeline
-      '@wpkernel/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
     devDependencies:
       '@wpkernel/scripts':
         specifier: workspace:*
         version: link:../../scripts
+      '@wpkernel/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
 
   packages/pipeline:
     devDependencies:
@@ -2355,8 +2355,19 @@ packages:
     resolution: {integrity: sha512-KT8ic1wWstCKOjZNR6Vqpk9rK7PPx/QPjGhfqePGYjo6l9R94mSHry+zdtYjIrIPvQHbnzsp/wd6lj6IvD3MvQ==}
     engines: {node: '>=18'}
 
+  '@loglayer/shared@2.6.0':
+    resolution: {integrity: sha512-KBKU8gamgBSi8WCknfnIZMoZXcBzFiSdWwlG5k82iyODTdPw9q/fby4GDLkbt3h0NmFw+6fpwt5Cdqx3btPX6w==}
+    engines: {node: '>=18'}
+
+  '@loglayer/transport-simple-pretty-terminal@2.2.9':
+    resolution: {integrity: sha512-ibT4GLqHr85KYQTlvjGpDc3J1XJwd0UOajButVhWu0Fz+mQHsJRJwhEEDHCNlmdZYY7RK255UnajBtYfnPX/TA==}
+
   '@loglayer/transport@2.3.4':
     resolution: {integrity: sha512-SHvaex987nfqV9hNj/KEMEnE7SwtDa5YwxqXbZNEtWDSWimn6agHyce73/qJC86GVrtOJmLj2HMii9JdKeZozw==}
+    engines: {node: '>=18'}
+
+  '@loglayer/transport@2.3.5':
+    resolution: {integrity: sha512-lWRf8Mu+6ORKgqh7K76QsuOIggXAsVkMZ5tz7adzJkdGSDdqjokalVykoXSI44wPsVqWDrAU6wFNzHN7hRVi9g==}
     engines: {node: '>=18'}
 
   '@mermaid-js/mermaid-mindmap@9.3.0':
@@ -4794,6 +4805,10 @@ packages:
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
+
+  chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   change-case@4.1.2:
     resolution: {integrity: sha512-bSxY2ws9OtviILG1EiY5K7NNxkqg/JnRnFxLtKQ96JaviiIxi7djMrSd0ECT9AC+lttClmYwKw53BWpOMblo7A==}
@@ -13413,9 +13428,21 @@ snapshots:
 
   '@loglayer/shared@2.5.3': {}
 
+  '@loglayer/shared@2.6.0': {}
+
+  '@loglayer/transport-simple-pretty-terminal@2.2.9':
+    dependencies:
+      '@loglayer/transport': 2.3.5
+      chalk: 5.6.2
+      date-fns: 4.1.0
+
   '@loglayer/transport@2.3.4':
     dependencies:
       '@loglayer/shared': 2.5.3
+
+  '@loglayer/transport@2.3.5':
+    dependencies:
+      '@loglayer/shared': 2.6.0
 
   '@mermaid-js/mermaid-mindmap@9.3.0':
     dependencies:
@@ -16803,6 +16830,8 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
+
+  chalk@5.6.2: {}
 
   change-case@4.1.2:
     dependencies:
