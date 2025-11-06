@@ -419,17 +419,28 @@ export function createDataViewInteraction<
 	const { state, hydrated } = prepareStoreState(store, initialState);
 
 	let currentView = controller.config.defaultView as View;
+	let viewVersion = 0;
+
+	const applyView = (view: View) => {
+		currentView = view;
+		viewVersion += 1;
+		updateStateFromView(controller, store, reporter, view);
+	};
 
 	if (!hydrated) {
-		updateStateFromView(controller, store, reporter, currentView);
+		applyView(currentView);
 	}
+
+	const requestedViewVersion = viewVersion;
 
 	void controller.loadStoredView().then((stored) => {
 		if (!stored || destroyed) {
 			return;
 		}
-		currentView = stored as View;
-		updateStateFromView(controller, store, reporter, currentView);
+		if (viewVersion !== requestedViewVersion) {
+			return;
+		}
+		applyView(stored as View);
 	});
 
 	const unsubscribeView = subscribeToViewChange(
@@ -439,8 +450,7 @@ export function createDataViewInteraction<
 			if (destroyed) {
 				return;
 			}
-			currentView = view;
-			updateStateFromView(controller, store, reporter, view);
+			applyView(view);
 		}
 	);
 
