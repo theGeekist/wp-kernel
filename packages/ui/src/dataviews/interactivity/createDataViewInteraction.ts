@@ -294,12 +294,67 @@ function updateStateFromView<TItem, TQuery>(
 	}
 }
 
-function assignStoreState<TQuery>(
-	store: Record<string, unknown>,
-	state: DataViewInteractionState<TQuery>
-): DataViewInteractionState<TQuery> {
-	store.state = state;
-	return (store as DataViewInteractionStore<TQuery>).state;
+function isStateEqual(a: unknown, b: unknown): boolean {
+	if (a === b) {
+		return true;
+	}
+
+	if (!a || !b) {
+		return false;
+	}
+
+	if (typeof a !== 'object' || typeof b !== 'object') {
+		return false;
+	}
+
+	try {
+		return JSON.stringify(a) === JSON.stringify(b);
+	} catch {
+		return false;
+	}
+}
+
+function prepareStoreState<TQuery>(
+	store: DataViewInteractionStore<TQuery>,
+	initial: DataViewInteractionState<TQuery>
+): {
+	state: DataViewInteractionState<TQuery>;
+	hydrated: boolean;
+} {
+	const existingState = store.state as
+		| DataViewInteractionState<TQuery>
+		| undefined;
+
+	if (existingState) {
+		const normalizedSelection = normalizeSelection(existingState.selection);
+		existingState.selection = normalizedSelection;
+
+		if (existingState.view === undefined || existingState.view === null) {
+			existingState.view = initial.view;
+		}
+
+		if (existingState.query === undefined || existingState.query === null) {
+			existingState.query = initial.query;
+		}
+
+		const hydrated =
+			existingState !== initial ||
+			normalizedSelection.length > 0 ||
+			!isStateEqual(existingState.view, initial.view) ||
+			!isStateEqual(existingState.query, initial.query);
+
+		return {
+			state: existingState,
+			hydrated,
+		};
+	}
+
+	store.state = initial;
+
+	return {
+		state: store.state as DataViewInteractionState<TQuery>,
+		hydrated: false,
+	};
 }
 
 /**
@@ -361,10 +416,13 @@ export function createDataViewInteraction<
 	});
 
 	const store = interaction.store as DataViewInteractionStore<TQuery>;
-	const state = assignStoreState(store, initialState);
+	const { state, hydrated } = prepareStoreState(store, initialState);
 
 	let currentView = controller.config.defaultView as View;
-	updateStateFromView(controller, store, reporter, currentView);
+
+	if (!hydrated) {
+		updateStateFromView(controller, store, reporter, currentView);
+	}
 
 	void controller.loadStoredView().then((stored) => {
 		if (!stored || destroyed) {
