@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createNoopReporter } from '@wpkernel/core/reporter';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { WPK_INFRASTRUCTURE } from '@wpkernel/core/namespace';
 import type {
 	DataViewsControllerRuntime,
 	DataViewsRuntimeContext,
@@ -45,6 +46,8 @@ type WordPressHooks = {
 };
 
 let cachedHooks: WordPressHooks | null | undefined;
+let bridgeSeq = 0;
+const DEFAULT_BRIDGE_NS = WPK_INFRASTRUCTURE.WP_HOOKS_NAMESPACE_UI_DATAVIEWS;
 
 function resolveWordPressHooks(): WordPressHooks | undefined {
 	if (cachedHooks !== undefined) {
@@ -190,7 +193,13 @@ function getOrCreateSubscription<TName extends DataViewsEventName>(
 export interface SubscribeToDataViewsEventOptions {
 	reporter?: Reporter;
 	wordpress?: {
-		namespace: string;
+		/**
+		 * Unique namespace for `@wordpress/hooks`.
+		 * If omitted, a unique namespace is generated per subscription using
+		 * {@link WPK_INFRASTRUCTURE.WP_HOOKS_NAMESPACE_UI_DATAVIEWS} as the base:
+		 * `${base}:${eventName}:${seq}`.
+		 */
+		namespace?: string;
 		priority?: number;
 	};
 }
@@ -252,7 +261,8 @@ export function subscribeToDataViewsEvent<TName extends DataViewsEventName>(
 		namespace: string;
 	} {
 		const namespace =
-			options.wordpress?.namespace ?? 'wpkernel/ui/dataviews';
+			options.wordpress?.namespace ??
+			`${DEFAULT_BRIDGE_NS}:${eventName}:${++bridgeSeq}`;
 		const priority = options.wordpress?.priority ?? 10;
 
 		const callback = (payload: unknown): void => {
