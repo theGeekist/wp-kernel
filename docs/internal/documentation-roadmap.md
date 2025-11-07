@@ -16,11 +16,11 @@ This roadmap coordinates the multi-phase uplift of the WP Kernel documentation s
 | ----------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | Docs Phase 1 - Foundational Restructuring and Tooling | ✓ Complete     | Locked the planning surface, restructured navigation, and adopted the baseline API doc strategy.  | [Jump](#docs-phase-1--foundational-restructuring-and-tooling--complete) |
 | Docs Phase 2 - `@wpkernel/core` Gold Standard         | 🚧 In Progress | Establishes the reference quality bar across core guides, README, and API docs.                   | [Jump](#docs-phase-2--wpkernelcore-gold-standard--planned)              |
-| Docs Phase 3 - `@wpkernel/ui` Documentation           | ⬜ Planned     | Documents ResourceDataView, ActionButton, WPKernelUIProvider and WordPress-native UI primitives.  | [Jump](#docs-phase-3--wpkernelui-documentation--planned)                |
-| Docs Phase 4 - `@wpkernel/cli` Documentation          | ✓ Complete     | Documents CLI generators (init/generate/apply), AST builders, storage modes, and adapters.        | [Jump](#docs-phase-4--wpkernelcli-documentation--planned)               |
-| Docs Phase 5 - `@wpkernel/pipeline` Documentation     | ⬜ Planned     | Documents framework-agnostic pipeline primitives: helper system, DAG execution, and extensions.   | [Jump](#docs-phase-5--wpkernelpipeline-documentation--planned)          |
-| Docs Phase 6 - `@wpkernel/test-utils` Documentation   | ⬜ Planned     | Documents testing harnesses: WordPress globals, kernel runtime, UI, CLI, and integration helpers. | [Jump](#docs-phase-6--wpkerneltest-utils-documentation--planned)        |
-| Docs Phase 7 - `@wpkernel/e2e-utils` Documentation    | ⬜ Planned     | Documents Playwright fixture extensions with kernel-aware resource, store, and event helpers.     | [Jump](#docs-phase-7--wpkernele2e-utils-documentation--planned)         |
+| Docs Phase 3 - `@wpkernel/ui` Documentation           | 🚧 In Progress | Documents ResourceDataView, ActionButton, WPKernelUIProvider and WordPress-native UI primitives.  | [Jump](#docs-phase-3--wpkernelui-documentation--planned)                |
+| Docs Phase 4 - `@wpkernel/cli` Documentation          | 🚧 In Progress | Documents CLI generators (init/generate/apply), AST builders, storage modes, and adapters.        | [Jump](#docs-phase-4--wpkernelcli-documentation--planned)               |
+| Docs Phase 5 - `@wpkernel/pipeline` Documentation     | 🚧 In Progress | Documents framework-agnostic pipeline primitives: helper system, DAG execution, and extensions.   | [Jump](#docs-phase-5--wpkernelpipeline-documentation--planned)          |
+| Docs Phase 6 - `@wpkernel/test-utils` Documentation   | 🚧 In Progress | Documents testing harnesses: WordPress globals, kernel runtime, UI, CLI, and integration helpers. | [Jump](#docs-phase-6--wpkerneltest-utils-documentation--planned)        |
+| Docs Phase 7 - `@wpkernel/e2e-utils` Documentation    | 🚧 In Progress | Documents Playwright fixture extensions with kernel-aware resource, store, and event helpers.     | [Jump](#docs-phase-7--wpkernele2e-utils-documentation--planned)         |
 | Docs Phase 8 - PHP Transport Packages Documentation   | ⬜ Planned     | Documents PHP bridge orchestration, AST utilities, and WordPress-specific PHP extensions.         | [Jump](#docs-phase-8--php-transport-packages-documentation--planned)    |
 | Docs Phase 9 - `@wpkernel/create-wpk` Documentation   | ⬜ Planned     | Documents CLI bootstrap wrapper for npm/pnpm/yarn create conventions with telemetry.              | [Jump](#docs-phase-9--wpkernelcreate-wpk-documentation--planned)        |
 | Docs Phase 10 - Cross-Package Integration & Polish    | ⬜ Planned     | Cross-package examples, integration patterns, and documentation quality sweep.                    | [Jump](#docs-phase-10--cross-package-integration--polish--planned)      |
@@ -105,7 +105,9 @@ The second phase applies the documentation playbook to `@wpkernel/core`, produci
 
 ---
 
-### Docs Phase 3 - `@wpkernel/ui` Documentation (⬜ Planned)
+<a id="docs-phase-3--wpkernelui-documentation--planned"></a>
+
+### Docs Phase 3 - `@wpkernel/ui` Documentation (🚧 In Progress)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which provides WordPress-native UI primitives aligned with kernel resources, actions, and events.
 
@@ -124,11 +126,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 | Provider              | `WPKernelUIProvider`, `attachUIBindings`                                                          | Bootstrap and share kernel runtime with React components. All exports in `packages/ui/src/runtime/index.ts` and its sub-modules have JSDoc.                                                                                                                                                                       |
 | Utilities             | `useCapability`, `usePrefetcher`, `useHoverPrefetch`, `useVisiblePrefetch`, `useNextPagePrefetch` | Helper hooks and utilities for UI state management. All exports in `packages/ui/src/hooks/useCapability.ts`, `packages/ui/src/hooks/usePrefetcher.ts`, `packages/ui/src/hooks/useHoverPrefetch.ts`, `packages/ui/src/hooks/useVisiblePrefetch.ts`, and `packages/ui/src/hooks/useNextPagePrefetch.ts` have JSDoc. |
 
-#### Docs Task 10 - Author segmented guides for UI (⬜ Planned)
+#### Docs Task 10 - Author segmented guides for UI (✓ Complete)
 
-- [ ] Draft a plugin developer guide covering ResourceDataView setup, action buttons, and admin integration patterns under `docs/packages/ui/plugin-developers.md` (new).
-- [ ] Draft a framework contributor guide explaining component architecture, binding contracts, and extension points under `docs/packages/ui/framework-contributors.md` (new).
-- [ ] Update `docs/packages/index.md` and relevant guide landing pages to surface both guides with clear audience labeling.
+- [x] Draft a plugin developer guide covering ResourceDataView setup, action buttons, and admin integration patterns under `docs/packages/ui/plugin-developers.md`.
+- [x] Draft a framework contributor guide explaining component architecture, binding contracts, and extension points under `docs/packages/ui/framework-contributors.md`.
+- [x] Update `docs/packages/index.md` and relevant guide landing pages to surface both guides with clear audience labeling.
 
 #### Docs Task 11 - Refresh `packages/ui/README.md` (✓ Complete)
 
@@ -144,7 +146,9 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 
 ---
 
-### Docs Phase 4 - `@wpkernel/cli` Documentation (⬜ Planned)
+<a id="docs-phase-4--wpkernelcli-documentation--planned"></a>
+
+### Docs Phase 4 - `@wpkernel/cli` Documentation (🚧 In Progress)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, covering Rails-like generators, code generation pipelines, and developer tooling.
 
@@ -168,11 +172,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, coveri
 | Runtime      | All exports from `./runtime`                                                                                            | Re-exports from the runtime module. All exports in `packages/cli/src/runtime/index.ts` and its sub-modules have JSDoc.                              |
 | Builders     | All exports from `./builders`                                                                                           | Re-exports from the builders module. All exports in `packages/cli/src/builders/index.ts` and its sub-modules have JSDoc.                            |
 
-#### Docs Task 14 - Author segmented guides for CLI (⬜ Planned)
+#### Docs Task 14 - Author segmented guides for CLI (✓ Complete)
 
-- [ ] Draft a plugin developer guide covering the init → generate → apply workflow, storage modes, and common patterns under `docs/packages/cli/plugin-developers.md` (new).
-- [ ] Draft a framework contributor guide explaining pipeline architecture, AST generation, adapter extensions, and apply state management under `docs/packages/cli/framework-contributors.md` (new).
-- [ ] Update `docs/packages/index.md` and CLI reference pages to surface both guides with clear audience labeling.
+- [x] Draft a plugin developer guide covering the init → generate → apply workflow, storage modes, and common patterns under `docs/packages/cli/plugin-developers.md`.
+- [x] Draft a framework contributor guide explaining pipeline architecture, AST generation, adapter extensions, and apply state management under `docs/packages/cli/framework-contributors.md`.
+- [x] Update `docs/packages/index.md` and CLI reference pages to surface both guides with clear audience labeling.
 
 #### Docs Task 15 - Refresh `packages/cli/README.md` (✓ Complete)
 
@@ -188,7 +192,9 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, coveri
 
 ---
 
-### Docs Phase 5 - `@wpkernel/pipeline` Documentation (⬜ Planned)
+<a id="docs-phase-5--wpkernelpipeline-documentation--planned"></a>
+
+### Docs Phase 5 - `@wpkernel/pipeline` Documentation (🚧 In Progress)
 
 This phase documents the standalone `@wpkernel/pipeline` package, which provides framework-agnostic pipeline orchestration primitives. The pipeline system was previously embedded in `@wpkernel/core` but is now a separate package used by both core (for resource/action orchestration) and CLI (for code generation).
 
@@ -220,12 +226,12 @@ This phase documents the standalone `@wpkernel/pipeline` package, which provides
 - **Framework-agnostic**: No WordPress or kernel-specific dependencies; can be used in any TypeScript codebase requiring orchestrated pipelines
 - **Used by**: `@wpkernel/core` (resource/action pipelines), `@wpkernel/cli` (code generation), `@wpkernel/php-json-ast` (PHP AST transformations)
 
-#### Docs Task 18 - Author segmented guides for pipeline (⬜ Planned)
+#### Docs Task 18 - Author segmented guides for pipeline (✓ Complete)
 
-- [ ] Draft an architecture guide covering the 3-phase execution model, DAG resolution, and extension lifecycle under `docs/packages/pipeline/architecture.md` (new).
-- [ ] Draft a framework contributor guide explaining how to create domain-specific pipelines, custom helpers, and extension patterns under `docs/packages/pipeline/framework-contributors.md` (new).
-- [ ] Draft a migration guide documenting the transition from `@wpkernel/core/pipeline` to `@wpkernel/pipeline` under `docs/packages/pipeline/migration.md` (new).
-- [ ] Update `docs/packages/index.md` to surface pipeline as a foundational package with links to all guides.
+- [x] Draft an architecture guide covering the 3-phase execution model, DAG resolution, and extension lifecycle under `docs/packages/pipeline/architecture.md`.
+- [x] Draft a framework contributor guide explaining how to create domain-specific pipelines, custom helpers, and extension patterns under `docs/packages/pipeline/framework-contributors.md`.
+- [x] Draft a migration guide documenting the transition from `@wpkernel/core/pipeline` to `@wpkernel/pipeline` under `docs/packages/pipeline/migration.md`.
+- [x] Update `docs/packages/index.md` to surface pipeline as a foundational package with links to all guides.
 
 #### Docs Task 19 - Refresh `packages/pipeline/README.md` (✓ Complete)
 
@@ -243,7 +249,9 @@ This phase documents the standalone `@wpkernel/pipeline` package, which provides
 
 ---
 
-### Docs Phase 6 - `@wpkernel/test-utils` Documentation (⬜ Planned)
+<a id="docs-phase-6--wpkerneltest-utils-documentation--planned"></a>
+
+### Docs Phase 6 - `@wpkernel/test-utils` Documentation (🚧 In Progress)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/test-utils`, which provides shared testing utilities and domain-specific harnesses for the WP Kernel monorepo.
 
@@ -263,11 +271,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/test-utils`,
 | CLI Helpers       | `MemoryStream`, command context utilities, reporter mocks                  | Testing utilities for CLI command integration tests. All exports in `packages/test-utils/src/cli/memory-stream.ts`, `packages/test-utils/src/cli/command-context.ts`, `packages/test-utils/src/cli/reporter.ts` and `packages/test-utils/src/cli/flush.ts` have JSDoc. |
 | Integration       | `withWorkspace`, `createWorkspaceRunner`                                   | Workspace lifecycle management for integration tests. All exports in `packages/test-utils/src/integration/workspace.ts` and `packages/test-utils/src/integration/php.ts` have JSDoc.                                                                                   |
 
-#### Docs Task 22 - Author segmented guides for test-utils (⬜ Planned)
+#### Docs Task 22 - Author segmented guides for test-utils (✓ Complete)
 
-- [ ] Draft a testing cookbook covering WordPress harness patterns, kernel runtime setup, and UI component testing under `docs/packages/test-utils/testing-cookbook.md` (new).
-- [ ] Draft a framework contributor guide explaining harness architecture, extension patterns, and test-support conventions under `docs/packages/test-utils/framework-contributors.md` (new).
-- [ ] Update `docs/packages/index.md` and testing guides to surface both documents with clear use-case labeling.
+- [x] Draft a testing cookbook covering WordPress harness patterns, kernel runtime setup, and UI component testing under `docs/packages/test-utils/testing-cookbook.md`.
+- [x] Draft a framework contributor guide explaining harness architecture, extension patterns, and test-support conventions under `docs/packages/test-utils/framework-contributors.md`.
+- [x] Update `docs/packages/index.md` and testing guides to surface both documents with clear use-case labeling.
 
 #### Docs Task 23 - Refresh `packages/test-utils/README.md` (✓ Complete)
 
@@ -283,7 +291,9 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/test-utils`,
 
 ---
 
-### Docs Phase 7 - `@wpkernel/e2e-utils` Documentation (⬜ Planned)
+<a id="docs-phase-7--wpkernele2e-utils-documentation--planned"></a>
+
+### Docs Phase 7 - `@wpkernel/e2e-utils` Documentation (🚧 In Progress)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/e2e-utils`, which extends WordPress Playwright fixtures with kernel-aware E2E testing helpers.
 
@@ -304,11 +314,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/e2e-utils`, 
 | DataView Helpers | `createDataViewHelper`                                            | Playwright helpers for ResourceDataView screens.                                                                                  |
 | Test Support     | `withIsolatedWorkspace`, `collectManifestState`, `runNodeSnippet` | Workspace lifecycle, filesystem diffing, and CLI transcript helpers. All exports in `packages/e2e-utils/src/index.ts` have JSDoc. |
 
-#### Docs Task 26 - Author segmented guides for e2e-utils (⬜ Planned)
+#### Docs Task 26 - Author segmented guides for e2e-utils (✓ Complete)
 
-- [ ] Draft an E2E testing guide covering Playwright + WordPress fixtures, kernel utilities factory, and showcase app patterns under `docs/packages/e2e-utils/e2e-testing-guide.md` (new).
-- [ ] Draft a framework contributor guide explaining fixture extension architecture and validation strategy (real-world testing via showcase) under `docs/packages/e2e-utils/framework-contributors.md` (new).
-- [ ] Update `docs/packages/index.md` and E2E testing docs to surface both guides with clear workflow labeling.
+- [x] Draft an E2E testing guide covering Playwright + WordPress fixtures, kernel utilities factory, and showcase app patterns under `docs/packages/e2e-utils/e2e-testing-guide.md`.
+- [x] Draft a framework contributor guide explaining fixture extension architecture and validation strategy (real-world testing via showcase) under `docs/packages/e2e-utils/framework-contributors.md`.
+- [x] Update `docs/packages/index.md` and E2E testing docs to surface both guides with clear workflow labeling.
 
 #### Docs Task 27 - Refresh `packages/e2e-utils/README.md` (✓ Complete)
 
