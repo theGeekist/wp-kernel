@@ -32,7 +32,7 @@ describe('loadWPKernelConfig', () => {
 		await runWorkspace(run, { files });
 	}
 
-	it('loads a kernel config and validates composer autoload', async () => {
+	it('loads a wpk config and validates composer autoload', async () => {
 		await withWorkspace(
 			{
 				'wpk.config.js': `module.exports = {
@@ -74,7 +74,7 @@ describe('loadWPKernelConfig', () => {
 		);
 	});
 
-	it('throws when no kernel config is discovered', async () => {
+	it('throws when no wpk config is discovered', async () => {
 		await withWorkspace(
 			{
 				'composer.json': createComposerJson('inc/'),

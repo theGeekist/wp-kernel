@@ -4,7 +4,7 @@ This app is a **real-world WordPress plugin demo** designed to exercise WP Kerne
 
 ## Role in the Monorepo
 
-Provides **proof of concept** for new kernel features as they are developed.
+Provides **proof of concept** for new wpk features as they are developed.
 
 - Validates `@wpkernel/core` and `@wpkernel/cli` in plugin development
 - Validates `@wpkernel/e2e-utils` in a real browser/e2e context.
@@ -23,7 +23,7 @@ Provides **proof of concept** for new kernel features as they are developed.
 - [ ] **Kernel integration**:
     - Must use `cli` wiring (init, generate, apply) from the framework
     - Showcase can and should freely patch itself (resources, actions, views, seeds, admin screens).
-    - Kernel-level gaps (new primitives, type fixes, error handling, cache rules, etc.) must be fixed in the kernel package and then consumed by showcase.
+    - Kernel-level gaps (new primitives, type fixes, error handling, cache rules, etc.) must be fixed in the wpk package and then consumed by showcase.
     - Follow the rule of thumb: _generic, reusable logic belongs in kernel; business/domain logic belongs in showcase_.
     - New generic primitives (e.g., store invalidation, resource resolver, error types) should be implemented in `@wpkernel/core` and consumed here to avoid duplicating transport or event logic in PHP.
 - [ ] **E2E validation**:
@@ -31,7 +31,7 @@ Provides **proof of concept** for new kernel features as they are developed.
     - playwright is already installed with `--chromium` and is the only browser we check (run e2e with --project chromium)
     - All showcase flows (public + admin) must pass.
 - [ ] **Seeds updated** if new data requirements arise.
-- [ ] **No hidden kernel logic**-do not let framework fixes live only in showcase.
+- [ ] **No hidden wpk logic**-do not let framework fixes live only in showcase.
 
 ## Generated Artifacts Capability
 
@@ -63,7 +63,7 @@ Provides **proof of concept** for new kernel features as they are developed.
 
 ## Agent Capability
 
-Use showcase to **prove and pressure-test** kernel features. When gaps are discovered, fix them upstream. Showcase is the **integration battlefield**, not a side-channel fork of the framework.
+Use showcase to **prove and pressure-test** wpk features. When gaps are discovered, fix them upstream. Showcase is the **integration battlefield**, not a side-channel fork of the framework.
 
 ## Cross-package dependencies
 

@@ -60,7 +60,7 @@ readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 
 Optional: Custom function to load the WP Kernel configuration.
 
-Locate and load the project's kernel configuration.
+Locate and load the project's wpk configuration.
 
 The function searches for supported config files, executes them via
 cosmiconfig loaders, validates the resulting structure and performs a
@@ -71,7 +71,7 @@ correctly.
 
 `Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
 
-The validated kernel config and associated metadata.
+The validated wpk config and associated metadata.
 
 ##### Throws
 

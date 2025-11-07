@@ -261,7 +261,7 @@ describe('validateWPKernelConfig', () => {
 			})
 		).toThrow(WPKernelError);
 		expect(child.error).toHaveBeenCalledWith(
-			expect.stringContaining('Invalid kernel config discovered'),
+			expect.stringContaining('Invalid wpk config discovered'),
 			expect.objectContaining({
 				errors: expect.any(Array),
 			})
@@ -392,7 +392,7 @@ describe('validateWPKernelConfig helpers', () => {
 			'wpk.config.ts'
 		);
 
-		expect(message).toMatch('Invalid kernel config discovered');
+		expect(message).toMatch('Invalid wpk config discovered');
 		expect(message).toContain('first');
 		expect(message).toContain('second');
 	});

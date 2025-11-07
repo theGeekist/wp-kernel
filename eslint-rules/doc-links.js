@@ -47,7 +47,7 @@ export default {
 		type: 'suggestion',
 		docs: {
 			description:
-				'Encourages kernel configs to reference official CLI documentation near the export.',
+				'Encourages wpk configs to reference official CLI documentation near the export.',
 			recommended: false,
 			url: DOC_URL,
 		},

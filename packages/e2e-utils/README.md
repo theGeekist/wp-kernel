@@ -4,7 +4,7 @@
 
 ## Overview
 
-The utilities extend `@playwright/test` with WordPress-aware fixtures and kernel helpers so E2E
+The utilities extend `@playwright/test` with WordPress-aware fixtures and wpk helpers so E2E
 suites can seed resources, capture events, and validate caches without bespoke plumbing. The
 package is optional - install it when you want to exercise kernel-powered interfaces against a real
 WordPress environment.
@@ -29,7 +29,7 @@ Provide WordPress credentials via the standard Playwright configuration (the sho
 ```ts
 import { test, expect } from '@wpkernel/e2e-utils';
 
-test('admin can publish a job', async ({ page, admin, kernel }) => {
+test('admin can publish a job', async ({ page, admin, wpk }) => {
 	await admin.login();
 
 	const job = kernel.resource({ name: 'job' });
@@ -54,7 +54,7 @@ test('admin can publish a job', async ({ page, admin, kernel }) => {
 
 ## Fixture catalogue
 
-- **`test` / `expect`** – re-export Playwright with kernel fixtures registered.
+- **`test` / `expect`** – re-export Playwright with wpk fixtures registered.
 - **Auth & roles** – `admin`, `user`, and session helpers layered on top of WordPress’ Playwright utils.
 - **Database helpers** – `db.seed*`, `db.cleanup` for preparing users, posts, terms, and custom tables.
 - **Kernel stores** – `kernel.store()` waits for resource state and inspects cache keys.

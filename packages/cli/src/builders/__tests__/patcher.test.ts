@@ -1183,7 +1183,7 @@ describe('createPatcher', () => {
 		});
 	});
 
-	it('throws a kernel error when the plan JSON is invalid', async () => {
+	it('throws a wpk error when the plan JSON is invalid', async () => {
 		await withWorkspace(async (workspaceRoot) => {
 			const workspace = buildWorkspace(workspaceRoot);
 			const reporter = buildReporter();

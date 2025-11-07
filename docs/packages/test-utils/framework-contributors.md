@@ -2,7 +2,7 @@
 
 ## Overview
 
-Framework contributors evolve the shared harnesses that power UI, CLI, and integration suites. The goal is to keep helpers composable, deterministic, and aligned with kernel runtime behaviour so downstream packages can adopt new capabilities without retooling tests.
+Framework contributors evolve the shared harnesses that power UI, CLI, and integration suites. The goal is to keep helpers composable, deterministic, and aligned with wpk runtime behaviour so downstream packages can adopt new capabilities without retooling tests.
 
 ## Workflow
 
@@ -73,7 +73,7 @@ export function createWPKernelUITestHarness(
 
 ## Patterns
 
-Maintain strict error messaging for developer mistakes so suites fail fast when providers are missing. Reuse kernel error classes and expose teardown hooks that clean up global state to avoid bleeding fixtures between tests.
+Maintain strict error messaging for developer mistakes so suites fail fast when providers are missing. Reuse wpk error classes and expose teardown hooks that clean up global state to avoid bleeding fixtures between tests.
 
 ## Extension Points
 

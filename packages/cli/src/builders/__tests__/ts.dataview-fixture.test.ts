@@ -25,7 +25,7 @@ const withWorkspace = (
 	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
 describe('createTsBuilder - DataView fixture creator', () => {
-	it('generates fixtures referencing the kernel config via a relative path', async () => {
+	it('generates fixtures referencing the wpk config via a relative path', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
@@ -201,7 +201,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 		});
 	});
 
-	it('falls back to alias when kernel config path is outside the workspace root', async () => {
+	it('falls back to alias when wpk config path is outside the workspace root', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const externalDir = path.join(
 				path.dirname(root),

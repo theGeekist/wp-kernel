@@ -10,7 +10,7 @@
 type EventRecorder<P> = object;
 ```
 
-Event utilities for capturing and asserting on kernel events
+Event utilities for capturing and asserting on wpk events
 
 ## Type Parameters
 

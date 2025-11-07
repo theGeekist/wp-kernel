@@ -575,7 +575,7 @@ describe('useAction', () => {
 				name: 'WPKernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
-					'Failed to resolve kernel action dispatcher'
+					'Failed to resolve wpk action dispatcher'
 				),
 			})
 		);
@@ -836,7 +836,7 @@ describe('useAction', () => {
 		expect(kernelInvalidate).not.toHaveBeenCalled();
 	});
 
-	it('registers invoke action for the kernel store', async () => {
+	it('registers invoke action for the wpk store', async () => {
 		harness?.resetActionStoreRegistration();
 		let registeredInvoke:
 			| ((envelope: ActionEnvelope<any, any>) => ActionEnvelope<any, any>)

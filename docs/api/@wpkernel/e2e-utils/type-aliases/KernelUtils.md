@@ -10,7 +10,7 @@
 type KernelUtils = object;
 ```
 
-Main kernel utilities object returned by factory
+Main wpk utilities object returned by factory
 
 ## Properties
 
@@ -80,7 +80,7 @@ Store utilities with typed methods
 events: <P>(options?) => Promise<EventRecorder<P>>;
 ```
 
-Create event recorder for capturing kernel events
+Create event recorder for capturing wpk events
 
 #### Type Parameters
 

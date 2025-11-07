@@ -12,7 +12,7 @@ const test: TestType & lt;
 	PlaywrightWorkerArgs & PlaywrightWorkerOptions & object & gt);
 ```
 
-Extended test fixture with kernel utilities
+Extended test fixture with wpk utilities
 
 Provides all WordPress E2E fixtures plus:
 

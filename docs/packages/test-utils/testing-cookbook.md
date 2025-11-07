@@ -2,11 +2,11 @@
 
 ## Overview
 
-`@wpkernel/test-utils` provides WordPress harnesses, kernel runtimes, and workspace helpers so plugin and framework tests can run against deterministic fixtures. The cookbook demonstrates how to compose harnesses for UI components, CLI workflows, and integration suites.
+`@wpkernel/test-utils` provides WordPress harnesses, wpk runtimes, and workspace helpers so plugin and framework tests can run against deterministic fixtures. The cookbook demonstrates how to compose harnesses for UI components, CLI workflows, and integration suites.
 
 ## Workflow
 
-Create a WordPress harness, bootstrap the kernel UI provider, and then render components or execute CLI helpers under test. Integration suites share workspace helpers that manage temporary directories and composer fixtures so end-to-end flows stay reproducible.
+Create a WordPress harness, bootstrap the wpk UI provider, and then render components or execute CLI helpers under test. Integration suites share workspace helpers that manage temporary directories and composer fixtures so end-to-end flows stay reproducible.
 
 ## Examples
 

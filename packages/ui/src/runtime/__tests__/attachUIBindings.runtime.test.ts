@@ -18,7 +18,7 @@ import {
 } from '../dataviews/events';
 import { DataViewsConfigurationError } from '../dataviews/errors';
 import {
-	createKernel,
+	createWPKernel,
 	createPreferencesRegistry,
 	createReporter,
 	createReporterWithThrowingChild,
@@ -63,7 +63,7 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('attaches hooks for existing and future resources', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
 		const resourceA = {
 			name: 'posts',
@@ -73,9 +73,9 @@ describe('attachUIBindings runtime behaviour', () => {
 			{ resource: resourceA, namespace: 'tests' } as ResourceDefinedEvent,
 		]);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 
-		expect(runtime.kernel).toBe(kernel);
+		expect(runtime.kernel).toBe(wpk);
 		expect(runtime.namespace).toBe('tests');
 		expect(mockAttachResourceHooks).toHaveBeenCalledWith(
 			resourceA,
@@ -101,23 +101,23 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('proxies runtime helpers to the kernel', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, { suspense: true }, registry);
+		const wpk = createWPKernel(events, { suspense: true }, registry);
 
-		const runtime = attachUIBindings(kernel, { notices: true });
+		const runtime = attachUIBindings(wpk, { notices: true });
 
 		expect(runtime.options).toEqual({ notices: true });
-		expect(runtime.reporter).toBe(kernel.getReporter());
+		expect(runtime.reporter).toBe(wpk.getReporter());
 		expect(runtime.registry).toBe(registry);
 
 		runtime.invalidate?.(['posts']);
-		expect(kernel.invalidate).toHaveBeenCalledWith(['posts'], undefined);
+		expect(wpk.invalidate).toHaveBeenCalledWith(['posts'], undefined);
 	});
 
 	it('lazily resolves capability runtime from global overrides', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
-		const runtime = attachUIBindings(kernel);
+		const wpk = createWPKernel(events, undefined, registry);
+		const runtime = attachUIBindings(wpk);
 
 		expect(runtime.capabilities).toBeUndefined();
 
@@ -133,12 +133,12 @@ describe('attachUIBindings runtime behaviour', () => {
 
 	it('throws configuration error when registry is unavailable', async () => {
 		const events = new WPKernelEventBus();
-		const kernel = createKernel(events);
+		const wpk = createWPKernel(events);
 
 		const originalWp = (window as unknown as { wp?: typeof window.wp }).wp;
 		delete (window as unknown as { wp?: typeof window.wp }).wp;
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 
 		try {
 			await expect(
@@ -163,8 +163,8 @@ describe('attachUIBindings runtime behaviour', () => {
 		};
 
 		try {
-			const kernel = createKernel(events, undefined, undefined, reporter);
-			const runtime = attachUIBindings(kernel);
+			const wpk = createWPKernel(events, undefined, undefined, reporter);
+			const runtime = attachUIBindings(wpk);
 			const dataviews = runtime.dataviews!;
 			const key = defaultPreferencesKey('tests', 'global-fallback');
 
@@ -188,9 +188,9 @@ describe('attachUIBindings runtime behaviour', () => {
 			select: () => ({}),
 			dispatch: () => ({ set: jest.fn() }),
 		} as unknown as PreferencesRegistry;
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 
 		await expect(
 			runtime.dataviews?.preferences.get(
@@ -207,9 +207,9 @@ describe('attachUIBindings runtime behaviour', () => {
 			}),
 			dispatch: () => ({}),
 		} as unknown as PreferencesRegistry;
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 
 		await expect(
 			runtime.dataviews?.preferences.set(
@@ -222,9 +222,9 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('initializes DataViews runtime with default preferences adapter', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
 		const key = defaultPreferencesKey('tests', 'jobs');
 
@@ -246,9 +246,9 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('resolves preferences using scope precedence', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
 		const key = defaultPreferencesKey('tests', 'reports');
 
@@ -270,9 +270,9 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('respects dataviews enable false option', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
-		const runtime = attachUIBindings(kernel, {
+		const runtime = attachUIBindings(wpk, {
 			dataviews: { enable: false },
 		});
 
@@ -282,10 +282,10 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('throws when custom preferences adapter is invalid', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
 		expect(() =>
-			attachUIBindings(kernel, {
+			attachUIBindings(wpk, {
 				dataviews: {
 					preferences: {
 						// Intentionally invalid adapter to assert validation behaviour
@@ -300,9 +300,9 @@ describe('attachUIBindings runtime behaviour', () => {
 		const registry = createPreferencesRegistry();
 		const reporter =
 			createReporterWithThrowingChild() as jest.Mocked<Reporter>;
-		const kernel = createKernel(events, undefined, registry, reporter);
+		const wpk = createWPKernel(events, undefined, registry, reporter);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
 		const key = defaultPreferencesKey('tests', 'faulty-reporter');
 
@@ -329,9 +329,9 @@ describe('attachUIBindings runtime behaviour', () => {
 		const registry = createPreferencesRegistry();
 		const reporter =
 			createReporterWithUndefinedChild() as jest.Mocked<Reporter>;
-		const kernel = createKernel(events, undefined, registry, reporter);
+		const wpk = createWPKernel(events, undefined, registry, reporter);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
 
 		const resourceReporter = dataviews.getResourceReporter('jobs');
@@ -347,13 +347,13 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('reports when DataViews event emission fails', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
-		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const reporter = wpk.getReporter() as jest.Mocked<Reporter>;
 
-		(kernel.emit as jest.Mock).mockImplementation(() => {
+		(wpk.emit as jest.Mock).mockImplementation(() => {
 			throw new Error('emit failure');
 		});
 
@@ -376,11 +376,11 @@ describe('attachUIBindings runtime behaviour', () => {
 	it('emits DataViews view change and unregistered events', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
-		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const reporter = wpk.getReporter() as jest.Mocked<Reporter>;
 
 		dataviews.events.viewChanged({
 			resource: 'jobs',
@@ -396,11 +396,11 @@ describe('attachUIBindings runtime behaviour', () => {
 			preferencesKey: defaultPreferencesKey('tests', 'jobs'),
 		});
 
-		expect(kernel.emit).toHaveBeenCalledWith(
+		expect(wpk.emit).toHaveBeenCalledWith(
 			DATA_VIEWS_EVENT_VIEW_CHANGED,
 			expect.objectContaining({ resource: 'jobs' })
 		);
-		expect(kernel.emit).toHaveBeenCalledWith(
+		expect(wpk.emit).toHaveBeenCalledWith(
 			DATA_VIEWS_EVENT_UNREGISTERED,
 			expect.objectContaining({ resource: 'jobs' })
 		);

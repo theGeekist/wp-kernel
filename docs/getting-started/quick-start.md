@@ -68,7 +68,7 @@ import { configureWPKernel } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
 import { wpkConfig } from '../wpk.config';
 
-const kernel = configureWPKernel({ namespace: wpkConfig.namespace });
+const wpk = configureWPKernel({ namespace: wpkConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 

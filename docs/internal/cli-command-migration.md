@@ -40,7 +40,7 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 
 ### 3.1 Apply
 
-- **Current state:** The default `ApplyCommand` produced by `buildApplyCommand` loads the kernel config, executes `createPatcher`, honours `--yes/--backup/--force`, enforces git hygiene, and appends structured entries to `.wpk-apply.log` while printing the manifest summary.
+- **Current state:** The default `ApplyCommand` produced by `buildApplyCommand` loads the wpk config, executes `createPatcher`, honours `--yes/--backup/--force`, enforces git hygiene, and appends structured entries to `.wpk-apply.log` while printing the manifest summary.
 - **Legacy reference:** The pre-0.8.0 command shim handled three-way merges, composer autoload detection, shim creation, git checks, backups, and logging; refer to the v0.7.x history for implementation details.
 - **Ongoing focus:**
     - Keep shim templates and composer fallbacks aligned with adapter/runtime changes (see [Apply Workflow Phases](cli-apply-workflow.md)).

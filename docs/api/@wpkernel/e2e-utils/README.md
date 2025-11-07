@@ -55,7 +55,7 @@
 
 ### E2E Testing
 
-- [createKernelUtils](functions/createKernelUtils.md)
+- [createWPKernelUtils](functions/createWPKernelUtils.md)
 - [createDataViewHelper](functions/createDataViewHelper.md)
 - [withIsolatedWorkspace](functions/withIsolatedWorkspace.md)
 - [writeWorkspaceFiles](functions/writeWorkspaceFiles.md)

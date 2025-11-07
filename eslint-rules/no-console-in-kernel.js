@@ -8,12 +8,12 @@ export default {
 		type: 'problem',
 		docs: {
 			description:
-				'Disallow console usage in kernel core; use reporter instead.',
+				'Disallow console usage in wpk core; use reporter instead.',
 			recommended: false,
 		},
 		messages: {
 			noConsole:
-				'Use the reporter module instead of console. kernel core code must not call console APIs directly.',
+				'Use the reporter module instead of console. wpk core code must not call console APIs directly.',
 		},
 		schema: [],
 	},

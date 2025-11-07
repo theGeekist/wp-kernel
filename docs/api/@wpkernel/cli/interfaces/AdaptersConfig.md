@@ -6,7 +6,7 @@
 
 # Interface: AdaptersConfig
 
-Optional adapters configured by a kernel project.
+Optional adapters configured by a wpk project.
 
 ## Properties
 

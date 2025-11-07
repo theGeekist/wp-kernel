@@ -10,7 +10,7 @@ The CLI pipeline (`packages/cli/src/**`) now emits every core PHP artefact as a 
 ### Target API shape
 
 ```ts
-const context = createKernelPipelineContext();
+const context = createWPKernelPipelineContext();
 
 createPhpBuilder(context, (register) => {
 	register(createPhpBuilderDriverHelper());

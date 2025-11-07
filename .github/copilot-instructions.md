@@ -17,7 +17,7 @@ WP Kernel is a Rails-like, opinionated framework for building modern WordPress p
 
 ### Showcase App (`examples/showcase`)
 
-WordPress plugin demonstrating a complete jobs & applications system that exercises all kernel capabilities:
+WordPress plugin demonstrating a complete jobs & applications system that exercises all wpk capabilities:
 
 - **Public**: Job listings, search/filter, job details, application forms with CV uploads
 - **Admin**: Job management, application pipeline (kanban), email templates, reporting

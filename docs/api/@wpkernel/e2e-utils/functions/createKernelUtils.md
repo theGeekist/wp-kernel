@@ -2,12 +2,12 @@
 
 ---
 
-[@wpkernel/e2e-utils](../README.md) / createKernelUtils
+[@wpkernel/e2e-utils](../README.md) / createWPKernelUtils
 
-# Function: createKernelUtils()
+# Function: createWPKernelUtils()
 
 ```ts
-function createKernelUtils(fixtures): KernelUtils;
+function createWPKernelUtils(fixtures): KernelUtils;
 ```
 
 Create kernel-aware E2E utilities
@@ -34,7 +34,7 @@ Kernel utilities object with helper factories
 ```typescript
 import { test, expect } from '@wpkernel/e2e-utils';
 
-test('job workflow', async ({ page, admin, requestUtils, kernel }) => {
+test('job workflow', async ({ page, admin, requestUtils, wpk }) => {
   const job = kernel.resource({ name: 'job', routes: {...} });
   await job.seed({ title: 'Engineer' });
 

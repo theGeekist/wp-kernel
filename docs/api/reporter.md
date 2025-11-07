@@ -69,7 +69,7 @@ capabilityReporter.warn('Rule denied', { rule: 'posts.delete' });
 
 ## Integration
 
-- **Actions** - the kernel automatically creates a reporter per namespace when actions execute.
+- **Actions** - the wpk automatically creates a reporter per namespace when actions execute.
 - **Capabilities** - `defineCapability()` uses a reporter when `debug: true` is provided.
 - **Registry** - `configureWPKernel()` (from `@wpkernel/core`) accepts a reporter override when wiring `@wordpress/data`.
 

@@ -67,7 +67,7 @@ Reporters centralise logging, route errors to `core/notices`, and expose hook-fr
 
 ### WordPress data integration
 
-Helpers for wiring kernel middleware into `@wordpress/data` registries and stores, including automatic notice bridging. [Read the full guide →](/guide/data)
+Helpers for wiring wpk middleware into `@wordpress/data` registries and stores, including automatic notice bridging. [Read the full guide →](/guide/data)
 
 ### Block bindings
 
@@ -79,7 +79,7 @@ The Interactivity API adds behaviour without shipping custom JavaScript bundles 
 
 ### DataViews
 
-DataViews provide WordPress 6.7+ admin surfaces powered by kernel controllers. Define metadata on your resources, let `configureWPKernel()` auto-register the controllers, and render `ResourceDataView` so capabilities, actions, and preferences stay consistent. [Read the full guide →](/guide/dataviews)
+DataViews provide WordPress 6.7+ admin surfaces powered by wpk controllers. Define metadata on your resources, let `configureWPKernel()` auto-register the controllers, and render `ResourceDataView` so capabilities, actions, and preferences stay consistent. [Read the full guide →](/guide/dataviews)
 
 ### Prefetching
 

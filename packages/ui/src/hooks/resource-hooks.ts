@@ -1,7 +1,7 @@
 /**
  * Resource React Hooks Attachment
  *
- * Provides React hooks (useGet, useList) for kernel resources by integrating
+ * Provides React hooks (useGet, useList) for wpk resources by integrating
  * with WordPress data stores. Hooks are attached to ResourceObject instances
  * at module load time or queued for late attachment if resources are defined
  * before this UI bundle loads.

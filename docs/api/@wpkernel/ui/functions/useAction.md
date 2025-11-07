@@ -13,7 +13,7 @@ function useAction<TInput, TResult>(
 ): UseActionResult<TInput, TResult>;
 ```
 
-React hook for invoking a kernel action.
+React hook for invoking a wpk action.
 
 This hook provides a convenient way to execute a `DefinedAction` and manage its lifecycle,
 including loading states, errors, and concurrency control. It integrates with the WordPress

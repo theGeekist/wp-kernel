@@ -104,7 +104,7 @@ test('should wait for store state', async ({ kernel, admin }) => {
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 
 test('should capture events', async ({ kernel, page, admin }) => {
-	// Start recording kernel namespace events
+	// Start recording wpk namespace events
 	const recorder = kernel.events({
 		namespace: WPK_NAMESPACE,
 		includePayload: true,
@@ -135,11 +135,11 @@ For advanced users who need custom configuration:
 
 ```typescript
 import { test as base, expect } from '@wordpress/e2e-test-utils-playwright';
-import { createKernelUtils } from '@wpkernel/e2e-utils';
+import { createWPKernelUtils } from '@wpkernel/e2e-utils';
 
 export const test = base.extend({
 	kernel: async ({ page, requestUtils, admin, editor, pageUtils }, use) => {
-		const kernel = createKernelUtils({
+		const wpk = createWPKernelUtils({
 			page,
 			requestUtils,
 			admin,
@@ -172,5 +172,5 @@ export { expect };
 
 - Migrate existing tests one by one
 - Remove manual helper functions (loginToWordPress, etc.)
-- Use kernel utilities for data seeding instead of direct REST calls
+- Use wpk utilities for data seeding instead of direct REST calls
 - Add event verification to action tests

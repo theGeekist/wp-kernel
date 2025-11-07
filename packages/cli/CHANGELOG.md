@@ -124,7 +124,7 @@
     - Main orchestrator reduced from 775 lines to 83 lines
     - Saves ~1,750 lines across Phase 2C by reusing infrastructure (~36% reduction)
     - Established pattern for future storage mode additions
-- **ESLint Plugin**: 4 kernel config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/capability-hints`, `@kernel/doc-links`)
+- **ESLint Plugin**: 4 wpk config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/capability-hints`, `@kernel/doc-links`)
     - Educational error messages explaining framework contracts, runtime behavior, and concrete fixes
     - Inline documentation above each rule enforcement explaining the "why" behind constraints
     - JSDoc with @typedef for complex parameter objects and exported utilities

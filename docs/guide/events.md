@@ -16,7 +16,7 @@ without losing coverage.
 ```ts
 import { configureWPKernel } from '@wpkernel/core';
 
-const kernel = configureWPKernel({ namespace: 'acme' });
+const wpk = configureWPKernel({ namespace: 'acme' });
 
 const unsubscribe = kernel.events.on('action:complete', (event) => {
 	kernel.getReporter().info('Action completed', {
@@ -229,7 +229,7 @@ addAction('acme-blog.cache.invalidated', 'acme-blog/debug', (payload) => {
 import { addAction } from '@wordpress/hooks';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 
-// Framework events use the kernel namespace constant
+// Framework events use the wpk namespace constant
 addAction(
 	`${WPK_NAMESPACE}.system.error`,
 	'acme-blog/system-monitor',

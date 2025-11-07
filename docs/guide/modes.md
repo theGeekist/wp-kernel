@@ -676,7 +676,7 @@ configure({ rootURL: 'https://cms.example.com' });
 - **Mix modes without guards** - Declare support clearly
 - **Ship dev guards to production** - Stripped automatically
 - **Bypass mode checks** - They exist for a reason
-- **Assume context** - Let kernel detect it
+- **Assume context** - Let wpk detect it
 - **Disable build guards** - They prevent production bugs
 
 ---

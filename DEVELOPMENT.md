@@ -24,11 +24,11 @@ wp-kernel/
 
 ### 🎯 Golden Rules
 
-| Component           | Purpose                                                  | Development Focus                                         |
-| ------------------- | -------------------------------------------------------- | --------------------------------------------------------- |
-| **Kernel packages** | Reusable primitives (resources, actions, events, jobs)   | Framework code only - no business logic                   |
-| **Showcase app**    | Business/domain demo plugin (jobs & applications system) | Real-world patterns that exercise all kernel capabilities |
-| **e2e-utils**       | Testing utilities (validated via showcase)               | Browser-only code, can't be unit tested in isolation      |
+| Component           | Purpose                                                  | Development Focus                                      |
+| ------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| **Kernel packages** | Reusable primitives (resources, actions, events, jobs)   | Framework code only - no business logic                |
+| **Showcase app**    | Business/domain demo plugin (jobs & applications system) | Real-world patterns that exercise all wpk capabilities |
+| **e2e-utils**       | Testing utilities (validated via showcase)               | Browser-only code, can't be unit tested in isolation   |
 
 - Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts`; never hardcode `wpk` or numeric exit codes in tooling.
 

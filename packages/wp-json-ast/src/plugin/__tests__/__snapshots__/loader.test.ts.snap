@@ -374,7 +374,7 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
           "comments": [
             {
               "nodeType": "Comment_Doc",
-              "text": "/** Attach kernel hooks required for REST registration. */",
+              "text": "/** Attach wpk hooks required for REST registration. */",
             },
           ],
         },
@@ -809,7 +809,7 @@ exports[`buildPluginLoaderProgram handles projects without resources: plugin-loa
           "comments": [
             {
               "nodeType": "Comment_Doc",
-              "text": "/** Attach kernel hooks required for REST registration. */",
+              "text": "/** Attach wpk hooks required for REST registration. */",
             },
           ],
         },

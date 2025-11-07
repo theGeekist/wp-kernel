@@ -6,7 +6,7 @@
 
 # Interface: BuildLoadedConfigOptions\<TConfig, TOrigin, TComposerCheck\>
 
-Options for building a loaded kernel configuration.
+Options for building a loaded wpk configuration.
 
 ## Type Parameters
 
@@ -30,7 +30,7 @@ Options for building a loaded kernel configuration.
 readonly optional config: TConfig;
 ```
 
-The kernel configuration object.
+The wpk configuration object.
 
 ---
 

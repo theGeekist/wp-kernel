@@ -5,12 +5,12 @@ import type { IRv1 } from '../ir/publicTypes';
 import type { PhpAstBuilder } from '@wpkernel/php-json-ast';
 
 /**
- * Source identifier describing where a kernel config was loaded from.
+ * Source identifier describing where a wpk config was loaded from.
  */
 export type ConfigOrigin = WPKConfigSource;
 
 /**
- * Currently supported kernel config schema version.
+ * Currently supported wpk config schema version.
  */
 export type WPKernelConfigVersion = 1;
 
@@ -37,7 +37,7 @@ export interface SchemaRegistry {
 }
 
 /**
- * Mapping of resource identifiers to their kernel configuration.
+ * Mapping of resource identifiers to their wpk configuration.
  * @public
  */
 export interface ResourceRegistry {
@@ -45,7 +45,7 @@ export interface ResourceRegistry {
 }
 
 /**
- * Optional adapters configured by a kernel project.
+ * Optional adapters configured by a wpk project.
  */
 export interface AdaptersConfig {
 	php?: PhpAdapterFactory;
@@ -53,7 +53,7 @@ export interface AdaptersConfig {
 }
 
 /**
- * Shape of a v1 kernel configuration object.
+ * Shape of a v1 wpk configuration object.
  */
 export interface WPKernelConfigV1 {
 	version: WPKernelConfigVersion;
@@ -122,7 +122,7 @@ export type AdapterExtensionFactory = (
 ) => AdapterExtension | AdapterExtension[] | void;
 
 /**
- * Result returned when loading and validating a kernel config file.
+ * Result returned when loading and validating a wpk config file.
  */
 export interface LoadedWPKernelConfig {
 	config: WPKernelConfigV1;

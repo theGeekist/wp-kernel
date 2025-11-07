@@ -443,7 +443,7 @@ packages/cli/src/printers/blocks/
 **Scope:**
 
 - Harmonise API documentation across packages (kernel, CLI, UI) using consistent JSDoc-driven generation.
-- Introduce barrel exports (`index.ts`) for kernel subdirectories and expose them via package `exports` entries (e.g., `@wpkernel/core/events`).
+- Introduce barrel exports (`index.ts`) for wpk subdirectories and expose them via package `exports` entries (e.g., `@wpkernel/core/events`).
 - Update consuming packages to import from those subpath exports instead of the package root or deep relative paths into `src/`.
 - Update CLI bundling (Vite/Rollup) to externalise peer dependencies (e.g., `@wordpress/*`, `chokidar`) and lazy-load where beneficial.
 - Add regression checks/lints preventing reintroduction of root/deep-relative imports or bundled externals.

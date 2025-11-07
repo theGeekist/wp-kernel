@@ -2,7 +2,7 @@ export const jobsadminscreenRoute = '/admin.php?page=wpk-jobs';
 
 import { WPKernelUIProvider, useWPKernelUI } from '@wpkernel/ui';
 import { ResourceDataView } from '@wpkernel/ui/dataviews';
-import { kernel } from '@/bootstrap/kernel';
+import { wpk } from '@/bootstrap/kernel';
 import { job } from '@/resources/job';
 
 function JobsAdminScreenContent() {

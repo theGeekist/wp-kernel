@@ -74,7 +74,7 @@ export default {
 		type: 'problem',
 		docs: {
 			description:
-				'Warns when write routes lack capability identifiers in kernel config.',
+				'Warns when write routes lack capability identifiers in wpk config.',
 			recommended: false,
 			url: DOC_URL,
 		},

@@ -10,7 +10,7 @@
 function createDataViewHelper(page, options): DataViewHelper;
 ```
 
-Creates a set of kernel utilities for E2E tests.
+Creates a set of wpk utilities for E2E tests.
 
 This factory function provides helpers for interacting with resources, stores,
 events, and data views within a WP Kernel application during testing.

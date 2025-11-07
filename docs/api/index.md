@@ -4,7 +4,7 @@ Dive deep into the generated Typedoc for each package. Conceptual guides live un
 
 ## Package overviews
 
-- [`/api/@wpkernel/cli/`](./@wpkernel/cli/README.md) - CLI commands, printer contracts, kernel config loaders.
+- [`/api/@wpkernel/cli/`](./@wpkernel/cli/README.md) - CLI commands, printer contracts, wpk config loaders.
 - [`/api/@wpkernel/core/`](./@wpkernel/core/README.md) - runtime helpers, error taxonomy, HTTP transport, and resource utilities.
 - [`/api/@wpkernel/ui/`](./@wpkernel/ui/README.md) - UI runtime, DataViews helpers, block bindings, and React hooks.
 
@@ -18,7 +18,7 @@ Some APIs benefit from narrative explanations before you open Typedoc:
 - [Actions](/guide/actions) - orchestrating writes and invalidation.
 - [Interactivity](/guide/interactivity) - binding stateful behaviour to blocks and views.
 - [Blocks](/guide/blocks) - manifests, bindings, and SSR.
-- [Reporting](/guide/reporting) - working with the kernel reporter.
+- [Reporting](/guide/reporting) - working with the wpk reporter.
 
 ## Staying in sync
 

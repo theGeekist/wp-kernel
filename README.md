@@ -119,7 +119,7 @@ npm install -D @wpkernel/cli
 import { configureWPKernel } from '@wpkernel/core';
 import { attachUIBindings } from '@wpkernel/ui';
 
-const kernel = configureWPKernel({
+const wpk = configureWPKernel({
 	registry: window.wp.data,
 	namespace: 'my-plugin',
 	ui: { attach: attachUIBindings },
@@ -128,7 +128,7 @@ const kernel = configureWPKernel({
 kernel.emit('my-plugin.ready', { timestamp: Date.now() });
 ```
 
-Mount the UI runtime so React hooks can subscribe to resources and actions through the kernel event bus:
+Mount the UI runtime so React hooks can subscribe to resources and actions through the wpk event bus:
 
 ```tsx
 import { createRoot } from 'react-dom/client';

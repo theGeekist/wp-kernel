@@ -8,10 +8,10 @@ import type { DataViewsRuntimeContext } from '../types';
  *
  * When provided a full WPKernelUIRuntime, derives a DataViewsRuntimeContext.
  * When provided a DataViewsRuntimeContext, passes it through.
- * Otherwise falls back to the hook-provided kernel runtime.
+ * Otherwise falls back to the hook-provided wpk runtime.
  */
 export type RuntimeResolution = {
-	kernelRuntime?: WPKernelUIRuntime;
+	wpkernelRuntime?: WPKernelUIRuntime;
 	context: DataViewsRuntimeContext;
 };
 
@@ -50,7 +50,7 @@ export function resolveRuntime(
 				);
 			}
 			return {
-				kernelRuntime: runtimeProp,
+				wpkernelRuntime: runtimeProp,
 				context: {
 					namespace: runtimeProp.namespace,
 					dataviews: ensureControllerRuntime(runtimeProp.dataviews),
@@ -77,7 +77,7 @@ export function resolveRuntime(
 	}
 
 	return {
-		kernelRuntime: hookRuntime,
+		wpkernelRuntime: hookRuntime,
 		context: {
 			namespace: hookRuntime.namespace,
 			dataviews: ensureControllerRuntime(hookRuntime.dataviews),

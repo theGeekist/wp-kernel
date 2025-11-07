@@ -1,7 +1,7 @@
 # @wpkernel/test-utils
 
 Shared testing utilities for the WP Kernel monorepo. Harnesses in this package keep WordPress
-globals, kernel runtime state, and workspace scaffolds deterministic across unit, integration,
+globals, wpk runtime state, and workspace scaffolds deterministic across unit, integration,
 and CLI suites.
 
 ## Overview
@@ -38,7 +38,7 @@ import { createWordPressTestHarness } from '@wpkernel/test-utils/core/wp-harness
 
 const wp = createWordPressTestHarness();
 const { renderWithKernel } = createWPKernelUITestHarness({
-        createRuntime: () => wp.kernelRuntime,
+        createRuntime: () => wp.wpkernelRuntime,
 });
 
 it('renders job list', async () => {

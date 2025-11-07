@@ -119,7 +119,8 @@ function attachExistingResources(
 /**
  * Attaches the UI bindings to the WP Kernel instance.
  *
- * @param    kernel  - The WP Kernel instance.
+ * @param    wpk     - The WP Kernel instance.
+ * @param    kernel
  * @param    options - The UI integration options.
  * @returns The UI runtime.
  * @category Provider

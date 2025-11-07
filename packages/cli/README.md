@@ -60,11 +60,11 @@ files. `wpk apply` performs guarded merges, optionally keeping `.bak` copies and
 
 | Command        | Summary                                                                                    |
 | -------------- | ------------------------------------------------------------------------------------------ |
-| `wpk init`     | Scaffold kernel config, resources, and project plumbing inside an existing repo.           |
+| `wpk init`     | Scaffold wpk config, resources, and project plumbing inside an existing repo.              |
 | `wpk generate` | Emit TypeScript, PHP, UI, and block artefacts from the current configuration.              |
 | `wpk apply`    | Apply the staged plan with guard markers, deletion manifests, and audit logs.              |
 | `wpk doctor`   | Validate dependencies, project health, and pipeline diagnostics.                           |
-| `wpk start`    | Watch kernel sources, regenerate artefacts, and launch the Vite dev server.                |
+| `wpk start`    | Watch wpk sources, regenerate artefacts, and launch the Vite dev server.                   |
 | `wpk build`    | Run `generate → vite build → apply --yes` in one step (pass `--no-apply` to skip merging). |
 
 Use `wpk <command> --help` for flag documentation. Storage coverage spans `wp-post`, `wp-taxonomy`,

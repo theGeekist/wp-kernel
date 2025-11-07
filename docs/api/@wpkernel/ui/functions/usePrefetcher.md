@@ -12,7 +12,7 @@ function usePrefetcher<TRecord, TQuery>(resource): Prefetcher<TQuery>;
 
 Exposes stable cache prefetch helpers for a resource.
 
-Wraps the kernel resource's `prefetchGet` and `prefetchList` helpers so React
+Wraps the wpk resource's `prefetchGet` and `prefetchList` helpers so React
 components can wire them to UI affordances (hover, visibility, etc.) without
 re-creating callback instances on every render.
 

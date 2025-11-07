@@ -75,7 +75,7 @@ export interface ApplyLogEntry {
 }
 
 /**
- * Options for building a loaded kernel configuration.
+ * Options for building a loaded wpk configuration.
  *
  * @category CLI Helpers
  */
@@ -84,7 +84,7 @@ export interface BuildLoadedConfigOptions<
 	TOrigin extends string = string,
 	TComposerCheck extends string = string,
 > {
-	/** The kernel configuration object. */
+	/** The wpk configuration object. */
 	readonly config?: TConfig;
 	/** The namespace of the project. */
 	readonly namespace?: string;
@@ -97,7 +97,7 @@ export interface BuildLoadedConfigOptions<
 }
 
 /**
- * Builds a loaded kernel configuration object for testing.
+ * Builds a loaded wpk configuration object for testing.
  *
  * @category CLI Helpers
  * @param    workspace - The path to the workspace.

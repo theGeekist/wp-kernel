@@ -6,7 +6,7 @@
 
 # Interface: WPKernelConfigV1
 
-Shape of a v1 kernel configuration object.
+Shape of a v1 wpk configuration object.
 
 ## Properties
 

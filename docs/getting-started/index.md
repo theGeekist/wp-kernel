@@ -51,14 +51,14 @@ export const CreateJob = defineAction({
 
 ## UI integration
 
-Call `configureWPKernel` once during bootstrap, then hand the instance to `attachUIBindings` from `@wpkernel/ui`. That attaches resource hooks, optional DataViews runtime support, and capability bridges to the kernel instance.【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
+Call `configureWPKernel` once during bootstrap, then hand the instance to `attachUIBindings` from `@wpkernel/ui`. That attaches resource hooks, optional DataViews runtime support, and capability bridges to the wpk instance.【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
 
 ```ts
 import { configureWPKernel } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
 import { wpkConfig } from '../wpk.config';
 
-export const kernel = configureWPKernel({ namespace: wpkConfig.namespace });
+export const wpk = configureWPKernel({ namespace: wpkConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 

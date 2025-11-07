@@ -89,7 +89,7 @@ within the current tab; tab-local actions never bridge to PHP even when
 import { createActionMiddleware, invokeAction } from '@wpkernel/core/actions';
 ```
 
-The middleware helper lets you dispatch kernel actions through any Redux-like
+The middleware helper lets you dispatch wpk actions through any Redux-like
 store (including `@wordpress/data`).
 
 ```ts

@@ -18,9 +18,9 @@
 
 - **DataViews Phase 5**: JobsList page migrated to DataViews integration
     - Replaced custom table implementation with `ResourceDataView` component
-    - Demonstrates real-world DataViews usage with kernel resources
+    - Demonstrates real-world DataViews usage with wpk resources
     - Showcases capability-gated actions, filters, sorting, and pagination
-    - Enhanced kernel config with DataViews metadata for Job resource
+    - Enhanced wpk config with DataViews metadata for Job resource
 
 ## 0.3.0
 

@@ -147,7 +147,7 @@ export type CapturedEvent<P = unknown> = {
 };
 
 /**
- * Event utilities for capturing and asserting on kernel events
+ * Event utilities for capturing and asserting on wpk events
  */
 export type EventRecorder<P = unknown> = {
 	/**
@@ -183,7 +183,7 @@ export type EventRecorder<P = unknown> = {
 };
 
 /**
- * Main kernel utilities object returned by factory
+ * Main wpk utilities object returned by factory
  */
 export type KernelUtils = {
 	/**
@@ -203,7 +203,7 @@ export type KernelUtils = {
 	store: <T = unknown>(storeKey: string) => StoreUtils<T>;
 
 	/**
-	 * Create event recorder for capturing kernel events
+	 * Create event recorder for capturing wpk events
 	 *
 	 * @param options - Optional configuration for event filtering
 	 * @return Event recorder with capture and query methods

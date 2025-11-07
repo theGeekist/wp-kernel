@@ -4,7 +4,7 @@ The WP Kernel CLI orchestrates the full lifecycle of a plugin. Each command belo
 
 ## `wpk init`
 
-Scaffolds a new plugin with a kernel config, TypeScript build tooling, and Composer wiring. Use it once per project.
+Scaffolds a new plugin with a wpk config, TypeScript build tooling, and Composer wiring. Use it once per project.
 
 ## `wpk generate`
 
@@ -30,7 +30,7 @@ Run this command after reviewing the diff from `wpk generate`.
 
 ## `wpk start`
 
-Runs the generator in watch mode and rebuilds assets. Ideal during development: it reacts to kernel config changes, reruns printers, and refreshes Vite builds automatically.
+Runs the generator in watch mode and rebuilds assets. Ideal during development: it reacts to wpk config changes, reruns printers, and refreshes Vite builds automatically.
 
 ## `wpk build`
 
@@ -38,7 +38,7 @@ One-shot version of `start`. Generates artifacts, builds assets, and exits with 
 
 ## `wpk doctor`
 
-Validates the kernel config, checks Composer autoloading, and verifies WordPress integration. Run it whenever the CLI behaves unexpectedly.
+Validates the wpk config, checks Composer autoloading, and verifies WordPress integration. Run it whenever the CLI behaves unexpectedly.
 
 ## Golden path
 

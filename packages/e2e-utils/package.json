@@ -30,15 +30,15 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
-		"./createKernelUtils": {
-			"types": "./dist/createKernelUtils.d.ts",
-			"import": "./dist/createKernelUtils.js",
-			"default": "./dist/createKernelUtils.js"
+		"./createWPKernelUtils": {
+			"types": "./dist/createWPKernelUtils.d.ts",
+			"import": "./dist/createWPKernelUtils.js",
+			"default": "./dist/createWPKernelUtils.js"
 		},
 		"./helpers": {
-			"types": "./dist/createKernelUtils.d.ts",
-			"import": "./dist/createKernelUtils.js",
-			"default": "./dist/createKernelUtils.js"
+			"types": "./dist/createWPKernelUtils.d.ts",
+			"import": "./dist/createWPKernelUtils.js",
+			"default": "./dist/createWPKernelUtils.js"
 		},
 		"./test-support/isolated-workspace": {
 			"types": "./dist/test-support/isolated-workspace.test-support.d.ts",

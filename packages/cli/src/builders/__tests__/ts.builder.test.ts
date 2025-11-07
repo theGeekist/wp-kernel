@@ -91,7 +91,7 @@ describe('createTsBuilder - orchestration', () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			await workspace.write(
 				'src/bootstrap/kernel.ts',
-				'export const kernel = { getUIRuntime: () => ({}) };\n'
+				'export const wpk = { getUIRuntime: () => ({}) };\n'
 			);
 
 			const dataviews = buildDataViewsConfig();

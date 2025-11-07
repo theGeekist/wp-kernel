@@ -160,7 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`useGet()` & `useList()`** - Resource data fetching hooks
     - Lazy attachment mechanism for resources defined before UI loads
     - WordPress data store integration
-- **`useCapability()`** - Capability checks in UI (migrated from kernel package)
+- **`useCapability()`** - Capability checks in UI (migrated from core package)
     - Reactive capability cache with `can()` helper
     - Loading and error states
 - **Prefetching Hooks**:
@@ -172,7 +172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Kernel Changes (`@wpkernel/core`)
 
 - Emitted typed events from `defineResource()` so UI bindings attach deterministically without queues.
-- Replayed registered resources through the kernel instance, allowing UI packages to hydrate hooks on demand.
+- Replayed registered resources through the wpk instance, allowing UI packages to hydrate hooks on demand.
 - Removed the `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global now that runtime events drive attachment.
 - Added configurable resource store identifiers (`store.getId`, `store.getQueryKey`, `store.initialState`) with runtime
   validation and reporter diagnostics for duplicates or missing keys.
@@ -263,7 +263,7 @@ This release marks the completion of the foundation, resources, E2E utilities, c
 
 #### WordPress Data Integration (`@wpkernel/core/data`)
 
-- **`withKernel(registry)`** - Registry plugin with kernel middleware (renamed from useKernel)
+- **`withKernel(registry)`** - Registry plugin with wpk middleware (renamed from useKernel)
 - **`registerWPKernelStore()`** - Store wrapper with actions DSL
 - **`wpkEventsPlugin()`** - Automatic error → WordPress notices bridge
 - **Full @wordpress/data parity** - Actions work in block editor environments
@@ -539,8 +539,8 @@ All packages:
 #### Phase 5: Testing Infrastructure ✓
 
 - **Jest** configured with `@wordpress/jest-preset-default`
-- 4 passing unit tests for kernel package (VERSION export validation)
-- Coverage configuration (0% initially, kernel at 100%)
+- 4 passing unit tests for wpk package (VERSION export validation)
+- Coverage configuration (0% initially, wpk at 100%)
 - Test files in `__tests__/` directories only
 - TypeScript support with ts-jest
 - **Playwright** configured for E2E testing
@@ -712,7 +712,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 
 - Jest 29 with `@wordpress/jest-preset-default`
 - 4 unit tests passing (kernel package)
-- Coverage: 25% overall, kernel at 100%
+- Coverage: 25% overall, wpk at 100%
 - Playwright with `@wordpress/e2e-test-utils-playwright`
 - 5 E2E tests passing across 3 browsers
 - Test execution time: ~1.5s unit, ~15s E2E

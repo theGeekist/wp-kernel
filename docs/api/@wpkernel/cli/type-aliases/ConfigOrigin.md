@@ -10,4 +10,4 @@
 type ConfigOrigin = WPKConfigSource;
 ```
 
-Source identifier describing where a kernel config was loaded from.
+Source identifier describing where a wpk config was loaded from.

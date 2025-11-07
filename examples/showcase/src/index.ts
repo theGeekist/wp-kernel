@@ -8,7 +8,7 @@ import type { WPKernelRegistry } from '@wpkernel/core/data';
 import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
-import { bootstrapKernel, kernel } from './bootstrap/kernel';
+import { bootstrapKernel, wpk } from './bootstrap/wpk';
 
 type WPWindow = typeof window & {
 	wp?: {
@@ -47,7 +47,7 @@ export function init(): void {
 
 	const adminRoot = document.getElementById('wpk-admin-root');
 	if (adminRoot) {
-		const uiRuntime = kernel.getUIRuntime();
+		const uiRuntime = wpk.getUIRuntime();
 		if (!uiRuntime) {
 			console.warn(
 				'[WP Kernel Showcase] UI runtime unavailable. Ensure attachUIBindings is configured.'

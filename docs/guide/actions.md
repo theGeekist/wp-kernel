@@ -445,7 +445,7 @@ function PostEditor() {
 	const dispatch = useDispatch('my-plugin/posts');
 
 	const handlePublish = async () => {
-		// Dispatch kernel action through Redux
+		// Dispatch wpk action through Redux
 		const envelope = invokeAction(CreatePost, {
 			title: 'New Post',
 			content: '...',
@@ -462,7 +462,7 @@ function PostEditor() {
 
 **How it works**:
 
-1. `createActionMiddleware()` creates Redux middleware that intercepts kernel action envelopes
+1. `createActionMiddleware()` creates Redux middleware that intercepts wpk action envelopes
 2. `invokeAction()` wraps your action in a Redux-compatible envelope
 3. The middleware executes the action (with all lifecycle events, cache invalidation, etc.)
 4. The action's result is returned directly, bypassing Redux reducers

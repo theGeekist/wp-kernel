@@ -26,7 +26,7 @@ describe('init installers', () => {
 		expect(execMock).toHaveBeenCalledTimes(1);
 	});
 
-	it('wraps npm installation failures in a developer kernel error', async () => {
+	it('wraps npm installation failures in a developer wpk error', async () => {
 		const execMock = jest.fn(async () => {
 			const error = new Error('npm failure');
 			(error as { stderr?: string }).stderr = 'fatal';

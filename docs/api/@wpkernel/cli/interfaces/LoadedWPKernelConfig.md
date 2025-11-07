@@ -6,7 +6,7 @@
 
 # Interface: LoadedWPKernelConfig
 
-Result returned when loading and validating a kernel config file.
+Result returned when loading and validating a wpk config file.
 
 ## Properties
 

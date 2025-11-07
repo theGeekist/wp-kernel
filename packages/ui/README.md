@@ -17,7 +17,7 @@ accessibility, theming, and internationalisation guarantees.
   persisted preferences, and consistent async UX.
 - **`createResourceDataViewController`** – translate DataViews state into resource
   queries and emit reporter events.
-- **`createDataFormController`** – bind inline editors to kernel actions with automatic
+- **`createDataFormController`** – bind inline editors to wpk actions with automatic
   cache invalidation.
 - **`ActionButton` / `useAction`** – trigger writes through Actions without touching
   transports directly.
@@ -50,13 +50,13 @@ publishing to confirm every workspace honours the shared peer dependency policy.
 
 ## Quick start
 
-1. **Configure the kernel runtime**
+1. **Configure the wpk runtime**
 
     ```tsx
     import { configureWPKernel } from '@wpkernel/core';
     import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-    const kernel = configureWPKernel({
+    const wpk = configureWPKernel({
     	namespace: 'demo',
     	registry: window.wp.data,
     	ui: {
