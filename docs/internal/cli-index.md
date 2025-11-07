@@ -2,7 +2,7 @@
 
 Keep this page updated-edit or prune entries as soon as a referenced document changes.
 
-- **Version guard** - The CLI operates on the unified **v0.11.0 (pre-1.0)** line. Reserved version slots live in [MVP Plan](cli-mvp-plan.md); claim and update them as tasks ship so parallel agents never collide.
+- **Version guard** - The CLI operates on the unified **v0.12.0 (pre-1.0)** line. Reserved version slots live in [MVP Plan](cli-mvp-plan.md); claim and update them as tasks ship so parallel agents never collide.
 - **Implementation rules** - All downstream work must keep the AST-first pipeline intact: no string-based PHP generation, and reserve the `create*` prefix for helpers produced via `createHelper`. Alias third-party `create*` imports to avoid collisions.
 - **[CLI Migration Phases](cli-migration-phases.md)** - canonical contributor brief for the next pipeline (runtime, helpers, command status, workstreams).
 - **[PHP AST Migration Tasks](cli-php-ast-migration.md)** - archive of the wp-option/transient/block parity milestones and controller safety work that preceded the printer retirement.

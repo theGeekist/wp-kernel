@@ -17,11 +17,14 @@ interface ResourceBuilderState {
 }
 
 /**
- * TODO: summary.
- * @param    options            — TODO
- * @param    accumulator        — TODO
- * @param    sanitizedNamespace — TODO
- * @returns TODO
+ * Builds the full IR representation for all declared resources.
+ *
+ * Normalises routes, resolves schemas, infers identities, prepares storage
+ * metadata, derives cache keys, and collects warnings.
+ *
+ * @param    options
+ * @param    accumulator
+ * @param    sanitizedNamespace
  * @category IR
  */
 export async function buildResources(
@@ -55,6 +58,19 @@ export async function buildResources(
 	return resources;
 }
 
+/**
+ * Builds a single resource IR entry.
+ *
+ * Applies all normalisation steps for one resource and returns IR + warnings.
+ *
+ * @param    options
+ * @param    options.accumulator
+ * @param    options.sanitizedNamespace
+ * @param    options.resourceKey
+ * @param    options.resourceConfig
+ * @param    options.state
+ * @category IR
+ */
 async function buildResourceEntry(options: {
 	accumulator: SchemaAccumulator;
 	sanitizedNamespace: string;
@@ -159,9 +175,12 @@ function collectWarnings(options: {
 }
 
 /**
- * TODO: summary.
- * @param    warnings — TODO
- * @returns TODO
+ * Sorts IR warnings deterministically.
+ *
+ * Warnings are ordered first by code, then by message, ensuring consistent
+ * snapshot output between builds.
+ *
+ * @param    warnings
  * @category IR
  */
 export function sortWarnings(warnings: IRWarning[]): IRWarning[] {
@@ -176,9 +195,11 @@ export function sortWarnings(warnings: IRWarning[]): IRWarning[] {
 }
 
 /**
- * TODO: summary.
- * @param    params — TODO
- * @returns TODO
+ * Normalises query parameter descriptors before they enter the IR.
+ *
+ * Keys are alphabetically sorted to guarantee deterministic build output.
+ *
+ * @param    params
  * @category IR
  */
 export function normaliseQueryParams(
@@ -192,12 +213,14 @@ export function normaliseQueryParams(
 }
 
 /**
- * TODO: summary.
- * @param    options               — TODO
+ * Records collisions in inferred WordPress post types across resources.
+ *
+ * When two resources infer or declare the same post type, a warning is
+ * generated so the user can resolve the conflict.
+ * @param    options
  * @param    options.resourceKey
  * @param    options.registry
  * @param    options.storageResult
- * @returns TODO
  * @category IR
  */
 export function recordPostTypeCollision(options: {
@@ -234,12 +257,15 @@ export function recordPostTypeCollision(options: {
 }
 
 /**
- * TODO: summary.
- * @param    options             — TODO
+ * Infers a resource identity (id/slug/uuid) from route placeholders when the
+ * user has not provided an explicit identity config.
+ *
+ * Inserts a warning into the IR whenever an inference occurs.
+ *
+ * @param    options
  * @param    options.resourceKey
  * @param    options.provided
  * @param    options.routes
- * @returns TODO
  * @category IR
  */
 export function inferIdentity(options: {
@@ -286,9 +312,11 @@ export function inferIdentity(options: {
 }
 
 /**
- * TODO: summary.
- * @param    routes — TODO
- * @returns TODO
+ * Extracts the most appropriate placeholder token from route definitions.
+ *
+ * Used for automatic identity inference.
+ *
+ * @param    routes
  * @category IR
  */
 export function pickRoutePlaceholder(
@@ -319,9 +347,9 @@ export function pickRoutePlaceholder(
 }
 
 /**
- * TODO: summary.
- * @param    placeholder — TODO
- * @returns TODO
+ * Creates a default identity config object from a detected placeholder token.
+ *
+ * @param    placeholder
  * @category IR
  */
 export function createIdentityFromPlaceholder(
@@ -340,12 +368,14 @@ export function createIdentityFromPlaceholder(
 }
 
 /**
- * TODO: summary.
- * @param    options                    — TODO
+ * Applies storage defaults and derives missing WordPress post types.
+ *
+ * Produces warnings when post types are inferred or truncated.
+ *
+ * @param    options
  * @param    options.resourceKey
  * @param    options.storage
  * @param    options.sanitizedNamespace
- * @returns TODO
  * @category IR
  */
 export function prepareStorage(options: {
@@ -391,11 +421,13 @@ export function prepareStorage(options: {
 }
 
 /**
- * TODO: summary.
- * @param    options                    — TODO
+ * Infers a WordPress post type slug from the namespace and resource key.
+ *
+ * Guarantees a valid ≤20 character post type, generating warnings for truncation.
+ *
+ * @param    options
  * @param    options.resourceKey
  * @param    options.sanitizedNamespace
- * @returns TODO
  * @category IR
  */
 export function inferPostType(options: {
@@ -431,8 +463,11 @@ export function inferPostType(options: {
 }
 
 /**
- * TODO: summary.
- * @param    options                  — TODO
+ * Computes a canonical hash for the resource definition.
+ *
+ * Used by the CLI to detect configuration changes and drive incremental rebuilds.
+ *
+ * @param    options
  * @param    options.resourceConfig
  * @param    options.schemaKey
  * @param    options.schemaProvenance
@@ -441,7 +476,6 @@ export function inferPostType(options: {
  * @param    options.identity
  * @param    options.storage
  * @param    options.queryParams
- * @returns TODO
  * @category IR
  */
 export function hashResource(options: {
