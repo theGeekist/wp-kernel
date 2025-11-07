@@ -25,9 +25,15 @@ interface CapabilityResolutionContext {
 }
 
 /**
- * TODO: summary.
- * @param    options — TODO
- * @returns TODO
+ * Resolves the effective capability map for all resources.
+ *
+ * Aggregates inline capability definitions, validates conflicts,
+ * determines missing or unused entries, derives object-level bindings,
+ * and returns a canonical IRCapabilityMap used during PHP helper generation.
+ *
+ * Falls back to a default "manage_options" capability when no map exists.
+ *
+ * @param    options
  * @category IR
  */
 export async function resolveCapabilityMap(
@@ -108,6 +114,15 @@ function collectInlineCapabilities(
 	return inlineMap;
 }
 
+/**
+ * Produces a capability map result when no inline capability definitions exist.
+ *
+ * Marks all referenced capabilities as missing, attaches fallback behaviour,
+ * and emits a warning indicating that "manage_options" will be used instead.
+ *
+ * @param    context
+ * @category IR
+ */
 function createMissingMapResult(
 	context: CapabilityResolutionContext
 ): IRCapabilityMap {
@@ -133,6 +148,24 @@ function createMissingMapResult(
 	};
 }
 
+/**
+ * Builds a fully normalised capability map from inline definitions.
+ *
+ * - Converts entries to canonical descriptors
+ * - Infers object-level bindings when required
+ * - Identifies unused map entries
+ * - Identifies missing capability keys referenced by routes
+ * - Produces deterministic ordering for stable output
+ *
+ * This function does not apply fallback behaviour; the caller attaches it.
+ *
+ * @param    options
+ * @param    options.map
+ * @param    options.referencedKeys
+ * @param    options.hints
+ * @param    options.resources
+ * @category IR
+ */
 async function buildResolvedCapabilityMap(options: {
 	map: CapabilityMapDefinition;
 	referencedKeys: Set<string>;
@@ -239,10 +272,30 @@ function createMissingCapabilitiesWarning(
 	};
 }
 
+/**
+ * Returns a sorted list of capability keys.
+ *
+ * Ensures deterministic ordering for IR output and snapshot stability.
+ *
+ * @param    keys
+ * @category IR
+ */
 function sortKeys(keys: Iterable<string>): string[] {
 	return Array.from(keys).sort();
 }
 
+/**
+ * Normalises an inline capability entry into a canonical descriptor.
+ *
+ * Accepts either a bare capability string or a structured descriptor,
+ * validating that scope and binding fields are well-formed.
+ *
+ * @param    options
+ * @param    options.key
+ * @param    options.entry
+ * @param    options.origin
+ * @category IR
+ */
 function normaliseEntry(options: {
 	key: string;
 	entry: CapabilityMapEntry;
@@ -251,6 +304,21 @@ function normaliseEntry(options: {
 	return coerceDescriptor(options.entry, options);
 }
 
+/**
+ * Converts any supported capability-map value into a canonical descriptor.
+ *
+ * - Validates descriptor shape
+ * - Applies default scope ("resource")
+ * - Sanitises and normalises binding values
+ *
+ * Throws a ValidationError when the entry cannot be coerced.
+ *
+ * @param    candidate
+ * @param    options
+ * @param    options.key
+ * @param    options.origin
+ * @category IR
+ */
 function coerceDescriptor(
 	candidate: unknown,
 	options: { key: string; origin: string }
@@ -280,6 +348,14 @@ function coerceDescriptor(
 	});
 }
 
+/**
+ * Normalises a descriptor binding to a safe string or undefined.
+ *
+ * Strips whitespace and discards empty or non-string values.
+ *
+ * @category IR
+ */
+
 function normaliseBinding(binding: unknown): string | undefined {
 	if (typeof binding !== 'string') {
 		return undefined;
@@ -289,6 +365,17 @@ function normaliseBinding(binding: unknown): string | undefined {
 	return trimmed.length > 0 ? trimmed : undefined;
 }
 
+/**
+ * Validates that a capability scope is legal ("resource" or "object").
+ *
+ * Throws a ValidationError when the provided scope is invalid.
+ *
+ * @param    scope
+ * @param    options
+ * @param    options.key
+ * @param    options.origin
+ * @category IR
+ */
 function assertValidCapabilityScope(
 	scope: unknown,
 	options: { key: string; origin: string }
@@ -311,6 +398,23 @@ function assertValidCapabilityScope(
 	});
 }
 
+/**
+ * Derives a request-parameter binding for object-level capabilities.
+ *
+ * Looks at route-level hints and resource identity parameters to determine
+ * which request parameter should be used when evaluating object checks.
+ *
+ * Returns:
+ * - a string when a binding is inferred,
+ * - null when no valid binding could be determined.
+ *
+ * @param    options
+ * @param    options.key
+ * @param    options.appliesTo
+ * @param    options.hints
+ * @param    options.resources
+ * @category IR
+ */
 function deriveBinding(options: {
 	key: string;
 	appliesTo: IRCapabilityScope;
@@ -346,6 +450,14 @@ function deriveBinding(options: {
 	return null;
 }
 
+/**
+ * Type guard for capability descriptor objects.
+ *
+ * Ensures the value is a record and contains a capability string.
+ *
+ * @param    value
+ * @category IR
+ */
 function isCapabilityCapabilityDescriptor(
 	value: unknown
 ): value is CapabilityCapabilityDescriptor {
@@ -356,6 +468,14 @@ function isCapabilityCapabilityDescriptor(
 	return typeof value.capability === 'string';
 }
 
+/**
+ * Utility type guard for plain object records.
+ *
+ * Accepts any non-null object that is not a primitive.
+ *
+ * @param    value
+ * @category IR
+ */
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
 }
