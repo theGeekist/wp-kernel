@@ -14,6 +14,7 @@ Keep this page updated-edit or prune entries as soon as a referenced document ch
 - **[@wpkernel/create-wpk README](../create-wpk/README.md)** - bootstrap entry point for `npm|pnpm|yarn create @wpkernel/wpk`, including telemetry notes and the integration coverage expectations from Task 38.
 - **[Adapter DX](cli-adapter-dx.md)** - current adapter/extension surface (IR-first hooks, sandboxed writes, future recipe roadmap; includes lint rule intent).
 - **[Pipeline Extension Contract](../../packages/pipeline/docs/extension-contract.md)** - canonical lifecycle contract for extension packages shared by the CLI and core surfaces.
+- **[CLI/Core IR Lifecycle Map](ir-lifecycle.json)** - machine-readable reference covering CLI fragments/builders, adapter hooks, and the core runtime pipelines that consume the generated IR.
 - **[Pipeline Integration Tasks](cli-pipeline-integration.md)** - scoped tasks for hardening the next pipeline (writer coverage, pretty-printer fixes, integration tests, driver configuration). Contains the CLI smoke-test commands (`pnpm --filter @wpkernel/core build`, `pnpm --filter @wpkernel/cli build`, then run `wpk generate --dry-run`/`wpk generate`).
 - **[MVP Plan](cli-mvp-plan.md)** - definition of the MVP launch criteria and the task queue for parallel execution.
 - **[PHP JSON Schema Reference](cli-php-json-schema.md)** - background on the nikic/PHP-Parser JSON representation used by `@wpkernel/php-json-ast`.
