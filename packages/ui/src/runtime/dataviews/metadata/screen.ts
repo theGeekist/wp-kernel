@@ -27,8 +27,8 @@ export function normalizeScreen(
 		'route',
 		'resourceImport',
 		'resourceSymbol',
-		'kernelImport',
-		'kernelSymbol',
+		'wpkernelImport',
+		'wpkernelSymbol',
 	] as const;
 
 	for (const key of stringKeys) {

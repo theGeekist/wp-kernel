@@ -111,8 +111,8 @@ export type DataViewActionTriggeredPayload = {
     				route?: string;
     				resourceImport?: string;
     				resourceSymbol?: string;
-    				kernelImport?: string;
-    				kernelSymbol?: string;
+    				wpkernelImport?: string;
+    				wpkernelSymbol?: string;
     				menu?: {
     					slug: string;
     					title: string;
@@ -131,7 +131,7 @@ export type DataViewActionTriggeredPayload = {
 - Generator contract for `wpk generate admin-page`:
     - **Inputs:** resource with `ui.admin.dataviews` metadata, optional `--route` and `--screen` flags.
     - **Outputs:**
-        - `.generated/ui/app/<resource>/admin/<Screen>.tsx` rendering `<ResourceDataView resource={resource} config={resource.ui?.admin?.dataviews} runtime={useWPKernelUI()} />` with imports derived from `screen.resourceImport`/`screen.kernelImport` metadata.
+        - `.generated/ui/app/<resource>/admin/<Screen>.tsx` rendering `<ResourceDataView resource={resource} config={resource.ui?.admin?.dataviews} runtime={useWPKernelUI()} />` with imports derived from `screen.resourceImport`/`screen.wpkernelImport` metadata.
         - Optional menu registration (when `screen.menu` is provided) emitted to `.generated/php/Admin/Menu_<Screen>.php`.
         - Fixture under `.generated/ui/fixtures/dataviews/<resource>.ts` serialising the declarative metadata for Storybook/tests.
 - Validation note: reiterate route ↔ identity alignment-if `identity.param` is declared the corresponding route MUST include `:${param}`; generator errors should reuse existing `WPKernelError('ValidationError')` messaging.

@@ -44,7 +44,7 @@ if (!\defined('ABSPATH')) {
  *
  * @return array<int, object>
  */
-function get_kernel_controllers(): array
+function get_wpkernel_controllers(): array
 {
         return [];
 }
@@ -56,9 +56,9 @@ function get_kernel_controllers(): array
  * It iterates over all the generated REST controllers and registers
  * their routes with WordPress.
  */
-function register_kernel_routes(): void
+function register_wpkernel_routes(): void
 {
-        $controllers = get_kernel_controllers();
+        $controllers = get_wpkernel_controllers();
 
         foreach ($controllers as $controller) {
                 if (!\method_exists($controller, 'register_routes')) {
@@ -78,7 +78,7 @@ function register_kernel_routes(): void
  */
 function bootstrap_kernel(): void
 {
-        \add_action('rest_api_init', __NAMESPACE__ . '\\register_kernel_routes');
+        \add_action('rest_api_init', __NAMESPACE__ . '\\register_wpkernel_routes');
 }
 
 bootstrap_kernel();

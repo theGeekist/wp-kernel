@@ -4,6 +4,7 @@ import {
 	createTsBuilder,
 	buildAdminScreenCreator,
 	buildDataViewFixtureCreator,
+	buildDataViewRegistryCreator,
 	type TsBuilderCreator,
 } from '../ts';
 import {
@@ -130,6 +131,7 @@ describe('createTsBuilder - orchestration', () => {
 				creators: [
 					buildAdminScreenCreator(),
 					buildDataViewFixtureCreator(),
+					buildDataViewRegistryCreator(),
 					customCreator,
 				],
 			});
@@ -178,12 +180,19 @@ describe('createTsBuilder - orchestration', () => {
 					'dataviews',
 					'job.ts'
 				),
+				path.join(
+					'.generated',
+					'ui',
+					'registry',
+					'dataviews',
+					'job.ts'
+				),
 				customArtifactPath,
 			]);
 			const debugCalls = (reporter.debug as jest.Mock).mock.calls;
 			const debugMessage = debugCalls[debugCalls.length - 1]?.[0];
 			expect(debugMessage).toContain(
-				'createTsBuilder: 3 files written ('
+				'createTsBuilder: 4 files written ('
 			);
 			expect(debugMessage).toContain(
 				'.generated/ui/app/job/admin/JobsAdminScreen.tsx'
@@ -191,7 +200,9 @@ describe('createTsBuilder - orchestration', () => {
 			expect(debugMessage).toContain(
 				'.generated/ui/fixtures/dataviews/job.ts'
 			);
-			expect(debugMessage).toContain('.generated/ui/extras/job.ts');
+			expect(debugMessage).toContain(
+				'.generated/ui/registry/dataviews/job.ts'
+			);
 		});
 	});
 
@@ -231,8 +242,8 @@ describe('createTsBuilder - orchestration', () => {
 				undefined
 			);
 
-			expect(hooks.onBeforeCreate).toHaveBeenCalledTimes(2);
-			expect(hooks.onAfterCreate).toHaveBeenCalledTimes(2);
+			expect(hooks.onBeforeCreate).toHaveBeenCalledTimes(3);
+			expect(hooks.onAfterCreate).toHaveBeenCalledTimes(3);
 			expect(hooks.onBeforeCreate).toHaveBeenCalledWith(
 				expect.objectContaining({
 					descriptor: expect.objectContaining({ key: 'job' }),
@@ -253,6 +264,7 @@ describe('createTsBuilder - orchestration', () => {
 				expect.arrayContaining([
 					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
 					'.generated/ui/fixtures/dataviews/job.ts',
+					'.generated/ui/registry/dataviews/job.ts',
 				])
 			);
 			expect(afterEmitArg.workspace).toBe(workspace);
@@ -270,7 +282,115 @@ describe('createTsBuilder - orchestration', () => {
 				expect.arrayContaining([
 					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
 					'.generated/ui/fixtures/dataviews/job.ts',
+					'.generated/ui/registry/dataviews/job.ts',
 				])
+			);
+		});
+	});
+
+	it('generates registry metadata that mirrors the config module', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const dataviews = buildDataViewsConfig();
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
+
+			const { ir, options } = buildBuilderArtifacts({
+				dataviews,
+				sourcePath: path.join(root, 'wpk.config.ts'),
+			});
+
+			const reporter = buildReporter();
+			const output = buildOutput();
+			const builder = createTsBuilder();
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+					},
+					input: {
+						phase: 'generate',
+						options,
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const registryPath = path.join(
+				'.generated',
+				'ui',
+				'registry',
+				'dataviews',
+				'job.ts'
+			);
+			const registryContents = await workspace.readText(registryPath);
+
+			expect(registryContents).toContain(
+				'export const jobDataViewRegistryEntry: DataViewRegistryEntry = {'
+			);
+			expect(registryContents).toContain("resource: 'job'");
+			expect(registryContents).toContain("preferencesKey: 'jobs/admin'");
+			expect(registryContents).toContain(
+				'metadata: wpkConfigModule.wpkConfig.resources["job"].ui!.admin!.dataviews as unknown as Record<string, unknown>'
+			);
+		});
+	});
+
+	it('falls back to a namespace-scoped preferences key when omitted', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const dataviews = buildDataViewsConfig({
+				preferencesKey: undefined,
+			});
+			const rawConfigSource = buildWPKernelConfigSource();
+			const configSource = rawConfigSource.replace(
+				"        preferencesKey: 'jobs/admin',\n",
+				''
+			);
+			await workspace.write('wpk.config.ts', configSource);
+
+			const { ir, options } = buildBuilderArtifacts({
+				dataviews,
+				sourcePath: path.join(root, 'wpk.config.ts'),
+			});
+
+			const reporter = buildReporter();
+			const output = buildOutput();
+			const builder = createTsBuilder();
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+					},
+					input: {
+						phase: 'generate',
+						options,
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const registryPath = path.join(
+				'.generated',
+				'ui',
+				'registry',
+				'dataviews',
+				'job.ts'
+			);
+			const registryContents = await workspace.readText(registryPath);
+
+			expect(registryContents).toContain(
+				"preferencesKey: 'demo-namespace/dataviews/job'"
 			);
 		});
 	});
@@ -389,6 +509,13 @@ describe('createTsBuilder - orchestration', () => {
 				path.join(
 					'.generated',
 					'ui',
+					'registry',
+					'dataviews',
+					'job.ts'
+				),
+				path.join(
+					'.generated',
+					'ui',
 					'app',
 					'Task',
 					'admin',
@@ -398,6 +525,13 @@ describe('createTsBuilder - orchestration', () => {
 					'.generated',
 					'ui',
 					'fixtures',
+					'dataviews',
+					'task.ts'
+				),
+				path.join(
+					'.generated',
+					'ui',
+					'registry',
 					'dataviews',
 					'task.ts'
 				),

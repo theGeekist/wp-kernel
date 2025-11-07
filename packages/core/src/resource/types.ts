@@ -383,9 +383,22 @@ export interface ResourceDataViewsScreenConfig {
 	route?: string;
 	resourceImport?: string;
 	resourceSymbol?: string;
-	kernelImport?: string;
-	kernelSymbol?: string;
+	wpkernelImport?: string;
+	wpkernelSymbol?: string;
 	menu?: ResourceDataViewsMenuConfig;
+	[key: string]: unknown;
+}
+
+/**
+ * TODO: summary.
+ * @category Resource
+ */
+export interface ResourceDataViewsSavedViewConfig {
+	id: string;
+	label: string;
+	view: Record<string, unknown>;
+	description?: string;
+	isDefault?: boolean;
 	[key: string]: unknown;
 }
 
@@ -396,16 +409,21 @@ export interface ResourceDataViewsScreenConfig {
  * @category Resource
  */
 export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
-	fields?: unknown[] | readonly unknown[];
-	defaultView?: unknown;
-	actions?: unknown[];
+	fields?: ReadonlyArray<Record<string, unknown>> | Record<string, unknown>[];
+	defaultView?: Record<string, unknown>;
+	actions?:
+		| ReadonlyArray<Record<string, unknown>>
+		| Record<string, unknown>[];
 	mapQuery?: (viewState: Record<string, unknown>) => TQuery;
 	search?: boolean;
 	searchLabel?: string;
 	getItemId?: (item: TItem) => string;
 	empty?: unknown;
-	perPageSizes?: number[];
-	defaultLayouts?: Record<string, unknown>;
+	perPageSizes?: ReadonlyArray<number> | number[];
+	defaultLayouts?: Record<string, Record<string, unknown> | null | undefined>;
+	views?:
+		| ReadonlyArray<ResourceDataViewsSavedViewConfig>
+		| ResourceDataViewsSavedViewConfig[];
 	preferencesKey?: string;
 	screen?: ResourceDataViewsScreenConfig;
 	[key: string]: unknown;
