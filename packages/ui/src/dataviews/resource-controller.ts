@@ -7,7 +7,12 @@ import type {
 	ResourceDataViewControllerOptions,
 	QueryMapping,
 } from './types';
-import type { DataViewChangedPayload } from '../runtime/dataviews/events';
+import type {
+	DataViewBoundaryTransitionPayload,
+	DataViewChangedPayload,
+	DataViewFetchFailedPayload,
+	DataViewPermissionDeniedPayload,
+} from '../runtime/dataviews/events';
 
 function toRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -220,6 +225,33 @@ export function createResourceDataViewController<TItem, TQuery>(
 		});
 	}
 
+	function emitPermissionDenied(
+		payload: Omit<DataViewPermissionDeniedPayload, 'resource'>
+	): void {
+		runtime.events.permissionDenied({
+			resource: resolvedResourceName,
+			...payload,
+		});
+	}
+
+	function emitFetchFailed(
+		payload: Omit<DataViewFetchFailedPayload, 'resource'>
+	): void {
+		runtime.events.fetchFailed({
+			resource: resolvedResourceName,
+			...payload,
+		});
+	}
+
+	function emitBoundaryTransition(
+		payload: Omit<DataViewBoundaryTransitionPayload, 'resource'>
+	): void {
+		runtime.events.boundaryChanged({
+			resource: resolvedResourceName,
+			...payload,
+		});
+	}
+
 	return {
 		resource: options.resource,
 		resourceName: resolvedResourceName,
@@ -247,6 +279,9 @@ export function createResourceDataViewController<TItem, TQuery>(
 		emitRegistered,
 		emitUnregistered,
 		emitAction,
+		emitPermissionDenied,
+		emitFetchFailed,
+		emitBoundaryTransition,
 		getReporter: () => reporter,
 	} satisfies ResourceDataViewController<TItem, TQuery>;
 }
