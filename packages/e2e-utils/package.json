@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/e2e-utils",
-	"version": "0.11.0",
+	"version": "0.12.0",
 	"description": "E2E testing utilities for WP Kernel projects",
 	"license": "EUPL-1.2",
 	"type": "module",

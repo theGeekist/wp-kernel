@@ -78,12 +78,12 @@ Deepen the learning surface with refreshed block binding walkthroughs, Interacti
 
 ## Timeline
 
-| Phase            | Target  | Status     |
-| ---------------- | ------- | ---------- |
-| Alpha (v0.1.x)   | Q4 2024 | ✓ Complete |
-| Beta (v0.4.x)    | Q4 2025 | ✓ Complete |
-| **RC** (v0.10.x) | Q1 2026 | Planned    |
-| **v1.0**         | Q2 2026 | Planned    |
+| Phase            | Status     |
+| ---------------- | ---------- |
+| Alpha (v0.1.x)   | ✓ Complete |
+| Beta (v0.4.x)    | ✓ Complete |
+| **RC** (v0.10.x) | Planned    |
+| **v1.0**         | Planned    |
 
 ---
 

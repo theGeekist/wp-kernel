@@ -6,12 +6,16 @@ import type { WPKernelConfigV1 } from '../../config/types';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 /**
- * TODO: summary.
+ * Path to fixture directory containing test-only resource and schema files.
+ *
  * @category IR
  */
 export const FIXTURE_ROOT = path.join(__dirname, '__fixtures__');
 /**
- * TODO: summary.
+ * Path to the primary fixture config file (`wpk.config.ts`).
+ *
+ * Used by integration tests that validate end-to-end IR generation.
+ *
  * @category IR
  */
 export const FIXTURE_CONFIG_PATH = path.join(
@@ -21,8 +25,10 @@ export const FIXTURE_CONFIG_PATH = path.join(
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-ir-test-');
 
 /**
- * TODO: summary.
- * @returns TODO
+ * Creates a minimal WPKernel configuration for IR tests.
+ *
+ * Used as a starting point when constructing synthetic resource graphs.
+ *
  * @category IR
  */
 export function createBaseConfig(): WPKernelConfigV1 {
@@ -35,9 +41,12 @@ export function createBaseConfig(): WPKernelConfigV1 {
 }
 
 /**
- * TODO: summary.
- * @param    contents — TODO
- * @param    run      — TODO
+ * Writes a temporary JSON schema to disk, executes a callback, and cleans up.
+ *
+ * Useful for tests that need a real file path to a schema document.
+ *
+ * @param    contents
+ * @param    run
  * @category IR
  */
 export async function withTempSchema(
@@ -56,9 +65,12 @@ export async function withTempSchema(
 }
 
 /**
- * TODO: summary.
- * @param    value — TODO
- * @returns TODO
+ * Produces a canonical SHA-256 hash of an arbitrarily nested JS value.
+ *
+ * All object keys are sorted and line endings normalised to ensure
+ * deterministic, cross-platform hashing.
+ *
+ * @param    value
  * @category IR
  */
 export function canonicalHash(value: unknown): string {
@@ -71,10 +83,11 @@ export function canonicalHash(value: unknown): string {
 }
 
 /**
- * TODO: summary.
- * @typeParam T — TODO
- * @param     value — TODO
- * @returns TODO
+ * Deep-sorts objects and arrays by keys to produce deterministic ordering.
+ *
+ * Used as part of canonical hashing and snapshot stabilisation during tests.
+ *
+ * @param    value
  * @category IR
  */
 export function sortValue<T>(value: T): T {
@@ -98,9 +111,11 @@ export function sortValue<T>(value: T): T {
 }
 
 /**
- * TODO: summary.
- * @param    populate — TODO
- * @param    run      — TODO
+ * Creates a temporary workspace directory for running integration test
+ * scenarios. Automatically cleans up after execution.
+ *
+ * @param    populate
+ * @param    run
  * @category IR
  */
 export async function withTempWorkspace(
