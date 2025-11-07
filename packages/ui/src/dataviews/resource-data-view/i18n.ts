@@ -1,10 +1,22 @@
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Fallback message for list loading failures surfaced to the UI.
+ */
 export const listLoadFailedMessage = __(
 	'We were unable to load this list. Please try again.',
 	'wpkernel'
 );
 
+/**
+ * Build a localized action success message for notices.
+ *
+ * @param    actionLabel - Human-readable label for the action.
+ * @param    itemCount   - Number of items affected.
+ * @returns Localized message suitable for a success notice.
+ *
+ * @category DataViews I18N
+ */
 export function formatActionSuccessMessage(
 	actionLabel: string,
 	itemCount: number

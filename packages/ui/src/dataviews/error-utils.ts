@@ -3,11 +3,19 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import { DataViewsActionError } from '../runtime/dataviews/errors';
 
 interface ErrorContext {
+	/** Action identifier as declared in the DataViews config. */
 	actionId: string;
+	/** Resource name associated with the action. */
 	resource: string;
+	/** Optional selected item identifiers for bulk actions. */
 	selection?: Array<string | number>;
 }
 
+/**
+ * Wraps a validation error with DataViews-specific metadata.
+ * @param error
+ * @param context
+ */
 function createValidationError(
 	error: WPKernelError,
 	context: ErrorContext
@@ -20,6 +28,11 @@ function createValidationError(
 	});
 }
 
+/**
+ * Wraps a capability error with DataViews-specific metadata.
+ * @param error
+ * @param context
+ */
 function createCapabilityDeniedError(
 	error: WPKernelError,
 	context: ErrorContext
@@ -32,6 +45,11 @@ function createCapabilityDeniedError(
 	});
 }
 
+/**
+ * Normalizes transport/server failures into a typed WPKernelError variant.
+ * @param error
+ * @param context
+ */
 function wrapTransportError(
 	error: WPKernelError,
 	context: ErrorContext
@@ -42,6 +60,11 @@ function wrapTransportError(
 	});
 }
 
+/**
+ * Maps known WPKernelError codes into DataViews-aware error shapes.
+ * @param error
+ * @param context
+ */
 function handleWPKernelError(
 	error: WPKernelError,
 	context: ErrorContext
@@ -59,6 +82,12 @@ function handleWPKernelError(
 	}
 }
 
+/**
+ * Wraps non-WPKernelError values into an UnknownError and reports them.
+ * @param value
+ * @param context
+ * @param reporter
+ */
 function wrapUnknownError(
 	value: unknown,
 	context: ErrorContext,
@@ -91,6 +120,15 @@ function wrapUnknownError(
 	return unknown;
 }
 
+/**
+ * Normalize any thrown error into a WPKernelError consumable by DataViews
+ * action handlers and notice helpers.
+ *
+ * @param    error
+ * @param    context
+ * @param    reporter
+ * @category DataViews Errors
+ */
 export function normalizeActionError(
 	error: unknown,
 	context: ErrorContext,

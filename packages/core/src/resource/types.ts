@@ -171,7 +171,11 @@ export type ResourceQueryParamDescriptor = {
 };
 
 /**
- * TODO: summary.
+ * Declarative map of supported query parameters for the resource.
+ *
+ * Tooling uses this to derive REST argument schemas, filters, and documentation.
+ * The runtime treats this as metadata and does not enforce it directly.
+ *
  * @category Resource
  */
 export type ResourceQueryParams = Record<string, ResourceQueryParamDescriptor>;
@@ -242,10 +246,17 @@ export type ResourceStoreOptions<T, TQuery = unknown> = {
 };
 
 /**
- * TODO: summary.
- * @typeParam T — TODO
- * @typeParam TQuery — TODO
- * @typeParam _TTypes — TODO
+ * Declarative configuration for a resource.
+ *
+ * This is consumed by `defineResource()` to:
+ * - describe REST routes and capabilities
+ * - configure cache keys and store behavior
+ * - attach optional UI and persistence metadata for generators and tooling
+ *
+ * @typeParam T        - Entity shape returned by the resource (e.g. `Job`).
+ * @typeParam TQuery   - Query shape for list operations (e.g. `{ search?: string }`).
+ * @typeParam _TTypes  - Internal tuple preserved for helper typing; not intended for direct use.
+ *
  * @category Resource
  */
 export type ResourceConfig<
@@ -362,7 +373,11 @@ export type ResourceConfig<
 };
 
 /**
- * TODO: summary.
+ * Admin menu metadata for a generated DataViews screen.
+ *
+ * When provided under `ui.admin.dataviews.screen.menu`, the CLI can emit
+ * matching PHP shims to register the screen in the WordPress admin menu.
+ *
  * @category Resource
  */
 export interface ResourceDataViewsMenuConfig {
@@ -375,7 +390,13 @@ export interface ResourceDataViewsMenuConfig {
 }
 
 /**
- * TODO: summary.
+ * Screen configuration for an admin DataViews entry point.
+ *
+ * Controls the generated React component, routing, and how the CLI resolves
+ * imports between resource modules, kernel bootstrap, and UI runtime.
+ *
+ * All fields are optional; sensible defaults are derived from the resource name.
+ *
  * @category Resource
  */
 export interface ResourceDataViewsScreenConfig {
@@ -390,7 +411,11 @@ export interface ResourceDataViewsScreenConfig {
 }
 
 /**
- * TODO: summary.
+ * Definition of a saved DataViews preset.
+ *
+ * These entries are forwarded to `@wordpress/dataviews` and can be used as
+ * initial layouts before user preferences are hydrated.
+ *
  * @category Resource
  */
 export interface ResourceDataViewsSavedViewConfig {
@@ -403,52 +428,161 @@ export interface ResourceDataViewsSavedViewConfig {
 }
 
 /**
- * TODO: summary.
- * @typeParam TItem — TODO
- * @typeParam TQuery — TODO
+ * Interactivity metadata for a DataViews screen.
+ *
+ * Used to derive stable `data-wp-interactive` namespaces and feature identifiers
+ * for WordPress Interactivity bindings.
+ *
+ * @category Resource
+ */
+export interface ResourceDataViewsInteractivityConfig {
+	/** Optional feature identifier used for wp-interactivity namespaces. */
+	feature?: string;
+	[key: string]: unknown;
+}
+
+/**
+ * DataViews integration contract for a resource's admin UI.
+ *
+ * Describes how `@wpkernel/ui` and generators should:
+ * - map DataViews state into query objects,
+ * - resolve item identities,
+ * - expose saved views, layouts, and actions,
+ * - and attach interactivity and screen metadata.
+ *
+ * @typeParam TItem  - Entity shape rendered in the view.
+ * @typeParam TQuery - Query shape produced by `mapQuery`.
+ *
  * @category Resource
  */
 export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
+	/**
+	 * Column/field descriptors forwarded to DataViews.
+	 */
 	fields?: ReadonlyArray<Record<string, unknown>> | Record<string, unknown>[];
+
+	/**
+	 * Default view configuration used when no preference is stored.
+	 */
 	defaultView?: Record<string, unknown>;
+
+	/**
+	 * Action descriptors (row and bulk actions).
+	 * The CLI and runtime use these to wire interactivity bindings.
+	 */
 	actions?:
 		| ReadonlyArray<Record<string, unknown>>
 		| Record<string, unknown>[];
+
+	/**
+	 * Maps DataViews state into the resource's query shape.
+	 * This function is the primary bridge between UI filters and REST queries.
+	 */
 	mapQuery?: (viewState: Record<string, unknown>) => TQuery;
+
+	/**
+	 * Enables search UI and, optionally, customizes its label.
+	 */
 	search?: boolean;
 	searchLabel?: string;
+
+	/**
+	 * Extracts a stable identifier for rows rendered by the DataView.
+	 * Defaults to `item.id` when omitted.
+	 */
 	getItemId?: (item: TItem) => string;
+
+	/**
+	 * Optional empty state configuration; forwarded to UI helpers.
+	 */
 	empty?: unknown;
+
+	/**
+	 * Page size options exposed in the DataView.
+	 */
 	perPageSizes?: ReadonlyArray<number> | number[];
+
+	/**
+	 * Per-layout defaults (e.g. table/grid) merged with user preferences.
+	 */
 	defaultLayouts?: Record<string, Record<string, unknown> | null | undefined>;
+
+	/**
+	 * Server-defined saved views available on first render.
+	 */
 	views?:
 		| ReadonlyArray<ResourceDataViewsSavedViewConfig>
 		| ResourceDataViewsSavedViewConfig[];
+
+	/**
+	 * Key used to persist user preferences for this DataView.
+	 */
 	preferencesKey?: string;
+
+	/**
+	 * Interactivity metadata used to derive namespaces and features.
+	 */
+	interactivity?: ResourceDataViewsInteractivityConfig;
+
+	/**
+	 * Admin screen configuration for this DataView.
+	 */
 	screen?: ResourceDataViewsScreenConfig;
+
+	/**
+	 * Additional fields reserved for future extensions.
+	 */
 	[key: string]: unknown;
 }
 
 /**
- * TODO: summary.
- * @typeParam TItem — TODO
- * @typeParam TQuery — TODO
+ * Admin UI configuration for a resource.
+ *
+ * Currently models the DataViews-based admin surface; additional admin
+ * integrations can extend this shape over time.
+ *
+ * @typeParam TItem  - Entity shape used in admin views.
+ * @typeParam TQuery - Query shape used by admin list operations.
+ *
  * @category Resource
  */
 export interface ResourceAdminUIConfig<TItem = unknown, TQuery = unknown> {
+	/**
+	 * Selected admin view implementation. `'dataviews'` is the canonical value.
+	 */
 	view?: 'dataviews' | string;
+
+	/**
+	 * DataViews configuration for this resource's admin screen.
+	 */
 	dataviews?: ResourceDataViewsUIConfig<TItem, TQuery>;
+
+	/**
+	 * Additional fields reserved for future extensions.
+	 */
 	[key: string]: unknown;
 }
 
 /**
- * TODO: summary.
- * @typeParam TItem — TODO
- * @typeParam TQuery — TODO
+ * Top-level UI metadata attached to a resource.
+ *
+ * Feeds CLI generators and `@wpkernel/ui` so that admin surfaces, fixtures,
+ * and interactivity bindings can be derived from a single source of truth.
+ *
+ * @typeParam TItem  - Entity shape used in admin views.
+ * @typeParam TQuery - Query shape used by admin list operations.
+ *
  * @category Resource
  */
 export interface ResourceUIConfig<TItem = unknown, TQuery = unknown> {
+	/**
+	 * Admin-specific UI configuration (e.g. DataViews).
+	 */
 	admin?: ResourceAdminUIConfig<TItem, TQuery>;
+
+	/**
+	 * Additional fields reserved for future extensions.
+	 */
 	[key: string]: unknown;
 }
 
@@ -934,8 +1068,13 @@ export type ResourceObject<T = unknown, TQuery = unknown> = {
 export type ResourceListStatus = 'idle' | 'loading' | 'success' | 'error';
 
 /**
- * TODO: summary.
- * @typeParam T — TODO
+ * Normalized state shape for a resource store.
+ *
+ * Tracks items, list mappings, list metadata, and per-key errors in a form
+ * consumable by `@wordpress/data` selectors and resolvers.
+ *
+ * @typeParam T - Entity shape stored in the resource.
+ *
  * @category Resource
  */
 export type ResourceState<T> = {

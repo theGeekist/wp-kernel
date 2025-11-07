@@ -190,6 +190,24 @@ Action handlers created by `useDataViewActions()` emit notices via `core/notices
 
 `ResourceDataView` emits `data-wpk-dataview-*` attributes so Playwright helpers can target search, filters, bulk actions, and counters reliably.
 
+### Interactivity bridge
+
+`@wpkernel/ui/dataviews` exposes `createDataViewInteraction()` so DataViews can drive
+`@wordpress/interactivity` stores without custom glue code.
+
+When `ui.admin.dataviews` is defined:
+
+- `attachUIBindings()` can auto-register controllers and expose them to the bridge.
+- CLI-generated interactivity fixtures (`.generated/ui/fixtures/interactivity/*.ts`) wrap
+  `createDataViewInteraction()` with:
+    - the kernel UI runtime,
+    - the resource definition,
+    - the DataView actions from your config, and
+    - a stable `data-wp-interactive` namespace.
+
+Import these helpers from your plugin or tests to hydrate interactions consistently with
+the server configuration.
+
 ### Metadata reference
 
 `resource.ui.admin.dataviews` accepts the fields surfaced in the example above:
@@ -201,6 +219,20 @@ Action handlers created by `useDataViewActions()` emit notices via `core/notices
 - `views` - Saved views exposed to the UI before preferences are hydrated. Each entry includes an `id`, `label`, and `view` payload, with optional `description`/`isDefault` hints.
 - `screen` - Optional metadata for generated screens. When `menu` is present the CLI emits PHP shims under `.generated/php/Admin/**` so WordPress can register the admin menu automatically.
 - `actions`, `search`, `searchLabel`, `perPageSizes`, and `getItemId` continue to behave as they did prior to the schema expansion.
+
+### Observability
+
+The DataViews runtime emits lifecycle events for:
+
+- registration,
+- view changes,
+- action triggers,
+- fetch errors, and
+- permission denials.
+
+Typed helpers wrap the underlying `runtime.events.*` channels so you can subscribe from
+JavaScript directly. An optional `@wordpress/hooks` bridge is available for projects that
+prefer WordPress’ hooks API for logging, telemetry, or feature flags.
 
 ## CLI & Showcase integration
 

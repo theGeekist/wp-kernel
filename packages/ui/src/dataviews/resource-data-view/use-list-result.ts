@@ -35,6 +35,13 @@ function deriveStatus<TItem>(
 	return 'idle';
 }
 
+/**
+ * Normalize a resource-driven list hook result into ListResultState.
+ * @param result
+ * @param query
+ * @param controller
+ * @param reporter
+ */
 function normalizeResourceListResult<TItem, TQuery>(
 	result: ResourceListHookResult<TItem>,
 	query: TQuery,
@@ -59,6 +66,18 @@ function normalizeResourceListResult<TItem, TQuery>(
 	};
 }
 
+/**
+ * Derive a normalized list result for a DataView:
+ * - uses `resource.useList` when available,
+ * - falls back to `fetchList` + async state,
+ * - normalizes and logs errors via the provided reporter.
+ *
+ * @param    controller
+ * @param    fetchList
+ * @param    query
+ * @param    reporter
+ * @category DataViews Hooks
+ */
 export function useListResult<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	fetchList: ((query: TQuery) => Promise<ListResponse<TItem>>) | undefined,

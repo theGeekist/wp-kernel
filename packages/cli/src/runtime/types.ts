@@ -73,10 +73,11 @@ export interface PipelineStep extends HelperDescriptor {
 }
 
 /**
- * Diagnostic for a conflict detected during pipeline execution.
+ * Diagnostic emitted when two helpers conflict.
  *
  * @category Pipeline
- * @public
+ * @example
+ * A generate helper overrides another helper with the same key.
  */
 export interface ConflictDiagnostic {
 	/** The type of diagnostic, always 'conflict'. */
@@ -94,7 +95,7 @@ export interface ConflictDiagnostic {
 }
 
 /**
- * Represents a diagnostic message generated during pipeline execution.
+ * Diagnostic emitted when a required helper dependency is missing.
  *
  * @category Pipeline
  */
@@ -114,7 +115,7 @@ export interface MissingDependencyDiagnostic {
 }
 
 /**
- * Represents an unused helper diagnostic emitted during pipeline execution.
+ * Union of all diagnostics emitted by the pipeline.
  *
  * @category Pipeline
  */
@@ -133,6 +134,11 @@ export interface UnusedHelperDiagnostic {
 	readonly dependsOn?: readonly string[];
 }
 
+/**
+ * Union of all diagnostics emitted by the pipeline.
+ *
+ * @category Pipeline
+ */
 export type PipelineDiagnostic =
 	| ConflictDiagnostic
 	| MissingDependencyDiagnostic
