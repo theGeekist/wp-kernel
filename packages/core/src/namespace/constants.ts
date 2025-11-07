@@ -58,6 +58,10 @@ export const WPK_INFRASTRUCTURE = {
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
 	/** WordPress hooks namespace prefix for WP Kernel events plugin */
 	WP_HOOKS_NAMESPACE_PREFIX: `${WPK_NAMESPACE}/notices`,
+
+	/** WordPress hooks namespace for UI DataViews bridge (default base) */
+	WP_HOOKS_NAMESPACE_UI_DATAVIEWS: `${WPK_NAMESPACE}/ui/dataviews`,
+
 	/** BroadcastChannel message type for action lifecycle events */
 	ACTIONS_MESSAGE_TYPE_LIFECYCLE: `${WPK_NAMESPACE}.action.lifecycle`,
 	/** BroadcastChannel message type for action custom events */

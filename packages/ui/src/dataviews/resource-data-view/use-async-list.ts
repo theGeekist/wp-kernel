@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import type { ListResponse } from '@wpkernel/core/resource';
-import type { DataViewsRuntimeContext } from '../types';
+import type {
+	DataViewsRuntimeContext,
+	ResourceDataViewController,
+} from '../types';
 import type { ListResultState } from './types/state';
 import { normalizeListError } from './utils/errors';
 
 export function useAsyncList<TItem, TQuery>(
+	controller: ResourceDataViewController<TItem, TQuery>,
 	fetchList: ((query: TQuery) => Promise<ListResponse<TItem>>) | undefined,
 	query: TQuery,
-	reporter: DataViewsRuntimeContext['reporter'],
-	resourceName: string
+	reporter: DataViewsRuntimeContext['reporter']
 ): ListResultState<TItem> {
 	const [state, setState] = useState<ListResultState<TItem>>({
 		data: undefined,
@@ -56,7 +59,7 @@ export function useAsyncList<TItem, TQuery>(
 					return;
 				}
 				const normalized = normalizeListError(error, reporter, {
-					resource: resourceName,
+					resource: controller.resourceName,
 					query,
 				});
 				setState({
@@ -64,6 +67,10 @@ export function useAsyncList<TItem, TQuery>(
 					status: 'error',
 					isLoading: false,
 					error: normalized,
+				});
+				controller.emitFetchFailed({
+					error: normalized,
+					query,
 				});
 			});
 

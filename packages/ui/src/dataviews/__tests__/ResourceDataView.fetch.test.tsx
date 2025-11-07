@@ -110,6 +110,9 @@ function createRawPerPageController(
 		emitRegistered: jest.fn(),
 		emitUnregistered: jest.fn(),
 		emitAction: jest.fn(),
+		emitPermissionDenied: jest.fn(),
+		emitFetchFailed: jest.fn(),
+		emitBoundaryTransition: jest.fn(),
 		getReporter: jest.fn(() => runtime.reporter),
 	};
 }
@@ -129,6 +132,13 @@ describe('ResourceDataView fetch integration', () => {
 		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
 			'DataViews list fetch failed',
 			expect.objectContaining({ query: expect.any(Object) })
+		);
+		expect(runtime.dataviews.events.fetchFailed).toHaveBeenCalledWith(
+			expect.objectContaining({
+				resource: 'jobs',
+				error: expect.any(WPKernelError),
+				query: expect.any(Object),
+			})
 		);
 		expect(renderResult.getByRole('alert').textContent).toContain(
 			'Network'
@@ -162,6 +172,13 @@ describe('ResourceDataView fetch integration', () => {
 			'DataViews list fetch failed',
 			expect.objectContaining({
 				error: expect.any(WPKernelError),
+			})
+		);
+		expect(runtime.dataviews.events.fetchFailed).toHaveBeenCalledWith(
+			expect.objectContaining({
+				resource: 'jobs',
+				error: expect.any(WPKernelError),
+				query: expect.any(Object),
 			})
 		);
 		expect(renderResult.getByRole('alert').textContent).toContain(

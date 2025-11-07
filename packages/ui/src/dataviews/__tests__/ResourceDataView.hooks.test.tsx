@@ -141,6 +141,9 @@ describe('useResolvedController', () => {
 			emitRegistered: jest.fn(),
 			emitUnregistered: jest.fn(),
 			emitAction: jest.fn(),
+			emitPermissionDenied: jest.fn(),
+			emitFetchFailed: jest.fn(),
+			emitBoundaryTransition: jest.fn(),
 			getReporter: () => runtime.reporter,
 		};
 
@@ -248,6 +251,10 @@ describe('useStableView', () => {
 			emitRegistered: overrides.emitRegistered ?? jest.fn(),
 			emitUnregistered: overrides.emitUnregistered ?? jest.fn(),
 			emitAction: overrides.emitAction ?? jest.fn(),
+			emitPermissionDenied: overrides.emitPermissionDenied ?? jest.fn(),
+			emitFetchFailed: overrides.emitFetchFailed ?? jest.fn(),
+			emitBoundaryTransition:
+				overrides.emitBoundaryTransition ?? jest.fn(),
 			getReporter: overrides.getReporter ?? (() => reporter),
 		} as Controller;
 	}
