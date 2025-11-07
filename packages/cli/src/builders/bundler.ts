@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { createHelper } from '../runtime';
+import { sanitizeNamespace } from '../adapters/extensions';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -68,10 +69,17 @@ interface RollupDriverConfig {
 	readonly assetManifest: { readonly path: string };
 }
 
+interface AssetManifestUIEntry {
+	readonly handle: string;
+	readonly asset: string;
+	readonly script: string;
+}
+
 interface AssetManifest {
 	readonly entry: string;
 	readonly dependencies: readonly string[];
 	readonly version: string;
+	readonly ui?: AssetManifestUIEntry;
 }
 
 interface RollupDriverArtifacts {
@@ -226,20 +234,42 @@ export function normaliseAliasReplacement(replacement: string): string {
  * the asset manifest used by WordPress.
  *
  * @category Bundler
- * @param    pkg               - A package.json-like object for dependency information.
- * @param    options           - Additional options for building the artifacts.
- * @param    options.aliasRoot - The root path for alias replacements, defaults to './src'.
+ * @param    pkg                        - A package.json-like object for dependency information.
+ * @param    options                    - Additional options for building the artifacts.
+ * @param    options.sanitizedNamespace
+ * @param    options.hasUi
+ * @param    options.aliasRoot          - The root path for alias replacements, defaults to './src'.
  * @returns An object containing the `RollupDriverConfig` and `AssetManifest`.
  */
 export function buildRollupDriverArtifacts(
 	pkg: PackageJsonLike | null,
-	options: { readonly aliasRoot?: string } = {}
+	options: {
+		readonly aliasRoot?: string;
+		readonly sanitizedNamespace?: string;
+		readonly hasUi?: boolean;
+	} = {}
 ): RollupDriverArtifacts {
 	const externals = buildExternalList(pkg);
 	const globals = buildGlobalsMap(externals);
 	const assetDependencies = buildAssetDependencies(externals);
 	const aliasRoot = options.aliasRoot ?? './src';
 	const version = pkg?.version ?? '0.0.0';
+	const sanitizedNamespace = options.sanitizedNamespace ?? '';
+	const normalizedNamespace = sanitizedNamespace
+		? sanitizeNamespace(sanitizedNamespace)
+		: '';
+	const hasUi = options.hasUi === true && normalizedNamespace.length > 0;
+
+	const uiEntry = hasUi
+		? ({
+				handle: toWordPressHandle(`${normalizedNamespace}-ui`),
+				asset: DEFAULT_ASSET_PATH,
+				script: path.posix.join(
+					DEFAULT_OUTPUT_DIR,
+					`${DEFAULT_ENTRY_KEY}.js`
+				),
+			} satisfies AssetManifestUIEntry)
+		: undefined;
 
 	const config: RollupDriverConfig = {
 		driver: 'rollup',
@@ -270,6 +300,7 @@ export function buildRollupDriverArtifacts(
 		entry: DEFAULT_ENTRY_KEY,
 		dependencies: assetDependencies,
 		version,
+		...(uiEntry ? { ui: uiEntry } : {}),
 	} satisfies AssetManifest;
 
 	return { config, assetManifest };
@@ -334,8 +365,17 @@ export function createBundler(): BuilderHelper {
 
 			try {
 				const pkg = await readPackageJson(context.workspace);
+				const sanitizedNamespace =
+					input.ir?.meta?.sanitizedNamespace ??
+					input.options.config.namespace ??
+					'';
+				const hasUiResources = (input.ir?.resources ?? []).some(
+					(resource) => Boolean(resource.ui?.admin?.dataviews)
+				);
 				const artifacts = buildRollupDriverArtifacts(pkg, {
 					aliasRoot: './src',
+					sanitizedNamespace,
+					hasUi: hasUiResources,
 				});
 
 				await context.workspace.writeJson(

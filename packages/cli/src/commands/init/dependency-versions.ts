@@ -73,7 +73,8 @@ export async function resolveDependencyVersions(
 		registryUrl: options.registryUrl,
 		fetchImpl: options.fetch,
 	});
-	const kernelDevDependencies = await loadKernelDevDependencies(workspace);
+	const wpkernelDevDependencies =
+		await loadwpkernelDevDependencies(workspace);
 
 	const sources: DependencyVersionSource[] = ['fallback'];
 
@@ -110,7 +111,7 @@ export async function resolveDependencyVersions(
 	const devDependencies = sortDependencies({
 		...sortedPeerDependencies,
 		...FALLBACK_DEV_TOOL_VERSIONS,
-		...kernelDevDependencies,
+		...wpkernelDevDependencies,
 	});
 
 	const finalSource = sources[sources.length - 1] ?? 'fallback';
@@ -148,7 +149,7 @@ async function loadPeersFromLocalCore(
 	}
 }
 
-async function loadKernelDevDependencies(
+async function loadwpkernelDevDependencies(
 	workspace: string
 ): Promise<Record<string, string>> {
 	const entries: Array<[string, string]> = [];

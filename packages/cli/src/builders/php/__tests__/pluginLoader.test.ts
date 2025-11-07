@@ -73,6 +73,61 @@ describe('createPhpPluginLoaderHelper', () => {
 		expect(entry?.program).toMatchSnapshot('plugin-loader-program');
 	});
 
+	it('emits UI asset registration when dataview metadata exists', async () => {
+		const context = createPipelineContext();
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const helper = createPhpPluginLoaderHelper();
+		const dataviewsConfig = {
+			preferencesKey: 'books/admin',
+			screen: { menu: { slug: 'books', title: 'Books' } },
+		} as unknown;
+		const ir = createMinimalIr({
+			meta: {
+				sanitizedNamespace: 'demo-plugin',
+				origin: 'wpk.config.ts',
+				namespace: 'demo-plugin',
+			},
+			config: {
+				version: 1,
+				namespace: 'demo-plugin',
+				resources: {
+					books: {
+						name: 'books',
+						schema: 'manual',
+						routes: {},
+						cacheKeys: {},
+						ui: {
+							admin: {
+								dataviews: dataviewsConfig,
+							},
+						},
+					} as unknown,
+				},
+				schemas: {},
+			},
+			resources: [makeResource('books')],
+		});
+
+		await helper.apply(
+			{
+				context,
+				input: createBuilderInput({ ir }),
+				output: createBuilderOutput(),
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const entry = getPhpBuilderChannel(context)
+			.pending()
+			.find((candidate) => candidate.metadata.kind === 'plugin-loader');
+
+		expect(entry).toBeDefined();
+		expect(entry?.program).toMatchSnapshot('plugin-loader-program-with-ui');
+	});
+
 	it('respects custom namespace structures', async () => {
 		const context = createPipelineContext();
 		resetPhpBuilderChannel(context);

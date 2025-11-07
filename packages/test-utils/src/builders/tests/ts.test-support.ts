@@ -79,12 +79,43 @@ export function buildWPKernelConfigSource(
 
 	const dataViewsDeclaration = includeDataViews
 		? `const ${identifier}: ResourceDataViewConfig<unknown, unknown> = {
-        fields: [],
-        defaultView: { type: 'table', fields: [] },
+        fields: [
+                { id: 'title', label: 'Title' },
+                { id: 'status', label: 'Status' },
+        ],
+        defaultView: {
+                type: 'table',
+                fields: ['title', 'status'],
+        },
         mapQuery: (viewState: Record<string, unknown>) => {
                 const search = toTrimmedString(viewState.search);
                 return search ? { q: search } : {};
         },
+        search: true,
+        searchLabel: 'Search jobs',
+        perPageSizes: [10, 25, 50],
+        defaultLayouts: {
+                table: { columns: ['title', 'status'] },
+        },
+        views: [
+                {
+                        id: 'all',
+                        label: 'All jobs',
+                        view: { type: 'table', fields: ['title', 'status'] },
+                        isDefault: true,
+                },
+                {
+                        id: 'draft',
+                        label: 'Draft jobs',
+                        view: {
+                                type: 'table',
+                                fields: ['title', 'status'],
+                                filters: { status: ['draft'] },
+                        },
+                        description: 'Jobs awaiting publication.',
+                },
+        ],
+        preferencesKey: 'jobs/admin',
         screen: ${screenBlock ?? '{}'},
 };
 
@@ -136,6 +167,13 @@ export function buildDataViewsConfig(
 	const baseScreen: ResourceDataViewsScreenConfig = {
 		component: 'JobsAdminScreen',
 		route: '/admin/jobs',
+		menu: {
+			slug: 'jobs-admin',
+			title: 'Jobs',
+			capability: 'manage_options',
+			parent: 'admin.php',
+			position: 25,
+		},
 	};
 
 	const screenConfig =
@@ -147,12 +185,40 @@ export function buildDataViewsConfig(
 				};
 
 	const base: ResourceDataViewsUIConfig = {
-		fields: [],
-		defaultView: { type: 'table', fields: [] },
+		fields: [
+			{ id: 'title', label: 'Title' },
+			{ id: 'status', label: 'Status' },
+		],
+		defaultView: { type: 'table', fields: ['title', 'status'] },
 		mapQuery: (viewState: Record<string, unknown>) => {
 			const search = (viewState as { search?: string }).search ?? '';
 			return search.trim().length > 0 ? { q: search.trim() } : {};
 		},
+		search: true,
+		searchLabel: 'Search jobs',
+		perPageSizes: [10, 25, 50],
+		defaultLayouts: {
+			table: { columns: ['title', 'status'] },
+		},
+		views: [
+			{
+				id: 'all',
+				label: 'All jobs',
+				view: { type: 'table', fields: ['title', 'status'] },
+				isDefault: true,
+			},
+			{
+				id: 'draft',
+				label: 'Draft jobs',
+				view: {
+					type: 'table',
+					fields: ['title', 'status'],
+					filters: { status: ['draft'] },
+				},
+				description: 'Jobs awaiting publication.',
+			},
+		],
+		preferencesKey: 'jobs/admin',
 		...(screenConfig ? { screen: screenConfig } : {}),
 	} satisfies ResourceDataViewsUIConfig;
 
@@ -322,11 +388,26 @@ function buildScreenBlock(
 	if (screen.resourceSymbol) {
 		lines.push(`resourceSymbol: '${screen.resourceSymbol}',`);
 	}
-	if (screen.kernelImport) {
-		lines.push(`kernelImport: '${screen.kernelImport}',`);
+	if (screen.wpkernelImport) {
+		lines.push(`wpkernelImport: '${screen.wpkernelImport}',`);
 	}
-	if (screen.kernelSymbol) {
-		lines.push(`kernelSymbol: '${screen.kernelSymbol}',`);
+	if (screen.wpkernelSymbol) {
+		lines.push(`wpkernelSymbol: '${screen.wpkernelSymbol}',`);
+	}
+	if (screen.menu) {
+		const menuLines: string[] = [];
+		for (const [key, value] of Object.entries(screen.menu)) {
+			if (typeof value === 'string') {
+				menuLines.push(`${key}: '${value}',`);
+				continue;
+			}
+
+			menuLines.push(`${key}: ${JSON.stringify(value)},`);
+		}
+
+		lines.push(`menu: {
+                ${menuLines.join('\n                ')}
+        },`);
 	}
 
 	return `{

@@ -64,6 +64,11 @@ const functionValidator = t.makeValidator<
 		typeof value === 'function',
 });
 
+const nonEmptyStringValidator = t.makeValidator<unknown, string>({
+	test: (value): value is string =>
+		typeof value === 'string' && value.trim().length > 0,
+});
+
 const resourceRouteValidator = t.isObject(
 	{
 		path: t.isString(),
@@ -246,9 +251,20 @@ const resourceDataViewsScreenValidator = t.isObject(
 		route: t.isOptional(t.isString()),
 		resourceImport: t.isOptional(t.isString()),
 		resourceSymbol: t.isOptional(t.isString()),
-		kernelImport: t.isOptional(t.isString()),
-		kernelSymbol: t.isOptional(t.isString()),
+		wpkernelImport: t.isOptional(t.isString()),
+		wpkernelSymbol: t.isOptional(t.isString()),
 		menu: t.isOptional(resourceDataViewsMenuValidator),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
+const resourceDataViewsSavedViewValidator = t.isObject(
+	{
+		id: nonEmptyStringValidator,
+		label: nonEmptyStringValidator,
+		view: t.isRecord(t.isUnknown()),
+		description: t.isOptional(nonEmptyStringValidator),
+		isDefault: t.isOptional(t.isBoolean()),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );
@@ -265,7 +281,8 @@ const resourceDataViewsConfigValidator = t.isObject(
 		empty: t.isOptional(t.isUnknown()),
 		perPageSizes: t.isOptional(t.isArray(t.isNumber())),
 		defaultLayouts: t.isOptional(t.isRecord(t.isUnknown())),
-		preferencesKey: t.isOptional(t.isString()),
+		views: t.isOptional(t.isArray(resourceDataViewsSavedViewValidator)),
+		preferencesKey: t.isOptional(nonEmptyStringValidator),
 		screen: t.isOptional(resourceDataViewsScreenValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }

@@ -2,6 +2,7 @@ import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { WPKernelConfigV1 } from '../../config/types';
 import { buildIr } from '../buildIr';
+import { buildDataViewsConfig } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
@@ -124,6 +125,55 @@ describe('buildIr - core behaviours', () => {
 		});
 
 		expect(secondRun).toEqual(ir);
+	});
+
+	it('threads enriched DataViews metadata into the IR', async () => {
+		const config = createBaseConfig();
+		config.resources = {
+			job: {
+				name: 'job',
+				schema: 'auto',
+				routes: {
+					list: {
+						path: '/test-namespace/v1/jobs',
+						method: 'GET',
+					},
+				},
+				ui: {
+					admin: {
+						view: 'dataviews',
+						dataviews: buildDataViewsConfig(),
+					},
+				},
+			},
+		} as unknown as WPKernelConfigV1['resources'];
+
+		const ir = await buildIr({
+			config,
+			sourcePath: FIXTURE_CONFIG_PATH,
+			origin: 'wpk.config.ts',
+			namespace: config.namespace,
+		});
+
+		const [resource] = ir.resources;
+		expect(resource.ui?.admin?.dataviews?.preferencesKey).toBe(
+			'jobs/admin'
+		);
+		expect(resource.ui?.admin?.dataviews?.perPageSizes).toEqual([
+			10, 25, 50,
+		]);
+		expect(resource.ui?.admin?.dataviews?.defaultLayouts).toEqual({
+			table: { columns: ['title', 'status'] },
+		});
+		expect(resource.ui?.admin?.dataviews?.views).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ id: 'all', isDefault: true }),
+				expect.objectContaining({ id: 'draft' }),
+			])
+		);
+		expect(resource.ui?.admin?.dataviews?.screen?.menu).toEqual(
+			expect.objectContaining({ slug: 'jobs-admin', title: 'Jobs' })
+		);
 	});
 
 	it('synthesises schemas when resources use auto mode', async () => {

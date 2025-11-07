@@ -109,4 +109,5 @@ export type {
 	ResourceDataViewsUIConfig,
 	ResourceDataViewsScreenConfig,
 	ResourceDataViewsMenuConfig,
+	ResourceDataViewsSavedViewConfig,
 } from './types';

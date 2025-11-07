@@ -199,6 +199,7 @@ export function createTsBuilder(
 	const creators = options.creators?.slice() ?? [
 		buildAdminScreenCreator(),
 		buildDataViewFixtureCreator(),
+		buildDataViewRegistryCreator(),
 	];
 	const projectFactory = options.projectFactory ?? buildProject;
 	const lifecycleHooks = options.hooks ?? {};
@@ -276,7 +277,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				`${toPascalCase(descriptor.name)}AdminScreen`;
 			const resourceSymbol =
 				screenConfig.resourceSymbol ?? toCamelCase(descriptor.name);
-			const kernelSymbol = screenConfig.kernelSymbol ?? 'kernel';
+			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
 
 			const screenDir = path.join(
 				GENERATED_ROOT,
@@ -287,7 +288,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			);
 			const screenPath = path.join(screenDir, `${componentName}.tsx`);
 
-			const [resourceImport, kernelImport] = await Promise.all([
+			const [resourceImport, wpkernelImport] = await Promise.all([
 				resolveResourceImport({
 					workspace: context.workspace,
 					from: screenPath,
@@ -297,7 +298,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				resolveKernelImport({
 					workspace: context.workspace,
 					from: screenPath,
-					configured: screenConfig.kernelImport,
+					configured: screenConfig.wpkernelImport,
 				}),
 			]);
 
@@ -325,8 +326,8 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				namedImports: ['ResourceDataView'],
 			});
 			sourceFile.addImportDeclaration({
-				moduleSpecifier: kernelImport,
-				namedImports: [{ name: kernelSymbol }],
+				moduleSpecifier: wpkernelImport,
+				namedImports: [{ name: wpkernelSymbol }],
 			});
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: resourceImport,
@@ -376,7 +377,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				isExported: true,
 				statements: (writer) => {
 					writer.writeLine(
-						`const runtime = ${kernelSymbol}.getUIRuntime?.();`
+						`const runtime = ${wpkernelSymbol}.getUIRuntime?.();`
 					);
 					writer.writeLine('if (!runtime) {');
 					writer.indent(() => {
@@ -483,6 +484,98 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 			});
 
 			await context.emit({ filePath: fixturePath, sourceFile });
+		},
+	};
+}
+
+/**
+ * Builds a `TsBuilderCreator` for generating DataViews registry metadata.
+ *
+ * This creator emits a TypeScript module describing the auto-registration
+ * metadata for a resource so tests and tooling can import the registry
+ * snapshot emitted during generation.
+ *
+ * @category TypeScript Builder
+ * @returns A `TsBuilderCreator` instance for registry metadata generation.
+ */
+export function buildDataViewRegistryCreator(): TsBuilderCreator {
+	return {
+		key: 'builder.generate.ts.dataviewRegistry.core',
+		async create(context) {
+			const { VariableDeclarationKind } = await loadTsMorph();
+			const { descriptor } = context;
+			const registryPath = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'registry',
+				'dataviews',
+				`${descriptor.key}.ts`
+			);
+			const configImport = buildModuleSpecifier({
+				workspace: context.workspace,
+				from: registryPath,
+				target: context.sourcePath,
+			});
+			const identifier = `${toCamelCase(
+				descriptor.name
+			)}DataViewRegistryEntry`;
+			const preferencesKey =
+				descriptor.dataviews.preferencesKey ??
+				`${context.ir.meta.namespace}/dataviews/${descriptor.name}`;
+
+			const sourceFile = context.project.createSourceFile(
+				registryPath,
+				'',
+				{ overwrite: true }
+			);
+
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/ui/dataviews',
+				namedImports: [
+					{
+						name: 'DataViewRegistryEntry',
+						isTypeOnly: true,
+					},
+				],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: configImport,
+				namespaceImport: 'wpkConfigModule',
+			});
+			sourceFile.addVariableStatement({
+				isExported: true,
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: identifier,
+						type: 'DataViewRegistryEntry',
+						initializer: (writer) => {
+							writer.writeLine('{');
+							writer.indent(() => {
+								writer.write('resource: ');
+								writer.quote(descriptor.name);
+								writer.writeLine(',');
+								writer.write('preferencesKey: ');
+								writer.quote(preferencesKey);
+								writer.writeLine(',');
+								writer.write('metadata: ');
+								writer.write(
+									`wpkConfigModule.wpkConfig.resources[${JSON.stringify(
+										descriptor.key
+									)}].ui!.admin!.dataviews as unknown as Record<string, unknown>`
+								);
+								writer.writeLine(',');
+							});
+							writer.write('}');
+						},
+					},
+				],
+			});
+
+			await context.emit({
+				filePath: registryPath,
+				sourceFile,
+			});
 		},
 	};
 }
