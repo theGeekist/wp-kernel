@@ -117,31 +117,31 @@ function attachExistingResources(
 }
 
 /**
- * Attaches the UI bindings to the WP Kernel instance.
+ * Attaches the UI bindings to the WPKernel instance.
  *
- * @param    wpk     - The WP Kernel instance.
+ * @param    wpk     - The WPKernel instance.
  * @param    kernel
  * @param    options - The UI integration options.
  * @returns The UI runtime.
  * @category Provider
  */
 export const attachUIBindings: WPKernelUIAttach = (
-	kernel: WPKInstance,
+	wpk: WPKInstance,
 	options?: UIIntegrationOptions
 ): WPKernelUIRuntime => {
 	const runtime: WPKernelUIRuntime = {
-		kernel,
-		namespace: kernel.getNamespace(),
-		reporter: kernel.getReporter(),
-		registry: kernel.getRegistry(),
-		events: kernel.events,
+		wpk,
+		namespace: wpk.getNamespace(),
+		reporter: wpk.getReporter(),
+		registry: wpk.getRegistry(),
+		events: wpk.events,
 		// Use a getter to resolve capability runtime dynamically, allowing late registrations
 		// via defineCapability() after attachUIBindings() has been called (e.g., lazy-loaded plugins)
 		get capabilities() {
 			return resolveCapabilityRuntime();
 		},
 		invalidate: (patterns, invalidateOptions) =>
-			kernel.invalidate(patterns, invalidateOptions),
+			wpk.invalidate(patterns, invalidateOptions),
 		options,
 	};
 
@@ -149,7 +149,7 @@ export const attachUIBindings: WPKernelUIAttach = (
 
 	if (dataviewsOptions.enable) {
 		runtime.dataviews = createWPKernelDataViewsRuntime(
-			kernel,
+			wpk,
 			runtime,
 			dataviewsOptions
 		);

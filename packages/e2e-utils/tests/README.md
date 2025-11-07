@@ -1,6 +1,6 @@
 # E2E Tests Directory
 
-This directory contains end-to-end tests for WP Kernel using Playwright.
+This directory contains end-to-end tests for WPKernel using Playwright.
 
 Tests target the wp-env **tests** site on port 8889.
 

@@ -1,10 +1,10 @@
-# WP Kernel Showcase Plugin
+# WPKernel Showcase Plugin
 
-A demonstration plugin showcasing the WP Kernel framework with a careers/job posting system.
+A demonstration plugin showcasing the WPKernel framework with a careers/job posting system.
 
 ## Overview
 
-This plugin demonstrates how to build a modern WordPress product using WP Kernel, implementing a complete job postings and applications workflow.
+This plugin demonstrates how to build a modern WordPress product using WPKernel, implementing a complete job postings and applications workflow.
 
 ## Features Demonstrated
 

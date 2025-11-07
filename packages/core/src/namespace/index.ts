@@ -2,7 +2,7 @@
  * Namespace Detection Module
  *
  * Provides intelligent auto-detection of plugin/product namespaces
- * for the WP Kernel framework.
+ * for the WPKernel framework.
  *
  */
 

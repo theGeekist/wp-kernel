@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -10,10 +10,7 @@
 function writeWorkspaceFiles(workspace, files): Promise<void>;
 ```
 
-Creates a temporary, isolated workspace for E2E tests.
-
-This utility sets up a clean directory for each test, ensuring that tests
-do not interfere with each other's file system state.
+Write a set of files into an isolated workspace tree.
 
 ## Parameters
 
@@ -21,9 +18,13 @@ do not interfere with each other's file system state.
 
 [`IsolatedWorkspace`](../interfaces/IsolatedWorkspace.md)
 
+Workspace descriptor returned by [withIsolatedWorkspace](withIsolatedWorkspace.md).
+
 ### files
 
 [`WorkspaceFileTree`](../type-aliases/WorkspaceFileTree.md)
+
+Mapping of relative paths to file contents.
 
 ## Returns
 

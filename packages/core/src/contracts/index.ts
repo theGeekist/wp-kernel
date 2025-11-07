@@ -1,5 +1,5 @@
 /**
- * WP Kernel Contracts Surface
+ * WPKernel Contracts Surface
  *
  * Centralises shared framework contracts so that all packages consume the
  * same lifecycle phases, namespace constants, exit codes, and error typing.
@@ -53,7 +53,7 @@ export const WPK_EXIT_CODES = {
 } as const;
 
 /**
- * Union of supported WP Kernel exit code values.
+ * Union of supported WPKernel exit code values.
  */
 export type WPKExitCode = (typeof WPK_EXIT_CODES)[keyof typeof WPK_EXIT_CODES];
 

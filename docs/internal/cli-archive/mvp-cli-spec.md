@@ -1,4 +1,4 @@
-# WP Kernel CLI MVP Spec
+# WPKernel CLI MVP Spec
 
 **Status:** Draft specification synthesised from ongoing discussions.  
 **Goal:** Deliver the smallest shippable “generate + apply” workflow that treats `WPKernelConfigV1` as the single source of truth for both runtime and tooling. The showcase app remains a reference example only; the spec must support every configuration permitted by `WPKernelConfigV1`.

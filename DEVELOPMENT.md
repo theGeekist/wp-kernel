@@ -1,18 +1,18 @@
-# Development Guide - WP Kernel Monorepo
+# Development Guide - WPKernel Monorepo
 
 > **Who this doc is for**: Contributors working| **E2E tests** | `pnpm e2e` | Tasks: Test: E2E Tests | Playwright (headless) - **works from any directory** |
-> | **E2E debug** | `pnpm e2e:ui` | Tasks: Test: E2E Tests (UI) | Playwright with UI - **works from any directory** |irectly on WP Kernel or the Showcase Plugin. If you only want to _use_ the framework in your own plugin, see the [Getting Started Guide](docs/getting-started/) instead.
+> | **E2E debug** | `pnpm e2e:ui` | Tasks: Test: E2E Tests (UI) | Playwright with UI - **works from any directory** |irectly on WPKernel or the Showcase Plugin. If you only want to _use_ the framework in your own plugin, see the [Getting Started Guide](docs/getting-started/) instead.
 
 > **Critical infrastructure docs** - How to actually work with this monorepo
 
 ## 🏗️ Architecture Overview
 
-WP Kernel is a **pnpm workspace monorepo** with centralized dependency management and integrated WordPress testing infrastructure.
+WPKernel is a **pnpm workspace monorepo** with centralized dependency management and integrated WordPress testing infrastructure.
 
 ```
 wp-kernel/
 ├── packages/          # Framework packages (published)
-│   ├── kernel/        # Core framework
+│   ├── core/        # Core framework
 │   ├── ui/            # UI components
 │   ├── cli/           # CLI tools
 │   └── e2e-utils/     # E2E testing utilities
@@ -24,11 +24,11 @@ wp-kernel/
 
 ### 🎯 Golden Rules
 
-| Component           | Purpose                                                  | Development Focus                                      |
-| ------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
-| **Kernel packages** | Reusable primitives (resources, actions, events, jobs)   | Framework code only - no business logic                |
-| **Showcase app**    | Business/domain demo plugin (jobs & applications system) | Real-world patterns that exercise all wpk capabilities |
-| **e2e-utils**       | Testing utilities (validated via showcase)               | Browser-only code, can't be unit tested in isolation   |
+| Component         | Purpose                                                  | Development Focus                                      |
+| ----------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| **Core packages** | Reusable primitives (resources, actions, events, jobs)   | Framework code only - no business logic                |
+| **Showcase app**  | Business/domain demo plugin (jobs & applications system) | Real-world patterns that exercise all wpk capabilities |
+| **e2e-utils**     | Testing utilities (validated via showcase)               | Browser-only code, can't be unit tested in isolation   |
 
 - Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts`; never hardcode `wpk` or numeric exit codes in tooling.
 
@@ -240,7 +240,7 @@ pnpm build  # One-shot build of all packages
 **Build order matters:**
 
 1. `packages/core` (core)
-2. `packages/ui` (depends on kernel)
+2. `packages/ui` (depends on core)
 3. `packages/cli` (standalone)
 4. `packages/e2e-utils` (standalone)
 5. `examples/showcase` (depends on all packages)

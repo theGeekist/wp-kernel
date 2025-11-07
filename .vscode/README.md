@@ -1,6 +1,6 @@
 # VS Code Workspace Setup
 
-This document describes the VS Code configuration for WP Kernel development.
+This document describes the VS Code configuration for WPKernel development.
 
 ## Overview
 
@@ -107,7 +107,7 @@ Debug the currently open test file.
 
 ### Debug CLI
 
-Debug the WP Kernel CLI tool (`wpk` command).
+Debug the WPKernel CLI tool (`wpk` command).
 
 ## Keyboard Shortcuts
 

@@ -75,7 +75,7 @@ describe('attachUIBindings runtime behaviour', () => {
 
 		const runtime = attachUIBindings(wpk);
 
-		expect(runtime.kernel).toBe(wpk);
+		expect(runtime.wpk).toBe(wpk);
 		expect(runtime.namespace).toBe('tests');
 		expect(mockAttachResourceHooks).toHaveBeenCalledWith(
 			resourceA,

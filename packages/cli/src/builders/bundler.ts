@@ -115,7 +115,7 @@ export function toWordPressGlobal(slug: string): string {
  *
  * For example, `my-plugin-script` becomes `wp-my-plugin-script`.
  *
- * @category Bundler
+ * @category AST Builders
  * @param    slug - The slug to convert.
  * @returns The WordPress script handle.
  */
@@ -130,7 +130,7 @@ export function toWordPressHandle(slug: string): string {
  * list of WordPress and React externals to create a comprehensive list of external
  * modules that should not be bundled.
  *
- * @category Bundler
+ * @category AST Builders
  * @param    pkg - A package.json-like object containing dependency information.
  * @returns An array of unique, sorted external dependency names.
  */
@@ -185,7 +185,7 @@ export function buildGlobalsMap(
  * This function translates external JavaScript dependencies (especially WordPress and React)
  * into their corresponding WordPress script handles, which are used for enqueueing assets.
  *
- * @category Bundler
+ * @category AST Builders
  * @param    externals - A list of external module names.
  * @returns An array of unique, sorted WordPress asset handles.
  */
@@ -214,7 +214,7 @@ export function buildAssetDependencies(externals: readonly string[]): string[] {
  *
  * This is important for consistent path resolution in bundlers.
  *
- * @category Bundler
+ * @category AST Builders
  * @param    replacement - The alias replacement path.
  * @returns The normalized alias replacement path with a trailing slash.
  */
@@ -233,7 +233,7 @@ export function normaliseAliasReplacement(replacement: string): string {
  * for the Rollup bundler, including external dependencies, global mappings, and
  * the asset manifest used by WordPress.
  *
- * @category Bundler
+ * @category AST Builders
  * @param    pkg                        - A package.json-like object for dependency information.
  * @param    options                    - Additional options for building the artifacts.
  * @param    options.sanitizedNamespace
@@ -345,7 +345,7 @@ async function queueManifestWrites(
  * determining external dependencies, and generating the necessary configuration
  * files for a JavaScript bundler (currently Rollup) and a WordPress asset manifest.
  *
- * @category Bundler
+ * @category AST Builders
  * @returns A `BuilderHelper` instance configured to generate bundler artifacts.
  */
 export function createBundler(): BuilderHelper {

@@ -3,7 +3,7 @@
 Phase 0 of the codemod roadmap verifies that the TypeScript node interfaces in
 `packages/php-json-ast/src/nodes/**` stay aligned with the upstream
 [`PhpParser\Node`](https://github.com/nikic/PHP-Parser/tree/master/lib/PhpParser/Node)
-classes. The WordPress Kernel builder APIs rely on this parity so that JSON
+classes. The WPKernel builder APIs rely on this parity so that JSON
 payloads decoded inside PHP can flow back into the TypeScript helpers without
 shape conversions.
 

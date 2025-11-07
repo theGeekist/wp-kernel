@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping shape WP Kernel. This page is the entry point for maintainers and contributors alike: it explains how we work, where the canonical references live, and which guides to read next.
+Thanks for helping shape WPKernel. This page is the entry point for maintainers and contributors alike: it explains how we work, where the canonical references live, and which guides to read next.
 
 ## Start here
 

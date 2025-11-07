@@ -152,33 +152,33 @@ describe('createPhpResourceControllerHelper', () => {
 			expect(entry.metadata.routes).toEqual([
 				{
 					method: 'GET',
-					path: '/kernel/v1/books',
+					path: '/wpk/v1/books',
 					kind: 'list',
 					cacheSegments: ['books', 'list'],
 				},
 				{
 					method: 'GET',
-					path: '/kernel/v1/books/:slug',
+					path: '/wpk/v1/books/:slug',
 					kind: 'get',
 					cacheSegments: ['books', 'get'],
 				},
 				{
 					method: 'POST',
-					path: '/kernel/v1/books',
+					path: '/wpk/v1/books',
 					kind: 'create',
 					cacheSegments: ['books', 'create'],
 					tags: { 'resource.wpPost.mutation': 'create' },
 				},
 				{
 					method: 'PUT',
-					path: '/kernel/v1/books/:slug',
+					path: '/wpk/v1/books/:slug',
 					kind: 'update',
 					cacheSegments: ['books', 'update'],
 					tags: { 'resource.wpPost.mutation': 'update' },
 				},
 				{
 					method: 'DELETE',
-					path: '/kernel/v1/books/:slug',
+					path: '/wpk/v1/books/:slug',
 					kind: 'remove',
 					cacheSegments: ['books', 'remove'],
 					tags: { 'resource.wpPost.mutation': 'delete' },
@@ -197,7 +197,7 @@ describe('createPhpResourceControllerHelper', () => {
 					{
 						resource: 'books',
 						method: 'POST',
-						path: '/kernel/v1/books',
+						path: '/wpk/v1/books',
 					},
 				],
 				[
@@ -205,7 +205,7 @@ describe('createPhpResourceControllerHelper', () => {
 					{
 						resource: 'books',
 						method: 'PUT',
-						path: '/kernel/v1/books/:slug',
+						path: '/wpk/v1/books/:slug',
 					},
 				],
 				[
@@ -213,7 +213,7 @@ describe('createPhpResourceControllerHelper', () => {
 					{
 						resource: 'books',
 						method: 'DELETE',
-						path: '/kernel/v1/books/:slug',
+						path: '/wpk/v1/books/:slug',
 					},
 				],
 			])
@@ -282,13 +282,12 @@ describe('createPhpResourceControllerHelper', () => {
 		const createRoute = (
 			entry.metadata.routes as ResourceControllerRoute[]
 		).find(
-			(route) =>
-				route.method === 'POST' && route.path === '/kernel/v1/books'
+			(route) => route.method === 'POST' && route.path === '/wpk/v1/books'
 		);
 
 		expect(createRoute).toMatchObject({
 			method: 'POST',
-			path: '/kernel/v1/books',
+			path: '/wpk/v1/books',
 			kind: 'create',
 			cacheSegments: ['books', 'create'],
 			tags: { 'resource.wpPost.mutation': 'create' },
@@ -354,12 +353,12 @@ describe('createPhpResourceControllerHelper', () => {
 			routes: [
 				{
 					method: 'GET',
-					path: '/kernel/v1/job-categories',
+					path: '/wpk/v1/job-categories',
 					kind: 'list',
 				},
 				{
 					method: 'GET',
-					path: '/kernel/v1/job-categories/:slug',
+					path: '/wpk/v1/job-categories/:slug',
 					kind: 'get',
 				},
 			],
@@ -425,12 +424,12 @@ describe('createPhpResourceControllerHelper', () => {
 			routes: [
 				{
 					method: 'GET',
-					path: '/kernel/v1/demo-option',
+					path: '/wpk/v1/demo-option',
 					kind: 'custom',
 				},
 				{
 					method: 'PUT',
-					path: '/kernel/v1/demo-option',
+					path: '/wpk/v1/demo-option',
 					kind: 'custom',
 				},
 			],
@@ -528,11 +527,11 @@ describe('createPhpResourceControllerHelper', () => {
 		expect(transientEntry?.metadata).toMatchObject({
 			name: 'jobCache',
 			routes: [
-				{ method: 'GET', path: '/kernel/v1/job-cache', kind: 'custom' },
-				{ method: 'PUT', path: '/kernel/v1/job-cache', kind: 'custom' },
+				{ method: 'GET', path: '/wpk/v1/job-cache', kind: 'custom' },
+				{ method: 'PUT', path: '/wpk/v1/job-cache', kind: 'custom' },
 				{
 					method: 'DELETE',
-					path: '/kernel/v1/job-cache',
+					path: '/wpk/v1/job-cache',
 					kind: 'custom',
 				},
 			],
@@ -615,21 +614,21 @@ describe('buildResourceControllerRouteMetadata', () => {
 		expect(metadata).toEqual([
 			{
 				method: 'POST',
-				path: '/kernel/v1/books',
+				path: '/wpk/v1/books',
 				kind: 'create',
 				cacheSegments: ['books', 'create'],
 				tags: { 'resource.wpPost.mutation': 'create' },
 			},
 			{
 				method: 'PUT',
-				path: '/kernel/v1/books/:slug',
+				path: '/wpk/v1/books/:slug',
 				kind: 'update',
 				cacheSegments: ['books', 'update'],
 				tags: { 'resource.wpPost.mutation': 'update' },
 			},
 			{
 				method: 'DELETE',
-				path: '/kernel/v1/books/:slug',
+				path: '/wpk/v1/books/:slug',
 				kind: 'remove',
 				cacheSegments: ['books', 'remove'],
 				tags: { 'resource.wpPost.mutation': 'delete' },
@@ -680,12 +679,12 @@ describe('buildResourceControllerRouteMetadata', () => {
 		expect(metadata).toEqual([
 			{
 				method: 'POST',
-				path: '/kernel/v1/books',
+				path: '/wpk/v1/books',
 				kind: 'custom',
 			},
 			{
 				method: 'GET',
-				path: '/kernel/v1/books',
+				path: '/wpk/v1/books',
 				kind: 'custom',
 			},
 		]);
@@ -730,21 +729,21 @@ describe('buildResourceControllerRouteMetadata', () => {
 		expect(metadata).toEqual([
 			{
 				method: 'POST',
-				path: '/kernel/v1/books',
+				path: '/wpk/v1/books',
 				kind: 'create',
 				cacheSegments: [],
 				tags: { 'resource.wpPost.mutation': 'create' },
 			},
 			{
 				method: 'PUT',
-				path: '/kernel/v1/books/:slug',
+				path: '/wpk/v1/books/:slug',
 				kind: 'update',
 				cacheSegments: [],
 				tags: { 'resource.wpPost.mutation': 'update' },
 			},
 			{
 				method: 'DELETE',
-				path: '/kernel/v1/books/:slug',
+				path: '/wpk/v1/books/:slug',
 				kind: 'remove',
 				cacheSegments: [],
 				tags: { 'resource.wpPost.mutation': 'delete' },

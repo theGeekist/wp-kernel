@@ -3,9 +3,7 @@ import {
 	getObjectProperty,
 	getResourcesFromConfig,
 	getStringValue,
-} from './utils/kernel-config-evaluator.js';
-
-/* eslint-disable import/no-default-export */
+} from './utils/wpk-config-evaluator.js';
 
 const DOC_URL =
 	'https://github.com/theGeekist/wp-kernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules';

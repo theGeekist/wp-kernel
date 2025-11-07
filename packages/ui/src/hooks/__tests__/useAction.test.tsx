@@ -758,7 +758,7 @@ describe('useAction', () => {
 		const action = makeDefinedAction(async () => 'noop');
 		const { result } = renderUseActionHook(action, undefined, {
 			registry: undefined,
-			kernel: undefined,
+			wpk: undefined,
 		});
 
 		expect(() => result.current.run({} as never)).toThrow(
@@ -826,7 +826,7 @@ describe('useAction', () => {
 			{
 				autoInvalidate: () => false,
 			},
-			{ invalidate: undefined, kernel: kernelStub }
+			{ invalidate: undefined, wpk: kernelStub }
 		);
 
 		await act(async () => {
@@ -953,11 +953,11 @@ describe('useAction', () => {
 			{
 				autoInvalidate: () => [['resource']],
 			},
-			{ kernel: wpkernelInstance }
+			{ wpk: wpkernelInstance }
 		);
 
 		runtime.invalidate = undefined as unknown as typeof runtime.invalidate;
-		runtime.kernel = wpkernelInstance;
+		runtime.wpk = wpkernelInstance;
 
 		await act(async () => {
 			await result.current.run({} as never);

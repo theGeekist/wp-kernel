@@ -1,5 +1,5 @@
 /**
- * WP Kernel Showcase Plugin - Entry Point
+ * WPKernel Showcase Plugin - Entry Point
  *
  * Initializes the Kernel runtime and mounts admin UI.
  */
@@ -24,11 +24,11 @@ export function init(): void {
 
 	if (!globalWindow.wp?.data) {
 		// Classic admin may load scripts out of order; fail quietly.
-		console.warn('[WP Kernel Showcase] wp.data not available yet.');
+		console.warn('[WPKernel Showcase] wp.data not available yet.');
 		return;
 	}
 
-	// Initialize WP Kernel runtime (middleware + events plugin)
+	// Initialize WPKernel runtime (middleware + events plugin)
 	bootstrapKernel(globalWindow.wp.data as WPKernelRegistry);
 
 	try {
@@ -40,7 +40,7 @@ export function init(): void {
 			context: { actionName: 'Jobs.Init', resourceName: job.storeKey },
 		});
 		console.error(
-			'[WP Kernel Showcase] Failed to prepare job resource:',
+			'[WPKernel Showcase] Failed to prepare job resource:',
 			wrapped
 		);
 	}
@@ -50,7 +50,7 @@ export function init(): void {
 		const uiRuntime = wpk.getUIRuntime();
 		if (!uiRuntime) {
 			console.warn(
-				'[WP Kernel Showcase] UI runtime unavailable. Ensure attachUIBindings is configured.'
+				'[WPKernel Showcase] UI runtime unavailable. Ensure attachUIBindings is configured.'
 			);
 			return;
 		}

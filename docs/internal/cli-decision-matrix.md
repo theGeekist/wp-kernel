@@ -1,4 +1,4 @@
-# WP Kernel CLI Command Matrix
+# WPKernel CLI Command Matrix
 
 This document summarizes the responsibilities and outputs of the core CLI commands (`init`, `generate`, `apply`) as implemented in the `@wpkernel/cli` package, and validates their alignment with the decision matrix for printers and build orchestration.
 
@@ -44,7 +44,7 @@ This document summarizes the responsibilities and outputs of the core CLI comman
 
 ## 1. `init` Command
 
-- **Purpose:** Scaffolds a new WP Kernel project (config, entrypoint, linting, etc.).
+- **Purpose:** Scaffolds a new WPKernel project (config, entrypoint, linting, etc.).
 - **Outputs:** Project files in root and `src/`.
 - **Does NOT:** Run printers, emit `.generated/**` artifacts, or perform build/copy steps.
 

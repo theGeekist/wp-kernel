@@ -12,7 +12,7 @@ import { createPhpChannelHelper as createBasePhpChannelHelper } from '@wpkernel/
  * This helper is responsible for setting up the communication channel
  * for PHP-related operations within the builder pipeline.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for PHP channel management.
  */
 export function createPhpChannelHelper(): BuilderHelper {

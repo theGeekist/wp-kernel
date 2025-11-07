@@ -1,10 +1,10 @@
 ---
-title: WP Kernel
+title: WPKernel
 ---
 
 # Build modern WordPress plugins from one source of truth
 
-WP Kernel gives WordPress developers a predictable workflow. Describe resources and capabilities in `wpk.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
+WPKernel gives WordPress developers a predictable workflow. Describe resources and capabilities in `wpk.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
 
 <div class="cta-buttons">
 <a class="vp-button" href="/getting-started/quick-start">Quick Start</a>

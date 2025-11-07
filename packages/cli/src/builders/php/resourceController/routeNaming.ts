@@ -11,7 +11,7 @@ import type { IRRoute, IRv1 } from '../../../ir/publicTypes';
  * @param    route - IR route definition with method and path
  * @param    ir    - IR program containing namespace metadata
  * @returns PHP method name (e.g., "getJobById", "postApplications")
- * @category Builders
+ * @category AST Builders
  */
 export function buildRouteMethodName(route: IRRoute, ir: IRv1): string {
 	const method = route.method.toLowerCase();
@@ -29,7 +29,7 @@ export function buildRouteMethodName(route: IRRoute, ir: IRv1): string {
  * @param    path - REST route path (e.g., "/wpk/v1/jobs/:id")
  * @param    ir   - IR program containing namespace to strip
  * @returns Array of normalized path segments (e.g., ["jobs", "id"])
- * @category Builders
+ * @category AST Builders
  */
 export function deriveRouteSegments(path: string, ir: IRv1): string[] {
 	const trimmed = path.replace(/^\/+/, '');

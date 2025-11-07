@@ -1,6 +1,6 @@
 # Blocks
 
-Blocks are the public face of your plugin. WP Kernel treats them as first-class citizens: the CLI discovers block manifests, generates registration code for JS-only blocks, and emits PHP registrars for SSR blocks.【F:packages/cli/src/builders/ts/blocks.ts†L1-L180】【F:packages/cli/src/builders/php/blocks/index.ts†L1-L120】
+Blocks are the public face of your plugin. WPKernel treats them as first-class citizens: the CLI discovers block manifests, generates registration code for JS-only blocks, and emits PHP registrars for SSR blocks.【F:packages/cli/src/builders/ts/blocks.ts†L1-L180】【F:packages/cli/src/builders/php/blocks/index.ts†L1-L120】
 
 ## Authoring a block
 

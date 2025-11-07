@@ -21,7 +21,7 @@
 
 ## 1. Purpose
 
-Elevate `@wordpress/dataviews` to a first-class surface within WP Kernel so modern admin tables, grids, and pickers inherit wpk capabilities (resources, actions, capabilities, events) with zero bespoke glue. The integration must stay aligned with WordPress core implementations, plug into `configureWPKernel()` via the existing `ui` configuration, and remain consumable without the wpk bundle.
+Elevate `@wordpress/dataviews` to a first-class surface within WPKernel so modern admin tables, grids, and pickers inherit wpk capabilities (resources, actions, capabilities, events) with zero bespoke glue. The integration must stay aligned with WordPress core implementations, plug into `configureWPKernel()` via the existing `ui` configuration, and remain consumable without the wpk bundle.
 
 ---
 

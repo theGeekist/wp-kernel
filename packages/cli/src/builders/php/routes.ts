@@ -23,7 +23,7 @@ const WP_POST_ROUTE_HELPER_SYMBOL = Symbol(
  * This state stores bundles of generated artifacts for WP Post-based routes,
  * keyed by resource name.
  *
- * @category PHP Builder
+ * @category AST Builders
  */
 export interface WpPostRouteHelperState {
 	/** A map of resource names to their WP Post route bundles. */
@@ -39,7 +39,7 @@ interface WpPostRouteHelperHost {
  *
  * If the state object does not exist in the context, it is initialized.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @param    context - The current pipeline context.
  * @returns The `WpPostRouteHelperState` instance.
  */
@@ -59,7 +59,7 @@ export function getWpPostRouteHelperState(
 /**
  * Reads a WP Post route bundle for a given resource name from the helper state.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @param    state        - The `WpPostRouteHelperState` containing the bundles.
  * @param    resourceName - The name of the resource to retrieve the bundle for.
  * @returns The `WpPostRouteBundle` for the specified resource, or `undefined` if not found.
@@ -77,7 +77,7 @@ export function readWpPostRouteBundle(
  * This helper processes resources configured to use 'wp-post' storage mode
  * and generates the necessary route bundles for handling WP Post CRUD operations.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for WP Post routes.
  */
 export function createPhpWpPostRoutesHelper(): BuilderHelper {

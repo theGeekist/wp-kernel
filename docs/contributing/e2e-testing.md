@@ -1,10 +1,10 @@
 # E2E Testing Guide
 
-End-to-end testing guide for WP Kernel with `@wpkernel/e2e-utils`.
+End-to-end testing guide for WPKernel with `@wpkernel/e2e-utils`.
 
 ## Overview
 
-E2E tests validate complete user workflows in a real WordPress environment using Playwright. WP Kernel provides specialized utilities to make testing kernel-aware applications fast and reliable.
+E2E tests validate complete user workflows in a real WordPress environment using Playwright. WPKernel provides specialized utilities to make testing kernel-aware applications fast and reliable.
 
 ### When to Use E2E Tests
 
@@ -63,7 +63,7 @@ test.describe('Jobs Admin', () => {
 
 ## The Kernel Fixture
 
-WP Kernel E2E utilities are available via the `kernel` fixture:
+WPKernel E2E utilities are available via the `kernel` fixture:
 
 ```typescript
 test('example', async ({ kernel, page }) => {

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -7,7 +7,10 @@
 # Type Alias: PipelineDiagnostic
 
 ```ts
-type PipelineDiagnostic = ConflictDiagnostic;
+type PipelineDiagnostic =
+	| ConflictDiagnostic
+	| MissingDependencyDiagnostic
+	| UnusedHelperDiagnostic;
 ```
 
-Represents a diagnostic message generated during pipeline execution.
+Union of all diagnostics emitted by the pipeline.

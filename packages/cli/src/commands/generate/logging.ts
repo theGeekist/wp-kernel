@@ -45,7 +45,7 @@ function buildDiagnosticContext(
  *
  * @param    reporter
  * @param    diagnostics
- * @category Generate
+ * @category Commands
  * @example
  * ```ts
  * logDiagnostics(reporter, result.diagnostics);

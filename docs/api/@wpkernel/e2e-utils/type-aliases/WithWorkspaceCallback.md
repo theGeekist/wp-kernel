@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -9,6 +9,8 @@
 ```ts
 type WithWorkspaceCallback<TResult> = (workspace) => Promise<TResult> | TResult;
 ```
+
+Callback executed with an isolated workspace instance.
 
 ## Type Parameters
 

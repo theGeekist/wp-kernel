@@ -17,7 +17,7 @@ type KernelLibConfigOptions = {
 };
 
 /**
- * Create a Vite configuration for WP Kernel library packages.
+ * Create a Vite configuration for WPKernel library packages.
  *
  * @param packageName - The package name (e.g., '@wpkernel/core')
  * @param entries     - Entry points (e.g., { index: 'src/index.ts', http: 'src/http/index.ts' })

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,12 @@
 
 # Interface: ResourceDataViewsScreenConfig
 
-TODO: summary.
+Screen configuration for an admin DataViews entry point.
+
+Controls the generated React component, routing, and how the CLI resolves
+imports between resource modules, wpk bootstrap, and UI runtime.
+
+All fields are optional; sensible defaults are derived from the resource name.
 
 ## Indexable
 

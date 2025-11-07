@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -11,10 +11,7 @@ function collectManifestState(workspace, definition): Promise & lt;
 FileManifest & gt;
 ```
 
-Collects the file system manifest state for comparison.
-
-This utility captures the current state of files within a workspace,
-which can then be compared against a previous state to detect changes.
+Seed files into a workspace and collect a manifest snapshot.
 
 ## Parameters
 

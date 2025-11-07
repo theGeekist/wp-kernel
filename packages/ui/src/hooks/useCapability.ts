@@ -38,6 +38,9 @@ function resolveCapability<K extends Record<string, unknown>>(
  * enforcement path used during action execution, keeping UI affordances in
  * sync with capability checks. When no capability runtime is present we surface a
  * developer error so plugin authors remember to bootstrap via `defineCapability()`.
+ *
+ * @category Utilities
+ * @public
  */
 export function useCapability<
 	K extends Record<string, unknown>,

@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -17,10 +17,7 @@ function compareManifestStates(
 }>;
 ```
 
-Collects the file system manifest state for comparison.
-
-This utility captures the current state of files within a workspace,
-which can then be compared against a previous state to detect changes.
+Apply mutations and collect before/after manifests for comparison.
 
 ## Parameters
 

@@ -5,7 +5,7 @@ import { useStableCallback, useLatest } from './internal/useStableCallback';
 /**
  * Options for the useHoverPrefetch hook.
  *
- * @category Prefetching
+ * @category Utilities
  * @public
  */
 export interface HoverPrefetchOptions {
@@ -26,7 +26,7 @@ export interface HoverPrefetchOptions {
 /**
  * Triggers a prefetch when the user hovers over an element.
  *
- * @category Prefetching
+ * @category Utilities
  * @param    ref     - A React ref to the element to monitor.
  * @param    fn      - The function to call to trigger the prefetch.
  * @param    options - Options for the hook.

@@ -8,7 +8,7 @@
  * - **Integration Surfaces**: Reporter, jobs, and capability helpers
  * - **Redux Middleware**: Type-safe Redux/`@wordpress/data` integration
  *
- * These types form the contract between action implementations and the WP Kernel runtime,
+ * These types form the contract between action implementations and the WPKernel runtime,
  * enabling type-safe orchestration with IDE autocomplete and compile-time validation.
  *
  * @module actions/types

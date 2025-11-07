@@ -1,5 +1,5 @@
 /**
- * WP Kernel E2E Test Fixture
+ * WPKernel E2E Test Fixture
  *
  * Extended Playwright test with wpk utilities pre-configured.
  * Extends @wordpress/e2e-test-utils-playwright with wpk fixture.
@@ -12,7 +12,7 @@
 
 import { test as base, expect } from '@wordpress/e2e-test-utils-playwright';
 import { createWPKernelUtils } from './createWPKernelUtils.js';
-import type { KernelUtils } from './types.js';
+import type { WPKernelUtils } from './types.js';
 
 /**
  * Extended test fixture with wpk utilities
@@ -20,6 +20,7 @@ import type { KernelUtils } from './types.js';
  * Provides all WordPress E2E fixtures plus:
  * - `kernel`: Kernel utilities factory for resources, stores, and events
  *
+ * @category Test Fixtures
  * @example
  * ```typescript
  * import { test, expect } from '@wpkernel/e2e-utils';
@@ -37,7 +38,7 @@ import type { KernelUtils } from './types.js';
  * });
  * ```
  */
-export const test = base.extend<{ kernel: KernelUtils }>({
+export const test = base.extend<{ kernel: WPKernelUtils }>({
 	kernel: async ({ page, requestUtils, admin, editor, pageUtils }, use) => {
 		const wpk = createWPKernelUtils({
 			page,
@@ -52,4 +53,9 @@ export const test = base.extend<{ kernel: KernelUtils }>({
 });
 
 // Re-export expect from Playwright
+/**
+ * Playwright expect instance aligned with the kernel test fixture.
+ *
+ * @category Test Fixtures
+ */
 export { expect };

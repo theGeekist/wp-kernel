@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -19,4 +19,4 @@ type ErrorCode =
 	| 'UnknownError';
 ```
 
-Standard error codes used in WP Kernel
+Standard error codes used in WPKernel

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,7 @@
 
 # Class: WPKernelEventBus
 
-Typed event bus used across WP Kernel to broadcast lifecycle events and
+Typed event bus used across WPKernel to broadcast lifecycle events and
 cache invalidation notices.
 
 The bus automatically resolves a reporter so listener failures can be logged

@@ -1,6 +1,6 @@
 ## Purpose & Context
 
-This app is a **real-world WordPress plugin demo** designed to exercise WP Kernel. It is serves to validate features, integration flows, and alignment with the Example Plugin Specifications.
+This app is a **real-world WordPress plugin demo** designed to exercise WPKernel. It is serves to validate features, integration flows, and alignment with the Example Plugin Specifications.
 
 ## Role in the Monorepo
 

@@ -63,7 +63,7 @@ describe('resource hooks (UI integration)', () => {
 			registry,
 			events: overrides.events ?? new WPKernelEventBus(),
 			invalidate: overrides.invalidate ?? jest.fn(),
-			kernel: overrides.kernel,
+			wpk: overrides.wpk,
 			capabilities: overrides.capabilities,
 			options: overrides.options,
 		};

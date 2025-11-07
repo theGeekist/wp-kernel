@@ -1,10 +1,12 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
 [@wpkernel/cli](../README.md) / WriteJsonOptions
 
 # Interface: WriteJsonOptions
+
+Options for writing JSON files within the workspace.
 
 ## Extends
 

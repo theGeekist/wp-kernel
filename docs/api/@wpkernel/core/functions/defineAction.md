@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function defineAction<TArgs, TResult>(config): DefinedAction<TArgs, TResult>;
 ```
 
-Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
+Define a WPKernel action with lifecycle instrumentation and side-effect coordination.
 
 Actions are the conductors of your WordPress application-they orchestrate every write
 operation with consistent, predictable side effects. This is the foundation of the

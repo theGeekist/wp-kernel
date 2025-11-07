@@ -79,14 +79,14 @@ function extractResourceName(name: string): string {
 }
 
 /**
- * Configure and bootstrap the WP Kernel runtime for the current namespace.
+ * Configure and bootstrap the WPKernel runtime for the current namespace.
  *
  * The helper wires middleware, reporters, the shared event bus, and optional UI
  * bindings. It returns a `WPKInstance` that exposes integration hooks for
  * invalidation, telemetry, and teardown.
  *
  * @param    options - Runtime configuration including registry, middleware, and UI hooks
- * @return Configured WP Kernel instance with lifecycle helpers
+ * @return Configured WPKernel instance with lifecycle helpers
  *
  * @example
  * ```ts

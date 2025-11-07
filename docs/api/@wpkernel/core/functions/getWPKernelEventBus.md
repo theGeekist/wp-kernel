@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function getWPKernelEventBus(): WPKernelEventBus;
 ```
 
-Return the shared WP Kernel event bus, creating it lazily on first access.
+Return the shared WPKernel event bus, creating it lazily on first access.
 
 ## Returns
 

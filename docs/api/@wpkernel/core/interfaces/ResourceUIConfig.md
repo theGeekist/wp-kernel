@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,10 @@
 
 # Interface: ResourceUIConfig\<TItem, TQuery\>
 
-TODO: summary.
+Top-level UI metadata attached to a resource.
+
+Feeds CLI generators and `@wpkernel/ui` so that admin surfaces, fixtures,
+and interactivity bindings can be derived from a single source of truth.
 
 ## Type Parameters
 
@@ -14,19 +17,21 @@ TODO: summary.
 
 `TItem` = `unknown`
 
-— TODO
+Entity shape used in admin views.
 
 ### TQuery
 
 `TQuery` = `unknown`
 
-— TODO
+Query shape used by admin list operations.
 
 ## Indexable
 
 ```ts
 [key: string]: unknown
 ```
+
+Additional fields reserved for future extensions.
 
 ## Properties
 
@@ -35,3 +40,5 @@ TODO: summary.
 ```ts
 optional admin: ResourceAdminUIConfig<TItem, TQuery>;
 ```
+
+Admin-specific UI configuration (e.g. DataViews).

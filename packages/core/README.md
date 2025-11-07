@@ -4,7 +4,7 @@
 
 ## Overview
 
-WP Kernel is the foundation package that provides:
+WPKernel is the foundation package that provides:
 
 - **Actions-first architecture** - All writes flow through `defineAction()` orchestrators
 - **Resource definitions** - Single `defineResource()` creates client + store + cache + events

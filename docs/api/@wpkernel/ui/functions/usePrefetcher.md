@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 
@@ -31,6 +31,8 @@ re-creating callback instances on every render.
 ### resource
 
 `ResourceObject`\<`TRecord`, `TQuery`\>
+
+Kernel resource exposing optional prefetch helpers.
 
 ## Returns
 

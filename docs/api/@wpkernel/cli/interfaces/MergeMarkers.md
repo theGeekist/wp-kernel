@@ -1,10 +1,12 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
 [@wpkernel/cli](../README.md) / MergeMarkers
 
 # Interface: MergeMarkers
+
+Marker strings used when performing three-way merges.
 
 ## Properties
 

@@ -170,7 +170,7 @@ export interface ActionInvocationDraft<TResult> {
 	durationMs?: number;
 	/** Successful handler result, when available. */
 	result?: TResult;
-	/** Normalized WP Kernel error when execution fails. */
+	/** Normalized WPKernel error when execution fails. */
 	error?: WPKernelError;
 	/** Final resolved options shared with metadata helpers. */
 	resolvedOptions?: ResolvedActionOptions;

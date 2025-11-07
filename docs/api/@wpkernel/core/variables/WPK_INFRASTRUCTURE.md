@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -54,7 +54,7 @@ BroadcastChannel name for action lifecycle events
 readonly WP_HOOKS_NAMESPACE_PREFIX: "wpk/notices";
 ```
 
-WordPress hooks namespace prefix for WP Kernel events plugin
+WordPress hooks namespace prefix for WPKernel events plugin
 
 ### WP_HOOKS_NAMESPACE_UI_DATAVIEWS
 

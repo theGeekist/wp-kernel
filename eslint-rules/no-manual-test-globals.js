@@ -5,7 +5,7 @@
  * of WordPress globals, BroadcastChannel, and browser APIs.
  *
  * @file Prevent manual mocking of globals in test files
- * @author WP Kernel Team
+ * @author WPKernel Team
  */
 
 export default {

@@ -106,7 +106,7 @@ function finalizeBootstrapRun(
 		);
 		context.reporter.info('');
 		context.reporter.info(
-			'🎉 Your WP Kernel project has been successfully created!'
+			'🎉 Your WPKernel project has been successfully created!'
 		);
 		context.reporter.info('');
 		if (context.positional.length > 0) {
@@ -163,7 +163,7 @@ const reporter = createBootstrapReporter();
 const startedAt = performance.now();
 
 // Log immediately so users know something is happening
-reporter.info('🚀 WP Kernel Project Creator');
+reporter.info('🚀 WPKernel Project Creator');
 reporter.info('');
 reporter.info('Preparing to create your WordPress plugin...');
 if (positional.length > 0) {

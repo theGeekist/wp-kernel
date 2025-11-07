@@ -1,6 +1,6 @@
-# Migration Guide: Using WP Kernel E2E Utils
+# Migration Guide: Using WPKernel E2E Utils
 
-This guide shows how to migrate from vanilla Playwright tests to using WP Kernel E2E Utils with WordPress fixtures.
+This guide shows how to migrate from vanilla Playwright tests to using WPKernel E2E Utils with WordPress fixtures.
 
 ## Before: Vanilla Playwright
 
@@ -24,7 +24,7 @@ test('should access admin', async ({ page }) => {
 });
 ```
 
-## After: WP Kernel E2E Utils
+## After: WPKernel E2E Utils
 
 ```typescript
 import { test, expect } from '@wpkernel/e2e-utils';
@@ -50,7 +50,7 @@ When you import `test` from `@wpkernel/e2e-utils`, you get:
 
 ### Kernel Fixture (new!)
 
-- `kernel` - WP Kernel utilities factory
+- `kernel` - WPKernel utilities factory
 
 ## Using Kernel Utilities
 

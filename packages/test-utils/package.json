@@ -1,7 +1,7 @@
 {
 	"name": "@wpkernel/test-utils",
 	"version": "0.12.0",
-	"description": "Shared testing utilities for WP Kernel packages",
+	"description": "Shared testing utilities for WPKernel packages",
 	"license": "EUPL-1.2",
 	"type": "module",
 	"sideEffects": false,

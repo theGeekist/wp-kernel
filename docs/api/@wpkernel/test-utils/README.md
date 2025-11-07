@@ -1,8 +1,8 @@
-**@wpkernel/test-utils v0.11.0**
+**@wpkernel/test-utils v0.12.0**
 
 ---
 
-# @wpkernel/test-utils v0.11.0
+# @wpkernel/test-utils v0.12.0
 
 ## Classes
 
@@ -11,11 +11,6 @@
 - [MemoryStream](classes/MemoryStream.md)
 
 ## Interfaces
-
-### Reporter
-
-- [MemoryReporterEntry](interfaces/MemoryReporterEntry.md)
-- [MemoryReporter](interfaces/MemoryReporter.md)
 
 ### WordPress Harness
 
@@ -51,11 +46,15 @@
 
 - [WorkspaceOptions](interfaces/WorkspaceOptions.md)
 
-### Action Pipeline
+### Test Support
 
+- [MemoryReporterEntry](interfaces/MemoryReporterEntry.md)
+- [MemoryReporter](interfaces/MemoryReporter.md)
 - [RuntimeOverrides](interfaces/RuntimeOverrides.md)
 - [BuildCoreActionPipelineHarnessOptions](interfaces/BuildCoreActionPipelineHarnessOptions.md)
 - [CoreActionPipelineHarness](interfaces/CoreActionPipelineHarness.md)
+- [BuildCoreResourcePipelineHarnessOptions](interfaces/BuildCoreResourcePipelineHarnessOptions.md)
+- [CoreResourcePipelineHarness](interfaces/CoreResourcePipelineHarness.md)
 
 ### Other
 
@@ -66,11 +65,6 @@
 - [ResourceRegistryLike](interfaces/ResourceRegistryLike.md)
 - [WPKConfigV1Like](interfaces/WPKConfigV1Like.md)
 - [LoadedWPKConfigV1Like](interfaces/LoadedWPKConfigV1Like.md)
-
-### Resource Pipeline
-
-- [BuildCoreResourcePipelineHarnessOptions](interfaces/BuildCoreResourcePipelineHarnessOptions.md)
-- [CoreResourcePipelineHarness](interfaces/CoreResourcePipelineHarness.md)
 
 ## Type Aliases
 
@@ -99,10 +93,6 @@
 - [TMP_PREFIX](variables/TMP_PREFIX.md)
 
 ## Functions
-
-### Reporter
-
-- [createMemoryReporter](functions/createMemoryReporter.md)
 
 ### WordPress Harness
 
@@ -138,9 +128,11 @@
 - [createWorkspaceRunner](functions/createWorkspaceRunner.md)
 - [buildPhpIntegrationEnv](functions/buildPhpIntegrationEnv.md)
 
-### Action Pipeline
+### Test Support
 
+- [createMemoryReporter](functions/createMemoryReporter.md)
 - [buildCoreActionPipelineHarness](functions/buildCoreActionPipelineHarness.md)
+- [buildCoreResourcePipelineHarness](functions/buildCoreResourcePipelineHarness.md)
 
 ### Other
 
@@ -150,7 +142,3 @@
 - [setWpPluginData](functions/setWpPluginData.md)
 - [setProcessEnv](functions/setProcessEnv.md)
 - [clearNamespaceState](functions/clearNamespaceState.md)
-
-### Resource Pipeline
-
-- [buildCoreResourcePipelineHarness](functions/buildCoreResourcePipelineHarness.md)

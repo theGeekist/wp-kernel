@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -9,7 +9,7 @@
 The top-level Intermediate Representation (IR) for version 1.
 
 This interface encapsulates all the processed metadata and configurations
-of a WP Kernel project, providing a structured representation that can be
+of a WPKernel project, providing a structured representation that can be
 used by code generators and other tools.
 
 ## Properties
@@ -60,7 +60,7 @@ sanitizedNamespace: string;
 config: WPKernelConfigV1;
 ```
 
-The original WP Kernel configuration.
+The original WPKernel configuration.
 
 ---
 

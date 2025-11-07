@@ -1,6 +1,6 @@
 # @wpkernel/core
 
-`@wpkernel/core` is the runtime spine for the WP Kernel ecosystem. Use it to declare REST resources, orchestrate actions, manage capabilities, and bridge the WordPress data layer with Script Module interactivity.
+`@wpkernel/core` is the runtime spine for the WPKernel ecosystem. Use it to declare REST resources, orchestrate actions, manage capabilities, and bridge the WordPress data layer with Script Module interactivity.
 
 Read the generated API at [/api/@wpkernel/core/](/api/@wpkernel/core/), then choose the guide that matches your role:
 

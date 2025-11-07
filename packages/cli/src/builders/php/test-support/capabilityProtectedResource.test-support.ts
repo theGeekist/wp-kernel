@@ -11,7 +11,7 @@ import {
  * Used for testing capability-based authorization in generated PHP controllers.
  *
  * @returns IR resource with capability-protected POST routes
- * @category Builders
+ * @category AST Builders
  */
 export function makeCapabilityProtectedResource(): IRResource {
 	const routes = makeWpPostRoutes().map((route) =>

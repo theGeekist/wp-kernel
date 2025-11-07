@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -16,7 +16,7 @@ Options for building the Intermediate Representation (IR).
 config: WPKernelConfigV1;
 ```
 
-The WP Kernel configuration.
+The WPKernel configuration.
 
 ---
 

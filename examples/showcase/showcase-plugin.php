@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: WP Kernel Showcase
+ * Plugin Name: WPKernel Showcase
  * Plugin URI: https://github.com/theGeekist/wp-kernel
- * Description: Comprehensive demonstration of WP Kernel framework capabilities through a jobs and applications management system
+ * Description: Comprehensive demonstration of WPKernel framework capabilities through a jobs and applications management system
  * Version:           0.1.0
  * Requires at least: 6.7
  * Requires PHP:      8.1

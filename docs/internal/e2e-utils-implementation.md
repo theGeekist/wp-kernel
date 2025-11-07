@@ -1,4 +1,4 @@
-# WP Kernel E2E Utils - Implementation Summary
+# WPKernel E2E Utils - Implementation Summary
 
 ## What We Built
 

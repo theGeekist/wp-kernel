@@ -939,8 +939,8 @@ function scaffoldPackage(
 		version,
 		description:
 			kind === 'example'
-				? `${pascalName} example for WP Kernel`
-				: `${pascalName} package for WP Kernel`,
+				? `${pascalName} example for WPKernel`
+				: `${pascalName} package for WPKernel`,
 		type: 'module',
 		sideEffects: false,
 		...(kind === 'example'

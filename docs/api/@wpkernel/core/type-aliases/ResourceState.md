@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,10 @@
 type ResourceState<T> = object;
 ```
 
-TODO: summary.
+Normalized state shape for a resource store.
+
+Tracks items, list mappings, list metadata, and per-key errors in a form
+consumable by `@wordpress/data` selectors and resolvers.
 
 ## Type Parameters
 
@@ -18,7 +21,7 @@ TODO: summary.
 
 `T`
 
-— TODO
+Entity shape stored in the resource.
 
 ## Properties
 

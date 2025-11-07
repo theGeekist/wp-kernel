@@ -1,8 +1,8 @@
-# GitHub Copilot Instructions for WP Kernel
+# GitHub Copilot Instructions for WPKernel
 
 ## Project Overview
 
-WP Kernel is a Rails-like, opinionated framework for building modern WordPress products where JavaScript is the source of truth and PHP is a thin contract (REST + capabilities + optional server bindings).
+WPKernel is a Rails-like, opinionated framework for building modern WordPress products where JavaScript is the source of truth and PHP is a thin contract (REST + capabilities + optional server bindings).
 
 **Core Philosophy**: Actions-first, JS hooks canonical, blocks + bindings + interactivity for views, resources for transport, jobs for background work, and a single PHP bridge for structured legacy extensibility.
 

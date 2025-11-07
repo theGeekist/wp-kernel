@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function useWPKernelUI(): WPKernelUIRuntime;
 ```
 
-Hook to access the WP Kernel UI runtime.
+Hook to access the WPKernel UI runtime.
 
 Throws an error if the runtime is not available in the current context.
 
@@ -18,4 +18,4 @@ Throws an error if the runtime is not available in the current context.
 
 `WPKernelUIRuntime`
 
-The WP Kernel UI runtime.
+The WPKernel UI runtime.

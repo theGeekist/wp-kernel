@@ -110,7 +110,7 @@ describe('Action Context', () => {
 				});
 			});
 
-			it('falls back to the WP Kernel reporter when no runtime reporter provided', () => {
+			it('falls back to the WPKernel reporter when no runtime reporter provided', () => {
 				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
 
 				resetResolvedActionReporters();

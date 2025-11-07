@@ -17,7 +17,7 @@ import type {
  * materialise files and the `manifest` is the contents for the block.json file
  * that should be written into the block directory.
  *
- * @category Builders
+ * @category AST Builders
  */
 export interface DerivedResourceBlock {
 	readonly block: IRBlock;
@@ -37,7 +37,7 @@ export interface DerivedResourceBlock {
  * @param    options.ir
  * @param    options.existingBlocks
  * @returns An array of derived block descriptors and their block.json manifest
- * @category Builders
+ * @category AST Builders
  */
 export function deriveResourceBlocks(options: {
 	readonly ir: IRv1;

@@ -17,7 +17,7 @@ import {
 	WPK_NAMESPACE,
 	type WPKConfigSource,
 } from '@wpkernel/core/contracts';
-import { validateWPKernelConfig } from './validate-kernel-config';
+import { validateWPKernelConfig } from './validate-wpk-config';
 import type { LoadedWPKernelConfig } from './types';
 
 type CosmiconfigModule = typeof cosmiconfigNamespace;

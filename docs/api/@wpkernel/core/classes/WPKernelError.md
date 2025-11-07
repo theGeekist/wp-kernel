@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,7 @@
 
 # Class: WPKernelError
 
-Base error class for WP Kernel
+Base error class for WPKernel
 
 ## Example
 

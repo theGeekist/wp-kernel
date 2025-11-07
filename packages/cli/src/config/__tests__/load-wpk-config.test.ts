@@ -13,7 +13,7 @@ import {
 	fileExists,
 	getTsImport,
 	setCachedTsImport,
-} from '../load-kernel-config';
+} from '../load-wpk-config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
@@ -357,7 +357,7 @@ describe('loadWPKernelConfig', () => {
 						tsImport: tsImportMock,
 					}));
 					const { loadWPKernelConfig: isolatedLoad } = await import(
-						'../load-kernel-config'
+						'../load-wpk-config'
 					);
 
 					const result = await isolatedLoad();
@@ -390,7 +390,7 @@ describe('loadWPKernelConfig', () => {
 						tsImport: tsImportMock,
 					}));
 					const { loadWPKernelConfig: isolatedLoad } = await import(
-						'../load-kernel-config'
+						'../load-wpk-config'
 					);
 
 					await expect(isolatedLoad()).rejects.toMatchObject({

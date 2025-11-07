@@ -8,7 +8,7 @@
 Stable, versioned event registry with predictable names. All events come from a
 central registry-no ad-hoc strings. `WPKernelEventBus` is the authoritative
 publisher: every lifecycle notification runs through the bus first, then the
-kernel events plugin forwards canonical events into `wp.hooks` for backwards
+wpk events plugin forwards canonical events into `wp.hooks` for backwards
 compatibility. JavaScript remains the source of truth, but consumers can choose
 between the bus (typed subscriptions) or WordPress hooks (legacy interoperability)
 without losing coverage.
@@ -18,8 +18,8 @@ import { configureWPKernel } from '@wpkernel/core';
 
 const wpk = configureWPKernel({ namespace: 'acme' });
 
-const unsubscribe = kernel.events.on('action:complete', (event) => {
-	kernel.getReporter().info('Action completed', {
+const unsubscribe = wpk.events.on('action:complete', (event) => {
+	wpk.getReporter().info('Action completed', {
 		action: event.actionName,
 		requestId: event.requestId,
 	});
@@ -103,7 +103,7 @@ testimonial.events.removed; // 'acme-blog.testimonial.removed'
 
 ### Namespace Auto-Detection
 
-WP Kernel automatically detects your plugin's namespace to brand events correctly:
+WPKernel automatically detects your plugin's namespace to brand events correctly:
 
 ```typescript
 // Your plugin: "ACME Blog Pro" (slug: acme-blog)

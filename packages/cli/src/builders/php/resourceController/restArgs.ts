@@ -15,7 +15,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * @param    schemas  - Array of IR schemas containing JSON Schema definitions
  * @param    resource - IR resource definition with schema key and query params
  * @returns WordPress REST API argument object with schema, required, and identity metadata
- * @category Builders
+ * @category AST Builders
  */
 export function buildRestArgs(
 	schemas: readonly IRSchema[],

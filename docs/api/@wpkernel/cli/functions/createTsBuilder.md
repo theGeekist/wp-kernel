@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -12,9 +12,12 @@ function createTsBuilder(options): BuilderHelper;
 
 Creates a builder helper for generating TypeScript artifacts.
 
-This helper orchestrates the generation of various TypeScript files,
-such as admin screens and dataview fixtures, based on the project's IR.
-It uses `ts-morph` for programmatic TypeScript code generation and formatting.
+Orchestrates:
+
+- Admin screens under `.generated/ui/app/...`
+- DataView fixtures under `.generated/ui/fixtures/dataviews/...`
+- Interactivity fixtures under `.generated/ui/fixtures/interactivity/...`
+- Registry metadata under `.generated/ui/registry/dataviews/...`
 
 ## Parameters
 
@@ -22,10 +25,15 @@ It uses `ts-morph` for programmatic TypeScript code generation and formatting.
 
 [`CreateTsBuilderOptions`](../interfaces/CreateTsBuilderOptions.md) = `{}`
 
-Options for configuring the TypeScript builder.
-
 ## Returns
 
 [`BuilderHelper`](../type-aliases/BuilderHelper.md)
 
 A `BuilderHelper` instance configured to generate TypeScript artifacts.
+
+## Example
+
+```ts
+const builder = createTsBuilder();
+await builder.apply({ context, input, output, reporter }, undefined);
+```

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -46,7 +46,7 @@ The resource descriptor for which artifacts are being created.
 readonly config: WPKernelConfigV1;
 ```
 
-The full WP Kernel configuration.
+The full WPKernel configuration.
 
 ---
 

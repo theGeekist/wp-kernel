@@ -1,6 +1,6 @@
 # Actions API
 
-Actions orchestrate every write in WP Kernel. They wrap resource mutations with
+Actions orchestrate every write in WPKernel. They wrap resource mutations with
 capability checks, cache invalidation, lifecycle events, and background job hooks.
 
 ## `defineAction`

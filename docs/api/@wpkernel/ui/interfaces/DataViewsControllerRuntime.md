@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 

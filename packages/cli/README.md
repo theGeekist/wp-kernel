@@ -1,6 +1,6 @@
 # @wpkernel/cli
 
-> Rails-like generators and developer tooling for WP Kernel projects.
+> Rails-like generators and developer tooling for WPKernel projects.
 
 ## Overview
 

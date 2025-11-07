@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function setWPKernelEventBus(bus): void;
 ```
 
-Replace the shared WP Kernel event bus. Intended for test suites that need to
+Replace the shared WPKernel event bus. Intended for test suites that need to
 inspect emitted events.
 
 ## Parameters

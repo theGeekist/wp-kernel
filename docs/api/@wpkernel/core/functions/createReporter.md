@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function createReporter(options): Reporter;
 ```
 
-Create a WP Kernel reporter backed by LogLayer transports.
+Create a WPKernel reporter backed by LogLayer transports.
 
 This is the standard reporter for browser/WordPress environments.
 For CLI environments, use `createReporterCLI()` for pretty terminal output.

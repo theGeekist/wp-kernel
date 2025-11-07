@@ -1,6 +1,6 @@
 # Packages
 
-This section provides detailed documentation for each package in the WP Kernel monorepo.
+This section provides detailed documentation for each package in the WPKernel monorepo.
 
 - [@wpkernel/cli](./cli.md)
     - [Plugin Developers](./cli/plugin-developers.md)

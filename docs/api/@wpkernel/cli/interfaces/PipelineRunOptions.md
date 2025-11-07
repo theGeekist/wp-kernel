@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -26,7 +26,7 @@ The current phase of the pipeline execution.
 readonly config: WPKernelConfigV1;
 ```
 
-The configuration object for the WP Kernel project.
+The configuration object for the WPKernel project.
 
 ---
 

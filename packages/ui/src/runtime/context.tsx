@@ -11,14 +11,14 @@ const WPKernelUIContext = createContext<WPKernelUIRuntime | null>(null);
  * @category Provider
  */
 export interface WPKernelUIProviderProps {
-	/** The WP Kernel UI runtime instance. */
+	/** The WPKernel UI runtime instance. */
 	runtime: WPKernelUIRuntime;
 	/** The React nodes to render within the provider. */
 	children: ReactNode;
 }
 
 /**
- * Provides the WP Kernel UI runtime to React components.
+ * Provides the WPKernel UI runtime to React components.
  *
  * @category Provider
  * @param    props.runtime
@@ -37,29 +37,29 @@ export function WPKernelUIProvider({
 }
 
 /**
- * Hook to access the WP Kernel UI runtime.
+ * Hook to access the WPKernel UI runtime.
  *
  * Throws an error if the runtime is not available in the current context.
  *
  * @category Provider
- * @returns The WP Kernel UI runtime.
+ * @returns The WPKernel UI runtime.
  */
 export function useWPKernelUI(): WPKernelUIRuntime {
 	const runtime = useContext(WPKernelUIContext);
 	if (!runtime) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'WP Kernel UI runtime unavailable. Attach UI bindings via configureWPKernel({ ui: { attach } }) and wrap your React tree with <WPKernelUIProvider />.',
+				'WPKernel UI runtime unavailable. Attach UI bindings via configureWPKernel({ ui: { attach } }) and wrap your React tree with <WPKernelUIProvider />.',
 		});
 	}
 	return runtime;
 }
 
 /**
- * Hook to access the WP Kernel UI runtime, but returns null if not available.
+ * Hook to access the WPKernel UI runtime, but returns null if not available.
  *
  * @category Provider
- * @returns The WP Kernel UI runtime or null.
+ * @returns The WPKernel UI runtime or null.
  */
 export function useOptionalWPKernelUI(): WPKernelUIRuntime | null {
 	return useContext(WPKernelUIContext);

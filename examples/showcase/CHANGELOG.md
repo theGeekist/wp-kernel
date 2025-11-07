@@ -110,7 +110,7 @@
 
     ### Foundation Established
 
-    This release establishes the core foundation of WP Kernel:
+    This release establishes the core foundation of WPKernel:
     - ✓ Production-ready Resource API
     - ✓ Modern build tooling (Vite)
     - ✓ Comprehensive test coverage
@@ -144,7 +144,7 @@
 
 - # Sprint 0 Complete - Foundation Release
 
-    Complete development environment, tooling, and CI/CD pipeline for WP Kernel framework.
+    Complete development environment, tooling, and CI/CD pipeline for WPKernel framework.
 
     ## Infrastructure ✓
     - **Monorepo**: pnpm workspaces with 5 packages (kernel, ui, cli, e2e-utils, showcase-plugin)

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function createActionMiddleware<TState>(): ReduxMiddleware<TState>;
 ```
 
-Create a Redux-compatible middleware that intercepts and executes WP Kernel actions.
+Create a Redux-compatible middleware that intercepts and executes WPKernel actions.
 
 This middleware enables actions to be dispatched through Redux/`@wordpress/data` stores.
 When an action envelope is dispatched, the middleware:

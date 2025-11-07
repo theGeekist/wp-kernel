@@ -44,6 +44,7 @@ type WordPressSelectFunction<T, TQuery = unknown> = (
  * Result shape for single-item resource hooks
  *
  * @template T - Entity type returned by the resource
+ * @category Utilities
  */
 export interface UseResourceItemResult<T> {
 	/** The fetched entity, or undefined if not yet loaded */
@@ -58,6 +59,7 @@ export interface UseResourceItemResult<T> {
  * Result shape for list resource hooks
  *
  * @template T - Entity type in the list
+ * @category Utilities
  */
 export interface UseResourceListResult<T> {
 	/** The fetched list response with items and metadata, or undefined if not yet loaded */
@@ -186,6 +188,8 @@ function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  *
  * @template T - Entity type
  * @template TQuery - Query parameter type
+ * @category Utilities
+ * @public
  * @param    resource - Resource definition to augment with hooks
  * @param    _runtime - Active Kernel UI runtime (unused placeholder for API symmetry)
  * @return The same resource object with hooks attached

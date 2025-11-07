@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -13,7 +13,7 @@ function registerWPKernelStore<Key, State, Actions, Selectors>(
 ): StoreDescriptor<ReduxStoreConfig<State, Actions, Selectors>>;
 ```
 
-Register a WordPress data store using WP Kernel defaults.
+Register a WordPress data store using WPKernel defaults.
 
 The helper wraps `@wordpress/data` store registration so packages can rely on
 consistent middleware ordering and return the created store for further wiring.

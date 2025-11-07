@@ -127,7 +127,7 @@ function wrapUnknownError(
  * @param    error
  * @param    context
  * @param    reporter
- * @category DataViews Errors
+ * @category DataViews Integration
  */
 export function normalizeActionError(
 	error: unknown,

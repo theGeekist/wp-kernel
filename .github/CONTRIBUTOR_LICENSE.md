@@ -1,6 +1,6 @@
 ## Contributor License Agreement
 
-By contributing to WP Kernel, you agree that:
+By contributing to WPKernel, you agree that:
 
 1. **Your contributions will be licensed under EUPL-1.2**  
    All contributions become part of the project and are licensed under the European Union Public Licence v1.2.

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -49,6 +49,37 @@ import { createReporterCLI } from '@wpkernel/cli/utils/reporter';
 const reporter = createReporterCLI({ level: 'debug' });
 reporter.info('Starting build process');
 ```
+
+### Workspace
+
+#### ensureCleanDirectory()?
+
+```ts
+readonly optional ensureCleanDirectory: (options) => Promise<void>;
+```
+
+Optional: Custom clean directory enforcer function.
+
+Ensures that a given directory is clean (empty) or creates it if it doesn't exist.
+
+If the directory exists and is not empty, it will throw a `WPKernelError`
+unless `force` is true, in which case it will clear the directory contents.
+
+##### Parameters
+
+###### options
+
+[`EnsureCleanDirectoryOptions`](EnsureCleanDirectoryOptions.md)
+
+Options for ensuring the directory is clean.
+
+##### Returns
+
+`Promise`\<`void`\>
+
+##### Throws
+
+`WPKernelError` if the directory is not empty and `force` is false, or if it's not a directory.
 
 ### Other
 
@@ -185,34 +216,3 @@ Optional: Custom Composer dependency installer function.
 ##### Returns
 
 `Promise`\<`void`\>
-
-### Workspace Utilities
-
-#### ensureCleanDirectory()?
-
-```ts
-readonly optional ensureCleanDirectory: (options) => Promise<void>;
-```
-
-Optional: Custom clean directory enforcer function.
-
-Ensures that a given directory is clean (empty) or creates it if it doesn't exist.
-
-If the directory exists and is not empty, it will throw a `WPKernelError`
-unless `force` is true, in which case it will clear the directory contents.
-
-##### Parameters
-
-###### options
-
-[`EnsureCleanDirectoryOptions`](EnsureCleanDirectoryOptions.md)
-
-Options for ensuring the directory is clean.
-
-##### Returns
-
-`Promise`\<`void`\>
-
-##### Throws
-
-`WPKernelError` if the directory is not empty and `force` is false, or if it's not a directory.

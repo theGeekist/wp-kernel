@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 const WPK_CONFIG_SOURCES: object;
 ```
 
-Configuration sources recognised by WP Kernel tooling.
+Configuration sources recognised by WPKernel tooling.
 
 These filenames/keys are consumed by the CLI and runtime config loaders.
 

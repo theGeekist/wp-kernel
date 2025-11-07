@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function runCli(argv): Promise<void>;
 ```
 
-Run the WP Kernel CLI programmatically.
+Run the WPKernel CLI programmatically.
 
 This convenience function mirrors the behavior of the shipped `wpk`
 binary but is safe to call from scripts or tests. It accepts an argv

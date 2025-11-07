@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.12.0**](../README.md)
 
 ---
 

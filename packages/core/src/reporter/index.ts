@@ -51,7 +51,7 @@ function logWithLevel(
 }
 
 /**
- * Create a WP Kernel reporter backed by LogLayer transports.
+ * Create a WPKernel reporter backed by LogLayer transports.
  *
  * This is the standard reporter for browser/WordPress environments.
  * For CLI environments, use `createReporterCLI()` for pretty terminal output.

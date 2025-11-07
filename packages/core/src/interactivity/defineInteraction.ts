@@ -1,7 +1,7 @@
 /**
  * Interactivity helper - defineInteraction implementation.
  *
- * This module wires WP Kernel resources and actions into the WordPress
+ * This module wires WPKernel resources and actions into the WordPress
  * interactivity runtime so UI bindings can hydrate server state and dispatch
  * actions without coupling to transport concerns.
  *

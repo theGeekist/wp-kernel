@@ -5,7 +5,7 @@
  * Source: wpkConfig.resources.job (src/wpk.config.ts)
  * Target: inc/Rest/JobsController.php
  *
- * Handles REST API endpoints for Job Postings in the WP Kernel Showcase.
+ * Handles REST API endpoints for Job Postings in the WPKernel Showcase.
  *
  * @package WPKernelShowcase
  */

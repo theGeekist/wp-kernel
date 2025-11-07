@@ -1,10 +1,12 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
 [@wpkernel/e2e-utils](../README.md) / RunNodeSnippetOptions
 
 # Interface: RunNodeSnippetOptions
+
+Options for executing a Node.js snippet through the CLI runner.
 
 ## Extends
 

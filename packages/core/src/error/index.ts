@@ -1,5 +1,5 @@
 /**
- * Error Module for WP Kernel
+ * Error Module for WPKernel
  *
  * Exports all error types and utilities for consistent error handling throughout the framework.
  *
@@ -7,7 +7,7 @@
  */
 
 /**
- * Base error class for all WP Kernel specific errors.
+ * Base error class for all WPKernel specific errors.
  *
  * This class extends the native `Error` object and adds a `code` property
  * for programmatic error identification and a `context` property for

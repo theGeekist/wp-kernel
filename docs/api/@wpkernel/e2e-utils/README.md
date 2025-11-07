@@ -1,10 +1,12 @@
-**@wpkernel/e2e-utils v0.11.0**
+**@wpkernel/e2e-utils v0.12.0**
 
 ---
 
-# @wpkernel/e2e-utils v0.11.0
+# @wpkernel/e2e-utils v0.12.0
 
 ## Interfaces
+
+### Test Support
 
 - [FileManifest](interfaces/FileManifest.md)
 - [FileManifestDiff](interfaces/FileManifestDiff.md)
@@ -24,27 +26,50 @@
 
 - [ResourceConfig](type-aliases/ResourceConfig.md)
 
-### Other
+### Test Fixtures
 
-- [DataViewHelper](type-aliases/DataViewHelper.md)
-- [DataViewHelperOptions](type-aliases/DataViewHelperOptions.md)
 - [WordPressFixtures](type-aliases/WordPressFixtures.md)
+- [WPKernelUtils](type-aliases/WPKernelUtils.md)
+
+### Resource Helpers
+
 - [ResourceUtils](type-aliases/ResourceUtils.md)
+- [WPKernelResourceConfig](type-aliases/WPKernelResourceConfig.md)
+
+### Store Utilities
+
 - [StoreUtils](type-aliases/StoreUtils.md)
+
+### Event Utilities
+
 - [EventRecorderOptions](type-aliases/EventRecorderOptions.md)
 - [CapturedEvent](type-aliases/CapturedEvent.md)
 - [EventRecorder](type-aliases/EventRecorder.md)
-- [KernelUtils](type-aliases/KernelUtils.md)
-- [WPKernelResourceConfig](type-aliases/WPKernelResourceConfig.md)
+
+### DataView Helpers
+
+- [DataViewHelper](type-aliases/DataViewHelper.md)
+- [DataViewHelperOptions](type-aliases/DataViewHelperOptions.md)
+
+### Test Support
+
 - [WithWorkspaceCallback](type-aliases/WithWorkspaceCallback.md)
-- [WorkspaceFileTree](type-aliases/WorkspaceFileTree.md)
 - [ManifestFileDefinition](type-aliases/ManifestFileDefinition.md)
 - [ManifestMutationDefinition](type-aliases/ManifestMutationDefinition.md)
 
+### Other
+
+- [WorkspaceFileTree](type-aliases/WorkspaceFileTree.md)
+
 ## Variables
 
-- [VERSION](variables/VERSION.md)
+### Test Fixtures
+
 - [test](variables/test.md)
+
+### Other
+
+- [VERSION](variables/VERSION.md)
 
 ## Functions
 
@@ -53,10 +78,17 @@
 - [withWorkspace](functions/withWorkspace.md)
 - [createWorkspaceRunner](functions/createWorkspaceRunner.md)
 
-### E2E Testing
+### Test Fixtures
 
 - [createWPKernelUtils](functions/createWPKernelUtils.md)
 - [createDataViewHelper](functions/createDataViewHelper.md)
+
+### DataView Helpers
+
+- [createDataViewHelper](functions/createDataViewHelper.md)
+
+### Test Support
+
 - [withIsolatedWorkspace](functions/withIsolatedWorkspace.md)
 - [writeWorkspaceFiles](functions/writeWorkspaceFiles.md)
 - [collectManifestState](functions/collectManifestState.md)

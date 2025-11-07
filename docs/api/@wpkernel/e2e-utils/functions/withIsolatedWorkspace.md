@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -16,6 +16,8 @@ do not interfere with each other's file system state.
 ```ts
 function withIsolatedWorkspace<TResult>(options, callback): Promise<TResult>;
 ```
+
+Run a callback against a disposable workspace rooted on disk.
 
 ### Type Parameters
 
@@ -42,6 +44,8 @@ function withIsolatedWorkspace<TResult>(options, callback): Promise<TResult>;
 ```ts
 function withIsolatedWorkspace<TResult>(callback): Promise<TResult>;
 ```
+
+Run a callback against a disposable workspace rooted on disk.
 
 ### Type Parameters
 

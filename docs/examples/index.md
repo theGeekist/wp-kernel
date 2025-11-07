@@ -1,6 +1,6 @@
 # Examples
 
-See WP Kernel in action. Each example plugin is a working WordPress project that exercises a different slice of the framework-either the full showcase workflow or the focused CLI smoke test.
+See WPKernel in action. Each example plugin is a working WordPress project that exercises a different slice of the framework-either the full showcase workflow or the focused CLI smoke test.
 
 ## Showcase plugin
 

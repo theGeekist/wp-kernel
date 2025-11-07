@@ -50,7 +50,7 @@ import {
  * (transient, wp-option, wp-taxonomy, wp-post) to provide appropriate CRUD
  * operations for each resource.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating resource REST controllers.
  */
 export function createPhpResourceControllerHelper(): BuilderHelper {

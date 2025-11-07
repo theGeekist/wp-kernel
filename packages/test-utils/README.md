@@ -1,6 +1,6 @@
 # @wpkernel/test-utils
 
-Shared testing utilities for the WP Kernel monorepo. Harnesses in this package keep WordPress
+Shared testing utilities for the WPKernel monorepo. Harnesses in this package keep WordPress
 globals, wpk runtime state, and workspace scaffolds deterministic across unit, integration,
 and CLI suites.
 
@@ -64,7 +64,7 @@ it('renders job list', async () => {
 
 - `createWPKernelUITestHarness` – wraps `WPKernelUIProvider` with console guards, registry
   resets, and helper assertions.
-- DataView utilities live in `src/ui/kernel-ui-harness.ts` and
+- DataView utilities live in `src/ui/wpkernel-ui-harness.ts` and
   `src/dataviews/test-support/ResourceDataView.test-support.tsx`; extend them when new shared
   flows are required and add accompanying self-tests.
 

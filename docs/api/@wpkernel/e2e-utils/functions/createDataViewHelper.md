@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -10,10 +10,7 @@
 function createDataViewHelper(page, options): DataViewHelper;
 ```
 
-Creates a set of wpk utilities for E2E tests.
-
-This factory function provides helpers for interacting with resources, stores,
-events, and data views within a WP Kernel application during testing.
+Create helpers for interacting with ResourceDataView surfaces in Playwright.
 
 ## Parameters
 
@@ -21,10 +18,16 @@ events, and data views within a WP Kernel application during testing.
 
 `Page`
 
+Playwright page instance used for queries.
+
 ### options
 
 [`DataViewHelperOptions`](../type-aliases/DataViewHelperOptions.md)
 
+Target resource and optional namespace selectors.
+
 ## Returns
 
 [`DataViewHelper`](../type-aliases/DataViewHelper.md)
+
+Collection of DataView helper utilities.

@@ -1,4 +1,4 @@
-# WP Kernel CLI - MVP Implementation Phases
+# WPKernel CLI - MVP Implementation Phases
 
 > Workstream aligned with the [MVP CLI Spec](./mvp-cli-spec.md). Each phase is narrowly scoped so a single agent iteration can complete it without inventing new patterns. Always reference the cited sections before coding.
 

@@ -172,4 +172,4 @@ If you omit both inline and file-based mappings, the generator uses the fallback
 
 ### Conclusion
 
-The WP Kernel's code generation for capabilities is designed to be robust and secure. It centralizes all capability definitions in your `wpk.config.ts` file and generates a single, optimized PHP class that handles all capability checks on the server-side. This approach ensures that your capabilities are consistently enforced and that your client-side code remains decoupled from the specifics of your access control rules.
+The WPKernel's code generation for capabilities is designed to be robust and secure. It centralizes all capability definitions in your `wpk.config.ts` file and generates a single, optimized PHP class that handles all capability checks on the server-side. This approach ensures that your capabilities are consistently enforced and that your client-side code remains decoupled from the specifics of your access control rules.

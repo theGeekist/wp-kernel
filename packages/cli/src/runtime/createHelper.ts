@@ -47,7 +47,7 @@ export type BuilderHelperOptions = CreateHelperOptions<
  * providing type-safe definitions for CLI-specific fragment and builder helpers.
  * Helpers are reusable units of logic that can transform input into output within the pipeline.
  *
- * @category Pipeline
+ * @category Runtime
  * @param    options - Configuration options for the helper, including its kind, handler, and metadata.
  * @returns A `FragmentHelper` or `BuilderHelper` instance, depending on the provided options.
  */

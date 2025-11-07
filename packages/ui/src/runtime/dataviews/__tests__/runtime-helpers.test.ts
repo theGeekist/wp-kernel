@@ -7,7 +7,7 @@ import {
 } from '../runtime';
 import { DataViewsConfigurationError } from '../errors';
 
-describe('kernel dataviews runtime helpers', () => {
+describe('wpk dataviews runtime helpers', () => {
 	const { isPlainObject, isPreferencesAdapter, childReporter } =
 		runtimeTestUtils;
 

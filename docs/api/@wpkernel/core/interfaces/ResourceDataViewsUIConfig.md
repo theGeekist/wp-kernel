@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,14 @@
 
 # Interface: ResourceDataViewsUIConfig\<TItem, TQuery\>
 
-TODO: summary.
+DataViews integration contract for a resource's admin UI.
+
+Describes how `@wpkernel/ui` and generators should:
+
+- map DataViews state into query objects,
+- resolve item identities,
+- expose saved views, layouts, and actions,
+- and attach interactivity and screen metadata.
 
 ## Type Parameters
 
@@ -14,19 +21,21 @@ TODO: summary.
 
 `TItem` = `unknown`
 
-— TODO
+Entity shape rendered in the view.
 
 ### TQuery
 
 `TQuery` = `unknown`
 
-— TODO
+Query shape produced by `mapQuery`.
 
 ## Indexable
 
 ```ts
 [key: string]: unknown
 ```
+
+Additional fields reserved for future extensions.
 
 ## Properties
 
@@ -38,6 +47,8 @@ optional fields:
   | Record<string, unknown>[];
 ```
 
+Column/field descriptors forwarded to DataViews.
+
 ---
 
 ### defaultView?
@@ -45,6 +56,8 @@ optional fields:
 ```ts
 optional defaultView: Record<string, unknown>;
 ```
+
+Default view configuration used when no preference is stored.
 
 ---
 
@@ -56,6 +69,9 @@ optional actions:
   | Record<string, unknown>[];
 ```
 
+Action descriptors (row and bulk actions).
+The CLI and runtime use these to wire interactivity bindings.
+
 ---
 
 ### mapQuery()?
@@ -63,6 +79,9 @@ optional actions:
 ```ts
 optional mapQuery: (viewState) => TQuery;
 ```
+
+Maps DataViews state into the resource's query shape.
+This function is the primary bridge between UI filters and REST queries.
 
 #### Parameters
 
@@ -82,6 +101,8 @@ optional mapQuery: (viewState) => TQuery;
 optional search: boolean;
 ```
 
+Enables search UI and, optionally, customizes its label.
+
 ---
 
 ### searchLabel?
@@ -97,6 +118,9 @@ optional searchLabel: string;
 ```ts
 optional getItemId: (item) => string;
 ```
+
+Extracts a stable identifier for rows rendered by the DataView.
+Defaults to `item.id` when omitted.
 
 #### Parameters
 
@@ -116,6 +140,8 @@ optional getItemId: (item) => string;
 optional empty: unknown;
 ```
 
+Optional empty state configuration; forwarded to UI helpers.
+
 ---
 
 ### perPageSizes?
@@ -124,6 +150,8 @@ optional empty: unknown;
 optional perPageSizes: readonly number[] | number[];
 ```
 
+Page size options exposed in the DataView.
+
 ---
 
 ### defaultLayouts?
@@ -131,6 +159,8 @@ optional perPageSizes: readonly number[] | number[];
 ```ts
 optional defaultLayouts: Record<string, Record<string, unknown> | null | undefined>;
 ```
+
+Per-layout defaults (e.g. table/grid) merged with user preferences.
 
 ---
 
@@ -142,6 +172,8 @@ optional views:
   | ResourceDataViewsSavedViewConfig[];
 ```
 
+Server-defined saved views available on first render.
+
 ---
 
 ### preferencesKey?
@@ -150,6 +182,18 @@ optional views:
 optional preferencesKey: string;
 ```
 
+Key used to persist user preferences for this DataView.
+
+---
+
+### interactivity?
+
+```ts
+optional interactivity: ResourceDataViewsInteractivityConfig;
+```
+
+Interactivity metadata used to derive namespaces and features.
+
 ---
 
 ### screen?
@@ -157,3 +201,5 @@ optional preferencesKey: string;
 ```ts
 optional screen: ResourceDataViewsScreenConfig;
 ```
+
+Admin screen configuration for this DataView.

@@ -1,6 +1,6 @@
 # @wpkernel/ui
 
-> WordPress-native UI primitives that stay aligned with WP Kernel resources, actions, and events.
+> WordPress-native UI primitives that stay aligned with WPKernel resources, actions, and events.
 
 ## Overview
 

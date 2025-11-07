@@ -1,12 +1,12 @@
 # Versioning & Back-Compatibility Capability
 
-This document defines WP Kernel's approach to versioning, breaking changes, and deprecations.
+This document defines WPKernel's approach to versioning, breaking changes, and deprecations.
 
 ---
 
 ## Version Numbers
 
-WP Kernel follows [Semantic Versioning 2.0.0](https://semver.org/) with WordPress-specific considerations.
+WPKernel follows [Semantic Versioning 2.0.0](https://semver.org/) with WordPress-specific considerations.
 
 ### Format: `MAJOR.MINOR.PATCH`
 
@@ -109,7 +109,7 @@ After reaching `1.0.0`:
 
 ## Deprecation Process
 
-WP Kernel provides a clear deprecation path for all API changes.
+WPKernel provides a clear deprecation path for all API changes.
 
 ### Phases
 
@@ -140,7 +140,7 @@ v1.6.0 → Removal: Old syntax throws error with migration link
 
 ### Deprecation Notices
 
-WP Kernel uses WordPress' own deprecation system:
+WPKernel uses WordPress' own deprecation system:
 
 ```typescript
 import deprecated from '@wordpress/deprecated';
@@ -194,7 +194,7 @@ See: [Migration Guides](https://theGeekist.github.io/wp-kernel/migration/)
 
 ### Pre-1.0 Adoption
 
-WP Kernel is **production-ready for early adopters** who:
+WPKernel is **production-ready for early adopters** who:
 
 - Are comfortable with 0.x semver interpretation
 - Can follow CHANGELOG for each release
@@ -226,13 +226,13 @@ Once we reach v1.0.0:
 
 - We track WordPress Core LTS versions
 - Minimum WP version may increase at major boundaries
-- Example: WP Kernel 2.0 may require WordPress 6.10+
+- Example: WPKernel 2.0 may require WordPress 6.10+
 
 ---
 
 ## Versioning for Packages
 
-WP Kernel is a monorepo with multiple packages. They share version numbers:
+WPKernel is a monorepo with multiple packages. They share version numbers:
 
 | Package                  | Current Version | Sync'd with |
 | ------------------------ | --------------- | ----------- |

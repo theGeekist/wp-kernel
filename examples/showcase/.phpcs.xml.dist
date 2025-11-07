@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WP Kernel Showcase Plugin" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
-	<description>PHP CodeSniffer configuration for WP Kernel Showcase Plugin</description>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPKernel Showcase Plugin" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+	<description>PHP CodeSniffer configuration for WPKernel Showcase Plugin</description>
 
 	<!-- Only check PHP files -->
 	<arg name="extensions" value="php"/>

@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 type WPKernelUIProviderComponent = (props) => ReturnType<typeof createElement>;
 ```
 
-Component type for WP Kernel UI Provider.
+Component type for WPKernel UI Provider.
 
 ## Parameters
 

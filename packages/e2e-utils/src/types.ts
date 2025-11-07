@@ -1,5 +1,5 @@
 /**
- * Type definitions for WP Kernel E2E utilities
+ * Type definitions for WPKernel E2E utilities
  *
  * @module
  */
@@ -13,12 +13,19 @@ import type {
 } from '@wordpress/e2e-test-utils-playwright';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 
+/**
+ * Resource configuration shape shared with wpk-aware helpers.
+ *
+ * @category Resource Helpers
+ */
 export type WPKernelResourceConfig = ResourceConfig<unknown, unknown>;
 
 export type { ResourceConfig };
 
 /**
  * WordPress E2E fixture context passed to the factory
+ *
+ * @category Test Fixtures
  */
 export type WordPressFixtures = {
 	page: Page;
@@ -30,6 +37,8 @@ export type WordPressFixtures = {
 
 /**
  * Resource utilities for seeding and cleanup
+ *
+ * @category Resource Helpers
  */
 export type ResourceUtils<T = unknown> = {
 	/**
@@ -66,6 +75,8 @@ export type ResourceUtils<T = unknown> = {
 
 /**
  * Helper options for interacting with DataViews in Playwright.
+ *
+ * @category DataView Helpers
  */
 export type DataViewHelperOptions = {
 	/** Resource name used to locate the DataView wrapper. */
@@ -78,6 +89,8 @@ export type DataViewHelperOptions = {
 
 /**
  * Convenience helpers for interacting with ResourceDataView in tests.
+ *
+ * @category DataView Helpers
  */
 export type DataViewHelper = {
 	/** Root locator for the DataView wrapper. */
@@ -102,6 +115,8 @@ export type DataViewHelper = {
 
 /**
  * Store utilities for waiting on resolvers and state
+ *
+ * @category Store Utilities
  */
 export type StoreUtils<T = unknown> = {
 	/**
@@ -128,6 +143,8 @@ export type StoreUtils<T = unknown> = {
 
 /**
  * Event recorder options
+ *
+ * @category Event Utilities
  */
 export type EventRecorderOptions = {
 	/**
@@ -139,6 +156,8 @@ export type EventRecorderOptions = {
 
 /**
  * Captured event structure
+ *
+ * @category Event Utilities
  */
 export type CapturedEvent<P = unknown> = {
 	type: string;
@@ -148,6 +167,8 @@ export type CapturedEvent<P = unknown> = {
 
 /**
  * Event utilities for capturing and asserting on wpk events
+ *
+ * @category Event Utilities
  */
 export type EventRecorder<P = unknown> = {
 	/**
@@ -184,8 +205,10 @@ export type EventRecorder<P = unknown> = {
 
 /**
  * Main wpk utilities object returned by factory
+ *
+ * @category Test Fixtures
  */
-export type KernelUtils = {
+export type WPKernelUtils = {
 	/**
 	 * Create resource utilities for a given resource config
 	 *

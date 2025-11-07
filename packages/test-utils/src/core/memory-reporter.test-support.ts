@@ -3,7 +3,7 @@ import type { Reporter, ReporterLevel } from '@wpkernel/core/reporter/types';
 /**
  * Represents a single log entry in the `MemoryReporter`.
  *
- * @category Reporter
+ * @category Test Support
  */
 export interface MemoryReporterEntry {
 	/** The logging level of the entry. */
@@ -19,7 +19,7 @@ export interface MemoryReporterEntry {
 /**
  * A test utility that captures reporter output in memory.
  *
- * @category Reporter
+ * @category Test Support
  */
 export interface MemoryReporter {
 	/** The reporter instance. */
@@ -69,7 +69,7 @@ function createReporterForNamespace(
 /**
  * Creates a `MemoryReporter` instance.
  *
- * @category Reporter
+ * @category Test Support
  * @param    namespace - The namespace for the reporter. Defaults to 'tests'.
  * @returns A `MemoryReporter` instance.
  */

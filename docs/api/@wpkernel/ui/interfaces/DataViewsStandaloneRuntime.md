@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 
@@ -104,12 +104,12 @@ readonly optional registry: unknown;
 
 ---
 
-### kernel?
+### wpk?
 
 ```ts
-readonly optional kernel: unknown;
+readonly optional wpk: unknown;
 ```
 
 #### Inherited from
 
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`kernel`](DataViewsRuntimeContext.md#kernel)
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`wpk`](DataViewsRuntimeContext.md#wpk)

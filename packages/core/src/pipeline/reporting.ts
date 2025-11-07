@@ -2,7 +2,7 @@
  * Pipeline reporting adapters.
  *
  * These helpers convert strongly typed pipeline diagnostics into the structured
- * context expected by the WP Kernel reporter so warnings remain consistent
+ * context expected by the WPKernel reporter so warnings remain consistent
  * across CLI and runtime surfaces.
  *
  * @module @wpkernel/core/pipeline/reporting
