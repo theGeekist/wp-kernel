@@ -39,3 +39,11 @@ readonly optional pluginLoader: GenerationManifestFilePair;
 ```ts
 readonly optional phpIndex: GenerationManifestFilePair;
 ```
+
+---
+
+### ui?
+
+```ts
+readonly optional ui: GenerationManifestUiState;
+```

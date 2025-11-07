@@ -1,0 +1,16 @@
+[**@wpkernel/ui v0.11.0**](../README.md)
+
+---
+
+[@wpkernel/ui](../README.md) / DataViewBoundaryState
+
+# Type Alias: DataViewBoundaryState
+
+```ts
+type DataViewBoundaryState =
+	| 'content'
+	| 'loading'
+	| 'empty'
+	| 'error'
+	| 'permission-denied';
+```

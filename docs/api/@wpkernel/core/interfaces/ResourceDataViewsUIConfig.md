@@ -33,7 +33,9 @@ TODO: summary.
 ### fields?
 
 ```ts
-optional fields: unknown[] | readonly unknown[];
+optional fields:
+  | readonly Record<string, unknown>[]
+  | Record<string, unknown>[];
 ```
 
 ---
@@ -41,7 +43,7 @@ optional fields: unknown[] | readonly unknown[];
 ### defaultView?
 
 ```ts
-optional defaultView: unknown;
+optional defaultView: Record<string, unknown>;
 ```
 
 ---
@@ -49,7 +51,9 @@ optional defaultView: unknown;
 ### actions?
 
 ```ts
-optional actions: unknown[];
+optional actions:
+  | readonly Record<string, unknown>[]
+  | Record<string, unknown>[];
 ```
 
 ---
@@ -117,7 +121,7 @@ optional empty: unknown;
 ### perPageSizes?
 
 ```ts
-optional perPageSizes: number[];
+optional perPageSizes: readonly number[] | number[];
 ```
 
 ---
@@ -125,7 +129,17 @@ optional perPageSizes: number[];
 ### defaultLayouts?
 
 ```ts
-optional defaultLayouts: Record<string, unknown>;
+optional defaultLayouts: Record<string, Record<string, unknown> | null | undefined>;
+```
+
+---
+
+### views?
+
+```ts
+optional views:
+  | readonly ResourceDataViewsSavedViewConfig[]
+  | ResourceDataViewsSavedViewConfig[];
 ```
 
 ---

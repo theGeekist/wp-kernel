@@ -56,6 +56,14 @@ readonly WP_HOOKS_NAMESPACE_PREFIX: "wpk/notices";
 
 WordPress hooks namespace prefix for WP Kernel events plugin
 
+### WP_HOOKS_NAMESPACE_UI_DATAVIEWS
+
+```ts
+readonly WP_HOOKS_NAMESPACE_UI_DATAVIEWS: "wpk/ui/dataviews";
+```
+
+WordPress hooks namespace for UI DataViews bridge (default base)
+
 ### ACTIONS_MESSAGE_TYPE_LIFECYCLE
 
 ```ts

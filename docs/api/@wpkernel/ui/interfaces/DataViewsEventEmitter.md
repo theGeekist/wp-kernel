@@ -77,3 +77,57 @@ actionTriggered: (payload) => void;
 #### Returns
 
 `void`
+
+---
+
+### permissionDenied()
+
+```ts
+permissionDenied: (payload) => void;
+```
+
+#### Parameters
+
+##### payload
+
+[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md)
+
+#### Returns
+
+`void`
+
+---
+
+### fetchFailed()
+
+```ts
+fetchFailed: (payload) => void;
+```
+
+#### Parameters
+
+##### payload
+
+[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md)
+
+#### Returns
+
+`void`
+
+---
+
+### boundaryChanged()
+
+```ts
+boundaryChanged: (payload) => void;
+```
+
+#### Parameters
+
+##### payload
+
+[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md)
+
+#### Returns
+
+`void`

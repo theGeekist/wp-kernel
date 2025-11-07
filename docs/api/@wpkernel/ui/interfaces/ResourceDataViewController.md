@@ -300,6 +300,66 @@ Emits an action event.
 
 ---
 
+### emitPermissionDenied()
+
+```ts
+emitPermissionDenied: (payload) => void;
+```
+
+Emits a permission denied event.
+
+#### Parameters
+
+##### payload
+
+`Omit`\<[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md), `"resource"`\>
+
+#### Returns
+
+`void`
+
+---
+
+### emitFetchFailed()
+
+```ts
+emitFetchFailed: (payload) => void;
+```
+
+Emits a fetch failed event.
+
+#### Parameters
+
+##### payload
+
+`Omit`\<[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md), `"resource"`\>
+
+#### Returns
+
+`void`
+
+---
+
+### emitBoundaryTransition()
+
+```ts
+emitBoundaryTransition: (payload) => void;
+```
+
+Emits a boundary transition event.
+
+#### Parameters
+
+##### payload
+
+`Omit`\<[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md), `"resource"`\>
+
+#### Returns
+
+`void`
+
+---
+
 ### getReporter()
 
 ```ts

@@ -15,6 +15,11 @@ Reusable UI components for WP Kernel.
 - [UseActionOptions](interfaces/UseActionOptions.md)
 - [UseActionResult](interfaces/UseActionResult.md)
 
+### Interactivity
+
+- [CreateDataViewInteractionOptions](interfaces/CreateDataViewInteractionOptions.md)
+- [DataViewInteractionResult](interfaces/DataViewInteractionResult.md)
+
 ### DataViews Integration
 
 - [CreateDataFormControllerOptions](interfaces/CreateDataFormControllerOptions.md)
@@ -43,6 +48,7 @@ Reusable UI components for WP Kernel.
 - [NormalizedDataViewsRuntimeOptions](interfaces/NormalizedDataViewsRuntimeOptions.md)
 - [DataViewRegistryEntry](interfaces/DataViewRegistryEntry.md)
 - [DataViewsEventEmitter](interfaces/DataViewsEventEmitter.md)
+- [SubscribeToDataViewsEventOptions](interfaces/SubscribeToDataViewsEventOptions.md)
 - [DataViewPreferencesRuntime](interfaces/DataViewPreferencesRuntime.md)
 - [DataViewPreferencesAdapter](interfaces/DataViewPreferencesAdapter.md)
 
@@ -54,6 +60,10 @@ Reusable UI components for WP Kernel.
 - [NextPagePrefetchOptions](interfaces/NextPagePrefetchOptions.md)
 
 ## Type Aliases
+
+### Interactivity
+
+- [DataViewInteractionState](type-aliases/DataViewInteractionState.md)
 
 ### DataViews Integration
 
@@ -67,6 +77,12 @@ Reusable UI components for WP Kernel.
 - [DataViewChangedPayload](type-aliases/DataViewChangedPayload.md)
 - [DataViewRegisteredPayload](type-aliases/DataViewRegisteredPayload.md)
 - [DataViewActionTriggeredPayload](type-aliases/DataViewActionTriggeredPayload.md)
+- [DataViewPermissionDeniedPayload](type-aliases/DataViewPermissionDeniedPayload.md)
+- [DataViewFetchFailedPayload](type-aliases/DataViewFetchFailedPayload.md)
+- [DataViewBoundaryTransitionPayload](type-aliases/DataViewBoundaryTransitionPayload.md)
+- [DataViewBoundaryState](type-aliases/DataViewBoundaryState.md)
+- [DataViewsEventName](type-aliases/DataViewsEventName.md)
+- [DataViewsEventPayloadMap](type-aliases/DataViewsEventPayloadMap.md)
 - [DataViewPreferenceScope](type-aliases/DataViewPreferenceScope.md)
 
 ### Prefetching
@@ -90,6 +106,10 @@ Reusable UI components for WP Kernel.
 
 - [useAction](functions/useAction.md)
 
+### Interactivity
+
+- [createDataViewInteraction](functions/createDataViewInteraction.md)
+
 ### DataViews Integration
 
 - [ResourceDataView](functions/ResourceDataView.md)
@@ -108,6 +128,8 @@ Reusable UI components for WP Kernel.
 - [useCapability](functions/useCapability.md)
 - [attachResourceHooks](functions/attachResourceHooks.md)
 - [usePrefetcher](functions/usePrefetcher.md)
+- [subscribeToDataViewsEvent](functions/subscribeToDataViewsEvent.md)
+- [useDataViewsEvent](functions/useDataViewsEvent.md)
 
 ### Prefetching
 

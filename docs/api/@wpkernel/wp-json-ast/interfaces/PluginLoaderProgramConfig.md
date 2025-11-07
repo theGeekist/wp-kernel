@@ -37,3 +37,11 @@ readonly sanitizedNamespace: string;
 ```ts
 readonly resourceClassNames: readonly string[];
 ```
+
+---
+
+### ui?
+
+```ts
+readonly optional ui: PluginLoaderUiConfig;
+```
