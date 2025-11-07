@@ -1,0 +1,547 @@
+{
+	"config": {
+		"loader": {
+			"module": "packages/cli/src/config/load-wpk-config.ts",
+			"supports": ["wpk.config.ts", "wpk.config.js", "package.json#wpk"],
+			"steps": [
+				"Discover config with cosmiconfig, adding .ts/.js loaders and falling back to the tsx loader when required.",
+				"Normalise promises from JS/TS modules and validate the resulting object via validateWPKernelConfig before it ever reaches the pipeline.",
+				"Run validateComposerAutoload to ensure the PHP namespace exported by the config matches Composer autoload rules.",
+				"Return LoadedWPKernelConfig containing the canonical config object, namespace, origin identifier, composer check status, and config sourcePath for downstream helpers."
+			],
+			"async": true,
+			"outputs": {
+				"config": "WPKernelConfigV1 (see config.shape)",
+				"namespace": "Sanitised namespace derived during validation (string)",
+				"configOrigin": "Literal from @wpkernel/core/contracts WPK_CONFIG_SOURCES",
+				"sourcePath": "Absolute path to the resolved config file",
+				"composerCheck": "'ok' | 'mismatch' result"
+			}
+		},
+		"shape": {
+			"version": "Literal 1. Currently only v1 configs are accepted.",
+			"namespace": "WordPress namespace (string). Sanitised later by meta fragment.",
+			"schemas": {
+				"*": {
+					"path": "Absolute or relative path to a JSON schema. Resolved relative to wpk.config.* if not absolute.",
+					"generated": {
+						"types": "Relative TypeScript output path for generated schema types"
+					},
+					"description": "Optional string used only for documentation"
+				}
+			},
+			"resources": {
+				"*": {
+					"name": "Human readable label propagated to IRResource.name",
+					"routes": "Record of route descriptors. Each entry provides method/path, optional capability string, and transport hints used by normaliseRoutes().",
+					"schema": "Explicit schema key or 'auto'. 'auto' synthesises schemas from storage metadata during resolveResourceSchema().",
+					"storage": "Storage descriptor (postType/meta/taxonomy/etc) used for PHP scaffolding and auto-schema synthesis.",
+					"identity": "ResourceIdentityConfig describing primary identifiers and capability bindings.",
+					"queryParams": "ResourceQueryParams defining dataview query arguments.",
+					"cacheKeys": "CacheKeys callbacks or partial overrides consumed by deriveCacheKeys() to produce IR cache key segments.",
+					"ui": "ResourceUIConfig with admin/dataview/interactivity metadata consumed by createTsBuilder().",
+					"capabilities": "Inline ResourceCapabilityMap definitions that are merged into the global capability map.",
+					"capabilityMap": "(not a top-level key) capability hints flow through routes[].capability and resource.capabilities for capability-map resolution."
+				}
+			},
+			"adapters": {
+				"php": "Optional AdapterContext => PhpAdapterConfig factory. Can override namespace/autoload and hook into PHP builder via customise().",
+				"extensions": "Optional AdapterExtensionFactory[] executed by buildAdapterExtensionsExtension() after builders finish."
+			}
+		}
+	},
+	"pipeline": {
+		"factory": {
+			"module": "packages/cli/src/runtime/createPipeline.ts",
+			"wraps": "@wpkernel/pipeline/createPipeline",
+			"context": {
+				"workspace": "packages/cli/src/workspace (directory + fs helpers)",
+				"reporter": "Reporter passed through run options",
+				"phase": "PipelinePhase from @wpkernel/php-json-ast ('init' | 'generate' | 'apply' | `custom:${string}`)",
+				"generationState": "GenerationManifest captured from previous runs to diff apply plans"
+			},
+			"draft": "MutableIr (see ir.draft)",
+			"artifact": "Final IRv1 instance returned by finalizeIrDraft()",
+			"diagnostics": "PipelineDiagnostic union emitted for helper conflicts/missing deps/unused helpers",
+			"runResult": {
+				"shape": "{ ir: IRv1, diagnostics: PipelineDiagnostic[], steps: PipelineStep[] }",
+				"notes": [
+					"steps capture helper execution order including priority and dependency resolution",
+					"diagnostics array streams conflict/missing dependency/unexecuted helper information"
+				]
+			},
+			"notes": [
+				"Helpers execute sequentially with optional next() chaining (see packages/pipeline/src/executor.ts).",
+				"Dependency graph validation occurs twice: once per helper kind during registration, again before execution to emit missing dependency diagnostics.",
+				"createConflictDiagnostic() and related hooks adapt pipeline diagnostics into CLI specific objects.",
+				"All helper apply functions may be async; the executor awaits promises and resumes downstream helpers once they resolve."
+			]
+		},
+		"runOptions": {
+			"phase": "PipelinePhase string provided by CLI commands (e.g. 'generate', 'apply').",
+			"config": "WPKernelConfigV1 from loader",
+			"namespace": "Resolved namespace from config validation",
+			"origin": "Config origin identifier",
+			"sourcePath": "Absolute path to wpk.config.*",
+			"workspace": "Workspace abstraction with read/write/tmp helpers",
+			"reporter": "Reporter from CLI runtime",
+			"generationState": "GenerationManifest describing files emitted during previous generation"
+		},
+		"phases": {
+			"generate": {
+				"runs": [
+					"All IR fragments",
+					"Bundler, PHP driver installer, PHP builder, apply-plan builder, JS blocks builder, TS builder"
+				],
+				"notes": [
+					"Most builders guard on input.phase !== 'generate' to skip when commands request apply-only behaviours.",
+					"Adapter extensions run only for the generate phase after all builders finish."
+				]
+			},
+			"apply": {
+				"runs": [
+					"IR fragments (still execute to provide IR for apply decisions)",
+					"Patcher builder (consumes precomputed plan)"
+				],
+				"notes": [
+					"createApplyPlanBuilder still executes in generate phase to produce the plan consumed here.",
+					"Bundler, PHP, JS, and TS builders exit early in apply phase to avoid re-emitting artifacts."
+				]
+			},
+			"custom": {
+				"pattern": "custom:*",
+				"notes": [
+					"Helpers treat unknown phases as skip conditions unless explicitly handled (e.g. TS builder logs debug when skipping)."
+				]
+			}
+		}
+	},
+	"ir": {
+		"draft": {
+			"type": "MutableIr",
+			"fields": {
+				"meta": "null until meta fragment assigns version/namespace/source info",
+				"config": "Pass-through of validated WPKernelConfigV1",
+				"schemas": "IRSchema[] discovered via schema fragment (manual + auto)",
+				"resources": "IRResource[] built by resources fragment",
+				"capabilities": "IRCapabilityHint[] collected from resource routes",
+				"capabilityMap": "IRCapabilityMap | null until capability-map fragment resolves inline map",
+				"blocks": "IRBlock[] discovered across the workspace",
+				"php": "IRPhpProject | null until meta fragment seeds php metadata",
+				"diagnostics": "IRDiagnostic[] aggregated from warnings",
+				"extensions": "Record<string, unknown> for cross-fragment scratch data (e.g. sanitized namespace, schema accumulator)"
+			}
+		},
+		"final": {
+			"type": "IRv1",
+			"fields": {
+				"meta": "{ version:1, namespace, sourcePath (workspace-relative), origin, sanitizedNamespace }",
+				"config": "Original WPKernelConfigV1 (retained for downstream consumers)",
+				"schemas": "IRSchema entries with provenance ('manual' | 'auto') and generatedFrom metadata for auto schemas",
+				"resources": "IRResource entries containing schemaKey/provenance, normalised routes (with capability + transport), derived cacheKeys (list/get/create/update/remove), identity/storage/queryParams/ui/capabilities snapshots, and deterministic hash + warnings",
+				"capabilities": "IRCapabilityHint[] summarising where capability keys are referenced",
+				"capabilityMap": "IRCapabilityMap with definitions/fallback/missing/unused/warnings and optional sourcePath",
+				"blocks": "IRBlock[] with key/directory/hasRender/manifestSource",
+				"php": "IRPhpProject { namespace: string, autoload: string, outputDir: string }",
+				"diagnostics": "Optional IRDiagnostic[] produced when resources or capability map emit warnings"
+			},
+			"finalisation": [
+				"finalizeIrDraft() ensures core fragments executed (see CORE_FRAGMENT_PREFIXES) before returning IRv1.",
+				"Validation fragment enforces required data (meta, capabilityMap, schema associations) prior to finalisation."
+			]
+		}
+	},
+	"fragments": [
+		{
+			"key": "ir.meta.core",
+			"module": "packages/cli/src/ir/fragments/meta.ts",
+			"dependsOn": [],
+			"async": true,
+			"reads": {
+				"options": ["namespace", "origin", "sourcePath"],
+				"config": ["namespace"],
+				"workspace": "Used to relativise sourcePath"
+			},
+			"writes": {
+				"draft.meta": "Initialises meta object with version, namespace, origin, workspace-relative sourcePath, and sanitizedNamespace.",
+				"draft.php": "Seeds IRPhpProject with namespace (converted via createPhpNamespace), autoload 'inc/', outputDir '.generated/php'.",
+				"draft.extensions.ir.meta.core": "Stores { sanitizedNamespace } for later fragments"
+			},
+			"notes": [
+				"Throws ValidationError when sanitizeNamespace() fails, halting the pipeline early.",
+				"Provides foundational PHP namespace information consumed by PHP builder helpers and bundler configuration."
+			]
+		},
+		{
+			"key": "ir.schemas.core",
+			"module": "packages/cli/src/ir/fragments/schemas.ts",
+			"dependsOn": [],
+			"async": true,
+			"reads": {
+				"config": ["schemas"],
+				"options.sourcePath": "Resolve relative schema paths"
+			},
+			"writes": {
+				"draft.schemas": "Populates with IRSchema entries (manual and auto).",
+				"draft.extensions.ir.schemas.core": "SchemaAccumulator storing entries + byKey map for reuse"
+			},
+			"notes": [
+				"loadConfiguredSchemas() hashes JSON content for change detection and stores provenance metadata.",
+				"resolveResourceSchema() later reuses the accumulator to synthesise auto schemas and guard against missing references."
+			]
+		},
+		{
+			"key": "ir.resources.core",
+			"module": "packages/cli/src/ir/fragments/resources.ts",
+			"dependsOn": ["ir.meta.core", "ir.schemas.core"],
+			"async": true,
+			"reads": {
+				"config": ["resources.*"],
+				"draft.extensions.ir.meta.core": "Sanitised namespace for auto schema IDs and storage prefixes",
+				"draft.extensions.ir.schemas.core": "SchemaAccumulator for explicit/auto schema resolution"
+			},
+			"writes": {
+				"draft.resources": "IRResource[] capturing name, schemaKey/provenance, normalised routes (method/path/capability/transport/hash), derived cacheKeys (with default vs config source), inferred identity (id key + capability hints), storage metadata, queryParams, UI config, inline capabilities, hash, and warnings."
+			},
+			"notes": [
+				"buildResources() validates duplicate routes, infers storage identifiers, resolves auto schemas, and records post type collisions.",
+				"deriveCacheKeys() evaluates cache key callbacks and produces IRResourceCacheKey descriptors with deterministic segments.",
+				"Resources carry inline capability maps via resource.capabilities; capability hints are extracted separately."
+			]
+		},
+		{
+			"key": "ir.capabilities.core",
+			"module": "packages/cli/src/ir/fragments/capabilities.ts",
+			"dependsOn": ["ir.resources.core"],
+			"async": false,
+			"reads": {
+				"draft.resources": "Routes + inline capability metadata"
+			},
+			"writes": {
+				"draft.capabilities": "IRCapabilityHint[] keyed by capability string with references { resource, route, transport }"
+			},
+			"notes": [
+				"collectCapabilityHints() sorts both capability keys and per-route references for stable output."
+			]
+		},
+		{
+			"key": "ir.capability-map.core",
+			"module": "packages/cli/src/ir/fragments/capability-map.ts",
+			"dependsOn": ["ir.resources.core", "ir.capabilities.core"],
+			"async": true,
+			"reads": {
+				"draft.resources": "Inline capability maps and route transport/capability info",
+				"draft.capabilities": "Capability hints for referenced keys"
+			},
+			"writes": {
+				"draft.capabilityMap": "IRCapabilityMap with definitions (capability/appliesTo/binding/source), fallback ({ capability:'manage_options', appliesTo:'resource' }), missing[], unused[], warnings[]."
+			},
+			"notes": [
+				"resolveCapabilityMap() merges inline capability definitions, validates scope/binding, and emits warnings for missing or unused entries.",
+				"When no inline definitions exist the map falls back to 'manage_options' and records referenced capabilities under missing[]."
+			]
+		},
+		{
+			"key": "ir.diagnostics.core",
+			"module": "packages/cli/src/ir/fragments/diagnostics.ts",
+			"dependsOn": ["ir.resources.core", "ir.capability-map.core"],
+			"async": false,
+			"reads": {
+				"draft.resources": "warnings[] emitted during resource normalisation",
+				"draft.capabilityMap": "warnings[] generated during capability map resolution"
+			},
+			"writes": {
+				"draft.diagnostics": "IRDiagnostic[] (severity 'warn') tagged with resource or capability-map context"
+			},
+			"notes": [
+				"Diagnostics are sorted deterministically by key to stabilise CLI output and snapshot tests."
+			]
+		},
+		{
+			"key": "ir.blocks.core",
+			"module": "packages/cli/src/ir/fragments/blocks.ts",
+			"dependsOn": ["ir.meta.core"],
+			"async": true,
+			"reads": {
+				"options.sourcePath": "Workspace root discovery",
+				"workspace": "Recursive directory walk excluding node_modules/.git/.generated"
+			},
+			"writes": {
+				"draft.blocks": "IRBlock[] capturing block key, workspace-relative directory, hasRender flag (true when render callback or render.php present), and manifestSource path"
+			},
+			"notes": [
+				"discoverBlocks() throws ValidationError on duplicate block keys or malformed block.json manifests.",
+				"hasRender differentiates SSR blocks (fed into PHP builder) from JS-only blocks (handled by JS blocks builder)."
+			]
+		},
+		{
+			"key": "ir.ordering.core",
+			"module": "packages/cli/src/ir/fragments/ordering.ts",
+			"dependsOn": [
+				"ir.schemas.core",
+				"ir.resources.core",
+				"ir.capabilities.core",
+				"ir.blocks.core"
+			],
+			"async": false,
+			"reads": {
+				"draft.schemas": "Unordered IRSchema entries",
+				"draft.resources": "Unordered IRResource entries",
+				"draft.capabilities": "IRCapabilityHint[]",
+				"draft.blocks": "IRBlock[]"
+			},
+			"writes": {
+				"draft.schemas": "Sorted by schema key",
+				"draft.resources": "Sorted by resource name",
+				"draft.capabilities": "Sorted by capability key",
+				"draft.blocks": "Sorted by block key"
+			},
+			"notes": [
+				"Ensures deterministic file emission order for builders and snapshot coverage."
+			]
+		},
+		{
+			"key": "ir.validation.core",
+			"module": "packages/cli/src/ir/fragments/validation.ts",
+			"dependsOn": [
+				"ir.meta.core",
+				"ir.resources.core",
+				"ir.capability-map.core"
+			],
+			"async": false,
+			"reads": {
+				"draft.meta": "Ensures meta assigned",
+				"draft.capabilityMap": "Ensures capability map resolved",
+				"draft.resources": "Checks every resource has schemaKey post resolution"
+			},
+			"writes": {},
+			"notes": [
+				"Throws ValidationError if required fragments failed or left holes (missing schema associations, absent capability map).",
+				"Acts as final guard before finalizeIrDraft() enforces fragment execution completeness."
+			]
+		}
+	],
+	"builders": [
+		{
+			"key": "builder.generate.bundler.core",
+			"module": "packages/cli/src/builders/bundler.ts",
+			"phase": "generate",
+			"async": true,
+			"reads": {
+				"workspace": "Reads package.json, writes to .wpk/bundler",
+				"ir.meta.sanitizedNamespace": "Used for script handle naming",
+				"ir.resources": "Detects whether UI resources exist to toggle bundler externals"
+			},
+			"writes": {
+				"files": [
+					".wpk/bundler/config.json",
+					".wpk/bundler/assets/index.asset.json"
+				],
+				"queue": "Queued via BuilderOutput.queueWrite so downstream patch/apply tooling sees emitted files"
+			},
+			"notes": [
+				"Wraps workspace writes in a transaction (begin/commit/rollback) for atomic updates.",
+				"Determines externals/globals based on package dependencies and WordPress/React defaults.",
+				"Produces asset manifest entries including UI bootstrap handle when resources expose admin dataviews."
+			]
+		},
+		{
+			"key": "builder.generate.php.driver",
+			"module": "packages/php-driver/src/installer.ts",
+			"phase": "generate",
+			"async": true,
+			"reads": {
+				"workspace": "Ensures PHP driver helper scripts exist under node_modules/.wpk"
+			},
+			"writes": {
+				"files": [".wpk/php-driver/**"],
+				"queue": "Installer queues copied driver assets so patcher/apply can track them"
+			},
+			"notes": [
+				"Prepares the PHP pretty printer binary and bootstrap scripts consumed by PHP builders."
+			]
+		},
+		{
+			"key": "builder.generate.php.core",
+			"module": "packages/cli/src/builders/php/builder.ts",
+			"phase": "generate",
+			"async": true,
+			"dependsOn": ["builder.generate.php.driver"],
+			"reads": {
+				"ir": [
+					"meta",
+					"resources",
+					"capabilityMap",
+					"schemas",
+					"blocks"
+				],
+				"workspace": "Output directory resolution",
+				"adapterOverrides": "config.adapters?.php customise hook"
+			},
+			"writes": {
+				"files": [
+					".generated/php/Blocks/Register.php",
+					".generated/php/build/blocks-manifest.php",
+					"Plugin loader shims",
+					"Resource controllers, capability helpers, persistence registries",
+					"PHP AST program writer output"
+				],
+				"queue": "All emitted PHP files are queued via nested helpers"
+			},
+			"notes": [
+				"Delegates to specific helpers (channel/base controller/storage/resource controller/capability/persistence/index/plugin loader/blocks/program writer).",
+				"createPhpBlocksHelper() only generates SSR stubs for IR blocks with hasRender=true, staging render.php scaffolding via stageRenderStubs().",
+				"Adapter php customise() callback can mutate the PhpAstBuilder before emission."
+			]
+		},
+		{
+			"key": "builder.generate.apply.plan",
+			"module": "packages/cli/src/builders/plan.ts",
+			"phase": "generate",
+			"async": true,
+			"reads": {
+				"ir": ["resources", "php", "meta"],
+				"context.generationState": "Diff previous generation manifest vs new IR",
+				"workspace": "Reads existing shims to build diff",
+				"phpPrettyPrinter": "Formats emitted shim classes for diffing"
+			},
+			"writes": {
+				"files": [
+					".wpk/apply/plan.json",
+					".wpk/apply/base/**",
+					".wpk/apply/incoming/**"
+				],
+				"queue": "Plan JSON is queued so apply phase can pick it up"
+			},
+			"notes": [
+				"Emits plugin loader shim instructions plus per-resource class diffs (write/delete).",
+				"Records skipped deletions when local modifications are detected to protect developer edits.",
+				"Feeds createPatcher() via plan.json and diff manifests."
+			]
+		},
+		{
+			"key": "builder.generate.ts.blocks",
+			"module": "packages/cli/src/builders/ts/blocks.ts",
+			"phase": "generate",
+			"async": true,
+			"reads": {
+				"ir.blocks": "SSR flag determines stub generation vs registrar entries",
+				"ir.resources": "deriveResourceBlocks() synthesises auto-register definitions for dataviews",
+				"workspace": "Reads manifests and block directories"
+			},
+			"writes": {
+				"files": [
+					".generated/blocks/auto-register.ts",
+					"Derived manifest JSON per resource",
+					"Stub modules for missing block assets"
+				],
+				"queue": "Queued via BuilderOutput and workspace.write"
+			},
+			"notes": [
+				"Collects block manifests, emits warnings for invalid data, and only writes registrar when registrations/stubs exist.",
+				"JS-only blocks (hasRender=false) receive auto-register modules; SSR blocks are handled by PHP builder."
+			]
+		},
+		{
+			"key": "builder.generate.ts.core",
+			"module": "packages/cli/src/builders/ts.ts",
+			"phase": "generate",
+			"async": true,
+			"reads": {
+				"config.resources": "Collects ResourceDescriptor entries with admin dataviews",
+				"ir": ["meta", "capabilityMap", "resources"],
+				"workspace": "Write .generated/ui files"
+			},
+			"writes": {
+				"files": [
+					".generated/ui/app/**",
+					".generated/ui/fixtures/dataviews/**",
+					".generated/ui/fixtures/interactivity/**",
+					".generated/ui/registry/dataviews/**"
+				],
+				"queue": "Each emitted file is queued so apply tooling tracks them"
+			},
+			"notes": [
+				"Uses ts-morph project to format/emit TypeScript sources with ensureNewLineAtEndOfFile.",
+				"Lifecycle hooks (beforeEmit/afterEmit) allow adapters to inject behaviour via options.hooks.",
+				"Skips gracefully when phase !== 'generate' while logging debug context."
+			]
+		},
+		{
+			"key": "builder.apply.patch.core",
+			"module": "packages/cli/src/builders/patcher.ts",
+			"phase": "apply",
+			"async": true,
+			"reads": {
+				"workspace": "Reads .wpk/apply/plan.json, base/incoming files",
+				"plan": "Patch instructions emitted by createApplyPlanBuilder"
+			},
+			"writes": {
+				"files": [
+					"Patched shim files",
+					".wpk/apply/manifest.json",
+					"Temporary git merge outputs (cleaned up)"
+				],
+				"queue": "Queues patched files and manifest so downstream apply summary can reference them"
+			},
+			"notes": [
+				"Performs git merge-file based three-way merges for each write instruction, capturing conflicts separately.",
+				"Records deletion skips both from plan guardrails and local modifications, then surfaces them via reporter info logs.",
+				"Does nothing during generate phase, ensuring apply and generate responsibilities remain split."
+			]
+		}
+	],
+	"extensions": [
+		{
+			"key": "pipeline.extensions.adapters",
+			"module": "packages/cli/src/runtime/adapterExtensions.ts",
+			"register": "buildAdapterExtensionsExtension()",
+			"async": true,
+			"trigger": "Runs as a pipeline extension hook after builders complete during the generate phase.",
+			"reads": {
+				"runOptions.config.adapters.extensions": "AdapterExtensionFactory[]",
+				"artifact": "Current IRv1 (adapterContext.ir is kept in sync)",
+				"workspace": "Used to resolve output directories and ensure directories exist"
+			},
+			"writes": {
+				"files": "Adapter-specific outputs queued via queueFile()",
+				"ir": "Extensions may mutate IR via adapterContext.updateIr() and return the new artifact",
+				"commit/rollback": "Factories can return commit/rollback to integrate with pipeline rollback semantics"
+			},
+			"notes": [
+				"Factories run synchronously to produce AdapterExtension[]; each extension apply() may be async.",
+				"Formatter helpers (formatPhp/formatTs) are provided so extensions can emit language-specific files with proper formatting.",
+				"On failure, createPipeline().onExtensionRollbackError logs via reporter.warn with extension keys and metadata."
+			]
+		}
+	],
+	"flow": {
+		"fragmentOrder": [
+			"ir.meta.core",
+			"ir.schemas.core",
+			"ir.resources.core",
+			"ir.capabilities.core",
+			"ir.capability-map.core",
+			"ir.diagnostics.core",
+			"ir.blocks.core",
+			"ir.ordering.core",
+			"ir.validation.core"
+		],
+		"builderRegistration": [
+			"builder.generate.bundler.core",
+			"builder.generate.php.driver",
+			"builder.generate.php.core",
+			"builder.generate.apply.plan",
+			"builder.generate.ts.blocks",
+			"builder.generate.ts.core",
+			"builder.apply.patch.core"
+		],
+		"extensionHooks": ["pipeline.extensions.adapters"],
+		"notes": [
+			"Fragments populate MutableIr before finalizeIrDraft() produces IRv1.",
+			"Builders consume the finished IR (with capability map + blocks) and queue workspace mutations according to phase gates.",
+			"Adapter extensions observe the post-builder IR and may stage additional writes with rollback/commit semantics.",
+			"Pipeline.run(options) resolves promises at each stage, so asynchronous fragments, builders, and extensions are awaited sequentially to preserve ordering."
+		]
+	}
+}
