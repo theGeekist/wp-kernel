@@ -3,7 +3,7 @@
 _See [Docs Index](cli-index.md) for navigation._
 
 Status: **Phases 0-6 shipped (pipeline alignment complete)**
-Version train: **v0.11.0 (pre-1.0)**
+Version train: **2.0 (pre-1.0)**
 Scope: `packages/cli/src/**`  
 Audience: maintainers and contributors working on the wpk helper-first pipeline (`packages/cli/src/**`).
 

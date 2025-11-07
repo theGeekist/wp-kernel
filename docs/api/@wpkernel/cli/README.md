@@ -1,8 +1,8 @@
-**@wpkernel/cli v0.11.0**
+**@wpkernel/cli v0.12.0**
 
 ---
 
-# @wpkernel/cli v0.11.0
+# @wpkernel/cli v0.12.0
 
 Top-level exports for the `@wpkernel/cli` package.
 

@@ -2,7 +2,7 @@
 
 _See [Docs Index](cli-index.md) for navigation._
 
-> **Versioning reminder:** The CLI rides the unified **v0.11.0 (pre-1.0)** track. Phase 6 patch slots (0.9.1-0.10.0) are closed; reserve the next open 0.11.x slot for Phase 7+ work, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
+> **Versioning reminder:** The CLI rides the unified **2.0 (pre-1.0)** track. Phase 6 patch slots (0.9.1-0.10.0) are closed; reserve the next open 0.11.x slot for Phase 7+ work, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
 
 ## Coordination & guardrails
 
