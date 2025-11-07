@@ -3,10 +3,10 @@ import type { WPKInstance } from '@wpkernel/core/data';
 import { wpkConfig } from '../wpk.config';
 
 /**
- * Bootstrap the WP Kernel runtime for this project.
+ * Bootstrap the WPKernel runtime for this project.
  *
  * This is the main entry point for your plugin's JavaScript.
- * It is responsible for initializing the WP Kernel runtime and
+ * It is responsible for initializing the WPKernel runtime and
  * registering your plugin's resources and actions.
  *
  * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/guide/data.md
@@ -22,13 +22,13 @@ export function bootstrapKernel(): WPKInstance {
 }
 
 /**
- * The WP Kernel instance for your plugin.
+ * The WPKernel instance for your plugin.
  *
  * This is the main object that you will use to interact with the
- * WP Kernel runtime. It provides access to all of the core
+ * WPKernel runtime. It provides access to all of the core
  * functionality, such as defining resources, invoking actions,
  * and accessing data.
  *
  * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/guide/data.md
  */
-export const kernel = bootstrapKernel();
+export const wpk = bootstrapKernel();

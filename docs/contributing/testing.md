@@ -1,6 +1,6 @@
 # Testing Guide
 
-Testing in WP Kernel leans on shared helpers, strict coverage targets, and predictable tooling so extending suites feels frictionless.
+Testing in WPKernel leans on shared helpers, strict coverage targets, and predictable tooling so extending suites feels frictionless.
 
 ## Commands to run before shipping
 

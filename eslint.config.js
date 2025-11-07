@@ -1,5 +1,5 @@
 /**
- * ESLint Configuration for WP Kernel (Flat Config)
+ * ESLint Configuration for WPKernel (Flat Config)
  *
  * Extends WordPress coding standards with custom rules for the framework.
  * @see https://eslint.org/docs/latest/use/configure/configuration-files-new
@@ -17,7 +17,7 @@ import globals from 'globals';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import noManualTestGlobals from './eslint-rules/no-manual-test-globals.js';
-import noConsoleInKernel from './eslint-rules/no-console-in-kernel.js';
+import noConsoleInKernel from './eslint-rules/no-console-in-wpkernel.js';
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
 import configConsistency from './eslint-rules/config-consistency.js';
 import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
@@ -95,14 +95,14 @@ export default [
 		},
 
 		plugins: {
-			'@kernel': kernelPlugin,
+			'@wpkernel': kernelPlugin,
 			import: importPlugin,
 			unicorn,
 			sonarjs,
 			'early-return': earlyReturn,
 		},
 
-		// Custom rules forWP Kernel
+		// Custom rules forWPKernel
 		rules: {
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/check-tag-names': 'off',
@@ -152,19 +152,19 @@ export default [
 						'^@eslint/',
 						'^globals$',
 						'^@wordpress/',
-						'^@kernel/',
+						'^@wpkernel/',
 						'^@wpkernel/core',
 						'^@loglayer/',
 					],
 				},
 			],
 
-			'@kernel/no-console-in-kernel': 'error',
-			'@kernel/no-hardcoded-namespace-strings': 'error',
-			'@kernel/config-consistency': 'error',
-			'@kernel/cache-keys-valid': 'error',
-			'@kernel/capability-hints': 'error',
-			'@kernel/doc-links': 'warn',
+			'@wpkernel/no-console-in-kernel': 'error',
+			'@wpkernel/no-hardcoded-namespace-strings': 'error',
+			'@wpkernel/config-consistency': 'error',
+			'@wpkernel/cache-keys-valid': 'error',
+			'@wpkernel/capability-hints': 'error',
+			'@wpkernel/doc-links': 'warn',
 		},
 	}, // WordPress Script Modules - runtime-resolved imports
 	{
@@ -302,6 +302,15 @@ export default [
 		files: ['packages/cli/**/*.{js,ts,tsx}'],
 		rules: {
 			'import/no-extraneous-dependencies': 'off',
+		},
+	},
+
+	// ESLint rules - allow default exports and relax complexity
+	{
+		files: ['eslint-rules/**/*.js'],
+		rules: {
+			'import/no-default-export': 'off',
+			complexity: 'off', // ESLint rules can be complex
 		},
 	},
 ];

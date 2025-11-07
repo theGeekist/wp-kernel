@@ -1,6 +1,6 @@
 import {
 	DataViewsMock,
-	createKernelRuntime,
+	createWPKernelRuntime,
 	type RuntimeWithDataViews,
 	flushDataViews,
 	buildActionConfig,
@@ -59,7 +59,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('disables actions when capabilities deny access', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const capabilityCan = jest.fn().mockResolvedValue(false);
 		runtime.capabilities = {
 			capability: {
@@ -84,7 +84,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('omits denied actions when disabledWhenDenied is false', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = {
 			capability: {
 				can: jest.fn(() => false),
@@ -105,7 +105,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('warns when capability evaluation promise rejects', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const warnSpy = runtime.dataviews.reporter.warn as jest.Mock;
 		runtime.capabilities = {
 			capability: {
@@ -130,7 +130,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('logs errors when capability evaluation throws synchronously', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const errorSpy = runtime.dataviews.reporter.error as jest.Mock;
 		runtime.capabilities = {
 			capability: {
@@ -158,7 +158,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('respects invalidateOnSuccess overrides', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
 		const resourceInvalidate = jest.fn();
 		const invalidate = jest.fn();
@@ -190,7 +190,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('disables actions when no capability runtime is available', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = undefined;
 
 		const { getActionEntries } = renderActionScenario({
@@ -209,7 +209,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('disables capability-gated actions when capability runtime is not available', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = undefined;
 
 		const { getActionEntries } = renderActionScenario({
@@ -238,7 +238,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('emits runtime-missing permission events when capability runtime is absent', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = undefined;
 
 		const { getActionEntries } = renderActionScenario({
@@ -270,7 +270,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('keeps capability-free actions enabled even with capability runtime present', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = {
 			capability: {
 				can: jest.fn(() => Promise.resolve(true)),
@@ -300,7 +300,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('emits a pending event while capability resolution is in progress', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		let resolveCapability: ((value: boolean) => void) | undefined;
 		runtime.capabilities = {
 			capability: {
@@ -358,7 +358,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('warns when executing a denied capability-gated action', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = {
 			capability: {
 				can: jest.fn(() => Promise.resolve(false)),
@@ -413,7 +413,7 @@ describe('ResourceDataView actions', () => {
 
 	it('emits notices on successful actions', async () => {
 		const { registry, createNotice } = createNoticeRegistry();
-		const runtime = createKernelRuntime({ registry });
+		const runtime = createWPKernelRuntime({ registry });
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
 
 		const { getActionEntries } = renderActionScenario({
@@ -445,7 +445,7 @@ describe('ResourceDataView actions', () => {
 
 	it('aggregates bulk selection notices into a single success message', async () => {
 		const { registry, createNotice } = createNoticeRegistry();
-		const runtime = createKernelRuntime({ registry });
+		const runtime = createWPKernelRuntime({ registry });
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
 
 		const { getActionEntries } = renderActionScenario({
@@ -477,7 +477,7 @@ describe('ResourceDataView actions', () => {
 
 	it('emits notices on failing actions', async () => {
 		const { registry, createNotice } = createNoticeRegistry();
-		const runtime = createKernelRuntime({ registry });
+		const runtime = createWPKernelRuntime({ registry });
 		const error = new WPKernelError('ServerError', {
 			message: 'Request failed',
 		});
@@ -516,7 +516,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('emits an empty-selection action event', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 
 		const { getActionEntries } = renderActionScenario({ runtime });
 
@@ -553,7 +553,7 @@ describe('ResourceDataView actions', () => {
 			{ id: 5 },
 		];
 
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
 
 		type MixedActionConfig = ResourceDataViewActionConfig<
@@ -661,7 +661,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('normalizes unexpected errors thrown by action callbacks', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 
 		const actionImpl = jest.fn().mockRejectedValue(new Error('boom'));
 		const { getActionEntries } = renderActionScenario({
@@ -691,7 +691,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('invalidates custom cache patterns returned by actions', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
 
 		const customPatterns: CacheKeyPattern[] = [['jobs', 'custom']];
@@ -719,7 +719,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('ignores capability resolution when component unmounts before completion', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		let resolveCapability: ((value: boolean) => void) | undefined;
 		runtime.capabilities = {
 			capability: {
@@ -749,7 +749,7 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('ignores capability rejections after unmount', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		let rejectCapability: ((reason?: unknown) => void) | undefined;
 		runtime.capabilities = {
 			capability: {

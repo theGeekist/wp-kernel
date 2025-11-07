@@ -1,10 +1,10 @@
 # E2E Testing Guide
 
-End-to-end testing guide for WP Kernel with `@wpkernel/e2e-utils`.
+End-to-end testing guide for WPKernel with `@wpkernel/e2e-utils`.
 
 ## Overview
 
-E2E tests validate complete user workflows in a real WordPress environment using Playwright. WP Kernel provides specialized utilities to make testing kernel-aware applications fast and reliable.
+E2E tests validate complete user workflows in a real WordPress environment using Playwright. WPKernel provides specialized utilities to make testing kernel-aware applications fast and reliable.
 
 ### When to Use E2E Tests
 
@@ -63,11 +63,11 @@ test.describe('Jobs Admin', () => {
 
 ## The Kernel Fixture
 
-WP Kernel E2E utilities are available via the `kernel` fixture:
+WPKernel E2E utilities are available via the `kernel` fixture:
 
 ```typescript
 test('example', async ({ kernel, page }) => {
-	// kernel provides all E2E utilities
+	// wpk provides all E2E utilities
 	await kernel.auth.login(page);
 	await kernel.rest.seed('thing', { title: 'Test' });
 	await kernel.store.wait(page, 'wpk/thing', (s) => s.getById(1));
@@ -178,7 +178,7 @@ console.log(job.id); // Created resource ID
 **Parameters:**
 
 - `requestUtils` - WordPress RequestUtils instance
-- `resource` - Resource name (matches kernel resource definition)
+- `resource` - Resource name (matches wpk resource definition)
 - `data` - Resource data object
 
 **Returns:** `Promise<T>` - Created resource with ID
@@ -270,7 +270,7 @@ Capture events emitted during test execution.
 
 ```typescript
 const recorder = await kernel.events.capture(page, {
-	pattern: /^wpk\./, // Only capture kernel events
+	pattern: /^wpk\./, // Only capture wpk events
 	includePayload: true,
 });
 
@@ -324,7 +324,7 @@ await kernel.db.restore('after-seed');
 **Best Practice:** Use in `beforeEach` to ensure test isolation:
 
 ```typescript
-test.beforeEach(async ({ kernel }) => {
+test.beforeEach(async ({ wpk }) => {
 	await kernel.db.restore('clean');
 });
 ```
@@ -380,7 +380,7 @@ console.log(env.apiRoot); // http://localhost:8889/wp-json
 test.describe('Job Applications', () => {
 	let job;
 
-	test.beforeEach(async ({ kernel }) => {
+	test.beforeEach(async ({ wpk }) => {
 		// Seed job before each test
 		job = await kernel.rest.seed(requestUtils, 'job', {
 			title: 'Test Job',
@@ -388,7 +388,7 @@ test.describe('Job Applications', () => {
 		});
 	});
 
-	test('should submit application', async ({ page, kernel }) => {
+	test('should submit application', async ({ page, wpk }) => {
 		await page.goto(`/jobs/${job.id}`);
 		// ... test application flow
 	});
@@ -398,7 +398,7 @@ test.describe('Job Applications', () => {
 ### Waiting for Store Updates
 
 ```typescript
-test('should update job list after create', async ({ page, kernel }) => {
+test('should update job list after create', async ({ page, wpk }) => {
 	// Initial state
 	await page.goto('/wp-admin/admin.php?page=wpk-jobs');
 
@@ -419,7 +419,7 @@ test('should update job list after create', async ({ page, kernel }) => {
 ### Event Flow Validation
 
 ```typescript
-test('should emit events on job creation', async ({ page, kernel }) => {
+test('should emit events on job creation', async ({ page, wpk }) => {
 	const recorder = await kernel.events.capture(page, {
 		pattern: /^wpk\.job\./,
 	});
@@ -444,14 +444,14 @@ test('should emit events on job creation', async ({ page, kernel }) => {
 
 ```typescript
 test.describe('Stateful Tests', () => {
-	test.beforeAll(async ({ kernel }) => {
+	test.beforeAll(async ({ wpk }) => {
 		// Setup baseline once
 		await kernel.db.restore('clean');
 		await kernel.rest.seedMany(requestUtils, 'job', baselineJobs);
 		await kernel.db.snapshot('baseline');
 	});
 
-	test.beforeEach(async ({ kernel }) => {
+	test.beforeEach(async ({ wpk }) => {
 		// Restore to baseline before each test
 		await kernel.db.restore('baseline');
 	});
@@ -499,7 +499,7 @@ packages/e2e-utils/
 **Utility Tests** (`packages/e2e-utils/tests/*`)
 
 - Test the utility functions themselves
-- Validate kernel integration
+- Validate wpk integration
 - No domain logic
 
 **Domain Tests** (`examples/showcase/tests/e2e/*`)
@@ -670,7 +670,7 @@ jobs:
 
 ```typescript
 // Increase timeout for slow operations
-test('slow operation', async ({ page, kernel }) => {
+test('slow operation', async ({ page, wpk }) => {
 	test.setTimeout(30000); // 30 seconds
 
 	await kernel.rest.seedMany(requestUtils, 'job', largeDataset);

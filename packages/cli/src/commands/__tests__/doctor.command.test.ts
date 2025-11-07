@@ -54,7 +54,7 @@ describe('buildDoctorCommand', () => {
 		expect(checkPhpEnvironment).toHaveBeenCalledTimes(1);
 	});
 
-	it('returns failure when kernel config fails to load', async () => {
+	it('returns failure when wpk config fails to load', async () => {
 		loadWPKernelConfig.mockRejectedValueOnce(new Error('missing config'));
 
 		const DoctorCommand = buildDoctorCommand({

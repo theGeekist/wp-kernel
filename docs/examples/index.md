@@ -1,10 +1,10 @@
 # Examples
 
-See WP Kernel in action. Each example plugin is a working WordPress project that exercises a different slice of the framework-either the full showcase workflow or the focused CLI smoke test.
+See WPKernel in action. Each example plugin is a working WordPress project that exercises a different slice of the framework-either the full showcase workflow or the focused CLI smoke test.
 
 ## Showcase plugin
 
-A hiring portal that wires a `job` resource through the entire stack: REST controllers, React DataViews, and capability-aware actions. Follow the walkthrough in the [Showcase guide](/examples/showcase) to see how the kernel config drives the generated output.【F:examples/showcase/wpk.config.ts†L1-L340】
+A hiring portal that wires a `job` resource through the entire stack: REST controllers, React DataViews, and capability-aware actions. Follow the walkthrough in the [Showcase guide](/examples/showcase) to see how the wpk config drives the generated output.【F:examples/showcase/wpk.config.ts†L1-L340】
 
 ## Test the CLI
 

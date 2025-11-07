@@ -22,7 +22,7 @@ describe('serializeWPKernelError', () => {
 		});
 	});
 
-	it('supports wrapped non-WP Kernel errors', () => {
+	it('supports wrapped non-WPKernel errors', () => {
 		const wrapped = WPKernelError.wrap(new Error('boom'), 'UnknownError', {
 			operation: 'contract-test',
 		});

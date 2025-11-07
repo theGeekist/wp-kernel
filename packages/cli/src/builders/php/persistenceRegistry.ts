@@ -20,7 +20,7 @@ import { getPhpBuilderChannel } from './channel';
  * associated storage and identity configurations, allowing the WordPress
  * application to interact with them.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating the persistence registry.
  */
 export function createPhpPersistenceRegistryHelper(): BuilderHelper {

@@ -51,7 +51,7 @@ describe('init git helpers', () => {
 		);
 	});
 
-	it('wraps unexpected git errors in a developer kernel error', async () => {
+	it('wraps unexpected git errors in a developer wpk error', async () => {
 		const exec = jest.fn().mockRejectedValue(
 			Object.assign(new Error('permission denied'), {
 				stderr: 'fatal: permission denied',

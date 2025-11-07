@@ -15,7 +15,7 @@ import { attachUIBindings } from '../attachUIBindings';
 import { DATA_VIEWS_EVENT_REGISTERED } from '../dataviews/events';
 import { DATA_VIEWS_METADATA_INVALID } from '../dataviews/metadata';
 import {
-	createKernel,
+	createWPKernel,
 	createPreferencesRegistry,
 	createResourceWithDataView,
 } from '../test-support/attachUIBindings.test-support';
@@ -46,14 +46,14 @@ describe('attachUIBindings DataViews auto-registration', () => {
 	it('auto-registers DataViews controllers for existing resources and persists metadata', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 		const resource = createResourceWithDataView();
 
 		mockGetRegisteredResources.mockReturnValueOnce([
 			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
 		]);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
 		const controller = dataviews.controllers.get('jobs') as
 			| { resourceName: string; preferencesKey: string }
@@ -72,7 +72,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			})
 		);
 
-		expect(kernel.emit).toHaveBeenCalledWith(
+		expect(wpk.emit).toHaveBeenCalledWith(
 			DATA_VIEWS_EVENT_REGISTERED,
 			expect.objectContaining({
 				resource: 'jobs',
@@ -84,14 +84,14 @@ describe('attachUIBindings DataViews auto-registration', () => {
 	it('updates auto-registered controllers when capability runtime becomes available', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
+		const wpk = createWPKernel(events, undefined, registry);
 		const resource = createResourceWithDataView();
 
 		mockGetRegisteredResources.mockReturnValueOnce([
 			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
 		]);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 		const dataviews = runtime.dataviews!;
 		const controller = dataviews.controllers.get('jobs') as {
 			capabilities?: unknown;
@@ -113,8 +113,8 @@ describe('attachUIBindings DataViews auto-registration', () => {
 	it('auto-registers DataViews controllers for future resources', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
-		const runtime = attachUIBindings(kernel);
+		const wpk = createWPKernel(events, undefined, registry);
+		const runtime = attachUIBindings(wpk);
 		const resource = createResourceWithDataView();
 
 		events.emit('resource:defined', {
@@ -127,7 +127,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			| undefined;
 
 		expect(controller).toBeDefined();
-		expect(kernel.emit).toHaveBeenCalledWith(
+		expect(wpk.emit).toHaveBeenCalledWith(
 			DATA_VIEWS_EVENT_REGISTERED,
 			expect.objectContaining({
 				resource: 'jobs',
@@ -139,8 +139,8 @@ describe('attachUIBindings DataViews auto-registration', () => {
 	it('skips auto-registration when saved views metadata is malformed', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
-		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const wpk = createWPKernel(events, undefined, registry);
+		const reporter = wpk.getReporter() as jest.Mocked<Reporter>;
 		const resource = createResourceWithDataView({
 			dataviews: {
 				views: [
@@ -162,7 +162,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
 		]);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 
 		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
 		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
@@ -190,8 +190,8 @@ describe('attachUIBindings DataViews auto-registration', () => {
 	it('skips auto-registration when menu metadata is invalid', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
-		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const wpk = createWPKernel(events, undefined, registry);
+		const reporter = wpk.getReporter() as jest.Mocked<Reporter>;
 		const resource = createResourceWithDataView({
 			dataviews: {
 				screen: {
@@ -209,7 +209,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
 		]);
 
-		const runtime = attachUIBindings(kernel);
+		const runtime = attachUIBindings(wpk);
 
 		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
 		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
@@ -237,7 +237,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 	it('skips auto-registration when disabled via options', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
-		const kernel = createKernel(
+		const wpk = createWPKernel(
 			events,
 			{ dataviews: { enable: true, autoRegisterResources: false } },
 			registry
@@ -248,7 +248,7 @@ describe('attachUIBindings DataViews auto-registration', () => {
 			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
 		]);
 
-		const runtime = attachUIBindings(kernel, {
+		const runtime = attachUIBindings(wpk, {
 			dataviews: { enable: true, autoRegisterResources: false },
 		});
 

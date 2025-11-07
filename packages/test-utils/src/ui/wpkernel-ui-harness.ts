@@ -14,7 +14,7 @@ import {
 import { createReporterMock } from '../shared/reporter.js';
 
 /**
- * Component type for WP Kernel UI Provider.
+ * Component type for WPKernel UI Provider.
  *
  * @category UI Harness
  * @public
@@ -83,7 +83,7 @@ function buildRuntime(
 		registry,
 		events: new WPKernelEventBus(),
 		invalidate: jest.fn(),
-		kernel: overrides.kernel as WPKInstance | undefined,
+		wpk: overrides.wpk as WPKInstance | undefined,
 		capabilities: overrides.capabilities,
 		options: overrides.options,
 	} satisfies WPKernelUIRuntime;

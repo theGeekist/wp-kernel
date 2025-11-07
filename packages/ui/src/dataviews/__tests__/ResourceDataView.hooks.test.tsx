@@ -12,7 +12,7 @@ import type {
 import type { ListResponse } from '@wpkernel/core/resource';
 import {
 	createConfig,
-	createKernelRuntime,
+	createWPKernelRuntime,
 	createResource,
 	createReporter,
 	flushDataViews,
@@ -31,7 +31,7 @@ function createStandaloneRuntime(): DataViewsRuntimeContext {
 	const preferences = new Map<string, unknown>();
 	return createDataViewsRuntime({
 		namespace: 'standalone-hooks',
-		reporter: createKernelRuntime().reporter,
+		reporter: createWPKernelRuntime().reporter,
 		preferences: {
 			get: async (key: string) => preferences.get(key),
 			set: async (key: string, value: unknown) => {
@@ -49,34 +49,34 @@ describe('resource-data-view runtime resolution', () => {
 		const standalone = createStandaloneRuntime();
 		const result = resolveRuntime(standalone, null);
 		expect(result.context).toBe(standalone);
-		expect(result.kernelRuntime).toBeUndefined();
+		expect(result.wpkernelRuntime).toBeUndefined();
 	});
 
-	it('throws when kernel runtime is missing DataViews support', () => {
-		const kernel = createKernelRuntime();
-		delete (kernel as { dataviews?: unknown }).dataviews;
-		expect(() => resolveRuntime(kernel, null)).toThrow(
+	it('throws when wpk runtime is missing DataViews support', () => {
+		const wpk = createWPKernelRuntime();
+		delete (wpk as { dataviews?: unknown }).dataviews;
+		expect(() => resolveRuntime(wpk, null)).toThrow(
 			/missing DataViews support/
 		);
 	});
 
 	it('uses hook runtime when runtime prop is absent', () => {
-		const kernel = createKernelRuntime();
-		const result = resolveRuntime(undefined, kernel);
-		expect(result.kernelRuntime).toBe(kernel);
+		const wpk = createWPKernelRuntime();
+		const result = resolveRuntime(undefined, wpk);
+		expect(result.wpkernelRuntime).toBe(wpk);
 		expect(result.context.namespace).toBe('tests');
 	});
 
 	it('throws when no runtime is available', () => {
 		expect(() => resolveRuntime(undefined, null)).toThrow(
-			/WP Kernel UI runtime unavailable/
+			/WPKernel UI runtime unavailable/
 		);
 	});
 
 	it('throws when hook runtime lacks DataViews support', () => {
-		const kernel = createKernelRuntime();
-		delete (kernel as { dataviews?: unknown }).dataviews;
-		expect(() => resolveRuntime(undefined, kernel)).toThrow(
+		const wpk = createWPKernelRuntime();
+		delete (wpk as { dataviews?: unknown }).dataviews;
+		expect(() => resolveRuntime(undefined, wpk)).toThrow(
 			/missing DataViews support/
 		);
 	});
@@ -116,7 +116,7 @@ describe('useResolvedController', () => {
 	}
 
 	it('returns the provided controller when supplied', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const { context } = resolveRuntime(undefined, runtime);
 		const resource = createResource<TestItem, TestQuery>({});
 		const config = createConfig<TestItem, TestQuery>({});
@@ -162,7 +162,7 @@ describe('useResolvedController', () => {
 	});
 
 	it('creates a controller when resource and config are provided', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const { context } = resolveRuntime(undefined, runtime);
 		const resource = createResource<TestItem, TestQuery>({});
 		const config = createConfig<TestItem, TestQuery>({});
@@ -183,7 +183,7 @@ describe('useResolvedController', () => {
 	});
 
 	it('throws when resource or config are missing', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const { context } = resolveRuntime(undefined, runtime);
 		const errorSpy = jest
 			.spyOn(console, 'error')
@@ -427,7 +427,7 @@ describe('useListResult', () => {
 				})),
 			},
 		};
-		const reporter = createKernelRuntime().reporter;
+		const reporter = createWPKernelRuntime().reporter;
 		const onChange = jest.fn();
 
 		render(
@@ -453,7 +453,7 @@ describe('useListResult', () => {
 				useList: undefined,
 			},
 		};
-		const reporter = createKernelRuntime().reporter;
+		const reporter = createWPKernelRuntime().reporter;
 		const onChange = jest.fn();
 
 		render(

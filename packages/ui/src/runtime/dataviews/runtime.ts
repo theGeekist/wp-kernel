@@ -111,7 +111,7 @@ export const __TESTING__ = {
 };
 
 export function createWPKernelDataViewsRuntime(
-	kernel: WPKInstance,
+	wpk: WPKInstance,
 	runtime: WPKernelUIRuntime,
 	options: NormalizedDataViewsRuntimeOptions
 ): WPKernelDataViewsRuntime {
@@ -121,7 +121,7 @@ export function createWPKernelDataViewsRuntime(
 		createDefaultDataViewPreferencesAdapter(runtime, reporter);
 	const preferences = createPreferencesRuntime(adapter);
 	const events = createDataViewsEventEmitter(
-		kernel,
+		wpk,
 		childReporter(reporter, 'events')
 	);
 

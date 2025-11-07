@@ -8,7 +8,7 @@ import { createPhpNamespace } from '../shared/php';
 /**
  * The extension key for the meta fragment.
  *
- * @category IR Fragments
+ * @category IR
  */
 export const META_EXTENSION_KEY = 'ir.meta.core';
 
@@ -18,7 +18,7 @@ export const META_EXTENSION_KEY = 'ir.meta.core';
  * This fragment sanitizes the project namespace, determines source paths and origins,
  * and sets up the basic PHP configuration for the generated output.
  *
- * @category IR Fragments
+ * @category IR
  * @returns An `IrFragment` instance for meta information.
  */
 export function createMetaFragment(): IrFragment {

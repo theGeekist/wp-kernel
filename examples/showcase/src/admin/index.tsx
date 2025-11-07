@@ -31,7 +31,7 @@ export function mountAdmin(runtime: WPKernelUIRuntime) {
 
 	if (!rootElement) {
 		console.warn(
-			'[WP Kernel Showcase] Admin mount point #wpk-admin-root not found'
+			'[WPKernel Showcase] Admin mount point #wpk-admin-root not found'
 		);
 		return;
 	}

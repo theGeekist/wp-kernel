@@ -25,7 +25,7 @@ import { resolveActionDefinitionOptions } from '../pipeline/actions/helpers/crea
 import { createActionRegistryBridge } from '../pipeline/actions/helpers/createActionRegistryBridge';
 
 /**
- * Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
+ * Define a WPKernel action with lifecycle instrumentation and side-effect coordination.
  *
  * Actions are the conductors of your WordPress application-they orchestrate every write
  * operation with consistent, predictable side effects. This is the foundation of the

@@ -103,7 +103,7 @@ describe('block discovery helpers', () => {
 		expect(statSpy).toHaveBeenCalled();
 	});
 
-	it('throws kernel errors when manifests cannot be read or are invalid', async () => {
+	it('throws wpk errors when manifests cannot be read or are invalid', async () => {
 		const tmp = await fs.mkdtemp(
 			path.join(os.tmpdir(), 'wpk-block-error-')
 		);

@@ -1,5 +1,5 @@
 /**
- * Transport Module for WP Kernel
+ * Transport Module for WPKernel
  *
  * Provides HTTP transport layer wrapping @wordpress/api-fetch with:
  * - Request correlation via unique IDs
@@ -11,7 +11,7 @@
  */
 
 /**
- * Fetches data from the WordPress REST API with WP Kernel enhancements.
+ * Fetches data from the WordPress REST API with WPKernel enhancements.
  *
  * This function wraps `@wordpress/api-fetch` and adds features like request
  * correlation, event emission for observability, error normalization to

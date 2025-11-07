@@ -7,7 +7,7 @@ import type { IRResource } from '../../ir/publicTypes';
  * Represents a resource storage configuration that uses WordPress's `wp_options`
  * table for persistence. Extracted from the IR resource storage union type.
  *
- * @category Builders
+ * @category AST Builders
  */
 export type WpOptionStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -23,7 +23,7 @@ export type WpOptionStorage = Extract<
  * @param  resource - IR resource to validate
  * @returns Validated wp-option storage configuration
  * @throws {WPKernelError} DeveloperError if storage is not wp-option mode
- * @category Builders
+ * @category AST Builders
  */
 export function ensureWpOptionStorage(resource: IRResource): WpOptionStorage {
 	const storage = resource.storage;

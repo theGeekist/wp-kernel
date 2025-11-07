@@ -113,7 +113,7 @@ function resolveErrorMessage(error: unknown): string {
 }
 
 /**
- * Bridge WP Kernel lifecycle events into WordPress middleware and notices.
+ * Bridge WPKernel lifecycle events into WordPress middleware and notices.
  *
  * The plugin mirrors action lifecycle and cache invalidation events onto
  * `wp.hooks` while optionally surfacing admin notices via the core notices
@@ -122,7 +122,7 @@ function resolveErrorMessage(error: unknown): string {
  * @param    options          - Kernel event wiring options
  * @param    options.reporter - Reporter used for diagnostics when notices fire
  * @param    options.registry - Optional WordPress registry for dispatching notices
- * @param    options.events   - Shared WP Kernel event bus instance
+ * @param    options.events   - Shared WPKernel event bus instance
  * @return Redux middleware with a `destroy()` teardown helper
  * @category Data
  */

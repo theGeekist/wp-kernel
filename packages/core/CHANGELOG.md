@@ -103,17 +103,17 @@
   adapters to subscribe without global shims.
 - Published a dedicated `@wpkernel/core/events` barrel export so consumers
   can rely on the event bus without importing from the package root.
-- Resource reporters inherit from the WP Kernel instance. Client methods and store
+- Resource reporters inherit from the WPKernel instance. Client methods and store
   resolvers emit structured `debug`/`info`/`error` logs and every resource now
   exposes a `reporter` property for custom instrumentation.
 - **DataViews Phase 3**: `configureWPKernel` preserves resource UI metadata,
   forwards DataViews options to UI attachments, and emits `ui:dataviews:*`
   events end-to-end with new integration coverage.
 - **DataViews Phase 4**: `ResourceConfig`/`ResourceObject` expose typed
-  `ui.admin.dataviews` metadata (screen + menu), keeping CLI/WP Kernel parity for
+  `ui.admin.dataviews` metadata (screen + menu), keeping CLI/WPKernel parity for
   declarative DataViews scaffolding.
 - Cache invalidation helpers and the transport layer accept reporter metadata,
-  emitting `cache.invalidate.*` and `transport.*` events with WP Kernel-scoped
+  emitting `cache.invalidate.*` and `transport.*` events with WPKernel-scoped
   defaults so cache/REST lifecycles share correlation IDs.
 
 ### Technical Details
@@ -142,7 +142,7 @@
 
 - Sprint 0 foundation release
 
-    This is the initial release establishing the complete development environment and tooling infrastructure for the WP Kernel framework.
+    This is the initial release establishing the complete development environment and tooling infrastructure for the WPKernel framework.
 
     **Monorepo Structure**:
     - pnpm workspaces with 4 packages (wp-kernel, ui, cli, e2e-utils)
@@ -195,7 +195,7 @@
 
 - # Sprint 0 Complete - Foundation Release
 
-    Complete development environment, tooling, and CI/CD pipeline for WP Kernel framework.
+    Complete development environment, tooling, and CI/CD pipeline for WPKernel framework.
 
     ## Infrastructure ✓
     - **Monorepo**: pnpm workspaces with 5 packages (wp-kernel, ui, cli, e2e-utils, showcase-plugin)

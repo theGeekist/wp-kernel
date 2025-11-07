@@ -85,7 +85,7 @@ describe('init command runtime helpers', () => {
 		});
 	});
 
-	it('formats kernel errors consistently for init workflow consumers', () => {
+	it('formats wpk errors consistently for init workflow consumers', () => {
 		const error = new WPKernelError('ValidationError', {
 			message: 'Failed to write files.',
 			data: {

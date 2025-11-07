@@ -1,10 +1,10 @@
 # Modes: Static, Headless & Dynamic WP
 
-> WP Kernel adapts to three execution modes with compile-time and runtime safety
+> WPKernel adapts to three execution modes with compile-time and runtime safety
 
 ## Overview
 
-WP Kernel is designed to work in three distinct runtime environments. The framework detects your target mode and enforces appropriate patterns through linting, build checks, and runtime guards.
+WPKernel is designed to work in three distinct runtime environments. The framework detects your target mode and enforces appropriate patterns through linting, build checks, and runtime guards.
 
 ### Why Modes Matter
 
@@ -21,7 +21,7 @@ Building for the wrong mode can cause:
 - ✗ SEO issues (content not indexed)
 - ✗ Performance problems (unnecessary hydration)
 
-**Solution**: Declare your mode upfront. Kernel validates at compile-time, build-time, and runtime.
+**Solution**: Declare your mode upfront. WPKernel validates at compile-time, build-time, and runtime.
 
 ---
 
@@ -241,7 +241,7 @@ supports: {
 
 ## Context Detection
 
-Kernel automatically detects runtime context to enable/disable features:
+WPKernel automatically detects runtime context to enable/disable features:
 
 ### Admin Context
 
@@ -307,7 +307,7 @@ Kernel automatically detects runtime context to enable/disable features:
 
 ## Enforcement Levels
 
-Kernel enforces mode constraints at three stages:
+WPKernel enforces mode constraints at three stages:
 
 ### 1. Compile-Time (ESLint)
 
@@ -365,7 +365,7 @@ export default defineConfig({
 **Checks:**
 
 - ✓ No `apiFetch` in public bundles (static mode)
-- ✓ No `kernel.fetch` in static front-end
+- ✓ No `wpk.fetch` in static front-end
 - ✓ No REST imports in wrong contexts
 - ✓ Bundle size within limits
 
@@ -384,7 +384,7 @@ Solutions:
   2. Use server binding sources for SSR
   3. Enable headless mode if you need client-side fetching
 
-Docs: https://kernel.geekist.dev/guide/modes#static-export
+Docs: https://@wpkernel.dev/guide/modes#static-export
 ```
 
 ### 3. Runtime (Development Only)
@@ -396,14 +396,14 @@ Docs: https://kernel.geekist.dev/guide/modes#static-export
 **Behavior:**
 
 ```typescript
-// kernel/src/resource/client.ts
+// core/src/resource/client.ts
 export function list(query) {
 	if (__DEV__ && isStaticMode() && isFrontEnd()) {
 		throw new WPKernelError('StaticModeViolation', {
 			method: 'list',
 			resource: this.name,
 			suggestion: 'Use server bindings or move to admin context',
-			docsUrl: 'https://kernel.geekist.dev/guide/modes',
+			docsUrl: 'https://wpkernel.dev/guide/modes',
 		});
 	}
 
@@ -676,7 +676,7 @@ configure({ rootURL: 'https://cms.example.com' });
 - **Mix modes without guards** - Declare support clearly
 - **Ship dev guards to production** - Stripped automatically
 - **Bypass mode checks** - They exist for a reason
-- **Assume context** - Let kernel detect it
+- **Assume context** - Let wpk detect it
 - **Disable build guards** - They prevent production bugs
 
 ---

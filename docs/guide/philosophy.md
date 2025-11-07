@@ -1,12 +1,12 @@
 # Philosophy & Architecture
 
-WP Kernel is built on a simple but powerful philosophy: **JavaScript is the source of truth, PHP is a thin contract**. This guide explains the core principles, mental models, and architectural decisions that make WP Kernel a Rails-like framework for modern WordPress development.
+WPKernel is built on a simple but powerful philosophy: **JavaScript is the source of truth, PHP is a thin contract**. This guide explains the core principles, mental models, and architectural decisions that make WPKernel a Rails-like framework for modern WordPress development.
 
 ## Core Philosophy
 
 ### JavaScript-First, PHP-Thin
 
-WordPress has evolved to be JavaScript-first with Gutenberg, Script Modules, and the Interactivity API. WP Kernel embraces this evolution completely:
+WordPress has evolved to be JavaScript-first with Gutenberg, Script Modules, and the Interactivity API. WPKernel embraces this evolution completely:
 
 - **JavaScript** owns business logic, state management, and user interactions
 - **PHP** provides REST endpoints, capability checks, and optional server bindings
@@ -14,7 +14,7 @@ WordPress has evolved to be JavaScript-first with Gutenberg, Script Modules, and
 
 ### Convention Over Configuration
 
-Like Rails, WP Kernel provides a "Golden Path" that covers 90% of use cases:
+Like Rails, WPKernel provides a "Golden Path" that covers 90% of use cases:
 
 - Predictable folder structure
 - Standardized naming conventions
@@ -23,7 +23,7 @@ Like Rails, WP Kernel provides a "Golden Path" that covers 90% of use cases:
 
 ## The Golden Path
 
-The Golden Path is the mental model for building with WP Kernel. Every feature follows this flow:
+The Golden Path is the mental model for building with WPKernel. Every feature follows this flow:
 
 ```mermaid
 graph LR
@@ -189,7 +189,7 @@ events.on('wpk.resource.post.created', handler);
 
 ```mermaid
 graph TD
-    A[WP Kernel] --> B[Script Modules]
+    A[WPKernel] --> B[Script Modules]
     A --> C[Block Bindings]
     A --> D[Interactivity API]
     A --> E[@wordpress/data]
@@ -215,7 +215,7 @@ graph TD
 
 ### The WordPress Data Stack
 
-WP Kernel integrates seamlessly with WordPress's data architecture:
+WPKernel integrates seamlessly with WordPress's data architecture:
 
 ```mermaid
 graph TB
@@ -227,11 +227,11 @@ graph TB
 
     subgraph "State Layer"
         D[@wordpress/data]
-        E[WP Kernel Stores]
+        E[WPKernel Stores]
     end
 
     subgraph "Transport Layer"
-        F[WP Kernel Resources]
+        F[WPKernel Resources]
         G[REST API]
     end
 
@@ -252,7 +252,7 @@ graph TB
 
 ### Action Orchestration Pattern
 
-Actions are the conductor of the WP Kernel orchestra:
+Actions are the conductor of the WPKernel orchestra:
 
 ```mermaid
 sequenceDiagram

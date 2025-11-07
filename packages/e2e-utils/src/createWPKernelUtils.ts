@@ -1,8 +1,8 @@
 /**
- * WP Kernel E2E Utils
+ * WPKernel E2E Utils
  *
- * Provides a single factory pattern for creating kernel-aware E2E utilities,
- * extending WordPress E2E test utils for use with WordPress Kernel applications.
+ * Provides a single factory pattern for creating wpkernel-aware E2E utilities,
+ * extending WordPress E2E test utils for use with WordPress WPKernel applications.
  *
  * @module
  */
@@ -16,7 +16,7 @@ import type {
 	DataViewHelperOptions,
 	EventRecorder,
 	EventRecorderOptions,
-	KernelUtils,
+	WPKernelUtils,
 	WPKernelResourceConfig,
 	ResourceUtils,
 	StoreUtils,
@@ -44,45 +44,50 @@ declare global {
 }
 
 /**
- * Create E2E utilities for WordPress Kernel
+ * Create E2E utilities for WordPress WPKernel
  *
  * @param wpFixtures - WordPress fixture context
  * @param config     - Optional resource configuration for custom namespace detection
- * @return Kernel E2E utilities
+ * @return WPKernel E2E utilities
  */
 
 /**
- * Create kernel-aware E2E utilities
+ * Create WPkernel-aware E2E utilities
  *
  * Single factory that produces resource, store, and event helpers
- * for testing WP Kernel applications.
+ * for testing WPKernel applications.
  *
- * @param fixtures - WordPress E2E fixtures from test context
- * @return Kernel utilities object with helper factories
+ * @category Test Fixtures
+ * @param    fixtures - WordPress E2E fixtures from test context
+ * @return WPKernel utilities object with helper factories
  *
  * @example
  * ```typescript
  * import { test, expect } from '@wpkernel/e2e-utils';
  *
- * test('job workflow', async ({ page, admin, requestUtils, kernel }) => {
- *   const job = kernel.resource({ name: 'job', routes: {...} });
+ * test('job workflow', async ({ page, admin, requestUtils, wpkernel }) => {
+ *   const job = wpkernel.resource({ name: 'job', routes: {...} });
  *   await job.seed({ title: 'Engineer' });
  *
- *   const jobStore = kernel.store('my-plugin/job');
+ *   const jobStore = wpkernel.store('my-plugin/job');
  *   await jobStore.wait(s => s.getList());
  *
- *   const recorder = await kernel.events({ pattern: /^my-plugin\.job\./ });
+ *   const recorder = await wpkernel.events({ pattern: /^my-plugin\.job\./ });
  *   expect(recorder.list()).toHaveLength(1);
  * });
  * ```
  */
-export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
+export function createWPKernelUtils(
+	fixtures: WordPressFixtures
+): WPKernelUtils {
 	const { page, requestUtils } = fixtures;
 
 	return {
 		/**
 		 * Create resource utilities for seeding and cleanup
-		 * @param config
+		 *
+		 * @category Resource Helpers
+		 * @param    config
 		 */
 		resource: <T>(config: WPKernelResourceConfig): ResourceUtils<T> => {
 			return createResourceHelper<T>(config, requestUtils);
@@ -90,15 +95,19 @@ export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
 
 		/**
 		 * Create store utilities for waiting on resolvers
-		 * @param storeKey
+		 *
+		 * @category Store Utilities
+		 * @param    storeKey
 		 */
 		store: <T>(storeKey: string): StoreUtils<T> => {
 			return createStoreHelper<T>(storeKey, page);
 		},
 
 		/**
-		 * Create event recorder for capturing kernel events
-		 * @param options
+		 * Create event recorder for capturing wpkernel events
+		 *
+		 * @category Event Utilities
+		 * @param    options
 		 */
 		events: async <P>(
 			options?: EventRecorderOptions
@@ -108,7 +117,9 @@ export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
 
 		/**
 		 * Convenience helper for interacting with ResourceDataView surfaces.
-		 * @param options
+		 *
+		 * @category DataView Helpers
+		 * @param    options
 		 */
 		dataview: (options: DataViewHelperOptions): DataViewHelper => {
 			return createDataViewHelper(page, options);
@@ -121,9 +132,10 @@ export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
  *
  * Exported for testing only, not part of public API
  *
+ * @category Resource Helpers
  * @internal
- * @param config       - Resource configuration
- * @param requestUtils - WordPress REST request utilities
+ * @param    config       - Resource configuration
+ * @param    requestUtils - WordPress REST request utilities
  */
 export function createResourceHelper<T>(
 	config: WPKernelResourceConfig,
@@ -366,6 +378,14 @@ function buildDataViewSelector(options: DataViewHelperOptions): string {
 	return base;
 }
 
+/**
+ * Create helpers for interacting with ResourceDataView surfaces in Playwright.
+ *
+ * @category DataView Helpers
+ * @param    page    - Playwright page instance used for queries.
+ * @param    options - Target resource and optional namespace selectors.
+ * @return Collection of DataView helper utilities.
+ */
 export function createDataViewHelper(
 	page: Page,
 	options: DataViewHelperOptions
@@ -587,9 +607,10 @@ function extractReturnExpression(body: string): string | null {
  *
  * Exported for testing only, not part of public API
  *
+ * @category Store Utilities
  * @internal
- * @param storeKey - WordPress data store key
- * @param page     - Playwright page instance
+ * @param    storeKey - WordPress data store key
+ * @param    page     - Playwright page instance
  */
 export function createStoreHelper<T>(
 	storeKey: string,
@@ -786,9 +807,10 @@ export function createStoreHelper<T>(
  *
  * Exported for testing only, not part of public API
  *
+ * @category Event Utilities
  * @internal
- * @param page    - Playwright page instance
- * @param options - Optional event filtering configuration
+ * @param    page    - Playwright page instance
+ * @param    options - Optional event filtering configuration
  */
 export async function createEventHelper<P>(
 	page: Page,

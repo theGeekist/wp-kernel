@@ -1,5 +1,5 @@
 /**
- * Unit tests for createKernelUtils factory
+ * Unit tests for createWPKernelUtils factory
  *
  */
 
@@ -10,10 +10,10 @@ import type {
 	PageUtils,
 	RequestUtils,
 } from '@wordpress/e2e-test-utils-playwright';
-import { createKernelUtils } from '../createKernelUtils.js';
+import { createWPKernelUtils } from '../createWPKernelUtils.js';
 import type { WordPressFixtures } from '../types.js';
 
-describe('createKernelUtils', () => {
+describe('createWPKernelUtils', () => {
 	let mockPage: jest.Mocked<Page>;
 	let mockRequestUtils: jest.Mocked<RequestUtils>;
 	let mockAdmin: jest.Mocked<Admin>;
@@ -52,7 +52,7 @@ describe('createKernelUtils', () => {
 			click: jest.fn().mockResolvedValue(undefined),
 			first: jest.fn(() => checkboxLocator),
 		};
-		const rowFilterLocator = {
+		const rowFilterLocator: unknown = {
 			locator: jest.fn(() => checkboxLocator),
 			first: jest.fn(() => rowFilterLocator),
 		};
@@ -71,7 +71,7 @@ describe('createKernelUtils', () => {
 			first: jest.fn(() => bulkCountLocator),
 		};
 
-		const rootLocator = {
+		const rootLocator: unknown = {
 			locator: jest.fn((selector: string) => {
 				if (selector === '.dataviews-search input') {
 					return searchLocator;
@@ -132,7 +132,7 @@ describe('createKernelUtils', () => {
 
 	describe('factory initialization', () => {
 		it('should create kernel utils with all helpers', () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 
 			expect(kernel).toBeDefined();
 			expect(kernel.resource).toBeInstanceOf(Function);
@@ -141,8 +141,8 @@ describe('createKernelUtils', () => {
 		});
 
 		it('should return different instances for multiple calls', () => {
-			const kernel1 = createKernelUtils(fixtures);
-			const kernel2 = createKernelUtils(fixtures);
+			const kernel1 = createWPKernelUtils(fixtures);
+			const kernel2 = createWPKernelUtils(fixtures);
 
 			expect(kernel1).not.toBe(kernel2);
 		});
@@ -150,7 +150,7 @@ describe('createKernelUtils', () => {
 
 	describe('resource helper factory', () => {
 		it('should create resource utilities', () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const resourceConfig = {
 				name: 'test',
 				routes: {
@@ -168,7 +168,7 @@ describe('createKernelUtils', () => {
 		});
 
 		it('should pass requestUtils to resource utilities', async () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const resourceConfig = {
 				name: 'test',
 				routes: {
@@ -191,7 +191,7 @@ describe('createKernelUtils', () => {
 
 	describe('store helper factory', () => {
 		it('should create store utilities', () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const store = kernel.store('wpk/test');
 
 			expect(store).toBeDefined();
@@ -201,7 +201,7 @@ describe('createKernelUtils', () => {
 		});
 
 		it('should pass page to store utilities', async () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const store = kernel.store('wpk/test');
 
 			mockPage.evaluate.mockResolvedValue({ value: { test: 'state' } });
@@ -215,7 +215,7 @@ describe('createKernelUtils', () => {
 
 	describe('event helper factory', () => {
 		it('should create event utilities', async () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 
 			mockPage.evaluate.mockResolvedValue(undefined);
 
@@ -230,7 +230,7 @@ describe('createKernelUtils', () => {
 		});
 
 		it('should pass page to event utilities', async () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 
 			mockPage.evaluate.mockResolvedValue(undefined);
 
@@ -240,7 +240,7 @@ describe('createKernelUtils', () => {
 		});
 
 		it('should pass options to event utilities', async () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const pattern = /^wpk\.test\./;
 
 			mockPage.evaluate.mockResolvedValueOnce('wpk'); // namespace detection
@@ -263,7 +263,7 @@ describe('createKernelUtils', () => {
 
 	describe('dataview helper', () => {
 		it('provides convenience helpers for DataViews interactions', async () => {
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const helper = kernel.dataview({ resource: 'jobs' });
 
 			await helper.waitForLoaded();
@@ -303,7 +303,7 @@ describe('createKernelUtils', () => {
 				count: number;
 			}
 
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const resource = kernel.resource<TestResource>({
 				name: 'test',
 				routes: {
@@ -321,7 +321,7 @@ describe('createKernelUtils', () => {
 				getItems: () => string[];
 			}
 
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 			const store = kernel.store<TestStore>('wpk/test');
 
 			// TypeScript should enforce types here
@@ -334,7 +334,7 @@ describe('createKernelUtils', () => {
 				data: string;
 			}
 
-			const kernel = createKernelUtils(fixtures);
+			const kernel = createWPKernelUtils(fixtures);
 
 			mockPage.evaluate.mockResolvedValue(undefined);
 
@@ -346,11 +346,11 @@ describe('createKernelUtils', () => {
 	});
 
 	describe('resource utilities implementation', () => {
-		let kernel: ReturnType<typeof createKernelUtils>;
+		let kernel: ReturnType<typeof createWPKernelUtils>;
 		let resource: ReturnType<typeof kernel.resource>;
 
 		beforeEach(() => {
-			kernel = createKernelUtils(fixtures);
+			kernel = createWPKernelUtils(fixtures);
 			resource = kernel.resource({
 				name: 'job',
 				routes: {
@@ -559,11 +559,11 @@ describe('createKernelUtils', () => {
 	});
 
 	describe('store utilities implementation', () => {
-		let kernel: ReturnType<typeof createKernelUtils>;
+		let kernel: ReturnType<typeof createWPKernelUtils>;
 		let store: ReturnType<typeof kernel.store>;
 
 		beforeEach(() => {
-			kernel = createKernelUtils(fixtures);
+			kernel = createWPKernelUtils(fixtures);
 			store = kernel.store('wpk/job');
 		});
 
@@ -649,10 +649,10 @@ describe('createKernelUtils', () => {
 	});
 
 	describe('event utilities implementation', () => {
-		let kernel: ReturnType<typeof createKernelUtils>;
+		let kernel: ReturnType<typeof createWPKernelUtils>;
 
 		beforeEach(() => {
-			kernel = createKernelUtils(fixtures);
+			kernel = createWPKernelUtils(fixtures);
 			mockPage.evaluate.mockClear();
 		});
 

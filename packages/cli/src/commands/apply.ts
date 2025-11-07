@@ -27,7 +27,7 @@ import { cleanupWorkspaceTargets } from './apply/cleanup';
 /**
  * The path to the apply log file within the workspace.
  *
- * @category Apply Command
+ * @category Commands
  */
 export { APPLY_LOG_PATH, PATCH_MANIFEST_PATH } from './apply/constants';
 export { createBackups } from './apply/backups';
@@ -73,7 +73,7 @@ function withCommandState(
  * by the `generate` command. It handles previewing changes, creating backups,
  * executing the patch application, and reporting the results.
  *
- * @category Apply Command
+ * @category Commands
  * @param    options - Options for building the apply command, including dependencies.
  * @returns The `ApplyCommandConstructor` class.
  */
@@ -200,6 +200,6 @@ export function buildApplyCommand(
  *
  * This is the entry point for applying generated patches to the workspace.
  *
- * @category Apply Command
+ * @category Commands
  */
 export const ApplyCommand = buildApplyCommand();

@@ -1,5 +1,5 @@
 /**
- * Domain-specific pipeline orchestrators and helpers for WP Kernel.
+ * Domain-specific pipeline orchestrators and helpers for WPKernel.
  *
  * For generic pipeline primitives (createHelper, createPipeline, types),
  * import directly from '@wpkernel/pipeline'.

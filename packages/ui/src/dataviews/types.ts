@@ -61,7 +61,7 @@ export interface DataViewsRuntimeContext {
 	) => void;
 	readonly registry?: unknown;
 	readonly reporter: Reporter;
-	readonly kernel?: unknown;
+	readonly wpk?: unknown;
 }
 
 /**

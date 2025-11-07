@@ -2,13 +2,13 @@
  * ESLint Rule: no-hardcoded-namespace-strings
  *
  * Enforces usage of WPK_NAMESPACE, WPK_EVENTS, and WPK_SUBSYSTEM_NAMESPACES constants
- * instead of hardcoded namespace strings like 'wpk', 'wpk.action.start', 'kernel.capability', etc.
+ * instead of hardcoded namespace strings like 'wpk', 'wpk.action.start', 'wpk.capability', etc.
  *
  * This prevents namespace drift and ensures a single source of truth for all
  * framework namespace identifiers.
  *
  * @file Prevent hardcoded namespace strings outside namespace/constants.ts
- * @author WP Kernel Team
+ * @author WPKernel Team
  */
 
 import path from 'path';
@@ -51,7 +51,7 @@ const NAMESPACE_PATTERNS = {
 		'wpk.actions',
 		'wpk.namespace',
 		'wpk.reporter',
-		'kernel.capability', // Legacy, should use wpk.capability
+		'wpk.capability', // Legacy, should use wpk.capability
 	],
 
 	// Infrastructure/channel names
@@ -62,7 +62,7 @@ const NAMESPACE_PATTERNS = {
 	],
 
 	// Namespace prefix patterns (for string operations)
-	PREFIX_PATTERNS: ['wpk/', 'wpk.', 'kernel.'],
+	PREFIX_PATTERNS: ['wpk/', 'wpk.', 'wpkernel.'],
 };
 
 // Flatten all patterns for checking
@@ -210,8 +210,8 @@ function getConstantSuggestion(value) {
 
 	// Subsystem namespaces
 	if (NAMESPACE_PATTERNS.SUBSYSTEM_NAMESPACES.includes(value)) {
-		if (value === 'kernel.capability') {
-			return 'WPK_SUBSYSTEM_NAMESPACES.CAPABILITY (changed from kernel.capability to wpk.capability)';
+		if (value === 'wpkernel.capability') {
+			return 'WPK_SUBSYSTEM_NAMESPACES.CAPABILITY (changed from wpkernel.capability to wpk.capability)';
 		}
 		const constantName = value
 			.replace('wpk.', '')
@@ -235,7 +235,7 @@ function getConstantSuggestion(value) {
 	if (value === 'wpk') {
 		return 'WPK_NAMESPACE';
 	}
-	if (value === 'kernel.') {
+	if (value === 'wpkernel.') {
 		return 'WPK_SUBSYSTEM_NAMESPACES constants';
 	}
 

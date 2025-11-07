@@ -6,7 +6,7 @@ import type { MemoryReporter } from './memory-reporter.test-support';
 /**
  * Overrides for action runtime configuration.
  *
- * @category Action Pipeline
+ * @category Test Support
  * @public
  */
 export interface RuntimeOverrides {
@@ -17,7 +17,7 @@ export interface RuntimeOverrides {
 /**
  * Options for building a `CoreActionPipelineHarness`.
  *
- * @category Action Pipeline
+ * @category Test Support
  */
 export interface BuildCoreActionPipelineHarnessOptions<TArgs, TResult> {
 	/** The namespace for the reporter. */
@@ -31,7 +31,7 @@ export interface BuildCoreActionPipelineHarnessOptions<TArgs, TResult> {
 /**
  * A harness for testing action pipelines.
  *
- * @category Action Pipeline
+ * @category Test Support
  */
 export interface CoreActionPipelineHarness<TArgs, TResult> {
 	/** The action pipeline instance. */
@@ -47,7 +47,7 @@ export interface CoreActionPipelineHarness<TArgs, TResult> {
 /**
  * Builds a harness for testing core action pipelines.
  *
- * @category Action Pipeline
+ * @category Test Support
  * @param    options - Options for configuring the harness.
  * @returns A `CoreActionPipelineHarness` instance.
  */

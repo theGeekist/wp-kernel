@@ -118,7 +118,7 @@ contributing/*
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-	title: 'WP Kernel',
+	title: 'WPKernel',
 	description: 'One config → a working WordPress plugin',
 	lang: 'en-US',
 	lastUpdated: true,
@@ -238,12 +238,12 @@ export default defineConfig({
 **Hero**
 
 > **One config → a working WordPress plugin**
-> Define your resources, blocks, and UI once. WP Kernel generates REST controllers, block manifests, DataViews screens, and policy guards-so you can build features, not boilerplate.
+> Define your resources, blocks, and UI once. WPKernel generates REST controllers, block manifests, DataViews screens, and policy guards-so you can build features, not boilerplate.
 
 **Three pillars**
 
 - **Generate, don’t glue** - `wpk generate` produces PHP/TS/manifest files from a single `wpk.config.ts`.
-- **Interop by default** - kernel plugins share the same runtime graph; resources and actions “just work” across plugins.
+- **Interop by default** - wpk plugins share the same runtime graph; resources and actions “just work” across plugins.
 - **Modern WP, batteries included** - Script Modules, SSR blocks via `render.php`, DataViews integration, policy keys → caps.
 
 **Code card**
@@ -313,7 +313,7 @@ Each with tiny examples and a flow diagram: _init → edit config → generate �
 
 - Move typedoc output to `docs/api/*`.
 - Create `/examples/index.md` + 2-3 example pages.
-- Draft landing page + quick start + kernel config.
+- Draft landing page + quick start + wpk config.
 - Create `reference/decision-matrix.md` and `reference/cli-commands.md`.
 - Reorganize Guides (blocks, dataviews, resources merge).
 - Wire VitePress config + sidebar.

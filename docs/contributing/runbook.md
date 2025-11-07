@@ -1,6 +1,6 @@
 # Development Runbook
 
-Common tasks and commands for WP Kernel development.
+Common tasks and commands for WPKernel development.
 
 > **📖 For release workflow and changesets**, see `RELEASING.md` in project root.  
 > **For PR flow and sprint process**, see [Pull Requests](./pull-requests.md).
@@ -99,7 +99,7 @@ Builds all packages once for production.
 ### Build Specific Package
 
 ```bash
-# Build only kernel package
+# Build only wpk package
 pnpm --filter @wpkernel/core build
 
 # Build only UI package
@@ -552,7 +552,7 @@ docker exec -it <container-id> tail -f /var/www/html/wp-content/debug.log
 
 > **🚧 Roadmap**: upcoming initiatives • See [Modes Guide](../guide/modes.md) for complete specification
 
-WP Kernel supports three deployment modes: Dynamic WordPress, Headless, and Static Export. Each mode has specific build and deployment requirements.
+WPKernel supports three deployment modes: Dynamic WordPress, Headless, and Static Export. Each mode has specific build and deployment requirements.
 
 ### Dynamic WordPress (Default)
 

@@ -1,8 +1,8 @@
-# WP Kernel Licensing Guide
+# WPKernel Licensing Guide
 
 ## Overview
 
-WP Kernel uses a **dual licensing structure** to balance business needs with WordPress ecosystem requirements.
+WPKernel uses a **dual licensing structure** to balance business needs with WordPress ecosystem requirements.
 
 ## Framework License: EUPL-1.2
 
@@ -24,16 +24,16 @@ WP Kernel uses a **dual licensing structure** to balance business needs with Wor
 
 ✓ You **CAN**:
 
-- Build commercial WordPress products using WP Kernel
+- Build commercial WordPress products using WPKernel
 - Keep your product code under your chosen license (MIT, GPL, proprietary)
 - Sell your products without sharing your business logic
-- Use WP Kernel in SaaS products
+- Use WPKernel in SaaS products
 
 ✗ You **MUST**:
 
-- Keep the WP Kernel framework code under EUPL-1.2
+- Keep the WPKernel framework code under EUPL-1.2
 - Share modifications to the framework itself
-- Include copyright notices for WP Kernel
+- Include copyright notices for WPKernel
 
 ### Example: Commercial WordPress Plugin
 
@@ -48,7 +48,7 @@ your-plugin/
 ```
 
 **Your plugin code**: Can be GPL-2.0+, MIT, or even proprietary (for premium versions)
-**WP Kernel framework**: Remains EUPL-1.2
+**WPKernel framework**: Remains EUPL-1.2
 **Result**: Your business logic stays yours, framework improvements are shared
 
 ---
@@ -102,7 +102,7 @@ your-plugin/
 
 ## FAQ
 
-### Q: Can I build a commercial WordPress plugin with WP Kernel?
+### Q: Can I build a commercial WordPress plugin with WPKernel?
 
 **A**: Yes! Your plugin code can be any license (including proprietary). The framework stays EUPL-1.2.
 
@@ -110,13 +110,13 @@ your-plugin/
 
 **A**: No. Only if you want to publish on wordpress.org (which requires GPL). Premium versions can be closed-source.
 
-### Q: What if I modify the WP Kernel framework?
+### Q: What if I modify the WPKernel framework?
 
 **A**: Framework modifications must be shared under EUPL-1.2. Your application code is unaffected.
 
 ### Q: Can I publish my plugin to wordpress.org?
 
-**A**: Yes! License your plugin as GPL-2.0+, use WP Kernel as a dependency. The showcase app demonstrates this pattern.
+**A**: Yes! License your plugin as GPL-2.0+, use WPKernel as a dependency. The showcase app demonstrates this pattern.
 
 ### Q: Is this legally sound?
 
@@ -142,7 +142,7 @@ your-plugin/
  * License: GPL-2.0-or-later
  */
 
-// Uses WP Kernel (EUPL-1.2) - this is fine!
+// Uses WPKernel (EUPL-1.2) - this is fine!
 use Geekist\WPKernel\Resource\defineResource;
 
 // Your GPL code
@@ -161,7 +161,7 @@ function my_plugin_init() {
  */
 
 // Your premium code stays closed-source
-// WP Kernel framework (EUPL-1.2) is included as dependency
+// WPKernel framework (EUPL-1.2) is included as dependency
 // This is allowed because EUPL-1.2 permits use in commercial products
 ```
 

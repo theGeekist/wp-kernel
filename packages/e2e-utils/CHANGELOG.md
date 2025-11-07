@@ -62,13 +62,13 @@
 ### Changes
 
 - Version bump to align with monorepo
-- **DataViews Phase 5**: Enhanced E2E utilities for kernel resource testing
-    - `createKernelUtils()` provides resource, store, and event testing helpers
+- **DataViews Phase 5**: Enhanced E2E utilities for wpk resource testing
+    - `createWPKernelUtils()` provides resource, store, and event testing helpers
     - Resource utilities: `seed()`, `seedMany()`, `remove()`, `deleteAll()` for test data management
     - Store utilities for WordPress Data registry interactions
-    - Event utilities for kernel event bus testing
+    - Event utilities for wpk event bus testing
     - Comprehensive unit tests validating utility functions
-- Updated kernel imports to consume the new resource cache barrels, keeping
+- Updated wpk imports to consume the new resource cache barrels, keeping
   the utilities aligned with the public package exports.
 
 ## 0.2.0
@@ -84,10 +84,10 @@
 ### Added
 
 - **Core Factory Implementation**: Complete E2E testing utilities following WordPress patterns
-    - `createKernelUtils()` factory with resource, store, and event utilities
+    - `createWPKernelUtils()` factory with resource, store, and event utilities
     - Extended test fixture with `kernel` fixture pre-configured
     - Primary usage: `import { test, expect } from '@wpkernel/e2e-utils'`
-    - Advanced usage: `import { createKernelUtils }` for custom fixture setup
+    - Advanced usage: `import { createWPKernelUtils }` for custom fixture setup
 - **Resource Utilities**: REST API testing helpers
     - `seed()` - Create single resource via REST
     - `seedMany()` - Batch create resources
@@ -111,7 +111,7 @@
 ### Technical Details
 
 - Single consolidated factory (not separate modules)
-- Extends `@wordpress/e2e-test-utils-playwright` with kernel fixture
+- Extends `@wordpress/e2e-test-utils-playwright` with wpk fixture
 - Dependency injection pattern for fixtures
 - Full TypeScript support with generics (`T = unknown`)
 - Follows WordPress E2E utils export pattern
@@ -122,7 +122,7 @@
 
 - Sprint 0 foundation release
 
-    This is the initial release establishing the complete development environment and tooling infrastructure for the WP Kernel framework.
+    This is the initial release establishing the complete development environment and tooling infrastructure for the WPKernel framework.
 
     **Monorepo Structure**:
     - pnpm workspaces with 4 packages (kernel, ui, cli, e2e-utils)
@@ -172,7 +172,7 @@
 
 - # Sprint 0 Complete - Foundation Release
 
-    Complete development environment, tooling, and CI/CD pipeline for WP Kernel framework.
+    Complete development environment, tooling, and CI/CD pipeline for WPKernel framework.
 
     ## Infrastructure ✓
     - **Monorepo**: pnpm workspaces with 5 packages (kernel, ui, cli, e2e-utils, showcase-plugin)

@@ -1,5 +1,5 @@
 import {
-	createKernelRuntime,
+	createWPKernelRuntime,
 	createConfig,
 	renderResourceDataView,
 	flushDataViews,
@@ -22,7 +22,7 @@ describe('ResourceDataView permissions', () => {
 	}
 
 	it('emits permission denied events when menu capability check fails', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = {
 			capability: {
 				can: jest.fn(() => false),
@@ -43,7 +43,7 @@ describe('ResourceDataView permissions', () => {
 	});
 
 	it('emits runtime-missing events when capability runtime is unavailable', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = undefined;
 
 		renderWithCapability(runtime);
@@ -60,7 +60,7 @@ describe('ResourceDataView permissions', () => {
 	});
 
 	it('emits error events when capability check rejects', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = {
 			capability: {
 				can: jest.fn(() => Promise.reject(new Error('nope'))),

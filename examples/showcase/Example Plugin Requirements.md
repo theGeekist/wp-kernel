@@ -1,26 +1,26 @@
-## How each product feature maps to kernel
+## How each product feature maps to core
 
 ### 1) Content model (CPTs, taxonomies, meta) → Resources
 
 - You register job (public) and application (private) as CPTs, plus taxonomies (department, location, etc.) and meta (salary_min/max, answers).
-- Kernel “Resource” wrappers point at your versioned REST (/wpk/v1/jobs, /wpk/v1/applications), so the client gets typed clients + stores + caching without boilerplate.
+- Core “Resource” wrappers point at your versioned REST (/wpk/v1/jobs, /wpk/v1/applications), so the client gets typed clients + stores + caching without boilerplate.
 - Outcome: one line to fetch, one line to invalidate, no hand-rolled fetch code.
 
 ### 2) Public listing & detail → Bindings + Interactivity
 
 - Listing page uses core blocks (Query Loop, Buttons). Data appears via Block Bindings (e.g., gk:job.title, gk:job.location).
-- Filters/search are tiny Interactivity bundles: update filter state → kernel resolvers refetch → list updates.
+- Filters/search are tiny Interactivity bundles: update filter state → wpk resolvers refetch → list updates.
 - Optional server binding renders SEO-critical text (title/summary/JSON-LD) without JS.
 
 ### 3) Apply form & uploads → Actions + Interactivity + Upload helper
 
 - The form is a small Interactivity controller that calls an Action (Application.Submit).
-- The Action validates policy, posts to REST, emits events, invalidates caches, and uses the kernel’s upload helper for chunked CV files with progress.
-- Success and failure are handled consistently via the kernel reporter + notices.
+- The Action validates policy, posts to REST, emits events, invalidates caches, and uses wpkernel’s upload helper for chunked CV files with progress.
+- Success and failure are handled consistently via the wpk reporter + notices.
 
 ### 4) Admin pipeline (kanban) → Admin mount + store + optimistic updates
 
-- Mount a React app on an admin page (kernel Admin Surface).
+- Mount a React app on an admin page (wpkernel Admin Surface).
 - Columns reflect post statuses; cards read from the store. Drag a card → an Action patches status with optimistic UI and auto-revert on error.
 - Extend via SlotFill (e.g., “Export CSV” button) without forking the UI.
 
@@ -59,7 +59,7 @@
 
 ## What the team actually writes vs. what they get “for free”
 
-| You write (product)                | Kernel gives you                                    |
+| You write (product)                | WPKernel gives you                                  |
 | ---------------------------------- | --------------------------------------------------- |
 | CPTs/tax/meta + REST routes        | Typed clients, data stores, resolvers, cache keys   |
 | A few block bindings               | Editor + front-end data wiring, SSR option for SEO  |
@@ -96,13 +96,13 @@ sequenceDiagram
   H-->>Integrations: Slack/Webhook (optional)
 ```
 
-No bespoke plumbing: each arrow is a one-liner because the kernel owns the ceremony.
+No bespoke plumbing: each arrow is a one-liner because the wpk owns the ceremony.
 
 ---
 
 ## What this means for delivery
 
-- Lower cognitive load: everyone already speaks the kernel’s nouns; product specs map directly to a short list of Resources, Actions, Bindings, Jobs, and Settings.
+- Lower cognitive load: everyone already speaks the wpkernel’s nouns; product specs map directly to a short list of Resources, Actions, Bindings, Jobs, and Settings.
 - Shorter cycles: each slice (listing, apply, pipeline…) is shippable on its own with an E2E proving the path.
 - Safer change: versioned REST + typed contracts + standard error/reporting = fewer “it worked on my machine” moments.
 

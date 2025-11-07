@@ -1,7 +1,7 @@
 import { createReduxStore, register } from '@wordpress/data';
 
 /**
- * Register a WordPress data store using WP Kernel defaults.
+ * Register a WordPress data store using WPKernel defaults.
  *
  * The helper wraps `@wordpress/data` store registration so packages can rely on
  * consistent middleware ordering and return the created store for further wiring.

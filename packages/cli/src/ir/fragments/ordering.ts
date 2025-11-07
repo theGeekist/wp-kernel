@@ -14,7 +14,7 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
  * to ensure that these collections are consistently ordered in the IR,
  * which is important for reproducible code generation.
  *
- * @category IR Fragments
+ * @category IR
  * @returns An `IrFragment` instance for ordering IR collections.
  */
 export function createOrderingFragment(): IrFragment {

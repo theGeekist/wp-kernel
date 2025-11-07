@@ -13,7 +13,7 @@ import {
 	fileExists,
 	getTsImport,
 	setCachedTsImport,
-} from '../load-kernel-config';
+} from '../load-wpk-config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
@@ -32,7 +32,7 @@ describe('loadWPKernelConfig', () => {
 		await runWorkspace(run, { files });
 	}
 
-	it('loads a kernel config and validates composer autoload', async () => {
+	it('loads a wpk config and validates composer autoload', async () => {
 		await withWorkspace(
 			{
 				'wpk.config.js': `module.exports = {
@@ -74,7 +74,7 @@ describe('loadWPKernelConfig', () => {
 		);
 	});
 
-	it('throws when no kernel config is discovered', async () => {
+	it('throws when no wpk config is discovered', async () => {
 		await withWorkspace(
 			{
 				'composer.json': createComposerJson('inc/'),
@@ -357,7 +357,7 @@ describe('loadWPKernelConfig', () => {
 						tsImport: tsImportMock,
 					}));
 					const { loadWPKernelConfig: isolatedLoad } = await import(
-						'../load-kernel-config'
+						'../load-wpk-config'
 					);
 
 					const result = await isolatedLoad();
@@ -390,7 +390,7 @@ describe('loadWPKernelConfig', () => {
 						tsImport: tsImportMock,
 					}));
 					const { loadWPKernelConfig: isolatedLoad } = await import(
-						'../load-kernel-config'
+						'../load-wpk-config'
 					);
 
 					await expect(isolatedLoad()).rejects.toMatchObject({

@@ -1,6 +1,6 @@
 # Reporting & Observability
 
-The unified reporter ensures every kernel module emits structured telemetry through LogLayer. Instead of
+The unified reporter ensures every wpk module emits structured telemetry through LogLayer. Instead of
 sprinkling `console.log` calls across the codebase, you now create reporters and route messages through transports that understand
 namespaces, levels, and context metadata.
 
@@ -63,20 +63,20 @@ Without `debug`, the capability reporter becomes a no-op and avoids console nois
 
 ## Registry integration
 
-`configureWPKernel()` wires kernel middleware into an `@wordpress/data` registry:
+`configureWPKernel()` wires wpk middleware into an `@wordpress/data` registry:
 
 ```typescript
 import { configureWPKernel } from '@wpkernel/core';
 
 const registry = createRegistry();
-const kernel = configureWPKernel({
+const wpk = configureWPKernel({
 	namespace: 'showcase',
 	registry,
 	reporter: createReporter({ namespace: 'showcase', channel: 'all' }),
 });
 ```
 
-- Installs the action middleware so dispatched envelopes execute kernel actions.
+- Installs the action middleware so dispatched envelopes execute wpk actions.
 - Registers the events plugin which converts `wpk.action.error` into `core/notices` entries and logs via the reporter.
 - Accepts additional middleware through the `middleware` option.
 

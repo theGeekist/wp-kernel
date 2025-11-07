@@ -100,7 +100,7 @@ export function buildScaffoldDescriptors(
 function buildPluginTitle(namespace: string): string {
 	const slug = slugify(namespace);
 	if (!slug) {
-		return 'WP Kernel Plugin';
+		return 'WPKernel Plugin';
 	}
 
 	return slug

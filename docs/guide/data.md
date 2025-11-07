@@ -1,6 +1,6 @@
 # WordPress Data Integration
 
-WP Kernel integrates with `@wordpress/data` through the `configureWPKernel()` bootstrap. The helper installs the registry middleware, forwards to the existing events plugin, and returns a kernel instance you can use immediately so every runtime surface shares the same configuration.
+WPKernel integrates with `@wordpress/data` through the `configureWPKernel()` bootstrap. The helper installs the registry middleware, forwards to the existing events plugin, and returns a wpk instance you can use immediately so every runtime surface shares the same configuration.
 
 Core primitives-resources, actions, cache helpers-continue to work without any bootstrap. Stores register themselves and actions can be invoked directly. Calling `configureWPKernel()` layers in observability, WordPress hooks integration, and optional Redux dispatch so the rest of the ecosystem can listen in.
 
@@ -11,7 +11,7 @@ Core primitives-resources, actions, cache helpers-continue to work without any b
 ```ts
 import { configureWPKernel } from '@wpkernel/core';
 
-const kernel = configureWPKernel({
+const wpk = configureWPKernel({
 	namespace: 'acme',
 	registry: window.wp.data,
 	ui: { enable: false },
@@ -74,7 +74,7 @@ Actions retain their full `ActionContext` (capability enforcement, cache invalid
 import { configureWPKernel, registerWPKernelStore } from '@wpkernel/core';
 
 export function bootstrap(registry) {
-	const kernel = configureWPKernel({
+	const wpk = configureWPKernel({
 		registry,
 		namespace: 'my-plugin',
 	});
@@ -116,7 +116,7 @@ export async function createItem(payload) {
 }
 ```
 
-### Dispatch kernel actions via Redux store (requires middleware)
+### Dispatch wpk actions via Redux store (requires middleware)
 
 ```ts
 import { invokeAction } from '@wpkernel/core/actions';
@@ -187,7 +187,7 @@ function my_plugin_handle_action_error( $payload ) {
 - **Notice dependencies** - Without `core/notices`, notice forwarding is skipped but reporter logging stays active.
 - **BroadcastChannel** - Absent in SSR or older browsers; cross-tab sync degrades gracefully.
 - **Runtime configuration** - Capability engines and reporters rely on runtime wiring. Background jobs and PHP bridge integrations arrive in later phases.
-- **Middleware ordering** - Custom middleware runs after the kernel middleware. Ensure ordering aligns with your instrumentation requirements.
+- **Middleware ordering** - Custom middleware runs after the wpk middleware. Ensure ordering aligns with your instrumentation requirements.
 
 ## Best practices
 
@@ -199,7 +199,7 @@ function my_plugin_handle_action_error( $payload ) {
 
 ## Summary
 
-`configureWPKernel()` is the canonical bootstrap for WP Kernel. It installs the middleware stack, exposes the shared reporter and namespace, and prepares the ecosystem bridges that production plugins rely on. Configure once and let the kernel handle the wiring.
+`configureWPKernel()` is the canonical bootstrap for WPKernel. It installs the middleware stack, exposes the shared reporter and namespace, and prepares the ecosystem bridges that production plugins rely on. Configure once and let the wpk handle the wiring.
 
 ## `useCapability()` - gate UI with runtime capabilities
 

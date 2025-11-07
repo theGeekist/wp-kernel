@@ -1,10 +1,10 @@
 ---
-title: WP Kernel
+title: WPKernel
 ---
 
 # Build modern WordPress plugins from one source of truth
 
-WP Kernel gives WordPress developers a predictable workflow. Describe resources and capabilities in `wpk.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
+WPKernel gives WordPress developers a predictable workflow. Describe resources and capabilities in `wpk.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
 
 <div class="cta-buttons">
 <a class="vp-button" href="/getting-started/quick-start">Quick Start</a>
@@ -28,12 +28,12 @@ export function bootstrapKernel(): WPKInstance {
 	});
 }
 
-export const kernel = bootstrapKernel();
+export const wpk = bootstrapKernel();
 ```
 
 ## Works with the WordPress runtime
 
-The kernel integrates with WordPress data stores and emits public events through `@wordpress/hooks`. Generated PHP controllers honour storage modes (`wp-post`, `wp-option`, `transient`) and fall back to `WP_Error(501, 'Not Implemented')` when you mark routes as local but omit storage. When you provide DataViews metadata in the config the CLI creates React screens under `.generated/ui/app/**` and admin menu shims under `.generated/php/Admin/**` so you can enqueue them immediately.【F:packages/cli/src/builders/php/resourceController.ts†L1-L220】【F:packages/cli/src/builders/ts.ts†L1-L200】
+The wpk integrates with WordPress data stores and emits public events through `@wordpress/hooks`. Generated PHP controllers honour storage modes (`wp-post`, `wp-option`, `transient`) and fall back to `WP_Error(501, 'Not Implemented')` when you mark routes as local but omit storage. When you provide DataViews metadata in the config the CLI creates React screens under `.generated/ui/app/**` and admin menu shims under `.generated/php/Admin/**` so you can enqueue them immediately.【F:packages/cli/src/builders/php/resourceController.ts†L1-L220】【F:packages/cli/src/builders/ts.ts†L1-L200】
 
 ## Three ways to dive in
 

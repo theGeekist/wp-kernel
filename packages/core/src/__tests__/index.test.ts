@@ -7,7 +7,7 @@ import { VERSION } from '../index';
 const SEMVER_PATTERN =
 	/^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?(?:\+[a-zA-Z0-9.-]+)?$/;
 
-describe('WP Kernel package entry points', () => {
+describe('WPKernel package entry points', () => {
 	it('exposes a valid pre-release VERSION string', () => {
 		expect(typeof VERSION).toBe('string');
 		expect(VERSION).toMatch(SEMVER_PATTERN);

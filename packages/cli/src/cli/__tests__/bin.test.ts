@@ -10,7 +10,7 @@ describe('wpk bin', () => {
 			WPK_CLI_FORCE_SOURCE: '1',
 		});
 
-		expect(result.stdout).toContain('WP Kernel CLI entry point');
+		expect(result.stdout).toContain('WPKernel CLI entry point');
 	});
 });
 

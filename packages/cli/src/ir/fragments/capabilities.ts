@@ -8,7 +8,7 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
  * This fragment depends on the resources fragment to gather all defined capabilities
  * across the project, which are then used for generating capability maps.
  *
- * @category IR Fragments
+ * @category IR
  * @returns An `IrFragment` instance for capability collection.
  */
 export function createCapabilitiesFragment(): IrFragment {

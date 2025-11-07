@@ -21,7 +21,7 @@ import type {
  * @param    config
  * @param    context
  * @param    fetchList
- * @category DataViews Hooks
+ * @category DataViews Integration
  */
 export function useResolvedController<TItem, TQuery>(
 	controllerProp: ResourceDataViewController<TItem, TQuery> | undefined,

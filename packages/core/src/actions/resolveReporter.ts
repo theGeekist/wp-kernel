@@ -1,4 +1,4 @@
-import { createReporter as createKernelReporter } from '../reporter';
+import { createReporter as createWPKernelReporter } from '../reporter';
 import {
 	resolveReporter as resolveKernelReporter,
 	resetReporterResolution,
@@ -24,7 +24,7 @@ export function resolveActionReporter({
 	return resolveKernelReporter({
 		runtime: resolvedRuntime?.reporter,
 		fallback: () =>
-			createKernelReporter({
+			createWPKernelReporter({
 				namespace,
 				channel: 'all',
 				level: 'debug',

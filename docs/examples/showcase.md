@@ -1,6 +1,6 @@
 # Showcase plugin
 
-The showcase plugin is included with the repository so you can study a full-featured kernel project. It models a hiring portal with a single `job` resource, DataViews metadata, actions, and generated PHP controllers wired into a WordPress plugin.【F:examples/showcase/wpk.config.ts†L1-L140】
+The showcase plugin is included with the repository so you can study a full-featured wpk project. It models a hiring portal with a single `job` resource, DataViews metadata, actions, and generated PHP controllers wired into a WordPress plugin.【F:examples/showcase/wpk.config.ts†L1-L140】
 
 ## Why this example matters
 
@@ -21,13 +21,13 @@ pnpm --filter @examples/showcase wpk apply
 pnpm --filter @examples/showcase dev
 ```
 
-After `dev` starts, visit **Kernel → Showcase** in your WordPress admin. The Jobs list screen reads from the generated resource and honours the DataViews defaults declared in the kernel config.
+After `dev` starts, visit **Kernel → Showcase** in your WordPress admin. The Jobs list screen reads from the generated resource and honours the DataViews defaults declared in the wpk config.
 
 ## What to explore
 
 1. `wpk.config.ts` - the single source of truth, including cache keys and DataViews metadata.
 2. `src/resources/job.ts` - the runtime resource definition consumed by the UI.
-3. `src/index.ts` - bootstraps the kernel and attaches UI bindings.
+3. `src/index.ts` - bootstraps the wpk and attaches UI bindings.
 4. `inc/` - generated PHP controllers after `wpk apply`.
 
 Use this example as a reference implementation when you structure your own plugin. It shows how the CLI output, React runtime, and PHP bridge stay aligned through the config.

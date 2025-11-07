@@ -105,7 +105,7 @@ describe('apply command helpers', () => {
 		});
 	});
 
-	it('throws a kernel error when manifest cannot be parsed', async () => {
+	it('throws a wpk error when manifest cannot be parsed', async () => {
 		const workspace = makeWorkspaceMock({
 			readText: jest
 				.fn<

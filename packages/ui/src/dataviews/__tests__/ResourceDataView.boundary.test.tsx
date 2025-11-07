@@ -1,7 +1,7 @@
 import {
 	DataViewsMock,
 	renderResourceDataView,
-	createKernelRuntime,
+	createWPKernelRuntime,
 	buildListResource,
 	flushDataViews,
 	createConfig,
@@ -80,7 +80,7 @@ describe('ResourceDataView boundaries', () => {
 	});
 
 	it('renders a permission denied boundary when capability checks fail', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = {
 			capability: {
 				can: jest.fn().mockResolvedValue(false),
@@ -119,7 +119,7 @@ describe('ResourceDataView boundaries', () => {
 	});
 
 	it('recomputes permission checks when the capability runtime appears later', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		runtime.capabilities = undefined;
 
 		const { renderResult, rerender } = renderResourceDataView({

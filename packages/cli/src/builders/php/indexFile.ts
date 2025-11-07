@@ -22,7 +22,7 @@ import { getPhpBuilderChannel } from './channel';
  * which includes and initializes all other generated components like controllers,
  * capabilities, and the persistence registry.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating the `index.php` file.
  */
 export function createPhpIndexFileHelper(): BuilderHelper {

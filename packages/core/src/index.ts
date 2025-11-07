@@ -1,5 +1,5 @@
 /**
- * WP Kernel - Core Framework Package
+ * WPKernel - Core Framework Package
  *
  * Rails-like framework for building modern WordPress products where
  * JavaScript is the source of truth and PHP is a thin contract.

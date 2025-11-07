@@ -63,7 +63,7 @@ describe('resource hooks (UI integration)', () => {
 			registry,
 			events: overrides.events ?? new WPKernelEventBus(),
 			invalidate: overrides.invalidate ?? jest.fn(),
-			kernel: overrides.kernel,
+			wpk: overrides.wpk,
 			capabilities: overrides.capabilities,
 			options: overrides.options,
 		};
@@ -589,7 +589,7 @@ describe('resource hooks (UI integration)', () => {
 		});
 	});
 
-	it('attaches hooks when kernel emits resource:defined events', () => {
+	it('attaches hooks when wpk emits resource:defined events', () => {
 		const bus = new WPKernelEventBus();
 		const reporter: Reporter = {
 			info: jest.fn(),

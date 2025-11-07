@@ -92,7 +92,7 @@ export interface DataViewsEventEmitter {
 }
 
 function emitEvent(
-	kernel: WPKInstance,
+	wpk: WPKInstance,
 	reporter: Reporter,
 	eventName: string,
 	payload:
@@ -104,7 +104,7 @@ function emitEvent(
 		| DataViewBoundaryTransitionPayload
 ): void {
 	try {
-		kernel.emit(eventName, payload);
+		wpk.emit(eventName, payload);
 		reporter.debug('Emitted DataViews event', {
 			event: eventName,
 			resource: 'resource' in payload ? payload.resource : undefined,
@@ -122,22 +122,22 @@ export const __TESTING__ = {
 };
 
 export function createDataViewsEventEmitter(
-	kernel: WPKInstance,
+	wpk: WPKInstance,
 	reporter: Reporter
 ): DataViewsEventEmitter {
 	return {
 		registered(payload) {
-			emitEvent(kernel, reporter, DATA_VIEWS_EVENT_REGISTERED, payload);
+			emitEvent(wpk, reporter, DATA_VIEWS_EVENT_REGISTERED, payload);
 		},
 		unregistered(payload) {
-			emitEvent(kernel, reporter, DATA_VIEWS_EVENT_UNREGISTERED, payload);
+			emitEvent(wpk, reporter, DATA_VIEWS_EVENT_UNREGISTERED, payload);
 		},
 		viewChanged(payload) {
-			emitEvent(kernel, reporter, DATA_VIEWS_EVENT_VIEW_CHANGED, payload);
+			emitEvent(wpk, reporter, DATA_VIEWS_EVENT_VIEW_CHANGED, payload);
 		},
 		actionTriggered(payload) {
 			emitEvent(
-				kernel,
+				wpk,
 				reporter,
 				DATA_VIEWS_EVENT_ACTION_TRIGGERED,
 				payload
@@ -145,18 +145,18 @@ export function createDataViewsEventEmitter(
 		},
 		permissionDenied(payload) {
 			emitEvent(
-				kernel,
+				wpk,
 				reporter,
 				DATA_VIEWS_EVENT_PERMISSION_DENIED,
 				payload
 			);
 		},
 		fetchFailed(payload) {
-			emitEvent(kernel, reporter, DATA_VIEWS_EVENT_FETCH_FAILED, payload);
+			emitEvent(wpk, reporter, DATA_VIEWS_EVENT_FETCH_FAILED, payload);
 		},
 		boundaryChanged(payload) {
 			emitEvent(
-				kernel,
+				wpk,
 				reporter,
 				DATA_VIEWS_EVENT_BOUNDARY_TRANSITION,
 				payload

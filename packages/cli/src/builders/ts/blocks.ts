@@ -33,7 +33,7 @@ const DERIVED_TRANSACTION_LABEL =
  * generates JavaScript artifacts for block registration, and stages render stubs
  * for blocks that do not have server-side rendering.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating JavaScript block code.
  */
 export function createJsBlocksBuilder(): BuilderHelper {

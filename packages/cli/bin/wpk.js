@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WP Kernel CLI
+ * WPKernel CLI
  *
  * Main executable entry point
  */
@@ -47,7 +47,7 @@ async function loadCliModule() {
 	} catch (innerError) {
 		if (isMissingSpecifier(innerError, 'tsx/esm/api')) {
 			throw new Error(
-				'The "tsx" peer dependency is required to run the WP Kernel CLI from source. ' +
+				'The "tsx" peer dependency is required to run the WPKernel CLI from source. ' +
 					'Install it (e.g. "pnpm add -D tsx") or build the CLI with ' +
 					'"pnpm --filter @wpkernel/cli build" before running wpk.'
 			);

@@ -1,5 +1,5 @@
 /**
- * WP Kernel Showcase Plugin - Entry Point
+ * WPKernel Showcase Plugin - Entry Point
  *
  * Initializes the Kernel runtime and mounts admin UI.
  */
@@ -8,7 +8,7 @@ import type { WPKernelRegistry } from '@wpkernel/core/data';
 import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
-import { bootstrapKernel, kernel } from './bootstrap/kernel';
+import { bootstrapKernel, wpk } from './bootstrap/wpk';
 
 type WPWindow = typeof window & {
 	wp?: {
@@ -24,11 +24,11 @@ export function init(): void {
 
 	if (!globalWindow.wp?.data) {
 		// Classic admin may load scripts out of order; fail quietly.
-		console.warn('[WP Kernel Showcase] wp.data not available yet.');
+		console.warn('[WPKernel Showcase] wp.data not available yet.');
 		return;
 	}
 
-	// Initialize WP Kernel runtime (middleware + events plugin)
+	// Initialize WPKernel runtime (middleware + events plugin)
 	bootstrapKernel(globalWindow.wp.data as WPKernelRegistry);
 
 	try {
@@ -40,17 +40,17 @@ export function init(): void {
 			context: { actionName: 'Jobs.Init', resourceName: job.storeKey },
 		});
 		console.error(
-			'[WP Kernel Showcase] Failed to prepare job resource:',
+			'[WPKernel Showcase] Failed to prepare job resource:',
 			wrapped
 		);
 	}
 
 	const adminRoot = document.getElementById('wpk-admin-root');
 	if (adminRoot) {
-		const uiRuntime = kernel.getUIRuntime();
+		const uiRuntime = wpk.getUIRuntime();
 		if (!uiRuntime) {
 			console.warn(
-				'[WP Kernel Showcase] UI runtime unavailable. Ensure attachUIBindings is configured.'
+				'[WPKernel Showcase] UI runtime unavailable. Ensure attachUIBindings is configured.'
 			);
 			return;
 		}

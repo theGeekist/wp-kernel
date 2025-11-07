@@ -14,7 +14,7 @@ do_action('post_created', $post_id);
 wp_schedule_single_event(time() + 300, 'send_notification', [$post_id]);
 ```
 
-WP Kernel Actions bring **predictability and coordination** to this process:
+WPKernel Actions bring **predictability and coordination** to this process:
 
 ```typescript
 // Coordinated, predictable, testable
@@ -215,11 +215,11 @@ export const CreatePost = defineAction({
 
 `ctx.reporter` forwards structured telemetry to the reporter module. With `channel: 'all'` the message prints in development
 consoles and emits `showcase.reporter.error` via `wp.hooks`. Once [`configureWPKernel()`](/guide/data) runs the
-`wpkEventsPlugin()` listens for `wpk.action.error` and raises `core/notices` alerts automatically. The same lifecycle appears on `kernel.events`
+`wpkEventsPlugin()` listens for `wpk.action.error` and raises `core/notices` alerts automatically. The same lifecycle appears on `wpk.events`
 so JavaScript consumers can subscribe with full typing:
 
 ```ts
-kernel.events.on('action:start', (event) => {
+wpk.events.on('action:start', (event) => {
 	analytics.track('action:start', event);
 });
 ```
@@ -445,7 +445,7 @@ function PostEditor() {
 	const dispatch = useDispatch('my-plugin/posts');
 
 	const handlePublish = async () => {
-		// Dispatch kernel action through Redux
+		// Dispatch wpk action through Redux
 		const envelope = invokeAction(CreatePost, {
 			title: 'New Post',
 			content: '...',
@@ -462,7 +462,7 @@ function PostEditor() {
 
 **How it works**:
 
-1. `createActionMiddleware()` creates Redux middleware that intercepts kernel action envelopes
+1. `createActionMiddleware()` creates Redux middleware that intercepts wpk action envelopes
 2. `invokeAction()` wraps your action in a Redux-compatible envelope
 3. The middleware executes the action (with all lifecycle events, cache invalidation, etc.)
 4. The action's result is returned directly, bypassing Redux reducers
@@ -510,4 +510,4 @@ function PostEditor() {
 - **[Jobs Guide](/guide/jobs)** - Background processing patterns
 - **[Testing Actions](/contributing/testing#testing-actions)** - Unit and integration testing strategies
 
-Actions are where the magic happens in WP Kernel. They're the bridge between user intent and system reality, ensuring every operation is predictable, reliable, and extensible.
+Actions are where the magic happens in WPKernel. They're the bridge between user intent and system reality, ensuring every operation is predictable, reliable, and extensible.

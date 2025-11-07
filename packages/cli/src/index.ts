@@ -3,7 +3,7 @@
  *
  * This module re-exports the public surface of the CLI package so
  * documentation generators can build consistent API pages alongside the
- * kernel and UI packages.
+ * wpk and UI packages.
  *
  * @module @wpkernel/cli
  */
@@ -14,7 +14,7 @@
  */
 export { VERSION } from './version';
 /**
- * Runs the WP Kernel CLI application.
+ * Runs the WPKernel CLI application.
  *
  * This is the main entry point for executing CLI commands.
  *

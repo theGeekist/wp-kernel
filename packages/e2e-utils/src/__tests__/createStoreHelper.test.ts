@@ -3,7 +3,7 @@
  */
 
 import type { Page } from '@playwright/test';
-import { createStoreHelper } from '../createKernelUtils.js';
+import { createStoreHelper } from '../createWPKernelUtils.js';
 
 describe('createStoreHelper', () => {
 	let mockPage: jest.Mocked<Page>;

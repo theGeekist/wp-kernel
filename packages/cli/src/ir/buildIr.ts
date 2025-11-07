@@ -2,7 +2,7 @@ import type { BuildIrOptions, IRv1 } from './publicTypes';
 import { createIr } from './createIr';
 
 /**
- * Builds the Intermediate Representation (IR) for a WP Kernel project.
+ * Builds the Intermediate Representation (IR) for a WPKernel project.
  *
  * This function orchestrates the process of collecting, validating, and transforming
  * project configurations and metadata into a structured IR that serves as a single

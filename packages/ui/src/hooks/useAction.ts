@@ -40,7 +40,7 @@ type ResolvedRegistry = WPDataLike & {
 };
 
 function resolveWpDataRegistry(runtime: WPKernelUIRuntime): ResolvedRegistry {
-	const registry = runtime.registry ?? runtime.kernel?.getRegistry();
+	const registry = runtime.registry ?? runtime.wpk?.getRegistry();
 
 	if (!registry?.dispatch) {
 		throw new WPKernelError('DeveloperError', {
@@ -97,7 +97,7 @@ function resolveInvokeMethod(
 	if (typeof invoke !== 'function') {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'Failed to resolve kernel action dispatcher. Verify configureWPKernel() initialised the registry.',
+				'Failed to resolve wpk action dispatcher. Verify configureWPKernel() initialised the registry.',
 		});
 	}
 
@@ -135,7 +135,7 @@ function createDispatch(runtime: WPKernelUIRuntime): DispatchFunction {
 /**
  * Options for the useAction hook.
  *
- * @category Actions
+ * @category Action Bindings
  * @public
  */
 export interface UseActionOptions<TInput, TResult> {
@@ -171,7 +171,7 @@ export interface UseActionOptions<TInput, TResult> {
 /**
  * The state of the useAction hook.
  *
- * @category Actions
+ * @category Action Bindings
  */
 export interface UseActionState<TResult> {
 	/** The status of the action. */
@@ -187,7 +187,7 @@ export interface UseActionState<TResult> {
 /**
  * The result of the useAction hook.
  *
- * @category Actions
+ * @category Action Bindings
  * @public
  */
 export interface UseActionResult<TInput, TResult>
@@ -236,13 +236,13 @@ function normaliseToWPKernelError(
 }
 
 /**
- * React hook for invoking a kernel action.
+ * React hook for invoking a wpk action.
  *
  * This hook provides a convenient way to execute a `DefinedAction` and manage its lifecycle,
  * including loading states, errors, and concurrency control. It integrates with the WordPress
  * data store for dispatching actions and can automatically invalidate resource caches upon success.
  *
- * @category Actions
+ * @category Action Bindings
  * @template TInput - The type of the input arguments for the action.
  * @template TResult - The type of the result returned by the action.
  * @param    action  - The `DefinedAction` to be invoked.
@@ -368,12 +368,12 @@ export function useAction<TInput, TResult>(
 			} catch (error) {
 				markRequestCancelled(record);
 				requestsRef.current.delete(requestId);
-				const kernelError = normaliseToWPKernelError(
+				const wpkError = normaliseToWPKernelError(
 					error,
 					'Dispatching action failed with non-error value'
 				);
-				applyErrorState(kernelError);
-				throw kernelError;
+				applyErrorState(wpkError);
+				throw wpkError;
 			}
 
 			const promise = dispatchPromise
@@ -388,8 +388,8 @@ export function useAction<TInput, TResult>(
 							invalidatePatterns.length > 0
 						) {
 							runtime.invalidate?.(invalidatePatterns);
-							if (!runtime.invalidate && runtime.kernel) {
-								runtime.kernel.invalidate(invalidatePatterns);
+							if (!runtime.invalidate && runtime.wpk) {
+								runtime.wpk.invalidate(invalidatePatterns);
 							}
 						}
 						applySuccessState(result);
@@ -397,16 +397,16 @@ export function useAction<TInput, TResult>(
 					return result;
 				})
 				.catch((error: unknown) => {
-					const kernelError = normaliseToWPKernelError(
+					const wpkError = normaliseToWPKernelError(
 						error,
 						'Action failed with non-error value'
 					);
 
 					if (!record.cancelled) {
-						applyErrorState(kernelError);
+						applyErrorState(wpkError);
 					}
 
-					throw kernelError;
+					throw wpkError;
 				})
 				.finally(() => {
 					if (dedupeKey) {
