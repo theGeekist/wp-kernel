@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
 import { buildWorkspace } from '../../workspace';
+import type { IRResource } from '../../ir/publicTypes';
 import type {
 	BuilderInput,
 	BuilderOutput,
@@ -38,11 +39,15 @@ describe('createBundler', () => {
 		sanitizedNamespace,
 		workspaceRoot,
 		phase,
+		resources = [],
+		resourceConfigs = {},
 	}: {
 		namespace: string;
 		sanitizedNamespace: string;
 		workspaceRoot: string;
 		phase: 'generate' | 'apply';
+		resources?: IRResource[];
+		resourceConfigs?: Record<string, unknown>;
 	}): BuilderInput {
 		return {
 			phase,
@@ -51,7 +56,7 @@ describe('createBundler', () => {
 					version: 1,
 					namespace,
 					schemas: {},
-					resources: {},
+					resources: resourceConfigs,
 				},
 				namespace,
 				origin: 'wpk.config.ts',
@@ -72,7 +77,7 @@ describe('createBundler', () => {
 					resources: {},
 				},
 				schemas: [],
-				resources: [],
+				resources,
 				capabilities: [],
 				capabilityMap: {
 					sourcePath: undefined,
@@ -124,7 +129,7 @@ describe('createBundler', () => {
 
 			const input = buildBuilderInput({
 				namespace: 'bundler-plugin',
-				sanitizedNamespace: 'BundlerPlugin',
+				sanitizedNamespace: 'bundler-plugin',
 				workspaceRoot,
 				phase: 'generate',
 			});
@@ -203,6 +208,7 @@ describe('createBundler', () => {
 					'wp-element',
 				])
 			);
+			expect(assetManifest.ui).toBeUndefined();
 
 			expect(output.queueWrite).toHaveBeenCalled();
 			const queuedFiles = queueWrite.mock.calls.map(
@@ -222,6 +228,97 @@ describe('createBundler', () => {
 		});
 	});
 
+	it('includes UI handle metadata when dataview resources exist', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			await workspace.writeJson(
+				'package.json',
+				{
+					name: 'bundler-plugin',
+					version: '1.2.3',
+				},
+				{ pretty: true }
+			);
+
+			const builder = createBundler();
+			const reporter = buildNoopReporter();
+			const queueWrite = jest.fn<void, [BuilderWriteAction]>();
+			const output: BuilderOutput = {
+				actions: [],
+				queueWrite,
+			};
+
+			const dataviewResource = {
+				name: 'books',
+				schemaKey: 'books',
+				schemaProvenance: 'manual',
+				routes: [],
+				cacheKeys: {
+					list: { segments: [], source: 'default' },
+					get: { segments: [], source: 'default' },
+				},
+				warnings: [],
+				hash: 'books-hash',
+				ui: {
+					admin: {
+						dataviews: {},
+					},
+				},
+			} as unknown as IRResource;
+
+			const input = buildBuilderInput({
+				namespace: 'bundler-plugin',
+				sanitizedNamespace: 'bundler-plugin',
+				workspaceRoot,
+				phase: 'generate',
+				resources: [dataviewResource],
+				resourceConfigs: {
+					books: {
+						name: 'books',
+						ui: {
+							admin: {
+								dataviews: {
+									preferencesKey: 'books/admin',
+								},
+							},
+						},
+					},
+				},
+			});
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate',
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const assetPath = path.join(
+				workspaceRoot,
+				'.wpk',
+				'bundler',
+				'assets',
+				'index.asset.json'
+			);
+			const assetManifest = JSON.parse(
+				await fs.readFile(assetPath, 'utf8')
+			);
+
+			expect(assetManifest.ui).toEqual({
+				handle: 'wp-bundler-plugin-ui',
+				asset: 'build/index.asset.json',
+				script: 'build/index.js',
+			});
+		});
+	});
+
 	it('rolls back workspace writes when package.json cannot be parsed', async () => {
 		await withWorkspace(async (workspaceRoot) => {
 			const workspace = buildWorkspace(workspaceRoot);
@@ -236,7 +333,7 @@ describe('createBundler', () => {
 			};
 			const input = buildBuilderInput({
 				namespace: 'bundler-plugin',
-				sanitizedNamespace: 'BundlerPlugin',
+				sanitizedNamespace: 'bundler-plugin',
 				workspaceRoot,
 				phase: 'generate',
 			});
