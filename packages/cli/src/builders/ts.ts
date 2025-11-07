@@ -185,12 +185,19 @@ export interface ResourceDescriptor {
 /**
  * Creates a builder helper for generating TypeScript artifacts.
  *
- * This helper orchestrates the generation of various TypeScript files,
- * such as admin screens and dataview fixtures, based on the project's IR.
- * It uses `ts-morph` for programmatic TypeScript code generation and formatting.
+ * Orchestrates:
+ * - Admin screens under `.generated/ui/app/...`
+ * - DataView fixtures under `.generated/ui/fixtures/dataviews/...`
+ * - Interactivity fixtures under `.generated/ui/fixtures/interactivity/...`
+ * - Registry metadata under `.generated/ui/registry/dataviews/...`
  *
+ * @param    options
  * @category TypeScript Builder
- * @param    options - Options for configuring the TypeScript builder.
+ * @example
+ * ```ts
+ * const builder = createTsBuilder();
+ * await builder.apply({ context, input, output, reporter }, undefined);
+ * ```
  * @returns A `BuilderHelper` instance configured to generate TypeScript artifacts.
  */
 export function createTsBuilder(
@@ -199,6 +206,7 @@ export function createTsBuilder(
 	const creators = options.creators?.slice() ?? [
 		buildAdminScreenCreator(),
 		buildDataViewFixtureCreator(),
+		buildDataViewInteractivityFixtureCreator(),
 		buildDataViewRegistryCreator(),
 	];
 	const projectFactory = options.projectFactory ?? buildProject;
@@ -259,10 +267,17 @@ export function createTsBuilder(
 /**
  * Builds a `TsBuilderCreator` for generating admin screen components.
  *
- * This creator generates a React component for an admin screen, integrating
- * with the `@wpkernel/ui` library to display resource data views.
+ * Generated screens:
+ * - Wrap content in `<WPKernelUIProvider>` using the resolved runtime.
+ * - Stamp `data-wp-interactive` and `data-wp-context` for use with wp-interactivity.
+ *
  *
  * @category TypeScript Builder
+ * @example
+ * ```ts
+ * const creator = buildAdminScreenCreator();
+ * await creator.create(context);
+ * ```
  * @returns A `TsBuilderCreator` instance for admin screen generation.
  */
 export function buildAdminScreenCreator(): TsBuilderCreator {
@@ -315,7 +330,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			);
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: '@wpkernel/core/contracts',
-				namedImports: ['WPKernelError'],
+				namedImports: ['WPKernelError', 'WPK_NAMESPACE'],
 			});
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: '@wpkernel/ui',
@@ -351,6 +366,95 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			}
 
 			const contentComponentName = `${componentName}Content`;
+			const interactivityFeature =
+				resolveInteractivityFeature(descriptor);
+			const featureIdentifier = `${toCamelCase(
+				componentName
+			)}InteractivityFeature`;
+			const contextIdentifier = `${toCamelCase(
+				componentName
+			)}InteractivityContext`;
+			const segmentFunctionName = `normalize${componentName}InteractivitySegment`;
+			const namespaceFunctionName = `get${componentName}InteractivityNamespace`;
+			const resourceNameFallback = descriptor.name;
+
+			sourceFile.addVariableStatement({
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: featureIdentifier,
+						initializer: (writer) => {
+							writer.quote(interactivityFeature);
+						},
+					},
+				],
+			});
+			sourceFile.addVariableStatement({
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: contextIdentifier,
+						initializer: (writer) => {
+							writer.quote(
+								JSON.stringify({
+									feature: interactivityFeature,
+									resource: resourceNameFallback,
+								})
+							);
+						},
+					},
+				],
+			});
+			sourceFile.addFunction({
+				name: segmentFunctionName,
+				parameters: [
+					{ name: 'value', type: 'string' },
+					{ name: 'fallback', type: 'string' },
+				],
+				returnType: 'string',
+				statements: (writer) => {
+					writer.writeLine('const cleaned = value');
+					writer.indent(() => {
+						writer.writeLine('.toLowerCase()');
+						writer.writeLine('.trim()');
+						writer.writeLine(".replace(/[^a-z0-9]+/g, '-')");
+						writer.writeLine(".replace(/-+/g, '-')");
+						writer.writeLine(".replace(/^-+|-+$/g, '')");
+					});
+					writer.writeLine(
+						'return cleaned.length > 0 ? cleaned : fallback;'
+					);
+				},
+			});
+			sourceFile.addFunction({
+				name: namespaceFunctionName,
+				returnType: 'string',
+				statements: (writer) => {
+					writer.writeLine(
+						`const resource = ${resourceSymbol} as { storeKey?: string; name?: string };`
+					);
+					writer.writeLine(
+						"const storeKey = typeof resource.storeKey === 'string' ? resource.storeKey : '';"
+					);
+					writer.writeLine(
+						"const rawSegment = storeKey.split('/').pop();"
+					);
+					writer.writeLine(
+						`const resourceName = typeof resource.name === 'string' && resource.name.length > 0 ? resource.name : ${JSON.stringify(
+							resourceNameFallback
+						)};`
+					);
+					writer.writeLine(
+						`const resourceSegment = ${segmentFunctionName}(rawSegment && rawSegment.length > 0 ? rawSegment : resourceName, 'resource');`
+					);
+					writer.writeLine(
+						`const featureSegment = ${segmentFunctionName}(${featureIdentifier}, 'feature');`
+					);
+					writer.writeLine(
+						'return `${WPK_NAMESPACE}/${resourceSegment}/${featureSegment}`;'
+					);
+				},
+			});
 
 			sourceFile.addFunction({
 				name: contentComponentName,
@@ -396,15 +500,31 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 					});
 					writer.writeLine('}');
 					writer.blankLine();
+					writer.writeLine(
+						`const interactivityNamespace = ${namespaceFunctionName}();`
+					);
 					writer.writeLine('return (');
 					writer.indent(() => {
-						writer.writeLine(
-							'<WPKernelUIProvider runtime={runtime}>'
-						);
+						writer.writeLine('<div');
 						writer.indent(() => {
-							writer.writeLine(`<${contentComponentName} />`);
+							writer.writeLine(
+								'data-wp-interactive={interactivityNamespace}'
+							);
+							writer.writeLine(
+								`data-wp-context={${contextIdentifier}}`
+							);
 						});
-						writer.writeLine('</WPKernelUIProvider>');
+						writer.writeLine('>');
+						writer.indent(() => {
+							writer.writeLine(
+								'<WPKernelUIProvider runtime={runtime}>'
+							);
+							writer.indent(() => {
+								writer.writeLine(`<${contentComponentName} />`);
+							});
+							writer.writeLine('</WPKernelUIProvider>');
+						});
+						writer.writeLine('</div>');
 					});
 					writer.writeLine(');');
 				},
@@ -422,6 +542,11 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
  * configuration for a resource, making it available for testing and development.
  *
  * @category TypeScript Builder
+ * @example
+ * ```ts
+ * const creator = buildDataViewFixtureCreator();
+ * await creator.create(context);
+ * ```
  * @returns A `TsBuilderCreator` instance for dataview fixture generation.
  */
 export function buildDataViewFixtureCreator(): TsBuilderCreator {
@@ -489,6 +614,387 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 }
 
 /**
+ * Builds a `TsBuilderCreator` for generating interactivity fixtures.
+ *
+ * The resulting fixture wires `createDataViewInteraction()` to the generated
+ * resource actions so integrators can hydrate runtime behaviour in tests or
+ * custom entry points.
+ *
+ * @category TypeScript Builder
+ * @example
+ * ```ts
+ * const creator = buildDataViewInteractivityFixtureCreator();
+ * await creator.create(context);
+ * ```
+ * @example
+ * ```ts
+ * import {
+ *   jobsadminscreenInteractivityNamespace,
+ *   createJobsAdminScreenDataViewInteraction,
+ * } from '.generated/ui/fixtures/interactivity/job';
+ *
+ * const { store } = createJobsAdminScreenDataViewInteraction();
+ * ``
+ * @returns A `TsBuilderCreator` instance for interactivity fixture generation.
+ */
+export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
+	return {
+		key: 'builder.generate.ts.dataviewInteractivityFixture.core',
+		async create(context) {
+			const { VariableDeclarationKind } = await loadTsMorph();
+			const { descriptor } = context;
+			const screenConfig = descriptor.dataviews.screen ?? {};
+			const componentName =
+				screenConfig.component ??
+				`${toPascalCase(descriptor.name)}AdminScreen`;
+			const resourceSymbol =
+				screenConfig.resourceSymbol ?? toCamelCase(descriptor.name);
+			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
+			const interactivityFeature =
+				resolveInteractivityFeature(descriptor);
+
+			const fixturePath = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'fixtures',
+				'interactivity',
+				`${descriptor.key}.ts`
+			);
+
+			const [resourceImport, wpkernelImport] = await Promise.all([
+				resolveResourceImport({
+					workspace: context.workspace,
+					from: fixturePath,
+					configured: screenConfig.resourceImport,
+					resourceKey: descriptor.key,
+				}),
+				resolveKernelImport({
+					workspace: context.workspace,
+					from: fixturePath,
+					configured: screenConfig.wpkernelImport,
+				}),
+			]);
+
+			const sourceFile = context.project.createSourceFile(
+				fixturePath,
+				'',
+				{
+					overwrite: true,
+				}
+			);
+
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/core/contracts',
+				namedImports: ['WPKernelError', 'WPK_NAMESPACE'],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/ui/dataviews',
+				namedImports: [
+					{ name: 'createDataViewInteraction' },
+					{ name: 'DataViewInteractionResult', isTypeOnly: true },
+				],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/core/interactivity',
+				namedImports: [
+					{
+						name: 'InteractionActionsRecord',
+						isTypeOnly: true,
+					},
+					{
+						name: 'InteractionActionInput',
+						isTypeOnly: true,
+					},
+					{
+						name: 'HydrateServerStateInput',
+						isTypeOnly: true,
+					},
+				],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/core/data',
+				namedImports: [
+					{ name: 'WPKernelUIRuntime', isTypeOnly: true },
+					{ name: 'WPKernelRegistry', isTypeOnly: true },
+				],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: wpkernelImport,
+				namedImports: [{ name: wpkernelSymbol }],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: resourceImport,
+				namedImports: [{ name: resourceSymbol }],
+			});
+
+			const featureIdentifier = `${toCamelCase(
+				componentName
+			)}InteractivityFeature`;
+			const resourceNameIdentifier = `${toCamelCase(
+				componentName
+			)}InteractivityResourceName`;
+			const segmentFunctionName = `normalize${componentName}InteractivitySegment`;
+			const namespaceFunctionName = `get${componentName}InteractivityNamespace`;
+			const namespaceIdentifier = `${toCamelCase(
+				componentName
+			)}InteractivityNamespace`;
+			const actionsBuilderName = `build${componentName}InteractivityActions`;
+			const actionsIdentifier = `${toCamelCase(
+				componentName
+			)}InteractivityActions`;
+			const runtimeResolverName = `resolve${componentName}Runtime`;
+			const optionsInterfaceName = `Create${componentName}DataViewInteractionOptions`;
+			const createFunctionName = `create${componentName}DataViewInteraction`;
+
+			sourceFile.addVariableStatement({
+				isExported: true,
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: featureIdentifier,
+						initializer: (writer) => {
+							writer.quote(interactivityFeature);
+						},
+					},
+				],
+			});
+			sourceFile.addVariableStatement({
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: resourceNameIdentifier,
+						initializer: (writer) => {
+							writer.quote(descriptor.name);
+						},
+					},
+				],
+			});
+			sourceFile.addFunction({
+				name: segmentFunctionName,
+				parameters: [
+					{ name: 'value', type: 'string' },
+					{ name: 'fallback', type: 'string' },
+				],
+				returnType: 'string',
+				statements: (writer) => {
+					writer.writeLine('const cleaned = value');
+					writer.indent(() => {
+						writer.writeLine('.toLowerCase()');
+						writer.writeLine('.trim()');
+						writer.writeLine(".replace(/[^a-z0-9]+/g, '-')");
+						writer.writeLine(".replace(/-+/g, '-')");
+						writer.writeLine(".replace(/^-+|-+$/g, '')");
+					});
+					writer.writeLine(
+						'return cleaned.length > 0 ? cleaned : fallback;'
+					);
+				},
+			});
+			sourceFile.addFunction({
+				name: namespaceFunctionName,
+				returnType: 'string',
+				statements: (writer) => {
+					writer.writeLine(
+						`const resource = ${resourceSymbol} as { storeKey?: string; name?: string };`
+					);
+					writer.writeLine(
+						"const storeKey = typeof resource.storeKey === 'string' ? resource.storeKey : '';"
+					);
+					writer.writeLine(
+						"const rawSegment = storeKey.split('/').pop();"
+					);
+					writer.writeLine(
+						`const resourceName = typeof resource.name === 'string' && resource.name.length > 0 ? resource.name : ${resourceNameIdentifier};`
+					);
+					writer.writeLine(
+						`const resourceSegment = ${segmentFunctionName}(rawSegment && rawSegment.length > 0 ? rawSegment : resourceName, 'resource');`
+					);
+					writer.writeLine(
+						`const featureSegment = ${segmentFunctionName}(${featureIdentifier}, 'feature');`
+					);
+					writer.writeLine(
+						'return `${WPK_NAMESPACE}/${resourceSegment}/${featureSegment}`;'
+					);
+				},
+			});
+			sourceFile.addVariableStatement({
+				isExported: true,
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: namespaceIdentifier,
+						initializer: `${namespaceFunctionName}()`,
+					},
+				],
+			});
+			sourceFile.addFunction({
+				name: actionsBuilderName,
+				returnType: 'InteractionActionsRecord | undefined',
+				statements: (writer) => {
+					writer.writeLine(
+						`const actions = ${resourceSymbol}.ui?.admin?.dataviews?.actions;`
+					);
+					writer.writeLine('if (!Array.isArray(actions)) {');
+					writer.indent(() => {
+						writer.writeLine('return undefined;');
+					});
+					writer.writeLine('}');
+					writer.writeLine(
+						'const bindings: InteractionActionsRecord = {};'
+					);
+					writer.writeLine('for (const entry of actions) {');
+					writer.indent(() => {
+						writer.writeLine(
+							'if (!entry || typeof entry !== "object") {'
+						);
+						writer.indent(() => {
+							writer.writeLine('continue;');
+						});
+						writer.writeLine('}');
+						writer.writeLine(
+							'const candidate = entry as { id?: unknown; action?: unknown };'
+						);
+						writer.writeLine(
+							"if (typeof candidate.id !== 'string' || candidate.id.length === 0) {"
+						);
+						writer.indent(() => {
+							writer.writeLine('continue;');
+						});
+						writer.writeLine('}');
+						writer.writeLine('if (!candidate.action) {');
+						writer.indent(() => {
+							writer.writeLine('continue;');
+						});
+						writer.writeLine('}');
+						writer.writeLine(
+							'bindings[candidate.id] = candidate.action as InteractionActionInput<unknown, unknown>;'
+						);
+					});
+					writer.writeLine('}');
+					writer.writeLine(
+						'return Object.keys(bindings).length > 0 ? bindings : undefined;'
+					);
+				},
+			});
+			sourceFile.addVariableStatement({
+				isExported: true,
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: actionsIdentifier,
+						initializer: `${actionsBuilderName}()`,
+					},
+				],
+			});
+			sourceFile.addFunction({
+				name: runtimeResolverName,
+				parameters: [
+					{
+						name: 'runtime',
+						type: 'WPKernelUIRuntime | undefined',
+					},
+				],
+				returnType: 'WPKernelUIRuntime',
+				statements: (writer) => {
+					writer.writeLine('if (runtime) {');
+					writer.indent(() => {
+						writer.writeLine('return runtime;');
+					});
+					writer.writeLine('}');
+					writer.writeLine(
+						`const resolved = ${wpkernelSymbol}.getUIRuntime?.();`
+					);
+					writer.writeLine('if (!resolved) {');
+					writer.indent(() => {
+						writer.writeLine(
+							"throw new WPKernelError('DeveloperError', {"
+						);
+						writer.indent(() => {
+							writer.writeLine(
+								"message: 'UI runtime not attached.',"
+							);
+							writer.writeLine(
+								`context: { resourceName: ${resourceNameIdentifier} },`
+							);
+						});
+						writer.writeLine('});');
+					});
+					writer.writeLine('}');
+					writer.writeLine('return resolved;');
+				},
+			});
+			sourceFile.addInterface({
+				isExported: true,
+				name: optionsInterfaceName,
+				properties: [
+					{ name: 'runtime?', type: 'WPKernelUIRuntime' },
+					{ name: 'feature?', type: 'string' },
+					{ name: 'namespace?', type: 'string' },
+					{ name: 'registry?', type: 'WPKernelRegistry' },
+					{ name: 'store?', type: 'Record<string, unknown>' },
+					{ name: 'autoHydrate?', type: 'boolean' },
+					{
+						name: 'hydrateServerState?',
+						type: 'HydrateServerStateInput<unknown, unknown>',
+					},
+					{ name: 'actions?', type: 'InteractionActionsRecord' },
+				],
+			});
+			sourceFile.addFunction({
+				name: createFunctionName,
+				isExported: true,
+				parameters: [
+					{
+						name: 'options',
+						type: `${optionsInterfaceName} = {}`,
+					},
+				],
+				returnType: 'DataViewInteractionResult<unknown, unknown>',
+				statements: (writer) => {
+					writer.writeLine(
+						`const runtime = ${runtimeResolverName}(options.runtime);`
+					);
+					writer.writeLine(
+						`const namespace = options.namespace ?? ${namespaceFunctionName}();`
+					);
+					writer.writeLine(
+						`const feature = options.feature ?? ${featureIdentifier};`
+					);
+					writer.writeLine(
+						`const actions = options.actions ?? ${actionsIdentifier};`
+					);
+					writer.writeLine('return createDataViewInteraction({');
+					writer.indent(() => {
+						writer.writeLine('runtime,');
+						writer.writeLine('feature,');
+						writer.writeLine(`resource: ${resourceSymbol},`);
+						writer.writeLine(
+							`resourceName: ${resourceNameIdentifier},`
+						);
+						writer.writeLine('actions,');
+						writer.writeLine('namespace,');
+						writer.writeLine(
+							'registry: options.registry ?? runtime.registry,'
+						);
+						writer.writeLine('store: options.store,');
+						writer.writeLine('autoHydrate: options.autoHydrate,');
+						writer.writeLine(
+							'hydrateServerState: options.hydrateServerState,'
+						);
+					});
+					writer.writeLine('});');
+				},
+			});
+
+			await context.emit({
+				filePath: fixturePath,
+				sourceFile,
+			});
+		},
+	};
+}
+
+/**
  * Builds a `TsBuilderCreator` for generating DataViews registry metadata.
  *
  * This creator emits a TypeScript module describing the auto-registration
@@ -496,6 +1002,11 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
  * snapshot emitted during generation.
  *
  * @category TypeScript Builder
+ * @example
+ * ```ts
+ * const creator = buildDataViewRegistryCreator();
+ * await creator.create(context);
+ * ```
  * @returns A `TsBuilderCreator` instance for registry metadata generation.
  */
 export function buildDataViewRegistryCreator(): TsBuilderCreator {
@@ -578,6 +1089,33 @@ export function buildDataViewRegistryCreator(): TsBuilderCreator {
 			});
 		},
 	};
+}
+
+type AdminDataViewsWithInteractivity = AdminDataViews & {
+	readonly interactivity?: { readonly feature?: unknown };
+};
+
+/**
+ * Resolves the interactivity feature identifier for a resource.
+ *
+ * Uses `resource.ui.admin.dataviews.interactivity.feature` when present,
+ * otherwise falls back to `'admin-screen'`.
+ *
+ * @param    descriptor
+ * @category TypeScript Builder
+ */
+function resolveInteractivityFeature(descriptor: ResourceDescriptor): string {
+	const dataviews = descriptor.dataviews as AdminDataViewsWithInteractivity;
+	const feature = dataviews.interactivity?.feature;
+
+	if (typeof feature === 'string') {
+		const trimmed = feature.trim();
+		if (trimmed.length > 0) {
+			return trimmed;
+		}
+	}
+
+	return 'admin-screen';
 }
 
 function collectResourceDescriptors(

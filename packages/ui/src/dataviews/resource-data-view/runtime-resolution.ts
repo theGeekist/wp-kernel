@@ -3,17 +3,38 @@ import { DataViewsControllerError } from '../../runtime/dataviews/errors';
 import { ensureControllerRuntime, isDataViewsRuntime } from '../runtime';
 import type { DataViewsRuntimeContext } from '../types';
 
+/**
+ * Resolved runtime context for DataViews integration.
+ *
+ * When provided a full WPKernelUIRuntime, derives a DataViewsRuntimeContext.
+ * When provided a DataViewsRuntimeContext, passes it through.
+ * Otherwise falls back to the hook-provided kernel runtime.
+ */
 export type RuntimeResolution = {
 	kernelRuntime?: WPKernelUIRuntime;
 	context: DataViewsRuntimeContext;
 };
 
-function isKernelRuntime(
+function isWPKernelRuntime(
 	candidate: WPKernelUIRuntime | DataViewsRuntimeContext
 ): candidate is WPKernelUIRuntime {
 	return 'namespace' in candidate && 'events' in candidate;
 }
 
+/**
+ * Normalize kernel/UI runtime inputs into a `DataViewsRuntimeContext`.
+ *
+ * Accepts either:
+ * - a full `WPKernelUIRuntime`, or
+ * - a pre-built `DataViewsRuntimeContext`, or
+ * - falls back to the hook runtime from `WPKernelUIProvider`.
+ *
+ * Throws when DataViews support is missing.
+ *
+ * @param    runtimeProp
+ * @param    hookRuntime
+ * @category DataViews Runtime
+ */
 export function resolveRuntime(
 	runtimeProp: WPKernelUIRuntime | DataViewsRuntimeContext | undefined,
 	hookRuntime: WPKernelUIRuntime | null
@@ -22,7 +43,7 @@ export function resolveRuntime(
 		if (isDataViewsRuntime(runtimeProp)) {
 			return { context: runtimeProp };
 		}
-		if (isKernelRuntime(runtimeProp)) {
+		if (isWPKernelRuntime(runtimeProp)) {
 			if (!runtimeProp.dataviews) {
 				throw new DataViewsControllerError(
 					'WP Kernel UI runtime is missing DataViews support. Ensure Phase 1 runtime is attached.'

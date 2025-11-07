@@ -7,6 +7,22 @@ import type {
 import type { ListResultState } from './types/state';
 import { normalizeListError } from './utils/errors';
 
+/**
+ * Async list loader for DataViews controllers.
+ *
+ * When `fetchList` is provided, manages:
+ * - loading state,
+ * - success state,
+ * - normalized error state via `normalizeListError`,
+ * - `emitFetchFailed` side effect on failure.
+ *
+ * When `fetchList` is absent, yields an idle state.
+ * @param    controller
+ * @param    fetchList
+ * @param    query
+ * @param    reporter
+ * @category DataViews Hooks
+ */
 export function useAsyncList<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	fetchList: ((query: TQuery) => Promise<ListResponse<TItem>>) | undefined,

@@ -2,6 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import type { View } from '@wordpress/dataviews';
 import type { ResourceDataViewController } from '../types';
 
+/**
+ * Merge layout objects from default and concrete views.
+ *
+ * Default layout provides baseline; explicit view layout wins per key.
+ * @param defaultView
+ * @param view
+ */
 function mergeLayouts(
 	defaultView: View,
 	view: View
@@ -20,6 +27,11 @@ function mergeLayouts(
 	};
 }
 
+/**
+ * Merge a concrete view definition with defaults (fields, filters, sort, layout).
+ * @param defaultView
+ * @param view
+ */
 function mergeViewWithDefaults(defaultView: View, view: View): View {
 	const mergedLayout = mergeLayouts(defaultView, view);
 	const merged = {
@@ -37,6 +49,22 @@ function mergeViewWithDefaults(defaultView: View, view: View): View {
 	return merged;
 }
 
+/**
+ * Persist and merge DataViews view state with sensible defaults.
+ *
+ * - Applies `config.defaultView` to the initial view.
+ * - Restores stored preferences when available.
+ * - Emits register/unregister + view change events on the controller.
+ *
+ * @param    controller
+ * @param    initial
+ * @category DataViews Hooks
+ * @example
+ * ```ts
+ * const [view, setView] = useStableView(controller, initialView);
+ * <DataViews view={view} onChangeView={setView} />;
+ * ```
+ */
 export function useStableView(
 	controller: ResourceDataViewController<unknown, unknown>,
 	initial: View
