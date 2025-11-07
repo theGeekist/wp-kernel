@@ -68,6 +68,9 @@ describe('generation manifest helpers', () => {
 						file: '.generated/php/index.php',
 						ast: './.generated/php/index.php.ast.json',
 					},
+					ui: {
+						handle: 'wp-demo-plugin-ui',
+					},
 				})
 			),
 		});
@@ -95,6 +98,9 @@ describe('generation manifest helpers', () => {
 			phpIndex: {
 				file: '.generated/php/index.php',
 				ast: '.generated/php/index.php.ast.json',
+			},
+			ui: {
+				handle: 'wp-demo-plugin-ui',
 			},
 		});
 	});
@@ -131,6 +137,11 @@ describe('generation manifest helpers', () => {
 	});
 
 	it('builds a manifest from an IR artifact', () => {
+		const dataviewsConfig = {
+			fields: [{ id: 'title', label: 'Title' }],
+			defaultView: { type: 'table', fields: ['title'] },
+			preferencesKey: 'books/admin',
+		} as unknown;
 		const resource: IRResource = {
 			name: 'books',
 			schemaKey: 'books',
@@ -142,20 +153,37 @@ describe('generation manifest helpers', () => {
 			},
 			warnings: [],
 			hash: 'abc123',
+			ui: {
+				admin: {
+					dataviews: dataviewsConfig,
+				},
+			} as unknown,
 		};
 
 		const manifest = buildGenerationManifestFromIr({
 			meta: {
 				version: 1,
-				namespace: 'DemoPlugin',
+				namespace: 'demo-plugin',
 				sourcePath: 'wpk.config.ts',
 				origin: 'typescript',
-				sanitizedNamespace: 'DemoPlugin',
+				sanitizedNamespace: 'demo-plugin',
 			},
 			config: {
 				version: 1,
-				namespace: 'DemoPlugin',
-				resources: {},
+				namespace: 'demo-plugin',
+				resources: {
+					books: {
+						name: 'books',
+						schema: 'auto',
+						routes: {},
+						cacheKeys: {},
+						ui: {
+							admin: {
+								dataviews: dataviewsConfig,
+							},
+						},
+					} as unknown,
+				},
 				schemas: {},
 			},
 			schemas: [],
@@ -183,6 +211,7 @@ describe('generation manifest helpers', () => {
 				generated: expect.arrayContaining([
 					'.generated/php/Rest/BooksController.php',
 					'.generated/php/Rest/BooksController.php.ast.json',
+					'.generated/ui/registry/dataviews/books.ts',
 				]),
 				shims: ['inc/Rest/BooksController.php'],
 			},
@@ -195,6 +224,7 @@ describe('generation manifest helpers', () => {
 			file: '.generated/php/index.php',
 			ast: '.generated/php/index.php.ast.json',
 		});
+		expect(manifest.ui).toEqual({ handle: 'wp-demo-plugin-ui' });
 	});
 
 	it('returns an empty manifest when IR is null', () => {

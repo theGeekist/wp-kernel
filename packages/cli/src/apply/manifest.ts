@@ -1,8 +1,9 @@
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
-import type { IRv1 } from '../ir/publicTypes';
+import type { IRResource, IRv1 } from '../ir/publicTypes';
 import { toPascalCase } from '../builders/php/utils';
 import type { Workspace } from '../workspace';
+import { sanitizeNamespace } from '../adapters/extensions';
 
 export const GENERATION_STATE_VERSION = 1 as const;
 export const GENERATION_STATE_PATH = path.posix.join(
@@ -35,6 +36,11 @@ export interface GenerationManifest {
 	readonly resources: Record<string, GenerationManifestResourceEntry>;
 	readonly pluginLoader?: GenerationManifestFilePair;
 	readonly phpIndex?: GenerationManifestFilePair;
+	readonly ui?: GenerationManifestUiState;
+}
+
+export interface GenerationManifestUiState {
+	readonly handle: string;
 }
 
 export interface RemovedResourceEntry {
@@ -98,11 +104,14 @@ export function buildGenerationManifestFromIr(
 		path.posix.join(normaliseDirectory(ir.php.outputDir), 'index.php')
 	);
 
+	const uiHandle = buildUiHandle(ir);
+
 	return {
 		version: GENERATION_STATE_VERSION,
 		resources,
 		...(pluginLoader ? { pluginLoader } : {}),
 		...(phpIndex ? { phpIndex } : {}),
+		...(uiHandle ? { ui: { handle: uiHandle } } : {}),
 	} satisfies GenerationManifest;
 }
 
@@ -160,12 +169,14 @@ export function normaliseGenerationState(value: unknown): GenerationManifest {
 	const resources = normaliseResources(value.resources);
 	const pluginLoader = normaliseFilePair(value.pluginLoader);
 	const phpIndex = normaliseFilePair(value.phpIndex);
+	const ui = normaliseUiState(value.ui);
 
 	return {
 		version: GENERATION_STATE_VERSION,
 		resources,
 		...(pluginLoader ? { pluginLoader } : {}),
 		...(phpIndex ? { phpIndex } : {}),
+		...(ui ? { ui } : {}),
 	} satisfies GenerationManifest;
 }
 
@@ -199,39 +210,127 @@ function buildResourceEntries(
 	const entries: Record<string, GenerationManifestResourceEntry> = {};
 	const autoloadRoot = normaliseDirectory(ir.php.autoload);
 	const outputDir = normaliseDirectory(ir.php.outputDir);
+	const resourceKeyLookup = buildResourceKeyLookup(ir.config.resources);
 
 	for (const resource of ir.resources) {
-		const pascal = toPascalCase(resource.name);
-		if (!pascal) {
+		const entry = buildResourceEntry({
+			resource,
+			autoloadRoot,
+			outputDir,
+			resourceKeyLookup,
+		});
+
+		if (!entry) {
 			continue;
 		}
 
-		const controllerFile = path.posix.join(
-			outputDir,
-			'Rest',
-			`${pascal}Controller.php`
-		);
-
-		const generatedArtifacts = Array.from(
-			new Set([controllerFile, `${controllerFile}.ast.json`])
-		);
-
-		const shimBase = path.posix.join('Rest', `${pascal}Controller.php`);
-		const shimRoot = autoloadRoot ? autoloadRoot : '';
-		const shimPath = shimRoot
-			? path.posix.join(shimRoot, shimBase)
-			: shimBase;
-
-		entries[resource.name] = {
-			hash: resource.hash,
-			artifacts: {
-				generated: generatedArtifacts,
-				shims: [shimPath],
-			},
-		} satisfies GenerationManifestResourceEntry;
+		entries[resource.name] = entry;
 	}
 
 	return entries;
+}
+
+function normaliseUiState(
+	value: unknown
+): GenerationManifestUiState | undefined {
+	if (!isRecord(value)) {
+		return undefined;
+	}
+
+	const handle = typeof value.handle === 'string' ? value.handle.trim() : '';
+	if (!handle) {
+		return undefined;
+	}
+
+	return { handle } satisfies GenerationManifestUiState;
+}
+
+function buildUiHandle(ir: IRv1): string | null {
+	const namespaceCandidate =
+		ir.meta.sanitizedNamespace ?? ir.meta.namespace ?? '';
+	const slug = sanitizeNamespace(namespaceCandidate);
+	if (!slug) {
+		return null;
+	}
+
+	const hasUiResources = (ir.resources ?? []).some((resource) =>
+		Boolean(resource.ui?.admin?.dataviews)
+	);
+
+	if (!hasUiResources) {
+		return null;
+	}
+
+	return `wp-${slug}-ui`;
+}
+
+function buildResourceKeyLookup(
+	resources: IRv1['config']['resources']
+): Map<string, string> {
+	const lookup = new Map<string, string>();
+
+	for (const [resourceKey, resourceConfig] of Object.entries(
+		resources ?? {}
+	)) {
+		const name = resourceConfig?.name;
+		if (typeof name === 'string' && !lookup.has(name)) {
+			lookup.set(name, resourceKey);
+		}
+	}
+
+	return lookup;
+}
+
+function buildResourceEntry({
+	resource,
+	autoloadRoot,
+	outputDir,
+	resourceKeyLookup,
+}: {
+	readonly resource: IRResource;
+	readonly autoloadRoot: string;
+	readonly outputDir: string;
+	readonly resourceKeyLookup: Map<string, string>;
+}): GenerationManifestResourceEntry | null {
+	const pascal = toPascalCase(resource.name);
+	if (!pascal) {
+		return null;
+	}
+
+	const controllerFile = path.posix.join(
+		outputDir,
+		'Rest',
+		`${pascal}Controller.php`
+	);
+
+	const generatedArtifacts = new Set<string>([
+		controllerFile,
+		`${controllerFile}.ast.json`,
+	]);
+
+	const resourceKey = resourceKeyLookup.get(resource.name) ?? resource.name;
+	if (resource.ui?.admin?.dataviews) {
+		const registryPath = path.posix.join(
+			'.generated',
+			'ui',
+			'registry',
+			'dataviews',
+			`${resourceKey}.ts`
+		);
+		generatedArtifacts.add(registryPath);
+	}
+
+	const shimBase = path.posix.join('Rest', `${pascal}Controller.php`);
+	const shimRoot = autoloadRoot ? autoloadRoot : '';
+	const shimPath = shimRoot ? path.posix.join(shimRoot, shimBase) : shimBase;
+
+	return {
+		hash: resource.hash,
+		artifacts: {
+			generated: Array.from(generatedArtifacts),
+			shims: [shimPath],
+		},
+	} satisfies GenerationManifestResourceEntry;
 }
 
 function buildFilePair(file: string): GenerationManifestFilePair | null {

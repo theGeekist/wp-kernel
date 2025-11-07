@@ -7,6 +7,8 @@ import {
 	buildArg,
 	buildArray,
 	buildArrayItem,
+	buildArrayDimFetch,
+	type PhpExprArrayItem,
 	buildAssign,
 	buildBinaryOperation,
 	buildBooleanNot,
@@ -32,6 +34,7 @@ import {
 	buildVariable,
 	buildNode,
 	mergeNodeAttributes,
+	type PhpExpr,
 	type PhpExprConstFetch,
 	type PhpProgram,
 	type PhpStmt,
@@ -46,6 +49,28 @@ export interface PluginLoaderProgramConfig {
 	readonly namespace: string;
 	readonly sanitizedNamespace: string;
 	readonly resourceClassNames: readonly string[];
+	readonly ui?: PluginLoaderUiConfig;
+}
+
+interface PluginLoaderUiResourceConfig {
+	readonly resource: string;
+	readonly preferencesKey: string;
+	readonly menu?: {
+		readonly slug?: string;
+		readonly title?: string;
+		readonly capability?: string;
+		readonly parent?: string;
+		readonly position?: number;
+	};
+}
+
+interface PluginLoaderUiConfig {
+	readonly handle: string;
+	readonly assetPath: string;
+	readonly scriptPath: string;
+	readonly localizationObject: string;
+	readonly namespace: string;
+	readonly resources: readonly PluginLoaderUiResourceConfig[];
 }
 
 /**
@@ -85,7 +110,13 @@ function buildNamespaceStatements(config: PluginLoaderProgramConfig): PhpStmt {
 	statements.push(buildAccessGuardStatement());
 	statements.push(buildGetControllersFunction(config));
 	statements.push(buildRegisterRoutesFunction());
-	statements.push(buildBootstrapFunction());
+
+	const registerUiAssetsFunction = buildRegisterUiAssetsFunction(config);
+	if (registerUiAssetsFunction) {
+		statements.push(registerUiAssetsFunction);
+	}
+
+	statements.push(buildBootstrapFunction(config));
 	statements.push(buildBootstrapInvocation());
 	statements.push(
 		buildStmtNop({ comments: [buildComment(`// ${AUTO_GUARD_END}`)] })
@@ -203,24 +234,244 @@ function buildRegisterRoutesFunction(): PhpStmtFunction {
 	});
 }
 
-function buildBootstrapFunction(): PhpStmtFunction {
+function buildRegisterUiAssetsFunction(
+	config: PluginLoaderProgramConfig
+): PhpStmtFunction | null {
+	const ui = config.ui;
+	if (!ui || ui.resources.length === 0) {
+		return null;
+	}
+
+	const assetPathAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('asset_path'),
+			buildBinaryOperation(
+				'Concat',
+				buildFuncCall(buildName(['plugin_dir_path']), [
+					buildArg(buildConstFetchExpression('__FILE__')),
+				]),
+				buildScalarString(ui.assetPath)
+			)
+		)
+	);
+
+	const guardMissingAsset = buildIfStatement(
+		buildBooleanNot(
+			buildFuncCall(buildName(['file_exists']), [
+				buildArg(buildVariable('asset_path')),
+			])
+		),
+		[buildReturn(null)]
+	);
+
+	const assetContentsAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('asset_contents'),
+			buildFuncCall(buildName(['file_get_contents']), [
+				buildArg(buildVariable('asset_path')),
+			])
+		)
+	);
+
+	const guardUnreadableAsset = buildIfStatement(
+		buildBinaryOperation(
+			'Identical',
+			buildVariable('asset_contents'),
+			buildConstFetchExpression('false')
+		),
+		[buildReturn(null)]
+	);
+
+	const decodeAsset = buildExpressionStatement(
+		buildAssign(
+			buildVariable('asset'),
+			buildFuncCall(buildName(['json_decode']), [
+				buildArg(buildVariable('asset_contents')),
+				buildArg(buildConstFetchExpression('true')),
+			])
+		)
+	);
+
+	const initialiseDependencies = buildExpressionStatement(
+		buildAssign(buildVariable('dependencies'), buildArray([]))
+	);
+
+	const dependenciesGuard = buildIfStatement(
+		buildBinaryOperation(
+			'BooleanAnd',
+			buildFuncCall(buildName(['is_array']), [
+				buildArg(buildVariable('asset')),
+			]),
+			buildBinaryOperation(
+				'BooleanAnd',
+				buildFuncCall(buildName(['isset']), [
+					buildArg(
+						buildArrayDimFetch(
+							buildVariable('asset'),
+							buildScalarString('dependencies')
+						)
+					),
+				]),
+				buildFuncCall(buildName(['is_array']), [
+					buildArg(
+						buildArrayDimFetch(
+							buildVariable('asset'),
+							buildScalarString('dependencies')
+						)
+					),
+				])
+			)
+		),
+		[
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('dependencies'),
+					buildArrayDimFetch(
+						buildVariable('asset'),
+						buildScalarString('dependencies')
+					)
+				)
+			),
+		]
+	);
+
+	const initialiseVersion = buildExpressionStatement(
+		buildAssign(
+			buildVariable('version'),
+			buildConstFetchExpression('false')
+		)
+	);
+
+	const versionGuard = buildIfStatement(
+		buildBinaryOperation(
+			'BooleanAnd',
+			buildFuncCall(buildName(['is_array']), [
+				buildArg(buildVariable('asset')),
+			]),
+			buildFuncCall(buildName(['array_key_exists']), [
+				buildArg(buildScalarString('version')),
+				buildArg(buildVariable('asset')),
+			])
+		),
+		[
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('version'),
+					buildArrayDimFetch(
+						buildVariable('asset'),
+						buildScalarString('version')
+					)
+				)
+			),
+		]
+	);
+
+	const scriptUrlAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('script_url'),
+			buildFuncCall(buildName(['plugins_url']), [
+				buildArg(buildScalarString(ui.scriptPath)),
+				buildArg(buildConstFetchExpression('__FILE__')),
+			])
+		)
+	);
+
+	const registerScript = buildExpressionStatement(
+		buildFuncCall(buildName(['wp_register_script']), [
+			buildArg(buildScalarString(ui.handle)),
+			buildArg(buildVariable('script_url')),
+			buildArg(buildVariable('dependencies')),
+			buildArg(buildVariable('version')),
+		])
+	);
+
+	const localizationAssign = buildExpressionStatement(
+		buildAssign(buildVariable('localization'), buildLocalizationArray(ui))
+	);
+
+	const localizeScript = buildExpressionStatement(
+		buildFuncCall(buildName(['wp_localize_script']), [
+			buildArg(buildScalarString(ui.handle)),
+			buildArg(buildScalarString(ui.localizationObject)),
+			buildArg(buildVariable('localization')),
+		])
+	);
+
+	const enqueueScript = buildExpressionStatement(
+		buildFuncCall(buildName(['wp_enqueue_script']), [
+			buildArg(buildScalarString(ui.handle)),
+		])
+	);
+
+	const statements: PhpStmt[] = [
+		assetPathAssign,
+		guardMissingAsset,
+		assetContentsAssign,
+		guardUnreadableAsset,
+		decodeAsset,
+		initialiseDependencies,
+		dependenciesGuard,
+		initialiseVersion,
+		versionGuard,
+		scriptUrlAssign,
+		registerScript,
+		localizationAssign,
+		localizeScript,
+		enqueueScript,
+	];
+
+	const fn = buildNodeFunction('enqueue_kernel_ui_assets', {
+		returnType: buildIdentifier('void'),
+		statements,
+	});
+
+	return mergeNodeAttributes(fn, {
+		comments: [
+			buildDocComment([
+				'Register and enqueue generated UI assets for DataViews screens.',
+			]),
+		],
+	});
+}
+
+function buildBootstrapFunction(
+	config: PluginLoaderProgramConfig
+): PhpStmtFunction {
 	const namespaceConst = buildConstFetchExpression('__NAMESPACE__');
-	const callback = buildBinaryOperation(
+	const restCallback = buildBinaryOperation(
 		'Concat',
 		namespaceConst,
 		buildScalarString('\\register_kernel_routes')
 	);
 
-	const addActionCall = buildExpressionStatement(
-		buildFuncCall(buildName(['add_action']), [
-			buildArg(buildScalarString('rest_api_init')),
-			buildArg(callback),
-		])
-	);
+	const statements: PhpStmt[] = [
+		buildExpressionStatement(
+			buildFuncCall(buildName(['add_action']), [
+				buildArg(buildScalarString('rest_api_init')),
+				buildArg(restCallback),
+			])
+		),
+	];
+
+	if (config.ui) {
+		const uiCallback = buildBinaryOperation(
+			'Concat',
+			namespaceConst,
+			buildScalarString('\\enqueue_kernel_ui_assets')
+		);
+		statements.push(
+			buildExpressionStatement(
+				buildFuncCall(buildName(['add_action']), [
+					buildArg(buildScalarString('admin_enqueue_scripts')),
+					buildArg(uiCallback),
+				])
+			)
+		);
+	}
 
 	const fn = buildNodeFunction('bootstrap_kernel', {
 		returnType: buildIdentifier('void'),
-		statements: [addActionCall],
+		statements,
 	});
 
 	return mergeNodeAttributes(fn, {
@@ -236,6 +487,99 @@ function buildBootstrapInvocation(): PhpStmt {
 	return buildExpressionStatement(
 		buildFuncCall(buildName(['bootstrap_kernel']))
 	);
+}
+
+function buildLocalizationArray(ui: PluginLoaderUiConfig): PhpExpr {
+	const resourceItems: PhpExprArrayItem[] = ui.resources.map((resource) =>
+		buildArrayItem(buildResourceLocalizationArray(resource))
+	);
+
+	return buildArray([
+		buildArrayItem(buildScalarString(ui.namespace), {
+			key: buildScalarString('namespace'),
+		}),
+		buildArrayItem(buildArray(resourceItems), {
+			key: buildScalarString('resources'),
+		}),
+	]);
+}
+
+function buildResourceLocalizationArray(
+	resource: PluginLoaderUiResourceConfig
+): PhpExpr {
+	const items: PhpExprArrayItem[] = [
+		buildArrayItem(buildScalarString(resource.resource), {
+			key: buildScalarString('resource'),
+		}),
+		buildArrayItem(buildScalarString(resource.preferencesKey), {
+			key: buildScalarString('preferencesKey'),
+		}),
+	];
+
+	if (resource.menu) {
+		const menuArray = buildMenuLocalizationArray(resource.menu);
+		if (menuArray) {
+			items.push(
+				buildArrayItem(menuArray, {
+					key: buildScalarString('menu'),
+				})
+			);
+		}
+	}
+
+	return buildArray(items);
+}
+
+function buildMenuLocalizationArray(
+	menu: NonNullable<PluginLoaderUiResourceConfig['menu']>
+): PhpExpr | null {
+	const items: PhpExprArrayItem[] = [];
+
+	if (menu.slug) {
+		items.push(
+			buildArrayItem(buildScalarString(menu.slug), {
+				key: buildScalarString('slug'),
+			})
+		);
+	}
+
+	if (menu.title) {
+		items.push(
+			buildArrayItem(buildScalarString(menu.title), {
+				key: buildScalarString('title'),
+			})
+		);
+	}
+
+	if (menu.capability) {
+		items.push(
+			buildArrayItem(buildScalarString(menu.capability), {
+				key: buildScalarString('capability'),
+			})
+		);
+	}
+
+	if (menu.parent) {
+		items.push(
+			buildArrayItem(buildScalarString(menu.parent), {
+				key: buildScalarString('parent'),
+			})
+		);
+	}
+
+	if (typeof menu.position === 'number') {
+		items.push(
+			buildArrayItem(buildScalarInt(menu.position), {
+				key: buildScalarString('position'),
+			})
+		);
+	}
+
+	if (items.length === 0) {
+		return null;
+	}
+
+	return buildArray(items);
 }
 
 function buildNodeFunction(

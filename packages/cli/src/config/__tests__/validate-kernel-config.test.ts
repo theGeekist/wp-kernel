@@ -136,6 +136,26 @@ describe('validateWPKernelConfig', () => {
 						type: 'table',
 						fields: ['title'],
 					},
+					mapQuery: () => ({}) as Record<string, unknown>,
+					search: true,
+					searchLabel: 'Search things',
+					perPageSizes: [10, 25],
+					defaultLayouts: {
+						table: { columns: ['title'] },
+					},
+					preferencesKey: 'ui/things',
+					views: [
+						{
+							id: 'all',
+							label: 'All things',
+							view: {
+								type: 'table',
+								fields: ['title'],
+							},
+							isDefault: true,
+							description: 'All items including drafts.',
+						},
+					],
 					screen: {
 						component: 'ThingAdminScreen',
 						route: '/admin/things',
@@ -159,6 +179,23 @@ describe('validateWPKernelConfig', () => {
 		expect(resource.ui?.admin?.view).toBe('dataviews');
 		expect(resource.ui?.admin?.dataviews?.fields).toEqual([
 			{ id: 'title', label: 'Title' },
+		]);
+		expect(typeof resource.ui?.admin?.dataviews?.mapQuery).toBe('function');
+		expect(resource.ui?.admin?.dataviews?.search).toBe(true);
+		expect(resource.ui?.admin?.dataviews?.searchLabel).toBe(
+			'Search things'
+		);
+		expect(resource.ui?.admin?.dataviews?.perPageSizes).toEqual([10, 25]);
+		expect(resource.ui?.admin?.dataviews?.defaultLayouts).toEqual({
+			table: { columns: ['title'] },
+		});
+		expect(resource.ui?.admin?.dataviews?.preferencesKey).toBe('ui/things');
+		expect(resource.ui?.admin?.dataviews?.views).toEqual([
+			expect.objectContaining({
+				id: 'all',
+				label: 'All things',
+				isDefault: true,
+			}),
 		]);
 		expect(resource.ui?.admin?.dataviews?.screen?.menu?.slug).toBe(
 			'thing-admin'
