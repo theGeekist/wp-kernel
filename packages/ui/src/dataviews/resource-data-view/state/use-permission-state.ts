@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceDataViewController } from '../../types';
 import type { PermissionState } from '../types/state';
@@ -41,6 +41,7 @@ export function usePermissionState<TItem, TQuery>(
 	const [state, setState] = useState<PermissionState>(() =>
 		buildInitialState(capability)
 	);
+	const lastStatusRef = useRef<PermissionState['status']>(state.status);
 
 	useEffect(() => {
 		if (!capability) {
@@ -113,6 +114,35 @@ export function usePermissionState<TItem, TQuery>(
 		capabilityRuntime,
 		capabilityResolver,
 	]);
+
+	useEffect(() => {
+		if (!capability) {
+			lastStatusRef.current = state.status;
+			return;
+		}
+
+		const previous = lastStatusRef.current;
+		if (previous === state.status) {
+			return;
+		}
+
+		if (state.status === 'denied') {
+			controller.emitPermissionDenied({
+				capability,
+				source: 'screen',
+				reason: state.error ? 'error' : 'forbidden',
+				error: state.error,
+			});
+		} else if (state.status === 'unknown') {
+			controller.emitPermissionDenied({
+				capability,
+				source: 'screen',
+				reason: 'runtime-missing',
+			});
+		}
+
+		lastStatusRef.current = state.status;
+	}, [capability, controller, state]);
 
 	return state;
 }

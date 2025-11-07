@@ -149,10 +149,11 @@ describe('ResourceDataView actions', () => {
 
 		expect(errorSpy).toHaveBeenCalledWith(
 			'Capability evaluation threw an error',
-			{
-				error: expect.any(Error),
+			expect.objectContaining({
+				error: expect.any(WPKernelError),
 				capability: 'jobs.delete',
-			}
+				resource: 'jobs',
+			})
 		);
 	});
 
@@ -236,6 +237,38 @@ describe('ResourceDataView actions', () => {
 		expect(secondAction!.disabled).toBe(true);
 	});
 
+	it('emits runtime-missing permission events when capability runtime is absent', async () => {
+		const runtime = createKernelRuntime();
+		runtime.capabilities = undefined;
+
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				capability: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
+		});
+
+		const [actionEntry] = getActionEntries();
+		expect(actionEntry).toBeDefined();
+
+		await act(async () => {
+			await actionEntry!.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(runtime.dataviews.events.permissionDenied).toHaveBeenCalledWith(
+			expect.objectContaining({
+				resource: 'jobs',
+				actionId: 'delete',
+				reason: 'runtime-missing',
+				source: 'action',
+				selection: ['1'],
+			})
+		);
+	});
+
 	it('keeps capability-free actions enabled even with capability runtime present', async () => {
 		const runtime = createKernelRuntime();
 		runtime.capabilities = {
@@ -309,6 +342,15 @@ describe('ResourceDataView actions', () => {
 				reason: 'capability-pending',
 			})
 		);
+		expect(runtime.dataviews.events.permissionDenied).toHaveBeenCalledWith(
+			expect.objectContaining({
+				resource: 'jobs',
+				actionId: 'delete',
+				reason: 'pending',
+				source: 'action',
+				selection: ['1'],
+			})
+		);
 		expect(actionImpl).not.toHaveBeenCalled();
 
 		resolveCapability?.(true);
@@ -351,6 +393,15 @@ describe('ResourceDataView actions', () => {
 				actionId: 'delete',
 				permitted: false,
 				reason: 'capability-denied',
+			})
+		);
+		expect(runtime.dataviews.events.permissionDenied).toHaveBeenCalledWith(
+			expect.objectContaining({
+				resource: 'jobs',
+				actionId: 'delete',
+				reason: 'forbidden',
+				source: 'action',
+				selection: ['1'],
 			})
 		);
 		expect(runtime.dataviews.reporter.warn).toHaveBeenCalledWith(

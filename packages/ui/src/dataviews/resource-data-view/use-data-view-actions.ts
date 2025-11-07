@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createNoopReporter } from '@wpkernel/core/reporter';
+import { WPKernelError } from '@wpkernel/core/error';
 import { normalizeActionError } from '../error-utils';
 import type {
 	ResourceDataViewActionConfig,
@@ -14,10 +15,13 @@ import type {
 	DataViewsRuntimeContext,
 } from '../types';
 import { formatActionSuccessMessage } from './i18n';
+import type { DataViewPermissionDeniedReason } from '../../runtime/dataviews/events';
 
 type ActionDecision = {
 	allowed: boolean;
 	loading: boolean;
+	reason?: DataViewPermissionDeniedReason;
+	error?: WPKernelError;
 };
 
 type DataViewsActionContext<TItem> = Parameters<
@@ -41,6 +45,57 @@ type NoticeHandlers = {
 const noopNotice = () => {
 	// Intentionally empty
 };
+
+function normalizeActionCapabilityError(
+	value: unknown,
+	reporter: Reporter,
+	context: { capability: string; resource: string },
+	level: 'warn' | 'error'
+): WPKernelError {
+	const message =
+		level === 'warn'
+			? 'Capability evaluation failed for DataViews action'
+			: 'Capability evaluation threw an error';
+
+	if (WPKernelError.isWPKernelError(value)) {
+		if (level === 'warn') {
+			reporter.warn?.(message, {
+				error: value,
+				capability: context.capability,
+				resource: context.resource,
+			});
+		} else {
+			reporter.error?.(message, {
+				error: value,
+				capability: context.capability,
+				resource: context.resource,
+			});
+		}
+		return value;
+	}
+
+	const baseError = value instanceof Error ? value : new Error(message);
+	const normalized = WPKernelError.wrap(baseError, 'CapabilityDenied', {
+		resourceName: context.resource,
+		capability: context.capability,
+	});
+
+	if (level === 'warn') {
+		reporter.warn?.(message, {
+			error: normalized,
+			capability: context.capability,
+			resource: context.resource,
+		});
+	} else {
+		reporter.error?.(message, {
+			error: normalized,
+			capability: context.capability,
+			resource: context.resource,
+		});
+	}
+
+	return normalized;
+}
 
 function resolveNoticeHandlers(
 	registry: DataViewsRuntimeContext['registry'],
@@ -99,6 +154,38 @@ function resolveNoticeHandlers(
 	}
 }
 
+function determineDeniedReason(
+	decision: ActionDecision
+): DataViewPermissionDeniedReason {
+	if (decision.reason === 'runtime-missing') {
+		return 'runtime-missing';
+	}
+
+	if (decision.reason === 'error') {
+		return 'error';
+	}
+
+	return 'forbidden';
+}
+
+function emitPermissionEvent<TItem, TQuery>(
+	controller: ResourceDataViewController<TItem, TQuery>,
+	actionId: string,
+	capability: string | undefined,
+	selection: string[],
+	reason: DataViewPermissionDeniedReason,
+	error?: WPKernelError
+): void {
+	controller.emitPermissionDenied({
+		actionId,
+		capability,
+		selection,
+		source: 'action',
+		reason,
+		error,
+	});
+}
+
 function resolveActionLabel<TItem>(
 	actionConfig: ResourceDataViewActionConfig<TItem, unknown, unknown>
 ): string {
@@ -115,7 +202,11 @@ function buildInitialDecisions(
 	const actions = controller.config.actions ?? [];
 	actions.forEach((action) => {
 		if (action.capability) {
-			map.set(action.id, { allowed: false, loading: true });
+			map.set(action.id, {
+				allowed: false,
+				loading: true,
+				reason: 'pending',
+			});
 			return;
 		}
 		map.set(action.id, { allowed: true, loading: false });
@@ -143,7 +234,11 @@ function useActionDecisions(
 			const next = new Map<string, ActionDecision>();
 			actions.forEach((action) => {
 				if (action.capability) {
-					next.set(action.id, { allowed: false, loading: false });
+					next.set(action.id, {
+						allowed: false,
+						loading: false,
+						reason: 'runtime-missing',
+					});
 				} else {
 					next.set(action.id, { allowed: true, loading: false });
 				}
@@ -175,6 +270,9 @@ function useActionDecisions(
 								updated.set(action.id, {
 									allowed: Boolean(value),
 									loading: false,
+									reason: Boolean(value)
+										? undefined
+										: 'forbidden',
 								});
 								return updated;
 							});
@@ -183,18 +281,22 @@ function useActionDecisions(
 							if (cancelled) {
 								return;
 							}
-							reporter.warn?.(
-								'Capability evaluation failed for DataViews action',
+							const normalized = normalizeActionCapabilityError(
+								error,
+								reporter,
 								{
-									error,
-									capability: action.capability,
-								}
+									capability: action.capability!,
+									resource: controller.resourceName,
+								},
+								'warn'
 							);
 							setDecisions((prev) => {
 								const updated = new Map(prev);
 								updated.set(action.id, {
 									allowed: false,
 									loading: false,
+									reason: 'error',
+									error: normalized,
 								});
 								return updated;
 							});
@@ -205,13 +307,24 @@ function useActionDecisions(
 				next.set(action.id, {
 					allowed: Boolean(result),
 					loading: false,
+					reason: Boolean(result) ? undefined : 'forbidden',
 				});
 			} catch (error) {
-				reporter.error?.('Capability evaluation threw an error', {
+				const normalized = normalizeActionCapabilityError(
 					error,
-					capability: action.capability,
+					reporter,
+					{
+						capability: action.capability!,
+						resource: controller.resourceName,
+					},
+					'error'
+				);
+				next.set(action.id, {
+					allowed: false,
+					loading: false,
+					reason: 'error',
+					error: normalized,
 				});
-				next.set(action.id, { allowed: false, loading: false });
 			}
 		});
 
@@ -301,69 +414,68 @@ function createActionCallback<TItem, TQuery>(
 	reporter: Reporter,
 	notices: NoticeHandlers
 ): DataViewsActionCallback<TItem> {
-	return async (
-		selectedItems: TItem[],
-		context: DataViewsActionContext<TItem>
-	) => {
-		const selectionIds = getSelectionIdentifiers(selectedItems, getItemId);
-		const actionLabel = resolveActionLabel(actionConfig);
-
-		if (decision.loading) {
-			controller.emitAction({
-				actionId: actionConfig.id,
-				selection: selectionIds,
-				permitted: false,
-				reason: 'capability-pending',
-			});
-			return;
-		}
-
-		if (!decision.allowed) {
-			controller.emitAction({
-				actionId: actionConfig.id,
-				selection: selectionIds,
-				permitted: false,
-				reason: 'capability-denied',
-			});
-			reporter.warn?.('DataViews action blocked by capability', {
-				actionId: actionConfig.id,
-				selection: selectionIds,
-			});
-			return;
-		}
-
-		if (selectionIds.length === 0) {
-			controller.emitAction({
-				actionId: actionConfig.id,
-				selection: selectionIds,
-				permitted: false,
-				reason: 'empty-selection',
-			});
-			return;
-		}
-
-		const input = actionConfig.getActionArgs({
+	function handleCapabilityPending(selectionIds: string[]): void {
+		controller.emitAction({
+			actionId: actionConfig.id,
 			selection: selectionIds,
-			items: selectedItems,
-		}) as unknown;
+			permitted: false,
+			reason: 'capability-pending',
+		});
+		emitPermissionEvent(
+			controller,
+			actionConfig.id,
+			actionConfig.capability,
+			selectionIds,
+			'pending'
+		);
+	}
 
+	function handleCapabilityDenied(selectionIds: string[]): void {
+		const reason = determineDeniedReason(decision);
+		const error = decision.reason === 'error' ? decision.error : undefined;
+		emitPermissionEvent(
+			controller,
+			actionConfig.id,
+			actionConfig.capability,
+			selectionIds,
+			reason,
+			error
+		);
+		controller.emitAction({
+			actionId: actionConfig.id,
+			selection: selectionIds,
+			permitted: false,
+			reason: 'capability-denied',
+		});
+		reporter.warn?.('DataViews action blocked by capability', {
+			actionId: actionConfig.id,
+			selection: selectionIds,
+		});
+	}
+
+	function handleEmptySelection(selectionIds: string[]): void {
+		controller.emitAction({
+			actionId: actionConfig.id,
+			selection: selectionIds,
+			permitted: false,
+			reason: 'empty-selection',
+		});
+	}
+
+	async function executeAction(
+		selectionIds: string[],
+		selectedItems: TItem[],
+		input: unknown,
+		actionLabel: string,
+		context: DataViewsActionContext<TItem>
+	): Promise<void> {
 		try {
 			const result = await actionConfig.action(input as never);
-
-			applyInvalidate<TItem, TQuery, unknown, unknown>(
-				controller,
-				actionConfig as ResourceDataViewActionConfig<
-					TItem,
-					unknown,
-					unknown
-				>,
-				result,
-				{
-					selection: selectionIds,
-					items: selectedItems,
-					input,
-				}
-			);
+			applyInvalidate(controller, actionConfig as never, result, {
+				selection: selectionIds,
+				items: selectedItems,
+				input,
+			});
 
 			controller.emitAction({
 				actionId: actionConfig.id,
@@ -384,9 +496,8 @@ function createActionCallback<TItem, TQuery>(
 				actionLabel,
 				selectionIds.length
 			);
-			const successNoticeId = `wp-kernel/dataviews/${controller.resourceName}/${actionConfig.id}/success`;
 			notices.success(successMessage, {
-				id: successNoticeId,
+				id: `wp-kernel/dataviews/${controller.resourceName}/${actionConfig.id}/success`,
 			});
 		} catch (error) {
 			const normalized = normalizeActionError(
@@ -408,12 +519,42 @@ function createActionCallback<TItem, TQuery>(
 				'failed:',
 				'wpkernel'
 			)} ${normalized.message}`;
-			const failureNoticeId = `wp-kernel/dataviews/${controller.resourceName}/${actionConfig.id}/failure`;
 			notices.error(failureMessage, {
-				id: failureNoticeId,
+				id: `wp-kernel/dataviews/${controller.resourceName}/${actionConfig.id}/failure`,
 			});
 			throw normalized;
 		}
+	}
+
+	return async (
+		selectedItems: TItem[],
+		context: DataViewsActionContext<TItem>
+	) => {
+		const selectionIds = getSelectionIdentifiers(selectedItems, getItemId);
+		const actionLabel = resolveActionLabel(actionConfig);
+
+		if (decision.loading) {
+			return handleCapabilityPending(selectionIds);
+		}
+		if (!decision.allowed) {
+			return handleCapabilityDenied(selectionIds);
+		}
+		if (selectionIds.length === 0) {
+			return handleEmptySelection(selectionIds);
+		}
+
+		const input = actionConfig.getActionArgs({
+			selection: selectionIds,
+			items: selectedItems,
+		}) as unknown;
+
+		await executeAction(
+			selectionIds,
+			selectedItems,
+			input,
+			actionLabel,
+			context
+		);
 	};
 }
 
