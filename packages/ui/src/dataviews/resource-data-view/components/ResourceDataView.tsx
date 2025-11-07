@@ -1,6 +1,6 @@
 /* @jsxImportSource react */
 import { DataViews } from '@wordpress/dataviews';
-import { useMemo, type ComponentProps } from 'react';
+import { useEffect, useMemo, useRef, type ComponentProps } from 'react';
 import { createNoopReporter } from '@wpkernel/core/reporter';
 import { useResolvedController } from '../use-resolved-controller';
 import { useDataViewActions } from '../use-data-view-actions';
@@ -14,6 +14,37 @@ import { usePaginationInfo } from '../state/use-pagination-info';
 import { usePermissionState } from '../state/use-permission-state';
 import { useDataViewsProps } from '../utils/build-data-views-props';
 import { ResourceDataViewBoundary } from './boundary/ResourceDataViewBoundary';
+import type { ListResultState, PermissionState } from '../types/state';
+import type { DataViewBoundaryState } from '../../../runtime/dataviews/events';
+
+function computeBoundaryState<TItem>(
+	list: ListResultState<TItem>,
+	permission: PermissionState,
+	items: TItem[]
+): DataViewBoundaryState {
+	if (permission.status === 'denied') {
+		return 'permission-denied';
+	}
+
+	if (list.status === 'error') {
+		return 'error';
+	}
+
+	const hasItems = items.length > 0;
+
+	if (
+		!hasItems &&
+		(permission.status === 'checking' || list.status === 'loading')
+	) {
+		return 'loading';
+	}
+
+	if (!hasItems && list.status === 'success') {
+		return 'empty';
+	}
+
+	return 'content';
+}
 
 /**
  * A React component that renders a DataViews interface for a given resource.
@@ -86,6 +117,34 @@ export function ResourceDataView<TItem, TQuery>({
 		onChangeSelection: handleSelectionChange,
 		emptyState,
 	}) as ComponentProps<typeof DataViews>;
+
+	const boundaryState = computeBoundaryState(listResult, permission, items);
+	const lastBoundaryRef = useRef<DataViewBoundaryState | undefined>();
+
+	useEffect(() => {
+		const previous = lastBoundaryRef.current;
+		if (previous === boundaryState) {
+			return;
+		}
+
+		controller.emitBoundaryTransition({
+			state: boundaryState,
+			previous,
+			listStatus: listResult.status,
+			permissionStatus: permission.status,
+			itemCount: items.length,
+			totalItems,
+		});
+
+		lastBoundaryRef.current = boundaryState;
+	}, [
+		boundaryState,
+		controller,
+		listResult.status,
+		permission.status,
+		items.length,
+		totalItems,
+	]);
 
 	return (
 		<div

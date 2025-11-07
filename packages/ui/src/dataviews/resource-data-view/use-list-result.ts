@@ -67,12 +67,7 @@ export function useListResult<TItem, TQuery>(
 ): ListResultState<TItem> {
 	const listFromResource = controller.resource?.useList?.(query);
 	const effectiveFetch = fetchList ?? controller.fetchList;
-	const asyncList = useAsyncList(
-		effectiveFetch,
-		query,
-		reporter,
-		controller.resourceName
-	);
+	const asyncList = useAsyncList(controller, effectiveFetch, query, reporter);
 
 	if (effectiveFetch) {
 		return asyncList;

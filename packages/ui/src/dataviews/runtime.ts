@@ -6,12 +6,18 @@ import {
 } from '../runtime/dataviews/preferences';
 import {
 	DATA_VIEWS_EVENT_ACTION_TRIGGERED,
+	DATA_VIEWS_EVENT_BOUNDARY_TRANSITION,
+	DATA_VIEWS_EVENT_FETCH_FAILED,
+	DATA_VIEWS_EVENT_PERMISSION_DENIED,
 	DATA_VIEWS_EVENT_REGISTERED,
 	DATA_VIEWS_EVENT_UNREGISTERED,
 	DATA_VIEWS_EVENT_VIEW_CHANGED,
 	type DataViewsEventEmitter,
 	type DataViewActionTriggeredPayload,
+	type DataViewBoundaryTransitionPayload,
 	type DataViewChangedPayload,
+	type DataViewFetchFailedPayload,
+	type DataViewPermissionDeniedPayload,
 	type DataViewRegisteredPayload,
 } from '../runtime/dataviews/events';
 import { DataViewsConfigurationError } from '../runtime/dataviews/errors';
@@ -78,6 +84,15 @@ function createStandaloneEventEmitter(
 		},
 		actionTriggered(payload: DataViewActionTriggeredPayload) {
 			safeEmit(DATA_VIEWS_EVENT_ACTION_TRIGGERED, payload);
+		},
+		permissionDenied(payload: DataViewPermissionDeniedPayload) {
+			safeEmit(DATA_VIEWS_EVENT_PERMISSION_DENIED, payload);
+		},
+		fetchFailed(payload: DataViewFetchFailedPayload) {
+			safeEmit(DATA_VIEWS_EVENT_FETCH_FAILED, payload);
+		},
+		boundaryChanged(payload: DataViewBoundaryTransitionPayload) {
+			safeEmit(DATA_VIEWS_EVENT_BOUNDARY_TRANSITION, payload);
 		},
 	};
 }

@@ -66,6 +66,7 @@ playwright/.cache/
 tmp/
 temp/
 *.tmp
+scripts/replay-codex-patches.sh
 
 # Package manager
 .pnpm-store/

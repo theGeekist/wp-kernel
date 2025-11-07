@@ -8,6 +8,10 @@ export type {
 } from './data-form-controller';
 export { createDataViewsRuntime, ensureControllerRuntime } from './runtime';
 export { createDataViewInteraction } from './interactivity/createDataViewInteraction';
+export {
+	subscribeToDataViewsEvent,
+	useDataViewsEvent,
+} from './hooks/dataViewsEvents';
 export type {
 	ResourceDataViewController,
 	ResourceDataViewControllerOptions,
@@ -38,7 +42,16 @@ export type {
 	DataViewsEventEmitter,
 	DataViewRegisteredPayload,
 	DataViewActionTriggeredPayload,
+	DataViewPermissionDeniedPayload,
+	DataViewFetchFailedPayload,
+	DataViewBoundaryTransitionPayload,
+	DataViewBoundaryState,
 } from '../runtime/dataviews/events';
+export type {
+	DataViewsEventName,
+	DataViewsEventPayloadMap,
+	SubscribeToDataViewsEventOptions,
+} from './hooks/dataViewsEvents';
 export type {
 	DataViewPreferencesRuntime,
 	DataViewPreferencesAdapter,

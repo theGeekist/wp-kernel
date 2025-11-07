@@ -14,6 +14,9 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	DataViewChangedPayload,
 	DataViewsEventEmitter,
+	DataViewPermissionDeniedPayload,
+	DataViewFetchFailedPayload,
+	DataViewBoundaryTransitionPayload,
 } from '../runtime/dataviews/events';
 import type {
 	DataViewPreferencesRuntime,
@@ -256,6 +259,18 @@ export interface ResourceDataViewController<TItem, TQuery> {
 		reason?: string;
 		meta?: Record<string, unknown>;
 	}) => void;
+	/** Emits a permission denied event. */
+	emitPermissionDenied: (
+		payload: Omit<DataViewPermissionDeniedPayload, 'resource'>
+	) => void;
+	/** Emits a fetch failed event. */
+	emitFetchFailed: (
+		payload: Omit<DataViewFetchFailedPayload, 'resource'>
+	) => void;
+	/** Emits a boundary transition event. */
+	emitBoundaryTransition: (
+		payload: Omit<DataViewBoundaryTransitionPayload, 'resource'>
+	) => void;
 	/** Gets the reporter for the controller. */
 	getReporter: () => Reporter;
 }
