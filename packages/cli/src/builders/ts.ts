@@ -185,12 +185,19 @@ export interface ResourceDescriptor {
 /**
  * Creates a builder helper for generating TypeScript artifacts.
  *
- * This helper orchestrates the generation of various TypeScript files,
- * such as admin screens and dataview fixtures, based on the project's IR.
- * It uses `ts-morph` for programmatic TypeScript code generation and formatting.
+ * Orchestrates:
+ * - Admin screens under `.generated/ui/app/...`
+ * - DataView fixtures under `.generated/ui/fixtures/dataviews/...`
+ * - Interactivity fixtures under `.generated/ui/fixtures/interactivity/...`
+ * - Registry metadata under `.generated/ui/registry/dataviews/...`
  *
+ * @param    options
  * @category TypeScript Builder
- * @param    options - Options for configuring the TypeScript builder.
+ * @example
+ * ```ts
+ * const builder = createTsBuilder();
+ * await builder.apply({ context, input, output, reporter }, undefined);
+ * ```
  * @returns A `BuilderHelper` instance configured to generate TypeScript artifacts.
  */
 export function createTsBuilder(
@@ -260,8 +267,10 @@ export function createTsBuilder(
 /**
  * Builds a `TsBuilderCreator` for generating admin screen components.
  *
- * This creator generates a React component for an admin screen, integrating
- * with the `@wpkernel/ui` library to display resource data views.
+ * Generated screens:
+ * - Wrap content in `<WPKernelUIProvider>` using the resolved runtime.
+ * - Stamp `data-wp-interactive` and `data-wp-context` for use with wp-interactivity.
+ *
  *
  * @category TypeScript Builder
  * @example
@@ -617,6 +626,15 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
  * const creator = buildDataViewInteractivityFixtureCreator();
  * await creator.create(context);
  * ```
+ * @example
+ * ```ts
+ * import {
+ *   jobsadminscreenInteractivityNamespace,
+ *   createJobsAdminScreenDataViewInteraction,
+ * } from '.generated/ui/fixtures/interactivity/job';
+ *
+ * const { store } = createJobsAdminScreenDataViewInteraction();
+ * ``
  * @returns A `TsBuilderCreator` instance for interactivity fixture generation.
  */
 export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
@@ -1077,6 +1095,15 @@ type AdminDataViewsWithInteractivity = AdminDataViews & {
 	readonly interactivity?: { readonly feature?: unknown };
 };
 
+/**
+ * Resolves the interactivity feature identifier for a resource.
+ *
+ * Uses `resource.ui.admin.dataviews.interactivity.feature` when present,
+ * otherwise falls back to `'admin-screen'`.
+ *
+ * @param    descriptor
+ * @category TypeScript Builder
+ */
 function resolveInteractivityFeature(descriptor: ResourceDescriptor): string {
 	const dataviews = descriptor.dataviews as AdminDataViewsWithInteractivity;
 	const feature = dataviews.interactivity?.feature;

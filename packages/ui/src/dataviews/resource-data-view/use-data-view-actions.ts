@@ -17,17 +17,30 @@ import type {
 import { formatActionSuccessMessage } from './i18n';
 import type { DataViewPermissionDeniedReason } from '../../runtime/dataviews/events';
 
+/**
+ * Capability evaluation outcome for a single action.
+ */
 type ActionDecision = {
+	/** Whether the action is allowed for the current user. */
 	allowed: boolean;
+	/** Whether capability resolution is still in progress. */
 	loading: boolean;
+	/** Optional denial reason surfaced to permission events. */
 	reason?: DataViewPermissionDeniedReason;
+	/** Optional error when capability checks fail unexpectedly. */
 	error?: WPKernelError;
 };
 
+/**
+ * DataViews callback context as provided by `@wordpress/dataviews`.
+ */
 type DataViewsActionContext<TItem> = Parameters<
 	ActionButton<TItem>['callback']
 >[1];
 
+/**
+ * Normalized async callback signature used internally.
+ */
 type DataViewsActionCallback<TItem> = (
 	items: TItem[],
 	context: DataViewsActionContext<TItem>
@@ -37,15 +50,29 @@ type NoticeOptions = {
 	readonly id?: string;
 };
 
+/**
+ * Thin wrapper around `core/notices` to emit success/error notices.
+ */
 type NoticeHandlers = {
 	success: (message: string, options?: NoticeOptions) => void;
 	error: (message: string, options?: NoticeOptions) => void;
 };
 
 const noopNotice = () => {
-	// Intentionally empty
+	// Intentionally empty: used when registry or core/notices are unavailable.
 };
 
+/**
+ * Normalize any error thrown during capability evaluation into a WPKernelError.
+ *
+ * Logs via the provided reporter at the selected severity.
+ * @param value
+ * @param reporter
+ * @param context
+ * @param context.capability
+ * @param context.resource
+ * @param level
+ */
 function normalizeActionCapabilityError(
 	value: unknown,
 	reporter: Reporter,
@@ -97,6 +124,13 @@ function normalizeActionCapabilityError(
 	return normalized;
 }
 
+/**
+ * Resolve notice helpers backed by `core/notices` when available.
+ *
+ * Falls back to no-op handlers when the registry or dispatcher cannot be resolved.
+ * @param registry
+ * @param reporter
+ */
 function resolveNoticeHandlers(
 	registry: DataViewsRuntimeContext['registry'],
 	reporter: Reporter
@@ -154,6 +188,10 @@ function resolveNoticeHandlers(
 	}
 }
 
+/**
+ * Normalize an internal decision into a permission denial reason suitable for events.
+ * @param decision
+ */
 function determineDeniedReason(
 	decision: ActionDecision
 ): DataViewPermissionDeniedReason {
@@ -168,6 +206,15 @@ function determineDeniedReason(
 	return 'forbidden';
 }
 
+/**
+ * Emit a structured permission denied event from an action attempt.
+ * @param controller
+ * @param actionId
+ * @param capability
+ * @param selection
+ * @param reason
+ * @param error
+ */
 function emitPermissionEvent<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	actionId: string,
@@ -186,6 +233,12 @@ function emitPermissionEvent<TItem, TQuery>(
 	});
 }
 
+/**
+ * Resolve a human-readable label for an action.
+ *
+ * Falls back to the action id when no label is provided.
+ * @param actionConfig
+ */
 function resolveActionLabel<TItem>(
 	actionConfig: ResourceDataViewActionConfig<TItem, unknown, unknown>
 ): string {
@@ -195,6 +248,12 @@ function resolveActionLabel<TItem>(
 	return actionConfig.id;
 }
 
+/**
+ * Build initial capability decisions for all configured actions.
+ *
+ * Actions with a capability start as `loading` until checks complete.
+ * @param controller
+ */
 function buildInitialDecisions(
 	controller: ResourceDataViewController<unknown, unknown>
 ): Map<string, ActionDecision> {
@@ -214,6 +273,18 @@ function buildInitialDecisions(
 	return map;
 }
 
+/**
+ * Resolve capability decisions for each action using the runtime's capability API.
+ *
+ * Supports:
+ * - missing runtime: marks capability-gated actions as denied (runtime-missing),
+ * - sync `can()` return,
+ * - async `can()` returning a Promise.
+ *
+ * Emits normalized diagnostics on failure.
+ * @param controller
+ * @param reporter
+ */
 function useActionDecisions(
 	controller: ResourceDataViewController<unknown, unknown>,
 	reporter: Reporter
@@ -343,6 +414,14 @@ function useActionDecisions(
 	return decisions;
 }
 
+/**
+ * Decide if an action should render at all in the DataViews toolbar.
+ *
+ * When `disabledWhenDenied` is truthy, an unauthorized action renders as disabled.
+ * Otherwise, denied actions are omitted once decisions settle.
+ * @param decision
+ * @param actionConfig
+ */
 function shouldRenderAction<TItem>(
 	decision: ActionDecision,
 	actionConfig: ResourceDataViewActionConfig<TItem, unknown, unknown>
@@ -356,6 +435,13 @@ function shouldRenderAction<TItem>(
 	return Boolean(actionConfig.disabledWhenDenied);
 }
 
+/**
+ * Derive stable string identifiers from selected items.
+ *
+ * Filters out falsy/empty values.
+ * @param selectedItems
+ * @param getItemId
+ */
 function getSelectionIdentifiers<TItem>(
 	selectedItems: TItem[],
 	getItemId: (item: TItem) => string
@@ -366,6 +452,11 @@ function getSelectionIdentifiers<TItem>(
 		.filter((id) => id !== '');
 }
 
+/**
+ * Apply cache invalidation patterns via both controller and resource helpers.
+ * @param controller
+ * @param patterns
+ */
 function invalidateWithPatterns<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	patterns: CacheKeyPattern[]
@@ -377,6 +468,20 @@ function invalidateWithPatterns<TItem, TQuery>(
 	controller.resource?.invalidate?.(patterns);
 }
 
+/**
+ * Handle cache invalidation after a successful action.
+ *
+ * Precedence:
+ * - explicit `invalidateOnSuccess` return value,
+ * - otherwise invalidate the default list key when available.
+ * @param controller
+ * @param actionConfig
+ * @param result
+ * @param context
+ * @param context.selection
+ * @param context.items
+ * @param context.input
+ */
 function applyInvalidate<TItem, TQuery, TInput, TResult>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	actionConfig: ResourceDataViewActionConfig<TItem, TInput, TResult>,
@@ -406,6 +511,22 @@ function applyInvalidate<TItem, TQuery, TInput, TResult>(
 	}
 }
 
+/**
+ * Build the concrete callback wiring a ResourceDataView action to:
+ * - capability guards,
+ * - selection validation,
+ * - action execution,
+ * - cache invalidation,
+ * - analytics/events,
+ * - notices,
+ * - normalized error propagation.
+ * @param controller
+ * @param actionConfig
+ * @param getItemId
+ * @param decision
+ * @param reporter
+ * @param notices
+ */
 function createActionCallback<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	actionConfig: ResourceDataViewActionConfig<TItem, unknown, unknown>,
@@ -471,6 +592,7 @@ function createActionCallback<TItem, TQuery>(
 	): Promise<void> {
 		try {
 			const result = await actionConfig.action(input as never);
+
 			applyInvalidate(controller, actionConfig as never, result, {
 				selection: selectionIds,
 				items: selectedItems,
@@ -486,12 +608,15 @@ function createActionCallback<TItem, TQuery>(
 					items: selectedItems,
 				}),
 			});
+
 			reporter.info?.('DataViews action completed', {
 				actionId: actionConfig.id,
 				resource: controller.resourceName,
 				selection: selectionIds,
 			});
+
 			context.onActionPerformed?.(selectedItems);
+
 			const successMessage = formatActionSuccessMessage(
 				actionLabel,
 				selectionIds.length
@@ -509,12 +634,14 @@ function createActionCallback<TItem, TQuery>(
 				},
 				reporter
 			);
+
 			reporter.error?.('DataViews action failed', {
 				actionId: actionConfig.id,
 				resource: controller.resourceName,
 				selection: selectionIds,
 				error: normalized,
 			});
+
 			const failureMessage = `“${actionLabel}” - ${__(
 				'failed:',
 				'wpkernel'
@@ -522,6 +649,7 @@ function createActionCallback<TItem, TQuery>(
 			notices.error(failureMessage, {
 				id: `wp-kernel/dataviews/${controller.resourceName}/${actionConfig.id}/failure`,
 			});
+
 			throw normalized;
 		}
 	}
@@ -536,9 +664,11 @@ function createActionCallback<TItem, TQuery>(
 		if (decision.loading) {
 			return handleCapabilityPending(selectionIds);
 		}
+
 		if (!decision.allowed) {
 			return handleCapabilityDenied(selectionIds);
 		}
+
 		if (selectionIds.length === 0) {
 			return handleEmptySelection(selectionIds);
 		}
@@ -558,6 +688,32 @@ function createActionCallback<TItem, TQuery>(
 	};
 }
 
+/**
+ * Build DataViews actions from a resource controller.
+ *
+ * Wires capability checks, cache invalidation, analytics, and core/notices
+ * into the `@wordpress/dataviews` action model.
+ *
+ * @param     controller
+ * @param     getItemId
+ * @param     runtime
+ * @typeParam TItem  Resource item type.
+ * @typeParam TQuery Query shape used by the controller.
+ * @category DataViews Hooks
+ * @example
+ * ```ts
+ * const [view] = useStableView(controller, initialView);
+ * const actions = useDataViewActions(controller, (item) => String(item.id), runtime);
+ *
+ * return (
+ *   <DataViews
+ *     view={view}
+ *     actions={actions}
+ *     //...
+ *   />
+ * );
+ * ```
+ */
 export function useDataViewActions<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	getItemId: (item: TItem) => string,
@@ -571,10 +727,12 @@ export function useDataViewActions<TItem, TQuery>(
 
 		return fromController ?? runtime.reporter ?? createNoopReporter();
 	}, [controller, runtime.reporter]);
+
 	const decisions = useActionDecisions(
 		controller as ResourceDataViewController<unknown, unknown>,
 		reporter
 	);
+
 	const notices = useMemo(
 		() => resolveNoticeHandlers(runtime.registry, reporter),
 		[runtime.registry, reporter]

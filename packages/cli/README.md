@@ -7,7 +7,7 @@
 The CLI turns a single `wpk.config.ts` into everything a WP Kernel plugin needs:
 
 - **Project scaffolding** via `wpk init`
-- **Deterministic generation** of TypeScript contracts, UI entrypoints, PHP bridges, and block registrars
+- **Deterministic generation** of TypeScript contracts, UI entrypoints, DataViews wiring, PHP bridges, and block registrars
 - **Safe apply** workflows that merge generated PHP back into `inc/` and copy build artefacts for blocks
 - **Adapter extensions** that participate in the pipeline without mutating project sources directly
 
@@ -15,9 +15,22 @@ The CLI turns a single `wpk.config.ts` into everything a WP Kernel plugin needs:
 
 `wpk generate` now emits controllers for every storage mode used in the framework: `wp-post`, `wp-taxonomy`, `wp-option`, and transient. Transient controllers compute sanitised cache keys and normalise TTL inputs via generated helpers so cache invalidation stays consistent across options and transients.
 
-### Interactivity scaffolds
+### Admin DataViews and interactivity
 
-Phase 8 extends the UI builders so generated admin screens stamp `data-wp-*` attributes, guard runtime access, and expose fixtures for both DataView configuration and interactivity wiring. Each resource ships a ready-to-import helper that forwards generated actions into `createDataViewInteraction()` alongside namespace utilities, keeping WordPress Interactivity scripts hydrated out of the box.
+When a resource defines `ui.admin.dataviews` in `wpk.config.ts`, `wpk generate`:
+
+- Emits admin screen components under `.generated/ui/app/**` that:
+    - render `ResourceDataView` with the resource’s server-defined configuration, and
+    - stamp stable `data-wp-*` attributes and an interactivity namespace for `@wordpress/interactivity`.
+- Emits DataView config fixtures under `.generated/ui/fixtures/dataviews/*.ts` so tests and tools can import the exact metadata from `wpk.config.ts`.
+- Emits interactivity fixtures under `.generated/ui/fixtures/interactivity/*.ts` that bind `createDataViewInteraction()` to:
+    - the generated admin screen namespace,
+    - the resource’s DataView actions, and
+    - the kernel UI runtime helpers.
+- Emits registry entries under `.generated/ui/registry/dataviews/*.ts` so runtime auto-registration and Storybook-style environments consume the same snapshot.
+- Records a UI script handle in the bundler and generation manifests when DataViews metadata exists, allowing the generated PHP plugin loader to register, localise, and enqueue the admin UI bundle automatically.
+
+`wpk apply` uses the persisted manifest in `.wpk/apply/state.json` to prune stale `.generated/ui/**` files and keep DataViews metadata, fixtures, and registries aligned with the current `wpk.config.ts`.
 
 ## Quick start
 

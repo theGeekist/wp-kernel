@@ -40,6 +40,17 @@ function buildDiagnosticContext(
 	}
 }
 
+/**
+ * Logs pipeline diagnostics to the provided reporter.
+ *
+ * @param    reporter
+ * @param    diagnostics
+ * @category Generate
+ * @example
+ * ```ts
+ * logDiagnostics(reporter, result.diagnostics);
+ * ```
+ */
 export function logDiagnostics(
 	reporter: GenerateReporter,
 	diagnostics: GenerateDiagnostics
