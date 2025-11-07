@@ -130,11 +130,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 - [ ] Draft a framework contributor guide explaining component architecture, binding contracts, and extension points under `docs/packages/ui/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and relevant guide landing pages to surface both guides with clear audience labeling.
 
-#### Docs Task 11 - Refresh `packages/ui/README.md` (⬜ Planned)
+#### Docs Task 11 - Refresh `packages/ui/README.md` (✓ Complete)
 
-- [ ] Reorganize the README into overview, quick links, and contribution guidance sections, pointing to the new guides and API reference.
-- [ ] Emphasize peer dependency requirements (`@wordpress/components`, `@wordpress/dataviews`, React) and reference `pnpm lint:peers`.
-- [ ] Validate that badges, build instructions, and package metadata are current.
+- [x] Reorganize the README into overview, quick links, and contribution guidance sections, pointing to the new guides and API reference.
+- [x] Emphasize peer dependency requirements (`@wordpress/components`, `@wordpress/dataviews`, React) and reference `pnpm lint:peers`.
+- [x] Validate that badges, build instructions, and package metadata are current.
 
 #### Docs Task 12 - Apply the API doc strategy to UI (⬜ Planned)
 
@@ -174,11 +174,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, coveri
 - [ ] Draft a framework contributor guide explaining pipeline architecture, AST generation, adapter extensions, and apply state management under `docs/packages/cli/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and CLI reference pages to surface both guides with clear audience labeling.
 
-#### Docs Task 15 - Refresh `packages/cli/README.md` (⬜ Planned)
+#### Docs Task 15 - Refresh `packages/cli/README.md` (✓ Complete)
 
-- [ ] Reorganize the README into overview, quick start (init workflow), and command reference sections.
-- [ ] Link to existing migration specs (`docs/cli-migration-phases.md`, `cli-mvp-plan.md`) for deep dives on architecture decisions.
-- [ ] Validate that installation instructions, storage mode coverage, and version compatibility notes are current.
+- [x] Reorganize the README into overview, quick start (init workflow), and command reference sections.
+- [x] Link to existing migration specs (`docs/cli-migration-phases.md`, `cli-mvp-plan.md`) for deep dives on architecture decisions.
+- [x] Validate that installation instructions, storage mode coverage, and version compatibility notes are current.
 
 #### Docs Task 16 - Apply the API doc strategy to CLI (⬜ Planned)
 
@@ -227,12 +227,12 @@ This phase documents the standalone `@wpkernel/pipeline` package, which provides
 - [ ] Draft a migration guide documenting the transition from `@wpkernel/core/pipeline` to `@wpkernel/pipeline` under `docs/packages/pipeline/migration.md` (new).
 - [ ] Update `docs/packages/index.md` to surface pipeline as a foundational package with links to all guides.
 
-#### Docs Task 19 - Refresh `packages/pipeline/README.md` (⬜ Planned)
+#### Docs Task 19 - Refresh `packages/pipeline/README.md` (✓ Complete)
 
-- [ ] Reorganize the README into overview, installation, quick start (basic pipeline + helper example), and architecture sections.
-- [ ] Emphasize framework-agnostic nature and list known consumers (core, CLI, PHP packages).
-- [ ] Link to architecture guide and framework contributor guide for deep dives.
-- [ ] Validate that package metadata, peer dependencies, and version compatibility notes are current.
+- [x] Reorganize the README into overview, installation, quick start (basic pipeline + helper example), and architecture sections.
+- [x] Emphasize framework-agnostic nature and list known consumers (core, CLI, PHP packages).
+- [x] Link to architecture guide and framework contributor guide for deep dives.
+- [x] Validate that package metadata, peer dependencies, and version compatibility notes are current.
 
 #### Docs Task 20 - Apply the API doc strategy to pipeline (⬜ Planned)
 
@@ -269,11 +269,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/test-utils`,
 - [ ] Draft a framework contributor guide explaining harness architecture, extension patterns, and test-support conventions under `docs/packages/test-utils/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and testing guides to surface both documents with clear use-case labeling.
 
-#### Docs Task 23 - Refresh `packages/test-utils/README.md` (⬜ Planned)
+#### Docs Task 23 - Refresh `packages/test-utils/README.md` (✓ Complete)
 
-- [ ] Reorganize the README into overview, installation, and quick start sections covering each harness family.
-- [ ] Link to the testing cookbook and root `tests/TEST_PATTERNS.md` for comprehensive patterns.
-- [ ] Validate that Jest configuration examples and harness contracts are current.
+- [x] Reorganize the README into overview, installation, and quick start sections covering each harness family.
+- [x] Link to the testing cookbook and root `tests/TEST_PATTERNS.md` for comprehensive patterns.
+- [x] Validate that Jest configuration examples and harness contracts are current.
 
 #### Docs Task 24 - Apply the API doc strategy to test-utils (⬜ Planned)
 
@@ -310,11 +310,11 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/e2e-utils`, 
 - [ ] Draft a framework contributor guide explaining fixture extension architecture and validation strategy (real-world testing via showcase) under `docs/packages/e2e-utils/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and E2E testing docs to surface both guides with clear workflow labeling.
 
-#### Docs Task 27 - Refresh `packages/e2e-utils/README.md` (⬜ Planned)
+#### Docs Task 27 - Refresh `packages/e2e-utils/README.md` (✓ Complete)
 
-- [ ] Reorganize the README into overview, installation, and quick start sections emphasizing the optional nature of the package.
-- [ ] Highlight import patterns (scoped, namespaced, flat) and the `test`/`expect` entry point.
-- [ ] Validate that Playwright configuration, WordPress fixture integration, and validation strategy notes are current.
+- [x] Reorganize the README into overview, installation, and quick start sections emphasizing the optional nature of the package.
+- [x] Highlight import patterns (scoped, namespaced, flat) and the `test`/`expect` entry point.
+- [x] Validate that Playwright configuration, WordPress fixture integration, and validation strategy notes are current.
 
 #### Docs Task 28 - Apply the API doc strategy to e2e-utils (⬜ Planned)
 
