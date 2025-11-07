@@ -15,6 +15,10 @@ The CLI turns a single `wpk.config.ts` into everything a WP Kernel plugin needs:
 
 `wpk generate` now emits controllers for every storage mode used in the framework: `wp-post`, `wp-taxonomy`, `wp-option`, and transient. Transient controllers compute sanitised cache keys and normalise TTL inputs via generated helpers so cache invalidation stays consistent across options and transients.
 
+### Interactivity scaffolds
+
+Phase 8 extends the UI builders so generated admin screens stamp `data-wp-*` attributes, guard runtime access, and expose fixtures for both DataView configuration and interactivity wiring. Each resource ships a ready-to-import helper that forwards generated actions into `createDataViewInteraction()` alongside namespace utilities, keeping WordPress Interactivity scripts hydrated out of the box.
+
 ## Quick start
 
 To start a new project, use the `npm create` command (or `pnpm create` / `yarn create`):

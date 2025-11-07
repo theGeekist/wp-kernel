@@ -89,6 +89,8 @@ export interface ConflictDiagnostic {
 	readonly helpers: readonly string[];
 	/** A descriptive message about the conflict. */
 	readonly message: string;
+	/** Helper kind associated with the conflict. */
+	readonly kind?: HelperDescriptor['kind'];
 }
 
 /**
@@ -96,7 +98,45 @@ export interface ConflictDiagnostic {
  *
  * @category Pipeline
  */
-export type PipelineDiagnostic = ConflictDiagnostic;
+export interface MissingDependencyDiagnostic {
+	/** The type of diagnostic, always 'missing-dependency'. */
+	readonly type: 'missing-dependency';
+	/** The key of the helper emitting the diagnostic. */
+	readonly key: string;
+	/** Identifier of the missing dependency helper. */
+	readonly dependency: string;
+	/** A descriptive message about the missing dependency. */
+	readonly message: string;
+	/** Helper kind associated with the diagnostic. */
+	readonly kind?: HelperDescriptor['kind'];
+	/** Optional helper key associated with the dependency. */
+	readonly helper?: string;
+}
+
+/**
+ * Represents an unused helper diagnostic emitted during pipeline execution.
+ *
+ * @category Pipeline
+ */
+export interface UnusedHelperDiagnostic {
+	/** The type of diagnostic, always 'unused-helper'. */
+	readonly type: 'unused-helper';
+	/** The key of the helper emitting the diagnostic. */
+	readonly key: string;
+	/** A descriptive message about the unused helper. */
+	readonly message: string;
+	/** Helper kind associated with the diagnostic. */
+	readonly kind?: HelperDescriptor['kind'];
+	/** Optional helper key flagged as unused. */
+	readonly helper?: string;
+	/** Dependency list used when determining helper usage. */
+	readonly dependsOn?: readonly string[];
+}
+
+export type PipelineDiagnostic =
+	| ConflictDiagnostic
+	| MissingDependencyDiagnostic
+	| UnusedHelperDiagnostic;
 
 /**
  * The result of a pipeline run.

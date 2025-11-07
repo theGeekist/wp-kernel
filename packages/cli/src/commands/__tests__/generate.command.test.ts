@@ -288,6 +288,7 @@ describe('GenerateCommand', () => {
 						mode: 'override',
 						message: 'conflict detected',
 						helpers: ['first', 'second'],
+						kind: 'core.builder',
 					},
 				],
 				steps: [],
@@ -325,7 +326,10 @@ describe('GenerateCommand', () => {
 
 		expect(reporter.warn).toHaveBeenCalledWith(
 			'Pipeline diagnostic reported.',
-			expect.objectContaining({ message: 'conflict detected' })
+			expect.objectContaining({
+				message: 'conflict detected',
+				kind: 'core.builder',
+			})
 		);
 	});
 
