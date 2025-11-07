@@ -4,37 +4,22 @@
 
 ## Overview
 
-The CLI turns a single `wpk.config.ts` into everything a WP Kernel plugin needs:
+The CLI turns a single `wpk.config.ts` into a production-ready plugin. It scaffolds resources,
+actions, UI entrypoints, DataViews wiring, PHP bridges, and block registrars while keeping
+code generation deterministic. `wpk generate` and `wpk apply` form the core workflow, with
+adapters and extensions riding on the shared `@wpkernel/pipeline` runtime.
 
-- **Project scaffolding** via `wpk init`
-- **Deterministic generation** of TypeScript contracts, UI entrypoints, DataViews wiring, PHP bridges, and block registrars
-- **Safe apply** workflows that merge generated PHP back into `inc/` and copy build artefacts for blocks
-- **Adapter extensions** that participate in the pipeline without mutating project sources directly
+## Quick links
 
-### Storage coverage
+- [Package guide](../../docs/packages/cli.md)
+- [CLI migration phases](../../docs/cli-migration-phases.md)
+- [CLI MVP plan](../../docs/internal/cli-mvp-plan.md)
+- [API reference](../../docs/api/@wpkernel/cli/README.md)
+- [PHP codemod roadmap](../../docs/internal/php-json-ast-codemod-plan.md)
 
-`wpk generate` now emits controllers for every storage mode used in the framework: `wp-post`, `wp-taxonomy`, `wp-option`, and transient. Transient controllers compute sanitised cache keys and normalise TTL inputs via generated helpers so cache invalidation stays consistent across options and transients.
+## Installation
 
-### Admin DataViews and interactivity
-
-When a resource defines `ui.admin.dataviews` in `wpk.config.ts`, `wpk generate`:
-
-- Emits admin screen components under `.generated/ui/app/**` that:
-    - render `ResourceDataView` with the resource’s server-defined configuration, and
-    - stamp stable `data-wp-*` attributes and an interactivity namespace for `@wordpress/interactivity`.
-- Emits DataView config fixtures under `.generated/ui/fixtures/dataviews/*.ts` so tests and tools can import the exact metadata from `wpk.config.ts`.
-- Emits interactivity fixtures under `.generated/ui/fixtures/interactivity/*.ts` that bind `createDataViewInteraction()` to:
-    - the generated admin screen namespace,
-    - the resource’s DataView actions, and
-    - the kernel UI runtime helpers.
-- Emits registry entries under `.generated/ui/registry/dataviews/*.ts` so runtime auto-registration and Storybook-style environments consume the same snapshot.
-- Records a UI script handle in the bundler and generation manifests when DataViews metadata exists, allowing the generated PHP plugin loader to register, localise, and enqueue the admin UI bundle automatically.
-
-`wpk apply` uses the persisted manifest in `.wpk/apply/state.json` to prune stale `.generated/ui/**` files and keep DataViews metadata, fixtures, and registries aligned with the current `wpk.config.ts`.
-
-## Quick start
-
-To start a new project, use the `npm create` command (or `pnpm create` / `yarn create`):
+### New project
 
 ```bash
 npm create @wpkernel/wpk my-plugin
@@ -42,142 +27,79 @@ cd my-plugin
 npm start
 ```
 
-This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, and installs `@wpkernel/cli` as a devDependency. The `wpk` binary is automatically available in your project.
+The create wrapper installs `@wpkernel/cli` as a dev dependency and exposes the `wpk` binary.
 
-**Core workflow:**
-
-```bash
-# 1. Edit wpk.config.ts to define resources, actions, capabilities
-# 2. Generate PHP/TS code
-wpk generate
-
-# 3. Apply changes to existing code (with Git safety)
-wpk apply
-
-# 4. Validate everything is correct
-wpk doctor
-```
-
-**All wpk commands:**
+### Existing project
 
 ```bash
-wpk generate    # Generate PHP/TS from wpk.config.*
-wpk apply       # Apply generated code patches
-wpk doctor      # Check project health and dependencies
-wpk start       # Start development server with watch mode
-wpk build       # Production build
-wpk init        # Initialize WP Kernel in existing project
-```
-
-**Manual installation** in an existing project:
-
-```bash
-npm install -D @wpkernel/cli
-# or
 pnpm add -D @wpkernel/cli
 ```
 
-## Core workflow: create → generate → apply
+Ensure Node.js 20+ and pnpm 9+ (or npm 10+/yarn Berry) are available for the TypeScript + Vite toolchain.
 
-1. **Create** a new project with `npm create @wpkernel/wpk` (as shown in Quick Start).
-   Alternatively, **Initialise** an existing project with `wpk init`.
-2. **Generate** artefacts whenever `wpk.config.ts` changes:
+## Quick start: init → generate → apply
 
-    ```bash
-    wpk generate           # writes to .generated/**
-    wpk generate --dry-run # report-only mode
-    wpk generate --verbose # verbose reporter output
-    ```
+```bash
+# 1. Define resources, actions, and capabilities in wpk.config.ts
 
-    The pipeline executes in this order:
-    1. Type definitions (`.generated/types/**`)
+# 2. Generate artefacts (writes to .generated/**)
+wpk generate
 
-3. PHP controllers and registries (`.generated/php/**`)
-4. UI bootstrap files (`.generated/ui/**`)
-5. Block artefacts (`.generated/blocks/**`, `.generated/build/**`)
+# 3. Apply guarded changes into inc/ and build manifests
+wpk apply
 
-    Block printers derive manifests for SSR blocks, generate auto-registration stubs for JS-only blocks, and emit PSR-4 block registrars alongside resource controllers.
-
-    Successive runs persist a generation manifest at `.wpk/apply/state.json`, so `wpk generate` prunes stale `.generated/**` files when resources are removed or PHP output/autoload paths change and stages `{ action: 'delete' }` shim entries in `.wpk/apply/plan.json` for `wpk apply` to process.
-
-6. **Apply** once the `.generated/` snapshot looks correct:
-    ```bash
-    wpk apply --yes              # skip clean checks
-    wpk apply --backup           # keep .bak copies of overwritten files
-    wpk apply --force            # overwrite files missing guard markers
-    ```
-    `wpk apply` merges guarded PHP files into `inc/`, copies block registrars, and synchronises `.generated/build/**` (e.g. `blocks-manifest.php`) into `build/`. A `.wpk-apply.log` file records every run for auditability.
-
-## Development commands
-
-- `wpk start` watches kernel sources, regenerates artefacts on change, and launches the Vite dev server. Use `--verbose` for additional logging and `--auto-apply-php` to opt into the best-effort PHP copy pipeline when you also want PHP artefacts updated automatically.
-- `wpk build` performs a production pipeline in one go: `generate` → Vite `build` → `apply --yes`. Pass `--no-apply` when you want to review `.generated/**` + Vite output without touching `inc/`.
-
-## Documentation
-
-- **[CLI Migration Phases](./docs/cli-migration-phases.md)** - authoritative reference for the next pipeline
-- **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** - framework guides and configuration reference
-
-## Testing Helpers
-
-- `tests/rule-tester.test-support.ts` exports `createRuleTester()` and fixture
-  builders that keep ESLint rule suites aligned with the TypeScript parser and
-  canonical config snippets.
-- `@wpkernel/test-utils/cli` exposes `createCommandContext()`,
-  `assignCommandContext()`, `createReporterMock()`, `createMemoryStream()`,
-  and `flushAsync()` so suites can share Clipanion wiring without
-  re-implementing mocks, streams, or async drains.
-- `@wpkernel/test-utils/integration` includes `withWorkspace()` for disposable
-  filesystem scaffolds and `createWorkspaceRunner()` to preconfigure prefixes or
-  default file layouts per suite (the local `tests/workspace.test-support.ts`
-  re-exports these helpers during the migration).
-- Integration specs can import `runNodeSnippet()` from `@wpkernel/e2e-utils`
-  to exercise CLI failure paths without maintaining bespoke process runners.
-
-## Requirements
-
-- Node.js 20+
-- pnpm 9+ (recommended)
-
-## Peer dependencies
-
-Install the workspace builds for `@wpkernel/core`, `@wpkernel/php-json-ast`,
-and `@wpkernel/test-utils` alongside the CLI (`workspace:*` ranges). These
-packages stay external in the published build so generators can share runtime
-contracts with the framework. Run `pnpm lint:peers` (or
-`pnpm exec tsx scripts/check-framework-peers.ts`) to verify the versions before
-shipping changes.
-
-## Adapter extensions
-
-Adapters can register extension factories to participate in the generation pipeline without mutating `.generated/` directly. Each extension runs inside an isolated sandbox; queued files are only written after the core printers succeed.
-
-```ts
-module.exports = {
-	// ...wpk.config.js contents
-	adapters: {
-		extensions: [
-			({ namespace, reporter }) => ({
-				name: 'telemetry',
-				async apply({ queueFile, outputDir }) {
-					const path = require('node:path');
-					await queueFile(
-						path.join(outputDir, 'telemetry.json'),
-						JSON.stringify({ namespace })
-					);
-					reporter.info('Telemetry manifest generated.');
-				},
-			}),
-		],
-	},
-};
+# 4. Run health checks and pipeline diagnostics
+wpk doctor
 ```
 
-Extensions can also call `updateIr(ir)` to feed changes back into the printers while keeping the configuration as the single source of truth.
+`wpk generate` records a manifest in `.wpk/apply/state.json` so successive runs prune stale
+files. `wpk apply` performs guarded merges, optionally keeping `.bak` copies and honouring
+`--force` / `--yes` flags for CI automation.
+
+## Command reference
+
+| Command        | Summary                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `wpk init`     | Scaffold kernel config, resources, and project plumbing inside an existing repo.           |
+| `wpk generate` | Emit TypeScript, PHP, UI, and block artefacts from the current configuration.              |
+| `wpk apply`    | Apply the staged plan with guard markers, deletion manifests, and audit logs.              |
+| `wpk doctor`   | Validate dependencies, project health, and pipeline diagnostics.                           |
+| `wpk start`    | Watch kernel sources, regenerate artefacts, and launch the Vite dev server.                |
+| `wpk build`    | Run `generate → vite build → apply --yes` in one step (pass `--no-apply` to skip merging). |
+
+Use `wpk <command> --help` for flag documentation. Storage coverage spans `wp-post`, `wp-taxonomy`,
+`wp-option`, and transient controllers. Generated PHP pipelines mirror the server scaffolding so
+cache invalidation and capability checks stay consistent.
+
+## Pipeline & codemod integration
+
+- Built on `@wpkernel/pipeline` helpers for deterministic execution, diagnostics, and rollback.
+- Adapters can register pipeline extensions that queue files or mutate the IR via `updateIr()`.
+- The CLI threads PHP codemod configuration into `@wpkernel/php-json-ast` helpers; consult the
+  [codemod plan](../../docs/internal/php-json-ast-codemod-plan.md) before enabling visitor stacks
+  or diagnostics in new pipelines.
+
+## Validation & test utilities
+
+- Run `pnpm --filter @wpkernel/cli test:coverage` before shipping changes.
+- `@wpkernel/test-utils/cli` exposes command contexts, reporter mocks, and memory streams.
+- Integration suites reuse workspace helpers from `@wpkernel/test-utils/integration` (re-exported
+  via `tests/workspace.test-support.ts`).
+- End-to-end specs can drive CLI workflows with `runNodeSnippet()` from `@wpkernel/e2e-utils`.
+
+## Requirements & peers
+
+- Node.js 20+
+- pnpm 9+ (or npm/yarn alternatives with workspace support)
+- Workspace dependencies: `@wpkernel/core`, `@wpkernel/test-utils`, `@wpkernel/php-json-ast`
+  (linked via `workspace:*` so builds share runtime contracts)
+- Run `pnpm lint:peers` to confirm peer ranges before publishing.
 
 ## Contributing
 
-See the [main repository](https://github.com/theGeekist/wp-kernel) for contribution guidelines.
+See the [repository contribution guide](../../README.md#contributing). Keep new commands wired
+through `src/index.ts`, add fixtures for generated output, and update the migration docs when
+pipelines or storage modes change.
 
 ## License
 

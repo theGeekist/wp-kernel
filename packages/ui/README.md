@@ -4,15 +4,30 @@
 
 ## Overview
 
-This package exposes UI building blocks that lean on the kernel runtime instead of bespoke data plumbing. Major surfaces include:
+`@wpkernel/ui` supplies React components and controllers that plug directly into the kernel
+runtime. Instead of bespoke data plumbing, screens consume the resource metadata defined in
+`wpk.config.ts`, ensuring CLI scaffolding, runtime behaviour, and end-to-end tests stay in
+sync. The package wraps WordPress-provided primitives so projects inherit the platform’s
+accessibility, theming, and internationalisation guarantees.
 
-- **ResourceDataView** - render `@wordpress/dataviews` with kernel-aware controllers, capability gating, and persisted preferences.
-- **createResourceDataViewController** - translate DataViews state (search, filters, sort, pagination) into resource queries and event payloads.
-- **createDataFormController** - pair inline editors with kernel actions and automatic cache invalidation.
-- **ActionButton / useAction** - trigger kernel actions from the UI without touching transports directly.
-- **WPKernelUIProvider** - share the bootstrapped runtime with React components.
+### Core surfaces
 
-All runtime imports come from published packages (`@wordpress/dataviews`, `@wordpress/components`) while this repository mirrors their types and wiring. The snapshot under `packages/ui/vendor/` is reference-only.
+- **`WPKernelUIProvider` / `attachUIBindings`** – share a configured runtime with React.
+- **`ResourceDataView`** – render `@wordpress/dataviews` with capability guards,
+  persisted preferences, and consistent async UX.
+- **`createResourceDataViewController`** – translate DataViews state into resource
+  queries and emit reporter events.
+- **`createDataFormController`** – bind inline editors to kernel actions with automatic
+  cache invalidation.
+- **`ActionButton` / `useAction`** – trigger writes through Actions without touching
+  transports directly.
+
+## Quick links
+
+- [Package guide](../../docs/packages/ui.md)
+- [API reference](../../docs/api/@wpkernel/ui/README.md)
+- [DataViews integration spec](./DataViews%20Integration%20-%20Specification.md)
+- [Testing harness overview](../../docs/packages/test-utils.md#ui-harness)
 
 ## Installation
 
@@ -20,8 +35,9 @@ All runtime imports come from published packages (`@wordpress/dataviews`, `@word
 pnpm add @wpkernel/ui @wpkernel/core
 ```
 
-Install the matching WordPress and React peers to avoid bundling them into the
-UI build:
+### Peer dependencies
+
+Install the matching WordPress and React peers so they are not bundled into your UI build:
 
 - `@wordpress/components` `>=30.5.0`
 - `@wordpress/data` `>=10.32.0`
@@ -29,238 +45,110 @@ UI build:
 - `@wordpress/element` `>=6.32.0`
 - `react` `>=18.0.0`
 
-Run `pnpm lint:peers` to confirm every workspace honours the shared capability in
-`scripts/check-framework-peers.ts` before publishing.
+Run `pnpm lint:peers` (or `pnpm exec tsx scripts/check-framework-peers.ts`) before
+publishing to confirm every workspace honours the shared peer dependency policy.
 
-## Bootstrapping the runtime
+## Quick start
 
-```tsx
-import { configureWPKernel } from '@wpkernel/core';
-import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
-import { job } from '@/resources/job';
+1. **Configure the kernel runtime**
 
-const kernel = configureWPKernel({
-	namespace: 'demo',
-	registry: window.wp.data,
-	ui: {
-		attach: attachUIBindings,
-		dataviews: {
-			enable: true,
-			autoRegisterResources: true,
-		},
-	},
-});
+    ```tsx
+    import { configureWPKernel } from '@wpkernel/core';
+    import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-const runtime = kernel.getUIRuntime();
+    const kernel = configureWPKernel({
+    	namespace: 'demo',
+    	registry: window.wp.data,
+    	ui: {
+    		attach: attachUIBindings,
+    		dataviews: { enable: true, autoRegisterResources: true },
+    	},
+    });
 
-const App = () => (
-	<WPKernelUIProvider runtime={runtime}>
-		{/* screens render ResourceDataView with controllers */}
-	</WPKernelUIProvider>
-);
-```
+    const runtime = kernel.getUIRuntime();
+    ```
 
-## DataViews in practice
+2. **Author a controller** (CLI generators scaffold these modules under
+   `.generated/ui/registry/dataviews/`):
 
-1. **Describe the view in your resource config** so CLI generators and the runtime can discover it:
+    ```ts
+    import { createResourceDataViewController } from '@wpkernel/ui/dataviews';
+    import { job } from '@/resources/job';
 
-```ts
-export const job = defineResource<Job, JobQuery>({
-	name: 'job',
-	routes: {
-		/* … */
-	},
-	ui: {
-		admin: {
-			dataviews: {
-				preferencesKey: 'jobs/admin',
-				mapQuery: ({ search, filters, sort, page, perPage }) => ({
-					q: search,
-					department: filters.department,
-					orderBy: sort?.field ?? 'created_at',
-					order: sort?.direction ?? 'desc',
-					page,
-					perPage,
-				}),
-				defaultLayouts: {
-					table: { density: 'compact' },
-				},
-				views: [
-					{
-						id: 'all',
-						label: 'All jobs',
-						isDefault: true,
-						view: {
-							type: 'table',
-							fields: ['title', 'status', 'department'],
-						},
-					},
-					{
-						id: 'published',
-						label: 'Published jobs',
-						view: {
-							type: 'table',
-							filters: [
-								{
-									field: 'status',
-									operator: 'is',
-									value: 'published',
-								},
-							],
-							fields: ['title', 'department'],
-						},
-					},
-				],
-				screen: {
-					component: 'JobsAdminScreen',
-					route: '/admin/jobs',
-					menu: {
-						slug: 'jobs-admin',
-						title: 'Jobs',
-						capability: 'manage_jobs',
-						position: 25,
-					},
-				},
-				actions: [
-					{
-						id: 'jobs.edit',
-						action: 'Job.Edit',
-						supportsBulk: false,
-					},
-				],
-			},
-		},
-	},
-});
-```
+    export const jobDataView = createResourceDataViewController({
+    	resource: job,
+    	config: job.ui?.admin?.dataviews!,
+    });
+    ```
 
-2. **Create the controller** (the CLI will scaffold this for you):
+3. **Render the screen** with shared async boundaries and notices:
 
-```ts
-import { createResourceDataViewController } from '@wpkernel/ui/dataviews';
-import { job } from '@/resources/job';
+    ```tsx
+    import {
+    	ResourceDataView,
+    	createDataFormController,
+    } from '@wpkernel/ui/dataviews';
+    import { jobDataView } from '@/dataviews/jobDataView';
+    import { createJob } from '@/actions/Job.Create';
 
-export const jobDataView = createResourceDataViewController({
-	resource: job,
-	config: job.ui?.admin?.dataviews!,
-});
-```
+    const createJobForm = createDataFormController({
+    	action: createJob,
+    	onSuccess: ({ invalidate }) => invalidate(jobDataView.keys.list()),
+    });
 
-3. **Render the screen** with `ResourceDataView` and optionally a `createDataFormController` for inline creation flows:
+    export function JobsAdminScreen() {
+    	return (
+    		<WPKernelUIProvider runtime={runtime}>
+    			<ResourceDataView
+    				controller={jobDataView}
+    				dataForm={createJobForm}
+    				emptyState={{
+    					title: 'No jobs yet',
+    					description:
+    						'Create the first role to publish it on the careers site.',
+    					actionLabel: 'Add job',
+    				}}
+    			/>
+    		</WPKernelUIProvider>
+    	);
+    }
+    ```
 
-```tsx
-import {
-	ResourceDataView,
-	createDataFormController,
-} from '@wpkernel/ui/dataviews';
-import { jobDataView } from '@/dataviews/jobDataView';
-import { createJob } from '@/actions/Job.Create';
+## DataViews workflow
 
-const createJobForm = createDataFormController({
-	action: createJob,
-	onSuccess: ({ invalidate }) => invalidate(jobDataView.keys.list()),
-});
+Define `resource.ui.admin.dataviews` in `wpk.config.ts` to keep server and client metadata
+aligned. The configuration drives:
 
-export function JobsAdminScreen() {
-	return (
-		<ResourceDataView
-			controller={jobDataView}
-			dataForm={createJobForm}
-			emptyState={{
-				title: 'No jobs yet',
-				description:
-					'Create the first role to publish it on the careers site.',
-				actionLabel: 'Add job',
-			}}
-		/>
-	);
-}
-```
+- controller scaffolding (`createResourceDataViewController` and fixtures),
+- generated admin screens that mount `ResourceDataView`,
+- CLI-generated interactivity helpers that wrap `createDataViewInteraction()`, and
+- PHP menu shims when `screen.menu` metadata is present.
 
-### Async boundaries & notices
+`ResourceDataView` emits `data-wpk-dataview-*` attributes so Playwright helpers can
+interact with filters, search, and bulk actions deterministically. Async boundaries cover
+loading, empty, error, and permission-denied states with translated defaults.
 
-`ResourceDataView` wraps WordPress DataViews with shared async boundaries so every screen inherits the same UX without bespoke components. The component inspects the list status from `useListResult()` and the optional `screen.menu.capability` requirement to decide whether to render:
+## Interactivity & automation
 
-- **Loading** - Displayed while the first page is pending or a capability check is still resolving.
-- **Empty** - Uses the `emptyState` prop when the list resolves with zero items (falls back to a translated default message when the prop is omitted).
-- **Error** - Presents a warning notice when either the resource hook or a standalone `fetchList` rejects; failures are logged through the controller reporter.
-- **Permission denied** - Shows a capability warning whenever `config.screen.menu.capability` evaluates to `false` or throws.
+When `attachUIBindings()` runs, controllers registered in `.generated/ui/registry/**` become
+available to both React screens and `@wordpress/interactivity` stores. The CLI also persists
+DataView fixtures (`.generated/ui/fixtures/dataviews/*.ts`) and interactivity manifests for
+Storybook or Playwright suites.
 
-Action handlers created by `useDataViewActions()` emit notices via `core/notices` whenever an action succeeds or fails, alongside the existing cache invalidation and reporter logging. Provide a WordPress data registry in the runtime (`configureWPKernel({ registry: window.wp.data })`) so the helpers can dispatch the notices.
+## Testing & validation
 
-`ResourceDataView` emits `data-wpk-dataview-*` attributes so Playwright helpers can target search, filters, bulk actions, and counters reliably.
+- Import the runtime harness from `@wpkernel/test-utils/ui` to bootstrap the kernel
+  provider in unit tests.
+- Extend `src/dataviews/test-support/ResourceDataView.test-support.tsx` when shared
+  behaviour is missing and add accompanying self-tests before updating callers.
+- E2E suites can target the emitted attributes via `@wpkernel/e2e-utils` (`kernel.dataview`).
 
-### Interactivity bridge
+## Contributing
 
-`@wpkernel/ui/dataviews` exposes `createDataViewInteraction()` so DataViews can drive
-`@wordpress/interactivity` stores without custom glue code.
+Follow the [repository contribution guide](../../README.md#contributing). Keep new helpers
+exported through `src/index.ts`, update the API docs via Typedoc when surfaces change, and
+note any cross-package dependencies in the relevant docs.
 
-When `ui.admin.dataviews` is defined:
+## License
 
-- `attachUIBindings()` can auto-register controllers and expose them to the bridge.
-- CLI-generated interactivity fixtures (`.generated/ui/fixtures/interactivity/*.ts`) wrap
-  `createDataViewInteraction()` with:
-    - the kernel UI runtime,
-    - the resource definition,
-    - the DataView actions from your config, and
-    - a stable `data-wp-interactive` namespace.
-
-Import these helpers from your plugin or tests to hydrate interactions consistently with
-the server configuration.
-
-### Metadata reference
-
-`resource.ui.admin.dataviews` accepts the fields surfaced in the example above:
-
-- `fields` - Column descriptors forwarded to `@wordpress/dataviews`.
-- `defaultView` - The server-declared view used when no preference is stored.
-- `mapQuery` - Required mapper translating DataViews state into the resource query shape.
-- `defaultLayouts` - Optional per-layout overrides (table/grid/list) merged with stored views.
-- `views` - Saved views exposed to the UI before preferences are hydrated. Each entry includes an `id`, `label`, and `view` payload, with optional `description`/`isDefault` hints.
-- `screen` - Optional metadata for generated screens. When `menu` is present the CLI emits PHP shims under `.generated/php/Admin/**` so WordPress can register the admin menu automatically.
-- `actions`, `search`, `searchLabel`, `perPageSizes`, and `getItemId` continue to behave as they did prior to the schema expansion.
-
-### Observability
-
-The DataViews runtime emits lifecycle events for:
-
-- registration,
-- view changes,
-- action triggers,
-- fetch errors, and
-- permission denials.
-
-Typed helpers wrap the underlying `runtime.events.*` channels so you can subscribe from
-JavaScript directly. An optional `@wordpress/hooks` bridge is available for projects that
-prefer WordPress’ hooks API for logging, telemetry, or feature flags.
-
-## CLI & Showcase integration
-
-Running `wpk generate admin-page job` consumes the metadata above and emits:
-
-- `.generated/ui/app/job/admin/JobsAdminScreen.tsx` using `ResourceDataView`.
-- `.generated/php/Admin/Menu_JobsAdminScreen.php` when menu metadata is provided.
-- `.generated/ui/fixtures/dataviews/job.ts` for tests and documentation.
-
-The showcase application (`examples/showcase`) mounts the generated screen to demonstrate best practices end-to-end.
-
-## Testing & E2E helpers
-
-Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For unit/integration coverage inside this package, import the runtime harness from `@wpkernel/test-utils/ui` (pass `WPKernelUIProvider` from this package), keep using `tests/dom-observer.test-support.ts` for DOM mocks, and lean on `src/dataviews/test-support/ResourceDataView.test-support.tsx`. The DataView harness exports the full surface (`createKernelRuntime`, `createResource`, `createConfig`, `renderResourceDataView`, `renderActionScenario`, `buildListResource`, `buildActionConfig`, `createDataViewsTestController`, and `flushDataViews`) so suites share runtime setup, rerender control, pagination/view updates, and assertion accessors instead of recreating bespoke wiring. When the harness needs new behaviour, extend it with targeted helpers and accompanying self-tests before updating individual specs. For end-to-end coverage, `@wpkernel/e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
-
-```ts
-const dataview = kernel.dataview({ resource: 'job' });
-await dataview.waitForLoaded();
-await dataview.search('engineer');
-await dataview.selectRow('Engineering Manager');
-await dataview.runBulkAction('Publish');
-```
-
-See the [DataViews guide](../../docs/guide/dataviews.md) for a full walkthrough covering configuration, CLI scaffolding, runtime integration, migration strategy, and accessibility follow-ups.
-
-## Additional resources
-
-- [DataViews Integration - Specification](./DataViews%20Integration%20-%20Specification.md)
-- [Phased delivery plan](./PHASES.dataviews.md)
-- [E2E helpers](../e2e-utils/README.md)
-- [Project documentation](../../docs/index.md)
+EUPL-1.2 © [The Geekist](https://github.com/theGeekist)
