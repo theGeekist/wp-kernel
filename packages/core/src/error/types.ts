@@ -1,5 +1,5 @@
 /**
- * Error Types for WP Kernel
+ * Error Types for WPKernel
  *
  * Type definitions for error codes and contexts used throughout the framework.
  *
@@ -7,7 +7,7 @@
  */
 
 /**
- * Standard error codes used in WP Kernel
+ * Standard error codes used in WPKernel
  */
 export type ErrorCode =
 	| 'TransportError' // HTTP/network errors

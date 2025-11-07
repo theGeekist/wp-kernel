@@ -1,5 +1,5 @@
 /**
- * Redux-compatible middleware for executing WP Kernel actions through Redux stores.
+ * Redux-compatible middleware for executing WPKernel actions through Redux stores.
  *
  * This module provides Redux/`@wordpress/data` integration, enabling actions to be
  * dispatched through store middleware pipelines. This is the recommended approach for
@@ -7,10 +7,10 @@
  *
  * ## Key Concepts
  *
- * - **Action Envelope**: A special Redux action wrapper that carries a WP Kernel action
+ * - **Action Envelope**: A special Redux action wrapper that carries a WPKernel action
  *   and its arguments through the middleware pipeline.
  * - **Middleware Interception**: The middleware intercepts action envelopes, executes
- *   the underlying WP Kernel action, and returns the result (bypassing the reducer).
+ *   the underlying WPKernel action, and returns the result (bypassing the reducer).
  * - **Seamless Integration**: Works with existing Redux middleware chains and doesn't
  *   interfere with standard Redux actions.
  *
@@ -37,7 +37,7 @@
 import type { DefinedAction, ReduxDispatch, ReduxMiddleware } from './types';
 
 /**
- * Internal marker used to identify WP Kernel action envelopes in the Redux pipeline.
+ * Internal marker used to identify WPKernel action envelopes in the Redux pipeline.
  *
  * This type constant ensures that action envelopes don't collide with standard
  * Redux actions. The `@@` prefix follows Redux's convention for internal actions.
@@ -50,7 +50,7 @@ const EXECUTE_ACTION_TYPE = '@@wp-kernel/EXECUTE_ACTION';
 /**
  * Shape of the action envelope dispatched through Redux middleware.
  *
- * Action envelopes wrap WP Kernel actions in a Redux-compatible format, carrying:
+ * Action envelopes wrap WPKernel actions in a Redux-compatible format, carrying:
  * - The action function itself (`payload.action`)
  * - The arguments to invoke it with (`payload.args`)
  * - Optional metadata for middleware coordination (`meta`)
@@ -72,11 +72,11 @@ export type ActionEnvelope<TArgs, TResult> = {
 /**
  * Type guard to identify action envelopes at runtime.
  *
- * Checks if a Redux action is actually a WP Kernel action envelope by verifying:
+ * Checks if a Redux action is actually a WPKernel action envelope by verifying:
  * 1. It's an object with the correct `type` constant
  * 2. It has the `__kernelAction` marker flag
  *
- * This enables the middleware to selectively intercept WP Kernel actions while
+ * This enables the middleware to selectively intercept WPKernel actions while
  * allowing standard Redux actions to pass through untouched.
  *
  * @param value - Potential action envelope
@@ -95,7 +95,7 @@ function isActionEnvelope<TArgs, TResult>(
 }
 
 /**
- * Create a Redux-compatible middleware that intercepts and executes WP Kernel actions.
+ * Create a Redux-compatible middleware that intercepts and executes WPKernel actions.
  *
  * This middleware enables actions to be dispatched through Redux/`@wordpress/data` stores.
  * When an action envelope is dispatched, the middleware:
@@ -155,9 +155,9 @@ export function createActionMiddleware<
 }
 
 /**
- * Create an action envelope for dispatching a WP Kernel action through Redux.
+ * Create an action envelope for dispatching a WPKernel action through Redux.
  *
- * This function wraps a WP Kernel action and its arguments in a Redux-compatible format
+ * This function wraps a WPKernel action and its arguments in a Redux-compatible format
  * that the action middleware can intercept and execute. The resulting envelope can be
  * passed to `store.dispatch()` just like any standard Redux action.
  *
@@ -170,7 +170,7 @@ export function createActionMiddleware<
  *
  * @template TArgs - Input type for the action
  * @template TResult - Return type from the action
- * @param    action - The defined WP Kernel action to execute
+ * @param    action - The defined WPKernel action to execute
  * @param    args   - Arguments to pass to the action function
  * @param    meta   - Optional metadata for middleware coordination
  * @return Action envelope ready for Redux dispatch

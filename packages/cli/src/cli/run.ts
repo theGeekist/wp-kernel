@@ -21,12 +21,12 @@ class RootCommand extends Command {
 	static override paths = [Command.Default];
 
 	static override usage = Command.Usage({
-		description: 'WP Kernel CLI entry point.',
+		description: 'WPKernel CLI entry point.',
 	});
 
 	override async execute(): Promise<number | void> {
 		this.context.stdout.write(
-			`WP Kernel CLI v${VERSION}\nUse \"${WPK_NAMESPACE} --help\" to list commands.\n`
+			`WPKernel CLI v${VERSION}\nUse \"${WPK_NAMESPACE} --help\" to list commands.\n`
 		);
 		return undefined;
 	}
@@ -34,7 +34,7 @@ class RootCommand extends Command {
 
 const cli = new Cli({
 	binaryName: WPK_NAMESPACE,
-	binaryLabel: 'WP Kernel CLI',
+	binaryLabel: 'WPKernel CLI',
 	binaryVersion: VERSION,
 });
 
@@ -54,7 +54,7 @@ cli.register(StartCommand);
 cli.register(ApplyCommand);
 
 /**
- * Run the WP Kernel CLI programmatically.
+ * Run the WPKernel CLI programmatically.
  *
  * This convenience function mirrors the behavior of the shipped `wpk`
  * binary but is safe to call from scripts or tests. It accepts an argv

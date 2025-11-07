@@ -1,6 +1,6 @@
 # Core Concepts
 
-WP Kernel revolves around a handful of primitives that cooperate rather than compete. This page narrates how they fit together before you dive into the dedicated guides for resources, Actions, events, bindings, interactivity, and jobs.
+WPKernel revolves around a handful of primitives that cooperate rather than compete. This page narrates how they fit together before you dive into the dedicated guides for resources, Actions, events, bindings, interactivity, and jobs.
 
 ## Architecture overview
 
@@ -154,4 +154,4 @@ All surfaced errors extend `WPKernelError`, giving you predictable properties fo
 
 ## Performance expectations
 
-The framework sets budgets-sub-1.5s TTI on 3G, less than 30KB of additional JavaScript when you adopt the kernel, REST responses that stay under 500ms at p95. By baking these expectations into the architecture, the documentation you are reading doubles as a checklist for production readiness.
+The framework sets budgets-sub-1.5s TTI on 3G, less than 30KB of additional JavaScript when you adopt wpk, REST responses that stay under 500ms at p95. By baking these expectations into the architecture, the documentation you are reading doubles as a checklist for production readiness.

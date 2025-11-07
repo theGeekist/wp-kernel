@@ -31,7 +31,7 @@ interface BuildRouteSetOptionsContext {
  *
  * @param    context - Context containing resource, route, identity, and handler artifacts
  * @returns Route set options without execution plan (plan added separately)
- * @category Builders
+ * @category AST Builders
  */
 export function buildRouteSetOptions(
 	context: BuildRouteSetOptionsContext

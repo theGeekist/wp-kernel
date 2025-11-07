@@ -118,7 +118,7 @@ contributing/*
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-	title: 'WP Kernel',
+	title: 'WPKernel',
 	description: 'One config → a working WordPress plugin',
 	lang: 'en-US',
 	lastUpdated: true,
@@ -238,7 +238,7 @@ export default defineConfig({
 **Hero**
 
 > **One config → a working WordPress plugin**
-> Define your resources, blocks, and UI once. WP Kernel generates REST controllers, block manifests, DataViews screens, and policy guards-so you can build features, not boilerplate.
+> Define your resources, blocks, and UI once. WPKernel generates REST controllers, block manifests, DataViews screens, and policy guards-so you can build features, not boilerplate.
 
 **Three pillars**
 

@@ -1,5 +1,5 @@
 /**
- * Capability Denied Error for WP Kernel
+ * Capability Denied Error for WPKernel
  *
  * Thrown when a capability check fails via `capability.assert()` or action context.
  * Includes i18n-friendly messageKey for user-facing error messages.

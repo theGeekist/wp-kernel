@@ -1,6 +1,6 @@
 # @wpkernel/e2e-utils
 
-> Playwright-based end-to-end testing utilities for WordPress + WP Kernel projects.
+> Playwright-based end-to-end testing utilities for WordPress + WPKernel projects.
 
 ## Overview
 
@@ -57,7 +57,7 @@ test('admin can publish a job', async ({ page, admin, wpk }) => {
 - **`test` / `expect`** – re-export Playwright with wpk fixtures registered.
 - **Auth & roles** – `admin`, `user`, and session helpers layered on top of WordPress’ Playwright utils.
 - **Database helpers** – `db.seed*`, `db.cleanup` for preparing users, posts, terms, and custom tables.
-- **Kernel stores** – `kernel.store()` waits for resource state and inspects cache keys.
+- **WPKernel stores** – `kernel.store()` waits for resource state and inspects cache keys.
 - **Resource helpers** – `kernel.resource()` seeds REST resources and queues cleanup.
 - **Events** – `kernel.events()` records bus emissions for assertions.
 - **DataView helpers** – `kernel.dataview()` drives `ResourceDataView` screens via the stable

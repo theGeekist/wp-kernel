@@ -1,5 +1,5 @@
 /**
- * Server Error for WP Kernel
+ * Server Error for WPKernel
  *
  * Represents errors returned by WordPress REST API endpoints.
  * Parses WordPress REST error responses into structured format.

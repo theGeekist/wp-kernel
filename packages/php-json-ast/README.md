@@ -26,4 +26,4 @@ const attributes = normalisePhpAttributes(payload.attributes);
 
 ## Contributing
 
-This package is part of the WP Kernel monorepo. Please see the root [CONTRIBUTING](../../DEVELOPMENT.md) guide for local development instructions.
+This package is part of the WPKernel monorepo. Please see the root [CONTRIBUTING](../../DEVELOPMENT.md) guide for local development instructions.

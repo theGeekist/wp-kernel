@@ -7,9 +7,9 @@ set -e
 
 echo "📋 Seeding job postings..."
 
-# Check if WP Kernel Showcase plugin is active
+# Check if WPKernel Showcase plugin is active
 if ! wp plugin is-active wp-kernel-showcase 2>/dev/null; then
-	echo "  ⚠️  WP Kernel Showcase plugin not active. Activating..."
+	echo "  ⚠️  WPKernel Showcase plugin not active. Activating..."
 	wp plugin activate wp-kernel-showcase
 fi
 

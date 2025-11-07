@@ -21,7 +21,7 @@ import { normalizeListError } from './utils/errors';
  * @param    fetchList
  * @param    query
  * @param    reporter
- * @category DataViews Hooks
+ * @category DataViews Integration
  */
 export function useAsyncList<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,

@@ -9,7 +9,7 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
  * This fragment depends on the meta fragment to determine the workspace root
  * and then uses `block-discovery` to find and include block definitions in the IR.
  *
- * @category IR Fragments
+ * @category IR
  * @returns An `IrFragment` instance for block discovery.
  */
 export function createBlocksFragment(): IrFragment {

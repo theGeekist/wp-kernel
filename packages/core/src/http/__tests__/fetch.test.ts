@@ -504,7 +504,7 @@ describe('transport/fetch', () => {
 			);
 		});
 
-		it('uses WP Kernel reporter when metadata is not provided', async () => {
+		it('uses WPKernel reporter when metadata is not provided', async () => {
 			const wpKernelSpy = createReporterSpy();
 			setWPKernelReporter(wpKernelSpy.reporter);
 			mockApiFetch.mockResolvedValue({ id: 7 });

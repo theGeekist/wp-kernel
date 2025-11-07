@@ -19,7 +19,7 @@ import { getPhpBuilderChannel } from './channel';
  * classes and functions that define and manage WordPress capabilities,
  * ensuring proper access control for REST routes.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating capability code.
  */
 export function createPhpCapabilityHelper(): BuilderHelper {

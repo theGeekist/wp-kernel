@@ -10,7 +10,7 @@
 /**
  * Root framework namespace
  *
- * This is the canonical namespace for the WP Kernel framework.
+ * This is the canonical namespace for the WPKernel framework.
  * Used as:
  * - Default reporter namespace when no plugin namespace detected
  * - Fallback in getNamespace() detection cascade
@@ -56,7 +56,7 @@ export const WPK_INFRASTRUCTURE = {
 	CAPABILITY_EVENT_CHANNEL: `${WPK_NAMESPACE}.capability.events`,
 	/** BroadcastChannel name for action lifecycle events */
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
-	/** WordPress hooks namespace prefix for WP Kernel events plugin */
+	/** WordPress hooks namespace prefix for WPKernel events plugin */
 	WP_HOOKS_NAMESPACE_PREFIX: `${WPK_NAMESPACE}/notices`,
 
 	/** WordPress hooks namespace for UI DataViews bridge (default base) */
@@ -107,7 +107,7 @@ export type WPKInfrastructureConstant =
 export type WPKEvent = (typeof WPK_EVENTS)[keyof typeof WPK_EVENTS];
 
 /**
- * Configuration sources recognised by WP Kernel tooling.
+ * Configuration sources recognised by WPKernel tooling.
  *
  * These filenames/keys are consumed by the CLI and runtime config loaders.
  */

@@ -246,7 +246,7 @@ export interface IRPhpProject {
  * The top-level Intermediate Representation (IR) for version 1.
  *
  * This interface encapsulates all the processed metadata and configurations
- * of a WP Kernel project, providing a structured representation that can be
+ * of a WPKernel project, providing a structured representation that can be
  * used by code generators and other tools.
  *
  * @category IR
@@ -260,7 +260,7 @@ export interface IRv1 {
 		origin: string;
 		sanitizedNamespace: string;
 	};
-	/** The original WP Kernel configuration. */
+	/** The original WPKernel configuration. */
 	config: WPKernelConfigV1;
 	/** An array of schema IRs. */
 	schemas: IRSchema[];
@@ -278,7 +278,7 @@ export interface IRv1 {
  * @category IR
  */
 export interface BuildIrOptions {
-	/** The WP Kernel configuration. */
+	/** The WPKernel configuration. */
 	config: WPKernelConfigV1;
 	/** The source path of the configuration file. */
 	sourcePath: string;

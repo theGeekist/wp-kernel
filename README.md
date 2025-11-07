@@ -1,4 +1,4 @@
-# WP Kernel
+# WPKernel
 
 > A Rails-like, opinionated framework for building modern WordPress products. Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
 
@@ -19,9 +19,9 @@ The JavaScript is the source of truth and PHP is a thin contract.
 
 ---
 
-## 🎯 What is WP Kernel?
+## 🎯 What is WPKernel?
 
-WP Kernel provides a **Golden Path** for WordPress development in 2025+:
+WPKernel provides a **Golden Path** for WordPress development in 2025+:
 
 - **Actions-first**: UI never writes directly to transport (enforced by lint + runtime)
 - **Resources**: Typed REST contracts → client + store + cache keys
@@ -36,9 +36,9 @@ Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivit
 
 ## 🚀 Quick Start
 
-### For Plugin Developers (Using WP Kernel)
+### For Plugin Developers (Using WPKernel)
 
-To **build your WordPress plugin** with WP Kernel:
+To **build your WordPress plugin** with WPKernel:
 
 **Requirements:**
 
@@ -46,7 +46,7 @@ To **build your WordPress plugin** with WP Kernel:
 - **pnpm**: 9.x or higher (`npm install -g pnpm`) or npm
 - **WordPress**: 6.7+ (required for [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/) - core to the framework architecture)
 
-> **Why WordPress 6.7+?** WP Kernel builds on WordPress Core primitives (Script Modules, Block Bindings, Interactivity API). Script Modules enable native ESM support, which is fundamental to the framework's design.
+> **Why WordPress 6.7+?** WPKernel builds on WordPress Core primitives (Script Modules, Block Bindings, Interactivity API). Script Modules enable native ESM support, which is fundamental to the framework's design.
 
 #### Option 1: Scaffold a New Plugin (Recommended)
 
@@ -61,7 +61,7 @@ cd my-plugin
 npm start
 ```
 
-This creates a complete WP Kernel plugin with pre-configured `wpk.config.ts`, TypeScript setup, example resources and actions, and a development server ready to go.
+This creates a complete WPKernel plugin with pre-configured `wpk.config.ts`, TypeScript setup, example resources and actions, and a development server ready to go.
 
 **Core Workflow:**
 
@@ -83,7 +83,7 @@ wpk doctor
 wpk generate    # Generate PHP/TS from wpk.config.*
 wpk doctor      # Check project health and dependencies
 wpk start       # Start development server
-wpk init        # Initialize WP Kernel in existing project
+wpk init        # Initialize WPKernel in existing project
 wpk apply       # Apply generated code patches
 ```
 
@@ -101,7 +101,7 @@ wpk apply       # Apply generated code patches
 
 #### Option 2: Manual Installation
 
-If you prefer to set up manually or add WP Kernel to an existing project:
+If you prefer to set up manually or add WPKernel to an existing project:
 
 ```bash
 # In your plugin directory
@@ -125,7 +125,7 @@ const wpk = configureWPKernel({
 	ui: { attach: attachUIBindings },
 });
 
-kernel.emit('my-plugin.ready', { timestamp: Date.now() });
+wpk.emit('my-plugin.ready', { timestamp: Date.now() });
 ```
 
 Mount the UI runtime so React hooks can subscribe to resources and actions through the wpk event bus:
@@ -134,7 +134,7 @@ Mount the UI runtime so React hooks can subscribe to resources and actions throu
 import { createRoot } from 'react-dom/client';
 import { WPKernelUIProvider } from '@wpkernel/ui';
 
-const runtime = kernel.getUIRuntime();
+const runtime = wpk.getUIRuntime();
 
 createRoot(document.getElementById('app')!).render(
 	<WPKernelUIProvider runtime={runtime}>
@@ -143,17 +143,17 @@ createRoot(document.getElementById('app')!).render(
 );
 ```
 
-`configureWPKernel()` installs the registry middleware and returns a shared instance so you can access the namespace, reporter, cache helpers, and the typed `kernel.events` bus.
+`configureWPKernel()` installs the registry middleware and returns a shared instance so you can access the namespace, reporter, cache helpers, and the typed `wpkernel.events` bus.
 
 > ℹ️ Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts` to stay aligned with the framework's canonical contract.
 
-**See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WP Kernel plugin.
+**See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WPKernel plugin.
 
 ---
 
-### For Contributors (Working on WP Kernel Itself)
+### For Contributors (Working on WPKernel Itself)
 
-To **contribute to the WP Kernel framework** or run the showcase demo locally:
+To **contribute to the WPKernel framework** or run the showcase demo locally:
 
 **Requirements:**
 
@@ -233,7 +233,7 @@ We test against multiple combinations to ensure compatibility:
 
 ## �📦 Import Patterns
 
-WP Kernel supports three flexible import patterns. Choose what fits your project:
+WPKernel supports three flexible import patterns. Choose what fits your project:
 
 ### 1. Scoped Imports (Recommended)
 
@@ -270,7 +270,7 @@ Both patterns work identically - pick what you prefer. Submodule imports provide
 
 ## 🛠️ Contributor Commands
 
-> **Note**: These commands are for contributing to WP Kernel itself. If you're building a plugin with WP Kernel, see the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/).
+> **Note**: These commands are for contributing to WPKernel itself. If you're building a plugin with WPKernel, see the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/).
 
 ```bash
 # Build & Watch
@@ -315,7 +315,7 @@ Shared testing helpers live under `@wpkernel/test-utils/wp` (WordPress globals) 
 
 ### Developer Resources
 
-- **[Foreword](information/Foreword.md)** - Why WP Kernel exists, mental model
+- **[Foreword](information/Foreword.md)** - Why WPKernel exists, mental model
 - **[Product Specification](information/Product%20Specification%20PO%20•%20v1.0.md)** - Complete API contracts and guarantees
 - **[Event Taxonomy](information/Event%20Taxonomy%20Quick%20Reference.md)** - All events and payloads
 
@@ -385,7 +385,7 @@ This gives you:
 
 ## 📋 Project Status
 
-WP Kernel is in **active development** progressing toward v1.0. Core primitives (Resources, Actions, Data Integration, Reporting) are complete and stable.
+WPKernel is in **active development** progressing toward v1.0. Core primitives (Resources, Actions, Data Integration, Reporting) are complete and stable.
 
 **See the [Roadmap](https://thegeekist.github.io/wp-kernel/contributing/roadmap)** for detailed progress, completed features, and upcoming work.
 
@@ -421,13 +421,13 @@ pnpm e2e            # Run E2E tests
 
 ### Framework: EUPL-1.2
 
-The WP Kernel framework (packages: `@wpkernel/core`, `@wpkernel/ui`, `@wpkernel/cli`, `@wpkernel/e2e-utils`) is licensed under **EUPL-1.2** (European Union Public License v1.2).
+The WPKernel framework (packages: `@wpkernel/core`, `@wpkernel/ui`, `@wpkernel/cli`, `@wpkernel/e2e-utils`) is licensed under **EUPL-1.2** (European Union Public License v1.2).
 
 **This means you CAN**:
 ✓ Build commercial plugins and themes  
 ✓ Build SaaS products  
 ✓ Keep your application code proprietary  
-✓ Sell products built with WP Kernel
+✓ Sell products built with WPKernel
 
 **You only need to share**:
 
@@ -441,7 +441,7 @@ The showcase WordPress plugin (`examples/showcase`) is licensed under **GPL-2.0-
 
 For comprehensive information about:
 
-- Building commercial products with WP Kernel
+- Building commercial products with WPKernel
 - WordPress.org plugin publishing
 - SaaS and premium version patterns
 - Frequently asked questions

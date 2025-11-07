@@ -26,14 +26,14 @@ type WatchFn = typeof chokidarModule.watch;
  * - `fast`: Changes that can be regenerated quickly.
  * - `slow`: Changes that require a more extensive or time-consuming regeneration.
  *
- * @category Start Command
+ * @category Commands
  */
 export type ChangeTier = 'fast' | 'slow';
 
 /**
  * Represents a file system change that triggers a regeneration cycle.
  *
- * @category Start Command
+ * @category Commands
  */
 export type Trigger = {
 	/** The tier of the change (fast or slow). */
@@ -47,7 +47,7 @@ export type Trigger = {
 /**
  * File system operations interface for start command.
  *
- * @category Start Command
+ * @category Commands
  * @public
  */
 export interface FileSystem {
@@ -59,7 +59,7 @@ export interface FileSystem {
 /**
  * Defines the dependencies required by the `start` command.
  *
- * @category Start Command
+ * @category Commands
  */
 interface BuildStartCommandDependencies {
 	/** Function to dynamically load the `chokidar.watch` function. */
@@ -79,7 +79,7 @@ interface BuildStartCommandDependencies {
 /**
  * Options for building the `start` command, allowing for dependency injection.
  *
- * @category Start Command
+ * @category Commands
  */
 export interface BuildStartCommandOptions {
 	/** Optional: Custom function to load the `chokidar.watch` function. */
@@ -206,7 +206,7 @@ async function loadChokidarWatch(): Promise<WatchFn> {
  * on changes and running a Vite development server. It supports debouncing
  * changes and optionally auto-applying generated PHP artifacts.
  *
- * @category Start Command
+ * @category Commands
  * @param    options - Options for building the start command, including dependencies.
  * @returns The `Command` class for the start command.
  */
@@ -643,7 +643,7 @@ function toWorkspaceRelativePath(absolute: string): string {
  * Files in `contracts/` or `schemas/` are considered 'slow' changes,
  * as they often require more extensive regeneration.
  *
- * @category Start Command
+ * @category Commands
  * @param    filePath - The path to the changed file.
  * @returns The `ChangeTier` for the file.
  */
@@ -673,7 +673,7 @@ function normaliseForLog(filePath: string): string {
  * A 'slow' incoming trigger will always override a 'fast' current trigger.
  * If both are 'slow' or both are 'fast', the incoming trigger takes precedence.
  *
- * @category Start Command
+ * @category Commands
  * @param    current  - The currently queued trigger, or null if none.
  * @param    incoming - The new incoming trigger.
  * @returns The trigger that should be processed next.

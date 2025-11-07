@@ -1,6 +1,6 @@
 # Framework Release Playbook
 
-WP Kernel ships every package from a single source of truth. Releases are manual today-the old `release-please` workflow is on hold until we can automate the checks in this playbook. Follow the sequence below every time you cut a new version so the framework, showcase plugin, and documentation stay in sync.
+WPKernel ships every package from a single source of truth. Releases are manual today-the old `release-please` workflow is on hold until we can automate the checks in this playbook. Follow the sequence below every time you cut a new version so the framework, showcase plugin, and documentation stay in sync.
 
 ## Preflight checklist
 
@@ -15,7 +15,7 @@ If any check fails, stop here and fix it in a regular feature branch. Releases o
 
 ## Align versions and changelog entries
 
-WP Kernel uses fixed versioning across publishable packages. Run `pnpm release:bump <next-version>` to update the root manifest, every publishable workspace, and any documentation token that references the current release. The script finishes by rebuilding the docs site so the generated API reference reflects the new version number.
+WPKernel uses fixed versioning across publishable packages. Run `pnpm release:bump <next-version>` to update the root manifest, every publishable workspace, and any documentation token that references the current release. The script finishes by rebuilding the docs site so the generated API reference reflects the new version number.
 
 Update `CHANGELOG.md` entries at the root and in the affected package directories: move notes out of the `Unreleased` section, add the release date, and confirm highlights describe every merged feature.
 
@@ -60,7 +60,7 @@ npm publish --workspace packages/test-utils
 Tag the release only after every package succeeds. Use annotated tags so the changelog is visible in Git history and defer pushing until npm publishes are complete:
 
 ```bash
-git tag -a vX.Y.Z -m "WP Kernel vX.Y.Z"
+git tag -a vX.Y.Z -m "WPKernel vX.Y.Z"
 git push origin main --tags
 ```
 

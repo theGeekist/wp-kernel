@@ -1,7 +1,7 @@
 import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
 
 /**
- * WP Kernel configuration for your project.
+ * WPKernel configuration for your project.
  *
  * This file is the single source of truth for all code generation,
  * resource management, and plugin metadata.

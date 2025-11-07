@@ -50,7 +50,7 @@ function mapRunOptionsToBuildOptions(
  * configurations, builds an Intermediate Representation (IR), and executes various
  * builder and fragment helpers to generate code and artifacts.
  *
- * @category Pipeline
+ * @category Runtime
  * @returns A `Pipeline` instance configured for CLI operations.
  */
 export function createPipeline(): Pipeline {

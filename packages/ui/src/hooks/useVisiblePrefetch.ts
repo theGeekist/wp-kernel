@@ -5,7 +5,7 @@ import { useStableCallback, useLatest } from './internal/useStableCallback';
 /**
  * Options for the useVisiblePrefetch hook.
  *
- * @category Prefetching
+ * @category Utilities
  * @public
  */
 export interface VisiblePrefetchOptions {
@@ -85,7 +85,7 @@ function isVisibleWithinMargin(element: Element, margin: MarginBox): boolean {
  * This hook uses `IntersectionObserver` if available, otherwise it falls back to
  * a scroll and resize listener.
  *
- * @category Prefetching
+ * @category Utilities
  * @param    ref     - A React ref to the element to monitor.
  * @param    fn      - The function to call to trigger the prefetch.
  * @param    options - Options for the hook.

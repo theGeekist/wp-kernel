@@ -3,7 +3,7 @@ import type { Reporter } from './types';
 let wpKernelReporter: Reporter | undefined;
 
 /**
- * Register the shared WP Kernel reporter instance.
+ * Register the shared WPKernel reporter instance.
  *
  * @param    reporter - Reporter to use for subsequent logging
  * @category Reporter
@@ -13,7 +13,7 @@ export function setWPKernelReporter(reporter: Reporter | undefined): void {
 }
 
 /**
- * Retrieve the shared WP Kernel reporter, if configured.
+ * Retrieve the shared WPKernel reporter, if configured.
  *
  * @return Reporter instance or undefined when not initialised
  * @category Reporter

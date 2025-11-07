@@ -1,7 +1,7 @@
 Jobs & Applications - Product Spec (Team Lead Edition)
 
-Audience: product-leaning team lead + devs who already speak “kernel”.
-Assumption: WP Kernel is finished and standard at your company. This doc is product-first, WP-native, and simply references wpk artefacts where useful.
+Audience: product-leaning team lead + devs who already speak “wpkernel”.
+Assumption: WPKernel is finished and standard at your company. This doc is product-first, WP-native, and simply references wpk artefacts where useful.
 
 ⸻
 

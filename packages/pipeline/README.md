@@ -4,7 +4,7 @@
 
 ## Overview
 
-`@wpkernel/pipeline` powers every generation flow inside WP Kernel. It was extracted from
+`@wpkernel/pipeline` powers every generation flow inside WPKernel. It was extracted from
 `@wpkernel/core` so CLI builders, PHP bridges, and external projects can compose helpers,
 validate dependencies, and execute deterministic plans. The runtime enforces a three-phase
 model (fragments → builders → extensions) and provides rich diagnostics when helpers clash or

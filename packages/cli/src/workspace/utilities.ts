@@ -15,7 +15,7 @@ const execFile = promisify(execFileCallback);
 /**
  * Options for the `ensureGeneratedPhpClean` function.
  *
- * @category Workspace Utilities
+ * @category Workspace
  */
 export interface EnsureGeneratedPhpCleanOptions {
 	/** The workspace instance. */
@@ -31,7 +31,7 @@ export interface EnsureGeneratedPhpCleanOptions {
 /**
  * Options for the `ensureCleanDirectory` function.
  *
- * @category Workspace Utilities
+ * @category Workspace
  */
 export interface EnsureCleanDirectoryOptions {
 	/** The workspace instance. */
@@ -49,7 +49,7 @@ export interface EnsureCleanDirectoryOptions {
 /**
  * Options for the `promptConfirm` function.
  *
- * @category Workspace Utilities
+ * @category Workspace
  */
 export interface ConfirmPromptOptions {
 	/** The message to display to the user. */
@@ -124,7 +124,7 @@ function isGitRepositoryMissing(error: unknown): boolean {
  * This function checks the Git status of the specified directory. If uncommitted
  * changes are found, it throws a `WPKernelError` unless the `yes` option is true.
  *
- * @category Workspace Utilities
+ * @category Workspace
  * @param    options.workspace
  * @param    options.reporter
  * @param    options.yes
@@ -198,7 +198,7 @@ export async function ensureGeneratedPhpClean({
  * If the directory exists and is not empty, it will throw a `WPKernelError`
  * unless `force` is true, in which case it will clear the directory contents.
  *
- * @category Workspace Utilities
+ * @category Workspace
  * @param    options.workspace
  * @param    options.directory
  * @param    options.force
@@ -292,7 +292,7 @@ function parseBooleanAnswer(
 /**
  * Prompts the user for a yes/no confirmation.
  *
- * @category Workspace Utilities
+ * @category Workspace
  * @param    options.message
  * @param    options.defaultValue
  * @param    options.input
@@ -320,7 +320,7 @@ export async function promptConfirm({
 /**
  * Converts an absolute path to a path relative to the workspace root.
  *
- * @category Workspace Utilities
+ * @category Workspace
  * @param    workspace - The workspace instance.
  * @param    absolute  - The absolute path to convert.
  * @returns The path relative to the workspace root, using POSIX separators.

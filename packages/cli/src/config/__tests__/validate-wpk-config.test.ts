@@ -11,7 +11,7 @@ import {
 	normalizeVersion,
 	runResourceChecks,
 	formatValidationErrors,
-} from '../validate-kernel-config';
+} from '../validate-wpk-config';
 
 interface TestResourceConfig {
 	name: string;

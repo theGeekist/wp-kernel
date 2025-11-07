@@ -6,7 +6,7 @@
  */
 
 /**
- * Defines a new WP Kernel resource.
+ * Defines a new WPKernel resource.
  *
  * This function is the primary entry point for creating resource definitions,
  * which include routes, identity, storage, and UI configurations.

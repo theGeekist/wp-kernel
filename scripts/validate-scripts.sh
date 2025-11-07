@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# WP Kernel - Script Validation Utility
+# WPKernel - Script Validation Utility
 # Validates all root package.json scripts
 #
 
 set -e
 
-echo "=== Validating WP Kernel Scripts ==="
+echo "=== Validating WPKernel Scripts ==="
 echo ""
 
 # Colors

@@ -1,6 +1,6 @@
 # Introduction
 
-WP Kernel is an opinionated framework for WordPress plugins. JavaScript stays in charge of data flow through `defineResource`, actions coordinate every write, and generated PHP controllers keep WordPress in sync without manual glue. Instead of wiring state, REST clients, and admin pages on every project, you describe the shape of your plugin once and let the tooling follow through.
+WPKernel is an opinionated framework for WordPress plugins. JavaScript stays in charge of data flow through `defineResource`, actions coordinate every write, and generated PHP controllers keep WordPress in sync without manual glue. Instead of wiring state, REST clients, and admin pages on every project, you describe the shape of your plugin once and let the tooling follow through.
 
 ## What ships out of the box
 
@@ -14,9 +14,9 @@ When you configure adapters, the CLI can extend generation-for example the defau
 
 ```mermaid
 journey
-    title Getting started with WP Kernel
+    title Getting started with WPKernel
     section Understand
-      Read "Why WP Kernel?" : 5
+      Read "Why WPKernel?" : 5
       Skim architecture overview : 4
     section Prepare
       Follow Installation guide : 5

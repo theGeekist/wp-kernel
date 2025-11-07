@@ -58,7 +58,7 @@ function mergeViewWithDefaults(defaultView: View, view: View): View {
  *
  * @param    controller
  * @param    initial
- * @category DataViews Hooks
+ * @category DataViews Integration
  * @example
  * ```ts
  * const [view, setView] = useStableView(controller, initialView);

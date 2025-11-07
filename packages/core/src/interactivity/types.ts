@@ -1,7 +1,7 @@
 /**
  * Interactivity helpers - shared types
  *
- * The interactivity runtime bridges WP Kernel helpers with the WordPress
+ * The interactivity runtime bridges WPKernel helpers with the WordPress
  * `@wordpress/interactivity` package. These types centralize the contracts used
  * by `defineInteraction` so helper implementations, tests, and ambient
  * declarations all remain aligned.

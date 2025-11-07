@@ -1,6 +1,6 @@
 # API Contracts Reference
 
-WP Kernel exports a small set of stable contracts. This page lists the event names, error classes, and cache key conventions that are guaranteed across releases.【F:packages/core/src/index.ts†L1-L120】
+WPKernel exports a small set of stable contracts. This page lists the event names, error classes, and cache key conventions that are guaranteed across releases.【F:packages/core/src/index.ts†L1-L120】
 
 ## Events registry
 

@@ -1,5 +1,5 @@
 /**
- * Base Jest configuration for WP Kernel monorepo packages
+ * Base Jest configuration for WPKernel monorepo packages
  * Individual packages should extend this configuration
  */
 

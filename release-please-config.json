@@ -3,7 +3,7 @@
 	"packages": {
 		"packages/core": {
 			"package-name": "@wpkernel/core",
-			"component": "kernel",
+			"component": "wpkernel",
 			"changelog-path": "CHANGELOG.md"
 		},
 		"packages/cli": {

@@ -15,7 +15,7 @@ export const listLoadFailedMessage = __(
  * @param    itemCount   - Number of items affected.
  * @returns Localized message suitable for a success notice.
  *
- * @category DataViews I18N
+ * @category DataViews Integration
  */
 export function formatActionSuccessMessage(
 	actionLabel: string,

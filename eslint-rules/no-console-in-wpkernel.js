@@ -1,7 +1,7 @@
 import path from 'path';
 
-const SRC_SEGMENT = path.join('packages', 'kernel', 'src');
-const ALLOWED_SEGMENTS = [path.join('packages', 'kernel', 'src', 'reporter')];
+const SRC_SEGMENT = path.join('packages', 'wpkernel', 'src');
+const ALLOWED_SEGMENTS = [path.join('packages', 'wpkernel', 'src', 'reporter')];
 
 export default {
 	meta: {

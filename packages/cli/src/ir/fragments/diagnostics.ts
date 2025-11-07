@@ -45,7 +45,7 @@ function sortDiagnostics(values: IRDiagnostic[]): IRDiagnostic[] {
  * any warnings or issues identified during their processing and consolidates them
  * into a single list of diagnostics in the IR.
  *
- * @category IR Fragments
+ * @category IR
  * @returns An `IrFragment` instance for diagnostics collection.
  */
 export function createDiagnosticsFragment(): IrFragment {

@@ -7,7 +7,7 @@ import type { GenerationSummary } from './types';
 /**
  * Options for validating generated imports.
  *
- * @category Generate Command
+ * @category Commands
  * @public
  */
 export interface ValidateGeneratedImportsOptions {

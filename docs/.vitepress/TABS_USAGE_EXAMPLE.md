@@ -29,7 +29,7 @@ print(greeting)
 
 :::
 
-## Example for WP Kernel - Installation
+## Example for WPKernel - Installation
 
 :::tabs
 
@@ -69,10 +69,10 @@ add_action('rest_api_init', function() {
 });
 ```
 
-@tab WP Kernel Way
+@tab WPKernel Way
 
 ```ts
-// WP Kernel approach
+// WPKernel approach
 const job = defineResource<Job>({
 	name: 'job',
 	routes: {

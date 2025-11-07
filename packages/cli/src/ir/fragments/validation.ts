@@ -9,7 +9,7 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
  * to ensure that the IR is internally consistent and meets all framework contracts.
  * It throws `WPKernelError` if any critical validation fails.
  *
- * @category IR Fragments
+ * @category IR
  * @returns An `IrFragment` instance for final IR validation.
  */
 export function createValidationFragment(): IrFragment {

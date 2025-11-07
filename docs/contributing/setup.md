@@ -1,6 +1,6 @@
 # Development Setup
 
-Complete guide to setting up your development environment for WP Kernel.
+Complete guide to setting up your development environment for WPKernel.
 
 ## 🚨 TL;DR - Quick Start
 
@@ -86,7 +86,7 @@ pnpm lint
 
 ## WordPress Environment
 
-WP Kernel uses `@wordpress/env` for local WordPress instances.
+WPKernel uses `@wordpress/env` for local WordPress instances.
 
 ### Two Environments
 

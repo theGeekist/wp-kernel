@@ -1,5 +1,5 @@
 /**
- * Base Error Class for WP Kernel
+ * Base Error Class for WPKernel
  *
  * All errors in the framework extend from WPKernelError. This provides consistent
  * structure, serialization, and debugging capabilities.
@@ -15,7 +15,7 @@ import type {
 } from './types';
 
 /**
- * Base error class for WP Kernel
+ * Base error class for WPKernel
  *
  * @example
  * ```typescript

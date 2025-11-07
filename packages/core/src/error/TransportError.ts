@@ -1,5 +1,5 @@
 /**
- * Transport Error for WP Kernel
+ * Transport Error for WPKernel
  *
  * Represents HTTP/network errors that occur during REST API communication.
  *

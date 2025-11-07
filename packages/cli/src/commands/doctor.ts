@@ -16,7 +16,7 @@ const execFile = promisify(execFileCallback);
 /**
  * Status of a doctor check.
  *
- * @category Doctor Command
+ * @category Commands
  * @public
  */
 export type DoctorStatus = 'pass' | 'warn' | 'fail';
@@ -24,7 +24,7 @@ export type DoctorStatus = 'pass' | 'warn' | 'fail';
 /**
  * Result from a doctor check.
  *
- * @category Doctor Command
+ * @category Commands
  * @public
  */
 export interface DoctorCheckResult {
@@ -37,7 +37,7 @@ export interface DoctorCheckResult {
 /**
  * Options for checking PHP environment.
  *
- * @category Doctor Command
+ * @category Commands
  * @public
  */
 export interface CheckPhpEnvironmentOptions {
@@ -58,10 +58,10 @@ interface DoctorDependencies {
 /**
  * Options for building the `doctor` command, allowing for dependency injection.
  *
- * @category Doctor Command
+ * @category Commands
  */
 export interface BuildDoctorCommandOptions {
-	/** Optional: Custom function to load the WP Kernel configuration. */
+	/** Optional: Custom function to load the WPKernel configuration. */
 	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;
 	/** Optional: Custom workspace builder function. */
 	readonly buildWorkspace?: typeof buildWorkspace;
@@ -96,10 +96,10 @@ function buildReporterNamespace(): string {
 /**
  * Builds the `doctor` command for the CLI.
  *
- * This command runs various health checks for the WP Kernel project,
+ * This command runs various health checks for the WPKernel project,
  * including configuration, Composer autoloading, PHP tooling, and workspace hygiene.
  *
- * @category Doctor Command
+ * @category Commands
  * @param    options - Options for building the doctor command, including dependencies.
  * @returns The `Command` class for the doctor command.
  */
@@ -294,7 +294,7 @@ export function buildDoctorCommand(
 /**
  * Renders a summary of the doctor check results for display in the CLI.
  *
- * @category Doctor Command
+ * @category Commands
  * @param    results - An array of `DoctorCheckResult` objects.
  * @returns A formatted string representing the summary of health checks.
  */

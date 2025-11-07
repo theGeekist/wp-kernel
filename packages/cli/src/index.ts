@@ -14,7 +14,7 @@
  */
 export { VERSION } from './version';
 /**
- * Runs the WP Kernel CLI application.
+ * Runs the WPKernel CLI application.
  *
  * This is the main entry point for executing CLI commands.
  *

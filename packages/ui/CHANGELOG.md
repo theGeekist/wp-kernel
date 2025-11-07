@@ -153,7 +153,7 @@ createRoot(node).render(
 
 - Sprint 0 foundation release
 
-    This is the initial release establishing the complete development environment and tooling infrastructure for the WP Kernel framework.
+    This is the initial release establishing the complete development environment and tooling infrastructure for the WPKernel framework.
 
     **Monorepo Structure**:
     - pnpm workspaces with 4 packages (kernel, ui, cli, e2e-utils)
@@ -205,7 +205,7 @@ createRoot(node).render(
 
 - # Sprint 0 Complete - Foundation Release
 
-    Complete development environment, tooling, and CI/CD pipeline for WP Kernel framework.
+    Complete development environment, tooling, and CI/CD pipeline for WPKernel framework.
 
     ## Infrastructure ✓
     - **Monorepo**: pnpm workspaces with 5 packages (kernel, ui, cli, e2e-utils, showcase-plugin)

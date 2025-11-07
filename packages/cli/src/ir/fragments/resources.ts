@@ -12,7 +12,7 @@ import { SCHEMA_EXTENSION_KEY } from './schemas';
  * This fragment depends on the meta and schemas fragments to properly construct
  * the resource definitions, including their associated schemas and namespace information.
  *
- * @category IR Fragments
+ * @category IR
  * @returns An `IrFragment` instance for resource processing.
  */
 export function createResourcesFragment(): IrFragment {

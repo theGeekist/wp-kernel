@@ -30,7 +30,7 @@ function buildReporterNamespace(): string {
 /**
  * Options for building the `init` command.
  *
- * @category Init Command
+ * @category Commands
  */
 export interface BuildInitCommandOptions {
 	/** Optional: Custom workspace builder function. */
@@ -46,7 +46,7 @@ export interface BuildInitCommandOptions {
 /**
  * Represents an instance of the `init` command.
  *
- * @category Init Command
+ * @category Commands
  */
 export type InitCommandInstance = Command & {
 	/** The name of the project. */
@@ -70,7 +70,7 @@ export type InitCommandInstance = Command & {
 /**
  * The constructor type for the `init` command.
  *
- * @category Init Command
+ * @category Commands
  */
 export type InitCommandConstructor = new () => InitCommandInstance;
 
@@ -94,10 +94,10 @@ function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
 /**
  * Builds the `init` command for the CLI.
  *
- * This command is responsible for initializing a new WP Kernel project by
+ * This command is responsible for initializing a new WPKernel project by
  * scaffolding configuration files, entry points, and linting presets.
  *
- * @category Init Command
+ * @category Commands
  * @param    options - Options for building the init command, including dependencies.
  * @returns The `InitCommandConstructor` class.
  */
@@ -111,7 +111,7 @@ export function buildInitCommand(
 
 		static override usage = Command.Usage({
 			description:
-				'Initialise a WP Kernel project by scaffolding config, entrypoint, and linting presets.',
+				'Initialise a WPKernel project by scaffolding config, entrypoint, and linting presets.',
 			examples: [
 				['Scaffold project files', 'wpk init --name=my-plugin'],
 				['Overwrite existing files', 'wpk init --force'],

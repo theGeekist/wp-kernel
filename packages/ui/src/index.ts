@@ -1,13 +1,13 @@
 /**
- * WP Kernel UI - Component Library Package
+ * WPKernel UI - Component Library Package
  *
- * Reusable UI components for WP Kernel.
+ * Reusable UI components for WPKernel.
  *
  * @module @wpkernel/ui
  */
 
 /**
- * Current version of WP Kernel UI
+ * Current version of WPKernel UI
  */
 export const VERSION = '0.11.0';
 

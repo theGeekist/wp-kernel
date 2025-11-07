@@ -1,6 +1,6 @@
 # CLI commands
 
-The WP Kernel CLI orchestrates the full lifecycle of a plugin. Each command below is available directly as `wpk <command>`.
+The WPKernel CLI orchestrates the full lifecycle of a plugin. Each command below is available directly as `wpk <command>`.
 
 ## `wpk init`
 

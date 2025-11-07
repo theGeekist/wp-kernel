@@ -83,7 +83,7 @@ const resourceRouteValidator = t.isObject(
  *
  * Ensures that a resource defines at least one route operation (list, get, create, update, or remove).
  *
- * @category Config Validation
+ * @category Config
  */
 export const resourceRoutesValidator = t.cascade(
 	t.isObject(
@@ -515,7 +515,7 @@ export function normalizeVersion(
  * - Write routes should have capabilities (warns if missing)
  * - wp-post storage should specify postType (warns if missing)
  *
- * @category Config Validation
+ * @category Config
  * @param    resourceName - Resource identifier for error messages
  * @param    resource     - Resource configuration to validate
  * @param    reporter     - Reporter for errors and warnings
@@ -668,7 +668,7 @@ function validateStorageMode(
 /**
  * Formats a list of validation errors into a human-readable string.
  *
- * @category Config Validation
+ * @category Config
  * @param    errors     - An array of error messages from the validation process.
  * @param    sourcePath - The path to the configuration file where the errors occurred.
  * @param    origin     - The origin of the configuration (e.g., 'wpk.config.ts').

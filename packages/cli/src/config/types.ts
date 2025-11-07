@@ -6,16 +6,25 @@ import type { PhpAstBuilder } from '@wpkernel/php-json-ast';
 
 /**
  * Source identifier describing where a wpk config was loaded from.
+ *
+ * @category Config
+ * @public
  */
 export type ConfigOrigin = WPKConfigSource;
 
 /**
  * Currently supported wpk config schema version.
+ *
+ * @category Config
+ * @public
  */
 export type WPKernelConfigVersion = 1;
 
 /**
  * Configuration for a registered schema file.
+ *
+ * @category Config
+ * @public
  */
 export interface SchemaConfig {
 	path: string;
@@ -27,9 +36,8 @@ export interface SchemaConfig {
 
 /**
  * Mapping of schema identifiers to their configuration.
- */
-/**
- * Mapping of schema identifiers to their configuration.
+ *
+ * @category Config
  * @public
  */
 export interface SchemaRegistry {
@@ -38,6 +46,8 @@ export interface SchemaRegistry {
 
 /**
  * Mapping of resource identifiers to their wpk configuration.
+ *
+ * @category Config
  * @public
  */
 export interface ResourceRegistry {
@@ -46,6 +56,8 @@ export interface ResourceRegistry {
 
 /**
  * Optional adapters configured by a wpk project.
+ *
+ * @category Adapters
  */
 export interface AdaptersConfig {
 	php?: PhpAdapterFactory;
@@ -54,6 +66,9 @@ export interface AdaptersConfig {
 
 /**
  * Shape of a v1 wpk configuration object.
+ *
+ * @category Config
+ * @public
  */
 export interface WPKernelConfigV1 {
 	version: WPKernelConfigVersion;
@@ -65,6 +80,8 @@ export interface WPKernelConfigV1 {
 
 /**
  * Context shared with adapter factories while generating artifacts.
+ *
+ * @category Adapters
  */
 export interface AdapterContext {
 	config: WPKernelConfigV1;
@@ -75,6 +92,8 @@ export interface AdapterContext {
 
 /**
  * Configuration returned by the PHP adapter factory.
+ *
+ * @category Adapters
  */
 export interface PhpAdapterConfig {
 	namespace?: string;
@@ -87,6 +106,8 @@ export interface PhpAdapterConfig {
 
 /**
  * Factory for producing PHP adapter configuration.
+ *
+ * @category Adapters
  */
 export type PhpAdapterFactory = (
 	context: AdapterContext
@@ -94,6 +115,8 @@ export type PhpAdapterFactory = (
 
 /**
  * Execution context provided to adapter extensions.
+ *
+ * @category Adapters
  */
 export interface AdapterExtensionContext extends AdapterContext {
 	ir: IRv1;
@@ -108,6 +131,8 @@ export interface AdapterExtensionContext extends AdapterContext {
 
 /**
  * Adapter extension contract.
+ *
+ * @category Adapters
  */
 export interface AdapterExtension {
 	name: string;
@@ -116,6 +141,8 @@ export interface AdapterExtension {
 
 /**
  * Factory responsible for returning adapter extensions.
+ *
+ * @category Adapters
  */
 export type AdapterExtensionFactory = (
 	context: AdapterContext
@@ -123,6 +150,9 @@ export type AdapterExtensionFactory = (
 
 /**
  * Result returned when loading and validating a wpk config file.
+ *
+ * @category Config
+ * @public
  */
 export interface LoadedWPKernelConfig {
 	config: WPKernelConfigV1;

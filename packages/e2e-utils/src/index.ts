@@ -1,18 +1,18 @@
 /**
- * WP Kernel E2E Utils - Testing Utilities Package
+ * WPKernel E2E Utils - Testing Utilities Package
  *
- * E2E testing helpers for WP Kernel projects
+ * E2E testing helpers for WPKernel projects
  *
  */
 
 // Export extended test fixture (primary usage)
 /**
- * Extended Playwright test fixture for WP Kernel E2E tests.
+ * Extended Playwright test fixture for WPKernel E2E tests.
  *
- * This provides a pre-configured test environment with WP Kernel utilities
+ * This provides a pre-configured test environment with WPKernel utilities
  * and assertions.
  *
- * @category E2E Testing
+ * @category Test Fixtures
  */
 export { test, expect } from './test.js';
 
@@ -21,9 +21,9 @@ export { test, expect } from './test.js';
  * Creates a set of wpk utilities for E2E tests.
  *
  * This factory function provides helpers for interacting with resources, stores,
- * events, and data views within a WP Kernel application during testing.
+ * events, and data views within a WPKernel application during testing.
  *
- * @category E2E Testing
+ * @category Test Fixtures
  */
 export {
 	createWPKernelUtils,
@@ -44,7 +44,7 @@ export type {
 	EventRecorderOptions,
 	CapturedEvent,
 	EventRecorder,
-	KernelUtils,
+	WPKernelUtils,
 	WPKernelResourceConfig,
 } from './types.js';
 
@@ -74,7 +74,7 @@ export type {
 export type { RunNodeSnippetOptions } from './test-support/cli-runner.test-support.js';
 
 /**
- * Current version of WP Kernel E2E Utils
+ * Current version of WPKernel E2E Utils
  */
 export const VERSION = '0.11.0';
 
@@ -84,7 +84,7 @@ export const VERSION = '0.11.0';
  * This utility sets up a clean directory for each test, ensuring that tests
  * do not interfere with each other's file system state.
  *
- * @category E2E Testing
+ * @category Test Support
  */
 export {
 	withIsolatedWorkspace,
@@ -100,7 +100,7 @@ export {
  * This utility captures the current state of files within a workspace,
  * which can then be compared against a previous state to detect changes.
  *
- * @category E2E Testing
+ * @category Test Support
  */
 export {
 	collectManifestState,
@@ -112,6 +112,6 @@ export {
  * This is useful for testing CLI commands or other Node.js-based utilities
  * in an isolated environment.
  *
- * @category E2E Testing
+ * @category Test Support
  */
 export { runNodeSnippet } from './test-support/cli-runner.test-support.js';

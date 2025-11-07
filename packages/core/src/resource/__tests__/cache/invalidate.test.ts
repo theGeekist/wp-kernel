@@ -246,7 +246,7 @@ describe('invalidate', () => {
 	});
 
 	describe('reporter instrumentation', () => {
-		it('uses WP Kernel reporter when no override provided', () => {
+		it('uses WPKernel reporter when no override provided', () => {
 			const { reporter, logs } = createReporterSpy();
 			setWPKernelReporter(reporter);
 

@@ -6,7 +6,7 @@ import { usePrefetcher } from './usePrefetcher';
 /**
  * Options for the useNextPagePrefetch hook.
  *
- * @category Prefetching
+ * @category Utilities
  * @public
  */
 export interface NextPagePrefetchOptions<TQuery> {
@@ -38,7 +38,7 @@ const defaultComputeNext = <TQuery extends Record<string, unknown>>(
 /**
  * Prefetches the next page of a paginated resource.
  *
- * @category Prefetching
+ * @category Utilities
  * @param    resource     - The resource to prefetch.
  * @param    currentQuery - The current query.
  * @param    options      - Options for the hook.
