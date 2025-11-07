@@ -2,49 +2,51 @@
 
 _See [Docs Index](cli-index.md) for navigation._
 
-> **Versioning reminder:** The CLI rides the unified **2.0 (pre-1.0)** track. Phase 6 patch slots (0.9.1-0.10.0) are closed; reserve the next open 0.11.x slot for Phase 7+ work, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
+> **Versioning reminder:** The CLI rides the unified **2.0 (pre-1.0)** track. Phase 6 patch slots (0.9.1–0.10.0) are closed; reserve the next open 0.11.x slot for Phase 7+ work, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
 
 ## Coordination & guardrails
 
 - **Non-negotiables:** Helpers that participate in the next pipeline must retain AST-first behaviour. Never introduce or wrap string-based PHP printers, and reserve the `create*` prefix for helpers produced by `createHelper` (alias third-party `create*` imports if needed).
 - **Parallel runs:** Before picking up work, check the reserved version slot and set its status to `🚧 in-progress`. When your PR merges, flip the slot to `✓ shipped` and note the PR link so downstream phases can verify all prerequisites.
 - **Required checks (baseline):** Every task runs at least `pnpm --filter @wpkernel/cli lint`, `pnpm --filter @wpkernel/cli typecheck`, `pnpm --filter @wpkernel/cli typecheck:tests`, and `pnpm --filter @wpkernel/cli test`. Tasks that touch the PHP driver also run `pnpm --filter @wpkernel/php-driver test`. Parent phase releases add the full suite listed in [CLI Migration Phases](cli-migration-phases.md).
-- **Version bumps happen last:** Reserve your slot up front, implement and review without touching package versions, then-after approvals and a fresh rebase-apply the bump across all packages/CHANGELOGs in a final commit before merging. Update the ledger entry with the PR link as you flip it to `✓ shipped`.
-- **Snapshot updates:** When tests rely on Jest snapshots, rerun them with `pnpm --filter @wpkernel/cli test -u` and include the updated files in your patch.
+- **Version bumps happen last:** Reserve your slot up front, implement and review without touching package versions; then - after approvals and a fresh rebase - apply the bump across all packages/CHANGELOGs in a final commit before merging. Update the ledger entry with the PR link as you flip it to `✓ shipped`.
+- **Snapshot updates:** When tests rely on Jest snapshots, rerun with `pnpm --filter @wpkernel/cli test -u` and include the updated files in your patch.
 
 ### Active gaps before Phase 7
 
-- **Bootstrap installers are missing.** There is no published wrapper such as `@wpkernel/create-wpk`, so the npm bootstrap flow cannot forward `--name` to `wpk create`. The CLI command already expects that flag in [`packages/cli/src/commands/create.ts`](../src/commands/create.ts), and the new workspace helper exposed via `pnpm monorepo:create` (backed by [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts)) must be used to stand up the bootstrap package safely inside the monorepo.
-- **Scaffolds do not register a plugin.** `generate` emits controllers and apply manifests but never writes a WordPress plugin header or loader; the starter template still ships an empty `inc/.gitkeep` placeholder in [`packages/cli/templates/init/inc`](../templates/init/inc/.gitkeep). We need an AST helper that creates the minimal bootstrap file and gracefully skips regeneration when authors already provide one.
-- **Regeneration leaves stale artefacts behind.** Removing resources from `wpk.config.ts` does not clean previously generated files because the pipeline only writes additions in [`packages/cli/src/commands/generate.ts`](../src/commands/generate.ts) and the workspace removal hook in [`packages/cli/src/workspace/filesystem.ts`](../src/workspace/filesystem.ts) is unused.
+> These gaps are historically relevant and left for context. They are now fully addressed by Phase 7.
+
+- **Bootstrap installers were missing.** No wrapper such as `@wpkernel/create-wpk` existed to forward `--name` to `wpk create`. The CLI command already expected that flag in [`packages/cli/src/commands/create.ts`](../src/commands/create.ts), and the new workspace helper exposed via `pnpm monorepo:create` (backed by [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts)) now supports bootstrapping.
+- **Scaffolds did not register a plugin.** `generate` emitted controllers but no plugin loader/header; the starter template shipped an empty placeholder in [`packages/cli/templates/init/inc`](../templates/init/inc/.gitkeep). Phase 7 introduced the bootstrap loader AST helper and safe regeneration rules.
+- **Regeneration left stale artefacts.** Removing resources from `wpk.config.ts` did not prune previous outputs. Phase 7’s manifests and filesystem integration resolved this.
 
 ### Phase 7 complexity review
 
-Reviewing each Phase 7 job surfaced additional risk beyond the four patch slots originally reserved:
+Kept for architectural context - Phase 7 is now complete.
 
-- **Bootstrap installers touch multiple systems.** Registering `@wpkernel/create-wpk` requires generating the workspace with `pnpm monorepo:create packages/create-wpk`, adding a package entry point that proxies into the CLI binary, and writing smoke coverage that exercises the published wrapper end-to-end. Splitting the work lets us land the workspace safely before wiring the forwarding/telemetry logic.
-- **Plugin adoption spans more than one command.** Hardening `wpk init` to respect author assets requires updates to [`packages/cli/src/commands/init/workflow.ts`](../src/commands/init/workflow.ts), collision detection in [`packages/cli/src/commands/init/scaffold.ts`](../src/commands/init/scaffold.ts), and the template set in [`packages/cli/templates/init`](../templates/init). The bootstrap generator itself also needs dedicated tasks inside the pipeline so `generate` (see [`packages/cli/src/commands/generate.ts`](../src/commands/generate.ts)) and `apply` (see [`packages/cli/src/commands/apply.ts`](../src/commands/apply.ts)) can reason about when to emit or skip the loader.
-- **Cleanup spans manifests and user shims.** Persisting prior plans for deletion detection touches `.wpk/apply/plan.json`, the manifest writer in [`packages/cli/src/apply/manifest.ts`](../src/apply/manifest.ts), and the filesystem helpers in [`packages/cli/src/workspace/filesystem.ts`](../src/workspace/filesystem.ts). We also need follow-up coverage to ensure shim removals do not clobber author overrides in [`packages/cli/tests/integration`](../tests/integration).
-- **Activation polish is broader than docs.** The activation smoke needs a WordPress-aware harness (Playwright + `@wpkernel/e2e-utils`), richer comments inside `wpk.config.ts`/`src/index.ts`, and new quick-start docs across this directory. Staging that work after the generator settles keeps the templates and published guidance in lockstep.
+- **Bootstrap installers touched multiple systems.** `@wpkernel/create-wpk` workspace creation, binary forwarding, telemetry, and smoke coverage now exist.
+- **Plugin adoption spanned more than one command.** `wpk init` gained collision detection, template partitioning, and author-override safety. Bootstrap generator tasks wired loader scaffolding through both `generate` and `apply`.
+- **Cleanup spanned manifests and user shims.** `.wpk/apply/state.json` persistence, stale artefact pruning, and override-safe shim cleanup now land in Phase 7.
+- **Activation polish required broader work.** Playwright smoke, richer comments, starter guidance, and docs updates shipped during 0.10.x.
 
-The ledger below expands Phase 7 into incremental tasks so each cross-cutting concern can merge independently without blocking the release train.
+See [Phase 7 – Plugin bootstrap flow](cli-phase-7-bootstrap.md) for motivations and detailed specs.
 
-See [Phase 7 - Plugin bootstrap flow](cli-phase-7-bootstrap.md) for the extended spec that motivates the new tasks below.
+---
 
 ## Release ledger
 
-| Phase | Status         | Version band               | Summary                                                                                                                         | Ledger                                                  |
-| ----- | -------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| 0     | ✓ Complete     | 0.4.1 → 0.4.4              | Pipeline hardening (writer helper, builder audits, end-to-end coverage).                                                        | [Jump](#phase-0--foundations--complete)                 |
-| 1     | ✓ Complete     | 0.4.5 → 0.5.0              | wp-option parity across builders, tests, docs, and release prep.                                                                | [Jump](#phase-1--resource-parity--complete)             |
-| 2     | ✓ Complete     | 0.5.1 → 0.6.0              | Transient storage parity, cache hygiene, and documentation refresh.                                                             | [Jump](#phase-2--transient-storage-parity--complete)    |
-| 3     | ✓ Complete     | 0.6.1 → 0.7.0              | Block builder parity (SSR + JS-only) and printer retirement prerequisites.                                                      | [Jump](#phase-3--block-builder-parity--complete)        |
-| 4     | ✓ Complete     | 0.7.1 → 0.8.0              | Command migration factories and string-printer retirement.                                                                      | [Jump](#phase-4--command-migration--complete)           |
-| 5     | ✓ Complete     | 0.8.1 → 0.9.0              | Apply layering, shims, safety flags, and the 0.9.0 release.                                                                     | [Jump](#phase-5--apply-layering--complete)              |
-| 6     | ✓ Complete     | 0.9.1 → 0.10.0 (shipped)   | Core pipeline/doc alignment (Tasks 32-36). See [Phase 6 - Core Pipeline Orchestration](core-phase-6-pipeline.md).               | [Jump](#phase-6--core-pipeline-alignment--complete)     |
-| 7     | ✓ Complete     | 0.10.1 → 0.11.0 (reserved) | Plugin bootstrap flow (Tasks 37-45) closing the scaffolding gaps called out above.                                              | [Jump](#phase-7--plugin-bootstrap-flow--planned)        |
-| 8     | 🚧 In Progress | 0.11.1 → 0.12.0 (reserved) | UI baseline experience (Tasks 46-52) tracked in [`ui-phase-8-baseline.md`](../../ui/docs/phase-8-ui-baseline.md).               | [Jump](#phase-8--ui-baseline-experience-🚧-in-progress) |
-| 9     | ⬜ Planned     | 0.12.1 → 0.13.0 (reserved) | Post-MVP polish placeholder (Tasks 53-55) covering CLI LogLayer adoption and interactivity-aware generators once Phase 8 lands. | [Jump](#phase-9--post-mvp-polish--planned)              |
+| Phase | Status     | Version band    | Summary                                                                                                           | Ledger                                               |
+| ----- | ---------- | --------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 0     | ✓ Complete | 0.4.1 → 0.4.4   | Pipeline hardening (writer helper, builder audits, end-to-end coverage).                                          | [Jump](#phase-0--foundations--complete)              |
+| 1     | ✓ Complete | 0.4.5 → 0.5.0   | wp-option parity across builders, tests, docs, and release prep.                                                  | [Jump](#phase-1--resource-parity--complete)          |
+| 2     | ✓ Complete | 0.5.1 → 0.6.0   | Transient storage parity, cache hygiene, and documentation refresh.                                               | [Jump](#phase-2--transient-storage-parity--complete) |
+| 3     | ✓ Complete | 0.6.1 → 0.7.0   | Block builder parity (SSR + JS-only) and printer retirement prerequisites.                                        | [Jump](#phase-3--block-builder-parity--complete)     |
+| 4     | ✓ Complete | 0.7.1 → 0.8.0   | Command migration factories and string-printer retirement.                                                        | [Jump](#phase-4--command-migration--complete)        |
+| 5     | ✓ Complete | 0.8.1 → 0.9.0   | Apply layering, shims, safety flags, and the 0.9.0 release.                                                       | [Jump](#phase-5--apply-layering--complete)           |
+| 6     | ✓ Complete | 0.9.1 → 0.10.0  | Core pipeline/doc alignment (Tasks 32–36). See [Phase 6 – Core Pipeline Orchestration](core-phase-6-pipeline.md). | [Jump](#phase-6--core-pipeline-alignment--complete)  |
+| 7     | ✓ Complete | 0.10.1 → 0.11.0 | Plugin bootstrap flow (Tasks 37–45).                                                                              | [Jump](#phase-7--plugin-bootstrap-flow--complete)    |
+| 8     | ✓ Complete | 0.11.1 → 0.12.0 | UI baseline experience (Tasks 46–52). See [`ui-phase-8-baseline.md`](../../ui/docs/phase-8-ui-baseline.md).       | [Jump](#phase-8--ui-baseline-experience--complete)   |
+| 9     | ⬜ Planned | 0.12.1 → 0.13.0 | Post-MVP polish (Tasks 53–55).                                                                                    | [Jump](#phase-9--post-mvp-polish--planned)           |
 
 ## Completed phases
 
@@ -194,27 +196,41 @@ Close the scaffolding gaps identified above so `create → generate → apply` r
 
 </details>
 
+### Phase 8 – UI baseline experience (✓ Complete)
+
+<summary>Phase 8 ledger</summary>
+Phase 8 focused on the UI package so authors can describe a resource once and immediately obtain a polished admin surface. The detailed scope is tracked in [`ui-phase-8-baseline.md`](../../ui/docs/phase-8-ui-baseline.md), which defines Tasks 46-52 and the CLI/UI handshake across the 0.11.1 → 0.12.0 band.
+
+- ✓ **Task 46 – DataViews schema expansion:**  
+  UI runtime now ingests saved views, menu metadata, richer column definitions, and preferences directly during `attachUIBindings()` initialisation. CLI generation can rely on the full schema being present.
+- ✓ **Task 47 – Async boundaries & notices:**  
+  Resource screens share loading/empty/error/permission-denied boundaries. `useDataViewActions()` emits `core/notices` success/failure messages while preserving pipeline diagnostics.
+- ✓ **Task 48 – Interactivity bridge:**  
+  `createDataViewInteraction()` synchronises DataView controllers with `defineInteraction`, forwarding filters, selections, and cache hydration through WordPress interactivity stores.
+- ✓ **Task 49 – Events & observability hooks:**  
+  Structured DataView lifecycle events and hook utilities surface reporter context cleanly to PHP, `wp.data`, or interactivity consumers.
+- ✓ **Task 50 – CLI DataView alignment:**  
+  CLI config validation, IR preservation, and TypeScript fixtures now expose saved views, menu metadata, default layouts, and preference keys directly from `wpk.config.ts`. The CLI snapshots `.generated/ui/registry/dataviews/*.ts`, prunes stale entries, emits UI handles, and loader scaffolding enqueues localised DataViews bundles.
+- ✓ **Task 51 – CLI interactivity scaffolds:**  
+  Generator output now includes `data-wp-*` bindings, `wp.interactivity` enqueues, and fixtures documenting how generated markup composes with `createDataViewInteraction()`. Reporter diagnostics cover interactivity-aware flows.
+- ✓ **Task 52 – 0.12.0 minor release:**  
+  Full release checklist run, docs refreshed, changelogs updated, fixtures synced, and end-to-end validation via `wpk generate && wpk apply --yes --dry-run`.
+
+<details>
+
 ## Upcoming phases
 
-### Phase 8 - UI baseline experience (🚧 In Progress)
+## Phase 9 – Post-MVP polish (⬜ Planned)
 
-Phase 8 shifts to the UI package so authors can describe a resource once and immediately see an upgraded admin surface. Track the full scope-including DataViews schema gaps, async UX primitives, interactivity bridges, and observability hooks-in [`ui-phase-8-baseline.md`](../../ui/docs/phase-8-ui-baseline.md). The ledger there defines Tasks 46‑52 across the 0.11.1 → 0.12.0 release band and lists the CLI touch-points that close the loop once the UI work ships.
+Reserved for incremental CLI polish after the UI baseline lands.
 
-- ✓ Task 46 - DataViews schema expansion: UI runtime now ingests saved views, menu metadata, and richer column definitions automatically during `attachUIBindings()` setup so the CLI can follow with generator updates.
-- ✓ Task 47 - Async boundaries & notices: Resource screens share loading/empty/error/permission boundaries and emit success/failure notices through `core/notices`, keeping reporter diagnostics aligned with the runtime.
-- ✓ Task 48 - Published a `createDataViewInteraction()` helper that syncs DataView controllers with `defineInteraction`, forwarding selections, filters, and cache hydration.
-- ✓ Task 49 - Surfaced structured events, reporter channels, and hook utilities so plugins can subscribe to DataView lifecycle changes without spelunking the runtime.
-- ✓ Task 50 - Config validation, IR preservation, and TypeScript fixtures now surface saved views, default layouts, menu metadata, and preferences keys directly from `wpk.config.ts`, aligning Task 50’s first milestone with the runtime contract. The CLI now snapshots DataViews registry metadata under `.generated/ui/registry/dataviews/*.ts` and tracks it in the apply manifest so stale entries are removed automatically during regeneration. Bundler output now advertises a UI handle whenever DataViews metadata exists, and the plugin loader registers, localises, and enqueues the generated bundle based on that manifest while the apply plan tracks the new handles.
+| Slot   | Task                                     | Status     | Notes                                                                                                                                                                                               | Reference                                                       |
+| ------ | ---------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 0.12.1 | Task 53 – LogLayer reporter & DX polish  | ⬜ Planned | Replace `createConsoleReporter()` in `packages/cli/vite.config.ts` with `createReporter({ namespace: 'cli.vite', channel: 'console' })`; improve transcript ergonomics; document the reporter swap. | –                                                               |
+| 0.12.2 | Task 54 – Interactivity-aware generators | ⬜ Planned | Extend CLI scaffolds to emit `data-wp-*` attributes, enqueue interactivity dependencies, and document composition with `defineInteraction` after Phase 8’s UI bridge.                               | [`Phase 8 – UI baseline`](../../ui/docs/phase-8-ui-baseline.md) |
+| 0.13.0 | Task 55 – Phase 9 minor release          | ⬜ Planned | Run full release checklist once Tasks 53-54 land; regenerate docs; align CLI/monorepo changelogs.                                                                                                   | –                                                               |
 
-### Phase 9 - Post-MVP polish (⬜ Planned)
-
-Reserve Phase 9 for incremental CLI polish after the UI baseline lands. The queue carries forward the diagnostics and interactivity scaffolding originally slated for Phase 8 so they can build on the new UI primitives.
-
-| Slot   | Task                                       | Status     | Notes                                                                                                                                                                                                      | Reference                                                     |
-| ------ | ------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| 0.12.1 | Task 53 - LogLayer reporter & follow-on DX | ⬜ Planned | Replace `createConsoleReporter()` in `packages/cli/vite.config.ts` with `createReporter({ namespace: 'cli.vite', channel: 'console' })`, expand CLI transcript ergonomics, and document the reporter swap. | -                                                             |
-| 0.12.2 | Task 54 - Interactivity-aware generators   | ⬜ Planned | Extend CLI scaffolds to emit `data-wp-*` attributes, enqueue `wp.interactivity` dependencies, and document how generated markup composes with `defineInteraction` pipelines after the UI bridge ships.     | [Phase 8 - UI baseline](../../ui/docs/phase-8-ui-baseline.md) |
-| 0.13.0 | Task 55 - Phase 9 minor release            | ⬜ Planned | Run the full release checklist once Tasks 53‑54 land, regenerate docs, and align the CLI/monorepo changelogs for the 0.13.0 cut.                                                                           | -                                                             |
+---
 
 ## Definition of "MVP"
 
@@ -238,17 +254,17 @@ Before coding, the agent must review `AGENTS.md`, the referenced documentation, 
 
 ## Phase catalog
 
-| ID  | Phase                    | Summary & Scope                                                                                                                                                    | Reserved version                        | Required checks                                                               | Detail reference                                                                                       |
-| --- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 0   | Harden PHP writer helper | Tasks 1-4 delivered core pipeline stability, AST builder integrity, and PHP driver configurability.                                                                | 0.4.1-0.4.4 (patch band closed)         | Baseline + `pnpm --filter @wpkernel/cli test -- --testPathPatterns writer`    | [Pipeline integration hardening](cli-pipeline-integration.md)                                          |
-| 1   | wp-option AST parity     | Build wp-option controllers/helpers in `packages/cli/src/builders/php/resource/**`, add tests, update fixtures, retire legacy printers.                            | 0.4.5-0.4.9 → 0.5.0 minor               | Baseline + `pnpm --filter @wpkernel/cli test --testPathPattern=wp-option`     | [PHP AST migration - Phase 1](cli-php-ast-migration.md#phase-1--wp-option-storage-parity)              |
-| 2   | Transient AST parity     | Port transient controllers/helpers to the AST pipeline with full test coverage, matching prior printer behaviour.                                                  | 0.5.1-0.5.4 → 0.6.0 minor               | Baseline + `pnpm --filter @wpkernel/cli test --testPathPattern=transient`     | [PHP AST migration - Phase 2](cli-php-ast-migration.md#phase-2--transient-storage-parity-)             |
-| 3   | Blocks builder           | Implement SSR + JS-only block builders, unifying manifests, registrars, and render stubs via shared helpers.                                                       | 0.6.1-0.6.4 → 0.7.0 minor               | Baseline + `pnpm --filter @wpkernel/cli test:coverage`                        | [Blocks builder scope](cli-pipeline-integration.md#future-focus--add-blocks-builder-complexity-medium) |
-| 4   | Command migration        | Rebuild `apply`, `generate`, `init`, `create`, `start`, `doctor` on the helper-first pipeline and retire string printers.                                          | 0.7.1-0.7.6 → 0.8.0 minor               | Baseline + docs regeneration + regression run                                 | [Command migration plan](cli-command-migration.md)                                                     |
-| 5   | Apply layering & flags   | Emit user extension shims, port `--yes/--backup/--force`, persist `.wpk-apply.log`, and cut the 0.9.0 release.                                                     | 0.8.1-0.8.4 → 0.9.0 minor               | Baseline + end-to-end `wpk apply` smoke run                                   | [Apply workflow phase](cli-apply-workflow.md)                                                          |
-| 6   | Core pipeline alignment  | Tasks 32-36 align CLI docs with the core pipeline orchestration tracked in `core-phase-6-pipeline.md`.                                                             | 0.9.1-0.10.0 minor                      | Baseline + documentation linting                                              | [Phase 6 spec](core-phase-6-pipeline.md)                                                               |
-| 7   | Plugin bootstrap flow    | Tasks 37-45 publish the bootstrap workspace, loader generator, cleanup, docs, and cut the 0.11.0 release.                                                          | 0.10.1-0.11.0 minor                     | Baseline + activation smoke (`wpk create && wpk generate && wpk apply --yes`) | [Phase 7 spec](cli-phase-7-bootstrap.md)                                                               |
-| 8   | UI baseline experience   | Tasks 46-52 land DataViews schema helpers, async UX primitives, interactivity bridges, and observability hooks in `@wpkernel/ui`, culminating in the 0.12.0 minor. | 0.11.1-0.12.0 (reserve before starting) | Baseline + `pnpm --filter @wpkernel/ui test`/`typecheck` + docs sweep         | [`Phase 8 - UI baseline`](../../ui/docs/phase-8-ui-baseline.md)                                        |
-| 9   | Post-MVP polish          | Tasks 53-55 carry CLI diagnostics and interactivity-aware scaffolding after the UI baseline ships.                                                                 | 0.12.1-0.13.0 (reserve before starting) | Baseline + CLI reporter smoke + docs refresh                                  | [Phase 9 - Post-MVP polish](#phase-9--post-mvp-polish--planned)                                        |
+| ID  | Phase                    | Summary & Scope                                                                                                                                            | Reserved version                | Required checks                                                               | Detail reference                                                                                       |
+| --- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 0   | Harden PHP writer helper | Tasks 1-4 delivered core pipeline stability, AST builder integrity, and PHP driver configurability.                                                        | 0.4.1-0.4.4 (patch band closed) | Baseline + `pnpm --filter @wpkernel/cli test -- --testPathPatterns writer`    | [Pipeline integration hardening](cli-pipeline-integration.md)                                          |
+| 1   | wp-option AST parity     | Build wp-option controllers/helpers in `packages/cli/src/builders/php/resource/**`, add tests, update fixtures, retire legacy printers.                    | 0.4.5-0.4.9 → 0.5.0 minor       | Baseline + `pnpm --filter @wpkernel/cli test --testPathPattern=wp-option`     | [PHP AST migration - Phase 1](cli-php-ast-migration.md#phase-1--wp-option-storage-parity)              |
+| 2   | Transient AST parity     | Port transient controllers/helpers to the AST pipeline with full test coverage, matching prior printer behaviour.                                          | 0.5.1-0.5.4 → 0.6.0 minor       | Baseline + `pnpm --filter @wpkernel/cli test --testPathPattern=transient`     | [PHP AST migration - Phase 2](cli-php-ast-migration.md#phase-2--transient-storage-parity-)             |
+| 3   | Blocks builder           | Implement SSR + JS-only block builders, unifying manifests, registrars, and render stubs via shared helpers.                                               | 0.6.1-0.6.4 → 0.7.0 minor       | Baseline + `pnpm --filter @wpkernel/cli test:coverage`                        | [Blocks builder scope](cli-pipeline-integration.md#future-focus--add-blocks-builder-complexity-medium) |
+| 4   | Command migration        | Rebuild `apply`, `generate`, `init`, `create`, `start`, `doctor` on the helper-first pipeline and retire string printers.                                  | 0.7.1-0.7.6 → 0.8.0 minor       | Baseline + docs regeneration + regression run                                 | [Command migration plan](cli-command-migration.md)                                                     |
+| 5   | Apply layering & flags   | Emit user extension shims, port `--yes/--backup/--force`, persist `.wpk-apply.log`, and cut the 0.9.0 release.                                             | 0.8.1-0.8.4 → 0.9.0 minor       | Baseline + end-to-end `wpk apply` smoke run                                   | [Apply workflow phase](cli-apply-workflow.md)                                                          |
+| 6   | Core pipeline alignment  | Tasks 32-36 align CLI docs with the core pipeline orchestration tracked in `core-phase-6-pipeline.md`.                                                     | 0.9.1-0.10.0 minor              | Baseline + documentation linting                                              | [Phase 6 spec](core-phase-6-pipeline.md)                                                               |
+| 7   | Plugin bootstrap flow    | Tasks 37-45 publish the bootstrap workspace, loader generator, cleanup, docs, and cut the 0.11.0 release.                                                  | 0.10.1-0.11.0 minor             | Baseline + activation smoke (`wpk create && wpk generate && wpk apply --yes`) | [Phase 7 spec](cli-phase-7-bootstrap.md)                                                               |
+| 8   | UI baseline experience   | Tasks 46–52 integrating DataViews schema defaults, async boundaries, interactivity bridge, events/observability, CLI/UI alignment, and the 0.12.0 release. | 0.11.1–0.12.0 (✓ Complete)      | Baseline + `pnpm --filter @wpkernel/ui test`/`typecheck` + docs sweep         | [`Phase 8 – UI baseline`](../../ui/docs/phase-8-ui-baseline.md)                                        |
+| 9   | Post-MVP polish          | Tasks 53–55, focusing on CLI diagnostics and interactivity-aware scaffolds.                                                                                | 0.12.1–0.13.0                   | Baseline + CLI reporter smoke + docs refresh                                  | [Phase 9 – Post-MVP polish](#phase-9--post-mvp-polish--planned)                                        |
 
-Each task should be executed independently; if a task proves too large for a single agent run, the agent must scope it into smaller follow-up tasks using the evaluation workflow above.
+Each task should be executed independently; if it proves too large for a single run, break it down using the evaluation workflow above.
