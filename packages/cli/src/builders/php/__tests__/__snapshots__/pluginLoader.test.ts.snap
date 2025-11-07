@@ -154,7 +154,7 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "get_kernel_controllers",
+          "name": "get_wpkernel_controllers",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -212,7 +212,7 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "register_kernel_routes",
+          "name": "register_wpkernel_routes",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -235,7 +235,7 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
                   "attributes": {},
                   "nodeType": "Name",
                   "parts": [
-                    "get_kernel_controllers",
+                    "get_wpkernel_controllers",
                   ],
                 },
                 "nodeType": "Expr_FuncCall",
@@ -355,7 +355,7 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "enqueue_kernel_ui_assets",
+          "name": "enqueue_wpkernel_ui_assets",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -1283,7 +1283,7 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
                     "right": {
                       "attributes": {},
                       "nodeType": "Scalar_String",
-                      "value": "\\register_kernel_routes",
+                      "value": "\\register_wpkernel_routes",
                     },
                   },
                 },
@@ -1339,7 +1339,7 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
                     "right": {
                       "attributes": {},
                       "nodeType": "Scalar_String",
-                      "value": "\\enqueue_kernel_ui_assets",
+                      "value": "\\enqueue_wpkernel_ui_assets",
                     },
                   },
                 },
@@ -1545,7 +1545,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "get_kernel_controllers",
+          "name": "get_wpkernel_controllers",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -1626,7 +1626,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "register_kernel_routes",
+          "name": "register_wpkernel_routes",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -1649,7 +1649,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
                   "attributes": {},
                   "nodeType": "Name",
                   "parts": [
-                    "get_kernel_controllers",
+                    "get_wpkernel_controllers",
                   ],
                 },
                 "nodeType": "Expr_FuncCall",
@@ -1820,7 +1820,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
                     "right": {
                       "attributes": {},
                       "nodeType": "Scalar_String",
-                      "value": "\\register_kernel_routes",
+                      "value": "\\register_wpkernel_routes",
                     },
                   },
                 },
@@ -2027,7 +2027,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "get_kernel_controllers",
+          "name": "get_wpkernel_controllers",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -2087,7 +2087,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "register_kernel_routes",
+          "name": "register_wpkernel_routes",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -2110,7 +2110,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
                   "attributes": {},
                   "nodeType": "Name",
                   "parts": [
-                    "get_kernel_controllers",
+                    "get_wpkernel_controllers",
                   ],
                 },
                 "nodeType": "Expr_FuncCall",
@@ -2281,7 +2281,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
                     "right": {
                       "attributes": {},
                       "nodeType": "Scalar_String",
-                      "value": "\\register_kernel_routes",
+                      "value": "\\register_wpkernel_routes",
                     },
                   },
                 },

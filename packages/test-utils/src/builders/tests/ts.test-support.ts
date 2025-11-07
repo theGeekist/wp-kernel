@@ -388,11 +388,11 @@ function buildScreenBlock(
 	if (screen.resourceSymbol) {
 		lines.push(`resourceSymbol: '${screen.resourceSymbol}',`);
 	}
-	if (screen.kernelImport) {
-		lines.push(`kernelImport: '${screen.kernelImport}',`);
+	if (screen.wpkernelImport) {
+		lines.push(`wpkernelImport: '${screen.wpkernelImport}',`);
 	}
-	if (screen.kernelSymbol) {
-		lines.push(`kernelSymbol: '${screen.kernelSymbol}',`);
+	if (screen.wpkernelSymbol) {
+		lines.push(`wpkernelSymbol: '${screen.wpkernelSymbol}',`);
 	}
 	if (screen.menu) {
 		const menuLines: string[] = [];

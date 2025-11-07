@@ -277,7 +277,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				`${toPascalCase(descriptor.name)}AdminScreen`;
 			const resourceSymbol =
 				screenConfig.resourceSymbol ?? toCamelCase(descriptor.name);
-			const kernelSymbol = screenConfig.kernelSymbol ?? 'kernel';
+			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
 
 			const screenDir = path.join(
 				GENERATED_ROOT,
@@ -288,7 +288,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			);
 			const screenPath = path.join(screenDir, `${componentName}.tsx`);
 
-			const [resourceImport, kernelImport] = await Promise.all([
+			const [resourceImport, wpkernelImport] = await Promise.all([
 				resolveResourceImport({
 					workspace: context.workspace,
 					from: screenPath,
@@ -298,7 +298,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				resolveKernelImport({
 					workspace: context.workspace,
 					from: screenPath,
-					configured: screenConfig.kernelImport,
+					configured: screenConfig.wpkernelImport,
 				}),
 			]);
 
@@ -326,8 +326,8 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				namedImports: ['ResourceDataView'],
 			});
 			sourceFile.addImportDeclaration({
-				moduleSpecifier: kernelImport,
-				namedImports: [{ name: kernelSymbol }],
+				moduleSpecifier: wpkernelImport,
+				namedImports: [{ name: wpkernelSymbol }],
 			});
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: resourceImport,
@@ -377,7 +377,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				isExported: true,
 				statements: (writer) => {
 					writer.writeLine(
-						`const runtime = ${kernelSymbol}.getUIRuntime?.();`
+						`const runtime = ${wpkernelSymbol}.getUIRuntime?.();`
 					);
 					writer.writeLine('if (!runtime) {');
 					writer.indent(() => {

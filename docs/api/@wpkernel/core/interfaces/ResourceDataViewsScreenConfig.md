@@ -48,18 +48,18 @@ optional resourceSymbol: string;
 
 ---
 
-### kernelImport?
+### wpkernelImport?
 
 ```ts
-optional kernelImport: string;
+optional wpkernelImport: string;
 ```
 
 ---
 
-### kernelSymbol?
+### wpkernelSymbol?
 
 ```ts
-optional kernelSymbol: string;
+optional wpkernelSymbol: string;
 ```
 
 ---

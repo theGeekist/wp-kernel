@@ -269,8 +269,8 @@ describe('createTsBuilder - admin screen creator', () => {
 					route: '/custom/jobs',
 					resourceImport: '@/custom/resources/jobResource',
 					resourceSymbol: 'jobResource',
-					kernelImport: '@/custom/kernel/runtime',
-					kernelSymbol: 'customKernel',
+					wpkernelImport: '@/custom/kernel/runtime',
+					wpkernelSymbol: 'customKernel',
 				},
 			});
 
@@ -281,8 +281,8 @@ describe('createTsBuilder - admin screen creator', () => {
 						route: '/custom/jobs',
 						resourceImport: '@/custom/resources/jobResource',
 						resourceSymbol: 'jobResource',
-						kernelImport: '@/custom/kernel/runtime',
-						kernelSymbol: 'customKernel',
+						wpkernelImport: '@/custom/kernel/runtime',
+						wpkernelSymbol: 'customKernel',
 					},
 				},
 			});

@@ -155,7 +155,7 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "get_kernel_controllers",
+          "name": "get_wpkernel_controllers",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -238,7 +238,7 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "register_kernel_routes",
+          "name": "register_wpkernel_routes",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -261,7 +261,7 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
                   "attributes": {},
                   "nodeType": "Name",
                   "parts": [
-                    "get_kernel_controllers",
+                    "get_wpkernel_controllers",
                   ],
                 },
                 "nodeType": "Expr_FuncCall",
@@ -432,7 +432,7 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
                     "right": {
                       "attributes": {},
                       "nodeType": "Scalar_String",
-                      "value": "\\register_kernel_routes",
+                      "value": "\\register_wpkernel_routes",
                     },
                   },
                 },
@@ -637,7 +637,7 @@ exports[`buildPluginLoaderProgram handles projects without resources: plugin-loa
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "get_kernel_controllers",
+          "name": "get_wpkernel_controllers",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -673,7 +673,7 @@ exports[`buildPluginLoaderProgram handles projects without resources: plugin-loa
         "byRef": false,
         "name": {
           "attributes": {},
-          "name": "register_kernel_routes",
+          "name": "register_wpkernel_routes",
           "nodeType": "Identifier",
         },
         "namespacedName": null,
@@ -696,7 +696,7 @@ exports[`buildPluginLoaderProgram handles projects without resources: plugin-loa
                   "attributes": {},
                   "nodeType": "Name",
                   "parts": [
-                    "get_kernel_controllers",
+                    "get_wpkernel_controllers",
                   ],
                 },
                 "nodeType": "Expr_FuncCall",
@@ -867,7 +867,7 @@ exports[`buildPluginLoaderProgram handles projects without resources: plugin-loa
                     "right": {
                       "attributes": {},
                       "nodeType": "Scalar_String",
-                      "value": "\\register_kernel_routes",
+                      "value": "\\register_wpkernel_routes",
                     },
                   },
                 },
