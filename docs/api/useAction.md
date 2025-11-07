@@ -1,6 +1,6 @@
 # `useAction`
 
-React hook that wraps kernel actions with predictable state, concurrency
+React hook that wraps wpk actions with predictable state, concurrency
 capabilities, and cache invalidation helpers. It dispatches Actions through the
 kernel middleware (`packages/core/src/actions/middleware.ts`), so you keep all
 the lifecycle instrumentation provided by `defineAction`
@@ -147,7 +147,7 @@ export function SearchBox() {
 - Wraps every error in `WPKernelError`. If the Action runtime throws something
   else, the hook normalises it to `WPKernelError('UnknownError')`.
 - `cancel()` only affects local state. The underlying Action continues to run,
-  matching the current kernel capabilities (no AbortSignal support yet).
+  matching the current wpk capabilities (no AbortSignal support yet).
 - `reset()` clears `result` and `error` without cancelling active requests.
 - Dedupe uses the provided key and shares the same promise across hook calls,
   which means `.run()` returns the same promise for identical inputs.

@@ -2,7 +2,7 @@
 
 ## Context
 
-WP Kernel is approaching its first coordinated framework release without `release-please`. The work below normalizes scaffolding for new packages, centralizes framework dependency capability, and documents a manual release process so we can iterate confidently toward stable npm publication. Each task is scoped to complete in a single development cycle and includes mandatory checks.
+WPKernel is approaching its first coordinated framework release without `release-please`. The work below normalizes scaffolding for new packages, centralizes framework dependency capability, and documents a manual release process so we can iterate confidently toward stable npm publication. Each task is scoped to complete in a single development cycle and includes mandatory checks.
 
 > **Capability:** Mark the completion status for every task in the tracker below as part of the definition of done. A task is only complete once the section is updated with notes and verification details.
 

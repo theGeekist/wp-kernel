@@ -29,7 +29,7 @@ const baseBuildOptions = {
 
 export default withMermaid(
 	defineConfig({
-		title: 'WP Kernel',
+		title: 'WPKernel',
 		description:
 			'A Rails-like, opinionated framework for building modern WordPress products',
 		base: '/wp-kernel/',

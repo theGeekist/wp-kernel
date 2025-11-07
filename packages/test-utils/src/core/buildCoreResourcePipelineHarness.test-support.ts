@@ -6,7 +6,7 @@ import type { MemoryReporter } from './memory-reporter.test-support';
 /**
  * Options for building a `CoreResourcePipelineHarness`.
  *
- * @category Resource Pipeline
+ * @category Test Support
  */
 export interface BuildCoreResourcePipelineHarnessOptions<T, TQuery> {
 	/** The namespace for the reporter. */
@@ -20,7 +20,7 @@ export interface BuildCoreResourcePipelineHarnessOptions<T, TQuery> {
 /**
  * A harness for testing resource pipelines.
  *
- * @category Resource Pipeline
+ * @category Test Support
  */
 export interface CoreResourcePipelineHarness<T, TQuery> {
 	/** The resource pipeline instance. */
@@ -36,7 +36,7 @@ export interface CoreResourcePipelineHarness<T, TQuery> {
 /**
  * Builds a harness for testing core resource pipelines.
  *
- * @category Resource Pipeline
+ * @category Test Support
  * @param    options - Options for configuring the harness.
  * @returns A `CoreResourcePipelineHarness` instance.
  */

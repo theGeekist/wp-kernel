@@ -18,7 +18,7 @@ export type { CreatePhpProgramWriterHelperOptions } from '@wpkernel/wp-json-ast'
  * and writes them to the appropriate output directory, using the configured
  * PHP driver for formatting and pretty-printing.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @param    options - Options for configuring the PHP program writer.
  * @returns A `BuilderHelper` instance for writing PHP program files.
  */

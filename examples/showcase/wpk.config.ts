@@ -13,9 +13,9 @@ import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
 import type { JobResource } from './.generated/types/job';
 
 /**
- * Showcase kernel configuration
+ * Showcase wpk configuration
  *
- * This file mirrors the kernel contract directly-no local type copies.
+ * This file mirrors the wpk contract directly-no local type copies.
  */
 
 export type JobListParams = {

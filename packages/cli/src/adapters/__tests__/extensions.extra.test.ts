@@ -428,7 +428,7 @@ describe('runAdapterExtensions extra branches', () => {
 		expect(serialiseError('boom')).toEqual({ message: 'boom' });
 	});
 
-	it('normalises kernel errors and primitives', () => {
+	it('normalises wpk errors and primitives', () => {
 		const kernelError = new WPKernelError('DeveloperError', {
 			message: 'bad',
 		});

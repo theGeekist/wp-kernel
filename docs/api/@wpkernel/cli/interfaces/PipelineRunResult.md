@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -23,7 +23,7 @@ The generated Intermediate Representation (IR).
 ### diagnostics
 
 ```ts
-readonly diagnostics: readonly ConflictDiagnostic[];
+readonly diagnostics: readonly PipelineDiagnostic[];
 ```
 
 An array of diagnostic messages.

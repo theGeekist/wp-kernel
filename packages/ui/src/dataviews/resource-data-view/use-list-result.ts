@@ -76,7 +76,7 @@ function normalizeResourceListResult<TItem, TQuery>(
  * @param    fetchList
  * @param    query
  * @param    reporter
- * @category DataViews Hooks
+ * @category DataViews Integration
  */
 export function useListResult<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,

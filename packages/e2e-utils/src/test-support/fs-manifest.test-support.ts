@@ -10,6 +10,11 @@ import {
 	diffFileManifests,
 } from '../integration/fs-manifest.js';
 
+/**
+ * Definition for seeding files before collecting a manifest snapshot.
+ *
+ * @category Test Support
+ */
 export type ManifestFileDefinition =
 	| string
 	| {
@@ -17,6 +22,11 @@ export type ManifestFileDefinition =
 			mode?: number;
 	  };
 
+/**
+ * Definition for mutating files between manifest comparisons.
+ *
+ * @category Test Support
+ */
 export type ManifestMutationDefinition =
 	| string
 	| {
@@ -25,17 +35,34 @@ export type ManifestMutationDefinition =
 			delete?: boolean;
 	  };
 
+/**
+ * Declarative configuration describing the desired manifest state.
+ *
+ * @category Test Support
+ */
 export interface ManifestStateDefinition {
 	files: Record<string, ManifestFileDefinition>;
 	ignore?: Array<string | RegExp>;
 }
 
+/**
+ * Specification for before/after manifest comparisons.
+ *
+ * @category Test Support
+ */
 export interface ManifestComparisonDefinition {
 	before: Record<string, ManifestFileDefinition>;
 	after: Record<string, ManifestMutationDefinition>;
 	ignore?: Array<string | RegExp>;
 }
 
+/**
+ * Seed files into a workspace and collect a manifest snapshot.
+ *
+ * @param    workspace
+ * @param    definition
+ * @category Test Support
+ */
 export async function collectManifestState(
 	workspace: IsolatedWorkspace,
 	definition: ManifestStateDefinition
@@ -46,6 +73,13 @@ export async function collectManifestState(
 	});
 }
 
+/**
+ * Apply mutations and collect before/after manifests for comparison.
+ *
+ * @param    workspace
+ * @param    definition
+ * @category Test Support
+ */
 export async function compareManifestStates(
 	workspace: IsolatedWorkspace,
 	definition: ManifestComparisonDefinition

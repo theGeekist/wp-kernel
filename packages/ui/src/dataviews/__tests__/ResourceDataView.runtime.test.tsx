@@ -1,6 +1,6 @@
 import {
 	DataViewsMock,
-	createKernelRuntime,
+	createWPKernelRuntime,
 	createResource,
 	createConfig,
 	renderResourceDataView,
@@ -51,7 +51,7 @@ describe('ResourceDataView runtime integration', () => {
 		const preferences = new Map<string, unknown>();
 		const standaloneRuntime = createDataViewsRuntime({
 			namespace: 'standalone-tests',
-			reporter: createKernelRuntime().reporter,
+			reporter: createWPKernelRuntime().reporter,
 			preferences: {
 				get: async (key: string) => preferences.get(key),
 				set: async (key: string, value: unknown) => {

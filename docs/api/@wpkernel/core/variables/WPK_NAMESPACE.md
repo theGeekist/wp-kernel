@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -12,7 +12,7 @@ const WPK_NAMESPACE: 'wpk' = 'wpk';
 
 Root framework namespace
 
-This is the canonical namespace for the WP Kernel framework.
+This is the canonical namespace for the WPKernel framework.
 Used as:
 
 - Default reporter namespace when no plugin namespace detected

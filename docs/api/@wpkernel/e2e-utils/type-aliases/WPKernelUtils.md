@@ -1,16 +1,16 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
-[@wpkernel/e2e-utils](../README.md) / KernelUtils
+[@wpkernel/e2e-utils](../README.md) / WPKernelUtils
 
-# Type Alias: KernelUtils
+# Type Alias: WPKernelUtils
 
 ```ts
-type KernelUtils = object;
+type WPKernelUtils = object;
 ```
 
-Main kernel utilities object returned by factory
+Main wpk utilities object returned by factory
 
 ## Properties
 
@@ -80,7 +80,7 @@ Store utilities with typed methods
 events: <P>(options?) => Promise<EventRecorder<P>>;
 ```
 
-Create event recorder for capturing kernel events
+Create event recorder for capturing wpk events
 
 #### Type Parameters
 

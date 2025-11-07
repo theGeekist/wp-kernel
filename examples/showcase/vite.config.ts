@@ -1,5 +1,5 @@
 /**
- * Vite configuration for WP Kernel Showcase Plugin
+ * Vite configuration for WPKernel Showcase Plugin
  *
  * Uses @kucrut/vite-for-wp to build WordPress assets with proper externals.
  * Outputs ESM modules for WordPress Script Modules API.

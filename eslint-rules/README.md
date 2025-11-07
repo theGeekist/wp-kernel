@@ -1,14 +1,14 @@
-# ESLint Rules for WordPress Kernel Development
+# ESLint Rules for WPKernel Development
 
 This document outlines the custom ESLint rules designed to enforce best practices, maintain naming consistency, and ensure configuration correctness across the Kernel codebase.
 
 ---
 
-## `@kernel/no-hardcoded-namespace-strings`
+## `@wkernel/no-hardcoded-namespace-strings`
 
 ### Purpose
 
-Prevents namespace drift by enforcing the use of **centralised constants** instead of hardcoded namespace strings such as `'wpk'`, `'wpk.action.start'`, or `'kernel.capability'`.
+Prevents namespace drift by enforcing the use of **centralised constants** instead of hardcoded namespace strings such as `'wpk'`, `'wpk.action.start'`, or `'wpkernel.capability'`.
 
 ### Why It Matters
 
@@ -37,7 +37,7 @@ hooks.doAction(WPK_EVENTS.ACTION_START, event);
 
 ```ts
 // ✗ BAD
-createReporter({ namespace: 'kernel.capability' });
+createReporter({ namespace: 'wpkernel.capability' });
 
 // ✓ GOOD
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts';
@@ -96,7 +96,7 @@ Use WPK_EVENTS.ACTION_START from contracts/index.ts instead.
 
 ---
 
-## `@kernel/config-consistency`
+## `@wpkernel/config-consistency`
 
 ### Purpose
 
@@ -135,7 +135,7 @@ Resource 'job' references identity param 'id' but routes use ':slug'
 
 ---
 
-## `@kernel/cache-keys-valid`
+## `@wpkernel/cache-keys-valid`
 
 ### Purpose
 
@@ -177,7 +177,7 @@ Cache key references unknown query param 'serch' (did you mean 'search'?)
 
 ---
 
-## `@kernel/capability-hints`
+## `@wpkernel/capability-hints`
 
 ### Purpose
 
@@ -206,7 +206,7 @@ Write route 'create' should declare a capability identifier
 
 ---
 
-## `@kernel/doc-links`
+## `@wpkernel/doc-links`
 
 ### Purpose
 
@@ -247,7 +247,7 @@ import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
 import capabilityHints from './eslint-rules/capability-hints.js';
 import docLinks from './eslint-rules/doc-links.js';
 
-const kernelPlugin = {
+const wpkernelPlugin = {
 	rules: {
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
 		'config-consistency': configConsistency,
@@ -259,13 +259,13 @@ const kernelPlugin = {
 
 export default [
 	{
-		plugins: { '@kernel': kernelPlugin },
+		plugins: { '@wkernel': kernelPlugin },
 		rules: {
-			'@kernel/no-hardcoded-namespace-strings': 'error',
-			'@kernel/config-consistency': 'error',
-			'@kernel/cache-keys-valid': 'error',
-			'@kernel/capability-hints': 'error',
-			'@kernel/doc-links': 'warn', // auto-fixable
+			'@wkernel/no-hardcoded-namespace-strings': 'error',
+			'@wkernel/config-consistency': 'error',
+			'@wkernel/cache-keys-valid': 'error',
+			'@wkernel/capability-hints': 'error',
+			'@wkernel/doc-links': 'warn', // auto-fixable
 		},
 	},
 ];

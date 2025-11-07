@@ -8,10 +8,10 @@ import type { DataViewsRuntimeContext } from '../types';
  *
  * When provided a full WPKernelUIRuntime, derives a DataViewsRuntimeContext.
  * When provided a DataViewsRuntimeContext, passes it through.
- * Otherwise falls back to the hook-provided kernel runtime.
+ * Otherwise falls back to the hook-provided wpk runtime.
  */
 export type RuntimeResolution = {
-	kernelRuntime?: WPKernelUIRuntime;
+	wpkernelRuntime?: WPKernelUIRuntime;
 	context: DataViewsRuntimeContext;
 };
 
@@ -33,7 +33,7 @@ function isWPKernelRuntime(
  *
  * @param    runtimeProp
  * @param    hookRuntime
- * @category DataViews Runtime
+ * @category DataViews Integration
  */
 export function resolveRuntime(
 	runtimeProp: WPKernelUIRuntime | DataViewsRuntimeContext | undefined,
@@ -46,11 +46,11 @@ export function resolveRuntime(
 		if (isWPKernelRuntime(runtimeProp)) {
 			if (!runtimeProp.dataviews) {
 				throw new DataViewsControllerError(
-					'WP Kernel UI runtime is missing DataViews support. Ensure Phase 1 runtime is attached.'
+					'WPKernel UI runtime is missing DataViews support. Ensure Phase 1 runtime is attached.'
 				);
 			}
 			return {
-				kernelRuntime: runtimeProp,
+				wpkernelRuntime: runtimeProp,
 				context: {
 					namespace: runtimeProp.namespace,
 					dataviews: ensureControllerRuntime(runtimeProp.dataviews),
@@ -58,7 +58,7 @@ export function resolveRuntime(
 					invalidate: runtimeProp.invalidate,
 					registry: runtimeProp.registry,
 					reporter: runtimeProp.reporter,
-					kernel: runtimeProp.kernel,
+					wpk: runtimeProp.wpk,
 				},
 			};
 		}
@@ -66,18 +66,18 @@ export function resolveRuntime(
 
 	if (!hookRuntime) {
 		throw new DataViewsControllerError(
-			'WP Kernel UI runtime unavailable. Provide a runtime prop or wrap with <WPKernelUIProvider />.'
+			'WPKernel UI runtime unavailable. Provide a runtime prop or wrap with <WPKernelUIProvider />.'
 		);
 	}
 
 	if (!hookRuntime.dataviews) {
 		throw new DataViewsControllerError(
-			'WP Kernel UI runtime is missing DataViews support. Ensure attachUIBindings() was executed with DataViews enabled.'
+			'WPKernel UI runtime is missing DataViews support. Ensure attachUIBindings() was executed with DataViews enabled.'
 		);
 	}
 
 	return {
-		kernelRuntime: hookRuntime,
+		wpkernelRuntime: hookRuntime,
 		context: {
 			namespace: hookRuntime.namespace,
 			dataviews: ensureControllerRuntime(hookRuntime.dataviews),
@@ -85,7 +85,7 @@ export function resolveRuntime(
 			invalidate: hookRuntime.invalidate,
 			registry: hookRuntime.registry,
 			reporter: hookRuntime.reporter,
-			kernel: hookRuntime.kernel,
+			wpk: hookRuntime.wpk,
 		},
 	};
 }

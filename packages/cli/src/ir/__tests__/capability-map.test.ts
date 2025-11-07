@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import type { ResourceCapabilityMap } from '@wpkernel/core/resource';
 import type { WPKernelConfigV1 } from '../../config/types';
 import { buildIr } from '../buildIr';
-import { setCachedTsImport } from '../../config/load-kernel-config';
+import { setCachedTsImport } from '../../config/load-wpk-config';
 import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
 
 // Helper to add capabilities to a resource config in a type-safe way

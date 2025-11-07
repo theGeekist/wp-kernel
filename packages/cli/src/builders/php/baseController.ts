@@ -21,7 +21,7 @@ import { getPhpBuilderChannel } from './channel';
  * This helper generates the `BaseController.php` file, which serves as the
  * foundation for all other REST controllers in the generated PHP output.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating the base REST controller.
  */
 export function createPhpBaseControllerHelper(): BuilderHelper {

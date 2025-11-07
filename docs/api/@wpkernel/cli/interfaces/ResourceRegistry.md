@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,7 @@
 
 # Interface: ResourceRegistry
 
-Mapping of resource identifiers to their kernel configuration.
+Mapping of resource identifiers to their wpk configuration.
 
 ## Indexable
 

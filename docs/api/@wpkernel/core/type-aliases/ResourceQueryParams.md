@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -11,4 +11,7 @@ type ResourceQueryParams = Record & lt;
 (string, ResourceQueryParamDescriptor & gt);
 ```
 
-TODO: summary.
+Declarative map of supported query parameters for the resource.
+
+Tooling uses this to derive REST argument schemas, filters, and documentation.
+The runtime treats this as metadata and does not enforce it directly.

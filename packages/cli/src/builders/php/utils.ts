@@ -27,7 +27,7 @@ export function toPascalCase(value: string): string {
  *
  * @param    value - String to convert
  * @returns snake_case formatted string
- * @category Builders
+ * @category AST Builders
  */
 export function toSnakeCase(value: string): string {
 	return value
@@ -43,7 +43,7 @@ export function toSnakeCase(value: string): string {
  *
  * @param    value - Value to check
  * @returns True if value is a string with non-whitespace content
- * @category Builders
+ * @category AST Builders
  */
 export function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
@@ -58,7 +58,7 @@ export function isNonEmptyString(value: unknown): value is string {
  * @typeParam T - Type of the value being sanitized
  * @param     value - Value to sanitize
  * @returns Sanitized value with sorted keys
- * @category Builders
+ * @category AST Builders
  */
 export function sanitizeJson<T>(value: T): T {
 	if (Array.isArray(value)) {
@@ -84,7 +84,7 @@ export function sanitizeJson<T>(value: T): T {
  *
  * @param    resourceName - Resource name to include in error codes
  * @returns Factory function that generates error codes with given suffix
- * @category Builders
+ * @category AST Builders
  */
 export function makeErrorCodeFactory(
 	resourceName: string

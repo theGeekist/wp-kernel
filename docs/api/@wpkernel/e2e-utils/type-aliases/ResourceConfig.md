@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,13 @@
 type ResourceConfig<T, TQuery, _TTypes> = object;
 ```
 
-TODO: summary.
+Declarative configuration for a resource.
+
+This is consumed by `defineResource()` to:
+
+- describe REST routes and capabilities
+- configure cache keys and store behavior
+- attach optional UI and persistence metadata for generators and tooling
 
 ## Type Parameters
 
@@ -18,19 +24,19 @@ TODO: summary.
 
 `T` = `unknown`
 
-— TODO
+Entity shape returned by the resource (e.g. `Job`).
 
 ### TQuery
 
 `TQuery` = `unknown`
 
-— TODO
+Query shape for list operations (e.g. `{ search?: string }`).
 
 ### \_TTypes
 
 `_TTypes` = \[`T`, `TQuery`\]
 
-— TODO
+Internal tuple preserved for helper typing; not intended for direct use.
 
 ## Properties
 
@@ -164,7 +170,7 @@ optional reporter: Reporter;
 Optional reporter override for resource instrumentation.
 
 When provided, the resource will emit debug/info/error logs through this
-reporter instead of creating a child reporter from the WP Kernel instance.
+reporter instead of creating a child reporter from the WPKernel instance.
 
 ---
 

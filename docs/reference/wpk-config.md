@@ -1,6 +1,6 @@
 # Kernel config
 
-The kernel config is the single source of truth for your plugin. The CLI reads this file to generate TypeScript types, PHP controllers, and optional UI scaffolding. This page documents the v1 shape used by `@wpk/cli` today.【F:packages/cli/src/config/types.ts†L47-L120】
+The wpk config is the single source of truth for your plugin. The CLI reads this file to generate TypeScript types, PHP controllers, and optional UI scaffolding. This page documents the v1 shape used by `@wpk/cli` today.【F:packages/cli/src/config/types.ts†L47-L120】
 
 ```ts
 // wpk.config.ts

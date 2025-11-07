@@ -8,14 +8,14 @@ import type { BlockRenderStub } from '@wpkernel/wp-json-ast';
 /**
  * Transaction label for block render callback generation phase.
  *
- * @category Builders
+ * @category AST Builders
  */
 export const RENDER_TRANSACTION_LABEL = 'builder.generate.php.blocks.render';
 
 /**
  * Options for staging block render callback stubs to workspace.
  *
- * @category Builders
+ * @category AST Builders
  */
 export interface StageRenderStubsOptions {
 	readonly stubs: readonly BlockRenderStub[];
@@ -35,7 +35,7 @@ export interface StageRenderStubsOptions {
  * @param    options.workspace - Workspace manager for file operations
  * @param    options.output    - Builder output context
  * @param    options.reporter  - Reporter for progress and errors
- * @category Builders
+ * @category AST Builders
  */
 export async function stageRenderStubs({
 	stubs,

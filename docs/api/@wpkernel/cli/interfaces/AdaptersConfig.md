@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,7 @@
 
 # Interface: AdaptersConfig
 
-Optional adapters configured by a kernel project.
+Optional adapters configured by a wpk project.
 
 ## Properties
 

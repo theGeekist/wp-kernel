@@ -30,7 +30,7 @@ const GENERATED_ROOT = '.generated';
 /**
  * Options for emitting a TypeScript file.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface TsBuilderEmitOptions {
 	/** The file path where the TypeScript file will be emitted. */
@@ -45,7 +45,7 @@ export interface TsBuilderEmitOptions {
  * These hooks allow for custom logic to be executed at different stages
  * of the TypeScript artifact generation process.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface TsBuilderLifecycleHooks {
 	/** Hook executed before a creator generates an artifact. */
@@ -65,7 +65,7 @@ export interface TsBuilderLifecycleHooks {
 /**
  * Options passed to the `onAfterEmit` lifecycle hook.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface TsBuilderAfterEmitOptions {
 	/** A list of file paths that were emitted. */
@@ -79,7 +79,7 @@ export interface TsBuilderAfterEmitOptions {
 /**
  * Context provided to a `TsBuilderCreator` function.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface TsBuilderCreatorContext {
 	/** The `ts-morph` project instance for managing source files. */
@@ -88,7 +88,7 @@ export interface TsBuilderCreatorContext {
 	readonly workspace: Workspace;
 	/** The resource descriptor for which artifacts are being created. */
 	readonly descriptor: ResourceDescriptor;
-	/** The full WP Kernel configuration. */
+	/** The full WPKernel configuration. */
 	readonly config: WPKernelConfigV1;
 	/** The source path of the configuration file. */
 	readonly sourcePath: string;
@@ -106,7 +106,7 @@ export interface TsBuilderCreatorContext {
  * A creator is responsible for generating specific TypeScript files or code
  * based on the provided context.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface TsBuilderCreator {
 	/** A unique key for the creator. */
@@ -118,7 +118,7 @@ export interface TsBuilderCreator {
 /**
  * Options for creating a TypeScript builder.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  * @public
  */
 export interface CreateTsBuilderOptions {
@@ -133,7 +133,7 @@ export interface CreateTsBuilderOptions {
 /**
  * Options for formatting a TypeScript file.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface TsFormatterFormatOptions {
 	/** The file path of the TypeScript file to format. */
@@ -145,7 +145,7 @@ export interface TsFormatterFormatOptions {
 /**
  * Interface for a TypeScript formatter.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface TsFormatter {
 	/** Formats the given TypeScript file content. */
@@ -155,7 +155,7 @@ export interface TsFormatter {
 /**
  * Options for building a TypeScript formatter.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface BuildTsFormatterOptions {
 	/** Optional: A factory function to create a `ts-morph` Project instance. */
@@ -169,7 +169,7 @@ type AdminDataViews = NonNullable<ResourceAdminConfig['dataviews']>;
 /**
  * Describes a resource with its associated configuration and dataviews.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  */
 export interface ResourceDescriptor {
 	/** The unique key of the resource. */
@@ -192,7 +192,7 @@ export interface ResourceDescriptor {
  * - Registry metadata under `.generated/ui/registry/dataviews/...`
  *
  * @param    options
- * @category TypeScript Builder
+ * @category AST Builders
  * @example
  * ```ts
  * const builder = createTsBuilder();
@@ -272,7 +272,7 @@ export function createTsBuilder(
  * - Stamp `data-wp-interactive` and `data-wp-context` for use with wp-interactivity.
  *
  *
- * @category TypeScript Builder
+ * @category AST Builders
  * @example
  * ```ts
  * const creator = buildAdminScreenCreator();
@@ -541,7 +541,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
  * This creator generates a TypeScript file that exports the dataview
  * configuration for a resource, making it available for testing and development.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  * @example
  * ```ts
  * const creator = buildDataViewFixtureCreator();
@@ -620,7 +620,7 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
  * resource actions so integrators can hydrate runtime behaviour in tests or
  * custom entry points.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  * @example
  * ```ts
  * const creator = buildDataViewInteractivityFixtureCreator();
@@ -1001,7 +1001,7 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
  * metadata for a resource so tests and tooling can import the registry
  * snapshot emitted during generation.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  * @example
  * ```ts
  * const creator = buildDataViewRegistryCreator();
@@ -1102,7 +1102,7 @@ type AdminDataViewsWithInteractivity = AdminDataViews & {
  * otherwise falls back to `'admin-screen'`.
  *
  * @param    descriptor
- * @category TypeScript Builder
+ * @category AST Builders
  */
 function resolveInteractivityFeature(descriptor: ResourceDescriptor): string {
 	const dataviews = descriptor.dataviews as AdminDataViewsWithInteractivity;
@@ -1164,7 +1164,7 @@ async function buildProject(): Promise<Project> {
  * This function creates a `TsFormatter` that can be used to format TypeScript
  * code using `ts-morph`'s built-in formatting capabilities.
  *
- * @category TypeScript Builder
+ * @category AST Builders
  * @param    options - Options for building the formatter.
  * @returns A `TsFormatter` instance.
  */

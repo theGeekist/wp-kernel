@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -7,12 +7,12 @@
 # Type Alias: WPKernelUIAttach()
 
 ```ts
-type WPKernelUIAttach = (wpKernel, options?) => WPKernelUIRuntime;
+type WPKernelUIAttach = (wpk, options?) => WPKernelUIRuntime;
 ```
 
 ## Parameters
 
-### wpKernel
+### wpk
 
 [`WPKInstance`](../interfaces/WPKInstance.md)
 

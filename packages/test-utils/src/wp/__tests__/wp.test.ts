@@ -63,7 +63,7 @@ describe('test-utils/wp.test-support', () => {
 		});
 	});
 
-	it('sets and clears kernel package metadata', () => {
+	it('sets and clears wpk package metadata', () => {
 		setKernelPackage({ name: 'cli', version: '1.0.0' });
 		expect(
 			(globalThis as { __WP_KERNEL_PACKAGE__?: unknown })

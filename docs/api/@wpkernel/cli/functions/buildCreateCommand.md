@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -12,7 +12,7 @@ function buildCreateCommand(options): CreateCommandConstructor;
 
 Builds the `create` command for the CLI.
 
-This command is responsible for creating a new WP Kernel project, including
+This command is responsible for creating a new WPKernel project, including
 scaffolding files, initializing a Git repository, and installing dependencies.
 
 ## Parameters

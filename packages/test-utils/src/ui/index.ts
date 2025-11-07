@@ -1,1 +1,1 @@
-export * from './kernel-ui-harness.js';
+export * from './wpkernel-ui-harness.js';

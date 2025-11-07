@@ -1,6 +1,6 @@
 # Installation
 
-This guide covers installing WP Kernel for **plugin development** or **contributing to the framework**.
+This guide covers installing WPKernel for **plugin development** or **contributing to the framework**.
 
 ---
 
@@ -16,7 +16,7 @@ This guide covers installing WP Kernel for **plugin development** or **contribut
 | **PHP**       | N/A               | 8.1+ (wp-env only)     |
 | **Docker**    | N/A               | Optional (wp-env)      |
 
-> **Why WordPress 6.7+?** WP Kernel relies on the [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/), which provides native ESM support. This is fundamental to the framework's architecture.
+> **Why WordPress 6.7+?** WPKernel relies on the [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/), which provides native ESM support. This is fundamental to the framework's architecture.
 
 > **Why Node 20+?** Our build system uses [Vite 7](https://vitejs.dev/), which requires Node 18+ as a minimum. We recommend Node 20 LTS for long-term stability (Node 22 LTS also supported).
 
@@ -34,7 +34,7 @@ Tested on: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
 ## For Plugin Developers
 
-To use WP Kernel in your WordPress plugin:
+To use WPKernel in your WordPress plugin:
 
 **Requirements:**
 
@@ -57,7 +57,7 @@ See the [Quick Start guide](/getting-started/quick-start) to build your first fe
 
 ## For Framework Contributors
 
-To contribute to WP Kernel itself or run the showcase plugin:
+To contribute to WPKernel itself or run the showcase plugin:
 
 ### Prerequisites
 
@@ -83,7 +83,7 @@ cd wp-kernel
 
 ## Install Dependencies
 
-WP Kernel uses a pnpm workspace monorepo:
+WPKernel uses a pnpm workspace monorepo:
 
 ```bash
 pnpm install
@@ -98,7 +98,7 @@ This installs dependencies for:
 
 ## Start WordPress Environment
 
-WP Kernel includes two WordPress test environments:
+WPKernel includes two WordPress test environments:
 
 - **Development** (localhost:8888) - For manual testing
 - **Testing** (localhost:8889) - For E2E tests with clean fixtures

@@ -1,4 +1,4 @@
-# WP Kernel E2E Utils - Implementation Summary
+# WPKernel E2E Utils - Implementation Summary
 
 ## What We Built
 
@@ -8,12 +8,12 @@ A complete E2E testing utilities package that extends `@wordpress/e2e-test-utils
 
 ### Single Consolidated Factory Pattern
 
-✓ **One file, three internal helpers** (`createKernelUtils.ts`):
+✓ **One file, three internal helpers** (`createWPKernelUtils.ts`):
 
 - `createResourceHelper<T>()` - Internal function for REST operations
 - `createStoreHelper<T>()` - Internal function for store state testing
 - `createEventHelper<P>()` - Internal function for event tracking
-- `createKernelUtils()` - Main export returning `{ resource(), store(), events() }`
+- `createWPKernelUtils()` - Main export returning `{ resource(), store(), events() }`
 
 ### Extended Test Fixture Pattern
 
@@ -24,7 +24,7 @@ import { test as base } from '@wordpress/e2e-test-utils-playwright';
 
 export const test = base.extend<{ kernel: KernelUtils }>({
 	kernel: async ({ page, requestUtils, admin, editor, pageUtils }, use) => {
-		const kernel = createKernelUtils({
+		const wpk = createWPKernelUtils({
 			page,
 			requestUtils,
 			admin,
@@ -44,20 +44,20 @@ export const test = base.extend<{ kernel: KernelUtils }>({
 import { test, expect } from '@wpkernel/e2e-utils';
 
 test('my test', async ({ admin, kernel, page }) => {
-	// WordPress fixtures + kernel fixture all available
+	// WordPress fixtures + wpk fixture all available
 });
 ```
 
 ### Advanced Usage
 
 ```typescript
-import { createKernelUtils } from '@wpkernel/e2e-utils';
+import { createWPKernelUtils } from '@wpkernel/e2e-utils';
 import { test as base } from '@wordpress/e2e-test-utils-playwright';
 
 // Custom fixture setup
 export const test = base.extend({
 	kernel: async (fixtures, use) => {
-		const kernel = createKernelUtils(fixtures);
+		const wpk = createWPKernelUtils(fixtures);
 		// Custom setup...
 		await use(kernel);
 	},
@@ -69,7 +69,7 @@ export const test = base.extend({
 ```typescript
 // From packages/e2e-utils/src/index.ts
 export { test, expect } from './test.js'; // Primary usage
-export { createKernelUtils } from './createKernelUtils.js'; // Advanced usage
+export { createWPKernelUtils } from './createWPKernelUtils.js'; // Advanced usage
 export type {} from /* all types */ './types.js'; // TypeScript support
 ```
 
@@ -77,7 +77,7 @@ export type {} from /* all types */ './types.js'; // TypeScript support
 
 ### Dependency Injection Pattern
 
-Test author and kernel utilities both need WordPress fixtures, but for different purposes:
+Test author and wpk utilities both need WordPress fixtures, but for different purposes:
 
 **Test author**: Uses fixtures for test orchestration
 
@@ -91,7 +91,7 @@ test('my test', async ({ admin, page }) => {
 **Kernel utilities**: Uses fixtures for implementation
 
 ```typescript
-// Inside createKernelUtils
+// Inside createWPKernelUtils
 const seed = async (data) => {
   return await requestUtils.rest({ ... });  // Internal REST calls
 };
@@ -103,7 +103,7 @@ const wait = async (selector) => {
 
 ### No Duplication - It's Composition
 
-- WordPress fixtures → kernel (for implementation)
+- WordPress fixtures → wpk (for implementation)
 - WordPress fixtures → test callback (for orchestration)
 - Both have access, different purposes
 
@@ -111,7 +111,7 @@ const wait = async (selector) => {
 
 ```
 packages/e2e-utils/src/
-├── createKernelUtils.ts   # Single consolidated factory (400+ lines)
+├── createWPKernelUtils.ts   # Single consolidated factory (400+ lines)
 ├── test.ts                # Extended test fixture with kernel
 ├── types.ts               # TypeScript interfaces
 └── index.ts               # Public exports
@@ -139,7 +139,7 @@ packages/e2e-utils/
 ✓ Single consolidated factory (not multiple files)  
 ✓ Follows WordPress E2E utils pattern (extended fixture)  
 ✓ Primary usage: `import { test, expect }`  
-✓ Advanced usage: `import { createKernelUtils }`  
+✓ Advanced usage: `import { createWPKernelUtils }`  
 ✓ Build passes  
 ✓ Documentation complete  
 ⏳ Unit tests (pending)

@@ -83,7 +83,7 @@ const resourceRouteValidator = t.isObject(
  *
  * Ensures that a resource defines at least one route operation (list, get, create, update, or remove).
  *
- * @category Config Validation
+ * @category Config
  */
 export const resourceRoutesValidator = t.cascade(
 	t.isObject(
@@ -334,7 +334,7 @@ const wpkConfigValidator = t.isObject(
 );
 
 /**
- * Validate a kernel configuration object against the framework's contracts.
+ * Validate a wpk configuration object against the framework's contracts.
  *
  * This is the primary validation entry point called by the config loader.
  * It performs multi-layered validation to catch configuration errors before
@@ -478,7 +478,7 @@ export function normalizeVersion(
 	}
 
 	if (version !== 1) {
-		const message = `Unsupported kernel config version ${String(version)} in ${sourcePath}. Only version 1 is supported.`;
+		const message = `Unsupported wpk config version ${String(version)} in ${sourcePath}. Only version 1 is supported.`;
 		reporter.error(message, { sourcePath, version });
 		throw new WPKernelError('ValidationError', {
 			message,
@@ -515,7 +515,7 @@ export function normalizeVersion(
  * - Write routes should have capabilities (warns if missing)
  * - wp-post storage should specify postType (warns if missing)
  *
- * @category Config Validation
+ * @category Config
  * @param    resourceName - Resource identifier for error messages
  * @param    resource     - Resource configuration to validate
  * @param    reporter     - Reporter for errors and warnings
@@ -668,7 +668,7 @@ function validateStorageMode(
 /**
  * Formats a list of validation errors into a human-readable string.
  *
- * @category Config Validation
+ * @category Config
  * @param    errors     - An array of error messages from the validation process.
  * @param    sourcePath - The path to the configuration file where the errors occurred.
  * @param    origin     - The origin of the configuration (e.g., 'wpk.config.ts').
@@ -680,9 +680,9 @@ export function formatValidationErrors(
 	origin: string
 ): string {
 	if (!errors || errors.length === 0) {
-		return `Invalid kernel config discovered in ${sourcePath} (${origin}).`;
+		return `Invalid wpk config discovered in ${sourcePath} (${origin}).`;
 	}
 
 	const formatted = errors.map((error) => ` - ${error}`).join('\n');
-	return `Invalid kernel config discovered in ${sourcePath} (${origin}):\n${formatted}`;
+	return `Invalid wpk config discovered in ${sourcePath} (${origin}):\n${formatted}`;
 }

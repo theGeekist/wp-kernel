@@ -48,7 +48,7 @@ create_job_if_not_exists \
 
 <h2>Nice to Have</h2>
 <ul>
-<li>Experience with WP Kernel or similar frameworks</li>
+<li>Experience with WPKernel or similar frameworks</li>
 <li>Open source contributions</li>
 <li>TypeScript experience</li>
 </ul>

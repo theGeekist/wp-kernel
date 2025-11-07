@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.12.0**](../README.md)
 
 ---
 
@@ -13,7 +13,7 @@ function buildLoadedConfig<TConfig, TOrigin, TComposerCheck>(
 ): LoadedWPKConfigV1Like<TConfig, TOrigin, TComposerCheck>;
 ```
 
-Builds a loaded kernel configuration object for testing.
+Builds a loaded wpk configuration object for testing.
 
 ## Type Parameters
 

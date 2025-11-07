@@ -4,7 +4,7 @@ Complete API reference for the Resources module.
 
 ## Overview
 
-Resources are the foundation of WP Kernel. They define typed REST endpoints with automatic:
+Resources are the foundation of WPKernel. They define typed REST endpoints with automatic:
 
 - Client method generation
 - Store registration (@wordpress/data)

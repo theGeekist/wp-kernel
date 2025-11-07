@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function WPKernelUIProvider(props): Element;
 ```
 
-Provides the WP Kernel UI runtime to React components.
+Provides the WPKernel UI runtime to React components.
 
 ## Parameters
 

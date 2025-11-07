@@ -3,10 +3,20 @@ import { promises as fs } from 'node:fs';
 import type { IsolatedWorkspace } from '../integration/types.js';
 import { createIsolatedWorkspace } from '../integration/workspace.js';
 
+/**
+ * Callback executed with an isolated workspace instance.
+ *
+ * @category Test Support
+ */
 export type WithWorkspaceCallback<TResult> = (
 	workspace: IsolatedWorkspace
 ) => Promise<TResult> | TResult;
 
+/**
+ * Options for creating an isolated on-disk workspace.
+ *
+ * @category Test Support
+ */
 export interface WithIsolatedWorkspaceOptions {
 	prefix?: string;
 	env?: NodeJS.ProcessEnv;
@@ -14,6 +24,13 @@ export interface WithIsolatedWorkspaceOptions {
 	locale?: string;
 }
 
+/**
+ * Run a callback against a disposable workspace rooted on disk.
+ *
+ * @param    options
+ * @param    callback
+ * @category Test Support
+ */
 export async function withIsolatedWorkspace<TResult>(
 	options: WithIsolatedWorkspaceOptions,
 	callback: WithWorkspaceCallback<TResult>
@@ -48,6 +65,13 @@ export async function withIsolatedWorkspace<TResult>(
 
 export type WorkspaceFileTree = Record<string, string>;
 
+/**
+ * Write a set of files into an isolated workspace tree.
+ *
+ * @category Test Support
+ * @param    workspace - Workspace descriptor returned by {@link withIsolatedWorkspace}.
+ * @param    files     - Mapping of relative paths to file contents.
+ */
 export async function writeWorkspaceFiles(
 	workspace: IsolatedWorkspace,
 	files: WorkspaceFileTree

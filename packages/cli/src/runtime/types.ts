@@ -26,7 +26,7 @@ export type { PipelinePhase };
 /**
  * Context object passed through the entire pipeline execution.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface PipelineContext
 	extends Omit<BasePipelineContext, 'workspace'> {
@@ -39,12 +39,12 @@ export interface PipelineContext
 /**
  * Options for running a pipeline.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface PipelineRunOptions {
 	/** The current phase of the pipeline execution. */
 	readonly phase: PipelinePhase;
-	/** The configuration object for the WP Kernel project. */
+	/** The configuration object for the WPKernel project. */
 	readonly config: BuildIrOptions['config'];
 	/** The namespace of the project. */
 	readonly namespace: string;
@@ -63,7 +63,7 @@ export interface PipelineRunOptions {
 /**
  * Represents a single step executed within the pipeline.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface PipelineStep extends HelperDescriptor {
 	/** A unique identifier for the step. */
@@ -75,7 +75,7 @@ export interface PipelineStep extends HelperDescriptor {
 /**
  * Diagnostic emitted when two helpers conflict.
  *
- * @category Pipeline
+ * @category Runtime
  * @example
  * A generate helper overrides another helper with the same key.
  */
@@ -97,7 +97,7 @@ export interface ConflictDiagnostic {
 /**
  * Diagnostic emitted when a required helper dependency is missing.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface MissingDependencyDiagnostic {
 	/** The type of diagnostic, always 'missing-dependency'. */
@@ -117,7 +117,7 @@ export interface MissingDependencyDiagnostic {
 /**
  * Union of all diagnostics emitted by the pipeline.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface UnusedHelperDiagnostic {
 	/** The type of diagnostic, always 'unused-helper'. */
@@ -137,7 +137,7 @@ export interface UnusedHelperDiagnostic {
 /**
  * Union of all diagnostics emitted by the pipeline.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type PipelineDiagnostic =
 	| ConflictDiagnostic
@@ -147,20 +147,21 @@ export type PipelineDiagnostic =
 /**
  * The result of a pipeline run.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface PipelineRunResult {
 	/** The generated Intermediate Representation (IR). */
 	readonly ir: IRv1;
 	/** An array of diagnostic messages. */
 	readonly diagnostics: readonly PipelineDiagnostic[];
-	/** An array of executed pipeline steps. */ readonly steps: readonly PipelineStep[];
+	/** An array of executed pipeline steps. */
+	readonly steps: readonly PipelineStep[];
 }
 
 /**
  * A helper specifically designed for fragment processing within the pipeline.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type FragmentHelper = Helper<
 	PipelineContext,
@@ -173,7 +174,7 @@ export type FragmentHelper = Helper<
 /**
  * Input for a fragment helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface FragmentInput {
 	/** Options for building the IR. */
@@ -185,7 +186,7 @@ export interface FragmentInput {
 /**
  * Output for a fragment helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface FragmentOutput {
 	/** The mutable Intermediate Representation draft. */
@@ -200,7 +201,7 @@ export interface FragmentOutput {
 /**
  * Input for a builder helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface BuilderInput extends Omit<BaseBuilderInput, 'options' | 'ir'> {
 	/** Options for building the IR. */
@@ -212,21 +213,21 @@ export interface BuilderInput extends Omit<BaseBuilderInput, 'options' | 'ir'> {
 /**
  * Represents a write action performed by a builder helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type BuilderWriteAction = PhpBuilderWriteAction;
 
 /**
  * Output for a builder helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type BuilderOutput = PhpBuilderOutput;
 
 /**
  * A helper specifically designed for builder processing within the pipeline.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type BuilderHelper = PhpBuilderHelper<
 	PipelineContext,
@@ -240,7 +241,7 @@ export type BuilderHelper = PhpBuilderHelper<
  * Re-exports the core pipeline contract so extensions receive the full
  * `PipelineRunOptions` payload instead of the build-only subset.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type PipelineExtensionHookOptions = CorePipelineExtensionHookOptions<
 	PipelineContext,
@@ -251,7 +252,7 @@ export type PipelineExtensionHookOptions = CorePipelineExtensionHookOptions<
 /**
  * Result returned by a pipeline extension hook.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export interface PipelineExtensionHookResult {
 	/** Optional: A modified IR artifact. */
@@ -265,7 +266,7 @@ export interface PipelineExtensionHookResult {
 /**
  * Represents a pipeline extension hook function.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type PipelineExtensionHook = (
 	options: PipelineExtensionHookOptions
@@ -274,7 +275,7 @@ export type PipelineExtensionHook = (
 /**
  * The main pipeline interface for CLI operations.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type Pipeline = CorePipeline<
 	PipelineRunOptions,
@@ -297,7 +298,7 @@ export type Pipeline = CorePipeline<
 /**
  * Represents a pipeline extension.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type PipelineExtension = CorePipelineExtension<
 	Pipeline,
@@ -309,27 +310,27 @@ export type PipelineExtension = CorePipelineExtension<
 /**
  * Options for applying a fragment helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type FragmentApplyOptions = Parameters<FragmentHelper['apply']>[0];
 
 /**
  * The `next` function for a fragment helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type FragmentNext = Parameters<FragmentHelper['apply']>[1];
 
 /**
  * Options for applying a builder helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type BuilderApplyOptions = Parameters<BuilderHelper['apply']>[0];
 
 /**
  * The `next` function for a builder helper.
  *
- * @category Pipeline
+ * @category Runtime
  */
 export type BuilderNext = Parameters<BuilderHelper['apply']>[1];

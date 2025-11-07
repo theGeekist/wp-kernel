@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,10 @@
 
 # Interface: ResourceDataViewsMenuConfig
 
-TODO: summary.
+Admin menu metadata for a generated DataViews screen.
+
+When provided under `ui.admin.dataviews.screen.menu`, the CLI can emit
+matching PHP shims to register the screen in the WordPress admin menu.
 
 ## Indexable
 

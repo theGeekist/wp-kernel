@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 type EventRecorder<P> = object;
 ```
 
-Event utilities for capturing and asserting on kernel events
+Event utilities for capturing and asserting on wpk events
 
 ## Type Parameters
 

@@ -344,7 +344,7 @@ export type ResourceConfig<
 	 * Optional reporter override for resource instrumentation.
 	 *
 	 * When provided, the resource will emit debug/info/error logs through this
-	 * reporter instead of creating a child reporter from the WP Kernel instance.
+	 * reporter instead of creating a child reporter from the WPKernel instance.
 	 */
 	reporter?: Reporter;
 
@@ -393,7 +393,7 @@ export interface ResourceDataViewsMenuConfig {
  * Screen configuration for an admin DataViews entry point.
  *
  * Controls the generated React component, routing, and how the CLI resolves
- * imports between resource modules, kernel bootstrap, and UI runtime.
+ * imports between resource modules, wpk bootstrap, and UI runtime.
  *
  * All fields are optional; sensible defaults are derived from the resource name.
  *

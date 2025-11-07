@@ -39,9 +39,9 @@ describe('test fixture', () => {
 			expect: {},
 		}));
 
-		// Mock createKernelUtils
-		jest.doMock('../createKernelUtils.js', () => ({
-			createKernelUtils: mockCreateKernelUtils,
+		// Mock createWPKernelUtils
+		jest.doMock('../createWPKernelUtils.js', () => ({
+			createWPKernelUtils: mockCreateKernelUtils,
 		}));
 	});
 
@@ -50,7 +50,7 @@ describe('test fixture', () => {
 		jest.clearAllMocks();
 	});
 
-	it('should extend base test with kernel fixture', async () => {
+	it('should extend base test with wpk fixture', async () => {
 		// Import test module to trigger fixture registration
 		await import('../test.js');
 
@@ -59,7 +59,7 @@ describe('test fixture', () => {
 		});
 	});
 
-	it('should create kernel utils with all fixtures', async () => {
+	it('should create wpk utils with all fixtures', async () => {
 		// Import test module
 		await import('../test.js');
 
@@ -76,7 +76,7 @@ describe('test fixture', () => {
 		const mockPageUtils = {} as PageUtils;
 		const mockUse = jest.fn();
 
-		// Call the kernel fixture function
+		// Call the wpk fixture function
 		await kernelFixture(
 			{
 				page: mockPage,
@@ -88,7 +88,7 @@ describe('test fixture', () => {
 			mockUse
 		);
 
-		// Verify createKernelUtils was called with all fixtures
+		// Verify createWPKernelUtils was called with all fixtures
 		expect(mockCreateKernelUtils).toHaveBeenCalledWith({
 			page: mockPage,
 			requestUtils: mockRequestUtils,
@@ -97,7 +97,7 @@ describe('test fixture', () => {
 			pageUtils: mockPageUtils,
 		});
 
-		// Verify the kernel utils were passed to use()
+		// Verify the wpk utils were passed to use()
 		expect(mockUse).toHaveBeenCalledWith(mockKernelUtils);
 	});
 
@@ -107,7 +107,7 @@ describe('test fixture', () => {
 		expect(module.expect).toBeDefined();
 	});
 
-	it('should pass kernel utils to test', async () => {
+	it('should pass wpk utils to test', async () => {
 		// Import test module
 		await import('../test.js');
 
@@ -142,7 +142,7 @@ describe('test fixture', () => {
 			mockUse
 		);
 
-		// Verify kernel was passed
+		// Verify wpk was passed
 		expect(capturedKernel).toBe(mockKernelUtils);
 		expect(capturedKernel?.resource).toBeDefined();
 		expect(capturedKernel?.store).toBeDefined();

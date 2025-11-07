@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 
@@ -10,11 +10,13 @@
 const attachUIBindings: WPKernelUIAttach;
 ```
 
-Attaches the UI bindings to the WP Kernel instance.
+Attaches the UI bindings to the WPKernel instance.
 
 ## Param
 
-The WP Kernel instance.
+The WPKernel instance.
+
+## Param
 
 ## Param
 

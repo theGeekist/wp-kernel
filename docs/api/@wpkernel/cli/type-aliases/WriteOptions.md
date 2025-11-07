@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -9,3 +9,5 @@
 ```ts
 type WriteOptions = WorkspaceWriteOptions;
 ```
+
+Options controlling how files are written to disk.

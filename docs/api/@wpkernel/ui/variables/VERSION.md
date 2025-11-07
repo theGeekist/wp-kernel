@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 
@@ -10,4 +10,4 @@
 const VERSION: '0.11.0' = '0.11.0';
 ```
 
-Current version of WP Kernel UI
+Current version of WPKernel UI

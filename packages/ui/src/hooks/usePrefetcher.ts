@@ -5,7 +5,7 @@ import { useStableCallback } from './internal/useStableCallback';
 /**
  * Function type for prefetching a single item by ID.
  *
- * @category Prefetching
+ * @category Utilities
  * @public
  */
 export type PrefetchGet = (id: string | number) => void;
@@ -13,7 +13,7 @@ export type PrefetchGet = (id: string | number) => void;
 /**
  * Function type for prefetching a list of items with optional query parameters.
  *
- * @category Prefetching
+ * @category Utilities
  * @public
  */
 export type PrefetchList<TQuery> = (query?: TQuery) => void;
@@ -21,7 +21,7 @@ export type PrefetchList<TQuery> = (query?: TQuery) => void;
 /**
  * Interface for the prefetcher, which exposes stable cache prefetch helpers for a resource.
  *
- * @category Prefetching
+ * @category Utilities
  * @public
  */
 export interface Prefetcher<TQuery = unknown> {
@@ -38,10 +38,13 @@ export interface Prefetcher<TQuery = unknown> {
 /**
  * Exposes stable cache prefetch helpers for a resource.
  *
- * Wraps the kernel resource's `prefetchGet` and `prefetchList` helpers so React
+ * Wraps the wpk resource's `prefetchGet` and `prefetchList` helpers so React
  * components can wire them to UI affordances (hover, visibility, etc.) without
  * re-creating callback instances on every render.
- * @param resource
+ *
+ * @category Utilities
+ * @public
+ * @param    resource - Kernel resource exposing optional prefetch helpers.
  */
 export function usePrefetcher<TRecord, TQuery = unknown>(
 	resource: ResourceObject<TRecord, TQuery>

@@ -699,7 +699,7 @@ function createActionCallback<TItem, TQuery>(
  * @param     runtime
  * @typeParam TItem  Resource item type.
  * @typeParam TQuery Query shape used by the controller.
- * @category DataViews Hooks
+ * @category DataViews Integration
  * @example
  * ```ts
  * const [view] = useStableView(controller, initialView);

@@ -1,6 +1,6 @@
 # Coding Standards
 
-Guidelines for writing consistent, maintainable code in WP Kernel.
+Guidelines for writing consistent, maintainable code in WPKernel.
 
 ## TypeScript
 

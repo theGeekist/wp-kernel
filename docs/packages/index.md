@@ -1,16 +1,27 @@
 # Packages
 
-This section provides detailed documentation for each package in the WP Kernel monorepo.
+This section provides detailed documentation for each package in the WPKernel monorepo.
 
 - [@wpkernel/cli](./cli.md)
+    - [Plugin Developers](./cli/plugin-developers.md)
+    - [Framework Contributors](./cli/framework-contributors.md)
 - [@wpkernel/core](./core.md)
     - [Core for Plugin Developers](./core/plugin-developers.md)
     - [Core for Framework Contributors](./core/framework-contributors.md)
 - [@wpkernel/create-wpk](./create-wpk.md)
 - [@wpkernel/e2e-utils](./e2e-utils.md)
+    - [Playwright Guide](./e2e-utils/e2e-testing-guide.md)
+    - [Framework Contributors](./e2e-utils/framework-contributors.md)
 - [@wpkernel/php-driver](./php-driver.md)
 - [@wpkernel/php-json-ast](./php-json-ast.md)
 - [@wpkernel/pipeline](./pipeline.md)
+    - [Architecture Guide](./pipeline/architecture.md)
+    - [Framework Contributors](./pipeline/framework-contributors.md)
+    - [Migration Guide](./pipeline/migration.md)
 - [@wpkernel/test-utils](./test-utils.md)
+    - [Testing Cookbook](./test-utils/testing-cookbook.md)
+    - [Framework Contributors](./test-utils/framework-contributors.md)
 - [@wpkernel/ui](./ui.md)
+    - [Plugin Developers](./ui/plugin-developers.md)
+    - [Framework Contributors](./ui/framework-contributors.md)
 - [@wpkernel/wp-json-ast](./wp-json-ast.md)

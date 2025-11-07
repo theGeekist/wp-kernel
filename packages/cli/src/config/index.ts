@@ -17,5 +17,5 @@ export type {
 	ResourceRegistry,
 } from './types';
 
-export { loadWPKernelConfig } from './load-kernel-config';
-export { validateWPKernelConfig } from './validate-kernel-config';
+export { loadWPKernelConfig } from './load-wpk-config';
+export { validateWPKernelConfig } from './validate-wpk-config';

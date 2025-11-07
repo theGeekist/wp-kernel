@@ -1,7 +1,7 @@
 {
 	"name": "@wpkernel/php-driver",
 	"version": "0.12.0",
-	"description": "Shared PhpParser driver utilities for WP Kernel generators",
+	"description": "Shared PhpParser driver utilities for WPKernel generators",
 	"license": "EUPL-1.2",
 	"type": "module",
 	"sideEffects": false,

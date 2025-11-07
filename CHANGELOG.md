@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the WP Kernel project will be documented in this file.
+All notable changes to the WPKernel project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -160,7 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`useGet()` & `useList()`** - Resource data fetching hooks
     - Lazy attachment mechanism for resources defined before UI loads
     - WordPress data store integration
-- **`useCapability()`** - Capability checks in UI (migrated from kernel package)
+- **`useCapability()`** - Capability checks in UI (migrated from core package)
     - Reactive capability cache with `can()` helper
     - Loading and error states
 - **Prefetching Hooks**:
@@ -169,10 +169,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `useHoverPrefetch()` - Hover-triggered prefetching
     - `useNextPagePrefetch()` - Pagination-aware prefetching
 
-#### Kernel Changes (`@wpkernel/core`)
+#### WPKernel Changes (`@wpkernel/core`)
 
 - Emitted typed events from `defineResource()` so UI bindings attach deterministically without queues.
-- Replayed registered resources through the kernel instance, allowing UI packages to hydrate hooks on demand.
+- Replayed registered resources through the wpk instance, allowing UI packages to hydrate hooks on demand.
 - Removed the `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global now that runtime events drive attachment.
 - Added configurable resource store identifiers (`store.getId`, `store.getQueryKey`, `store.initialState`) with runtime
   validation and reporter diagnostics for duplicates or missing keys.
@@ -215,7 +215,7 @@ This release marks the completion of the foundation, resources, E2E utilities, c
 - ✓ Sprint 0: Foundation & Monorepo Infrastructure
 - ✓ Sprint 1: Resources & Stores (V1)
 - ✓ Sprint 1.5: Build Tooling & Resources Refactor
-- ✓ Sprint 2: E2E Utils (Kernel-Aware Test Harness)
+- ✓ Sprint 2: E2E Utils (WPKernel-Aware Test Harness)
 - ✓ Sprint 3: Capabilities (Complete Implementation)
 - ✓ Sprint 4: Actions & WordPress Data Integration
 - ✓ Sprint 4.5: Unified Reporting & Data Consolidation
@@ -263,12 +263,12 @@ This release marks the completion of the foundation, resources, E2E utilities, c
 
 #### WordPress Data Integration (`@wpkernel/core/data`)
 
-- **`withKernel(registry)`** - Registry plugin with kernel middleware (renamed from useKernel)
+- **`withKernel(registry)`** - Registry plugin with wpk middleware (renamed from useKernel)
 - **`registerWPKernelStore()`** - Store wrapper with actions DSL
 - **`wpkEventsPlugin()`** - Automatic error → WordPress notices bridge
 - **Full @wordpress/data parity** - Actions work in block editor environments
 - **Middleware chain** - Integrates with existing Redux middleware
-- **Type safety** - Full TypeScript support for kernel-enhanced stores
+- **Type safety** - Full TypeScript support for wpkernel-enhanced stores
 
 #### Documentation
 
@@ -308,13 +308,13 @@ This release marks the completion of the foundation, resources, E2E utilities, c
 
 - **Namespaced API** - `auth`, `rest`, `store`, `events`, `db`, `project` modules
 - **Three import styles** - Scoped (`/auth`), namespace (`{ auth }`), flat (`{ login }`)
-- **Playwright fixture** - `kernel` helper with clean API surface
-- **Authentication** - `kernel.auth.login()`, `kernel.auth.logout()`
-- **REST seeding** - `kernel.rest.seed()`, `kernel.rest.seedMany()`
-- **Store coordination** - `kernel.store.wait()` for @wordpress/data resolvers
-- **Event capture** - `kernel.events.capture()` for testing event flows
-- **Database management** - `kernel.db.restore()` for test isolation
-- **Project setup** - `kernel.project.setup()` for environment bootstrap
+- **Playwright fixture** - `wpk` helper with clean API surface
+- **Authentication** - `wpk.auth.login()`, `wpk.auth.logout()`
+- **REST seeding** - `wpk.rest.seed()`, `wpk.rest.seedMany()`
+- **Store coordination** - `wpk.store.wait()` for @wordpress/data resolvers
+- **Event capture** - `wpk.events.capture()` for testing event flows
+- **Database management** - `wpk.db.restore()` for test isolation
+- **Project setup** - `wpk.project.setup()` for environment bootstrap
 - **Escape hatch** - Direct `requestUtils` access when needed
 
 #### Testing Infrastructure
@@ -390,7 +390,7 @@ See [0.1.0] release notes for complete Sprint 0 details including:
 - Monorepo infrastructure (pnpm workspaces)
 - TypeScript strict mode configuration
 - ESLint 9 flat config migration
-- Package scaffolding (kernel, ui, cli, e2e-utils)
+- Package scaffolding (core, ui, cli, e2e-utils)
 - Testing harness (Jest + Playwright)
 - CI/CD pipelines
 - Documentation site (VitePress)
@@ -539,8 +539,8 @@ All packages:
 #### Phase 5: Testing Infrastructure ✓
 
 - **Jest** configured with `@wordpress/jest-preset-default`
-- 4 passing unit tests for kernel package (VERSION export validation)
-- Coverage configuration (0% initially, kernel at 100%)
+- 4 passing unit tests for wpk package (VERSION export validation)
+- Coverage configuration (0% initially, wpk at 100%)
 - Test files in `__tests__/` directories only
 - TypeScript support with ts-jest
 - **Playwright** configured for E2E testing
@@ -711,8 +711,8 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 #### Testing Infrastructure ✓
 
 - Jest 29 with `@wordpress/jest-preset-default`
-- 4 unit tests passing (kernel package)
-- Coverage: 25% overall, kernel at 100%
+- 4 unit tests passing (core package)
+- Coverage: 25% overall, wpk at 100%
 - Playwright with `@wordpress/e2e-test-utils-playwright`
 - 5 E2E tests passing across 3 browsers
 - Test execution time: ~1.5s unit, ~15s E2E

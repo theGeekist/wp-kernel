@@ -1,6 +1,6 @@
 # Actions API
 
-Actions orchestrate every write in WP Kernel. They wrap resource mutations with
+Actions orchestrate every write in WPKernel. They wrap resource mutations with
 capability checks, cache invalidation, lifecycle events, and background job hooks.
 
 ## `defineAction`
@@ -89,7 +89,7 @@ within the current tab; tab-local actions never bridge to PHP even when
 import { createActionMiddleware, invokeAction } from '@wpkernel/core/actions';
 ```
 
-The middleware helper lets you dispatch kernel actions through any Redux-like
+The middleware helper lets you dispatch wpk actions through any Redux-like
 store (including `@wordpress/data`).
 
 ```ts

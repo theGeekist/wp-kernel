@@ -7,7 +7,7 @@ import {
 } from '../runtime';
 import { DataViewsConfigurationError } from '../errors';
 
-describe('kernel dataviews runtime helpers', () => {
+describe('wpk dataviews runtime helpers', () => {
 	const { isPlainObject, isPreferencesAdapter, childReporter } =
 		runtimeTestUtils;
 
@@ -82,14 +82,14 @@ describe('kernel dataviews runtime helpers', () => {
 		).toThrow(DataViewsConfigurationError);
 	});
 
-	it('creates kernel runtime with default adapter when missing', () => {
-		const kernel = { emit: jest.fn() } as unknown as WPKInstance;
+	it('creates wpk runtime with default adapter when missing', () => {
+		const wpk = { emit: jest.fn() } as unknown as WPKInstance;
 		const reporter = createReporter();
 		const runtime = { reporter } as unknown as WPKernelUIRuntime;
 		const options = normalizeDataViewsOptions({ enable: true });
 
 		const dataviewsRuntime = createWPKernelDataViewsRuntime(
-			kernel,
+			wpk,
 			runtime,
 			options
 		);

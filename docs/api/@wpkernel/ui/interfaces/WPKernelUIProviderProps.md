@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.11.0**](../README.md)
+[**@wpkernel/ui v0.12.0**](../README.md)
 
 ---
 
@@ -16,7 +16,7 @@ Props for the WPKernelUIProvider component.
 runtime: WPKernelUIRuntime;
 ```
 
-The WP Kernel UI runtime instance.
+The WPKernel UI runtime instance.
 
 ---
 

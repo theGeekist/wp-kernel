@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,10 @@
 
 # Interface: ResourceAdminUIConfig\<TItem, TQuery\>
 
-TODO: summary.
+Admin UI configuration for a resource.
+
+Currently models the DataViews-based admin surface; additional admin
+integrations can extend this shape over time.
 
 ## Type Parameters
 
@@ -14,19 +17,21 @@ TODO: summary.
 
 `TItem` = `unknown`
 
-— TODO
+Entity shape used in admin views.
 
 ### TQuery
 
 `TQuery` = `unknown`
 
-— TODO
+Query shape used by admin list operations.
 
 ## Indexable
 
 ```ts
 [key: string]: unknown
 ```
+
+Additional fields reserved for future extensions.
 
 ## Properties
 
@@ -36,6 +41,8 @@ TODO: summary.
 optional view: string;
 ```
 
+Selected admin view implementation. `'dataviews'` is the canonical value.
+
 ---
 
 ### dataviews?
@@ -43,3 +50,5 @@ optional view: string;
 ```ts
 optional dataviews: ResourceDataViewsUIConfig<TItem, TQuery>;
 ```
+
+DataViews configuration for this resource's admin screen.

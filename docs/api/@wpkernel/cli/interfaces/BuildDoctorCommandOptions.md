@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -50,6 +50,37 @@ const reporter = createReporterCLI({ level: 'debug' });
 reporter.info('Starting build process');
 ```
 
+### Workspace
+
+#### ensureGeneratedPhpClean()?
+
+```ts
+readonly optional ensureGeneratedPhpClean: (options) => Promise<void>;
+```
+
+Optional: Custom function to ensure the generated PHP directory is clean.
+
+Ensures that the generated PHP directory is clean (i.e., no uncommitted changes).
+
+This function checks the Git status of the specified directory. If uncommitted
+changes are found, it throws a `WPKernelError` unless the `yes` option is true.
+
+##### Parameters
+
+###### options
+
+[`EnsureGeneratedPhpCleanOptions`](EnsureGeneratedPhpCleanOptions.md)
+
+Options for the cleanliness check.
+
+##### Returns
+
+`Promise`\<`void`\>
+
+##### Throws
+
+`WPKernelError` if uncommitted changes are found and `yes` is false.
+
 ### Other
 
 #### loadWPKernelConfig()?
@@ -58,9 +89,9 @@ reporter.info('Starting build process');
 readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
-Optional: Custom function to load the WP Kernel configuration.
+Optional: Custom function to load the WPKernel configuration.
 
-Locate and load the project's kernel configuration.
+Locate and load the project's wpk configuration.
 
 The function searches for supported config files, executes them via
 cosmiconfig loaders, validates the resulting structure and performs a
@@ -71,7 +102,7 @@ correctly.
 
 `Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
 
-The validated kernel config and associated metadata.
+The validated wpk config and associated metadata.
 
 ##### Throws
 
@@ -116,34 +147,3 @@ Optional: Custom function to check the PHP environment.
 ##### Returns
 
 `Promise`\<[`DoctorCheckResult`](DoctorCheckResult.md)[]\>
-
-### Workspace Utilities
-
-#### ensureGeneratedPhpClean()?
-
-```ts
-readonly optional ensureGeneratedPhpClean: (options) => Promise<void>;
-```
-
-Optional: Custom function to ensure the generated PHP directory is clean.
-
-Ensures that the generated PHP directory is clean (i.e., no uncommitted changes).
-
-This function checks the Git status of the specified directory. If uncommitted
-changes are found, it throws a `WPKernelError` unless the `yes` option is true.
-
-##### Parameters
-
-###### options
-
-[`EnsureGeneratedPhpCleanOptions`](EnsureGeneratedPhpCleanOptions.md)
-
-Options for the cleanliness check.
-
-##### Returns
-
-`Promise`\<`void`\>
-
-##### Throws
-
-`WPKernelError` if uncommitted changes are found and `yes` is false.

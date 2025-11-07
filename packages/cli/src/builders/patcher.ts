@@ -322,7 +322,7 @@ function recordResult(manifest: PatchManifest, record: PatchRecord): void {
  * based on the plan, and records the outcome in a patch manifest.
  * It uses `git merge-file` for intelligent three-way merges to handle conflicts.
  *
- * @category Patcher
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for applying patches.
  */
 export function createPatcher(): BuilderHelper {

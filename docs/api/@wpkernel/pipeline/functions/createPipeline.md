@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.11.0**](../README.md)
+[**@wpkernel/pipeline v0.12.0**](../README.md)
 
 ---
 
@@ -45,7 +45,7 @@ function createPipeline<
 >;
 ```
 
-Creates a pipeline orchestrator-the execution engine that powers WP Kernel's entire code generation infrastructure.
+Creates a pipeline orchestrator-the execution engine that powers WPKernel's entire code generation infrastructure.
 
 ## Why Pipelines Matter
 

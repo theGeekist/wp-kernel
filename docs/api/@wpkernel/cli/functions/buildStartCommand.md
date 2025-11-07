@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -12,7 +12,7 @@ function buildStartCommand(options): () => Command;
 
 Builds the `start` command for the CLI.
 
-This command initiates a watch mode for kernel sources, regenerating artifacts
+This command initiates a watch mode for wpk sources, regenerating artifacts
 on changes and running a Vite development server. It supports debouncing
 changes and optionally auto-applying generated PHP artifacts.
 

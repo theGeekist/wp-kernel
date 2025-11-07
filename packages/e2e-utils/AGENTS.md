@@ -4,7 +4,7 @@ This package wraps the WordPress Playwright fixtures with kernel-aware helpers. 
 
 ### Scope
 
-Focus on Playwright fixture extensions (`test.ts`), the consolidated `createKernelUtils()` factory, and TypeScript types that consumers import in their tests. Architectural details are captured in `IMPLEMENTATION.md`; review it before making behavioural changes.
+Focus on Playwright fixture extensions (`test.ts`), the consolidated `createWPKernelUtils()` factory, and TypeScript types that consumers import in their tests. Architectural details are captured in `IMPLEMENTATION.md`; review it before making behavioural changes.
 
 ### Build & Test
 

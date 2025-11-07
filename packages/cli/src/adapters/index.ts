@@ -1,5 +1,7 @@
 /**
- * Adapter utilities for integrating kernel extensions.
+ * Adapter utilities for integrating wpk extensions.
+ *
+ * @category Adapters
  */
 export { runAdapterExtensions } from './extensions';
 

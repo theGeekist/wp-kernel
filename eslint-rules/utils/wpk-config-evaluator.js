@@ -95,9 +95,9 @@ function unwrapToExpression(node) {
 }
 
 /**
- * Creates a kernel config evaluator that can statically analyze wpk.config.ts.
+ * Creates a wpk config evaluator that can statically analyze wpk.config.ts.
  * The evaluator performs partial evaluation of the AST to extract resource definitions,
- * routes, storage configuration, and other kernel metadata without executing code.
+ * routes, storage configuration, and other wpk metadata without executing code.
  *
  * @param {import('eslint').Rule.RuleContext} context - ESLint rule context
  * @return {{isWPKernelConfig: boolean, getWPKernelConfig?: Function}} Evaluator object
@@ -370,10 +370,10 @@ export function getStringValue(evaluatedValue) {
 }
 
 /**
- * Extracts all resource definitions from an evaluated kernel config.
+ * Extracts all resource definitions from an evaluated wpk config.
  * Each resource includes its name, property metadata, and evaluated value.
  *
- * @param {*} wpkConfig - Evaluated kernel config object
+ * @param {*} wpkConfig - Evaluated wpk config object
  * @return {Array<{name: string, property: Object, value: any}>} Array of resource definitions
  */
 export function getResourcesFromConfig(wpkConfig) {

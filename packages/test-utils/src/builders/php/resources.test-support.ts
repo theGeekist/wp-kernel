@@ -75,35 +75,35 @@ export function makeWpPostRoutes(): IRRouteLike[] {
 	return [
 		{
 			method: 'GET',
-			path: '/kernel/v1/books',
+			path: '/wpk/v1/books',
 			capability: undefined,
 			hash: 'list',
 			transport: 'local',
 		},
 		{
 			method: 'GET',
-			path: '/kernel/v1/books/:slug',
+			path: '/wpk/v1/books/:slug',
 			capability: undefined,
 			hash: 'get',
 			transport: 'local',
 		},
 		{
 			method: 'POST',
-			path: '/kernel/v1/books',
+			path: '/wpk/v1/books',
 			capability: undefined,
 			hash: 'create',
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
-			path: '/kernel/v1/books/:slug',
+			path: '/wpk/v1/books/:slug',
 			capability: undefined,
 			hash: 'update',
 			transport: 'local',
 		},
 		{
 			method: 'DELETE',
-			path: '/kernel/v1/books/:slug',
+			path: '/wpk/v1/books/:slug',
 			capability: undefined,
 			hash: 'remove',
 			transport: 'local',
@@ -231,14 +231,14 @@ export function makeWpTaxonomyResource<
 	const defaultRoutes: IRRouteLike[] = [
 		{
 			method: 'GET',
-			path: '/kernel/v1/job-categories',
+			path: '/wpk/v1/job-categories',
 			capability: undefined,
 			hash: 'taxonomy-list',
 			transport: 'local',
 		},
 		{
 			method: 'GET',
-			path: '/kernel/v1/job-categories/:slug',
+			path: '/wpk/v1/job-categories/:slug',
 			capability: undefined,
 			hash: 'taxonomy-get',
 			transport: 'local',
@@ -327,14 +327,14 @@ export function makeWpOptionResource<
 	const defaultRoutes: IRRouteLike[] = [
 		{
 			method: 'GET',
-			path: '/kernel/v1/demo-option',
+			path: '/wpk/v1/demo-option',
 			capability: undefined,
 			hash: 'wp-option-get',
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
-			path: '/kernel/v1/demo-option',
+			path: '/wpk/v1/demo-option',
 			capability: undefined,
 			hash: 'wp-option-update',
 			transport: 'local',
@@ -421,21 +421,21 @@ export function makeTransientResource<
 	const defaultRoutes: IRRouteLike[] = [
 		{
 			method: 'GET',
-			path: '/kernel/v1/job-cache',
+			path: '/wpk/v1/job-cache',
 			capability: undefined,
 			hash: 'transient-get',
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
-			path: '/kernel/v1/job-cache',
+			path: '/wpk/v1/job-cache',
 			capability: undefined,
 			hash: 'transient-set',
 			transport: 'local',
 		},
 		{
 			method: 'DELETE',
-			path: '/kernel/v1/job-cache',
+			path: '/wpk/v1/job-cache',
 			capability: undefined,
 			hash: 'transient-delete',
 			transport: 'local',

@@ -44,7 +44,7 @@ The resource above gives you:
 - **REST client methods** - `job.fetchList(query)`, `job.fetch(id)`, `job.create(data)`, `job.update(id, data)`, and `job.remove(id)` when the corresponding routes exist.【F:packages/core/src/resource/client.ts†L41-L230】
 - **React hooks** - `job.useList(query)` and `job.useGet(id)` become available after you call `attachUIBindings(kernel)` in your UI bundle.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L160】【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
 - **Grouped APIs** - selectors under `job.select.*`, cache helpers under `job.cache.*`, and fetch methods under `job.get.*` and `job.fetch*` for advanced orchestration.【F:packages/core/src/resource/grouped-api.ts†L1-L170】
-- **Events** - `job.events.created`, `job.events.updated`, and `job.events.removed` emit through the kernel event bus with your namespace baked in.【F:packages/core/src/resource/define.ts†L390-L430】
+- **Events** - `job.events.created`, `job.events.updated`, and `job.events.removed` emit through the wpk event bus with your namespace baked in.【F:packages/core/src/resource/define.ts†L390-L430】
 - **Cache helpers** - `job.cache.key('list')`, `job.prefetchList(query)`, and `job.prefetchGet(id)` wrap the WordPress data store’s selectors and resolvers.【F:packages/core/src/resource/types.ts†L459-L620】
 
 ## Namespaces
@@ -88,12 +88,12 @@ Hooks draw from the same store keys as the grouped selectors. They throw a `WPKe
 
 ## Surfacing data in admin screens
 
-When your kernel config includes `ui.admin.dataviews`, the CLI emits `.generated/ui/app/<resource>/admin/<Component>.tsx` and DataViews fixtures. The generated screen uses the resource’s `job.useList()` hook and automatically registers a controller with the UI runtime, so rendering `<ResourceDataView>` is enough to display the list.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/ui/src/dataviews/resource-controller.ts†L1-L180】
+When your wpk config includes `ui.admin.dataviews`, the CLI emits `.generated/ui/app/<resource>/admin/<Component>.tsx` and DataViews fixtures. The generated screen uses the resource’s `job.useList()` hook and automatically registers a controller with the UI runtime, so rendering `<ResourceDataView>` is enough to display the list.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/ui/src/dataviews/resource-controller.ts†L1-L180】
 
 ## Where to go next
 
 - Read the [Decision Matrix](/reference/decision-matrix) to see which printers react to specific resource options.
-- Browse the [Showcase kernel config](/examples/showcase) for a production-scale example.
+- Browse the [Showcase wpk config](/examples/showcase) for a production-scale example.
 - Explore the generated Typedoc under [`/api/@wpkernel/core/`](/api/@wpkernel/core/README) to inspect every helper exposed by the resource runtime.
 
 ```

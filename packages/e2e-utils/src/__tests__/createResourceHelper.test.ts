@@ -3,7 +3,7 @@
  */
 
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
-import { createResourceHelper } from '../createKernelUtils.js';
+import { createResourceHelper } from '../createWPKernelUtils.js';
 import type { ResourceConfig } from '../types.js';
 
 describe('createResourceHelper', () => {

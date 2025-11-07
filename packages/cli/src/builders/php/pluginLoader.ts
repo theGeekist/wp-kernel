@@ -53,7 +53,7 @@ const UI_LOCALIZATION_OBJECT = 'wpKernelUISettings';
  * which includes and initializes all other generated PHP components.
  * It also checks for an existing `plugin.php` to avoid overwriting user-owned files.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating the plugin loader file.
  */
 export function createPhpPluginLoaderHelper(): BuilderHelper {

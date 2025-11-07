@@ -284,7 +284,7 @@ describe('configureWPKernel', () => {
 		expect(wpk.ui.isEnabled()).toBe(true);
 	});
 
-	it('exposes the shared event bus on the WP Kernel instance', () => {
+	it('exposes the shared event bus on the WPKernel instance', () => {
 		const wpk = configureWPKernel({ namespace: 'acme' });
 		const bus = getWPKernelEventBus();
 
@@ -408,7 +408,7 @@ describe('configureWPKernel', () => {
 		}
 	});
 
-	it('defines resources using WP Kernel reporter namespace', () => {
+	it('defines resources using WPKernel reporter namespace', () => {
 		const childReporter = createMockReporter();
 		mockReporter.child.mockReturnValue(childReporter);
 

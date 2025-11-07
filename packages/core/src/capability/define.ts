@@ -23,7 +23,7 @@ import {
 	WPK_SUBSYSTEM_NAMESPACES,
 } from '../contracts/index.js';
 import {
-	createReporter as createKernelReporter,
+	createReporter as createWPKernelReporter,
 	createNoopReporter,
 } from '../reporter';
 import { resolveReporter as resolveKernelReporter } from '../reporter/resolve';
@@ -55,7 +55,7 @@ const CAPABILITY_MODULE_CACHE_KEY = `${WPK_SUBSYSTEM_NAMESPACES.CAPABILITY}.modu
 function getCapabilityModuleReporter(): CapabilityReporter {
 	return resolveKernelReporter({
 		fallback: () =>
-			createKernelReporter({
+			createWPKernelReporter({
 				namespace: WPK_SUBSYSTEM_NAMESPACES.CAPABILITY,
 				channel: 'all',
 				level: 'warn',
@@ -147,7 +147,7 @@ function resolveCapabilityReporter(
 
 	return resolveKernelReporter({
 		fallback: () =>
-			createKernelReporter({
+			createWPKernelReporter({
 				namespace,
 				channel: 'all',
 				level: 'debug',

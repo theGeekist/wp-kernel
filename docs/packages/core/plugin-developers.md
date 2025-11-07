@@ -92,6 +92,6 @@ export const TicketList = defineInteraction({
 
 ## Diagnose and ship
 
-The kernel reporter surfaces transport, cache, and action metadata. Pass your own reporter instance into `configureWPKernel` to pipe diagnostics to the WordPress notices system or external observability tools.
+The wpk reporter surfaces transport, cache, and action metadata. Pass your own reporter instance into `configureWPKernel` to pipe diagnostics to the WordPress notices system or external observability tools.
 
 Remember to document any new public behaviour alongside the [core contributor guide](./framework-contributors.md) so maintainers can keep the runtime aligned across packages.

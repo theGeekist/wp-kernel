@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -16,7 +16,7 @@
 readonly optional buildReporter: (options) => Reporter;
 ```
 
-Create a WP Kernel reporter backed by LogLayer transports.
+Create a WPKernel reporter backed by LogLayer transports.
 
 This is the standard reporter for browser/WordPress environments.
 For CLI environments, use `createReporterCLI()` for pretty terminal output.
@@ -34,6 +34,26 @@ Reporter configuration
 `Reporter`
 
 Reporter instance with child helpers
+
+### AST Builders
+
+#### createPatcher()?
+
+```ts
+readonly optional createPatcher: () => BuilderHelper;
+```
+
+Creates a builder helper for applying patches to the workspace.
+
+This helper reads a patch plan, applies file modifications (writes, merges, deletions)
+based on the plan, and records the outcome in a patch manifest.
+It uses `git merge-file` for intelligent three-way merges to handle conflicts.
+
+##### Returns
+
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)
+
+A `BuilderHelper` instance for applying patches.
 
 ### Other
 
@@ -202,23 +222,3 @@ readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
 ##### Returns
 
 `Promise`\<`void`\>
-
-### Patcher
-
-#### createPatcher()?
-
-```ts
-readonly optional createPatcher: () => BuilderHelper;
-```
-
-Creates a builder helper for applying patches to the workspace.
-
-This helper reads a patch plan, applies file modifications (writes, merges, deletions)
-based on the plan, and records the outcome in a patch manifest.
-It uses `git merge-file` for intelligent three-way merges to handle conflicts.
-
-##### Returns
-
-[`BuilderHelper`](../type-aliases/BuilderHelper.md)
-
-A `BuilderHelper` instance for applying patches.

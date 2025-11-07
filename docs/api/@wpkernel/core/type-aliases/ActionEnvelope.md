@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -12,7 +12,7 @@ type ActionEnvelope<TArgs, TResult> = object;
 
 Shape of the action envelope dispatched through Redux middleware.
 
-Action envelopes wrap WP Kernel actions in a Redux-compatible format, carrying:
+Action envelopes wrap WPKernel actions in a Redux-compatible format, carrying:
 
 - The action function itself (`payload.action`)
 - The arguments to invoke it with (`payload.args`)

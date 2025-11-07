@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -12,7 +12,7 @@ function buildInitCommand(options): InitCommandConstructor;
 
 Builds the `init` command for the CLI.
 
-This command is responsible for initializing a new WP Kernel project by
+This command is responsible for initializing a new WPKernel project by
 scaffolding configuration files, entry points, and linting presets.
 
 ## Parameters

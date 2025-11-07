@@ -16,6 +16,8 @@ import type { IRv1 } from '../ir/publicTypes';
  * The object mirrors a transactional workflow where adapter extensions are run
  * in isolation and can later commit their generated files to disk. Consumers
  * can roll back the sandbox at any time to discard pending writes.
+ *
+ * @category Adapters
  */
 export interface AdapterExtensionRunResult {
 	/**
@@ -59,7 +61,8 @@ const SANDBOX_PREFIX = path.join(os.tmpdir(), 'wpk-adapter-ext-');
  * AdapterExtensionRunResult.commit resolves. Failures automatically roll back
  * queued writes and propagate a normalised error for consistent reporting.
  *
- * @param options - Runtime options for executing adapter extensions.
+ * @category Adapters
+ * @param    options - Runtime options for executing adapter extensions.
  * @return The updated IR along with commit/rollback controls.
  * @example
  * ```ts

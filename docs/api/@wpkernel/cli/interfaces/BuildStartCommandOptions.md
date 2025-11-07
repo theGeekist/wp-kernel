@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -50,7 +50,7 @@ const reporter = createReporterCLI({ level: 'debug' });
 reporter.info('Starting build process');
 ```
 
-### Generate Command
+### Commands
 
 #### buildGenerateCommand()?
 
@@ -62,7 +62,7 @@ Optional: Custom generate command builder function.
 
 Builds the `generate` command for the CLI.
 
-This command is responsible for generating WP Kernel artifacts (PHP, TypeScript)
+This command is responsible for generating WPKernel artifacts (PHP, TypeScript)
 from the `wpk.config.*` configuration files. It processes the configuration,
 builds an Intermediate Representation (IR), and uses various builders to
 produce the final generated code.

@@ -1,6 +1,6 @@
 # `@wpkernel/core` - Package Guide for Agents
 
-This package is the runtime heart of WP Kernel. Changes here affect every consumer, so follow the root capabilities in `../../AGENTS.md` and the guidelines below.
+This package is the runtime heart of WPKernel. Changes here affect every consumer, so follow the root capabilities in `../../AGENTS.md` and the guidelines below.
 
 ### Scope
 

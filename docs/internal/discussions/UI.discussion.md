@@ -21,7 +21,7 @@ This is generated **only when you configure `ui.admin.dataviews` for a resource*
 This file is **not empty boilerplate**. It's a complete, working React component that:
 
 - **Imports Core Primitives:** It automatically adds the necessary `import` statements from the `@wpkernel/` packages. It doesn't _re-generate_ these primitives; it _consumes_ them.
-- **Connects to the UI Runtime:** It retrieves the central UI runtime from your kernel instance via `kernel.getUIRuntime()`.
+- **Connects to the UI Runtime:** It retrieves the central UI runtime from your wpk instance via `kernel.getUIRuntime()`.
 - **Renders the `ResourceDataView`:** It uses the powerful, pre-built `ResourceDataView` component from `@wpkernel/ui` to render the entire UI for your resource (the table, filters, pagination, create/edit buttons, etc.).
 - **Passes Configuration:** It wires up the `ResourceDataView` component with the specific resource definition (imported from your manually-created `src/resources/{resource}.ts`) and configuration from your `wpk.config.ts`.
 
@@ -35,8 +35,8 @@ import { WPKernelUIProvider, useWPKernelUI } from '@wpkernel/ui';
 import { ResourceDataView } from '@wpkernel/ui';
 import { WPKernelError } from '@wpkernel/core/contracts';
 
-// 2. Imports your kernel instance and manually-created resource definition
-import { kernel } from '../../../../../../../app'; // Path to your configureWPKernel() instance
+// 2. Imports your wpk instance and manually-created resource definition
+import { wpk } from '../../../../../../../app'; // Path to your configureWPKernel() instance
 import { book } from '../../../../../../../resources/book'; // Path to your defineResource() call
 
 // 3. A generated "Content" component to encapsulate the view

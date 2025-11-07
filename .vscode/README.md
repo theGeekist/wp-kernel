@@ -1,6 +1,6 @@
 # VS Code Workspace Setup
 
-This document describes the VS Code configuration for WP Kernel development.
+This document describes the VS Code configuration for WPKernel development.
 
 ## Overview
 
@@ -45,7 +45,7 @@ All tasks are defined in `.vscode/tasks.json` and can be run via:
 | Task                  | Command                                  | Description                     |
 | --------------------- | ---------------------------------------- | ------------------------------- |
 | Build All             | `pnpm build`                             | Build all packages and examples |
-| Build Kernel          | `pnpm --filter @wpkernel/core build`     | Build core kernel package       |
+| Build Kernel          | `pnpm --filter @wpkernel/core build`     | Build core wpk package          |
 | Build UI              | `pnpm --filter @wpkernel/ui build`       | Build UI components             |
 | Build CLI             | `pnpm --filter @wpkernel/cli build`      | Build CLI tool                  |
 | Build Showcase Plugin | `pnpm --filter wp-kernel-showcase build` | Build demo plugin               |
@@ -107,7 +107,7 @@ Debug the currently open test file.
 
 ### Debug CLI
 
-Debug the WP Kernel CLI tool (`wpk` command).
+Debug the WPKernel CLI tool (`wpk` command).
 
 ## Keyboard Shortcuts
 

@@ -6,7 +6,7 @@ import {
 import { serialiseError } from '../serialiseError';
 
 describe('serialiseError', () => {
-	it('returns serialized kernel errors unchanged', () => {
+	it('returns serialized wpk errors unchanged', () => {
 		const kernelError = new WPKernelError('DeveloperError', {
 			message: 'Already typed error',
 			data: { value: 123 },

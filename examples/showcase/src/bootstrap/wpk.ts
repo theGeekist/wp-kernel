@@ -18,7 +18,7 @@ export function bootstrapKernel(registry?: WPKernelRegistry): WPKInstance {
 	return wpkernelInstance;
 }
 
-export function getKernel(): WPKInstance {
+export function getWKernel(): WPKInstance {
 	if (!wpkernelInstance) {
 		wpkernelInstance = bootstrapKernel();
 	}
@@ -26,9 +26,9 @@ export function getKernel(): WPKInstance {
 	return wpkernelInstance;
 }
 
-export const kernel = new Proxy({} as WPKInstance, {
+export const wpk = new Proxy({} as WPKInstance, {
 	get(_target, property: PropertyKey) {
-		const instance = getKernel();
+		const instance = getWKernel();
 		const value = (instance as unknown as Record<PropertyKey, unknown>)[
 			property
 		];

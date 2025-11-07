@@ -188,7 +188,7 @@ describe('init package.json helpers', () => {
 		});
 	});
 
-	it('throws a kernel error when the existing package cannot be parsed', async () => {
+	it('throws a wpk error when the existing package cannot be parsed', async () => {
 		const workspace = makeWorkspaceMock({
 			readText: jest.fn().mockResolvedValue('not-json'),
 		});

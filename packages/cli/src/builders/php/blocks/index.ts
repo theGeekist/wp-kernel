@@ -30,7 +30,7 @@ type PlannerWorkspace = ProgramTargetPlannerOptions['workspace'];
  * This helper processes block configurations from the IR, collects block manifests,
  * generates PHP artifacts for block registration, and stages render stubs for SSR blocks.
  *
- * @category PHP Builder
+ * @category AST Builders
  * @returns A `BuilderHelper` instance for generating PHP block code.
  */
 export function createPhpBlocksHelper(): BuilderHelper {

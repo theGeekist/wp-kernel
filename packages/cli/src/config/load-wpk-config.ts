@@ -4,7 +4,7 @@
  * Responsible for locating and resolving the project's `wpk.config.(ts|js)`
  * (or a `wpk` field in package.json). It supports TS execution via `tsx`
  * and falls back to standard Node imports for JS files. Returned values
- * are normalised to the canonical kernel configuration object.
+ * are normalised to the canonical wpk configuration object.
  */
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
@@ -17,7 +17,7 @@ import {
 	WPK_NAMESPACE,
 	type WPKConfigSource,
 } from '@wpkernel/core/contracts';
-import { validateWPKernelConfig } from './validate-kernel-config';
+import { validateWPKernelConfig } from './validate-wpk-config';
 import type { LoadedWPKernelConfig } from './types';
 
 type CosmiconfigModule = typeof cosmiconfigNamespace;
@@ -68,14 +68,14 @@ async function loadDefaultLoader<
 }
 
 /**
- * Locate and load the project's kernel configuration.
+ * Locate and load the project's wpk configuration.
  *
  * The function searches for supported config files, executes them via
  * cosmiconfig loaders, validates the resulting structure and performs a
  * Composer autoload sanity check to ensure PHP namespaces are mapped
  * correctly.
  *
- * @return The validated kernel config and associated metadata.
+ * @return The validated wpk config and associated metadata.
  * @throws WPKernelError when discovery, parsing or validation fails.
  */
 export async function loadWPKernelConfig(): Promise<LoadedWPKernelConfig> {
@@ -99,7 +99,7 @@ export async function loadWPKernelConfig(): Promise<LoadedWPKernelConfig> {
 	const searchResult = await explorer.search();
 	if (!searchResult || searchResult.isEmpty) {
 		const message =
-			'Unable to locate a kernel config. Create wpk.config.ts (or wpk.config.js) or add a "wpk" field to package.json.';
+			'Unable to locate a wpk config. Create wpk.config.ts (or wpk.config.js) or add a "wpk" field to package.json.';
 		reporter.error(message);
 		throw new WPKernelError('DeveloperError', { message });
 	}
@@ -166,7 +166,7 @@ export function getConfigOrigin(
 		return WPK_CONFIG_SOURCES.PACKAGE_JSON_WPK;
 	}
 
-	const message = `Unsupported kernel config source: ${fileName}.`;
+	const message = `Unsupported wpk config source: ${fileName}.`;
 	reporter.error(message, { fileName, filepath: result.filepath });
 	throw new WPKernelError('DeveloperError', { message });
 }
@@ -264,7 +264,7 @@ export function createJsLoader(
  * wrappers and promises to support a wide range of authoring styles.
  *
  * @param value - Raw module export from a loader.
- * @return The resolved kernel config candidate.
+ * @return The resolved wpk config candidate.
  */
 /**
  * Normalises nested config module exports into a raw config value.
@@ -274,7 +274,7 @@ export function createJsLoader(
  *
  * @category Config
  * @param    value - Raw module export from a loader.
- * @return The resolved kernel config candidate.
+ * @return The resolved wpk config candidate.
  */
 export async function resolveConfigValue(value: unknown): Promise<unknown> {
 	let current = value;
@@ -531,7 +531,7 @@ function isPromise(value: unknown): value is Promise<unknown> {
 export async function getTsImport(): Promise<TsImport> {
 	if (!cachedTsImport) {
 		// Dynamically load the `tsx` ESM loader when needed. This keeps the
-		// dependency optional for consumers that never load TS kernel configs.
+		// dependency optional for consumers that never load TS wpk configs.
 		cachedTsImport = import('tsx/esm/api').then(
 			(mod) => mod.tsImport as TsImport
 		);

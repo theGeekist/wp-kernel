@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -11,7 +11,7 @@ function buildIr(options): Promise & lt;
 IRv1 & gt;
 ```
 
-Builds the Intermediate Representation (IR) for a WP Kernel project.
+Builds the Intermediate Representation (IR) for a WPKernel project.
 
 This function orchestrates the process of collecting, validating, and transforming
 project configurations and metadata into a structured IR that serves as a single

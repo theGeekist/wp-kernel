@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -16,7 +16,7 @@
 readonly optional buildReporter: (options) => Reporter;
 ```
 
-Create a WP Kernel reporter backed by LogLayer transports.
+Create a WPKernel reporter backed by LogLayer transports.
 
 This is the standard reporter for browser/WordPress environments.
 For CLI environments, use `createReporterCLI()` for pretty terminal output.
@@ -34,26 +34,6 @@ Reporter configuration
 `Reporter`
 
 Reporter instance with child helpers
-
-### Pipeline
-
-#### createPipeline()?
-
-```ts
-readonly optional createPipeline: () => Pipeline;
-```
-
-Creates a new CLI pipeline instance.
-
-This function initializes a robust code generation pipeline that processes project
-configurations, builds an Intermediate Representation (IR), and executes various
-builder and fragment helpers to generate code and artifacts.
-
-##### Returns
-
-[`Pipeline`](../type-aliases/Pipeline.md)
-
-A `Pipeline` instance configured for CLI operations.
 
 ### IR
 
@@ -105,6 +85,26 @@ The pipeline instance to register builders with.
 
 `void`
 
+### Runtime
+
+#### createPipeline()?
+
+```ts
+readonly optional createPipeline: () => Pipeline;
+```
+
+Creates a new CLI pipeline instance.
+
+This function initializes a robust code generation pipeline that processes project
+configurations, builds an Intermediate Representation (IR), and executes various
+builder and fragment helpers to generate code and artifacts.
+
+##### Returns
+
+[`Pipeline`](../type-aliases/Pipeline.md)
+
+A `Pipeline` instance configured for CLI operations.
+
 ### Other
 
 #### loadWPKernelConfig()?
@@ -113,7 +113,7 @@ The pipeline instance to register builders with.
 readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
-Locate and load the project's kernel configuration.
+Locate and load the project's wpk configuration.
 
 The function searches for supported config files, executes them via
 cosmiconfig loaders, validates the resulting structure and performs a
@@ -124,7 +124,7 @@ correctly.
 
 `Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
 
-The validated kernel config and associated metadata.
+The validated wpk config and associated metadata.
 
 ##### Throws
 

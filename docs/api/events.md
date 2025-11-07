@@ -11,7 +11,7 @@ Canonical event taxonomy for observability and extensibility. All events use Wor
 Events follow the pattern: `{namespace}.{category}.{event}` where:
 
 - **namespace**:
-    - Framework events: Always `WPK_NAMESPACE` from `@wpkernel/core/contracts` (core kernel events)
+    - Framework events: Always `WPK_NAMESPACE` from `@wpkernel/core/contracts` (core wpk events)
     - Resource events: Auto-detected from environment or explicitly configured (fallback: that same constant)
 - **category**: Type of event (resource, action, job, etc.)
 - **event**: Specific event name

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function configureWPKernel(options): WPKInstance;
 ```
 
-Configure and bootstrap the WP Kernel runtime for the current namespace.
+Configure and bootstrap the WPKernel runtime for the current namespace.
 
 The helper wires middleware, reporters, the shared event bus, and optional UI
 bindings. It returns a `WPKInstance` that exposes integration hooks for
@@ -28,7 +28,7 @@ Runtime configuration including registry, middleware, and UI hooks
 
 [`WPKInstance`](../interfaces/WPKInstance.md)
 
-Configured WP Kernel instance with lifecycle helpers
+Configured WPKernel instance with lifecycle helpers
 
 ## Example
 

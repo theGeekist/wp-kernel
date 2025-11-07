@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function setWPKernelReporter(reporter): void;
 ```
 
-Register the shared WP Kernel reporter instance.
+Register the shared WPKernel reporter instance.
 
 ## Parameters
 

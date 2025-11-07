@@ -8,7 +8,7 @@
 
 - Set `CI=1` before running git commands inside automation, and never bypass pre-commit hooks.
 - For UI work, run `pnpm --filter @wpkernel/ui lint --fix`, `pnpm --filter @wpkernel/ui typecheck`, and `pnpm --filter @wpkernel/ui test --coverage` before marking a phase complete. Maintain ≥95% statements/lines and ≥98% functions coverage for the package.
-- When phases touch kernel or CLI packages, run the corresponding filtered commands (`pnpm --filter @wpkernel/core typecheck`, `pnpm --filter @wpkernel/cli test`) to catch cross-package regressions.
+- When phases touch wpk or CLI packages, run the corresponding filtered commands (`pnpm --filter @wpkernel/core typecheck`, `pnpm --filter @wpkernel/cli test`) to catch cross-package regressions.
 - Add/update documentation alongside code (spec references, README snippets, docs/ guide pages). Note any doc drift in the status log.
 - Integration/E2E tests should live under `packages/ui/__tests__/integration` or the Playwright suite (`@wpkernel/core-e2e`) as appropriate; include fixtures under `packages/ui/fixtures`.
 - Update the Status Log entry within each phase section before completion (include Completed/Outstanding/Risks).
@@ -26,7 +26,7 @@
 - **Scope:**
     - Extend runtime types with `dataviews` namespace (registry, controllers, preferences).
     - Implement default `DataViewPreferencesAdapter` (user scope via `core/preferences`) with user→role→site resolution plumbing (role/site temporarily no-op).
-    - Emit typed kernel events (`ui:dataviews:*`) from the runtime scaffold.
+    - Emit typed wpk events (`ui:dataviews:*`) from the runtime scaffold.
     - Add reporter child namespace helpers and error classes (`DataViewsConfigurationError`, etc.).
     - Provide a maintenance script (`packages/ui/scripts/update-dataviews-snapshot.ts`) to refresh the vendor snapshot from Gutenberg, run `pnpm --filter @wpkernel/ui typecheck`, verify the snapshot version satisfies the peer range, and log `SUCCESS: snapshot synchronized to <git sha>`.
     - Unit tests for adapter precedence, event emission, and error paths.
@@ -44,11 +44,11 @@
 ## Phase 2 - Resource DataView Controller & Components
 
 **Spec references:** §4.3 Query & Data Orchestration, §4.4 Actions, Capabilities, and Editing  
-**Goal:** Deliver the controller utilities and React component wrappers that marry kernel resources/actions with the DataViews UI.
+**Goal:** Deliver the controller utilities and React component wrappers that marry wpk resources/actions with the DataViews UI.
 
 - **Scope:**
     - Implement `createResourceDataViewController` translating DataViews state → resource queries via the `QueryMapping` contract and exposing data/loading/errors via hooks.
-    - Implement `createDataFormController` bridging `DataForm` with kernel actions and cache invalidation.
+    - Implement `createDataFormController` bridging `DataForm` with wpk actions and cache invalidation.
     - Create `ResourceDataView` React component composing controller outputs with the snapshot DataViews component, including capability-gated actions and error normalization rules.
     - Provide storybook-ready fixtures under `packages/ui/fixtures/dataviews` using the snapshot types.
 
@@ -65,7 +65,7 @@
 ## Phase 3 - configureWPKernel Integration & Registry Wiring
 
 **Spec references:** §4.5 configureWPKernel Integration, §5 API Surface Summary  
-**Goal:** Auto-register DataViews runtime pieces during kernel bootstrapping and ensure events/hooks fire end-to-end.
+**Goal:** Auto-register DataViews runtime pieces during wpk bootstrapping and ensure events/hooks fire end-to-end.
 
 - **Scope:**
     - Extend `ConfigureWPKernelOptions.ui.options` to accept DataViews flags/adapters.
@@ -73,7 +73,7 @@
     - Listen to `resource:defined` events to register controllers derived from `resource.ui?.admin?.dataviews`.
     - Add integration tests under `packages/core/src/data/__tests__/` mocking UI attach to confirm controllers register and emit events.
 
-- **Deliverables:** kernel runtime updates, integration fixtures, additional coverage for event flows.
+- **Deliverables:** wpk runtime updates, integration fixtures, additional coverage for event flows.
 
 - **DoD:** `pnpm --filter @wpkernel/core typecheck` and unit/integration tests pass; UI package tests still green; Status Log records integration scenarios executed.
 
@@ -95,7 +95,7 @@
     - Carry forward Phase 3 follow-ups: document the controller registry contract and expose any additional metadata the CLI needs for auto-registration.
     - Add CLI unit tests verifying validation, metadata propagation, and generator outputs (golden fixtures).
 
-- **Deliverables:** kernel type updates, CLI schema updates/tests, generator fixture updates, documentation refresh (`docs/packages/ui.md`, CLI docs).
+- **Deliverables:** wpk type updates, CLI schema updates/tests, generator fixture updates, documentation refresh (`docs/packages/ui.md`, CLI docs).
 
 - **DoD:** Kernel + CLI test suites pass; generator integration tests confirm React screen, optional PHP menu, and fixture outputs; docs updated; Status Log records new fixtures and doc links.
 

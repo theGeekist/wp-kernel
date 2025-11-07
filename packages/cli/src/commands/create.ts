@@ -33,7 +33,7 @@ function buildReporterNamespace(): string {
 /**
  * Options for building the `create` command.
  *
- * @category Create Command
+ * @category Commands
  */
 export interface BuildCreateCommandOptions {
 	/** Optional: Custom workspace builder function. */
@@ -57,7 +57,7 @@ export interface BuildCreateCommandOptions {
 /**
  * Represents an instance of the `create` command.
  *
- * @category Create Command
+ * @category Commands
  */
 export type CreateCommandInstance = Command & {
 	/** The target directory for the new project. */
@@ -85,7 +85,7 @@ export type CreateCommandInstance = Command & {
 /**
  * The constructor type for the `create` command.
  *
- * @category Create Command
+ * @category Commands
  */
 export type CreateCommandConstructor = new () => CreateCommandInstance;
 
@@ -125,10 +125,10 @@ function resolveTargetDirectory(base: string, target?: string): string {
 /**
  * Builds the `create` command for the CLI.
  *
- * This command is responsible for creating a new WP Kernel project, including
+ * This command is responsible for creating a new WPKernel project, including
  * scaffolding files, initializing a Git repository, and installing dependencies.
  *
- * @category Create Command
+ * @category Commands
  * @param    options - Options for building the create command, including dependencies.
  * @returns The `CreateCommandConstructor` class.
  */
@@ -142,7 +142,7 @@ export function buildCreateCommand(
 
 		static override usage = Command.Usage({
 			description:
-				'Create a new WP Kernel project, initialise git, and install dependencies.',
+				'Create a new WPKernel project, initialise git, and install dependencies.',
 			examples: [
 				['Create project in current directory', 'wpk create'],
 				['Create project in ./demo-plugin', 'wpk create demo-plugin'],

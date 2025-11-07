@@ -66,7 +66,7 @@ type KernelEventName = keyof WPKernelEventMap;
 export type Listener<T> = (payload: T) => void;
 
 /**
- * Typed event bus used across WP Kernel to broadcast lifecycle events and
+ * Typed event bus used across WPKernel to broadcast lifecycle events and
  * cache invalidation notices.
  *
  * The bus automatically resolves a reporter so listener failures can be logged
@@ -186,7 +186,7 @@ const definedResources: GenericResourceDefinedEvent[] = [];
 const definedActions: ActionDefinedEvent[] = [];
 
 /**
- * Return the shared WP Kernel event bus, creating it lazily on first access.
+ * Return the shared WPKernel event bus, creating it lazily on first access.
  *
  * @category Events
  */
@@ -198,7 +198,7 @@ export function getWPKernelEventBus(): WPKernelEventBus {
 }
 
 /**
- * Replace the shared WP Kernel event bus. Intended for test suites that need to
+ * Replace the shared WPKernel event bus. Intended for test suites that need to
  * inspect emitted events.
  *
  * @param    bus - Custom event bus instance

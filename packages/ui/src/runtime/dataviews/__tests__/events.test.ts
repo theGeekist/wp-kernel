@@ -11,9 +11,9 @@ import {
 } from '../events';
 
 describe('dataviews event emitter', () => {
-	it('emits events via kernel and logs debug info', () => {
+	it('emits events via wpk and logs debug info', () => {
 		const emit = jest.fn();
-		const kernel = { emit } as unknown as WPKInstance;
+		const wpk = { emit } as unknown as WPKInstance;
 		const reporter: Reporter = {
 			debug: jest.fn(),
 			error: jest.fn(),
@@ -21,7 +21,7 @@ describe('dataviews event emitter', () => {
 			warn: jest.fn(),
 		} as unknown as Reporter;
 
-		const emitter = createDataViewsEventEmitter(kernel, reporter);
+		const emitter = createDataViewsEventEmitter(wpk, reporter);
 		const payload = { resource: 'jobs', preferencesKey: 'ns/jobs' };
 		emitter.registered(payload);
 		expect(emit).toHaveBeenCalledWith(DATA_VIEWS_EVENT_REGISTERED, payload);
@@ -41,9 +41,9 @@ describe('dataviews event emitter', () => {
 		);
 	});
 
-	it('guards against kernel emit failures', () => {
+	it('guards against wpk emit failures', () => {
 		const error = new Error('emit failed');
-		const kernel = {
+		const wpk = {
 			emit: jest.fn(() => {
 				throw error;
 			}),
@@ -55,7 +55,7 @@ describe('dataviews event emitter', () => {
 			warn: jest.fn(),
 		} as unknown as Reporter;
 
-		const emitter = createDataViewsEventEmitter(kernel, reporter);
+		const emitter = createDataViewsEventEmitter(wpk, reporter);
 		const payload = {
 			resource: 'jobs',
 			actionId: 'delete',
@@ -75,7 +75,7 @@ describe('dataviews event emitter', () => {
 
 	it('exposes raw emit helper for focused tests', () => {
 		const { emitEvent } = eventsTestUtils;
-		const kernel = {
+		const wpk = {
 			emit: jest.fn(() => {
 				throw new Error('fail');
 			}),
@@ -87,7 +87,7 @@ describe('dataviews event emitter', () => {
 			warn: jest.fn(),
 		} as unknown as Reporter;
 
-		emitEvent(kernel, reporter, DATA_VIEWS_EVENT_UNREGISTERED, {
+		emitEvent(wpk, reporter, DATA_VIEWS_EVENT_UNREGISTERED, {
 			resource: 'jobs',
 			preferencesKey: 'ns/jobs',
 		});
@@ -100,7 +100,7 @@ describe('dataviews event emitter', () => {
 	it('omits resource metadata when payload does not include it', () => {
 		const { emitEvent } = eventsTestUtils;
 		const emit = jest.fn();
-		const kernel = { emit } as unknown as WPKInstance;
+		const wpk = { emit } as unknown as WPKInstance;
 		const reporter: Reporter = {
 			debug: jest.fn(),
 			error: jest.fn(),
@@ -108,7 +108,7 @@ describe('dataviews event emitter', () => {
 			warn: jest.fn(),
 		} as unknown as Reporter;
 
-		emitEvent(kernel, reporter, DATA_VIEWS_EVENT_REGISTERED, {
+		emitEvent(wpk, reporter, DATA_VIEWS_EVENT_REGISTERED, {
 			preferencesKey: 'ns/jobs',
 		} as unknown as DataViewRegisteredPayload);
 

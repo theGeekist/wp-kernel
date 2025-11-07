@@ -29,7 +29,7 @@ import {
  *
  * @typeParam TQuery - The query payload shape produced by the DataView controller.
  *
- * @category Interactivity
+ * @category DataViews Integration
  * @public
  */
 export type DataViewInteractionState<TQuery> = {
@@ -43,7 +43,7 @@ export type DataViewInteractionState<TQuery> = {
  *
  * @typeParam TQuery - The query payload shape produced by the DataView controller.
  *
- * @category Interactivity
+ * @category DataViews Integration
  * @public
  */
 export type DataViewInteractionStore<TQuery> = Record<string, unknown> & {
@@ -60,7 +60,7 @@ export type DataViewInteractionStore<TQuery> = Record<string, unknown> & {
  * @typeParam TQuery - The query payload shape produced by the DataView controller.
  * @typeParam TActions - Optional interactivity actions map to augment the interaction.
  *
- * @category Interactivity
+ * @category DataViews Integration
  * @public
  */
 export interface CreateDataViewInteractionOptions<
@@ -136,7 +136,7 @@ export interface CreateDataViewInteractionOptions<
  * @typeParam TItem - The resource record type handled by the DataView controller.
  * @typeParam TQuery - The query payload shape produced by the DataView controller.
  *
- * @category Interactivity
+ * @category DataViews Integration
  * @public
  */
 export interface DataViewInteractionResult<TItem, TQuery>
@@ -378,7 +378,7 @@ function prepareStoreState<TQuery>(
  * @typeParam TQuery - The query payload shape produced by the DataView controller.
  * @typeParam TActions - Optional interactivity actions map to augment the interaction.
  *
- * @category Interactivity
+ * @category DataViews Integration
  * @public
  */
 export function createDataViewInteraction<

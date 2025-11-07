@@ -235,7 +235,7 @@ function buildCommandConstructor(
 		static override paths = [['generate']];
 
 		static override usage = Command.Usage({
-			description: 'Generate WP Kernel artifacts from wpk.config.*.',
+			description: 'Generate WPKernel artifacts from wpk.config.*.',
 			examples: [
 				['Generate artifacts into .generated/', 'wpk generate'],
 				[
@@ -284,12 +284,12 @@ function buildCommandConstructor(
 /**
  * Builds the `generate` command for the CLI.
  *
- * This command is responsible for generating WP Kernel artifacts (PHP, TypeScript)
+ * This command is responsible for generating WPKernel artifacts (PHP, TypeScript)
  * from the `wpk.config.*` configuration files. It processes the configuration,
  * builds an Intermediate Representation (IR), and uses various builders to
  * produce the final generated code.
  *
- * @category Generate Command
+ * @category Commands
  * @param    options - Options for building the generate command, including dependencies.
  * @returns The `CommandConstructor` class for the generate command.
  */

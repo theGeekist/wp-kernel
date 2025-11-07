@@ -1,31 +1,73 @@
 import type { WorkspaceWriteOptions } from '@wpkernel/php-json-ast';
 import type { WorkspaceLike } from '@wpkernel/php-driver';
 
+/**
+ * Manifest of filesystem changes produced during a workspace operation.
+ *
+ * @category Workspace
+ * @public
+ */
 export interface FileManifest {
 	readonly writes: readonly string[];
 	readonly deletes: readonly string[];
 }
 
+/**
+ * Options controlling how files are written to disk.
+ *
+ * @category Workspace
+ * @public
+ */
 export type WriteOptions = WorkspaceWriteOptions;
 
+/**
+ * Options for writing JSON files within the workspace.
+ *
+ * @category Workspace
+ * @public
+ */
 export interface WriteJsonOptions extends WriteOptions {
 	readonly pretty?: boolean;
 }
 
+/**
+ * Removal options for workspace file deletion.
+ *
+ * @category Workspace
+ * @public
+ */
 export interface RemoveOptions {
 	readonly recursive?: boolean;
 }
 
+/**
+ * Marker strings used when performing three-way merges.
+ *
+ * @category Workspace
+ * @public
+ */
 export interface MergeMarkers {
 	readonly start: string;
 	readonly mid: string;
 	readonly end: string;
 }
 
+/**
+ * Options controlling the merge strategy.
+ *
+ * @category Workspace
+ * @public
+ */
 export interface MergeOptions {
 	readonly markers?: MergeMarkers;
 }
 
+/**
+ * Kernel-aware workspace contract used by CLI generators.
+ *
+ * @category Workspace
+ * @public
+ */
 export interface Workspace extends WorkspaceLike {
 	cwd: () => string;
 	read: (file: string) => Promise<Buffer | null>;

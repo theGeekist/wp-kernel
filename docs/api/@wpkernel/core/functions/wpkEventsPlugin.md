@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.11.0**](../README.md)
+[**@wpkernel/core v0.12.0**](../README.md)
 
 ---
 
@@ -10,7 +10,7 @@
 function wpkEventsPlugin(options): WPKernelReduxMiddleware;
 ```
 
-Bridge WP Kernel lifecycle events into WordPress middleware and notices.
+Bridge WPKernel lifecycle events into WordPress middleware and notices.
 
 The plugin mirrors action lifecycle and cache invalidation events onto
 `wp.hooks` while optionally surfacing admin notices via the core notices

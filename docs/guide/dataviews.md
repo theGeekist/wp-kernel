@@ -1,6 +1,6 @@
 # DataViews Integration
 
-Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours kernel capabilities, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
+Modern admin tables in WPKernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours wpk capabilities, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
 
 > 📖 Background: read the [DataViews Integration - Specification](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
 
@@ -83,7 +83,7 @@ Opt in to DataViews when calling `configureWPKernel()` and share the runtime wit
 import { configureWPKernel } from '@wpkernel/core';
 import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-export const kernel = configureWPKernel({
+export const wpk = configureWPKernel({
 	namespace: 'demo',
 	registry: window.wp.data,
 	ui: {
@@ -95,7 +95,7 @@ export const kernel = configureWPKernel({
 	},
 });
 
-const runtime = kernel.getUIRuntime();
+const runtime = wpk.getUIRuntime();
 ```
 
 ```tsx
@@ -156,13 +156,15 @@ export function JobsAdminScreen() {
 ## 4. Listen for events or extend behaviour
 
 ```ts
-const unsubscribe = kernel.events.on(
+const unsubscribe = wpk.events.on(
 	'ui:dataviews:action-triggered',
 	(payload) => {
 		if (payload.resource === 'job' && !payload.permitted) {
-			kernel
-				.getUIRuntime()
-				.reporter.warn('jobs', 'Denied action', payload.reason);
+			wpk.getUIRuntime().reporter.warn(
+				'jobs',
+				'Denied action',
+				payload.reason
+			);
 		}
 	}
 );
@@ -201,12 +203,12 @@ Outputs include:
 
 Unit tests: see `packages/ui/src/dataviews/__tests__/` for patterns covering query mapping, preference persistence, and capability gating.
 
-Playwright helpers: `@wpkernel/e2e-utils` exposes a `kernel.dataview()` factory.
+Playwright helpers: `@wpkernel/e2e-utils` exposes a `wpk.dataview()` factory.
 
 ```ts
-test('filter jobs by department', async ({ page, kernel }) => {
+test('filter jobs by department', async ({ page, wpk }) => {
 	await page.goto('/wp-admin/admin.php?page=wpk-jobs');
-	const dataview = kernel.dataview({ resource: 'job' });
+	const dataview = wpk.dataview({ resource: 'job' });
 	await dataview.waitForLoaded();
 	await dataview.filterBy('Department', 'Engineering');
 	await dataview.expectRow('Engineering Manager');

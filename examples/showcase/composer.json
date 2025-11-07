@@ -1,6 +1,6 @@
 {
 	"name": "geekist/wp-kernel-showcase",
-	"description": "Showcase plugin demonstrating WP Kernel framework features",
+	"description": "Showcase plugin demonstrating WPKernel framework features",
 	"type": "wordpress-plugin",
 	"license": "MIT",
 	"autoload": {

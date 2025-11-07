@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,13 @@
 
 # Interface: ConflictDiagnostic
 
-Diagnostic for a conflict detected during pipeline execution.
+Diagnostic emitted when two helpers conflict.
+
+## Example
+
+```ts
+A generate helper overrides another helper with the same key.
+```
 
 ## Properties
 
@@ -57,3 +63,13 @@ readonly message: string;
 ```
 
 A descriptive message about the conflict.
+
+---
+
+### kind?
+
+```ts
+readonly optional kind: HelperKind;
+```
+
+Helper kind associated with the conflict.

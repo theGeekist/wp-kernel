@@ -27,7 +27,7 @@ const ENV_CONFIG = {
 const config = ENV_CONFIG[TEST_ENV];
 
 /**
- * Playwright configuration for WP Kernel E2E tests
+ * Playwright configuration for WPKernel E2E tests
  * Supports both wp-env (Docker) and WP Playground environments
  *
  * @see https://playwright.dev/docs/test-configuration

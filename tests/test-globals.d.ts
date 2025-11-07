@@ -36,7 +36,7 @@ declare global {
 	 */
 	interface Window extends WPGlobal {
 		/**
-		 * WP Kernel plugin data (set by wp_localize_script)
+		 * WPKernel plugin data (set by wp_localize_script)
 		 * Used by namespace detection from plugin headers
 		 */
 		wpKernelData?: {
@@ -46,8 +46,8 @@ declare global {
 	}
 
 	/**
-	 * WP Kernel package data on globalThis
-	 * Used by namespace detection and other kernel functionality
+	 * WPKernel package data on globalThis
+	 * Used by namespace detection and other wpk functionality
 	 */
 	interface GlobalThis {
 		__WP_KERNEL_PACKAGE__?: {

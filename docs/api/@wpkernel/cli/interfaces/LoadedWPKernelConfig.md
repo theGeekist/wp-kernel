@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.11.0**](../README.md)
+[**@wpkernel/cli v0.12.0**](../README.md)
 
 ---
 
@@ -6,7 +6,7 @@
 
 # Interface: LoadedWPKernelConfig
 
-Result returned when loading and validating a kernel config file.
+Result returned when loading and validating a wpk config file.
 
 ## Properties
 
