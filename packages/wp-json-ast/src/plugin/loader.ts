@@ -176,7 +176,7 @@ function buildGetControllersFunction(
 
 	const returnStatement = buildReturn(returnArray);
 
-	const fn = buildNodeFunction('get_kernel_controllers', {
+	const fn = buildNodeFunction('get_wpkernel_controllers', {
 		returnType: buildIdentifier('array'),
 		statements: [returnStatement],
 	});
@@ -195,7 +195,7 @@ function buildRegisterRoutesFunction(): PhpStmtFunction {
 	const controllersAssignment = buildExpressionStatement(
 		buildAssign(
 			buildVariable('controllers'),
-			buildFuncCall(buildName(['get_kernel_controllers']))
+			buildFuncCall(buildName(['get_wpkernel_controllers']))
 		)
 	);
 
@@ -220,7 +220,7 @@ function buildRegisterRoutesFunction(): PhpStmtFunction {
 		stmts: [guard, registerCall],
 	});
 
-	const fn = buildNodeFunction('register_kernel_routes', {
+	const fn = buildNodeFunction('register_wpkernel_routes', {
 		returnType: buildIdentifier('void'),
 		statements: [controllersAssignment, foreachLoop],
 	});
@@ -420,7 +420,7 @@ function buildRegisterUiAssetsFunction(
 		enqueueScript,
 	];
 
-	const fn = buildNodeFunction('enqueue_kernel_ui_assets', {
+	const fn = buildNodeFunction('enqueue_wpkernel_ui_assets', {
 		returnType: buildIdentifier('void'),
 		statements,
 	});
@@ -441,7 +441,7 @@ function buildBootstrapFunction(
 	const restCallback = buildBinaryOperation(
 		'Concat',
 		namespaceConst,
-		buildScalarString('\\register_kernel_routes')
+		buildScalarString('\\register_wpkernel_routes')
 	);
 
 	const statements: PhpStmt[] = [
@@ -457,7 +457,7 @@ function buildBootstrapFunction(
 		const uiCallback = buildBinaryOperation(
 			'Concat',
 			namespaceConst,
-			buildScalarString('\\enqueue_kernel_ui_assets')
+			buildScalarString('\\enqueue_wpkernel_ui_assets')
 		);
 		statements.push(
 			buildExpressionStatement(

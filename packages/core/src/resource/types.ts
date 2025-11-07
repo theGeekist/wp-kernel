@@ -383,8 +383,8 @@ export interface ResourceDataViewsScreenConfig {
 	route?: string;
 	resourceImport?: string;
 	resourceSymbol?: string;
-	kernelImport?: string;
-	kernelSymbol?: string;
+	wpkernelImport?: string;
+	wpkernelSymbol?: string;
 	menu?: ResourceDataViewsMenuConfig;
 	[key: string]: unknown;
 }

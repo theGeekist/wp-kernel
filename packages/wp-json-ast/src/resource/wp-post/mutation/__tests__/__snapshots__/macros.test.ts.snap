@@ -112,7 +112,7 @@ exports[`wp-post mutation macros builds cache priming statements with failure gu
               "value": {
                 "attributes": {},
                 "nodeType": "Scalar_String",
-                "value": "kernel_book_failed",
+                "value": "wpkernel_book_failed",
               },
             },
             {

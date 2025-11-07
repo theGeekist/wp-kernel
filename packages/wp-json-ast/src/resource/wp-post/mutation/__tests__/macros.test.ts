@@ -68,7 +68,7 @@ describe('wp-post mutation macros', () => {
 			metadataKeys: METADATA_KEYS,
 			pascalName: 'Book',
 			postId: buildVariableExpression('post_id'),
-			errorCode: 'kernel_book_failed',
+			errorCode: 'wpkernel_book_failed',
 			failureMessage: 'Unable to load Book.',
 		});
 

@@ -251,8 +251,8 @@ const resourceDataViewsScreenValidator = t.isObject(
 		route: t.isOptional(t.isString()),
 		resourceImport: t.isOptional(t.isString()),
 		resourceSymbol: t.isOptional(t.isString()),
-		kernelImport: t.isOptional(t.isString()),
-		kernelSymbol: t.isOptional(t.isString()),
+		wpkernelImport: t.isOptional(t.isString()),
+		wpkernelSymbol: t.isOptional(t.isString()),
 		menu: t.isOptional(resourceDataViewsMenuValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
