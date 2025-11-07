@@ -3,7 +3,7 @@
  */
 
 import type { Page } from '@playwright/test';
-import { createEventHelper } from '../createKernelUtils.js';
+import { createEventHelper } from '../createWPKernelUtils.js';
 
 describe('createEventHelper', () => {
 	let mockPage: jest.Mocked<Page>;

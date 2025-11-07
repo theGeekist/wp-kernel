@@ -9,14 +9,14 @@
 ### 2) Public listing & detail → Bindings + Interactivity
 
 - Listing page uses core blocks (Query Loop, Buttons). Data appears via Block Bindings (e.g., gk:job.title, gk:job.location).
-- Filters/search are tiny Interactivity bundles: update filter state → kernel resolvers refetch → list updates.
+- Filters/search are tiny Interactivity bundles: update filter state → wpk resolvers refetch → list updates.
 - Optional server binding renders SEO-critical text (title/summary/JSON-LD) without JS.
 
 ### 3) Apply form & uploads → Actions + Interactivity + Upload helper
 
 - The form is a small Interactivity controller that calls an Action (Application.Submit).
 - The Action validates policy, posts to REST, emits events, invalidates caches, and uses the kernel’s upload helper for chunked CV files with progress.
-- Success and failure are handled consistently via the kernel reporter + notices.
+- Success and failure are handled consistently via the wpk reporter + notices.
 
 ### 4) Admin pipeline (kanban) → Admin mount + store + optimistic updates
 
@@ -96,7 +96,7 @@ sequenceDiagram
   H-->>Integrations: Slack/Webhook (optional)
 ```
 
-No bespoke plumbing: each arrow is a one-liner because the kernel owns the ceremony.
+No bespoke plumbing: each arrow is a one-liner because the wpk owns the ceremony.
 
 ---
 

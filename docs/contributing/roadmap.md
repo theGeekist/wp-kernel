@@ -47,7 +47,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 Completed the bootstrap transition to `configureWPKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/capability/job signatures around configuration objects, threaded resource reporters through client/store/cache/transport for full observability, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
 
-**Phase 8 - Resource Reporter Wiring**: Propagated kernel reporters through resource definitions, clients, store resolvers, and grouped APIs with comprehensive 615-line test suite. Resources now emit structured telemetry aligned with actions/capabilities.
+**Phase 8 - Resource Reporter Wiring**: Propagated wpk reporters through resource definitions, clients, store resolvers, and grouped APIs with comprehensive 615-line test suite. Resources now emit structured telemetry aligned with actions/capabilities.
 
 **Phase 9 - Cache & Transport Telemetry**: Extended reporter hierarchy to cache invalidation and transport layer. Request lifecycles now share correlation IDs and structured logs from resource → client → transport → cache. Fully backwards compatible.
 
@@ -56,7 +56,7 @@ Completed the bootstrap transition to `configureWPKernel()`, replaced global UI 
 ## 🚧 In Progress
 
 **Guided Examples & Bindings** (post-architecture polish)
-Deepen the learning surface with refreshed block binding walkthroughs, Interactivity API blueprints, and expanded showcase coverage that demonstrates the completed kernel architecture in practice.
+Deepen the learning surface with refreshed block binding walkthroughs, Interactivity API blueprints, and expanded showcase coverage that demonstrates the completed wpk architecture in practice.
 
 ---
 

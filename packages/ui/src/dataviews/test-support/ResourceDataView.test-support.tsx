@@ -55,7 +55,7 @@ interface CreateKernelRuntimeOptions {
 	registry?: unknown;
 }
 
-export function createKernelRuntime(
+export function createWPKernelRuntime(
 	options: CreateKernelRuntimeOptions = {}
 ): RuntimeWithDataViews {
 	const reporter = createReporter();
@@ -319,7 +319,7 @@ export async function flushDataViews(iterations = 1) {
 export function renderResourceDataView<TItem, TQuery>(
 	options: RenderResourceDataViewOptions<TItem, TQuery> = {}
 ): RenderResourceDataViewResult<TItem, TQuery> {
-	let runtime = options.runtime ?? createKernelRuntime();
+	let runtime = options.runtime ?? createWPKernelRuntime();
 	const resource = (options.resource ??
 		createResource<TItem, TQuery>({})) as ResourceObject<TItem, TQuery>;
 	const config = (options.config ??
@@ -424,7 +424,7 @@ export function renderActionScenario<
 >(
 	options: RenderActionScenarioOptions<TItem, TQuery, TInput, TResult> = {}
 ): RenderActionScenarioResult<TItem, TQuery, TInput, TResult> {
-	const runtime = options.runtime ?? createKernelRuntime();
+	const runtime = options.runtime ?? createWPKernelRuntime();
 	const resource =
 		options.resource ??
 		buildListResource<TItem, TQuery>(

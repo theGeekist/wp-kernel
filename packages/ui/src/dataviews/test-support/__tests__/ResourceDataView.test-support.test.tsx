@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 import { WPKernelUIProvider } from '../../../runtime/context';
 import {
 	DataViewsMock,
-	createKernelRuntime,
+	createWPKernelRuntime,
 	renderWithProvider,
 	getLastDataViewsProps,
 	renderActionScenario,
@@ -17,7 +17,7 @@ import { act } from 'react';
 
 describe('ResourceDataView test support helpers', () => {
 	it('persists preferences through adapter helpers', async () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		await runtime.dataviews.preferences.adapter.set('key', 'value');
 		expect(await runtime.dataviews.preferences.adapter.get('key')).toBe(
 			'value'
@@ -31,7 +31,7 @@ describe('ResourceDataView test support helpers', () => {
 	});
 
 	it('renders UI within WPKernelUIProvider', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const result = renderWithProvider(<div>hello</div>, runtime);
 		expect(result.getByText('hello')).toBeTruthy();
 
@@ -49,7 +49,7 @@ describe('ResourceDataView test support helpers', () => {
 	it('captures DataViews props from mock calls', () => {
 		DataViewsMock.mockClear();
 		render(
-			<WPKernelUIProvider runtime={createKernelRuntime()}>
+			<WPKernelUIProvider runtime={createWPKernelRuntime()}>
 				{DataViewsMock({
 					data: [],
 				})}

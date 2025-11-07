@@ -4,7 +4,7 @@ Blocks are the public face of your plugin. WP Kernel treats them as first-class 
 
 ## Authoring a block
 
-Place each block under `blocks/<name>/` with a `block.json` manifest. The CLI reads the manifest when generating registrars and keeps it tied to the kernel namespace.
+Place each block under `blocks/<name>/` with a `block.json` manifest. The CLI reads the manifest when generating registrars and keeps it tied to the wpk namespace.
 
 ```json
 {

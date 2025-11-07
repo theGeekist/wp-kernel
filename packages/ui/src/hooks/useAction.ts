@@ -97,7 +97,7 @@ function resolveInvokeMethod(
 	if (typeof invoke !== 'function') {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'Failed to resolve kernel action dispatcher. Verify configureWPKernel() initialised the registry.',
+				'Failed to resolve wpk action dispatcher. Verify configureWPKernel() initialised the registry.',
 		});
 	}
 
@@ -236,7 +236,7 @@ function normaliseToWPKernelError(
 }
 
 /**
- * React hook for invoking a kernel action.
+ * React hook for invoking a wpk action.
  *
  * This hook provides a convenient way to execute a `DefinedAction` and manage its lifecycle,
  * including loading states, errors, and concurrency control. It integrates with the WordPress

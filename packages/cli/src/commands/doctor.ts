@@ -113,7 +113,7 @@ export function buildDoctorCommand(
 
 		static override usage = Command.Usage({
 			description:
-				'Run health checks for kernel config, Composer autoload, PHP tooling, and workspace hygiene.',
+				'Run health checks for wpk config, Composer autoload, PHP tooling, and workspace hygiene.',
 		});
 
 		override async execute(): Promise<number> {
@@ -200,7 +200,7 @@ export function buildDoctorCommand(
 					workspace,
 				};
 			} catch (error) {
-				reporter.error('Failed to load kernel config.', {
+				reporter.error('Failed to load wpk config.', {
 					error: serialiseError(error),
 				});
 

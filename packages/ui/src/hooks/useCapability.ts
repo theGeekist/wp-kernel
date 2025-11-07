@@ -31,7 +31,7 @@ function resolveCapability<K extends Record<string, unknown>>(
 }
 
 /**
- * React hook that exposes the kernel capability runtime to UI components.
+ * React hook that exposes the wpk capability runtime to UI components.
  *
  * Components can gate controls with `can()` while reacting to the shared
  * capability cache for loading and error states. The hook mirrors the capability

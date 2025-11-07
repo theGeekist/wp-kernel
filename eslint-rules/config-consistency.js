@@ -176,7 +176,7 @@ export default {
 		type: 'problem',
 		docs: {
 			description:
-				'Ensures kernel resources have consistent identity hints, unique routes, and valid wp-post metadata.',
+				'Ensures wpk resources have consistent identity hints, unique routes, and valid wp-post metadata.',
 			recommended: false,
 			url: DOC_URL,
 		},

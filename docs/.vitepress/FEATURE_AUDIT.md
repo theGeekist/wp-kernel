@@ -14,7 +14,7 @@ WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for 
 
 ### UI Integration
 
-- `attachUIBindings` augments a configured kernel with policy runtime discovery, DataViews controllers, and automatic hook registration for every resource that becomes available at runtime.【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L184】
+- `attachUIBindings` augments a configured wpk with policy runtime discovery, DataViews controllers, and automatic hook registration for every resource that becomes available at runtime.【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L184】
 - The generated UI runtime auto-registers DataViews controllers when metadata is present, bridging resource definitions to `<ResourceDataView>` and hook consumption without bespoke glue code.【F:packages/ui/src/runtime/attachUIBindings.ts†L78-L183】【F:packages/ui/src/dataviews/resource-controller.ts†L1-L140】
 
 ### CLI Workflow
@@ -22,7 +22,7 @@ WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for 
 - `wpk generate` emits type definitions, PHP controllers, UI scaffolds, and block assets during a single invocation, coordinating adapters via a shared printer context.【F:packages/cli/src/printers/index.ts†L1-L17】
 - The PHP printer skips remote-only resources, warns when policies are missing, and writes persistence registries and policy helpers alongside controller classes, ensuring parity with config metadata.【F:packages/cli/src/printers/php/printer.ts†L12-L92】
 - `wpk apply` merges generated PHP and block artefacts into the working plugin, preserving manual regions and logging a breakdown so teams can audit deployments.【F:packages/cli/src/commands/apply/command.ts†L21-L156】 Tests cover guarded merges, block manifests, and error reporting to keep the workflow predictable.【F:packages/cli/src/commands/**tests**/apply-command.test.ts†L51-L200】
-- `wpk start` watches kernel sources, regenerates artefacts on change, and runs the Vite dev server with debounced triggers and safe shutdown hooks, giving authors a full-stack watch mode.【F:packages/cli/src/commands/start.ts†L1-L200】
+- `wpk start` watches wpk sources, regenerates artefacts on change, and runs the Vite dev server with debounced triggers and safe shutdown hooks, giving authors a full-stack watch mode.【F:packages/cli/src/commands/start.ts†L1-L200】
 
 ### Reference Implementations
 

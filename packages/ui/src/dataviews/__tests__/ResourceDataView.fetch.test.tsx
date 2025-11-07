@@ -5,7 +5,7 @@ import {
 	renderResourceDataView,
 	flushDataViews,
 	createDataViewsTestController,
-	createKernelRuntime,
+	createWPKernelRuntime,
 	type ResourceDataViewTestProps,
 	type RuntimeWithDataViews,
 } from '../test-support/ResourceDataView.test-support';
@@ -251,7 +251,7 @@ describe('ResourceDataView fetch integration', () => {
 				total: 25,
 			});
 
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const config = createConfig<Item, Query>({
 			defaultView: {
 				type: 'table',

@@ -477,7 +477,7 @@ function buildBootstrapFunction(
 	return mergeNodeAttributes(fn, {
 		comments: [
 			buildDocComment([
-				'Attach kernel hooks required for REST registration.',
+				'Attach wpk hooks required for REST registration.',
 			]),
 		],
 	});

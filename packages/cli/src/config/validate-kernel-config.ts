@@ -334,7 +334,7 @@ const wpkConfigValidator = t.isObject(
 );
 
 /**
- * Validate a kernel configuration object against the framework's contracts.
+ * Validate a wpk configuration object against the framework's contracts.
  *
  * This is the primary validation entry point called by the config loader.
  * It performs multi-layered validation to catch configuration errors before
@@ -478,7 +478,7 @@ export function normalizeVersion(
 	}
 
 	if (version !== 1) {
-		const message = `Unsupported kernel config version ${String(version)} in ${sourcePath}. Only version 1 is supported.`;
+		const message = `Unsupported wpk config version ${String(version)} in ${sourcePath}. Only version 1 is supported.`;
 		reporter.error(message, { sourcePath, version });
 		throw new WPKernelError('ValidationError', {
 			message,
@@ -680,9 +680,9 @@ export function formatValidationErrors(
 	origin: string
 ): string {
 	if (!errors || errors.length === 0) {
-		return `Invalid kernel config discovered in ${sourcePath} (${origin}).`;
+		return `Invalid wpk config discovered in ${sourcePath} (${origin}).`;
 	}
 
 	const formatted = errors.map((error) => ` - ${error}`).join('\n');
-	return `Invalid kernel config discovered in ${sourcePath} (${origin}):\n${formatted}`;
+	return `Invalid wpk config discovered in ${sourcePath} (${origin}):\n${formatted}`;
 }

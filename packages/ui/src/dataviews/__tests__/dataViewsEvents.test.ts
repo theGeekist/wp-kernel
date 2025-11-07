@@ -6,11 +6,11 @@ import {
 	DATA_VIEWS_EVENT_VIEW_CHANGED,
 	type DataViewChangedPayload,
 } from '../../runtime/dataviews/events';
-import { createKernelRuntime } from '../test-support/ResourceDataView.test-support';
+import { createWPKernelRuntime } from '../test-support/ResourceDataView.test-support';
 
 describe('subscribeToDataViewsEvent', () => {
 	it('invokes listeners when events fire', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const listener = jest.fn();
 		const unsubscribe = subscribeToDataViewsEvent(
 			runtime.dataviews,
@@ -40,7 +40,7 @@ describe('subscribeToDataViewsEvent', () => {
 	});
 
 	it('bridges events to WordPress hooks when available', () => {
-		const runtime = createKernelRuntime();
+		const runtime = createWPKernelRuntime();
 		const listener = jest.fn();
 		const addAction = jest.fn();
 		const removeAction = jest.fn();

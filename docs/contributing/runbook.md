@@ -99,7 +99,7 @@ Builds all packages once for production.
 ### Build Specific Package
 
 ```bash
-# Build only kernel package
+# Build only wpk package
 pnpm --filter @wpkernel/core build
 
 # Build only UI package

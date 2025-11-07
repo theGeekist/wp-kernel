@@ -51,7 +51,7 @@ export const createWPKLibConfig = (
 	// Default external capability:
 	// - All WP ids (incl. any @wordpress/*)
 	// - React bits (just in case something imports jsx-runtime)
-	// - Other kernel packages (avoid circular bundling across workspace)
+	// - Other wpk packages (avoid circular bundling across workspace)
 	// - Node built-ins (string & 'node:' resolver)
 	// - A few heavy tools used by CLI/plugins (left external on purpose)
 	const defaultExternalArray: Array<string | RegExp> = [

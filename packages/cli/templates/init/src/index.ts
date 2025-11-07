@@ -31,4 +31,4 @@ export function bootstrapKernel(): WPKInstance {
  *
  * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/guide/data.md
  */
-export const kernel = bootstrapKernel();
+export const wpk = bootstrapKernel();

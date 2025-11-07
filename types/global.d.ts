@@ -44,7 +44,7 @@ declare global {
 
 	/**
 	 * WP Kernel package data on globalThis
-	 * Used by namespace detection and other kernel functionality
+	 * Used by namespace detection and other wpk functionality
 	 */
 	interface GlobalThis {
 		__WP_KERNEL_PACKAGE__?: {

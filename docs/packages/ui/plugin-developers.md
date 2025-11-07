@@ -2,11 +2,11 @@
 
 ## Overview
 
-`@wpkernel/ui` wraps WordPress-native interfaces so plugin teams can ship React screens that respect kernel resources, actions, and capability guards. It keeps the runtime aligned with `@wordpress/dataviews` and the kernel action pipeline so DataViews, notices, and async boundaries stay consistent across admin surfaces.
+`@wpkernel/ui` wraps WordPress-native interfaces so plugin teams can ship React screens that respect wpk resources, actions, and capability guards. It keeps the runtime aligned with `@wordpress/dataviews` and the wpk action pipeline so DataViews, notices, and async boundaries stay consistent across admin surfaces.
 
 ## Workflow
 
-Start by booting the kernel with UI bindings enabled. Generators will scaffold controller modules, but manual projects can call `createResourceDataViewController()` directly. Mount the resulting controller inside `ResourceDataView` so capability checks, pagination, and notices flow through the shared runtime.
+Start by booting the wpk with UI bindings enabled. Generators will scaffold controller modules, but manual projects can call `createResourceDataViewController()` directly. Mount the resulting controller inside `ResourceDataView` so capability checks, pagination, and notices flow through the shared runtime.
 
 ## Examples
 
@@ -16,11 +16,11 @@ import {
 	createDataFormController,
 } from '@wpkernel/ui/dataviews';
 import { attachUIBindings } from '@wpkernel/ui/runtime';
-import { createKernel } from '@wpkernel/core';
+import { createWPKernel } from '@wpkernel/core';
 import { job } from '@/resources/job';
 import { createJob } from '@/actions/Job.Create';
 
-const kernel = createKernel({
+const wpk = createWPKernel({
 	namespace: 'demo',
 	registry: window.wp.data,
 	ui: {

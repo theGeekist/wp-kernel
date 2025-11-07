@@ -4,7 +4,7 @@
 
 ### Patch 0.11.1 - Task 46: DataViews schema expansion
 
-- Auto-register saved views, default layouts, and menu metadata inside `attachUIBindings()` so kernel resources hydrate `ResourceDataView` controllers without bespoke wiring. Runtime tests cover the expanded schema and the README now documents the new `screen.menu` capabilities.
+- Auto-register saved views, default layouts, and menu metadata inside `attachUIBindings()` so wpk resources hydrate `ResourceDataView` controllers without bespoke wiring. Runtime tests cover the expanded schema and the README now documents the new `screen.menu` capabilities.
 
 ### Patch 0.11.2 - Task 47: Async boundaries & notices
 
@@ -62,8 +62,8 @@
   consume configuration explicitly instead of relying on global side effects.
 - **DataViews Phase 2**: Added `ResourceDataView` component with resource/action controllers
     - `createResourceDataViewController` for DataViews state → resource query mapping
-    - `createDataFormController` for DataForm → kernel action integration with cache invalidation
-    - `ResourceDataView` React component bridging kernel resources/actions with WordPress DataViews UI
+    - `createDataFormController` for DataForm → wpk action integration with cache invalidation
+    - `ResourceDataView` React component bridging wpk resources/actions with WordPress DataViews UI
     - Capability-gated actions with error normalization
     - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
 - **DataViews Phase 3**: `configureWPKernel` auto-registers resource DataViews configs, wiring runtime events and integration
@@ -80,7 +80,7 @@
   `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`). Importing
   `@wpkernel/ui` no longer auto-attaches hooks.
 - Resource hook attachment now listens to `kernel.events` (`resource:defined`)
-  and replays the kernel registry instead of mutating globals, so UI bundles can
+  and replays the wpk registry instead of mutating globals, so UI bundles can
   subscribe deterministically regardless of load order.
 - Hooks such as `useAction`, `useResourceList`, and prefetch helpers now throw a
   `WPKernelError` if a `WPKernelUIRuntime` is not available.
@@ -97,7 +97,7 @@
   accessors so that actions gated by capabilities unlock once `defineCapability()`
   registers the runtime, avoiding the need for a full refresh when the UI
   attached before capabilities were available.
-- Migrated all kernel imports to the new `@wpkernel/core/events` and
+- Migrated all wpk imports to the new `@wpkernel/core/events` and
   `@wpkernel/core/resource/*` barrels so UI bundles no longer rely on the
   package root.
 
@@ -107,7 +107,7 @@
 import { configureWPKernel } from '@wpkernel/core';
 import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-const kernel = configureWPKernel({
+const wpk = configureWPKernel({
 	namespace: 'my-plugin',
 	registry: window.wp.data,
 	ui: { attach: attachUIBindings },

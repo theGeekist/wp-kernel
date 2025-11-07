@@ -179,7 +179,7 @@ export function createResourceWithDataView(
 	return resource;
 }
 
-export function createKernel(
+export function createWPKernel(
 	events: WPKernelEventBus,
 	options?: UIIntegrationOptions,
 	registry?: WPKernelRegistry,

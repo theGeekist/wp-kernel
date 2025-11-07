@@ -20,7 +20,7 @@ export { createPipelineCommit, createPipelineRollback } from './helpers/commit';
 
 ## Patterns
 
-Keep reusable helpers in the standalone package and reserve package-specific modules for contextual wiring. When migrating code, audit each helper for package-specific behaviour; if it depends on kernel registries or CLI reporters, keep it co-located with that surface.
+Keep reusable helpers in the standalone package and reserve package-specific modules for contextual wiring. When migrating code, audit each helper for package-specific behaviour; if it depends on wpk registries or CLI reporters, keep it co-located with that surface.
 
 ## Extension Points
 

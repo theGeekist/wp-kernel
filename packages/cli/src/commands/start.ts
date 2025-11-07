@@ -202,7 +202,7 @@ async function loadChokidarWatch(): Promise<WatchFn> {
 /**
  * Builds the `start` command for the CLI.
  *
- * This command initiates a watch mode for kernel sources, regenerating artifacts
+ * This command initiates a watch mode for wpk sources, regenerating artifacts
  * on changes and running a Vite development server. It supports debouncing
  * changes and optionally auto-applying generated PHP artifacts.
  *
@@ -221,7 +221,7 @@ export function buildStartCommand(
 
 		static override usage = Command.Usage({
 			description:
-				'Watch kernel sources, regenerate on change, and run the Vite dev server.',
+				'Watch wpk sources, regenerate on change, and run the Vite dev server.',
 			examples: [
 				['Start watch mode with default settings', 'wpk start'],
 				[

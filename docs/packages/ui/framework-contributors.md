@@ -2,7 +2,7 @@
 
 ## Overview
 
-Framework contributors maintain the runtime that keeps plugin surfaces aligned with kernel resources. `@wpkernel/ui` composes capability checks, preference persistence, and event reporting so generated controllers act as thin proxies over shared behaviour.
+Framework contributors maintain the runtime that keeps plugin surfaces aligned with wpk resources. `@wpkernel/ui` composes capability checks, preference persistence, and event reporting so generated controllers act as thin proxies over shared behaviour.
 
 ## Workflow
 
