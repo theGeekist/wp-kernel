@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Test execution** - All Jest test runs now fail fast on first error by default (`bail: 1`), significantly reducing test execution time when failures occur. Improves feedback loop for developers working with >2.1k tests. Can be overridden with `--no-bail` or `--maxFailures=N` flags. Watch mode automatically disables bail to allow continuous testing.
+
 ### Fixed
 
 - **Core package exports** - Fixed missing Vite build entry points for `namespace` and `events` submodules, ensuring `@wpkernel/core/namespace` and `@wpkernel/core/events` imports work correctly at runtime. Updated package.json export paths to match actual build output structure.

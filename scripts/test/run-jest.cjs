@@ -212,6 +212,25 @@ const jestBin = require.resolve('jest/bin/jest');
 
 // keep these - they make sense for CI + pre-commit
 const defaultArgs = ['--passWithNoTests', '--watchman=false'];
+
+// Add bail flag only if not already specified by user
+const hasBailFlag = jestArgs.some(
+	(arg) => arg === '--bail' || arg.startsWith('--bail=') || arg === '--no-bail'
+);
+const hasMaxFailuresFlag = jestArgs.some(
+	(arg) => arg === '--maxFailures' || arg.startsWith('--maxFailures=')
+);
+
+// Don't add --bail in watch mode (it would exit after first failure)
+const isWatchMode = jestArgs.some(
+	(arg) => arg === '--watch' || arg === '--watchAll'
+);
+
+// If user hasn't specified bail/maxFailures behavior and not in watch mode, add --bail=1
+if (!hasBailFlag && !hasMaxFailuresFlag && !isWatchMode) {
+	defaultArgs.push('--bail=1');
+}
+
 const finalArgs = [jestBin, ...defaultArgs];
 
 if (mode === 'coverage' && !jestArgs.includes('--coverage')) {

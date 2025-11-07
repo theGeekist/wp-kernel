@@ -68,7 +68,17 @@ pnpm wp:start
 
 ```bash
 # Unit tests (Jest) - fast, no WordPress needed
+# ⚡ Default behavior: Fails fast on first error (bail: 1)
 pnpm test
+
+# Run all tests regardless of failures
+pnpm test --no-bail
+
+# Stop after N failures (useful for debugging)
+pnpm test --maxFailures=5
+
+# Watch mode (auto-disables bail for continuous testing)
+pnpm test:watch
 
 # E2E tests (Playwright) - requires wp-env running
 # ✓ Can run from root OR examples/showcase directory
@@ -80,6 +90,8 @@ pnpm e2e:ui
 # E2E single browser
 pnpm e2e --project chromium
 ```
+
+> **⚡ Fail-Fast Default**: All Jest test runs stop on the first failure to provide immediate feedback. This is especially valuable with >2.1k tests - you'll know about issues in seconds rather than waiting for the full suite. Use `--no-bail` to run all tests when needed (e.g., checking total failure count).
 
 ## 🔧 Core Scripts Cheat Sheet
 

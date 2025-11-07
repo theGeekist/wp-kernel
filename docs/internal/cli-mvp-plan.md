@@ -204,6 +204,7 @@ Phase 8 shifts to the UI package so authors can describe a resource once and imm
 - ✓ Task 47 - Async boundaries & notices: Resource screens share loading/empty/error/permission boundaries and emit success/failure notices through `core/notices`, keeping reporter diagnostics aligned with the runtime.
 - ✓ Task 48 - Published a `createDataViewInteraction()` helper that syncs DataView controllers with `defineInteraction`, forwarding selections, filters, and cache hydration.
 - ✓ Task 49 - Surfaced structured events, reporter channels, and hook utilities so plugins can subscribe to DataView lifecycle changes without spelunking the runtime.
+- ✓ Task 50 - Config validation, IR preservation, and TypeScript fixtures now surface saved views, default layouts, menu metadata, and preferences keys directly from `wpk.config.ts`, aligning Task 50’s first milestone with the runtime contract. The CLI now snapshots DataViews registry metadata under `.generated/ui/registry/dataviews/*.ts` and tracks it in the apply manifest so stale entries are removed automatically during regeneration. Bundler output now advertises a UI handle whenever DataViews metadata exists, and the plugin loader registers, localises, and enqueues the generated bundle based on that manifest while the apply plan tracks the new handles.
 
 ### Phase 9 - Post-MVP polish (⬜ Planned)
 
