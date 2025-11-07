@@ -32,6 +32,8 @@ export type {
 	PipelineStep,
 	PipelineDiagnostic,
 	ConflictDiagnostic,
+	MissingDependencyDiagnostic,
+	UnusedHelperDiagnostic,
 	PipelinePhase,
 	BuilderInput,
 	BuilderOutput,

@@ -4,6 +4,7 @@ import {
 	createTsBuilder,
 	buildAdminScreenCreator,
 	buildDataViewFixtureCreator,
+	buildDataViewInteractivityFixtureCreator,
 	buildDataViewRegistryCreator,
 	type TsBuilderCreator,
 } from '../ts';
@@ -131,6 +132,7 @@ describe('createTsBuilder - orchestration', () => {
 				creators: [
 					buildAdminScreenCreator(),
 					buildDataViewFixtureCreator(),
+					buildDataViewInteractivityFixtureCreator(),
 					buildDataViewRegistryCreator(),
 					customCreator,
 				],
@@ -183,6 +185,13 @@ describe('createTsBuilder - orchestration', () => {
 				path.join(
 					'.generated',
 					'ui',
+					'fixtures',
+					'interactivity',
+					'job.ts'
+				),
+				path.join(
+					'.generated',
+					'ui',
 					'registry',
 					'dataviews',
 					'job.ts'
@@ -192,7 +201,7 @@ describe('createTsBuilder - orchestration', () => {
 			const debugCalls = (reporter.debug as jest.Mock).mock.calls;
 			const debugMessage = debugCalls[debugCalls.length - 1]?.[0];
 			expect(debugMessage).toContain(
-				'createTsBuilder: 4 files written ('
+				'createTsBuilder: 5 files written ('
 			);
 			expect(debugMessage).toContain(
 				'.generated/ui/app/job/admin/JobsAdminScreen.tsx'
@@ -201,7 +210,7 @@ describe('createTsBuilder - orchestration', () => {
 				'.generated/ui/fixtures/dataviews/job.ts'
 			);
 			expect(debugMessage).toContain(
-				'.generated/ui/registry/dataviews/job.ts'
+				'.generated/ui/fixtures/interactivity/job.ts'
 			);
 		});
 	});
@@ -242,8 +251,8 @@ describe('createTsBuilder - orchestration', () => {
 				undefined
 			);
 
-			expect(hooks.onBeforeCreate).toHaveBeenCalledTimes(3);
-			expect(hooks.onAfterCreate).toHaveBeenCalledTimes(3);
+			expect(hooks.onBeforeCreate).toHaveBeenCalledTimes(4);
+			expect(hooks.onAfterCreate).toHaveBeenCalledTimes(4);
 			expect(hooks.onBeforeCreate).toHaveBeenCalledWith(
 				expect.objectContaining({
 					descriptor: expect.objectContaining({ key: 'job' }),
@@ -264,6 +273,7 @@ describe('createTsBuilder - orchestration', () => {
 				expect.arrayContaining([
 					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
 					'.generated/ui/fixtures/dataviews/job.ts',
+					'.generated/ui/fixtures/interactivity/job.ts',
 					'.generated/ui/registry/dataviews/job.ts',
 				])
 			);
@@ -282,6 +292,7 @@ describe('createTsBuilder - orchestration', () => {
 				expect.arrayContaining([
 					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
 					'.generated/ui/fixtures/dataviews/job.ts',
+					'.generated/ui/fixtures/interactivity/job.ts',
 					'.generated/ui/registry/dataviews/job.ts',
 				])
 			);
@@ -509,6 +520,13 @@ describe('createTsBuilder - orchestration', () => {
 				path.join(
 					'.generated',
 					'ui',
+					'fixtures',
+					'interactivity',
+					'job.ts'
+				),
+				path.join(
+					'.generated',
+					'ui',
 					'registry',
 					'dataviews',
 					'job.ts'
@@ -526,6 +544,13 @@ describe('createTsBuilder - orchestration', () => {
 					'ui',
 					'fixtures',
 					'dataviews',
+					'task.ts'
+				),
+				path.join(
+					'.generated',
+					'ui',
+					'fixtures',
+					'interactivity',
 					'task.ts'
 				),
 				path.join(

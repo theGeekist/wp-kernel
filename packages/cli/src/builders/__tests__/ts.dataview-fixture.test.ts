@@ -90,6 +90,70 @@ describe('createTsBuilder - DataView fixture creator', () => {
 		});
 	});
 
+	it('emits interactivity fixtures with default helpers', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
+
+			const dataviews = buildDataViewsConfig();
+			const { ir, options } = buildBuilderArtifacts({
+				dataviews,
+				sourcePath: path.join(root, 'wpk.config.ts'),
+			});
+
+			const reporter = buildReporter();
+			const output = buildOutput();
+			const builder = createTsBuilder();
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+					},
+					input: {
+						phase: 'generate',
+						options,
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const interactivityPath = path.join(
+				'.generated',
+				'ui',
+				'fixtures',
+				'interactivity',
+				'job.ts'
+			);
+			const interactivityContents =
+				await workspace.readText(interactivityPath);
+
+			expect(interactivityContents).toContain(
+				"import { createDataViewInteraction, type DataViewInteractionResult } from '@wpkernel/ui/dataviews';"
+			);
+			expect(interactivityContents).toContain(
+				"const jobsadminscreenInteractivityFeature = 'admin-screen';"
+			);
+			expect(interactivityContents).toContain(
+				'export const jobsadminscreenInteractivityNamespace = getJobsAdminScreenInteractivityNamespace();'
+			);
+			expect(interactivityContents).toContain(
+				'export interface CreateJobsAdminScreenDataViewInteractionOptions'
+			);
+			expect(interactivityContents).toContain(
+				'export function createJobsAdminScreenDataViewInteraction(options: CreateJobsAdminScreenDataViewInteractionOptions = {})'
+			);
+			expect(interactivityContents).toContain(
+				'bindings[candidate.id] = candidate.action as InteractionActionInput<unknown, unknown>;'
+			);
+		});
+	});
+
 	it('derives fixture names from the resource key', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const dataviews = buildDataViewsConfig();

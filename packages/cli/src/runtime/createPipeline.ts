@@ -148,6 +148,7 @@ export function createPipeline(): Pipeline {
 					helper.origin ?? helper.key,
 				],
 				message,
+				kind: helper.kind,
 			} satisfies PipelineDiagnostic;
 		},
 	}) as Pipeline;

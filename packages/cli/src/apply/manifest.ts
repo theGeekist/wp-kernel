@@ -318,6 +318,24 @@ function buildResourceEntry({
 			`${resourceKey}.ts`
 		);
 		generatedArtifacts.add(registryPath);
+
+		const dataviewFixturePath = path.posix.join(
+			'.generated',
+			'ui',
+			'fixtures',
+			'dataviews',
+			`${resourceKey}.ts`
+		);
+		generatedArtifacts.add(dataviewFixturePath);
+
+		const interactivityFixturePath = path.posix.join(
+			'.generated',
+			'ui',
+			'fixtures',
+			'interactivity',
+			`${resourceKey}.ts`
+		);
+		generatedArtifacts.add(interactivityFixturePath);
 	}
 
 	const shimBase = path.posix.join('Rest', `${pascal}Controller.php`);

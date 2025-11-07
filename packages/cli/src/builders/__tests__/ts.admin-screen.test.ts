@@ -89,7 +89,22 @@ describe('createTsBuilder - admin screen creator', () => {
 				'/** @jsxImportSource @wordpress/element */'
 			);
 			expect(screenContents).toContain(
-				"import { WPKernelError } from '@wpkernel/core/contracts';"
+				"import { WPKernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';"
+			);
+			expect(screenContents).toContain(
+				"const jobsadminscreenInteractivityFeature = 'admin-screen';"
+			);
+			expect(screenContents).toContain(
+				'const jobsadminscreenInteractivityContext = \'{"feature":"admin-screen","resource":"job"}\';'
+			);
+			expect(screenContents).toContain(
+				'const interactivityNamespace = getJobsAdminScreenInteractivityNamespace();'
+			);
+			expect(screenContents).toContain(
+				'data-wp-interactive={interactivityNamespace}'
+			);
+			expect(screenContents).toContain(
+				'data-wp-context={jobsadminscreenInteractivityContext}'
 			);
 
 			const expectedResourceImport = normalise(

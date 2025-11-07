@@ -8,6 +8,21 @@ import type {
 	ResourceDataViewController,
 } from '../types';
 
+/**
+ * Resolve the effective ResourceDataViewController.
+ *
+ * Precedence:
+ * 1. Explicit `controllerProp`
+ * 2. Derived controller from `resource` + `config` + runtime context
+ *
+ * Throws when neither a controller nor a valid `(resource, config)` pair is provided.
+ * @param    controllerProp
+ * @param    resource
+ * @param    config
+ * @param    context
+ * @param    fetchList
+ * @category DataViews Hooks
+ */
 export function useResolvedController<TItem, TQuery>(
 	controllerProp: ResourceDataViewController<TItem, TQuery> | undefined,
 	resource: ResourceObject<TItem, TQuery> | undefined,

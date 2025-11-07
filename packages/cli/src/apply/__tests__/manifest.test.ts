@@ -211,6 +211,8 @@ describe('generation manifest helpers', () => {
 				generated: expect.arrayContaining([
 					'.generated/php/Rest/BooksController.php',
 					'.generated/php/Rest/BooksController.php.ast.json',
+					'.generated/ui/fixtures/dataviews/books.ts',
+					'.generated/ui/fixtures/interactivity/books.ts',
 					'.generated/ui/registry/dataviews/books.ts',
 				]),
 				shims: ['inc/Rest/BooksController.php'],

@@ -73,10 +73,11 @@ export interface PipelineStep extends HelperDescriptor {
 }
 
 /**
- * Diagnostic for a conflict detected during pipeline execution.
+ * Diagnostic emitted when two helpers conflict.
  *
  * @category Pipeline
- * @public
+ * @example
+ * A generate helper overrides another helper with the same key.
  */
 export interface ConflictDiagnostic {
 	/** The type of diagnostic, always 'conflict'. */
@@ -89,14 +90,59 @@ export interface ConflictDiagnostic {
 	readonly helpers: readonly string[];
 	/** A descriptive message about the conflict. */
 	readonly message: string;
+	/** Helper kind associated with the conflict. */
+	readonly kind?: HelperDescriptor['kind'];
 }
 
 /**
- * Represents a diagnostic message generated during pipeline execution.
+ * Diagnostic emitted when a required helper dependency is missing.
  *
  * @category Pipeline
  */
-export type PipelineDiagnostic = ConflictDiagnostic;
+export interface MissingDependencyDiagnostic {
+	/** The type of diagnostic, always 'missing-dependency'. */
+	readonly type: 'missing-dependency';
+	/** The key of the helper emitting the diagnostic. */
+	readonly key: string;
+	/** Identifier of the missing dependency helper. */
+	readonly dependency: string;
+	/** A descriptive message about the missing dependency. */
+	readonly message: string;
+	/** Helper kind associated with the diagnostic. */
+	readonly kind?: HelperDescriptor['kind'];
+	/** Optional helper key associated with the dependency. */
+	readonly helper?: string;
+}
+
+/**
+ * Union of all diagnostics emitted by the pipeline.
+ *
+ * @category Pipeline
+ */
+export interface UnusedHelperDiagnostic {
+	/** The type of diagnostic, always 'unused-helper'. */
+	readonly type: 'unused-helper';
+	/** The key of the helper emitting the diagnostic. */
+	readonly key: string;
+	/** A descriptive message about the unused helper. */
+	readonly message: string;
+	/** Helper kind associated with the diagnostic. */
+	readonly kind?: HelperDescriptor['kind'];
+	/** Optional helper key flagged as unused. */
+	readonly helper?: string;
+	/** Dependency list used when determining helper usage. */
+	readonly dependsOn?: readonly string[];
+}
+
+/**
+ * Union of all diagnostics emitted by the pipeline.
+ *
+ * @category Pipeline
+ */
+export type PipelineDiagnostic =
+	| ConflictDiagnostic
+	| MissingDependencyDiagnostic
+	| UnusedHelperDiagnostic;
 
 /**
  * The result of a pipeline run.
