@@ -2,6 +2,30 @@
 
 **Status**: 🔒 **Enforced by ESLint** - Violations will fail CI
 
+## Test Execution
+
+### Fail-Fast Behavior
+
+**By default, all test runs fail fast on the first error** (`bail: 1`). This significantly improves feedback loops when working with large test suites (>2.1k tests).
+
+```bash
+# ✓ Default: Stops on first failure
+pnpm test
+
+# ✓ Override: Run all tests regardless of failures
+pnpm test --no-bail
+
+# ✓ Custom: Stop after N failures
+pnpm test --maxFailures=5
+
+# ✓ Watch mode: Automatically disables bail for continuous testing
+pnpm test:watch
+```
+
+**Rationale**: Early failure detection saves time and provides immediate feedback. In CI/CD pipelines and pre-commit hooks, knowing about the first failure quickly is more valuable than waiting for thousands of tests to complete.
+
+---
+
 ## Core Principle
 
 **Never manually mock WordPress globals or browser APIs in test files.**

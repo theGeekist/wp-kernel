@@ -80,6 +80,9 @@ export default {
 	// Performance
 	maxWorkers: '50%',
 
+	// Fail fast on first error
+	bail: 1,
+
 	// Coverage thresholds
 	// Individual packages should override these if needed
 	coverageThreshold: {

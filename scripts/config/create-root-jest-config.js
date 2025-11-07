@@ -16,6 +16,7 @@ export function createRootJestConfig(options = {}) {
 
 	const config = {
 		...baseConfig,
+		bail: 1, // Fail fast on first error
 		roots: ['<rootDir>/packages', '<rootDir>/examples', '<rootDir>/tests'],
 		moduleNameMapper: {
 			...baseConfig.moduleNameMapper,
