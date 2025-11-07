@@ -1,0 +1,514 @@
+{
+	"engine": {
+		"module": "packages/pipeline/src/createPipeline.ts",
+		"supportingModules": [
+			"packages/pipeline/src/dependency-graph.ts",
+			"packages/pipeline/src/executor.ts",
+			"packages/pipeline/src/extensions.ts",
+			"packages/pipeline/src/registration.ts",
+			"packages/pipeline/src/async-utils.ts",
+			"packages/pipeline/src/createExtension.ts"
+		],
+		"lifecycle": [
+			{
+				"order": 1,
+				"name": "registration",
+				"description": "Helpers and extensions register via pipeline.ir.use / pipeline.builders.use / pipeline.extensions.use before any run.",
+				"synchronous": true,
+				"outputs": ["RegisteredHelper[]", "ExtensionHookEntry[]"],
+				"implementation": "registerHelper() validates kind/mode and push into fragmentEntries or builderEntries; handleExtensionRegisterResult() records extension hooks."
+			},
+			{
+				"order": 2,
+				"name": "context-bootstrap",
+				"description": "pipeline.run() calls createBuildOptions(), createContext(), and createFragmentState() to derive immutable build options, execution context, and mutable draft state.",
+				"synchronous": true,
+				"outputs": ["buildOptions", "context", "draft"],
+				"implementation": "createRunContext() in createPipeline.ts"
+			},
+			{
+				"order": 3,
+				"name": "fragment-ordering",
+				"description": "createDependencyGraph() topologically sorts registered fragment helpers; missing dependencies emit diagnostics and throw ValidationError.",
+				"synchronous": true,
+				"outputs": ["fragmentOrder: RegisteredHelper[]"],
+				"implementation": "createDependencyGraph() + compareHelpers()"
+			},
+			{
+				"order": 4,
+				"name": "fragment-execution",
+				"description": "executeHelpers() runs fragments in dependency order with middleware-style next(); async helpers are awaited via maybeThen().",
+				"synchronous": false,
+				"outputs": ["draft mutated", "steps[]", "visited fragment ids"],
+				"implementation": "executeHelpers() in executor.ts"
+			},
+			{
+				"order": 5,
+				"name": "fragment-finalization",
+				"description": "finalizeFragmentState() receives draft and fragment execution metadata, producing the pipeline artifact (e.g., IR).",
+				"synchronous": true,
+				"outputs": ["artifact"],
+				"implementation": "options.finalizeFragmentState() implementation per pipeline"
+			},
+			{
+				"order": 6,
+				"name": "extension-hooks",
+				"description": "Registered extensions receive PipelineExtensionHookOptions built from context/run options/artifact. Hooks may mutate artifacts and return commit/rollback handlers.",
+				"synchronous": false,
+				"outputs": [
+					"artifact (possibly replaced)",
+					"ExtensionHookExecution[]"
+				],
+				"implementation": "runExtensionHooks() executes hooks sequentially and rolls back on failure; createPipelineExtension() provides register/setup helpers."
+			},
+			{
+				"order": 7,
+				"name": "builder-ordering",
+				"description": "Builder helpers are sorted with createDependencyGraph(); diagnostics emitted for unresolved or unused builders.",
+				"synchronous": true,
+				"outputs": ["builderOrder: RegisteredHelper[]"],
+				"implementation": "createDependencyGraph() invoked with builderGraphOptions"
+			},
+			{
+				"order": 8,
+				"name": "builder-execution",
+				"description": "executeHelpers() runs builders; failures trigger extension rollback before propagating errors.",
+				"synchronous": false,
+				"outputs": [
+					"artifact mutated",
+					"steps extended",
+					"visited builder ids"
+				],
+				"implementation": "executeHelpers() + rollbackExtensionResults()"
+			},
+			{
+				"order": 9,
+				"name": "extension-commit",
+				"description": "commitExtensionResults() walks execution results in registration order, invoking commit() if provided; failures trigger rollback and rethrow.",
+				"synchronous": false,
+				"outputs": ["side effects committed"],
+				"implementation": "commitExtensionResults() + maybeTry()"
+			},
+			{
+				"order": 10,
+				"name": "result-assembly",
+				"description": "createRunResult() combines artifact, diagnostics, steps, and helper execution snapshots into the caller-defined run result type.",
+				"synchronous": true,
+				"outputs": ["pipeline run result"],
+				"implementation": "options.createRunResult() or default"
+			}
+		],
+		"extensionIntegration": {
+			"registration": "pipeline.extensions.use() calls extension.register(pipeline); Promise results are awaited before recording hooks.",
+			"hookTiming": "Hooks run after fragments finalize but before builders. They can replace the artifact, defer writes to commit(), and undo work in rollback().",
+			"rollback": "rollbackExtensionResults() processes results in reverse order; onRollbackError handler logs failures without aborting rollback.",
+			"createPipelineExtension": "Provides either register() passthrough or setup()+hook() sugar so extensions can synchronously register helpers and return a hook once setup completes."
+		},
+		"diagnostics": {
+			"conflict": "Multiple overrides or mode conflicts push 'conflict' diagnostics via pushConflictDiagnosticFor().",
+			"missingDependency": "Dependency resolution issues push 'missing-dependency' diagnostics before throwing ValidationError.",
+			"unused": "Helpers that never execute emit 'unused-helper' diagnostics unless marked optional.",
+			"streaming": "onDiagnostic option streams diagnostics to the active reporter during runs while deduplicating per reporter."
+		}
+	},
+	"cli": {
+		"factoryModule": "packages/cli/src/runtime/createPipeline.ts",
+		"entrypointModule": "packages/cli/src/ir/createIr.ts",
+		"runOptions": "PipelineRunOptions (phase, config, namespace, origin, sourcePath, workspace, reporter, generationState)",
+		"buildOptions": "BuildIrOptions (config, namespace, origin, sourcePath)",
+		"contextType": "PipelineContext (workspace, reporter, phase, generationState)",
+		"draftType": "MutableIr (meta, schemas, resources, capabilities, capabilityMap, blocks, php, diagnostics, extensions)",
+		"artifactType": "IRv1",
+		"fragmentFinalizer": "finalizeIrDraft() ensures required fragments executed and mandatory sections (meta, capabilityMap, php) exist before emitting IR.",
+		"fragments": [
+			{
+				"key": "ir.meta.core",
+				"module": "packages/cli/src/ir/fragments/meta.ts",
+				"dependsOn": [],
+				"mode": "override",
+				"produces": [
+					"draft.meta",
+					"draft.php",
+					"draft.extensions['ir.meta.core']"
+				],
+				"reads": [
+					"input.options.namespace",
+					"input.options.sourcePath"
+				],
+				"async": true,
+				"notes": "Sanitises namespace, stores metadata, seeds PHP project defaults, and caches sanitized namespace for downstream fragments."
+			},
+			{
+				"key": "ir.schemas.core",
+				"module": "packages/cli/src/ir/fragments/schemas.ts",
+				"dependsOn": [],
+				"mode": "extend",
+				"produces": [
+					"draft.schemas",
+					"draft.extensions['ir.schemas.core']"
+				],
+				"reads": ["input.options.config.schemas"],
+				"async": true,
+				"notes": "Loads configured schemas into an accumulator stored on the draft for resource assembly."
+			},
+			{
+				"key": "ir.resources.core",
+				"module": "packages/cli/src/ir/fragments/resources.ts",
+				"dependsOn": ["ir.meta.core", "ir.schemas.core"],
+				"mode": "extend",
+				"produces": ["draft.resources"],
+				"reads": [
+					"draft.extensions['ir.meta.core']",
+					"draft.extensions['ir.schemas.core']"
+				],
+				"async": true,
+				"notes": "Builds resource descriptors using sanitized namespace and schema accumulator; errors if prerequisites missing."
+			},
+			{
+				"key": "ir.capabilities.core",
+				"module": "packages/cli/src/ir/fragments/capabilities.ts",
+				"dependsOn": ["ir.resources.core"],
+				"mode": "extend",
+				"produces": ["draft.capabilities"],
+				"reads": ["draft.resources"],
+				"async": true,
+				"notes": "Collects capability hints from resolved resources."
+			},
+			{
+				"key": "ir.capability-map.core",
+				"module": "packages/cli/src/ir/fragments/capability-map.ts",
+				"dependsOn": ["ir.resources.core", "ir.capabilities.core"],
+				"mode": "extend",
+				"produces": ["draft.capabilityMap"],
+				"reads": ["draft.resources", "draft.capabilities"],
+				"async": true,
+				"notes": "Resolves final capability map structure and warnings."
+			},
+			{
+				"key": "ir.blocks.core",
+				"module": "packages/cli/src/ir/fragments/blocks.ts",
+				"dependsOn": ["ir.meta.core"],
+				"mode": "extend",
+				"produces": ["draft.blocks"],
+				"reads": ["input.options.sourcePath"],
+				"async": true,
+				"notes": "Discovers workspace blocks relative to config source path."
+			},
+			{
+				"key": "ir.diagnostics.core",
+				"module": "packages/cli/src/ir/fragments/diagnostics.ts",
+				"dependsOn": ["ir.resources.core", "ir.capability-map.core"],
+				"mode": "extend",
+				"produces": ["draft.diagnostics"],
+				"reads": ["draft.resources", "draft.capabilityMap"],
+				"async": true,
+				"notes": "Aggregates warnings from resources and capability map into sorted diagnostics list."
+			},
+			{
+				"key": "ir.ordering.core",
+				"module": "packages/cli/src/ir/fragments/ordering.ts",
+				"dependsOn": [
+					"ir.schemas.core",
+					"ir.resources.core",
+					"ir.capabilities.core",
+					"ir.blocks.core"
+				],
+				"mode": "extend",
+				"produces": [
+					"draft.schemas",
+					"draft.resources",
+					"draft.capabilities",
+					"draft.blocks"
+				],
+				"reads": [
+					"draft.schemas",
+					"draft.resources",
+					"draft.capabilities",
+					"draft.blocks"
+				],
+				"async": true,
+				"notes": "Sorts key collections for deterministic output; operates on draft in place."
+			},
+			{
+				"key": "ir.validation.core",
+				"module": "packages/cli/src/ir/fragments/validation.ts",
+				"dependsOn": [
+					"ir.meta.core",
+					"ir.resources.core",
+					"ir.capability-map.core"
+				],
+				"mode": "extend",
+				"produces": [],
+				"reads": [
+					"draft.meta",
+					"draft.capabilityMap",
+					"draft.resources"
+				],
+				"async": true,
+				"notes": "Asserts required draft sections exist and every resource retains schema bindings; throws WPKernelError on failure."
+			}
+		],
+		"builders": [
+			{
+				"key": "builder.generate.bundler.core",
+				"module": "packages/cli/src/builders/bundler.ts",
+				"dependsOn": [],
+				"phase": "generate",
+				"async": true,
+				"effects": [
+					"Writes bundler config JSON",
+					"Writes WordPress asset manifest",
+					"Queues workspace writes via BuilderOutput"
+				],
+				"reads": [
+					"input.ir.meta",
+					"workspace package.json",
+					"context.workspace"
+				],
+				"notes": "Creates rollup driver config using namespace + resource metadata; uses workspace transactions and queueWrite()."
+			},
+			{
+				"key": "builder.generate.php.driver",
+				"module": "packages/php-driver/src/installer.ts",
+				"dependsOn": [],
+				"phase": "generate",
+				"async": true,
+				"effects": [
+					"Runs composer install when vendor autoload missing"
+				],
+				"reads": ["workspace filesystem"],
+				"notes": "Ensures nikic/php-parser dependency available before PHP generation; used as prerequisite for PHP builder."
+			},
+			{
+				"key": "builder.generate.php.core",
+				"module": "packages/cli/src/builders/php/builder.ts",
+				"dependsOn": ["builder.generate.php.driver"],
+				"phase": "generate",
+				"async": true,
+				"effects": [
+					"Invokes chained PHP printer helpers",
+					"Writes PHP artifacts via helper sequence"
+				],
+				"reads": ["input.ir"],
+				"notes": "Orchestrates channel, controller, storage, capability, loader, and program writer helpers; requires IR and reporter context."
+			},
+			{
+				"key": "builder.generate.apply.plan",
+				"module": "packages/cli/src/builders/plan.ts",
+				"dependsOn": [],
+				"phase": "generate",
+				"async": true,
+				"effects": [
+					"Writes .wpk/apply/plan.json",
+					"Stages base/incoming shims",
+					"Updates generation manifest"
+				],
+				"reads": [
+					"input.ir",
+					"context.generationState",
+					"workspace files"
+				],
+				"notes": "Diffs current generation state, emits plan instructions, and records skipped deletions."
+			},
+			{
+				"key": "builder.generate.ts.blocks",
+				"module": "packages/cli/src/builders/ts/blocks.ts",
+				"dependsOn": [],
+				"phase": "generate",
+				"async": true,
+				"effects": [
+					"Emits JavaScript block registrars",
+					"Stages block stubs and derived manifests"
+				],
+				"reads": ["input.ir.blocks", "workspace"],
+				"notes": "Processes block manifests and writes registrar code when JS-only blocks present."
+			},
+			{
+				"key": "builder.generate.ts.core",
+				"module": "packages/cli/src/builders/ts.ts",
+				"dependsOn": [],
+				"phase": "generate",
+				"async": true,
+				"effects": [
+					"Emits TypeScript clients and UI scaffolding",
+					"Runs optional lifecycle hooks",
+					"Validates imports"
+				],
+				"reads": ["input.ir", "input.options.config.resources"],
+				"notes": "Iterates resource descriptors through ts-morph creators, writes files via workspace.emit, and records generation summary."
+			},
+			{
+				"key": "builder.apply.patch.core",
+				"module": "packages/cli/src/builders/patcher.ts",
+				"dependsOn": ["builder.generate.apply.plan"],
+				"phase": "apply",
+				"async": true,
+				"effects": [
+					"Applies patch instructions",
+					"Performs merge/diff operations",
+					"Writes patch manifest"
+				],
+				"reads": [".wpk/apply/plan.json", "workspace files"],
+				"notes": "Executes apply plan during apply phase; records deletions and guarded skips."
+			}
+		],
+		"extensions": [
+			{
+				"key": "pipeline.extensions.adapters",
+				"module": "packages/cli/src/runtime/adapterExtensions.ts",
+				"register": "createPipelineExtension setup/hook pattern; no helper registration, returns hook after optional async setup.",
+				"hookPhase": "post-fragment, pre-builder",
+				"async": true,
+				"artifactEffects": [
+					"May replace IR via AdapterExtension outputs"
+				],
+				"sideEffects": [
+					"Invokes adapter factories",
+					"Writes adapter-generated files",
+					"Queues commit/rollback closures"
+				],
+				"commit": "Executes runAdapterExtensions commit closure to persist adapter outputs.",
+				"rollback": "Ensures adapter filesystem writes are reverted on failure; logs rollback errors via pipeline handler.",
+				"activation": "Only runs during phase === 'generate'; no-op otherwise."
+			}
+		],
+		"runPhases": [
+			{
+				"phase": "init",
+				"invokedBy": "packages/cli/src/ir/buildIr.ts",
+				"purpose": "Minimal IR build used during CLI bootstrapping; builders still registered but typically short-circuit due to phase guard clauses."
+			},
+			{
+				"phase": "generate",
+				"invokedBy": "default createIr() calls",
+				"purpose": "Full code generation pass that triggers JS/TS/PHP builders and adapter extensions."
+			},
+			{
+				"phase": "apply",
+				"invokedBy": "CLI apply workflows",
+				"purpose": "Runs patcher builder to apply previously generated plan; generate-phase builders exit early based on phase checks."
+			}
+		]
+	},
+	"core": {
+		"resourcePipeline": {
+			"factoryModule": "packages/core/src/pipeline/resources/createResourcePipeline.ts",
+			"runOptions": "ResourcePipelineRunOptions (config, normalizedConfig, namespace, resourceName, reporter)",
+			"context": "ResourcePipelineContext (extends run options with storeKey)",
+			"draft": "ResourcePipelineDraft (client, cacheKeys, resource)",
+			"fragments": [
+				{
+					"key": "resource.config.validate",
+					"module": "packages/core/src/pipeline/resources/helpers/createResourceValidationFragment.ts",
+					"dependsOn": [],
+					"async": false,
+					"produces": ["logs", "validation side effects"],
+					"notes": "Validates normalized config and logs definition summary."
+				},
+				{
+					"key": "resource.client.build",
+					"module": "packages/core/src/pipeline/resources/helpers/createResourceClientFragment.ts",
+					"dependsOn": ["resource.config.validate"],
+					"async": false,
+					"produces": ["draft.client"],
+					"notes": "Instantiates resource client using reporter and namespace metadata."
+				},
+				{
+					"key": "resource.cacheKeys.build",
+					"module": "packages/core/src/pipeline/resources/helpers/createResourceCacheKeysFragment.ts",
+					"dependsOn": ["resource.config.validate"],
+					"async": false,
+					"produces": ["draft.cacheKeys"],
+					"notes": "Merges default cache keys with user overrides."
+				}
+			],
+			"builders": [
+				{
+					"key": "resource.object.build",
+					"module": "packages/core/src/pipeline/resources/helpers/createResourceObjectBuilder.ts",
+					"dependsOn": [],
+					"async": false,
+					"produces": ["draft.resource"],
+					"notes": "Creates final ResourceObject using client + cacheKeys; throws if prerequisites missing."
+				}
+			],
+			"extensions": [
+				{
+					"key": "core.resource.finalize-definition",
+					"module": "packages/core/src/pipeline/resources/extensions/createFinalizeResourceDefinitionExtension.ts",
+					"hookPhase": "post-builder commit",
+					"async": false,
+					"artifactEffects": ["No artifact mutation"],
+					"sideEffects": [
+						"Emits resource:defined event",
+						"Records definition in registry"
+					],
+					"commit": "Publishes event after verifying artifact.resource exists.",
+					"rollback": "Removes recorded definition if later steps fail."
+				}
+			]
+		},
+		"actionPipeline": {
+			"factoryModule": "packages/core/src/pipeline/actions/createActionPipeline.ts",
+			"runOptions": "ActionPipelineRunOptions (config, args, definition, registry)",
+			"context": "ActionPipelineContext (reporter, namespace, requestId, resolvedOptions, actionContext)",
+			"draft": "ActionInvocationDraft (startTime, durationMs, result, error, resolvedOptions)",
+			"fragments": [
+				{
+					"key": "action.options.resolve",
+					"module": "packages/core/src/pipeline/actions/helpers/createActionOptionsResolver.ts",
+					"dependsOn": [],
+					"async": false,
+					"produces": [
+						"context.resolvedOptions",
+						"draft.resolvedOptions"
+					],
+					"notes": "Normalises action options with high priority to seed downstream helpers."
+				},
+				{
+					"key": "action.context.assemble",
+					"module": "packages/core/src/pipeline/actions/helpers/createActionContextAssembler.ts",
+					"dependsOn": ["action.options.resolve"],
+					"async": false,
+					"produces": [
+						"context.actionContext",
+						"context.reporter",
+						"context.namespace"
+					],
+					"notes": "Constructs action runtime context and swaps reporter namespace."
+				},
+				{
+					"key": "action.lifecycle.initialize",
+					"module": "packages/core/src/pipeline/actions/helpers/createActionLifecycleFragment.ts",
+					"dependsOn": ["action.context.assemble"],
+					"async": true,
+					"produces": ["draft.startTime"],
+					"notes": "Captures start timestamp and emits action.start lifecycle event."
+				}
+			],
+			"builders": [
+				{
+					"key": "action.execute.handler",
+					"module": "packages/core/src/pipeline/actions/helpers/createActionExecutionBuilder.ts",
+					"dependsOn": [],
+					"async": true,
+					"produces": [
+						"draft.result",
+						"draft.error",
+						"draft.durationMs"
+					],
+					"notes": "Invokes handler, emits complete/error events, propagates errors after normalising."
+				},
+				{
+					"key": "action.registry.record",
+					"module": "packages/core/src/pipeline/actions/helpers/createActionRegistryRecorder.ts",
+					"dependsOn": ["action.execute.handler"],
+					"async": true,
+					"produces": [],
+					"notes": "Records action definition in registry after execution chain completes."
+				}
+			],
+			"extensions": []
+		}
+	}
+}
