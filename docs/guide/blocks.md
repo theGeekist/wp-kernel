@@ -42,4 +42,4 @@ For list-style screens, combine blocks with the UI runtime. In the showcase exam
 
 - [Resources guide](/guide/resources) - resources power block data on both the client and the server.
 - [Showcase example](/examples/showcase) - see SSR and UI bindings working together.
-- [`/api/ui/`](../api/) - generated Typedoc for UI helpers.
+- [UI API Reference](/api/@wpkernel/ui/README) - generated Typedoc for UI helpers.

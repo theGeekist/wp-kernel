@@ -1,0 +1,45 @@
+[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / ModuleProgramFile
+
+# Interface: ModuleProgramFile\<TMetadata\>
+
+## Type Parameters
+
+### TMetadata
+
+`TMetadata`
+
+## Properties
+
+### namespace
+
+```ts
+readonly namespace: string | null;
+```
+
+---
+
+### docblock
+
+```ts
+readonly docblock: readonly string[];
+```
+
+---
+
+### metadata
+
+```ts
+readonly metadata: TMetadata;
+```
+
+---
+
+### statements
+
+```ts
+readonly statements: readonly PhpStmt[];
+```

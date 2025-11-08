@@ -1,0 +1,78 @@
+[**@wpkernel/core v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/core](../README.md) / CacheKeys
+
+# Type Alias: CacheKeys\<TListParams\>
+
+```ts
+type CacheKeys<TListParams> = object;
+```
+
+Cache key generators for all CRUD operations
+
+## Example
+
+```ts
+{
+  list: (q) => ['thing', 'list', q?.search, q?.page],
+  get: (id) => ['thing', 'get', id]
+}
+```
+
+## Type Parameters
+
+### TListParams
+
+`TListParams` = `unknown`
+
+## Properties
+
+### list?
+
+```ts
+optional list: CacheKeyFn<TListParams>;
+```
+
+Cache key for list operations
+
+---
+
+### get?
+
+```ts
+optional get: CacheKeyFn<string | number>;
+```
+
+Cache key for single-item fetch
+
+---
+
+### create?
+
+```ts
+optional create: CacheKeyFn<unknown>;
+```
+
+Cache key for create operations (typically not cached)
+
+---
+
+### update?
+
+```ts
+optional update: CacheKeyFn<string | number>;
+```
+
+Cache key for update operations
+
+---
+
+### remove?
+
+```ts
+optional remove: CacheKeyFn<string | number>;
+```
+
+Cache key for delete operations

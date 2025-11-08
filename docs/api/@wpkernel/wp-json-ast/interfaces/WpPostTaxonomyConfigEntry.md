@@ -1,0 +1,15 @@
+[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / WpPostTaxonomyConfigEntry
+
+# Interface: WpPostTaxonomyConfigEntry
+
+## Properties
+
+### taxonomy?
+
+```ts
+readonly optional taxonomy: string | null;
+```

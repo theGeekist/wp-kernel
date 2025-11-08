@@ -295,7 +295,7 @@ do not dispatch a new Action; both callers receive the eventual result.
 after a successful run. It forwards the patterns to the resource cache helper
 (`invalidate`) and keeps invalidation logic beside the UI that depends on it.
 
-➡️ See the [`useAction` API reference](/api/useAction) for the full option
+➡️ See the [`useAction` API reference](/api/@wpkernel/ui/functions/useAction) for the full option
 surface and additional examples.
 
 ### In Block Editor

@@ -1,0 +1,54 @@
+[**@wpkernel/core v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/core](../README.md) / ActionConfig
+
+# Type Alias: ActionConfig\<TArgs, TResult\>
+
+```ts
+type ActionConfig<TArgs, TResult> = object;
+```
+
+Configuration object accepted by `defineAction()`.
+
+## Type Parameters
+
+### TArgs
+
+`TArgs`
+
+### TResult
+
+`TResult`
+
+## Properties
+
+### name
+
+```ts
+name: string;
+```
+
+Unique action identifier.
+
+---
+
+### handler
+
+```ts
+handler: ActionFn & lt;
+(TArgs, TResult & gt);
+```
+
+Implementation invoked when the action is executed.
+
+---
+
+### options?
+
+```ts
+optional options: ActionOptions;
+```
+
+Optional runtime configuration.

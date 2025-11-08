@@ -40,4 +40,3 @@ await jobs.wait(
 ## See Also
 
 - [Actions Guide](/guide/actions) - Enqueueing jobs from actions
-- [API Reference](/api/jobs) - Complete API docs (coming soon)

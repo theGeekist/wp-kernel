@@ -1,0 +1,45 @@
+[**@wpkernel/cli v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/cli](../README.md) / AdapterContext
+
+# Interface: AdapterContext
+
+Context shared with adapter factories while generating artifacts.
+
+## Extended by
+
+- [`AdapterExtensionContext`](AdapterExtensionContext.md)
+
+## Properties
+
+### config
+
+```ts
+config: WPKernelConfigV1;
+```
+
+---
+
+### reporter
+
+```ts
+reporter: Reporter;
+```
+
+---
+
+### namespace
+
+```ts
+namespace: string;
+```
+
+---
+
+### ir?
+
+```ts
+optional ir: IRv1;
+```

@@ -1,0 +1,41 @@
+[**@wpkernel/cli v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/cli](../README.md) / FileWriteRecord
+
+# Interface: FileWriteRecord
+
+Metadata describing an individual file write event.
+
+## Properties
+
+### path
+
+```ts
+path: string;
+```
+
+---
+
+### status
+
+```ts
+status: FileWriteStatus;
+```
+
+---
+
+### hash
+
+```ts
+hash: string;
+```
+
+---
+
+### reason?
+
+```ts
+optional reason: string;
+```

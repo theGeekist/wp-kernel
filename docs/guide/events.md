@@ -315,4 +315,3 @@ This is the authoritative specification for the entire event system. The JavaScr
 
 - [Resources Guide](/guide/resources) - Resource transport and caching
 - [Actions Guide](/guide/actions) - Write path orchestration
-- [API Reference](/api/events) - Complete API docs

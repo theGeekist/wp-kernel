@@ -1,0 +1,53 @@
+[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/php-json-ast](../README.md) / PhpStmtDeclare
+
+# Interface: PhpStmtDeclare
+
+Represents a PHP `declare` statement.
+
+## Extends
+
+- [`PhpStmtBase`](PhpStmtBase.md)
+
+## Properties
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_Declare";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### declares
+
+```ts
+readonly declares: PhpDeclareItem[];
+```
+
+---
+
+### stmts
+
+```ts
+readonly stmts: PhpStmt[] | null;
+```
+
+---
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

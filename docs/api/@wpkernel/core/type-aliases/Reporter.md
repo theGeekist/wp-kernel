@@ -1,0 +1,117 @@
+[**@wpkernel/core v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/core](../README.md) / Reporter
+
+# Type Alias: Reporter
+
+```ts
+type Reporter = object;
+```
+
+## Properties
+
+### info()
+
+```ts
+info: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
+
+### warn()
+
+```ts
+warn: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
+
+### error()
+
+```ts
+error: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
+
+### debug()
+
+```ts
+debug: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
+
+### child()
+
+```ts
+child: (namespace) => Reporter;
+```
+
+#### Parameters
+
+##### namespace
+
+`string`
+
+#### Returns
+
+`Reporter`

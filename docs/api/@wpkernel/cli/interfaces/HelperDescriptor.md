@@ -1,0 +1,86 @@
+[**@wpkernel/cli v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/cli](../README.md) / HelperDescriptor
+
+# Interface: HelperDescriptor\<TKind\>
+
+Base descriptor for a pipeline helper.
+
+## Extended by
+
+- [`Helper`](Helper.md)
+- [`PipelineStep`](PipelineStep.md)
+
+## Type Parameters
+
+### TKind
+
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+
+## Properties
+
+### key
+
+```ts
+readonly key: string;
+```
+
+---
+
+### kind
+
+```ts
+readonly kind: TKind;
+```
+
+---
+
+### mode
+
+```ts
+readonly mode: HelperMode;
+```
+
+---
+
+### priority
+
+```ts
+readonly priority: number;
+```
+
+---
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+---
+
+### origin?
+
+```ts
+readonly optional origin: string;
+```
+
+---
+
+### optional?
+
+```ts
+readonly optional optional: boolean;
+```
+
+Whether this helper is optional and may not execute.
+Optional helpers won't cause validation errors if they don't run.
+Useful for conditional/feature-flag helpers.
+
+#### Default Value
+
+```ts
+false;
+```

@@ -1,0 +1,43 @@
+[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / IdentityHelpers
+
+# Interface: IdentityHelpers
+
+## Properties
+
+### resolveIdentityConfig()
+
+```ts
+readonly resolveIdentityConfig: (resource) => ResolvedIdentity;
+```
+
+#### Parameters
+
+##### resource
+
+[`IdentityResolutionSource`](IdentityResolutionSource.md)
+
+#### Returns
+
+[`ResolvedIdentity`](../type-aliases/ResolvedIdentity.md)
+
+---
+
+### buildIdentityGuardStatements()
+
+```ts
+readonly buildIdentityGuardStatements: (options) => readonly PhpStmt[];
+```
+
+#### Parameters
+
+##### options
+
+[`IdentityGuardOptions`](../type-aliases/IdentityGuardOptions.md)
+
+#### Returns
+
+readonly `PhpStmt`[]

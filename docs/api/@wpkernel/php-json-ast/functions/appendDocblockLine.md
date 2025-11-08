@@ -1,0 +1,25 @@
+[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/php-json-ast](../README.md) / appendDocblockLine
+
+# Function: appendDocblockLine()
+
+```ts
+function appendDocblockLine(context, line): void;
+```
+
+## Parameters
+
+### context
+
+[`PhpAstContext`](../interfaces/PhpAstContext.md)
+
+### line
+
+`string`
+
+## Returns
+
+`void`

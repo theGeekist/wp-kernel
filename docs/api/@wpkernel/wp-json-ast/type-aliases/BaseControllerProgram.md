@@ -1,0 +1,12 @@
+[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / BaseControllerProgram
+
+# Type Alias: BaseControllerProgram
+
+```ts
+type BaseControllerProgram = ModuleProgramFile & lt;
+BaseControllerMetadata & gt;
+```

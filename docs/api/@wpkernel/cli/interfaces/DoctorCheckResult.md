@@ -1,0 +1,41 @@
+[**@wpkernel/cli v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/cli](../README.md) / DoctorCheckResult
+
+# Interface: DoctorCheckResult
+
+Result from a doctor check.
+
+## Properties
+
+### key
+
+```ts
+readonly key: string;
+```
+
+---
+
+### label
+
+```ts
+readonly label: string;
+```
+
+---
+
+### status
+
+```ts
+readonly status: DoctorStatus;
+```
+
+---
+
+### message
+
+```ts
+readonly message: string;
+```

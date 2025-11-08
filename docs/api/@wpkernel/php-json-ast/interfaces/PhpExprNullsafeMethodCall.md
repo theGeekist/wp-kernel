@@ -1,0 +1,63 @@
+[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/php-json-ast](../README.md) / PhpExprNullsafeMethodCall
+
+# Interface: PhpExprNullsafeMethodCall
+
+Represents a PHP nullsafe method call expression (e.g., `$object?->method()`).
+
+## Extends
+
+- [`PhpExprBase`](PhpExprBase.md)
+
+## Properties
+
+### nodeType
+
+```ts
+readonly nodeType: "Expr_NullsafeMethodCall";
+```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
+
+---
+
+### var
+
+```ts
+readonly var: PhpExpr;
+```
+
+---
+
+### name
+
+```ts
+readonly name:
+  | PhpExpr
+  | PhpIdentifier;
+```
+
+---
+
+### args
+
+```ts
+readonly args: PhpArg[];
+```
+
+---
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)

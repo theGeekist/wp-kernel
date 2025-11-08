@@ -23,7 +23,7 @@ caching layers.
 
 ## Hooks overview
 
-- [`usePrefetcher`](/api/usePrefetcher) - stable wrappers around a resource’s
+- [`usePrefetcher`](/api/@wpkernel/ui/functions/usePrefetcher) - stable wrappers around a resource's
   `prefetchGet` / `prefetchList`.
 - `useHoverPrefetch` - wait for a hover to settle (default 150 ms) before firing.
 - `useVisiblePrefetch` - hook into `IntersectionObserver` or a scroll fallback.
@@ -108,6 +108,6 @@ running prefetch hooks during SSR, just like any other browser-side effect.
 
 ## Further reading
 
-- API reference - [`usePrefetcher`](/api/usePrefetcher)
+- API reference - [`usePrefetcher`](/api/@wpkernel/ui/functions/usePrefetcher)
 - Resource runtime - [`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts)
 - Cache helpers - [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

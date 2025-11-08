@@ -1,0 +1,79 @@
+[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/wp-json-ast](../README.md) / ResourceControllerMetadata
+
+# Type Alias: ResourceControllerMetadata
+
+```ts
+type ResourceControllerMetadata = BasePhpFileMetadata & object;
+```
+
+Metadata for a resource controller.
+
+## Type Declaration
+
+### kind
+
+```ts
+readonly kind: "resource-controller";
+```
+
+The kind of metadata.
+
+### name
+
+```ts
+readonly name: string;
+```
+
+The name of the resource.
+
+### identity
+
+```ts
+readonly identity: object;
+```
+
+The identity of the resource.
+
+#### identity.type
+
+```ts
+readonly type: "number" | "string";
+```
+
+The type of the identity.
+
+#### identity.param
+
+```ts
+readonly param: string;
+```
+
+The name of the identity parameter.
+
+### routes
+
+```ts
+readonly routes: readonly ResourceControllerRouteMetadata[];
+```
+
+The routes for the resource.
+
+### cache?
+
+```ts
+readonly optional cache: ResourceControllerCacheMetadata;
+```
+
+Optional cache metadata for the resource.
+
+### helpers?
+
+```ts
+readonly optional helpers: ResourceControllerHelperMetadata;
+```
+
+Optional helper metadata for the resource.

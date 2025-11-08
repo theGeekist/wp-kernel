@@ -1,0 +1,42 @@
+[**@wpkernel/cli v0.12.0**](../README.md)
+
+---
+
+[@wpkernel/cli](../README.md) / TsBuilderCreator
+
+# Interface: TsBuilderCreator
+
+Defines a creator function for generating TypeScript artifacts.
+
+A creator is responsible for generating specific TypeScript files or code
+based on the provided context.
+
+## Properties
+
+### key
+
+```ts
+readonly key: string;
+```
+
+A unique key for the creator.
+
+---
+
+### create()
+
+```ts
+create: (context) => Promise<void>;
+```
+
+The function that creates the TypeScript artifact.
+
+#### Parameters
+
+##### context
+
+[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md)
+
+#### Returns
+
+`Promise`\<`void`\>
