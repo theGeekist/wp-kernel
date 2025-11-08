@@ -61,6 +61,8 @@
 		"@wpkernel/scripts": "workspace:*"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
 	}
 }

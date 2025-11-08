@@ -130,7 +130,9 @@
 		"@loglayer/transport-simple-pretty-terminal": ">=2.2.9"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"tag": "beta"
 	},
 	"dependencies": {
 		"@wpkernel/pipeline": "workspace:*"

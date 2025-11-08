@@ -945,7 +945,13 @@ function scaffoldPackage(
 		sideEffects: false,
 		...(kind === 'example'
 			? { private: true }
-			: { publishConfig: { access: 'public' } }),
+			: {
+					publishConfig: {
+						access: 'public',
+						registry: 'https://registry.npmjs.org/',
+						tag: 'beta',
+					},
+				}),
 		main: './dist/index.js',
 		module: './dist/index.js',
 		types: './dist/index.d.ts',
