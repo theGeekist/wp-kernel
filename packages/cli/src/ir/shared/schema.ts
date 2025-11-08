@@ -12,7 +12,9 @@ import type {
 	SchemaProvenance,
 } from '../publicTypes';
 import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
-import { hashCanonical, sortObject } from './canonical';
+import { sortObject } from './canonical';
+import { buildHashProvenance } from './hashing';
+import { createSchemaId } from './identity';
 
 const JSON_SCHEMA_URL = 'https://json-schema.org/draft/2020-12/schema';
 const SCHEMA_REGISTRY_BASE_URL = `https://schemas.${WPK_NAMESPACE}.dev`;
@@ -64,9 +66,15 @@ export async function loadConfiguredSchemas(
 		);
 
 		const schema = await loadJsonSchema(resolvedPath, key);
-		const hash = hashCanonical(schema);
+		const hash = buildHashProvenance(['schema'], schema);
 
 		const irSchema: IRSchema = {
+			id: createSchemaId({
+				key,
+				provenance: 'manual',
+				schema,
+				sourcePath: toWorkspaceRelative(resolvedPath),
+			}),
 			key,
 			sourcePath: toWorkspaceRelative(resolvedPath),
 			hash,
@@ -112,9 +120,15 @@ export async function resolveResourceSchema(
 			resource,
 			sanitizedNamespace
 		);
-		const hash = hashCanonical(synthesizedSchema);
+		const hash = buildHashProvenance(['schema'], synthesizedSchema);
 
 		const irSchema: IRSchema = {
+			id: createSchemaId({
+				key: schemaKey,
+				provenance: 'auto',
+				schema: synthesizedSchema,
+				sourcePath: `[storage:${resourceKey}]`,
+			}),
 			key: schemaKey,
 			sourcePath: `[storage:${resourceKey}]`,
 			hash,

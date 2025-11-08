@@ -11,6 +11,7 @@ import type {
 	IRResource,
 	IRWarning,
 } from '../publicTypes';
+import { createCapabilityId } from './identity';
 
 interface ResolveCapabilityMapOptions {
 	hints: IRCapabilityHint[];
@@ -205,12 +206,17 @@ async function buildResolvedCapabilityMap(options: {
 			});
 		}
 
-		definitions.push({
+		const definition = {
 			key,
 			capability: descriptor.capability,
 			appliesTo,
 			binding: binding ?? undefined,
 			source: 'map',
+		} as const;
+
+		definitions.push({
+			...definition,
+			id: createCapabilityId({ definition }),
 		});
 
 		missing.delete(key);

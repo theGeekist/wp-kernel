@@ -218,10 +218,12 @@ describe('createIr', () => {
 				expect(ir.diagnostics).toEqual(
 					expect.arrayContaining([
 						expect.objectContaining({
-							key: expect.stringContaining(
-								'ir.diagnostics.core:resource:remote:route.remote.namespace'
-							),
+							code: 'IR.RES.route.remote.namespace',
 							severity: 'warn',
+							target: expect.objectContaining({
+								type: 'resource',
+								id: expect.stringMatching(/^res:/),
+							}),
 						}),
 					])
 				);

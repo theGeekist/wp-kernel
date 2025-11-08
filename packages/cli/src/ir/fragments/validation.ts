@@ -21,7 +21,7 @@ export function createValidationFragment(): IrFragment {
 			'ir.resources.core',
 			'ir.capability-map.core',
 		],
-		async apply({ input }: IrFragmentApplyOptions) {
+		async apply({ input, output }: IrFragmentApplyOptions) {
 			if (!input.draft.meta) {
 				throw new WPKernelError('ValidationError', {
 					message: 'IR meta was not initialised before validation.',
@@ -43,6 +43,19 @@ export function createValidationFragment(): IrFragment {
 					});
 				}
 			}
+
+			const references = {
+				missing: input.draft.capabilityMap.missing.map((key) => ({
+					from: '/capabilityMap/definitions',
+					key,
+				})),
+				unused: input.draft.capabilityMap.unused.map((key) => ({
+					from: '/capabilityMap/definitions',
+					key,
+				})),
+			};
+
+			output.assign({ references });
 		},
 	});
 }

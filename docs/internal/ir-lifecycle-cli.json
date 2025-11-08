@@ -17,15 +17,16 @@
 	"mutableState": {
 		"module": "packages/cli/src/ir/types.ts",
 		"draftShape": {
-			"meta": "null until ir.meta.core assigns sanitized namespace + source metadata",
+			"meta": "null until ir.meta.core assigns sanitized namespace, feature flags, id prefixes, and redaction policy",
 			"config": "Exact BuildIrOptions.config reference (not a projection)",
 			"schemas": "IRSchema[] populated by ir.schemas.core",
 			"resources": "IRResource[] populated by ir.resources.core",
 			"capabilities": "IRCapabilityHint[] from ir.capabilities.core",
 			"capabilityMap": "null until ir.capability-map.core resolves",
-			"blocks": "IRBlock[] from ir.blocks.core",
+			"blocks": "IRBlock[] from ir.blocks.core (each with blk:* id + hash provenance)",
 			"php": "IRPhpProject|null seeded by ir.meta.core",
-			"diagnostics": "IRDiagnostic[] from ir.diagnostics.core",
+			"diagnostics": "IRDiagnostic[] from ir.diagnostics.core (code/severity/target/hint/source)",
+			"references": "IRReferenceSummary|null from ir.validation.core",
 			"extensions": "Record<string, unknown> for fragment scratch data"
 		},
 		"finalise": {
@@ -72,7 +73,7 @@
 				"draft.php",
 				"draft.extensions['ir.meta.core']"
 			],
-			"notes": "Sanitises namespace via @wpkernel/core/namespace, records sanitizedNamespace for downstream fragments, sets php defaults (namespace, autoload='inc/', outputDir='.generated/php')."
+			"notes": "Sanitises namespace via @wpkernel/core/namespace, records sanitizedNamespace for downstream fragments, sets php defaults (namespace, autoload='inc/', outputDir='.generated/php'), and seeds meta.features + ids/redaction/limits metadata for downstream tooling."
 		},
 		{
 			"key": "ir.schemas.core",
@@ -96,7 +97,7 @@
 				"options.config.resources"
 			],
 			"writes": ["draft.resources"],
-			"notes": "Normalises routes, resolves schema provenance, derives cache keys, records storage + identity, copies UI config, and hashes each resource via hashResource."
+			"notes": "Normalises routes, resolves schema provenance, derives cache keys, records storage + identity, copies UI config, assigns stable res:* ids, and emits hash provenance (algo, inputs, value) for each resource."
 		},
 		{
 			"key": "ir.capabilities.core",
@@ -116,7 +117,7 @@
 			"awaits": ["resolveCapabilityMap"],
 			"reads": ["draft.capabilities", "draft.resources"],
 			"writes": ["draft.capabilityMap"],
-			"notes": "Resolves capability definitions, missing/unused lists, fallback capability string, and warning set."
+			"notes": "Resolves capability definitions (each tagged with a cap:* id), missing/unused lists, fallback capability string, and warning set."
 		},
 		{
 			"key": "ir.diagnostics.core",
@@ -129,7 +130,7 @@
 				"draft.capabilityMap.warnings"
 			],
 			"writes": ["draft.diagnostics"],
-			"notes": "Projects resource + capability map warnings into IRDiagnostic entries with severity=warn, sorts deterministically."
+			"notes": "Projects resource + capability map warnings into IRDiagnostic entries with canonical codes, target anchors (resource/capability-map), optional hints, and deterministic ordering."
 		},
 		{
 			"key": "ir.blocks.core",
@@ -139,7 +140,7 @@
 			"awaits": ["discoverBlocks"],
 			"reads": ["options.sourcePath"],
 			"writes": ["draft.blocks"],
-			"notes": "Walks workspace for block.json manifests, flags SSR capability when render property or render.php present, enforces unique block keys."
+			"notes": "Walks workspace for block.json manifests, flags SSR capability when render property or render.php present, enforces unique block keys, and records blk:* ids + hash provenance for discovered blocks."
 		},
 		{
 			"key": "ir.ordering.core",
@@ -177,8 +178,8 @@
 			"declaredAsync": true,
 			"awaits": [],
 			"reads": ["draft.meta", "draft.capabilityMap", "draft.resources"],
-			"writes": [],
-			"notes": "Guards that meta + capability map exist and each resource retained a schema association; throws WPKernelError on violation."
+			"writes": ["draft.references"],
+			"notes": "Guards that meta + capability map exist, ensures each resource retained a schema association, and emits reference summaries (missing/unused capability keys) for downstream CI."
 		}
 	],
 	"builders": [
