@@ -24,7 +24,6 @@ export function createResourceId(options: {
 		routes: options.routes.map((route) => ({
 			method: route.method,
 			path: route.path,
-			capability: route.capability ?? null,
 			transport: route.transport,
 		})),
 	});

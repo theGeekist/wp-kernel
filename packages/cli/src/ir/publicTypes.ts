@@ -400,7 +400,7 @@ export interface IRv1 {
 	/** Optional: An array of diagnostic messages. */
 	diagnostics?: IRDiagnostic[];
 	/** Optional: Adapter change audit trail. */
-	adapters?: IRAdapterAudit;
+	adapterAudit?: IRAdapterAudit;
 	/** Optional: Cross-reference summary for CI inspection. */
 	references?: IRReferenceSummary;
 }

@@ -188,7 +188,7 @@ export async function runAdapterExtensions(
 	}
 
 	return {
-		ir: attachChangeLog(effectiveIr, changeLog),
+		ir: attachAdapterAudit(effectiveIr, changeLog),
 		async commit() {
 			if (disposed) {
 				// no-op if already disposed
@@ -214,16 +214,16 @@ export async function runAdapterExtensions(
 	};
 }
 
-function attachChangeLog(ir: IRv1, changes: IRAdapterChange[]): IRv1 {
+function attachAdapterAudit(ir: IRv1, changes: IRAdapterChange[]): IRv1 {
 	if (changes.length === 0) {
 		return ir;
 	}
 
-	const existing = ir.adapters?.changes ?? [];
+	const existing = ir.adapterAudit?.changes ?? [];
 
 	return {
 		...ir,
-		adapters: {
+		adapterAudit: {
 			changes: [...existing, ...changes],
 		},
 	};
