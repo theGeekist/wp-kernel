@@ -22,6 +22,8 @@ import {
 	createPatcher,
 	createPhpBuilder,
 	createPhpDriverInstaller,
+	createTsCapabilityBuilder,
+	createTsIndexBuilder,
 	createTsBuilder,
 } from '../builders';
 import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
@@ -81,6 +83,8 @@ function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createApplyPlanBuilder());
 	pipeline.builders.use(createJsBlocksBuilder());
 	pipeline.builders.use(createTsBuilder());
+	pipeline.builders.use(createTsCapabilityBuilder());
+	pipeline.builders.use(createTsIndexBuilder());
 	pipeline.builders.use(createPatcher());
 }
 
