@@ -8,6 +8,7 @@ import type {
 	IRCapabilityMap,
 	IRPhpProject,
 	IRResource,
+	IRReferenceSummary,
 	IRSchema,
 	IRv1,
 } from './publicTypes';
@@ -28,6 +29,7 @@ export interface MutableIr {
 	blocks: IRBlock[];
 	php: IRPhpProject | null;
 	diagnostics: IRDiagnostic[];
+	references: IRReferenceSummary | null;
 	extensions: Record<string, unknown>;
 }
 
@@ -42,6 +44,7 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 		blocks: [],
 		php: null,
 		diagnostics: [],
+		references: null,
 		extensions: Object.create(null),
 	};
 }
@@ -118,6 +121,7 @@ export function finalizeIrDraft(
 
 	const diagnostics =
 		draft.diagnostics.length > 0 ? draft.diagnostics.slice() : undefined;
+	const references = draft.references ? { ...draft.references } : undefined;
 
 	return {
 		meta: draft.meta,
@@ -129,6 +133,7 @@ export function finalizeIrDraft(
 		blocks: draft.blocks,
 		php: draft.php,
 		diagnostics,
+		references,
 	};
 }
 
@@ -146,32 +151,24 @@ export function buildIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 	return {
 		draft,
 		assign(partial) {
-			if (partial.meta) {
-				draft.meta = partial.meta;
-			}
-			if (partial.schemas) {
-				draft.schemas = partial.schemas;
-			}
-			if (partial.resources) {
-				draft.resources = partial.resources;
-			}
-			if (partial.capabilities) {
-				draft.capabilities = partial.capabilities;
-			}
-			if (partial.capabilityMap) {
-				draft.capabilityMap = partial.capabilityMap;
-			}
-			if (partial.blocks) {
-				draft.blocks = partial.blocks;
-			}
-			if (partial.php) {
-				draft.php = partial.php;
-			}
-			if (partial.diagnostics) {
-				draft.diagnostics = partial.diagnostics;
-			}
-			if (partial.extensions) {
-				draft.extensions = partial.extensions;
+			const entries: Array<[keyof MutableIr, unknown]> = [
+				['meta', partial.meta],
+				['schemas', partial.schemas],
+				['resources', partial.resources],
+				['capabilities', partial.capabilities],
+				['capabilityMap', partial.capabilityMap],
+				['blocks', partial.blocks],
+				['php', partial.php],
+				['diagnostics', partial.diagnostics],
+				['references', partial.references],
+				['extensions', partial.extensions],
+			];
+
+			const target = draft as unknown as Record<string, unknown>;
+			for (const [key, value] of entries) {
+				if (value) {
+					target[key] = value as never;
+				}
 			}
 		},
 	};

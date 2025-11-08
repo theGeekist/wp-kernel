@@ -15,17 +15,33 @@ import type { WPKernelConfigV1 } from '../config/types';
 export type SchemaProvenance = 'manual' | 'auto';
 
 /**
+ * Normalised hash metadata used across IR entities.
+ *
+ * @category IR
+ */
+export interface IRHashProvenance {
+	/** The hashing algorithm used to generate the value. */
+	algo: 'sha256';
+	/** The logical inputs that were included in the hash derivation. */
+	inputs: readonly string[];
+	/** The computed hash digest. */
+	value: string;
+}
+
+/**
  * Represents an Intermediate Representation (IR) for a schema.
  *
  * @category IR
  */
 export interface IRSchema {
+	/** Stable identifier for the schema entry. */
+	id: string;
 	/** A unique key for the schema. */
 	key: string;
 	/** The source path of the schema definition. */
 	sourcePath: string;
 	/** A hash of the schema content for change detection. */
-	hash: string;
+	hash: IRHashProvenance;
 	/** The actual schema definition. */
 	schema: unknown;
 	/** The provenance of the schema (manual or auto-generated). */
@@ -57,7 +73,7 @@ export interface IRRoute {
 	/** Optional: The capability required to access this route. */
 	capability?: string;
 	/** A hash of the route definition for change detection. */
-	hash: string;
+	hash: IRHashProvenance;
 	/** The transport mechanism for the route (local or remote). */
 	transport: IRRouteTransport;
 }
@@ -86,6 +102,8 @@ export interface IRWarning {
 	message: string;
 	/** Optional: Additional context for the warning. */
 	context?: Record<string, unknown>;
+	/** Optional: Suggested operator hint for resolving the warning. */
+	hint?: string;
 }
 
 /**
@@ -96,19 +114,37 @@ export interface IRWarning {
 export type IRDiagnosticSeverity = 'info' | 'warn' | 'error';
 
 /**
+ * Identifies the entity or surface that triggered a diagnostic.
+ *
+ * @category IR
+ */
+export interface IRDiagnosticTarget {
+	/** The entity type the diagnostic is associated with. */
+	type: 'resource' | 'capability-map' | 'schema' | 'block' | 'adapter';
+	/** Optional: Stable identifier of the target entity. */
+	id?: string;
+	/** Optional: JSON pointer path anchoring to a specific field. */
+	path?: string;
+}
+
+/**
  * Represents an Intermediate Representation (IR) for a diagnostic message.
  *
  * @category IR
  */
 export interface IRDiagnostic {
-	/** A unique key for the diagnostic. */
-	key: string;
+	/** Canonical diagnostic code. */
+	code: string;
 	/** The diagnostic message. */
 	message: string;
 	/** The severity of the diagnostic. */
 	severity: IRDiagnosticSeverity;
-	/** Optional: Additional context for the diagnostic. */
-	context?: Record<string, unknown>;
+	/** Optional: Entity the diagnostic refers to. */
+	target?: IRDiagnosticTarget;
+	/** Optional: Suggested hint for resolving the diagnostic. */
+	hint?: string;
+	/** Optional: Source that emitted the diagnostic (fragment, adapter, etc.). */
+	source?: string;
 }
 
 /**
@@ -117,6 +153,8 @@ export interface IRDiagnostic {
  * @category IR
  */
 export interface IRResource {
+	/** Stable identifier for the resource entry. */
+	id: string;
 	/** The name of the resource. */
 	name: string;
 	/** The key of the schema associated with this resource. */
@@ -144,7 +182,7 @@ export interface IRResource {
 	/** Optional: Inline capability mappings for the resource. */
 	capabilities?: ResourceCapabilityMap;
 	/** A hash of the resource definition for change detection. */
-	hash: string;
+	hash: IRHashProvenance;
 	/** An array of warnings associated with this resource. */
 	warnings: IRWarning[];
 }
@@ -180,6 +218,8 @@ export type IRCapabilityScope = 'resource' | 'object';
  * @category IR
  */
 export interface IRCapabilityDefinition {
+	/** Stable identifier for the capability definition. */
+	id: string;
 	/** The key of the capability. */
 	key: string;
 	/** The underlying capability string. */
@@ -221,6 +261,8 @@ export interface IRCapabilityMap {
  * @category IR
  */
 export interface IRBlock {
+	/** Stable identifier for the block entry. */
+	id: string;
 	/** A unique key for the block. */
 	key: string;
 	/** The directory where the block is defined. */
@@ -229,6 +271,8 @@ export interface IRBlock {
 	hasRender: boolean;
 	/** The source path of the block's manifest. */
 	manifestSource: string;
+	/** Provenance hash for the discovered block. */
+	hash: IRHashProvenance;
 }
 
 /**
@@ -237,17 +281,82 @@ export interface IRBlock {
  * @category IR
  */
 export interface IRPhpProject {
-	/** The PHP namespace of the project. */ namespace: string;
-	/** The autoload path for the PHP project. */ autoload: string;
-	/** The output directory for generated PHP files. */ outputDir: string;
+	/** The PHP namespace of the project. */
+	namespace: string;
+	/** The autoload path for the PHP project. */
+	autoload: string;
+	/** The output directory for generated PHP files. */
+	outputDir: string;
+}
+
+/**
+ * Operation emitted when adapter extensions mutate the IR.
+ *
+ * @category IR
+ */
+export interface IRAdapterChangeOperation {
+	/** The type of change performed. */
+	op: 'add' | 'remove' | 'update' | 'replace-structure';
+	/** JSON pointer path of the mutated field. */
+	path: string;
+	/** Optional: Previous value when a primitive change was detected. */
+	before?: unknown;
+	/** Optional: New value when a primitive change was detected. */
+	after?: unknown;
+	/** Optional: Hash of the previous structure when diffing complex data. */
+	beforeHash?: string;
+	/** Optional: Hash of the new structure when diffing complex data. */
+	afterHash?: string;
+}
+
+/**
+ * Change record produced for adapter mutations.
+ *
+ * @category IR
+ */
+export interface IRAdapterChange {
+	/** Name of the adapter extension that performed the change. */
+	name: string;
+	/** Ordered list of detected operations. */
+	ops: IRAdapterChangeOperation[];
+}
+
+/**
+ * Adapter mutation audit envelope stored on the IR.
+ *
+ * @category IR
+ */
+export interface IRAdapterAudit {
+	/** Change operations detected while running adapter extensions. */
+	changes: IRAdapterChange[];
+}
+
+/**
+ * Cross-reference integrity result for the assembled IR.
+ *
+ * @category IR
+ */
+export interface IRReferenceIssue {
+	/** JSON pointer path from which the invalid reference originates. */
+	from: string;
+	/** The referenced key or identifier. */
+	key: string;
+}
+
+/**
+ * Summary of reference issues used by CI or tooling.
+ *
+ * @category IR
+ */
+export interface IRReferenceSummary {
+	/** References that could not be resolved. */
+	missing: IRReferenceIssue[];
+	/** References that were declared but unused. */
+	unused: IRReferenceIssue[];
 }
 
 /**
  * The top-level Intermediate Representation (IR) for version 1.
- *
- * This interface encapsulates all the processed metadata and configurations
- * of a WPKernel project, providing a structured representation that can be
- * used by code generators and other tools.
  *
  * @category IR
  */
@@ -259,17 +368,41 @@ export interface IRv1 {
 		sourcePath: string;
 		origin: string;
 		sanitizedNamespace: string;
+		features: string[];
+		ids: {
+			algorithm: 'sha256';
+			resourcePrefix: 'res:';
+			schemaPrefix: 'sch:';
+			blockPrefix: 'blk:';
+			capabilityPrefix: 'cap:';
+		};
+		redactions: string[];
+		limits: {
+			maxConfigKB: number;
+			maxSchemaKB: number;
+			policy: 'truncate' | 'error';
+		};
 	};
 	/** The original WPKernel configuration. */
 	config: WPKernelConfigV1;
 	/** An array of schema IRs. */
 	schemas: IRSchema[];
-	/** An array of resource IRs. */ resources: IRResource[];
-	/** An array of capability hints. */ capabilities: IRCapabilityHint[];
-	/** The capability map IR. */ capabilityMap: IRCapabilityMap;
-	/** An array of block IRs. */ blocks: IRBlock[];
-	/** The PHP project IR. */ php: IRPhpProject;
-	/** Optional: An array of diagnostic messages. */ diagnostics?: IRDiagnostic[];
+	/** An array of resource IRs. */
+	resources: IRResource[];
+	/** An array of capability hints. */
+	capabilities: IRCapabilityHint[];
+	/** The capability map IR. */
+	capabilityMap: IRCapabilityMap;
+	/** An array of block IRs. */
+	blocks: IRBlock[];
+	/** The PHP project IR. */
+	php: IRPhpProject;
+	/** Optional: An array of diagnostic messages. */
+	diagnostics?: IRDiagnostic[];
+	/** Optional: Adapter change audit trail. */
+	adapters?: IRAdapterAudit;
+	/** Optional: Cross-reference summary for CI inspection. */
+	references?: IRReferenceSummary;
 }
 
 /**

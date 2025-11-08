@@ -77,14 +77,18 @@ describe('createDiagnosticsFragment', () => {
 		expect(draft.diagnostics).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
-					key: expect.stringContaining('resource:remote'),
+					code: 'IR.RES.route.remote.namespace',
 					severity: 'warn',
+					target: expect.objectContaining({
+						type: 'resource',
+					}),
 				}),
 				expect.objectContaining({
-					key: expect.stringContaining(
-						'capability-map:capability-map.missing-capability'
-					),
+					code: 'IR.CAP.capability-map.missing-capability',
 					severity: 'warn',
+					target: expect.objectContaining({
+						type: 'capability-map',
+					}),
 				}),
 			])
 		);

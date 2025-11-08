@@ -57,7 +57,7 @@ describe('buildIr - core behaviours', () => {
 			namespace: config.namespace,
 		});
 
-		expect(ir.meta).toEqual({
+		expect(ir.meta).toMatchObject({
 			version: 1,
 			namespace: 'test-namespace',
 			sourcePath: path.relative(process.cwd(), FIXTURE_CONFIG_PATH),
@@ -72,7 +72,7 @@ describe('buildIr - core behaviours', () => {
 		expect(schema.sourcePath).toBe(
 			path.relative(process.cwd(), schemaPath)
 		);
-		expect(schema.hash).toBe(canonicalHash(schema.schema));
+		expect(schema.hash.value).toBe(canonicalHash(schema.schema));
 
 		expect(ir.resources).toHaveLength(1);
 		const [resource] = ir.resources;

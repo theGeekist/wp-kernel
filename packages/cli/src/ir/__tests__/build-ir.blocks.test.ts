@@ -75,7 +75,7 @@ describe('buildIr - block discovery', () => {
 					});
 
 					expect(ir.blocks).toEqual([
-						{
+						expect.objectContaining({
 							key: 'plugin/js-block',
 							directory: path.join('src', 'blocks', 'js-block'),
 							hasRender: false,
@@ -85,8 +85,18 @@ describe('buildIr - block discovery', () => {
 								'js-block',
 								'block.json'
 							),
-						},
-						{
+							id: expect.stringMatching(/^blk:/),
+							hash: expect.objectContaining({
+								algo: 'sha256',
+								inputs: [
+									'key',
+									'directory',
+									'hasRender',
+									'manifestSource',
+								],
+							}),
+						}),
+						expect.objectContaining({
 							key: 'plugin/ssr-block',
 							directory: path.join('src', 'blocks', 'ssr-block'),
 							hasRender: true,
@@ -96,7 +106,17 @@ describe('buildIr - block discovery', () => {
 								'ssr-block',
 								'block.json'
 							),
-						},
+							id: expect.stringMatching(/^blk:/),
+							hash: expect.objectContaining({
+								algo: 'sha256',
+								inputs: [
+									'key',
+									'directory',
+									'hasRender',
+									'manifestSource',
+								],
+							}),
+						}),
 					]);
 				} finally {
 					process.chdir(originalCwd);

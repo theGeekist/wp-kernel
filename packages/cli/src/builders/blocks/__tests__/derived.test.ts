@@ -1,6 +1,7 @@
 import { deriveResourceBlocks } from '../derived';
 import type {
 	IRBlock,
+	IRHashProvenance,
 	IRResource,
 	IRResourceCacheKey,
 	IRRoute,
@@ -71,12 +72,18 @@ describe('deriveResourceBlocks', () => {
 		expect(derived).toHaveLength(1);
 		const [entry] = derived;
 
-		expect(entry.block).toEqual({
+		expect(entry.block).toMatchObject({
 			key: 'test-namespace/alpha-resource',
 			directory: '.generated/blocks/alpha-resource',
 			hasRender: false,
 			manifestSource: '.generated/blocks/alpha-resource/block.json',
 		});
+		expect(entry.block.id).toEqual(expect.stringMatching(/^blk:/));
+		expect(entry.block.hash).toMatchObject({
+			algo: 'sha256',
+			inputs: ['key', 'directory', 'hasRender', 'manifestSource'],
+		});
+		expect(typeof entry.block.hash.value).toBe('string');
 
 		expect(entry.manifest).toEqual(
 			expect.objectContaining({
@@ -271,6 +278,7 @@ function makeResource(
 	const cacheKeys = buildCacheKeys(overrides?.cacheKeys);
 
 	return {
+		id: overrides?.id ?? `res:${name}`,
 		name,
 		schemaKey,
 		schemaProvenance: overrides?.schemaProvenance ?? 'manual',
@@ -280,7 +288,9 @@ function makeResource(
 		storage: overrides?.storage,
 		queryParams: overrides?.queryParams,
 		ui: overrides?.ui,
-		hash: overrides?.hash ?? `${name}-hash`,
+		hash:
+			overrides?.hash ??
+			makeHash(`${name}-hash`, ['name', 'schemaKey', 'schemaProvenance']),
 		warnings: overrides?.warnings ?? [],
 	} satisfies IRResource;
 }
@@ -308,8 +318,23 @@ function makeRoute(overrides?: Partial<IRRoute>): IRRoute {
 	return {
 		method: 'GET',
 		path: '/resource',
-		hash: 'route-hash',
+		hash:
+			overrides?.hash ??
+			makeHash('route-hash', [
+				'method',
+				'path',
+				'capability',
+				'transport',
+			]),
 		transport: 'remote',
 		...overrides,
 	} satisfies IRRoute;
+}
+
+function makeHash(label: string, inputs: readonly string[]): IRHashProvenance {
+	return {
+		algo: 'sha256',
+		inputs: Array.from(inputs),
+		value: label,
+	} satisfies IRHashProvenance;
 }

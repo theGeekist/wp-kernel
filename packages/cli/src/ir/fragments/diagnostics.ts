@@ -5,37 +5,39 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
 const DIAGNOSTICS_FRAGMENT_KEY = 'ir.diagnostics.core';
 
 function toResourceDiagnostic(
-	resourceName: string,
+	resourceId: string,
 	warning: IRWarning
 ): IRDiagnostic {
 	return {
-		key: `${DIAGNOSTICS_FRAGMENT_KEY}:resource:${resourceName}:${warning.code}`,
+		code: `IR.RES.${warning.code}`,
 		message: warning.message,
 		severity: 'warn',
-		context: {
-			source: 'resource',
-			resource: resourceName,
-			code: warning.code,
-			...(warning.context ?? {}),
+		target: {
+			type: 'resource',
+			id: resourceId,
+			path: `/resources/${resourceId}`,
 		},
+		hint: warning.hint,
+		source: 'fragment:resources',
 	};
 }
 
 function toCapabilityDiagnostic(warning: IRWarning): IRDiagnostic {
 	return {
-		key: `${DIAGNOSTICS_FRAGMENT_KEY}:capability-map:${warning.code}`,
+		code: `IR.CAP.${warning.code}`,
 		message: warning.message,
 		severity: 'warn',
-		context: {
-			source: 'capability-map',
-			code: warning.code,
-			...(warning.context ?? {}),
+		target: {
+			type: 'capability-map',
+			path: '/capabilityMap',
 		},
+		hint: warning.hint,
+		source: 'fragment:capability-map',
 	};
 }
 
 function sortDiagnostics(values: IRDiagnostic[]): IRDiagnostic[] {
-	return values.sort((a, b) => a.key.localeCompare(b.key));
+	return values.sort((a, b) => a.code.localeCompare(b.code));
 }
 
 /**
@@ -59,7 +61,7 @@ export function createDiagnosticsFragment(): IrFragment {
 			for (const resource of input.draft.resources) {
 				for (const warning of resource.warnings) {
 					diagnostics.push(
-						toResourceDiagnostic(resource.name, warning)
+						toResourceDiagnostic(resource.id, warning)
 					);
 				}
 			}

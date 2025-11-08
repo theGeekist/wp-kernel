@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { IRBlock } from '../publicTypes';
+import { createBlockHash, createBlockId } from './identity';
 
 const IGNORED_DIRECTORIES = new Set(['node_modules', '.generated', '.git']);
 
@@ -215,10 +216,21 @@ export async function loadBlockEntry(
 	const relativeManifestPath = path.relative(workspaceRoot, manifestPath);
 
 	return {
+		id: createBlockId({
+			key,
+			directory: relativeDirectory,
+			manifestSource: relativeManifestPath,
+		}),
 		key,
 		directory: relativeDirectory,
 		hasRender,
 		manifestSource: relativeManifestPath,
+		hash: createBlockHash({
+			key,
+			directory: relativeDirectory,
+			hasRender,
+			manifestSource: relativeManifestPath,
+		}),
 	};
 }
 

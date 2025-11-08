@@ -1,5 +1,5 @@
 import type { ResourceConfig } from '@wpkernel/core/resource';
-import { hashCanonical, sortObject } from './canonical';
+import { sortObject } from './canonical';
 import type {
 	BuildIrOptions,
 	IRResource,
@@ -10,6 +10,8 @@ import { deriveCacheKeys, serializeCacheKeys } from './cache-keys';
 import { normaliseRoutes } from './routes';
 import type { SchemaAccumulator } from './schema';
 import { resolveResourceSchema } from './schema';
+import { buildHashProvenance } from './hashing';
+import { createResourceId } from './identity';
 
 interface ResourceBuilderState {
 	duplicateDetector: Map<string, { resource: string; route: string }>;
@@ -130,7 +132,13 @@ async function buildResourceEntry(options: {
 
 	const queryParams = normaliseQueryParams(resourceConfig.queryParams);
 
-	return {
+	const irResource: IRResource = {
+		id: createResourceId({
+			namespace: sanitizedNamespace,
+			key: resourceKey,
+			name: resourceConfig.name,
+			routes,
+		}),
 		name: resourceConfig.name,
 		schemaKey: schemaResolution.schemaKey,
 		schemaProvenance: schemaResolution.provenance,
@@ -153,6 +161,8 @@ async function buildResourceEntry(options: {
 		}),
 		warnings,
 	};
+
+	return irResource;
 }
 
 function collectWarnings(options: {
@@ -487,21 +497,34 @@ export function hashResource(options: {
 	identity: ResourceConfig['identity'];
 	storage: ResourceConfig['storage'];
 	queryParams: ResourceConfig['queryParams'];
-}): string {
-	return hashCanonical({
-		name: options.resourceConfig.name,
-		schemaKey: options.schemaKey,
-		schemaProvenance: options.schemaProvenance,
-		routes: options.routes.map((route) => ({
-			method: route.method,
-			path: route.path,
-			capability: route.capability,
-			transport: route.transport,
-		})),
-		cacheKeys: serializeCacheKeys(options.cacheKeys),
-		identity: options.identity ?? null,
-		storage: options.storage ?? null,
-		queryParams: options.queryParams ?? null,
-		ui: options.resourceConfig.ui ?? null,
-	});
+}): IRResource['hash'] {
+	return buildHashProvenance(
+		[
+			'name',
+			'schemaKey',
+			'schemaProvenance',
+			'routes',
+			'cacheKeys',
+			'identity',
+			'storage',
+			'queryParams',
+			'ui',
+		],
+		{
+			name: options.resourceConfig.name,
+			schemaKey: options.schemaKey,
+			schemaProvenance: options.schemaProvenance,
+			routes: options.routes.map((route) => ({
+				method: route.method,
+				path: route.path,
+				capability: route.capability,
+				transport: route.transport,
+			})),
+			cacheKeys: serializeCacheKeys(options.cacheKeys),
+			identity: options.identity ?? null,
+			storage: options.storage ?? null,
+			queryParams: options.queryParams ?? null,
+			ui: options.resourceConfig.ui ?? null,
+		}
+	);
 }
