@@ -311,7 +311,7 @@ Shared testing helpers live under `@wpkernel/test-utils/wp` (WordPress globals) 
 - **[Core Concepts](https://theGeekist.github.io/wp-kernel/guide/)** - Resources, Actions, Events, Bindings, Interactivity, Jobs
 - **[API Reference](https://theGeekist.github.io/wp-kernel/api/)** - Type definitions and interfaces
 - **[Contributing Guide](https://theGeekist.github.io/wp-kernel/contributing/)** - Development workflow and standards
-- **[Roadmap](https://wpkernel.dev/wp-kernel/contributing/roadmap)** - Project progress and upcoming features
+- **[Roadmap](https://wpkernel.dev/contributing/roadmap)** - Project progress and upcoming features
 
 ### Developer Resources
 
@@ -387,7 +387,7 @@ This gives you:
 
 WPKernel is in **active development** progressing toward v1.0. Core primitives (Resources, Actions, Data Integration, Reporting) are complete and stable.
 
-**See the [Roadmap](https://wpkernel.dev/wp-kernel/contributing/roadmap)** for detailed progress, completed features, and upcoming work.
+**See the [Roadmap](https://wpkernel.dev/contributing/roadmap)** for detailed progress, completed features, and upcoming work.
 
 ---
 

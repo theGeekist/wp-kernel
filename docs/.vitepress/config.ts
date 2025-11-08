@@ -32,7 +32,7 @@ export default withMermaid(
 		title: 'WPKernel',
 		description:
 			'A Rails-like, opinionated framework for building modern WordPress products',
-		base: '/wp-kernel/',
+		base: '/',
 		lastUpdated: !FAST,
 		sitemap: { hostname: 'https://wpkernel.dev' },
 
