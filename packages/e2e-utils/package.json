@@ -1,18 +1,18 @@
 {
 	"name": "@wpkernel/e2e-utils",
-	"version": "0.12.1-beta.0",
+	"version": "0.12.1-beta.1",
 	"description": "E2E testing utilities for WPKernel projects",
 	"license": "EUPL-1.2",
 	"type": "module",
 	"sideEffects": false,
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/theGeekist/wp-kernel.git",
+		"url": "https://github.com/wpkernel/wpkernel.git",
 		"directory": "packages/e2e-utils"
 	},
-	"homepage": "https://github.com/theGeekist/wp-kernel#readme",
+	"homepage": "https://github.com/wpkernel/wpkernel#readme",
 	"bugs": {
-		"url": "https://github.com/theGeekist/wp-kernel/issues"
+		"url": "https://github.com/wpkernel/wpkernel/issues"
 	},
 	"keywords": [
 		"wordpress",
