@@ -28,6 +28,26 @@ export type ResourceRoute = {
 	capability?: string;
 };
 
+type ExtractRouteCapability<TRoute> = TRoute extends {
+	capability?: infer TCapability;
+}
+	? NonNullable<TCapability> extends string
+		? NonNullable<TCapability>
+		: never
+	: never;
+
+/**
+ * Capability keys referenced across all configured routes.
+ */
+export type RouteCapabilityKeys<TRoutes> = Extract<
+	{
+		[TKey in keyof TRoutes]: ExtractRouteCapability<
+			NonNullable<TRoutes[TKey]>
+		>;
+	}[keyof TRoutes],
+	string
+>;
+
 /**
  * Identifier configuration for CLI-generated helpers.
  *
@@ -199,9 +219,10 @@ export type ResourceCapabilityDescriptor = {
  * - String: Simple WordPress capability (e.g., 'edit_posts')
  * - Object: Detailed descriptor with appliesTo and optional binding
  */
-export type ResourceCapabilityMap = Record<
-	string,
-	string | ResourceCapabilityDescriptor
+export type ResourceCapabilityMap<
+	TRoutes extends ResourceRoutes = ResourceRoutes,
+> = Partial<
+	Record<RouteCapabilityKeys<TRoutes>, string | ResourceCapabilityDescriptor>
 >;
 
 /**
@@ -262,9 +283,10 @@ export type ResourceStoreOptions<T, TQuery = unknown> = {
 export type ResourceConfig<
 	T = unknown,
 	TQuery = unknown,
+	TRoutes extends ResourceRoutes = ResourceRoutes,
 	// Type parameters used by defineResource function signature, not directly in this interface
 
-	_TTypes = [T, TQuery],
+	_TTypes = [T, TQuery, TRoutes],
 > = {
 	/**
 	 * Unique resource name (lowercase, singular recommended)
@@ -278,7 +300,7 @@ export type ResourceConfig<
 	 *
 	 * Define only the operations your resource supports
 	 */
-	routes: ResourceRoutes;
+	routes: TRoutes;
 
 	/**
 	 * Optional identifier hints used by tooling.
@@ -369,7 +391,7 @@ export type ResourceConfig<
 	 * }
 	 * ```
 	 */
-	capabilities?: ResourceCapabilityMap;
+	capabilities?: ResourceCapabilityMap<TRoutes>;
 };
 
 /**
@@ -709,7 +731,11 @@ export type ResourceClient<T = unknown, TQuery = unknown> = {
  * const item = select(store).getItem(123);
  * ```
  */
-export type ResourceObject<T = unknown, TQuery = unknown> = {
+export type ResourceObject<
+	T = unknown,
+	TQuery = unknown,
+	TRoutes extends ResourceRoutes = ResourceRoutes,
+> = {
 	/**
 	 * Resource name
 	 */
@@ -746,7 +772,7 @@ export type ResourceObject<T = unknown, TQuery = unknown> = {
 	/**
 	 * REST route definitions (normalized)
 	 */
-	routes: ResourceRoutes;
+	routes: TRoutes;
 
 	/**
 	 * Reporter instance used for resource instrumentation.

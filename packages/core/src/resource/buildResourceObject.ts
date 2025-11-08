@@ -10,6 +10,7 @@ import type {
 	ResourceClient,
 	ResourceConfig,
 	ResourceObject,
+	ResourceRoutes,
 } from './types';
 import {
 	createSelectGetter,
@@ -22,13 +23,21 @@ import {
 import type { Reporter } from '../reporter';
 import { RESOURCE_LOG_MESSAGES } from './logMessages';
 
-export type NormalizedResourceConfig<T, TQuery> = ResourceConfig<T, TQuery> & {
+export type NormalizedResourceConfig<
+	T,
+	TQuery,
+	TRoutes extends ResourceRoutes = ResourceRoutes,
+> = ResourceConfig<T, TQuery, TRoutes> & {
 	readonly name: string;
 };
 
-interface BuildResourceObjectOptions<T, TQuery> {
-	readonly config: ResourceConfig<T, TQuery>;
-	readonly normalizedConfig: NormalizedResourceConfig<T, TQuery>;
+interface BuildResourceObjectOptions<
+	T,
+	TQuery,
+	TRoutes extends ResourceRoutes,
+> {
+	readonly config: ResourceConfig<T, TQuery, TRoutes>;
+	readonly normalizedConfig: NormalizedResourceConfig<T, TQuery, TRoutes>;
 	readonly namespace: string;
 	readonly resourceName: string;
 	readonly reporter: Reporter;
@@ -36,9 +45,9 @@ interface BuildResourceObjectOptions<T, TQuery> {
 	readonly client: ResourceClient<T, TQuery>;
 }
 
-export function buildResourceObject<T, TQuery>(
-	options: BuildResourceObjectOptions<T, TQuery>
-): ResourceObject<T, TQuery> {
+export function buildResourceObject<T, TQuery, TRoutes extends ResourceRoutes>(
+	options: BuildResourceObjectOptions<T, TQuery, TRoutes>
+): ResourceObject<T, TQuery, TRoutes> {
 	const {
 		config,
 		normalizedConfig,
@@ -54,7 +63,7 @@ export function buildResourceObject<T, TQuery>(
 	const storeReporter = reporter.child('store');
 	const cacheReporter = reporter.child('cache');
 
-	const resource: ResourceObject<T, TQuery> = {
+	const resource: ResourceObject<T, TQuery, TRoutes> = {
 		...client,
 		name: resourceName,
 		storeKey: `${namespace}/${resourceName}`,
@@ -221,7 +230,7 @@ export function buildResourceObject<T, TQuery>(
 		},
 	};
 
-	const configWithUI = config as ResourceConfig<T, TQuery> & {
+	const configWithUI = config as ResourceConfig<T, TQuery, TRoutes> & {
 		readonly ui?: unknown;
 	};
 

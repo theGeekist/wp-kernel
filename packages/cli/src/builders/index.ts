@@ -5,6 +5,8 @@ export type {
 	PhpDriverConfigurationOptions,
 } from './php';
 export { createTsBuilder } from './ts';
+export { createTsCapabilityBuilder } from './ts/capability-builder';
+export { createTsIndexBuilder } from './ts/index-builder';
 export type {
 	CreateTsBuilderOptions,
 	TsBuilderCreator,

@@ -16,6 +16,11 @@ export function createTsIndexBuilder() {
 				file: '.generated/js/index.ts',
 				contents: "export { capabilities } from './capabilities';\n",
 			});
+			await output.queueWrite({
+				file: '.generated/js/index.d.ts',
+				contents:
+					"export { capabilities } from './capabilities';\nexport type { CapabilityConfig, CapabilityKey, CapabilityRuntime } from './capabilities';\n",
+			});
 		},
 	});
 }

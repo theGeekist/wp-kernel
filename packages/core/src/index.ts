@@ -106,6 +106,7 @@ export type {
 	ResourceConfig,
 	ResourceCapabilityMap,
 	ResourceCapabilityDescriptor,
+	RouteCapabilityKeys,
 	ListResponse,
 	ResourceClient,
 	ResourceObject,

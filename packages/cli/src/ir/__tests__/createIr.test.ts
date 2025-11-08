@@ -48,6 +48,12 @@ jest.mock('../../builders', () => {
 		createTsBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.ts')
 		),
+		createTsCapabilityBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts-capability')
+		),
+		createTsIndexBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts-index')
+		),
 		createPhpDriverInstaller:
 			jest.requireActual('../../builders').createPhpDriverInstaller,
 	};
@@ -279,7 +285,7 @@ describe('createIr', () => {
 
 		expect(ir).toBe(pipelineRunResult.ir);
 		expect(pipeline.ir.use).toHaveBeenCalledTimes(9);
-		expect(pipeline.builders.use).toHaveBeenCalledTimes(7);
+		expect(pipeline.builders.use).toHaveBeenCalledTimes(9);
 		expect(pipeline.extensions.use).toHaveBeenCalledTimes(1);
 		expect(pipeline.run).toHaveBeenCalledTimes(1);
 	});
@@ -335,7 +341,7 @@ describe('createIr', () => {
 
 		expect(ir).toBe(pipelineRunResult.ir);
 		expect(pipeline.ir.use).toHaveBeenCalledTimes(9);
-		expect(pipeline.builders.use).toHaveBeenCalledTimes(7);
+		expect(pipeline.builders.use).toHaveBeenCalledTimes(9);
 		expect(pipeline.extensions.use).toHaveBeenCalledTimes(1);
 		expect(pipeline.run).toHaveBeenCalledTimes(1);
 		expect(workspaceSpy).toHaveBeenCalledWith(
