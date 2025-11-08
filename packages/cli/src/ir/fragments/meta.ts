@@ -4,6 +4,7 @@ import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { toWorkspaceRelative } from '../../utils';
 import { createPhpNamespace } from '../shared/php';
+import { enumerateFeatures } from '../shared/features';
 
 /**
  * The extension key for the meta fragment.
@@ -45,6 +46,20 @@ export function createMetaFragment(): IrFragment {
 				sourcePath: toWorkspaceRelative(input.options.sourcePath),
 				origin: input.options.origin,
 				sanitizedNamespace,
+				features: enumerateFeatures(input.options.config),
+				ids: {
+					algorithm: 'sha256' as const,
+					resourcePrefix: 'res:' as const,
+					schemaPrefix: 'sch:' as const,
+					blockPrefix: 'blk:' as const,
+					capabilityPrefix: 'cap:' as const,
+				},
+				redactions: ['config.env', 'adapters.secrets'],
+				limits: {
+					maxConfigKB: 256,
+					maxSchemaKB: 1024,
+					policy: 'truncate' as const,
+				},
 			};
 
 			output.assign({

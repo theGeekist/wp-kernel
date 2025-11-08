@@ -300,7 +300,7 @@ describe('buildIr - defaults and inference', () => {
 
 		const [schema] = ir.schemas;
 		expect(schema.key).toBe('auto:jobs');
-		expect(schema.hash).toBe(canonicalHash(schema.schema));
+		expect(schema.hash.value).toBe(canonicalHash(schema.schema));
 	});
 
 	it('infers wp-post postType with truncation warnings and collision detection', async () => {

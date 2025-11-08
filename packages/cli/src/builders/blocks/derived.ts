@@ -7,6 +7,7 @@ import type {
 	IRSchema,
 	IRv1,
 } from '../../ir/publicTypes';
+import { createBlockHash, createBlockId } from '../../ir/shared/identity';
 
 /**
  * A generated resource block together with the JSON manifest produced for it.
@@ -65,10 +66,21 @@ export function deriveResourceBlocks(options: {
 		const directory = toPosixPath(path.join(generatedRoot, 'blocks', slug));
 		const manifestSource = toPosixPath(path.join(directory, 'block.json'));
 		const block: IRBlock = {
+			id: createBlockId({
+				key: blockKey,
+				directory,
+				manifestSource,
+			}),
 			key: blockKey,
 			directory,
 			hasRender: false,
 			manifestSource,
+			hash: createBlockHash({
+				key: blockKey,
+				directory,
+				hasRender: false,
+				manifestSource,
+			}),
 		};
 		const manifest = createBlockManifest({
 			ir,

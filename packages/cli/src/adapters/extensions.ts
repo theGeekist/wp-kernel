@@ -8,7 +8,8 @@ import type {
 	AdapterExtension,
 	AdapterExtensionContext,
 } from '../config/types';
-import type { IRv1 } from '../ir/publicTypes';
+import type { IRAdapterChange, IRv1 } from '../ir/publicTypes';
+import { diffIr } from './changeLog';
 
 /**
  * Result returned by the `runAdapterExtensions` helper.
@@ -110,6 +111,7 @@ export async function runAdapterExtensions(
 	const pendingFiles: PendingFile[] = [];
 	let disposed = false;
 	const outputRoot = await resolveOutputRoot(outputDir);
+	const changeLog: IRAdapterChange[] = [];
 
 	const cleanup = async () => {
 		if (disposed) {
@@ -171,11 +173,22 @@ export async function runAdapterExtensions(
 			throw normaliseError(error);
 		}
 
-		effectiveIr = hasUpdatedIr && updatedIr ? updatedIr : clonedIr;
+		if (hasUpdatedIr && updatedIr) {
+			const ops = diffIr(clonedIr, updatedIr);
+			if (ops.length > 0) {
+				changeLog.push({
+					name: extension.name,
+					ops,
+				});
+			}
+			effectiveIr = updatedIr;
+		} else {
+			effectiveIr = clonedIr;
+		}
 	}
 
 	return {
-		ir: effectiveIr,
+		ir: attachAdapterAudit(effectiveIr, changeLog),
 		async commit() {
 			if (disposed) {
 				// no-op if already disposed
@@ -197,6 +210,21 @@ export async function runAdapterExtensions(
 		},
 		async rollback() {
 			await cleanup();
+		},
+	};
+}
+
+function attachAdapterAudit(ir: IRv1, changes: IRAdapterChange[]): IRv1 {
+	if (changes.length === 0) {
+		return ir;
+	}
+
+	const existing = ir.adapterAudit?.changes ?? [];
+
+	return {
+		...ir,
+		adapterAudit: {
+			changes: [...existing, ...changes],
 		},
 	};
 }

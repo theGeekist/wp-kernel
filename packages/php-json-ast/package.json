@@ -34,6 +34,11 @@
 			"import": "./dist/nodes.js",
 			"default": "./dist/nodes.js"
 		},
+		"./nodes/base": {
+			"types": "./dist/nodes/base.d.ts",
+			"import": "./dist/nodes/base.js",
+			"default": "./dist/nodes/base.js"
+		},
 		"./types": {
 			"types": "./dist/types.d.ts",
 			"import": "./dist/types.js",

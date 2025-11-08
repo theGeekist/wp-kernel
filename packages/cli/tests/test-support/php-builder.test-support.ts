@@ -103,16 +103,35 @@ export function createMinimalIr(overrides?: Partial<IRv1>): IRv1 {
 		schemas: {},
 	};
 
-	const base: IRv1 = {
-		meta: {
-			version: 1,
-			namespace,
-			sourcePath: overrides?.meta?.sourcePath ?? DEFAULT_CONFIG_SOURCE,
-			origin: overrides?.meta?.origin ?? 'typescript',
-			sanitizedNamespace:
-				overrides?.meta?.sanitizedNamespace ??
-				namespace.replace(/[^A-Za-z0-9]+/gu, ''),
+	const meta: IRv1['meta'] = {
+		version: 1,
+		namespace,
+		sourcePath: overrides?.meta?.sourcePath ?? DEFAULT_CONFIG_SOURCE,
+		origin: overrides?.meta?.origin ?? 'typescript',
+		sanitizedNamespace:
+			overrides?.meta?.sanitizedNamespace ??
+			namespace.replace(/[^A-Za-z0-9]+/gu, ''),
+		features: overrides?.meta?.features ?? ['capabilityMap', 'phpAutoload'],
+		ids: overrides?.meta?.ids ?? {
+			algorithm: 'sha256',
+			resourcePrefix: 'res:',
+			schemaPrefix: 'sch:',
+			blockPrefix: 'blk:',
+			capabilityPrefix: 'cap:',
 		},
+		redactions: overrides?.meta?.redactions ?? [
+			'config.env',
+			'adapters.secrets',
+		],
+		limits: overrides?.meta?.limits ?? {
+			maxConfigKB: 256,
+			maxSchemaKB: 1024,
+			policy: 'truncate',
+		},
+	};
+
+	const base: IRv1 = {
+		meta,
 		config: baseConfig,
 		schemas: overrides?.schemas ?? [],
 		resources: overrides?.resources ?? [],

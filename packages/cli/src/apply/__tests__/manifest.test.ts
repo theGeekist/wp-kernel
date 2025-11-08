@@ -152,7 +152,11 @@ describe('generation manifest helpers', () => {
 				get: { segments: [], source: 'default' },
 			},
 			warnings: [],
-			hash: 'abc123',
+			hash: {
+				algo: 'sha256',
+				inputs: ['resource'],
+				value: 'abc123',
+			},
 			ui: {
 				admin: {
 					dataviews: dataviewsConfig,
@@ -167,6 +171,20 @@ describe('generation manifest helpers', () => {
 				sourcePath: 'wpk.config.ts',
 				origin: 'typescript',
 				sanitizedNamespace: 'demo-plugin',
+				features: ['capabilityMap', 'blocks', 'phpAutoload'],
+				ids: {
+					algorithm: 'sha256',
+					resourcePrefix: 'res:',
+					schemaPrefix: 'sch:',
+					blockPrefix: 'blk:',
+					capabilityPrefix: 'cap:',
+				},
+				redactions: ['config.env', 'adapters.secrets'],
+				limits: {
+					maxConfigKB: 256,
+					maxSchemaKB: 1024,
+					policy: 'truncate',
+				},
 			},
 			config: {
 				version: 1,

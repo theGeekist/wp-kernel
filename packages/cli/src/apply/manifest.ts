@@ -343,7 +343,7 @@ function buildResourceEntry({
 	const shimPath = shimRoot ? path.posix.join(shimRoot, shimBase) : shimBase;
 
 	return {
-		hash: resource.hash,
+		hash: resource.hash.value,
 		artifacts: {
 			generated: Array.from(generatedArtifacts),
 			shims: [shimPath],

@@ -125,19 +125,29 @@ describe('capability map integration', () => {
 					])
 				);
 
-				expect(definitionMap.get('demo.create')).toEqual({
+				const createDefinition = definitionMap.get('demo.create');
+				expect(createDefinition).toMatchObject({
 					key: 'demo.create',
 					capability: 'manage_options',
 					appliesTo: 'resource',
 					source: 'map',
 				});
-				expect(definitionMap.get('demo.get')).toEqual({
+				expect(createDefinition?.id).toEqual(
+					expect.stringMatching(/^cap:/)
+				);
+				expect(createDefinition?.binding).toBeUndefined();
+
+				const getDefinition = definitionMap.get('demo.get');
+				expect(getDefinition).toMatchObject({
 					key: 'demo.get',
 					capability: 'edit_post',
 					appliesTo: 'object',
 					binding: 'id',
 					source: 'map',
 				});
+				expect(getDefinition?.id).toEqual(
+					expect.stringMatching(/^cap:/)
+				);
 
 				expect(ir.capabilityMap.missing).toHaveLength(0);
 				expect(ir.capabilityMap.unused).toEqual(['unused.capability']);

@@ -1,7 +1,7 @@
 import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceConfig, ResourceRoute } from '@wpkernel/core/resource';
 import type { IRRoute, IRWarning } from '../publicTypes';
-import { hashCanonical } from './canonical';
+import { buildHashProvenance } from './hashing';
 
 const RESERVED_ROUTE_PREFIXES = [
 	'/wp/v2',
@@ -85,12 +85,15 @@ export function normaliseRoutes(options: {
 			path: analysis.normalisedPath,
 			capability: route.capability,
 			transport: analysis.transport,
-			hash: hashCanonical({
-				method,
-				path: analysis.normalisedPath,
-				capability: route.capability ?? null,
-				transport: analysis.transport,
-			}),
+			hash: buildHashProvenance(
+				['method', 'path', 'capability', 'transport'],
+				{
+					method,
+					path: analysis.normalisedPath,
+					capability: route.capability ?? null,
+					transport: analysis.transport,
+				}
+			),
 		});
 	}
 
