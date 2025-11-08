@@ -1,6 +1,6 @@
 {
 	"name": "wp-kernel-showcase",
-	"version": "0.12.1-beta.1",
+	"version": "0.12.1-beta.2",
 	"private": true,
 	"description": "Showcase plugin demonstrating WPKernel framework features",
 	"type": "module",
