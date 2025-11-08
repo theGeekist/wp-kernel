@@ -7,7 +7,7 @@ Guide to submitting pull requests to WPKernel.
 ## Before You Start
 
 - Read the [Contributing Guide](/contributing/)
-- Check [existing issues](https://github.com/theGeekist/wp-kernel/issues) for related work
+- Check [existing issues](https://github.com/wpkernel/wpkernel/issues) for related work
 - Discuss large changes in an issue first
 - **Review `RELEASING.md`** in project root for sprint-driven re2. **Maintainer reviews** PR changes.
 
@@ -18,8 +18,8 @@ Guide to submitting pull requests to WPKernel.
 ## Questions?
 
 - **Documentation**: https://theGeekist.github.io/wp-kernel/
-- **Issues**: https://github.com/theGeekist/wp-kernel/issues
-- **Discussions**: https://github.com/theGeekist/wp-kernel/discussions
+- **Issues**: https://github.com/wpkernel/wpkernel/issues
+- **Discussions**: https://github.com/wpkernel/wpkernel/discussions
 
 ## Quick Reference
 
@@ -50,7 +50,7 @@ git clone https://github.com/YOUR_USERNAME/wp-kernel.git
 cd wp-kernel
 
 # Add upstream remote
-git remote add upstream https://github.com/theGeekist/wp-kernel.git
+git remote add upstream https://github.com/wpkernel/wpkernel.git
 
 # Create a feature branch
 git checkout -b feature/my-feature
@@ -470,8 +470,8 @@ Releases are automated:
 ## Questions?
 
 - **Documentation**: https://theGeekist.github.io/wp-kernel/
-- **Issues**: https://github.com/theGeekist/wp-kernel/issues
-- **Discussions**: https://github.com/theGeekist/wp-kernel/discussions
+- **Issues**: https://github.com/wpkernel/wpkernel/issues
+- **Discussions**: https://github.com/wpkernel/wpkernel/discussions
 
 ## Quick Reference
 

@@ -307,7 +307,7 @@ add_action('wpk.bridge.acme-blog.thing.created', function($payload) {
 
 For the complete event taxonomy, payload contracts, PHP bridge planning, versioning rules, and best practices, see:
 
-**[Event Taxonomy Quick Reference](https://github.com/theGeekist/wp-kernel/blob/main/information/Event%20Taxonomy%20Quick%20Reference.md)**
+**[Event Taxonomy Quick Reference](https://github.com/wpkernel/wpkernel/blob/main/information/Event%20Taxonomy%20Quick%20Reference.md)**
 
 This is the authoritative specification for the entire event system. The JavaScript implementation is complete; PHP bridge is planned for a future release.
 

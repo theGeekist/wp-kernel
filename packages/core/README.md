@@ -151,7 +151,7 @@ const SendWelcomeEmail = defineJob({
 - **WordPress 6.7+** - Required (Script Modules API)
 - **PHP Bridge** - Automatic REST endpoint and capability integration (Sprint 9)
 
-**📚 [Integration Guide](https://thegeekist.github.io/wp-kernel/guide/getting-started)**
+**📚 [Integration Guide](https://wpkernel.dev/wp-kernel/guide/getting-started)**
 
 ## Import Patterns
 
@@ -171,9 +171,9 @@ Both patterns work identically. Submodule imports provide better tree-shaking.
 
 ## Documentation
 
-- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Your first resource and action
-- **[API Reference](https://thegeekist.github.io/wp-kernel/api/)** - Complete API documentation
-- **[Contracts Reference](https://thegeekist.github.io/wp-kernel/reference/contracts)** - Events, errors, cache keys
+- **[Getting Started](https://wpkernel.dev/wp-kernel/getting-started/)** - Your first resource and action
+- **[API Reference](https://wpkernel.dev/wp-kernel/api/)** - Complete API documentation
+- **[Contracts Reference](https://wpkernel.dev/wp-kernel/reference/contracts)** - Events, errors, cache keys
 
 ## Requirements
 
@@ -295,7 +295,7 @@ try {
 
 ## Contributing
 
-See the [main repository](https://github.com/theGeekist/wp-kernel) for contribution guidelines.
+See the [main repository](https://github.com/wpkernel/wpkernel) for contribution guidelines.
 
 ## License
 

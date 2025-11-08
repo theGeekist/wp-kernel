@@ -2,7 +2,7 @@
 
 Modern admin tables in WPKernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours wpk capabilities, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
 
-> 📖 Background: read the [DataViews Integration - Specification](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
+> 📖 Background: read the [DataViews Integration - Specification](https://github.com/wpkernel/wpkernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
 
 ## Prerequisites
 

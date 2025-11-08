@@ -22,21 +22,21 @@ We do not accept `git commit --no-verify`; let the hooks run to keep formatting 
 
 Use this checklist when you need the deeper context that sits outside `/docs`:
 
-| Document           | What it covers                                    | Canonical location                                                                                 |
-| ------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Project overview   | High-level architecture, packages, and motivation | [`README.md`](https://github.com/theGeekist/wp-kernel/blob/main/README.md)                         |
-| Development guide  | Environment setup, scripts, and tooling           | [`DEVELOPMENT.md`](https://github.com/theGeekist/wp-kernel/blob/main/DEVELOPMENT.md)               |
-| Branching strategy | Release cadence and merge capability              | [`BRANCHING_STRATEGY.md`](https://github.com/theGeekist/wp-kernel/blob/main/BRANCHING_STRATEGY.md) |
-| Change log         | Human-curated release notes                       | [`CHANGELOG.md`](https://github.com/theGeekist/wp-kernel/blob/main/CHANGELOG.md)                   |
-| Licensing          | EUPL-1.2 terms and rationale                      | [`LICENSE`](https://github.com/theGeekist/wp-kernel/blob/main/LICENSE)                             |
-| Package READMEs    | Package-specific instructions                     | [`packages/*/README.md`](https://github.com/theGeekist/wp-kernel/tree/main/packages)               |
+| Document           | What it covers                                    | Canonical location                                                                              |
+| ------------------ | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Project overview   | High-level architecture, packages, and motivation | [`README.md`](https://github.com/wpkernel/wpkernel/blob/main/README.md)                         |
+| Development guide  | Environment setup, scripts, and tooling           | [`DEVELOPMENT.md`](https://github.com/wpkernel/wpkernel/blob/main/DEVELOPMENT.md)               |
+| Branching strategy | Release cadence and merge capability              | [`BRANCHING_STRATEGY.md`](https://github.com/wpkernel/wpkernel/blob/main/BRANCHING_STRATEGY.md) |
+| Change log         | Human-curated release notes                       | [`CHANGELOG.md`](https://github.com/wpkernel/wpkernel/blob/main/CHANGELOG.md)                   |
+| Licensing          | EUPL-1.2 terms and rationale                      | [`LICENSE`](https://github.com/wpkernel/wpkernel/blob/main/LICENSE)                             |
+| Package READMEs    | Package-specific instructions                     | [`packages/*/README.md`](https://github.com/wpkernel/wpkernel/tree/main/packages)               |
 
 Additional references:
 
-- [`AGENTS.md`](https://github.com/theGeekist/wp-kernel/blob/main/AGENTS.md) - automation capability for bots and scripts.
-- [`LICENSING.md`](https://github.com/theGeekist/wp-kernel/blob/main/LICENSING.md) - decision log for licensing choices.
-- [`information/Roadmap`](https://github.com/theGeekist/wp-kernel/blob/main/information/Roadmap%20PO%20%E2%80%A2%20v1.0.md) - product roadmap.
-- [`examples/showcase/README.md`](https://github.com/theGeekist/wp-kernel/blob/main/examples/showcase/README.md) - detailed walkthrough of the showcase plugin.
+- [`AGENTS.md`](https://github.com/wpkernel/wpkernel/blob/main/AGENTS.md) - automation capability for bots and scripts.
+- [`LICENSING.md`](https://github.com/wpkernel/wpkernel/blob/main/LICENSING.md) - decision log for licensing choices.
+- [`information/Roadmap`](https://github.com/wpkernel/wpkernel/blob/main/information/Roadmap%20PO%20%E2%80%A2%20v1.0.md) - product roadmap.
+- [`examples/showcase/README.md`](https://github.com/wpkernel/wpkernel/blob/main/examples/showcase/README.md) - detailed walkthrough of the showcase plugin.
 - [Framework Release Playbook](../releases/framework-release-playbook.md) - manual release checklist and verification steps.
 
 ## Standards and testing

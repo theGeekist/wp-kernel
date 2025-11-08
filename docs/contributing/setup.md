@@ -65,7 +65,7 @@ git --version
 
 ```bash
 # Clone the repository
-git clone https://github.com/theGeekist/wp-kernel.git
+git clone https://github.com/wpkernel/wpkernel.git
 cd wp-kernel
 
 # Install dependencies (this may take a few minutes)

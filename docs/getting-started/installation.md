@@ -77,7 +77,7 @@ docker --version # Should show Docker 20.10+ (if using wp-env)
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/theGeekist/wp-kernel.git
+git clone https://github.com/wpkernel/wpkernel.git
 cd wp-kernel
 ```
 

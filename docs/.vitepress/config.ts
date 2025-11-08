@@ -34,7 +34,7 @@ export default withMermaid(
 			'A Rails-like, opinionated framework for building modern WordPress products',
 		base: '/wp-kernel/',
 		lastUpdated: !FAST,
-		sitemap: { hostname: 'https://thegeekist.github.io' },
+		sitemap: { hostname: 'https://wpkernel.dev' },
 
 		srcExclude: ['internal/**'],
 
@@ -120,7 +120,7 @@ export default withMermaid(
 			logo: '/logo.png',
 			editLink: {
 				pattern:
-					'https://github.com/theGeekist/wp-kernel/edit/main/docs/:path',
+					'https://github.com/wpkernel/wpkernel/edit/main/docs/:path',
 				text: 'Edit this page on GitHub',
 			},
 			externalLinkIcon: true,
@@ -361,7 +361,11 @@ export default withMermaid(
 			socialLinks: [
 				{
 					icon: 'github',
-					link: 'https://github.com/theGeekist/wp-kernel',
+					link: 'https://github.com/wpkernel/wpkernel',
+				},
+				{
+					icon: 'discord',
+					link: 'https://discord.gg-kernel',
 				},
 			],
 			...(searchConfig ? { search: searchConfig } : {}),

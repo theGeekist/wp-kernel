@@ -7,7 +7,7 @@
 	"license": "EUPL-1.2",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/theGeekist/wp-kernel.git"
+		"url": "https://github.com/wpkernel/wpkernel.git"
 	},
 	"packageManager": "pnpm@10.19.0",
 	"engines": {

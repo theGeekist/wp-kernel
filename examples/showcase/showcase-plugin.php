@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WPKernel Showcase
- * Plugin URI: https://github.com/theGeekist/wp-kernel
+ * Plugin URI: https://github.com/wpkernel/wpkernel
  * Description: Comprehensive demonstration of WPKernel framework capabilities through a jobs and applications management system
  * Version:           0.1.0
  * Requires at least: 6.7

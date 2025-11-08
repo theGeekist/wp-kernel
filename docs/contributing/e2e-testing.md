@@ -709,6 +709,6 @@ console.log(response.headers);
 ## See Also
 
 - [Testing Guide](/contributing/testing) - Unit testing patterns
-- [Showcase Tests](https://github.com/theGeekist/wp-kernel/tree/main/examples/showcase/tests/e2e) - Real-world examples
+- [Showcase Tests](https://github.com/wpkernel/wpkernel/tree/main/examples/showcase/tests/e2e) - Real-world examples
 - [Playwright Docs](https://playwright.dev/) - Official Playwright documentation
 - [@wordpress/e2e-test-utils-playwright](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-e2e-test-utils-playwright/) - WordPress E2E utilities

@@ -838,12 +838,12 @@ All changes should:
 ---
 
 **Maintained by**: [@theGeekist](https://github.com/theGeekist)  
-**Project**: [wp-kernel](https://github.com/theGeekist/wp-kernel)  
+**Project**: [wp-kernel](https://github.com/wpkernel/wpkernel)  
 **Last Updated**
 
 ---
 
 <!-- Version comparison links -->
 
-[Unreleased]: https://github.com/theGeekist/wp-kernel/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/theGeekist/wp-kernel/releases/tag/v0.1.0
+[Unreleased]: https://github.com/wpkernel/wpkernel/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/wpkernel/wpkernel/releases/tag/v0.1.0

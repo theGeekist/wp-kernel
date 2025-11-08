@@ -12,7 +12,7 @@
 
 The JavaScript is the source of truth and PHP is a thin contract.
 
-[![CI Status](https://github.com/theGeekist/wp-kernel/workflows/CI/badge.svg)](https://github.com/theGeekist/wp-kernel/actions)
+[![CI Status](https://github.com/wpkernel/wpkernel/workflows/CI/badge.svg)](https://github.com/wpkernel/wpkernel/actions)
 [![License](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](LICENSE)
 [![Node Version](https://img.shields.io/badge/node-20.x%20LTS+-brightgreen.svg)](.nvmrc)
 [![Documentation](https://img.shields.io/badge/docs-VitePress-42b883.svg)](https://theGeekist.github.io/wp-kernel/)
@@ -165,7 +165,7 @@ To **contribute to the WPKernel framework** or run the showcase demo locally:
 
 ```bash
 # Clone this repository
-git clone https://github.com/theGeekist/wp-kernel.git
+git clone https://github.com/wpkernel/wpkernel.git
 cd wp-kernel
 
 # Use correct Node version
@@ -215,11 +215,11 @@ pnpm playground  # Launches WASM-based WordPress in browser
 
 We test against multiple combinations to ensure compatibility:
 
-| WordPress | PHP | Node   | Status                                                                                                                                                  |
-| --------- | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 6.7.4     | 8.1 | 20 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
-| 6.7.4     | 8.2 | 22 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
-| Latest    | 8.3 | Latest | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
+| WordPress | PHP | Node   | Status                                                                                                                                            |
+| --------- | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6.7.4     | 8.1 | 20 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/wpkernel/wpkernel/ci.yml?branch=main)](https://github.com/wpkernel/wpkernel/actions) |
+| 6.7.4     | 8.2 | 22 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/wpkernel/wpkernel/ci.yml?branch=main)](https://github.com/wpkernel/wpkernel/actions) |
+| Latest    | 8.3 | Latest | [![CI](https://img.shields.io/github/actions/workflow/status/wpkernel/wpkernel/ci.yml?branch=main)](https://github.com/wpkernel/wpkernel/actions) |
 
 ### Development Environment Options
 
@@ -311,7 +311,7 @@ Shared testing helpers live under `@wpkernel/test-utils/wp` (WordPress globals) 
 - **[Core Concepts](https://theGeekist.github.io/wp-kernel/guide/)** - Resources, Actions, Events, Bindings, Interactivity, Jobs
 - **[API Reference](https://theGeekist.github.io/wp-kernel/api/)** - Type definitions and interfaces
 - **[Contributing Guide](https://theGeekist.github.io/wp-kernel/contributing/)** - Development workflow and standards
-- **[Roadmap](https://thegeekist.github.io/wp-kernel/contributing/roadmap)** - Project progress and upcoming features
+- **[Roadmap](https://wpkernel.dev/wp-kernel/contributing/roadmap)** - Project progress and upcoming features
 
 ### Developer Resources
 
@@ -387,7 +387,7 @@ This gives you:
 
 WPKernel is in **active development** progressing toward v1.0. Core primitives (Resources, Actions, Data Integration, Reporting) are complete and stable.
 
-**See the [Roadmap](https://thegeekist.github.io/wp-kernel/contributing/roadmap)** for detailed progress, completed features, and upcoming work.
+**See the [Roadmap](https://wpkernel.dev/wp-kernel/contributing/roadmap)** for detailed progress, completed features, and upcoming work.
 
 ---
 
@@ -465,9 +465,9 @@ Built on the shoulders of giants:
 ## 🔗 Links
 
 - **[Documentation](https://theGeekist.github.io/wp-kernel/)** - Official docs site
-- **[GitHub Repository](https://github.com/theGeekist/wp-kernel)** - Source code
-- **[Issues](https://github.com/theGeekist/wp-kernel/issues)** - Bug reports and feature requests
-- **[Discussions](https://github.com/theGeekist/wp-kernel/discussions)** - Community Q&A
+- **[GitHub Repository](https://github.com/wpkernel/wpkernel)** - Source code
+- **[Issues](https://github.com/wpkernel/wpkernel/issues)** - Bug reports and feature requests
+- **[Discussions](https://github.com/wpkernel/wpkernel/discussions)** - Community Q&A
 
 ---
 
