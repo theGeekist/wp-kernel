@@ -1,0 +1,317 @@
+{
+	"version": 1,
+	"config": {
+		"loader": {
+			"module": "packages/cli/src/config/load-wpk-config.ts",
+			"description": "Discovers wpk.config entries via cosmiconfig, supports TSX transpilation, validates with validateWPKernelConfig, and annotates composer autoload mismatch state before pipeline execution.",
+			"async": true,
+			"outputs": {
+				"config": "WPKernelConfigV1",
+				"namespace": "Raw namespace string provided by user config.",
+				"configOrigin": "@wpkernel/core/contracts#WPK_CONFIG_SOURCES literal",
+				"sourcePath": "Absolute file path to loaded config",
+				"composerCheck": "'ok' | 'mismatch'"
+			}
+		}
+	},
+	"mutableState": {
+		"module": "packages/cli/src/ir/types.ts",
+		"draftShape": {
+			"meta": "null until ir.meta.core assigns sanitized namespace + source metadata",
+			"config": "Exact BuildIrOptions.config reference (not a projection)",
+			"schemas": "IRSchema[] populated by ir.schemas.core",
+			"resources": "IRResource[] populated by ir.resources.core",
+			"capabilities": "IRCapabilityHint[] from ir.capabilities.core",
+			"capabilityMap": "null until ir.capability-map.core resolves",
+			"blocks": "IRBlock[] from ir.blocks.core",
+			"php": "IRPhpProject|null seeded by ir.meta.core",
+			"diagnostics": "IRDiagnostic[] from ir.diagnostics.core",
+			"extensions": "Record<string, unknown> for fragment scratch data"
+		},
+		"finalise": {
+			"module": "packages/cli/src/ir/types.ts#finalizeIrDraft",
+			"requires": [
+				"meta assigned",
+				"capabilityMap assigned",
+				"php assigned"
+			],
+			"errors": "Throws WPKernelError('ValidationError') when required fragments did not run or core fields missing."
+		}
+	},
+	"pipeline": {
+		"creation": {
+			"module": "packages/cli/src/runtime/createPipeline.ts",
+			"description": "Wraps @wpkernel/pipeline with CLI-specific context (workspace, generation state, reporter) and wires fragment/builder args.",
+			"async": true,
+			"extensions": "Accepts pipeline.extensions.use(createPipelineExtension(...)) including adapter bridge.",
+			"phases": ["generate", "apply"],
+			"stepsRecorded": true
+		},
+		"createIr": {
+			"module": "packages/cli/src/ir/createIr.ts",
+			"description": "Registers all core fragments and builders, installs adapter extension bridge, builds workspace + reporter, then runs pipeline to produce IRv1 for the requested phase.",
+			"phaseDefault": "generate",
+			"workspace": "packages/cli/src/workspace",
+			"generationState": "packages/cli/src/apply/manifest.ts#buildEmptyGenerationState"
+		}
+	},
+	"fragments": [
+		{
+			"key": "ir.meta.core",
+			"module": "packages/cli/src/ir/fragments/meta.ts",
+			"dependsOn": [],
+			"declaredAsync": true,
+			"awaits": [],
+			"reads": [
+				"input.options.namespace",
+				"input.options.sourcePath",
+				"input.options.origin"
+			],
+			"writes": [
+				"draft.meta",
+				"draft.php",
+				"draft.extensions['ir.meta.core']"
+			],
+			"notes": "Sanitises namespace via @wpkernel/core/namespace, records sanitizedNamespace for downstream fragments, sets php defaults (namespace, autoload='inc/', outputDir='.generated/php')."
+		},
+		{
+			"key": "ir.schemas.core",
+			"module": "packages/cli/src/ir/fragments/schemas.ts",
+			"dependsOn": [],
+			"declaredAsync": true,
+			"awaits": ["loadConfiguredSchemas"],
+			"reads": ["options.config.schemas"],
+			"writes": ["draft.schemas", "draft.extensions['ir.schemas.core']"],
+			"notes": "Instantiates schema accumulator, loads explicit schemas from config (resolving JSON, generating hashes), exposes accumulator for resource fragment."
+		},
+		{
+			"key": "ir.resources.core",
+			"module": "packages/cli/src/ir/fragments/resources.ts",
+			"dependsOn": ["ir.meta.core", "ir.schemas.core"],
+			"declaredAsync": true,
+			"awaits": ["buildResources"],
+			"reads": [
+				"draft.extensions['ir.meta.core'].sanitizedNamespace",
+				"draft.extensions['ir.schemas.core']",
+				"options.config.resources"
+			],
+			"writes": ["draft.resources"],
+			"notes": "Normalises routes, resolves schema provenance, derives cache keys, records storage + identity, copies UI config, and hashes each resource via hashResource."
+		},
+		{
+			"key": "ir.capabilities.core",
+			"module": "packages/cli/src/ir/fragments/capabilities.ts",
+			"dependsOn": ["ir.resources.core"],
+			"declaredAsync": true,
+			"awaits": [],
+			"reads": ["draft.resources"],
+			"writes": ["draft.capabilities"],
+			"notes": "Collects capability hints from resource routes + inline capability maps via collectCapabilityHints (pure transform)."
+		},
+		{
+			"key": "ir.capability-map.core",
+			"module": "packages/cli/src/ir/fragments/capability-map.ts",
+			"dependsOn": ["ir.resources.core", "ir.capabilities.core"],
+			"declaredAsync": true,
+			"awaits": ["resolveCapabilityMap"],
+			"reads": ["draft.capabilities", "draft.resources"],
+			"writes": ["draft.capabilityMap"],
+			"notes": "Resolves capability definitions, missing/unused lists, fallback capability string, and warning set."
+		},
+		{
+			"key": "ir.diagnostics.core",
+			"module": "packages/cli/src/ir/fragments/diagnostics.ts",
+			"dependsOn": ["ir.resources.core", "ir.capability-map.core"],
+			"declaredAsync": true,
+			"awaits": [],
+			"reads": [
+				"draft.resources[].warnings",
+				"draft.capabilityMap.warnings"
+			],
+			"writes": ["draft.diagnostics"],
+			"notes": "Projects resource + capability map warnings into IRDiagnostic entries with severity=warn, sorts deterministically."
+		},
+		{
+			"key": "ir.blocks.core",
+			"module": "packages/cli/src/ir/fragments/blocks.ts",
+			"dependsOn": ["ir.meta.core"],
+			"declaredAsync": true,
+			"awaits": ["discoverBlocks"],
+			"reads": ["options.sourcePath"],
+			"writes": ["draft.blocks"],
+			"notes": "Walks workspace for block.json manifests, flags SSR capability when render property or render.php present, enforces unique block keys."
+		},
+		{
+			"key": "ir.ordering.core",
+			"module": "packages/cli/src/ir/fragments/ordering.ts",
+			"dependsOn": [
+				"ir.schemas.core",
+				"ir.resources.core",
+				"ir.capabilities.core",
+				"ir.blocks.core"
+			],
+			"declaredAsync": true,
+			"awaits": [],
+			"reads": [
+				"draft.schemas",
+				"draft.resources",
+				"draft.capabilities",
+				"draft.blocks"
+			],
+			"writes": [
+				"draft.schemas",
+				"draft.resources",
+				"draft.capabilities",
+				"draft.blocks"
+			],
+			"notes": "Sorts core collections for deterministic output; no async work despite async signature."
+		},
+		{
+			"key": "ir.validation.core",
+			"module": "packages/cli/src/ir/fragments/validation.ts",
+			"dependsOn": [
+				"ir.meta.core",
+				"ir.resources.core",
+				"ir.capability-map.core"
+			],
+			"declaredAsync": true,
+			"awaits": [],
+			"reads": ["draft.meta", "draft.capabilityMap", "draft.resources"],
+			"writes": [],
+			"notes": "Guards that meta + capability map exist and each resource retained a schema association; throws WPKernelError on violation."
+		}
+	],
+	"builders": [
+		{
+			"key": "builder.generate.bundler.core",
+			"module": "packages/cli/src/builders/bundler.ts",
+			"phase": "generate",
+			"declaredAsync": true,
+			"awaits": [
+				"workspace.readJson",
+				"workspace.write",
+				"buildExternalList"
+			],
+			"outputs": [
+				".wpk/bundler/config.json",
+				".wpk/bundler/assets/index.asset.json"
+			],
+			"notes": "Emits Rollup driver config + asset manifest. Includes UI handle when any resource.ui.admin.dataviews declared to drive enqueue scripts."
+		},
+		{
+			"key": "builder.generate.php-driver.core",
+			"module": "packages/cli/src/builders/index.ts#createPhpDriverInstaller",
+			"phase": "generate",
+			"declaredAsync": true,
+			"awaits": ["workspace.ensure"],
+			"outputs": [".wpk/php-driver/*"],
+			"notes": "Installs PHP driver dependencies declared by @wpkernel/php-driver (composer.json, lockfiles)."
+		},
+		{
+			"key": "builder.generate.php.core",
+			"module": "packages/cli/src/builders/php/index.ts",
+			"phase": "generate",
+			"declaredAsync": true,
+			"awaits": ["builder.emit"],
+			"outputs": [".generated/php/**"],
+			"notes": "Uses php-json-ast builders to emit controllers, REST registration, plugin loader index, respecting adapters.php overrides (namespace/autoload/customise)."
+		},
+		{
+			"key": "builder.generate.plan.core",
+			"module": "packages/cli/src/builders/plan.ts",
+			"phase": "generate",
+			"declaredAsync": true,
+			"awaits": ["workspace.readText", "workspace.write"],
+			"outputs": [".wpk/apply/plan.json"],
+			"notes": "Records plugin loader + PHP index expectations, hashes existing plugin.php to avoid overwriting user-owned loaders, enumerates resource artifact diffs for apply."
+		},
+		{
+			"key": "builder.generate.blocks.ts",
+			"module": "packages/cli/src/builders/ts/blocks.ts",
+			"phase": "generate",
+			"declaredAsync": true,
+			"awaits": ["emit"],
+			"outputs": [".generated/ts/blocks/**"],
+			"notes": "Serialises block metadata + SSR hints into TypeScript modules consumed by admin/UI runtime."
+		},
+		{
+			"key": "builder.generate.ts.core",
+			"module": "packages/cli/src/builders/ts.ts",
+			"phase": "generate",
+			"declaredAsync": true,
+			"awaits": ["ts-morph Project operations", "emit"],
+			"outputs": [".generated/ts/**/*"],
+			"notes": "Emits admin dataview registries, typed clients, loader glue; uses resource.ui.admin.dataviews to produce registry entries and chooses interactivity feature id."
+		},
+		{
+			"key": "builder.generate.patcher.core",
+			"module": "packages/cli/src/builders/patcher.ts",
+			"phase": "generate",
+			"declaredAsync": true,
+			"awaits": ["workspace.write"],
+			"outputs": [".wpk/patches/**"],
+			"notes": "Captures AST patch instructions for apply phase; consumes builder output queue and generation manifest hash."
+		}
+	],
+	"extensions": {
+		"adapterBridge": {
+			"module": "packages/cli/src/runtime/adapterExtensions.ts",
+			"registers": "pipeline.extensions.use(createPipelineExtension(...))",
+			"phaseFilter": "generate only",
+			"irHandling": {
+				"clone": "packages/cli/src/adapters/extensions.ts#cloneIr stripFunctions",
+				"update": "Adapter extensions call context.updateIr to replace effective IR snapshot"
+			},
+			"filesystem": "Queue writes inside sandbox rooted at adapters.php outputDir; commit copies into workspace, rollback deletes sandbox.",
+			"guards": [
+				"Extensions must return name + apply function",
+				"Writes constrained to adapter output directory via validateSandboxTarget"
+			]
+		}
+	},
+	"applyPhase": {
+		"phase": "apply",
+		"reuseFragments": true,
+		"builders": [
+			"builder.generate.plan.core",
+			"builder.generate.patcher.core"
+		],
+		"manifest": {
+			"module": "packages/cli/src/apply/manifest.ts",
+			"hashSource": "IRResource.hash + plugin loader contents",
+			"notes": "Provides diff state (removed resources, plugin loader presence, ui handle) to patcher without rerunning PHP emission."
+		}
+	},
+	"irShape": {
+		"module": "packages/cli/src/ir/publicTypes.ts",
+		"fields": {
+			"meta": "namespace, sanitizedNamespace, origin, sourcePath, version",
+			"config": "Full WPKernelConfigV1 (includes schemas/resources/adapters/ui as authored)",
+			"schemas": "Resolved schema entries with hash + provenance",
+			"resources": "Normalised routes, cacheKeys (list/get/create/update/remove), identity/storage/queryParams/ui/capabilities hash",
+			"capabilityMap": "definitions + fallback + missing/unused arrays + warnings",
+			"capabilities": "Usage hints linking resources/routes",
+			"blocks": "key/directory/hasRender/manifestSource",
+			"php": "namespace/autoload/outputDir",
+			"diagnostics": "Optional IRDiagnostic[] keyed by fragment"
+		}
+	},
+	"asyncSummary": {
+		"fragments": {
+			"trulyAsync": [
+				"ir.schemas.core",
+				"ir.resources.core",
+				"ir.capability-map.core",
+				"ir.blocks.core"
+			],
+			"syncButMarkedAsync": [
+				"ir.meta.core",
+				"ir.capabilities.core",
+				"ir.diagnostics.core",
+				"ir.ordering.core",
+				"ir.validation.core"
+			]
+		},
+		"builders": "All builders use async apply because they perform filesystem IO or await ts-morph; no synchronous-only builders registered."
+	}
+}

@@ -1,0 +1,122 @@
+{
+	"version": 1,
+	"resourcePipeline": {
+		"factory": {
+			"module": "packages/core/src/pipeline/resources/createResourcePipeline.ts",
+			"synchronous": true,
+			"draft": "ResourcePipelineDraft<T, TQuery> holds client, cacheKeys, resource",
+			"context": "Namespace, resourceName, normalizedConfig, reporter",
+			"extensions": ["core.resource.finalize-definition"],
+			"notes": "Wraps @wpkernel/pipeline with WPKernelError mapping. Any promise returned by pipeline.run is rejected by defineResource to keep runtime synchronous."
+		},
+		"fragments": [
+			{
+				"key": "resource.config.validate",
+				"module": "packages/core/src/pipeline/resources/helpers/createResourceValidationFragment.ts",
+				"dependsOn": [],
+				"declaredAsync": false,
+				"responsibilities": [
+					"validateConfig(context.normalizedConfig)",
+					"log namespace/resource/routes/cacheKey presence"
+				]
+			},
+			{
+				"key": "resource.client.build",
+				"module": "packages/core/src/pipeline/resources/helpers/createResourceClientFragment.ts",
+				"dependsOn": ["resource.config.validate"],
+				"declaredAsync": false,
+				"responsibilities": [
+					"instantiate REST client via createClient",
+					"bind namespace + resourceName for telemetry"
+				]
+			},
+			{
+				"key": "resource.cacheKeys.build",
+				"module": "packages/core/src/pipeline/resources/helpers/createResourceCacheKeysFragment.ts",
+				"dependsOn": ["resource.config.validate"],
+				"declaredAsync": false,
+				"responsibilities": [
+					"merge createDefaultCacheKeys(resourceName) with config.cacheKeys",
+					"ensure list/get/create/update/remove keys exist"
+				]
+			}
+		],
+		"builder": {
+			"key": "resource.object.build",
+			"module": "packages/core/src/pipeline/resources/helpers/createResourceObjectBuilder.ts",
+			"dependsOn": ["resource.client.build", "resource.cacheKeys.build"],
+			"declaredAsync": false,
+			"responsibilities": [
+				"assert client + cacheKeys present",
+				"assemble ResourceObject via buildResourceObject"
+			]
+		},
+		"extension": {
+			"key": "core.resource.finalize-definition",
+			"module": "packages/core/src/pipeline/resources/extensions/createFinalizeResourceDefinitionExtension.ts",
+			"commit": [
+				"recordResourceDefined(event)",
+				"emit 'resource:defined' on shared bus"
+			],
+			"rollback": ["removeResourceDefined(event)"],
+			"notes": "Ensures runtime-visible events only fire when pipeline completes successfully."
+		}
+	},
+	"defineResource": {
+		"module": "packages/core/src/resource/define.ts",
+		"synchronous": true,
+		"steps": [
+			"validate config object + name",
+			"resolve namespace/resourceName via resolveNamespaceAndName",
+			"build reporter scoped to resource",
+			"run resource pipeline synchronously (throws if Promise returned)",
+			"return artifact.resource from pipeline output"
+		],
+		"errorHandling": "Wraps pipeline failures in WPKernelError('DeveloperError') when fragments mis-order or builder missing."
+	},
+	"resourceObject": {
+		"module": "packages/core/src/resource/buildResourceObject.ts",
+		"fields": {
+			"client": "Grouped API exposing fetchList/get/create/update/remove, use* hooks, mutate helpers",
+			"cache": "createCacheGetter wiring to invalidate + derive keys",
+			"storeApi": "createStoreApiGetter for registry integration",
+			"events": "createEventsGetter hooking into shared event bus",
+			"ui": "ResourceConfig.ui copied verbatim when provided to support CLI/admin tooling",
+			"capabilities": "ResourceConfig.capabilities retained for runtime metadata"
+		},
+		"notes": "No IR hash/ID fields are generated at runtime; CLI hashes remain generation-only metadata."
+	},
+	"configureKernel": {
+		"module": "packages/core/src/data/configure-kernel.ts",
+		"responsibilities": [
+			"resolve namespace (explicit or detectNamespace)",
+			"attach reporters + middleware to @wordpress/data registry",
+			"normalise UI config (enable, attach handler, options)",
+			"expose invalidate() that delegates to resource/cache.invalidate with reporter context",
+			"bridge event bus via wpkEventsPlugin and emit helper",
+			"manage teardown cleanup (reporter reset, middleware detach)"
+		],
+		"ui": {
+			"enable": "Boolean resolved from options.ui.enable || options.ui.attach",
+			"attach": "WPKernelUIAttach invoked when provided",
+			"dataViews": "configureWPKernel does not auto-generate screens; generated registry files from CLI feed runtime via plugin loader"
+		},
+		"hashes": "No content hashing performed in configureWPKernel; relies on CLI manifest for cache diffing"
+	},
+	"eventBus": {
+		"module": "packages/core/src/events/bus/index.ts",
+		"notes": "createFinalizeResourceDefinitionExtension publishes to this bus on commit. Consumers replaying IR must also replay event bus side effects or ignore them for deterministic builds."
+	},
+	"cliInterop": {
+		"irUsage": [
+			"ResourceConfig.ui data is surfaced to runtime resource objects (buildResourceObject)",
+			"Cache key overrides authored in config are merged with defaults at runtime",
+			"Capability maps remain advisory metadata; runtime enforces capabilities via generated controllers"
+		],
+		"nonUsage": [
+			"IRResource.hash not consumed by runtime",
+			"No canonical resourceId/schemaId/blockId generated in core",
+			"Diagnostics emitted by CLI are not consumed by runtime"
+		]
+	}
+}
