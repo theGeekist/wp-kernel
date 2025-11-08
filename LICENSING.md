@@ -202,6 +202,6 @@ If you're unsure about licensing for your use case:
 
 ---
 
-**Last Updated**: October 3, 2025  
+**Last Updated**  
 **Framework License**: EUPL-1.2  
 **Showcase License**: GPL-2.0-or-later

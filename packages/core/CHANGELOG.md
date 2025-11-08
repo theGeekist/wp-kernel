@@ -14,13 +14,13 @@
 
 - **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
 
-## 0.11.0 - 2025-11-04
+## 0.11.0
 
 ### Maintenance
 
 - Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; the runtime surface is unchanged beyond the exported `VERSION` constant update.
 
-## 0.10.0 - 2025-11-05
+## 0.10.0
 
 ### Added
 
@@ -38,7 +38,7 @@
 
 - Version bump to `0.10.0` to align with the Phase 6 core pipeline release and update the exported `VERSION` constant.
 
-## 0.9.0 - 2025-10-27
+## 0.9.0
 
 ### Maintenance
 
@@ -50,7 +50,7 @@
 - Mirrored the CLI MVP ledger by marking Task 31 as shipped and confirming the
   apply layering notes in the shared specs remain accurate for the runtime.
 
-## 0.8.0 - 2025-10-26
+## 0.8.0
 
 ### Maintenance
 
@@ -63,19 +63,19 @@
 - Confirmed the command migration documentation references the current core
   contracts and removed legacy command mentions from the runtime guides.
 
-## 0.7.0 - 2025-10-26
+## 0.7.0
 
 ### Maintenance
 
 - Version bump to `0.7.0` to align with the Phase 3 block builder release; runtime code remains unchanged aside from the exported `VERSION` constant.
 
-## 0.6.0 - 2025-10-26
+## 0.6.0
 
 ### Maintenance
 
 - Version bump to `0.6.0` to align with the Phase 2 release; runtime code remains unchanged aside from the exported `VERSION` constant.
 
-## 0.5.0 - 2025-10-26
+## 0.5.0
 
 ### Maintenance
 

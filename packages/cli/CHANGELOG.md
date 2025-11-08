@@ -6,7 +6,7 @@
 
 - **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
 
-## 0.11.0 - 2025-11-04
+## 0.11.0
 
 ### Added
 
@@ -16,7 +16,7 @@
 
 - **Generation manifest persistence** - `wpk generate` stores `.wpk/apply/state.json`, removes stale `.generated/**` files when resources or PHP paths disappear, and records shim deletions in `.wpk/apply/plan.json` so `wpk apply` prunes obsolete loaders.
 
-## 0.10.0 - 2025-11-05
+## 0.10.0
 
 ### Documentation
 
@@ -26,7 +26,7 @@
 
 - Version bump to `0.10.0` to align with the Phase 6 core pipeline release; no runtime changes beyond documentation updates.
 
-## 0.9.0 - 2025-10-27
+## 0.9.0
 
 ### Added
 
@@ -40,7 +40,7 @@
 
 - **Version bump** - Propagated the package version to `0.9.0` and regenerated API references via the release automation.
 
-## 0.8.0 - 2025-10-26
+## 0.8.0
 
 ### Removed
 
@@ -55,7 +55,7 @@
 
 - **Task 26 release notes** - Migration plan, MVP ledger, quick start, and resource/block guides now describe the builder pipeline and mark the 0.8.0 release as shipped.
 
-## 0.7.0 - 2025-10-26
+## 0.7.0
 
 ### Added
 
@@ -73,7 +73,7 @@
 
 - **Release prep** - Version bumped to `0.7.0` alongside regenerated API docs and showcase fixtures after closing the Phase 3 buffer slot.
 
-## 0.6.0 - 2025-10-26
+## 0.6.0
 
 ### Added
 
@@ -91,7 +91,7 @@
 
 - **Monorepo release** - Bumped `@wpkernel/cli` to `0.6.0` alongside the rest of the workspace after completing the Phase 2 checklist.
 
-## 0.5.0 - 2025-10-26
+## 0.5.0
 
 ### Added
 

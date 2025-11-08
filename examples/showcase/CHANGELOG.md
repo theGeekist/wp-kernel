@@ -1,12 +1,12 @@
 # wp-kernel-showcase
 
-## 0.11.0 - 2025-11-04
+## 0.11.0
 
 ### Maintenance
 
 - Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; the showcase plugin pulls in the updated CLI artefacts without additional feature changes this cycle.
 
-## 0.5.0 - 2025-10-26
+## 0.5.0
 
 ### Maintenance
 
@@ -126,7 +126,7 @@
 
     **Related PRs**: #29 (Resources Refactor), #32 (Vite Migration), #33 (CI Fixes)
     **Issues Closed**: 16 total (Sprint 1: #1-#14, Sprint 1.5: #28, #30)
-    **Sprint Duration**: Sept 30 - Oct 2, 2025
+    **Sprint Duration**:
 
 ### Patch Changes
 

@@ -6,19 +6,19 @@
 
 - **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
 
-## 0.11.0 - 2025-11-04
+## 0.11.0
 
 ### Maintenance
 
 - Version bump to `0.11.0` to align with the Phase 7 plugin bootstrap flow release; no E2E harness changes were required.
 
-## 0.10.0 - 2025-11-05
+## 0.10.0
 
 ### Maintenance
 
 - Version bump to `0.10.0` to align with the Phase 6 core pipeline release; no E2E harness changes were required.
 
-## 0.9.0 - 2025-10-27
+## 0.9.0
 
 ### Maintenance
 
@@ -31,7 +31,7 @@
 - Updated release notes to confirm the E2E suite validates the Task 31 apply
   checklist alongside the CLI release.
 
-## 0.8.0 - 2025-10-26
+## 0.8.0
 
 ### Maintenance
 
@@ -39,19 +39,19 @@
   release; fixture APIs are unchanged and continue to proxy CLI behaviour for the
   new command factories.
 
-## 0.7.0 - 2025-10-26
+## 0.7.0
 
 ### Maintenance
 
 - Version bump to `0.7.0` to stay aligned with the Phase 3 release; no additional E2E utility changes shipped in this cycle.
 
-## 0.6.0 - 2025-10-26
+## 0.6.0
 
 ### Maintenance
 
 - Version bump to `0.6.0` to stay aligned with the Phase 2 release; no additional E2E utility changes shipped in this cycle.
 
-## 0.5.0 - 2025-10-26
+## 0.5.0
 
 ### Maintenance
 

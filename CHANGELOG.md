@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
 
-## [0.11.0] - 2025-11-04
+## [0.11.0]
 
 ### Added
 
@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Generation state diffs** - `wpk generate` now persists `.wpk/apply/state.json`, compares per-resource artefact paths between runs, prunes stale `.generated/**` files when PHP output or autoload roots change, and queues shim deletions in the apply plan so `wpk apply` removes obsolete loaders.
 
-## [0.10.0] - 2025-11-05
+## [0.10.0]
 
 ### Added
 
@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Monorepo release** - Bumped all packages, showcase fixtures, and version trackers to `0.10.0` ahead of the Phase 6 minor release.
 
-## [0.9.0] - 2025-10-27
+## [0.9.0]
 
 ### Added
 
@@ -68,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Monorepo release** - Bumped all packages, showcase fixtures, and generated API docs to `0.9.0` via the release automation script.
 
-## [0.8.0] - 2025-10-26
+## [0.8.0]
 
 ### Removed
 
@@ -86,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Monorepo release** - Bumped all packages, templates, and showcase fixtures to `0.8.0` and regenerated API/docs content after retiring the legacy printers.
 
-## [0.7.0] - 2025-10-26
+## [0.7.0]
 
 ### Added
 
@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Monorepo release** - Bumped all packages, templates, and showcase fixtures to `0.7.0` and regenerated API docs for the release tag.
 
-## [0.6.0] - 2025-10-26
+## [0.6.0]
 
 ### Added
 
@@ -122,7 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Monorepo release** - Bumped all packages, showcase fixtures, and version trackers to `0.6.0` following the Phase 2 minor release checklist.
 
-## [0.5.0] - 2025-10-26
+## [0.5.0]
 
 ### Added
 
@@ -196,7 +196,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.0] - 2025-10-06
+## [0.2.0]
 
 ### Changed
 
@@ -204,7 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0] - 2025-10-06
+## [0.1.0]
 
 ### 🎉 Sprints 0-4.5 Complete: Production-Ready Core Framework
 
@@ -423,7 +423,7 @@ See [0.1.0] release notes for complete Sprint 0 details including:
 
 ---
 
-## [0.1.1] - 2025-10-01
+## [0.1.1]
 
 ### Added - Sprint 1 A3: @wordpress/data Store Integration
 
@@ -462,12 +462,12 @@ See [0.1.0] release notes for complete Sprint 0 details including:
 
 ---
 
-## [0.1.0] - 2025-10-01
+## [0.1.0]
 
 ### Sprint 0 Complete! 🎉 (100%, 18/18 Tasks)
 
 **Status**: Released  
-**Completion Date**: 1 October 2025
+**Completion Date**
 
 ---
 
@@ -754,7 +754,7 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 
 ## Release History
 
-### [0.1.0] - 2025-10-01
+### [0.1.0]
 
 **Sprint 0 Foundation Release** - Complete Development Environment
 
@@ -839,7 +839,7 @@ All changes should:
 
 **Maintained by**: [@theGeekist](https://github.com/theGeekist)  
 **Project**: [wp-kernel](https://github.com/theGeekist/wp-kernel)  
-**Last Updated**: 1 October 2025
+**Last Updated**
 
 ---
 
