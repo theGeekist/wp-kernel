@@ -1,82 +1,192 @@
-# Kernel config
+# Kernel config reference
 
-The wpk config is the single source of truth for your plugin. The CLI reads this file to generate TypeScript types, PHP controllers, and optional UI scaffolding. This page documents the v1 shape used by `@wpk/cli` today.【F:packages/cli/src/config/types.ts†L47-L120】
+The `wpk.config.ts` file is the canonical source of truth for WordPress Kernel projects.
+The CLI reads it to assemble the intermediate representation (IR), decide which builders
+run, and emit runtime helpers for PHP, JavaScript, and UI packages. This reference
+documents every field accepted by the v1 schema so you can trace each option to the
+artifacts and runtime surfaces it influences.
+
+> All paths below are relative to the repository root unless noted otherwise.
+
+## Anatomy of `wpk.config.ts`
 
 ```ts
-// wpk.config.ts
 import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
 
 export const wpkConfig: WPKernelConfigV1 = {
 	version: 1,
-	namespace: 'acme-jobs',
+	namespace: 'acme-demo',
 	schemas: {},
-	resources: {
-		job: {
-			name: 'job',
-			routes: {
-				list: { path: '/acme/v1/jobs', method: 'GET' },
-				get: { path: '/acme/v1/jobs/:id', method: 'GET' },
-				create: {
-					path: '/acme/v1/jobs',
-					method: 'POST',
-					capability: 'jobs.create',
-				},
-			},
-			storage: { mode: 'wp-post', postType: 'wpk_job' },
-			identity: { type: 'number', param: 'id' },
-			schema: 'auto',
-			ui: {
-				admin: {
-					dataviews: {
-						slug: 'jobs',
-						title: 'Jobs',
-						mapQuery: (state) => ({
-							status: state.filters?.status ?? undefined,
-						}),
-					},
-				},
-			},
-		},
-	},
+	resources: {},
+	adapters: {},
 };
 ```
 
-## Core fields
+### Top-level decision matrix
 
-- **`version`** - schema version for the config. Only `1` is supported.【F:packages/cli/src/config/types.ts†L53-L75】
-- **`namespace`** - prefix for generated stores, events, and PHP classes. Defaults to the plugin slug if omitted.【F:packages/cli/src/config/validate-kernel-config.ts†L184-L260】
-- **`schemas`** - dictionary of schema identifiers to configuration objects. Each entry can declare where generated `.d.ts` files should live via `generated.types`.【F:packages/cli/src/config/types.ts†L19-L36】【F:packages/cli/src/builders/ts.ts†L1-L120】
-- **`resources`** - dictionary of resource identifiers to `ResourceConfig` objects. Each resource mirrors the runtime definition consumed by `defineResource`.【F:packages/cli/src/config/types.ts†L31-L47】【F:packages/core/src/resource/types.ts†L187-L470】
-- **`adapters`** - optional factories for PHP output or extension points. The default PHP adapter ships with the CLI and writes controllers to `.generated/php`.【F:packages/cli/src/config/types.ts†L47-L120】【F:packages/cli/src/builders/php/builder.ts†L1-L80】
+| Path                  | Accepted values & defaults                                                        | CLI & pipeline consumers                                       | Generated files                                                     | WordPress artifacts                                                 | Runtime usage                                                       |
+| --------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `version`             | Literal `1`. Required.                                                            | Validated when loading configs.                                | —                                                                   | —                                                                   | —                                                                   |
+| `namespace`           | Required string. Defaults to the plugin slug when omitted.                        | Normalised during validation and reused by all builders.       | Namespacing is applied to every emitted file path.                  | Prepended to PHP class namespaces (`Generated\*`) and REST routes.  | Used as the prefix for store keys and capability registries.        |
+| `schemas`             | Record of schema descriptors keyed by identifier. May be empty.                   | Loaded into the IR and reused by PHP + UI builders.            | Schema JSON is re-serialised into REST argument metadata.           | Informs generated REST controllers about validation rules.          | Schema provenance is exposed on `ResourceObject` for clients.       |
+| `resources`           | Record of resource descriptors keyed by identifier. Required.                     | Feeds every builder (PHP, TS, JS) via the IR.                  | Routes, capability helpers, UI fixtures, etc.                       | Registers REST routes, persistence helpers, admin menus.            | Creates strongly typed resource clients, stores, capability unions. |
+| `adapters`            | Optional object.                                                                  | Adapter factories hook into the generation pipeline.           | Adapter-specific artifacts.                                         | Custom PHP writers or extensions may register WP code.              | Extensions can mutate IR before runtime surfaces are built.         |
+| `adapters.php`        | Factory returning namespace/autoload overrides and optional `customise` callback. | Consumed by the PHP builder before writing files.              | Overrides `.generated/php` defaults and can inject extra PHP files. | Controls PHP namespace roots and AST customisation.                 | —                                                                   |
+| `adapters.extensions` | Array of factories returning pipeline extensions.                                 | Resolved before generation starts and executed during the run. | Whatever the extension queues.                                      | Can register additional WordPress code (blocks, controllers, etc.). | Extensions can augment runtime metadata or emit extra JS files.     |
 
-## Resource options
+## Schema registry (`schemas`)
 
-Resources accept the same fields as `defineResource` plus a few extras for scaffolding:
+Each schema entry describes how an external JSON Schema file participates in the IR.
+Schemas can power REST argument validation, UI scaffolding, and future type generation.
 
-- **`storage`** - describes WordPress persistence (`wp-post`, `wp-option`, `wp-taxonomy`, or `transient`). Informs the PHP builder and `wpk apply` about target directories and capabilities.【F:packages/cli/src/builders/php/resourceController.ts†L1-L120】【F:packages/cli/src/builders/php/routes.ts†L60-L170】
-- **`identity`** - declares how the resource identifies items (`id`, `slug`, or `uuid`). Controls REST params and PHP lookups.【F:packages/core/src/resource/types.ts†L215-L280】【F:packages/cli/src/builders/php/resourceController.ts†L120-L220】
-- **`capabilityHints`** - capability keys wired into generated controllers. Missing hints produce warnings and fall back to `manage_options`.【F:packages/cli/src/builders/php/routes.ts†L170-L260】
-- **`ui.admin.dataviews`** - enables DataViews scaffolding. Provide a slug, title, and optional `mapQuery` function; the CLI serialises the metadata into `.generated/ui/fixtures/dataviews/*.ts` and emits admin menu shims when `screen.menu` is present.【F:packages/cli/src/builders/ts.ts†L1-L200】
+| Path                            | Accepted values & defaults                                                                          | CLI & pipeline consumers                   | Generated files                                                       | WordPress artifacts                                      | Runtime usage                                                       |
+| ------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------- |
+| `schemas.<key>.path`            | Required string path to a JSON Schema file. Resolved relative to the config file or workspace root. | Loaded and hashed when building the IR.    | Schema JSON copied into the IR for downstream builders.               | REST controllers reuse property metadata for validation. | Schema metadata is attached to resources so clients can introspect. |
+| `schemas.<key>.generated.types` | Required string. Future default location for emitted `.d.ts`.                                       | Stored in the IR for downstream consumers. | (Reserved) No files today; planned for schema-to-TypeScript emission. | —                                                        | —                                                                   |
+| `schemas.<key>.description`     | Optional human-readable string.                                                                     | Kept in the IR as documentation.           | —                                                                     | —                                                        | —                                                                   |
 
-## Schemas
+Resources can reference a schema by key or ask the CLI to synthesise one when storage
+metadata is present.
 
-Each entry in `schemas` maps a key to a JSON Schema file or descriptor:
+## Resource registry (`resources`)
 
-```ts
-schemas: {
-        job: {
-                path: './contracts/job.schema.json',
-                generated: {
-                        types: './src/.generated/types/job.d.ts',
-                },
-        },
-},
-```
+A resource entry mirrors `defineResource()` in `@wpkernel/core` with additional
+metadata for generators. Every field below maps directly to runtime APIs or emitted
+artifacts.
 
-The CLI converts schemas into `.d.ts` files under `.generated/types` (or the configured `generated.types` path) and creates an index that re-exports the PascalCase type names.【F:packages/cli/src/builders/ts.ts†L1-L200】
+### Resource summary matrix
 
-## Keeping configs healthy
+| Path                           | Accepted values & defaults                                        | CLI & pipeline consumers                                     | Generated files                                                   | WordPress artifacts                                                  | Runtime usage                                               |
+| ------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------- |
+| `resources.<key>.name`         | Required string (singular, lower-case recommended).               | Normalised into IR resource objects.                         | Appears in generated filenames and symbol names.                  | Used for REST route namespaces and PHP class names.                  | Forms store keys, capability unions, reporter labels.       |
+| `resources.<key>.namespace`    | Optional string override. Defaults to the root `namespace`.       | Applied when assembling IR metadata.                         | Updates generated paths and module specifiers.                    | Changes PHP namespace roots for controllers.                         | Sets the store namespace (`namespace/resource`).            |
+| `resources.<key>.schema`       | `'auto'`, schema key, JSON Schema object/promise, or `undefined`. | Resolved to a schema key when building the IR.               | Schema JSON embedded into controller metadata.                    | REST arguments gain validation and identity metadata.                | Schema key stored on `ResourceObject.schemaKey`.            |
+| `resources.<key>.reporter`     | Optional custom reporter instance.                                | Forwarded to runtime builders only.                          | —                                                                 | —                                                                    | Overrides the reporter used by the resource client/store.   |
+| `resources.<key>.storage`      | One of the storage shapes below or omitted.                       | Storage helpers influence PHP builders and schema synthesis. | Autoload helpers, persistence registries, capability hints.       | Registers CRUD helpers for posts/options/taxonomies/transients.      | Storage metadata exposed via `ResourceObject.storage`.      |
+| `resources.<key>.identity`     | Optional `{ type: 'number'                                        | 'string'; param?: ... }`.                                    | Normalised into resolved identity info.                           | Identity guards and cache metadata in PHP controllers.               | Enforces ID validation and casting in REST handlers.        | Used by runtime helpers when creating cache keys. |
+| `resources.<key>.routes`       | Partial CRUD route map (see below). Required.                     | Drives IR route definitions and capability unions.           | REST controller methods, TS clients, capability shims.            | Registers REST endpoints with permission callbacks.                  | Provides typed client methods (`fetchList`, `update`, ...). |
+| `resources.<key>.capabilities` | Map keyed by route capability hints (see below).                  | Normalised into the capability map fragment.                 | `.generated/js/capabilities.ts` + `.d.ts`, PHP capability helper. | REST controllers enforce WordPress capabilities before handlers run. | Runtime `defineCapability()` helpers become strongly typed. |
+| `resources.<key>.cacheKeys`    | Optional cache key generator map.                                 | Stored with IR metadata and serialised for runtime stores.   | Default cache helpers in generated grouped APIs.                  | —                                                                    | Drives cache invalidation + `resource.key()` helpers.       |
+| `resources.<key>.store`        | Optional store overrides (see below).                             | Passed to runtime store descriptors.                         | —                                                                 | —                                                                    | Customises selectors, reducers, and initial state wiring.   |
+| `resources.<key>.queryParams`  | Optional map of parameter descriptors.                            | Converted into REST argument metadata.                       | REST controller arg definitions.                                  | Adds WordPress `args` validation to route registrations.             | Documented on `ResourceObject.queryParams`.                 |
+| `resources.<key>.ui`           | Optional UI metadata (see below).                                 | Enables TypeScript UI builders and PHP menu wiring.          | `.generated/ui/**` fixtures, registry modules, bundler deps.      | Registers admin menus + loader glue when menu metadata exists.       | Provides UI descriptors on `resource.ui?.admin`.            |
 
-- Run `wpk doctor` to validate the config and check Composer autoloading.【F:packages/cli/src/commands/doctor.ts†L1-L160】
-- Track changes with version control-`wpk generate` prints a summary of detected deltas so you can confirm the impact before applying.【F:packages/cli/src/commands/generate.ts†L1-L360】
-- When you introduce new fields, cross-check the [Decision Matrix](/reference/decision-matrix) to understand which builders will react.
+### Route definitions (`resources.<key>.routes`)
+
+| Path                                  | Accepted values & defaults                                                  | CLI & pipeline consumers                   | Generated files                                        | WordPress artifacts                                         | Runtime usage                                        |
+| ------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- |
+| `resources.<key>.routes.list`         | Optional `{ path, method: 'GET', capability? }`.                            | Validated and added to IR routes.          | REST controller `GET` collection handler.              | Registers `GET` list route with capability callback.        | Enables `resource.fetchList()` and cache key wiring. |
+| `resources.<key>.routes.get`          | Optional `{ path, method: 'GET', capability? }`.                            | Same as above.                             | REST controller single-item handler.                   | Registers item `GET` route.                                 | Enables `resource.fetch()` + `prefetchGet`.          |
+| `resources.<key>.routes.create`       | Optional `{ path, method: 'POST'                                            | 'PUT'                                      | 'PATCH', capability? }`.                               | Warns if capability missing, adds to IR.                    | REST controller mutation handler.                    | Registers mutation route and enforces capability map. | Enables `resource.create()` and invalidation helpers. |
+| `resources.<key>.routes.update`       | Optional `{ path, method: 'PUT'                                             | 'PATCH', capability? }`.                   | Same pipeline.                                         | REST controller update handler.                             | Registers update route with capability enforcement.  | Enables `resource.update()`.                          |
+| `resources.<key>.routes.remove`       | Optional `{ path, method: 'DELETE', capability? }`.                         | Same pipeline.                             | REST controller delete handler.                        | Registers delete route with capability enforcement.         | Enables `resource.remove()`.                         |
+| `resources.<key>.routes.*.path`       | Required string when the route is present. May include `:id`, `:slug`, etc. | Validated, normalised into REST args.      | Stored in IR and PHP AST.                              | Passed to `register_rest_route`.                            | Used by runtime client to build request URLs.        |
+| `resources.<key>.routes.*.method`     | Must be one of `GET`, `POST`, `PUT`, `PATCH`, `DELETE`.                     | Validated before IR assembly.              | Controls generated controller method scaffolding.      | Determines REST callback registration + HTTP verb.          | Informs transport calls for runtime client.          |
+| `resources.<key>.routes.*.capability` | Optional string key.                                                        | Added to IR for capability map extraction. | Drives capability helper TypeScript + PHP enforcement. | Binds REST route permission callbacks to capability checks. | Exposed via `resource.routes` metadata for clients.  |
+
+### Capability map (`resources.<key>.capabilities`)
+
+| Path                                            | Accepted values & defaults                                                                    | CLI & pipeline consumers                                                    | Generated files                                                                       | WordPress artifacts                                                      | Runtime usage                                                     |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `resources.<key>.capabilities`                  | Partial record keyed by `routes.*.capability` literals. Values may be strings or descriptors. | Normalised into the IR capability map with warnings for missing/extra keys. | `.generated/js/capabilities.ts`, `.generated/js/index.ts`, and ambient `.d.ts` files. | PHP capability helper enforces `current_user_can()` and object bindings. | Typed helpers from `defineCapability()` mirror the resolved keys. |
+| `resources.<key>.capabilities.<cap>.capability` | WordPress capability string.                                                                  | Serialised verbatim.                                                        | Included in TypeScript + PHP helpers.                                                 | Determines capability passed to `current_user_can()`.                    | Returned via capability runtime metadata.                         |
+| `resources.<key>.capabilities.<cap>.appliesTo`  | `'resource'` or `'object'`. Defaults to `'resource'`.                                         | Controls PHP helper metadata.                                               | Included in PHP capability map.                                                       | Decides whether WordPress check receives an object ID.                   | Informs runtime helpers for UI gating.                            |
+| `resources.<key>.capabilities.<cap>.binding`    | Optional string naming the identity param when `appliesTo: 'object'`.                         | Used to bind request params in PHP controllers.                             | Appears in PHP helper metadata.                                                       | Extracts object IDs before `current_user_can()`.                         | Surfaces binding metadata for UI affordances.                     |
+
+### Identity hints (`resources.<key>.identity`)
+
+| Path                             | Accepted values & defaults                                                                     | CLI & pipeline consumers               | Generated files                                      | WordPress artifacts                                             | Runtime usage                                       |
+| -------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| `resources.<key>.identity.type`  | `'number'` or `'string'`. Defaults to `'number'`.                                              | Resolved into identity metadata.       | Identity guards + helper methods in PHP controllers. | Casts IDs to integers or sanitises strings before handlers run. | Used by cache helpers and DataView row identifiers. |
+| `resources.<key>.identity.param` | Optional override (`'id'`, `'slug'`, `'uuid'` for string identities). Defaults to `id`/`slug`. | Passed to identity resolution helpers. | Embedded in PHP guard code and REST args.            | Adds required parameter validation to REST routes.              | Exposed via `resource.identity`.                    |
+
+### Storage configuration (`resources.<key>.storage`)
+
+| Path                                                | Accepted values & defaults                                            | CLI & pipeline consumers                             | Generated files                                        | WordPress artifacts                                              | Runtime usage                                     |
+| --------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------- | ------------------------------------------------- |
+| `resources.<key>.storage.mode`                      | `'wp-post'`, `'wp-option'`, `'wp-taxonomy'`, `'transient'`. Optional. | Switches storage helpers and schema synthesis.       | Storage-specific controllers, helpers, and registries. | Generates CRUD logic for posts/options/taxonomies/transients.    | Storage metadata surfaced via `resource.storage`. |
+| `resources.<key>.storage.postType`                  | Only for `mode: 'wp-post'`. Optional slug.                            | Passed to WP_Post builders.                          | Embedded in PHP controllers.                           | Determines post type managed by generated CRUD handlers.         | Reflected in runtime metadata.                    |
+| `resources.<key>.storage.statuses`                  | `string[]` for `wp-post`. Optional.                                   | Used by WP_Post list helpers.                        | Stored in PHP metadata arrays.                         | Filters REST queries to allowed statuses.                        | Exposed to runtime.                               |
+| `resources.<key>.storage.supports`                  | Array of WordPress post feature strings. Optional.                    | Forwarded to mutation helpers.                       | Included in PHP helper metadata.                       | Controls which core post features are synced.                    | —                                                 |
+| `resources.<key>.storage.meta`                      | Record of post meta descriptors `{ type, single? }`. Optional.        | Drives schema synthesis + meta sync helpers.         | PHP helper methods for updating post meta.             | Calls `update_post_meta()` with type-safe casting.               | Metadata recorded on the resource.                |
+| `resources.<key>.storage.taxonomies`                | Record of `{ taxonomy, hierarchical?, register? }`. Optional.         | Feeds taxonomy sync helpers.                         | PHP helper methods for syncing term assignments.       | Registers taxonomies (when `register: true`) and syncs term IDs. | Metadata recorded on the resource.                |
+| `resources.<key>.storage.taxonomies.*.taxonomy`     | WordPress taxonomy slug.                                              | Same as above.                                       | Same as above.                                         | Used when calling `wp_set_object_terms()`.                       | —                                                 |
+| `resources.<key>.storage.taxonomies.*.hierarchical` | Optional boolean.                                                     | Used when generating taxonomy registration metadata. | Included in PHP helper metadata.                       | Controls registration arguments for new taxonomies.              | —                                                 |
+| `resources.<key>.storage.taxonomies.*.register`     | Optional boolean (default `false`).                                   | Determines whether registration code is emitted.     | PHP persistence registry entry when `true`.            | Registers taxonomy on plugin bootstrap.                          | —                                                 |
+| `resources.<key>.storage.taxonomy`                  | Required for `mode: 'wp-taxonomy'`.                                   | Used when building taxonomy controllers.             | PHP controller metadata.                               | Drives CRUD helpers for taxonomy terms.                          | Runtime metadata records taxonomy slug.           |
+| `resources.<key>.storage.hierarchical`              | Optional for `wp-taxonomy`.                                           | Same as above.                                       | Same as above.                                         | Configures taxonomy registration (hierarchical vs. flat).        | —                                                 |
+| `resources.<key>.storage.option`                    | Required for `mode: 'wp-option'`.                                     | Consumed by option storage helpers.                  | PHP controllers calling `get_option`/`update_option`.  | Registers REST handlers that manage the option name.             | Metadata stored on the resource.                  |
+| `resources.<key>.storage` (`mode: 'transient'`)     | No additional fields.                                                 | Enables transient storage helper.                    | PHP controller using `get_transient`/`set_transient`.  | Registers REST routes that operate on the transient key.         | Metadata stored on the resource.                  |
+
+### Schema + query parameter metadata
+
+| Path                                              | Accepted values & defaults                           | CLI & pipeline consumers              | Generated files                     | WordPress artifacts                                      | Runtime usage                               |
+| ------------------------------------------------- | ---------------------------------------------------- | ------------------------------------- | ----------------------------------- | -------------------------------------------------------- | ------------------------------------------- |
+| `resources.<key>.schema`                          | `'auto'`, schema key, inline schema, or `undefined`. | Resolved via schema accumulator.      | Schema JSON stored in IR.           | REST argument validation derived from schema properties. | Schema key exposed on `resource.schemaKey`. |
+| `resources.<key>.queryParams.<param>.type`        | `'string'` or `'enum'`. Required per entry.          | Converted into REST arg schema types. | REST arg metadata for query params. | Adds `args` definitions on `register_rest_route`.        | Documented on `resource.queryParams`.       |
+| `resources.<key>.queryParams.<param>.enum`        | Optional list of allowed values when `type: 'enum'`. | Added to REST arg schema.             | Same as above.                      | Adds `enum` validation to REST args.                     | —                                           |
+| `resources.<key>.queryParams.<param>.optional`    | Optional boolean (default `true`).                   | Controls REST arg `required` flag.    | Same as above.                      | Marks query param as required when `false`.              | —                                           |
+| `resources.<key>.queryParams.<param>.description` | Optional string.                                     | Copied into REST arg docs.            | Same as above.                      | Populates `description` in REST arg registration.        | Exposed via runtime metadata.               |
+
+### Store and caching options
+
+| Path                                 | Accepted values & defaults           | CLI & pipeline consumers               | Generated files                      | WordPress artifacts | Runtime usage                                                   |
+| ------------------------------------ | ------------------------------------ | -------------------------------------- | ------------------------------------ | ------------------- | --------------------------------------------------------------- |
+| `resources.<key>.cacheKeys.list`     | Optional `(query) => key[]`.         | Stored in IR metadata.                 | Serialised into grouped API helpers. | —                   | Used by `resource.key('list', query)` and invalidation helpers. |
+| `resources.<key>.cacheKeys.get`      | Optional `(id) => key[]`.            | Same as above.                         | Same as above.                       | —                   | Used by `resource.key('get', id)` + selectors.                  |
+| `resources.<key>.cacheKeys.create`   | Optional `(data) => key[]`.          | Same.                                  | Same.                                | —                   | Guides cache invalidation after create calls.                   |
+| `resources.<key>.cacheKeys.update`   | Optional `(id) => key[]`.            | Same.                                  | Same.                                | —                   | Guides cache invalidation after update calls.                   |
+| `resources.<key>.cacheKeys.remove`   | Optional `(id) => key[]`.            | Same.                                  | Same.                                | —                   | Guides cache invalidation after delete calls.                   |
+| `resources.<key>.store.getId`        | Optional `(item) => id`.             | Validated at runtime init.             | —                                    | —                   | Overrides default `item.id` selection for stores.               |
+| `resources.<key>.store.getQueryKey`  | Optional `(query) => string`.        | Validated and passed to store builder. | —                                    | —                   | Customises query-to-cache-key mapping.                          |
+| `resources.<key>.store.initialState` | Optional partial store state object. | Used when creating Redux stores.       | —                                    | —                   | Seeds `resource.store.initialState`.                            |
+
+### UI configuration (`resources.<key>.ui`)
+
+| Path                                 | Accepted values & defaults                  | CLI & pipeline consumers                                | Generated files                                                                                         | WordPress artifacts                                          | Runtime usage                               |
+| ------------------------------------ | ------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------- |
+| `resources.<key>.ui.admin.view`      | Optional string. Defaults to `'dataviews'`. | Checked before building UI fixtures.                    | Determines which fixture creators run.                                                                  | —                                                            | Recorded on `resource.ui.admin.view`.       |
+| `resources.<key>.ui.admin.dataviews` | Optional configuration object (see below).  | Enables TS builders, bundler deps, and PHP menu wiring. | `.generated/ui/fixtures/dataviews/*.ts`, `.generated/ui/fixtures/interactivity/*.ts`, registry modules. | Admin menu + loader shims emitted when a menu is configured. | Provides runtime UI metadata for DataViews. |
+
+#### DataViews configuration
+
+| Path                                                        | Accepted values & defaults                                         | CLI & pipeline consumers                  | Generated files                                             | WordPress artifacts                                               | Runtime usage                                                  |
+| ----------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------- |
+| `resources.<key>.ui.admin.dataviews.fields`                 | Optional array of field descriptors.                               | Serialised into DataView fixtures.        | `.generated/ui/fixtures/dataviews/*.ts`.                    | —                                                                 | Determines columns rendered by `@wpkernel/ui/dataviews`.       |
+| `resources.<key>.ui.admin.dataviews.defaultView`            | Optional object.                                                   | Same as above.                            | Same as above.                                              | —                                                                 | Sets default DataView layout.                                  |
+| `resources.<key>.ui.admin.dataviews.actions`                | Optional array of action descriptors.                              | Used by interactivity fixture generator.  | `.generated/ui/fixtures/interactivity/*.ts`.                | —                                                                 | Provides action binding metadata for UI runtime.               |
+| `resources.<key>.ui.admin.dataviews.mapQuery`               | Optional `(state) => query`.                                       | Serialized via config import in fixtures. | Fixtures import the original function from `wpk.config.ts`. | —                                                                 | Bridges DataView filters to resource queries.                  |
+| `resources.<key>.ui.admin.dataviews.search`                 | Optional boolean (default `false`).                                | Passed through to fixtures.               | `.generated/ui/fixtures/dataviews/*.ts`.                    | —                                                                 | Toggles search UI rendering.                                   |
+| `resources.<key>.ui.admin.dataviews.searchLabel`            | Optional string.                                                   | Same as above.                            | Same.                                                       | —                                                                 | Customises search input label.                                 |
+| `resources.<key>.ui.admin.dataviews.getItemId`              | Optional `(item) => string`.                                       | Stored in fixtures.                       | `.generated/ui/fixtures/dataviews/*.ts`.                    | —                                                                 | Controls row key extraction.                                   |
+| `resources.<key>.ui.admin.dataviews.empty`                  | Optional object.                                                   | Serialized verbatim.                      | Same fixtures.                                              | —                                                                 | Rendered when no data is available.                            |
+| `resources.<key>.ui.admin.dataviews.perPageSizes`           | Optional number array.                                             | Stored in fixtures.                       | Same fixtures.                                              | —                                                                 | Controls page size options.                                    |
+| `resources.<key>.ui.admin.dataviews.defaultLayouts`         | Optional record keyed by layout.                                   | Stored in fixtures.                       | Same fixtures.                                              | —                                                                 | Provides layout defaults for DataViews.                        |
+| `resources.<key>.ui.admin.dataviews.views`                  | Optional array of saved view descriptors.                          | Serialized into fixtures.                 | Same fixtures.                                              | —                                                                 | Pre-populates saved views.                                     |
+| `resources.<key>.ui.admin.dataviews.views[].id`             | Required string per view.                                          | Same as above.                            | Same fixtures.                                              | —                                                                 | Identifies saved views.                                        |
+| `resources.<key>.ui.admin.dataviews.views[].label`          | Required string per view.                                          | Same.                                     | Same.                                                       | —                                                                 | Display label for the view.                                    |
+| `resources.<key>.ui.admin.dataviews.views[].view`           | Required object per view.                                          | Same.                                     | Same.                                                       | —                                                                 | Serialized DataView state.                                     |
+| `resources.<key>.ui.admin.dataviews.views[].description`    | Optional string.                                                   | Same.                                     | Same.                                                       | —                                                                 | Documentation for saved views.                                 |
+| `resources.<key>.ui.admin.dataviews.views[].isDefault`      | Optional boolean.                                                  | Same.                                     | Same.                                                       | —                                                                 | Marks default saved view.                                      |
+| `resources.<key>.ui.admin.dataviews.preferencesKey`         | Optional string. Defaults to `${namespace}/dataviews/${resource}`. | Calculated during fixture generation.     | Saved into registry modules and fixtures.                   | —                                                                 | Controls user preference storage key.                          |
+| `resources.<key>.ui.admin.dataviews.interactivity`          | Optional object.                                                   | Drives interactivity fixture naming.      | `.generated/ui/fixtures/interactivity/*.ts`.                | —                                                                 | Provides DataView action wiring helpers.                       |
+| `resources.<key>.ui.admin.dataviews.interactivity.feature`  | Optional string. Defaults to `'admin-screen'`.                     | Used when deriving namespaces.            | Same fixtures.                                              | —                                                                 | Names the interactive feature for WordPress interactivity API. |
+| `resources.<key>.ui.admin.dataviews.screen`                 | Optional object.                                                   | Informs UI + PHP builders.                | Fixtures import screen component/module names.              | PHP plugin loader registers admin menus based on screen metadata. | Provides runtime hints for bootstrapping.                      |
+| `resources.<key>.ui.admin.dataviews.screen.component`       | Optional string module export.                                     | Used to build screen imports.             | `.generated/ui/app/*.tsx` entry points.                     | —                                                                 | Tells UI runtime which React component to render.              |
+| `resources.<key>.ui.admin.dataviews.screen.route`           | Optional admin route slug.                                         | Stored in fixtures + PHP menu wiring.     | UI registry entries.                                        | Determines admin page slug for `add_menu_page`.                   | —                                                              |
+| `resources.<key>.ui.admin.dataviews.screen.resourceImport`  | Optional import specifier for the resource module.                 | Controls generated import statements.     | UI entry points.                                            | —                                                                 | Ensures UI bootstrap references the correct resource symbol.   |
+| `resources.<key>.ui.admin.dataviews.screen.resourceSymbol`  | Optional named export. Defaults to camelCase of resource key.      | Same as above.                            | Same.                                                       | —                                                                 | Used when referencing the resource in UI code.                 |
+| `resources.<key>.ui.admin.dataviews.screen.wpkernelImport`  | Optional override for `@wpkernel/ui/dataviews`.                    | Controls import path in fixtures.         | UI entry points + fixtures.                                 | —                                                                 | Allows custom bundler resolution.                              |
+| `resources.<key>.ui.admin.dataviews.screen.wpkernelSymbol`  | Optional override for UI helper symbol.                            | Same as above.                            | Same.                                                       | —                                                                 | Used in generated import statements.                           |
+| `resources.<key>.ui.admin.dataviews.screen.menu`            | Optional menu descriptor.                                          | Consumed by PHP plugin loader builder.    | PHP loader updates registering admin menus.                 | Adds menu entries via `add_menu_page`/`add_submenu_page`.         | Menu metadata exposed to runtime for navigation.               |
+| `resources.<key>.ui.admin.dataviews.screen.menu.slug`       | Required when menu is present.                                     | Same as above.                            | Same.                                                       | Provides page slug for WordPress admin menu.                      | —                                                              |
+| `resources.<key>.ui.admin.dataviews.screen.menu.title`      | Required when menu is present.                                     | Same.                                     | Same.                                                       | Menu page title rendered in admin UI.                             | —                                                              |
+| `resources.<key>.ui.admin.dataviews.screen.menu.capability` | Optional WordPress capability. Defaults to `'manage_options'`.     | Same.                                     | Same.                                                       | Capability required to access the admin screen.                   | —                                                              |
+| `resources.<key>.ui.admin.dataviews.screen.menu.parent`     | Optional parent slug.                                              | Same.                                     | Same.                                                       | Registers submenu under the parent page when provided.            | —                                                              |
+| `resources.<key>.ui.admin.dataviews.screen.menu.position`   | Optional menu position number.                                     | Same.                                     | Same.                                                       | Controls admin menu ordering.                                     | —                                                              |
+
+## Keeping documentation in sync
+
+The Jest suite contains a guard that verifies every property described above
+remains documented. Adding a new config field requires updating both the
+TypeScript types and this reference so the test continues to pass.

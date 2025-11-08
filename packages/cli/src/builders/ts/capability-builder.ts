@@ -13,10 +13,16 @@ export function createTsCapabilityBuilder() {
 				return;
 			}
 
-			const contents = await printCapabilityModule(input.ir);
+			const { source, declaration } = await printCapabilityModule(
+				input.ir
+			);
 			output.queueWrite({
 				file: '.generated/js/capabilities.ts',
-				contents,
+				contents: source,
+			});
+			output.queueWrite({
+				file: '.generated/js/capabilities.d.ts',
+				contents: declaration,
 			});
 		},
 	});

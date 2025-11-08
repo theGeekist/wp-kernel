@@ -7,7 +7,12 @@
  * @see Product Specification § 4.1 Resources
  */
 import { WPKernelError } from '../error/WPKernelError';
-import type { ResourceConfig, ResourceObject } from './types';
+import type {
+	ResourceCapabilityDescriptor,
+	ResourceConfig,
+	ResourceObject,
+	ResourceRoutes,
+} from './types';
 import type { Reporter } from '../reporter';
 import { createResourcePipeline } from '../pipeline/resources/createResourcePipeline';
 import type {
@@ -40,23 +45,27 @@ function assertSynchronousRunResult<T, TQuery>(
 	return result;
 }
 
-function buildNormalizedConfig<T, TQuery>(
-	config: ResourceConfig<T, TQuery>,
+function buildNormalizedConfig<T, TQuery, const TRoutes extends ResourceRoutes>(
+	config: ResourceConfig<T, TQuery, TRoutes>,
 	resourceName: string
-): NormalizedResourceConfig<T, TQuery> {
+): NormalizedResourceConfig<T, TQuery, TRoutes> {
 	return {
 		...config,
 		name: resourceName,
-	} as NormalizedResourceConfig<T, TQuery>;
+	} as NormalizedResourceConfig<T, TQuery, TRoutes>;
 }
 
-function buildResourceDefinitionOptions<T, TQuery>({
+function buildResourceDefinitionOptions<
+	T,
+	TQuery,
+	const TRoutes extends ResourceRoutes,
+>({
 	config,
 	namespace,
 	resourceName,
 	reporter,
 }: {
-	readonly config: ResourceConfig<T, TQuery>;
+	readonly config: ResourceConfig<T, TQuery, TRoutes>;
 	readonly namespace: string;
 	readonly resourceName: string;
 	readonly reporter: Reporter;
@@ -69,6 +78,35 @@ function buildResourceDefinitionOptions<T, TQuery>({
 		reporter,
 	} satisfies ResourcePipelineRunOptions<T, TQuery>;
 }
+
+type InferResourceDefinition<
+	Config extends ResourceConfig<unknown, unknown, ResourceRoutes>,
+> =
+	Config extends ResourceConfig<infer Entity, infer Query, infer Routes>
+		? { entity: Entity; query: Query; routes: Routes }
+		: { entity: unknown; query: unknown; routes: ResourceRoutes };
+
+type ConfigCapabilityKeys<Config> = Config extends { routes: infer Routes }
+	? {
+			[K in keyof Routes]: Routes[K] extends {
+				capability?: infer Capability;
+			}
+				? NonNullable<Capability> extends string
+					? NonNullable<Capability>
+					: never
+				: never;
+		}[keyof Routes]
+	: never;
+
+type ConfigCapabilityMap<Config> = Partial<
+	Record<ConfigCapabilityKeys<Config>, string | ResourceCapabilityDescriptor>
+>;
+
+type ConfigWithInferredCapabilities<
+	Config extends ResourceConfig<unknown, unknown, ResourceRoutes>,
+> = Config & {
+	readonly capabilities?: ConfigCapabilityMap<Config>;
+};
 
 /**
  * Define a resource with typed REST client
@@ -88,9 +126,29 @@ function buildResourceDefinitionOptions<T, TQuery>({
  * @throws DeveloperError if configuration is invalid
  * @category Resource
  */
-export function defineResource<T = unknown, TQuery = unknown>(
-	config: ResourceConfig<T, TQuery>
-): ResourceObject<T, TQuery> {
+export function defineResource<
+	T = unknown,
+	TQuery = unknown,
+	const TRoutes extends ResourceRoutes = ResourceRoutes,
+>(
+	config: ResourceConfig<T, TQuery, TRoutes>
+): ResourceObject<T, TQuery, TRoutes>;
+export function defineResource<
+	const Config extends ResourceConfig<unknown, unknown, ResourceRoutes>,
+>(
+	config: ConfigWithInferredCapabilities<Config>
+): ResourceObject<
+	InferResourceDefinition<Config>['entity'],
+	InferResourceDefinition<Config>['query'],
+	InferResourceDefinition<Config>['routes']
+>;
+export function defineResource<
+	T = unknown,
+	TQuery = unknown,
+	const TRoutes extends ResourceRoutes = ResourceRoutes,
+>(
+	config: ResourceConfig<T, TQuery, TRoutes>
+): ResourceObject<T, TQuery, TRoutes> {
 	if (!config || typeof config !== 'object') {
 		throw new WPKernelError('DeveloperError', {
 			message:
@@ -127,5 +185,5 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		});
 	}
 
-	return runResult.artifact.resource as ResourceObject<T, TQuery>;
+	return runResult.artifact.resource as ResourceObject<T, TQuery, TRoutes>;
 }
