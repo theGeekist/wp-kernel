@@ -1,45 +1,108 @@
 # Blocks
 
-Blocks are the public face of your plugin. WPKernel treats them as first-class citizens: the CLI discovers block manifests, generates registration code for JS-only blocks, and emits PHP registrars for SSR blocks.【F:packages/cli/src/builders/ts/blocks.ts†L1-L180】【F:packages/cli/src/builders/php/blocks/index.ts†L1-L120】
+WPKernel embraces WordPress's native block structure, enhancing it with a powerful, discovery-based generation process. Instead of declaring blocks in `wpk.config.ts`, the CLI automatically finds them by looking for `block.json` files in your project.
 
-## Authoring a block
+This guide walks you through creating a block and letting the WPKernel CLI accelerate your development.
 
-Place each block under `blocks/<name>/` with a `block.json` manifest. The CLI reads the manifest when generating registrars and keeps it tied to the wpk namespace.
+## Step 1: Create Your Block
+
+The source of truth for a block in WPKernel is its `block.json` file. To create a new block, simply create a directory and add a `block.json` file to it.
+
+```bash
+mkdir -p src/blocks/my-first-block
+```
+
+Now, create `src/blocks/my-first-block/block.json`:
 
 ```json
 {
 	"apiVersion": 3,
-	"name": "acme/job-listing",
-	"title": "Job Listing",
+	"name": "my-plugin/my-first-block",
+	"title": "My First WPKernel Block",
 	"category": "widgets",
-	"textdomain": "acme",
-	"editorScriptModule": "file:./index.tsx",
-	"viewScriptModule": "file:./view.ts"
+	"icon": "smiley",
+	"editorScript": "file:./index.tsx"
 }
 ```
 
-When the manifest omits a render callback the JS-only builder writes `.generated/blocks/auto-register.ts` with `registerBlockType()` calls for every discovered block.【F:packages/cli/src/builders/ts/blocks.ts†L200-L360】 Import that file from your entry point so WordPress can register the block.
+At this point, you have a directory containing just a single `block.json` file. The `editorScript` property points to an `index.tsx` file that doesn't exist yet.
 
-## Server-rendered blocks
+## Step 2: Run `wpk generate`
 
-Add `render.php` alongside the manifest when a block needs SSR-for SEO or privileged data. The CLI detects it, generates `.generated/php/Blocks/<Block>.php`, and wires a registrar that defers to your renderer. The PHP helper loads WordPress data by calling into the generated persistence layer, so you can reuse the same resource contracts on the server.【F:packages/cli/src/builders/php/blocks/index.ts†L1-L160】【F:packages/cli/src/builders/php/resourceController.ts†L1-L220】
+This is where the magic happens. Run the generate command from your terminal:
 
-The generated registrar expects a PHP callback that receives block attributes, content, and context. Keep that callback thin: pull data through the generated controllers or resource helpers so the behaviour stays aligned with the config. The SSR builder writes guards that call into the persistence registry and mirrors the structure exercised in the SSR block tests.【F:packages/cli/src/builders/php/**tests**/blocks.test.ts†L1-L200】
+```bash
+wpk generate
+```
 
-## Script modules and assets
+WPKernel's generator will:
 
-Blocks ship as Script Modules. Vite handles bundling, and the CLI writes a registrar that enqueues the correct assets when `wpk apply` runs. If you need additional styles, add `style.css` in the block folder; Vite will include it in the build manifest that the registrar consumes.【F:packages/cli/src/builders/php/blocks/registrar/index.ts†L1-L160】
+1.  Discover `src/blocks/my-first-block/block.json`.
+2.  See that it's a JavaScript-only block (because there is no `render.php`).
+3.  Notice that the `index.tsx` file referenced in `editorScript` is missing.
+4.  **Automatically create a stub `index.tsx` for you!**
 
-## Surfacing resource data
+Your new `src/blocks/my-first-block/index.tsx` will look something like this:
 
-For list-style screens, combine blocks with the UI runtime. In the showcase example the DataViews screen uses `<ResourceDataView>` to display jobs while the PHP layer exposes controllers under `inc/Rest/**` for server usage.【F:examples/showcase/src/views/admin/JobsList.tsx†L1-L200】【F:examples/showcase/inc/Rest/JobController.php†L1-L200】
+```tsx
+/* AUTO-GENERATED WPK STUB: safe to edit. */
+import { registerBlockType } from '@wordpress/blocks';
+import metadata from './block.json';
 
-## Video tour
+function Edit() {
+	return <div>{metadata.title || 'Block'} (edit)</div>;
+}
 
-> 🎬 _Coming soon: 45-second clip comparing SSR blocks and JS-only registration._
+// Saved HTML is final for JS-only blocks:
+const save = () => <div>{metadata.title || 'Block'} (save)</div>;
 
-## Further reading
+registerBlockType(metadata as any, { edit: Edit, save });
+```
 
-- [Resources guide](/guide/resources) - resources power block data on both the client and the server.
-- [Showcase example](/examples/showcase) - see SSR and UI bindings working together.
-- [UI API Reference](/api/@wpkernel/ui/README) - generated Typedoc for UI helpers.
+You now have a fully functional, registerable WordPress block with zero boilerplate. You can immediately start editing the `Edit` component to build your block's editor experience.
+
+## Step 3: Add Server-Side Rendering (SSR)
+
+If your block needs to render dynamic content or access protected data, you'll need it to be server-side rendered. WPKernel makes this seamless.
+
+Simply add a `render.php` file to your block's directory:
+
+`src/blocks/my-first-block/render.php`:
+
+```php
+<?php
+/**
+ * @var array    $attributes The block attributes.
+ * @var string   $content    The block inner content.
+ * @var WP_Block $block      The block instance.
+ */
+?>
+<div <?php echo get_block_wrapper_attributes(); ?>>
+	<p>
+		Hello from PHP! Your title is: <?php echo esc_html( $attributes['title'] ?? 'N/A' ); ?>
+	</p>
+</div>
+```
+
+Now, when you run `wpk generate` again, the CLI will:
+
+1.  Detect the presence of `render.php`.
+2.  Categorize `my-plugin/my-first-block` as an SSR block.
+3.  Generate the necessary PHP code in its server-side registrar to register the block and point to your `render.php` file.
+
+No other changes are needed. The block will now be rendered by the server.
+
+## What WPKernel Handles for You
+
+By following this convention-based approach, WPKernel's generator takes care of the tedious parts of block development:
+
+- **Automatic Registration**: Generates PHP and JS "registrar" files that call `register_block_type` for all discovered blocks.
+- **Stub Generation**: Creates placeholder script files so you can get to work faster.
+- **Script Module Handling**: Correctly handles `editorScriptModule` and `viewScriptModule` for modern, efficient script loading in WordPress.
+
+This workflow allows you to focus on building your block's functionality, not on the boilerplate of registering it.
+
+## What's Next?
+
+- **[Block Bindings](./block-bindings.md)**: Learn how to connect block attributes to data sources like post meta.
+- **[Resources Guide](./resources.md)**: Fetch data for your blocks using WPKernel resources.

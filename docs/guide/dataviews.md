@@ -1,235 +1,108 @@
-# DataViews Integration
+# DataViews
 
-Modern admin tables in WPKernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours wpk capabilities, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
+WPKernel integrates deeply with the `@wordpress/dataviews` package to create powerful, production-ready admin screens directly from your `wpk.config.ts` file. Instead of manually composing components, you declare the shape of your admin UI, and the WPKernel CLI generates the complete, interactive screen for you.
 
-> 📖 Background: read the [DataViews Integration - Specification](https://github.com/wpkernel/wpkernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
+## The "Config-First" Admin Screen
 
-## Prerequisites
-
-- WordPress 6.7+ (DataViews + Script Modules).
-- `@wpkernel/core` configured with `configureWPKernel()`.
-- `@wpkernel/ui` attached via `attachUIBindings()`.
-- Resources that describe their REST contract and optional capabilities/actions.
-
-## 1. Describe the admin view in your resource
-
-Add a `ui.admin.dataviews` block to your resource definition. This metadata drives both runtime auto-registration and CLI generators.
+The primary way to create a DataView in WPKernel is by adding a `ui.admin.dataviews` block to a resource in your `wpk.config.ts`.
 
 ```ts
-import { defineResource } from '@wpkernel/core/resource';
-import type { Job, JobQuery } from '@/contracts/job';
-
-export const job = defineResource<Job, JobQuery>({
-	name: 'job',
-	routes: {
-		/* … */
-	},
-	ui: {
-		admin: {
-			dataviews: {
-				preferencesKey: 'jobs/admin',
-				defaultView: {
-					type: 'table',
-					fields: [
-						'title',
-						'status',
-						'department',
-						'location',
-						'created_at',
-					],
-					sort: { field: 'created_at', direction: 'desc' },
-					perPage: 20,
-				},
-				mapQuery: ({ search, filters, sort, page, perPage }) => ({
-					q: search,
-					department: filters.department,
-					location: filters.location,
-					orderBy: sort?.field ?? 'created_at',
-					order: sort?.direction ?? 'desc',
-					page,
-					perPage,
-				}),
-				actions: [
-					{ id: 'jobs.edit', action: 'Job.Edit' },
-					{
-						id: 'jobs.publish',
-						action: 'Job.Publish',
-						supportsBulk: true,
-					},
-				],
-				screen: {
-					component: 'JobsAdminScreen',
-					route: '/admin.php?page=wpk-jobs',
-					menu: {
-						slug: 'wpk-jobs',
-						title: 'Jobs',
-						parent: 'wpk-root',
-						capability: 'manage_options',
-					},
-				},
-			},
-		},
-	},
-});
+// In wpk.config.ts
+resources: {
+  job: {
+    name: 'job',
+    // ... other resource config
+    ui: {
+      admin: {
+        view: 'dataviews',
+        dataviews: {
+          // Fields to display in the table
+          fields: [ 'title', 'status', 'location', 'created_at' ],
+          // Actions available for each row or in bulk
+          actions: [
+            { id: 'jobs.edit', action: 'Job.Edit' },
+            { id: 'jobs.publish', action: 'Job.Publish', supportsBulk: true },
+          ],
+          // Connects the DataView's state to the resource's query params
+          mapQuery: ({ search, sort, page, perPage }) => ({
+            q: search,
+            orderBy: sort?.field ?? 'created_at',
+            order: sort?.direction ?? 'desc',
+            page,
+            perPage,
+          }),
+          // Defines the admin menu page
+          screen: {
+            route: 'acme-jobs',
+            menu: {
+              slug: 'acme-jobs',
+              title: 'Jobs',
+              capability: 'manage_options',
+            },
+          },
+        },
+      },
+    },
+  },
+},
 ```
 
-> ℹ️ Runtime imports still come from the published `@wordpress/dataviews` package. The snapshot under `packages/ui/vendor/` exists purely for developer reference.
+### What You Get
 
-## 2. Bootstrap the UI runtime
+Running `wpk generate` with this configuration produces a surprising amount of code:
 
-Opt in to DataViews when calling `configureWPKernel()` and share the runtime with React.
+1.  **A PHP Menu Page**: Registers a new admin page in WordPress under "Jobs".
+2.  **A React Screen Component**: A new file like `.generated/ui/app/job/admin/JobsAdminScreen.tsx` is created. This component is the root of your admin page.
+3.  **Pre-wired `<ResourceDataView>`**: The generated screen component renders the `<ResourceDataView>` from `@wpkernel/ui`, passing all your configuration to it automatically.
+4.  **Automatic Interactivity**: The CLI generates an "interactivity fixture" that connects the actions you defined (e.g., `Job.Publish`) to the buttons in the DataView. Clicks, state changes, and API calls work out of the box.
+5.  **Event Integration**: All actions dispatched by the DataView will emit standard WPKernel events, which you can listen to for custom integrations.
 
-```ts
-import { configureWPKernel } from '@wpkernel/core';
-import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
+This generated screen is not a sample; it's a production-ready, interactive admin view with sorting, filtering, pagination, and action handling built-in.
 
-export const wpk = configureWPKernel({
-	namespace: 'demo',
-	registry: window.wp.data,
-	ui: {
-		attach: attachUIBindings,
-		dataviews: {
-			enable: true,
-			autoRegisterResources: true,
-		},
-	},
-});
+## Building a Custom DataView Screen
 
-const runtime = wpk.getUIRuntime();
-```
+While the generator is powerful, you can also build a DataView screen programmatically when you need full control or a non-standard layout.
+
+This approach is useful for:
+
+- Building complex UIs that go beyond a simple table.
+- Integrating DataViews into existing, custom-built admin pages.
 
 ```tsx
-export function AdminApp() {
-	return (
-		<WPKernelUIProvider runtime={runtime}>
-			<JobsAdminScreen />
-		</WPKernelUIProvider>
-	);
-}
-```
-
-With `autoRegisterResources: true`, any resource exposing `ui.admin.dataviews` receives a controller automatically. Manual registration remains available via `createResourceDataViewController()` if you need custom wiring.
-
-## 3. Compose the screen
-
-```tsx
+// In a custom component, e.g., /ui/MyCustomJobScreen.tsx
 import {
 	createResourceDataViewController,
-	createDataFormController,
 	ResourceDataView,
 } from '@wpkernel/ui/dataviews';
-import { job } from '@/resources/job';
-import { createJob } from '@/actions/Job.Create';
+import { job } from '@/resources/job'; // Your resource object
 
+// 1. Create a controller for the DataView
 const controller = createResourceDataViewController({
 	resource: job,
+	// You can pass the config from the resource, or define it inline
 	config: job.ui?.admin?.dataviews!,
 });
 
-const createJobForm = createDataFormController({
-	action: createJob,
-	onSuccess: ({ invalidate }) => invalidate(controller.keys.list()),
-});
-
-export function JobsAdminScreen() {
+export function MyCustomJobScreen() {
 	return (
-		<ResourceDataView
-			controller={controller}
-			dataForm={createJobForm}
-			emptyState={{
-				title: 'No roles yet',
-				description: 'Create a role to publish it on the careers site.',
-				actionLabel: 'Add job',
-			}}
-		/>
+		<div>
+			<h1>My Custom Job Board</h1>
+			<ResourceDataView
+				controller={controller}
+				emptyState={{
+					title: 'No jobs found',
+					description: 'Create a new job to get started.',
+				}}
+			/>
+		</div>
 	);
 }
 ```
 
-`ResourceDataView` wraps the upstream component, providing:
+In this model, you are responsible for creating the controller and rendering the `<ResourceDataView>` component yourself.
 
-- Capability-gated bulk and row actions.
-- Preference persistence through the adapter chain (user → role → site).
-- Event emission for `ui:dataviews:*` hooks.
-- `data-wpk-dataview-*` attributes for automated tests.
+## What's Next?
 
-## 4. Listen for events or extend behaviour
-
-```ts
-const unsubscribe = wpk.events.on(
-	'ui:dataviews:action-triggered',
-	(payload) => {
-		if (payload.resource === 'job' && !payload.permitted) {
-			wpk.getUIRuntime().reporter.warn(
-				'jobs',
-				'Denied action',
-				payload.reason
-			);
-		}
-	}
-);
-
-// or via wp.hooks
-wp.hooks.addAction(
-	'ui:dataviews:view-changed',
-	'my-plugin',
-	({ resource, viewState }) => {
-		if (resource === 'job') {
-			window.sessionStorage.setItem(
-				'jobs:lastSearch',
-				viewState.search ?? ''
-			);
-		}
-	}
-);
-```
-
-## 5. Generate scaffolding (optional)
-
-Use the CLI to emit screens, fixtures, and optional menus that align with the metadata above.
-
-```bash
-wpk generate admin-page job
-```
-
-Outputs include:
-
-- React screen under `.generated/ui/app/job/admin/JobsAdminScreen.tsx`.
-- Controller + config imports wired to `ResourceDataView`.
-- Fixture for Storybook/tests under `.generated/ui/fixtures/dataviews/job.ts`.
-- Menu stub when `screen.menu` metadata is present.
-
-## Testing the experience
-
-Unit tests: see `packages/ui/src/dataviews/__tests__/` for patterns covering query mapping, preference persistence, and capability gating.
-
-Playwright helpers: `@wpkernel/e2e-utils` exposes a `wpk.dataview()` factory.
-
-```ts
-test('filter jobs by department', async ({ page, wpk }) => {
-	await page.goto('/wp-admin/admin.php?page=wpk-jobs');
-	const dataview = wpk.dataview({ resource: 'job' });
-	await dataview.waitForLoaded();
-	await dataview.filterBy('Department', 'Engineering');
-	await dataview.expectRow('Engineering Manager');
-});
-```
-
-Helpers rely on the DOM attributes emitted by `ResourceDataView`. Keep those selectors stable when customising the layout.
-
-## Migration guidance
-
-- **Snapshot reference** - `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot --source <path>`.
-- **Compat provider** - For WordPress versions prior to 6.7 wrap your screens with the compatibility helpers in `packages/ui/src/compat/dataviews.ts` to fall back to legacy tables.
-- **Generated code** - CLI fixtures emit function bodies verbatim. Review generated files before committing to keep long-term maintenance manageable.
-
-## Accessibility follow-ups
-
-Accessibility hardening (ARIA reconciliation, focus choreography, high-contrast sweeps) is scheduled for the dedicated sprint tracked in the [project roadmap](../contributing/roadmap.md#-upcoming). File issues against that milestone so the backlog stays visible.
-
-## Further reading
-
-- [UI package reference](../packages/ui.md)
-- [CLI package reference](../packages/cli.md)
-- [Showcase walkthrough](/examples/showcase)
-- [E2E helpers](../packages/e2e-utils.md)
+- **[Interactivity](./interactivity.md)**: Learn how the CLI automatically wires up actions and state for your generated DataViews.
+- **[Events](./events.md)**: See how to listen for events emitted by user interactions within a DataView.
+- **[UI Package](/packages/ui)**: Explore the `<ResourceDataView>` component and its props in more detail.

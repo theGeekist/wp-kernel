@@ -1,10 +1,65 @@
 # Resources
 
-Resources describe how your plugin talks to WordPress. A single call to `defineResource` gives you REST clients, grouped APIs, cache helpers, store selectors, React hooks, and canonical events that share the same namespace.【F:packages/core/src/resource/define.ts†L115-L390】
+Resources are the core data entities in a WPKernel application. They are the bridge between your WordPress backend and your client-side code, providing a complete, end-to-end stack for creating, reading, updating, and deleting data.
 
-## Anatomy of a resource
+WPKernel offers two primary ways to work with resources, giving you the flexibility to choose the approach that best fits your project's needs.
+
+1.  **Declarative (Config-First)**: Define resources in `wpk.config.ts` to automatically generate PHP REST controllers, admin UIs, and typed client libraries. This is the fastest way to get a full CRUD interface up and running.
+2.  **Programmatic (API-First)**: Use the `defineResource` function directly in your TypeScript code to create a client-side resource object. This approach gives you full control when building custom UIs or integrating with existing frontends.
+
+Both approaches yield a powerful, consistent resource object for use in your application.
+
+## Path 1: Declarative via `wpk.config.ts`
+
+When you define a resource in `wpk.config.ts`, you are describing the desired state of your application. WPKernel's CLI reads this configuration and generates the necessary PHP and JavaScript files.
 
 ```ts
+// In wpk.config.ts
+resources: {
+  job: {
+    name: 'job',
+    routes: {
+      list:   { path: '/acme/v1/jobs', method: 'GET', capability: 'job.list' },
+      get:    { path: '/acme/v1/jobs/:id', method: 'GET', capability: 'job.get' },
+    },
+    capabilities: {
+      'job.list': 'read',
+      'job.get':  'read',
+    },
+    storage: {
+        mode: 'wp-post',
+        postType: 'job'
+    },
+    ui: { // This block generates a WordPress Admin UI
+        admin: {
+            view: 'dataviews',
+            dataviews: {
+                screen: {
+                    route: 'acme-jobs',
+                    menu: { slug: 'acme-jobs', title: 'Jobs' }
+                }
+            }
+        }
+    }
+  },
+},
+```
+
+**What this generates:**
+
+- **PHP REST Controllers**: Secure endpoints for all defined `routes`.
+- **WordPress Admin UI**: A complete admin screen with a data table for your resource, registered as a menu page.
+- **Typed Client Object**: A `job` object for your frontend with methods like `fetchList`, `useList`, etc.
+- **Capability Enforcement**: Both backend and frontend helpers for the defined capabilities. See the [Capabilities Guide](./capability.md) for details.
+
+This approach is ideal for standard CRUD operations and for quickly scaffolding new features.
+
+## Path 2: Programmatic via `defineResource`
+
+For more custom scenarios, or when you don't need a generated admin UI, you can define a resource directly in your code. This is common when building a custom block editor interface or a bespoke frontend application.
+
+```ts
+// In /resources/job.ts
 import { defineResource } from '@wpkernel/core/resource';
 
 interface Job {
@@ -17,62 +72,41 @@ type JobQuery = { status?: Job['status']; search?: string };
 
 export const job = defineResource<Job, JobQuery>({
 	name: 'job',
+	namespace: 'acme-demo', // Manually specify namespace
 	routes: {
 		list: { path: '/acme/v1/jobs', method: 'GET' },
 		get: { path: '/acme/v1/jobs/:id', method: 'GET' },
 		create: { path: '/acme/v1/jobs', method: 'POST' },
 	},
-	schema: 'auto',
-	identity: { type: 'number', param: 'id' },
-	cacheKeys: {
-		list: (query) => [
-			'job',
-			'list',
-			query?.status ?? null,
-			query?.search ?? null,
-		],
-		get: (id) => ['job', 'get', id],
-	},
-	capabilityHints: {
-		create: 'jobs.create',
-	},
 });
 ```
 
-The resource above gives you:
+**What this provides:**
 
-- **REST client methods** - `job.fetchList(query)`, `job.fetch(id)`, `job.create(data)`, `job.update(id, data)`, and `job.remove(id)` when the corresponding routes exist.【F:packages/core/src/resource/client.ts†L41-L230】
-- **React hooks** - `job.useList(query)` and `job.useGet(id)` become available after you call `attachUIBindings(kernel)` in your UI bundle.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L160】【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
-- **Grouped APIs** - selectors under `job.select.*`, cache helpers under `job.cache.*`, and fetch methods under `job.get.*` and `job.fetch*` for advanced orchestration.【F:packages/core/src/resource/grouped-api.ts†L1-L170】
-- **Events** - `job.events.created`, `job.events.updated`, and `job.events.removed` emit through the wpk event bus with your namespace baked in.【F:packages/core/src/resource/define.ts†L390-L430】
-- **Cache helpers** - `job.cache.key('list')`, `job.prefetchList(query)`, and `job.prefetchGet(id)` wrap the WordPress data store’s selectors and resolvers.【F:packages/core/src/resource/types.ts†L459-L620】
+- A typed `job` object with the same client-side API (`fetchList`, `create`, etc.) as the declarative approach.
+- The ability to define and use a resource entirely in your client-side code, assuming the corresponding REST endpoints exist.
 
-## Namespaces
+::: info Tip
+You can even mix and match. Use `wpk.config.ts` to generate the backend PHP controllers, and then use `defineResource` on the client to interact with them in a custom UI.
+:::
 
-If you omit `namespace`, the runtime detects it from your plugin headers. You can override it per resource, or use shorthand `namespace:name` syntax when you want the resource to live under a different prefix. The namespace shapes store keys (`{namespace}/{resource}`) and domain events (`{namespace}.{resource}.created`).【F:packages/core/src/resource/define.ts†L151-L210】
+## Using Resources in a Custom UI
 
-## Schemas keep clients honest
-
-Passing `'auto'` tells the CLI to derive JSON Schema from your TypeScript types. Alternatively you can import a schema file via the config. Either way the schema feeds `json-schema-to-typescript` for `.d.ts` generation and the PHP builder for REST argument metadata.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/cli/src/builders/php/resourceController.ts†L1-L220】
-
-## Cache and invalidation
-
-Every route can define a cache key helper. Actions typically call `ctx.invalidate([job.cache.key('list')])` or one of the grouped helpers (`job.cache.invalidate.list(query)`) after mutations. The resource runtime records keys and uses `@wordpress/data` resolvers to keep list and item caches consistent.【F:packages/core/src/resource/cache.ts†L1-L760】【F:packages/core/src/resource/store.ts†L430-L560】
-
-## Capabilities and capability checks
-
-`capabilityHints` bridge frontend intent with backend enforcement. When you provide a hint for a write route, the PHP builder wires `permission_callback` to `Capability::enforce('jobs.create', $request)`. Missing hints trigger a warning and fall back to `current_user_can('manage_options')`, which is surfaced in the generation summary.【F:packages/cli/src/builders/php/routes.ts†L170-L260】【F:packages/cli/src/builders/php/resourceController.ts†L1-L120】
-
-## Using resources from the UI
+Regardless of how you define it, using a resource in your React components is the same. The resource object provides easy-to-use hooks for data fetching.
 
 ```tsx
-import { job } from '@/resources/job';
+// In a custom React component
+import { job } from '@/resources'; // Your resource, from generated file or manual definition
 
-export function JobList() {
+function MyCustomJobList() {
 	const { data, isLoading, error } = job.useList({ status: 'open' });
 
-	if (isLoading) return <p>Loading…</p>;
-	if (error) return <p role="alert">{error}</p>;
+	if (isLoading) {
+		return <p>Loading...</p>;
+	}
+	if (error) {
+		return <p role="alert">{error.message}</p>;
+	}
 
 	return (
 		<ul>
@@ -84,18 +118,10 @@ export function JobList() {
 }
 ```
 
-Hooks draw from the same store keys as the grouped selectors. They throw a `WPKernelError` if `@wordpress/data` is not present, which protects you during SSR or early bootstrap.【F:packages/ui/src/hooks/resource-hooks.ts†L40-L140】
+The `useList` hook handles fetching data from your REST endpoint, managing loading and error states, and caching the results in the Redux store.
 
-## Surfacing data in admin screens
+## What's Next?
 
-When your wpk config includes `ui.admin.dataviews`, the CLI emits `.generated/ui/app/<resource>/admin/<Component>.tsx` and DataViews fixtures. The generated screen uses the resource’s `job.useList()` hook and automatically registers a controller with the UI runtime, so rendering `<ResourceDataView>` is enough to display the list.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/ui/src/dataviews/resource-controller.ts†L1-L180】
-
-## Where to go next
-
-- Read the [Decision Matrix](/reference/decision-matrix) to see which printers react to specific resource options.
-- Browse the [Showcase wpk config](/examples/showcase) for a production-scale example.
-- Explore the generated Typedoc under [`/api/@wpkernel/core/`](/api/@wpkernel/core/README) to inspect every helper exposed by the resource runtime.
-
-```
-
-```
+- **[WPKernel Config Reference](/reference/wpk-config)**: See all options for generating resources and UIs.
+- **[Actions](/guide/actions)**: Learn how to orchestrate write operations using your resources.
+- **[DataViews](/guide/dataviews)**: Dive deeper into the generated admin UIs.

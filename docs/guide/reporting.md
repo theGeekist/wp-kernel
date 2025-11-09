@@ -50,7 +50,7 @@ When an action throws, the reporter also feeds the `wpkEventsPlugin()` bridge so
 ## In capabilities
 
 `defineCapability()` now accepts `debug: true` to enable reporter output. The reporter shares the same namespace so hook listeners can
-correlate events across the stack:
+correlate events across the stack. For a comprehensive guide on WPKernel's capability system, refer to the [Capabilities Guide](../guide/capability.md).
 
 ```typescript
 const capability = defineCapability(rules, {

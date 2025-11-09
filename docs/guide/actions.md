@@ -1,513 +1,169 @@
 # Actions
 
-Actions are the **conductors of your WordPress application**. They orchestrate every write operation, ensuring consistency, reliability, and extensibility. Think of them as the difference between chaos and harmony in a complex system.
-
-## Why Actions Matter
-
-In traditional WordPress development, you might see code like this scattered throughout themes and plugins:
-
-```php
-// Scattered, inconsistent write operations
-wp_insert_post($data);
-wp_cache_delete('posts_list');
-do_action('post_created', $post_id);
-wp_schedule_single_event(time() + 300, 'send_notification', [$post_id]);
-```
-
-WPKernel Actions bring **predictability and coordination** to this process:
-
-```typescript
-// Coordinated, predictable, testable
-await CreatePost({ title: 'Hello World', content: 'First post!' });
-// ✓ Resource called
-// ✓ Events emitted
-// ✓ Cache invalidated
-// ✓ Jobs queued
-// ✓ All side effects handled
-```
+Actions are the conductors of your application. They orchestrate write operations, ensuring that every change to your data is consistent, predictable, and extensible. They are the central hub for all side effects, from API calls to cache invalidation.
 
 ## The Actions-First Philosophy
+
+In a WPKernel application, UI components **never** modify data directly by calling a resource's `create` or `update` methods. Instead, they invoke an Action. The Action is responsible for coordinating all the work.
 
 ```mermaid
 graph LR
     A[UI Event] --> B[Action]
-    B --> C[Resource Call]
-    B --> D[Event Emission]
-    B --> E[Cache Invalidation]
-    B --> F[Job Queueing]
+    B --> C[API Call via Resource]
+    B --> D[Cache Invalidation]
+    B --> E[Event Emission]
+    B --> F[Background Jobs]
 
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#ffebee
-    style F fill:#f1f8e9
+    classDef blue fill:var(--vp-c-blue-soft),stroke:var(--vp-c-blue-1),color:var(--vp-c-text-1)
+    classDef purple fill:var(--vp-c-purple-soft),stroke:var(--vp-c-purple-1),color:var(--vp-c-text-1)
+    classDef green fill:var(--vp-c-green-soft),stroke:var(--vp-c-green-1),color:var(--vp-c-text-1)
+    classDef red fill:var(--vp-c-red-soft),stroke:var(--vp-c-red-1),color:var(--vp-c-text-1)
+    classDef yellow fill:var(--vp-c-yellow-soft),stroke:var(--vp-c-yellow-1),color:var(--vp-c-text-1)
+    classDef gray fill:var(--vp-c-gray-soft-2),stroke:var(--vp-c-gray-2),color:var(--vp-c-text-1)
+
+    class A blue
+    class B purple
+    class C green
+    class D red
+    class E yellow
+    class F gray
 ```
 
-**The Golden Rule**: UI components **never** call resource write methods directly. Always route through Actions.
+This "actions-first" approach provides several key benefits:
 
-This isn't just a suggestion-it's the foundation that makes everything else possible:
-
-- **Consistent side effects**: Every write operation follows the same pattern
-- **Automatic event emission**: Other parts of your app can react to changes
-- **Smart cache invalidation**: UI stays fresh without manual work
-- **Background job coordination**: Long-running tasks don't block the user
-- **Audit trails**: Every action is trackable and debuggable
+- **Consistency**: All write operations follow the same, predictable lifecycle.
+- **Reliability**: Side effects like cache invalidation and eventing are never forgotten.
+- **Testability**: You can test your application's core logic independently of the UI.
+- **Extensibility**: New functionality can be easily added to an action without changing the UI.
 
 ## Anatomy of an Action
 
-Let's build up an action step by step to see how it all fits together:
+Actions are defined programmatically using the `defineAction` function. They are the imperative counterpart to the declarative nature of resources in `wpk.config.ts`.
 
 ### 1. Basic Structure
+
+An action is a function with a unique name and a `handler` that performs the work.
 
 ```typescript
 import { defineAction } from '@wpkernel/core/actions';
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
-	handler: async (ctx, { title, content }) => {
+	handler: async (
+		ctx,
+		{ title, content }: { title: string; content: string }
+	) => {
 		// Action logic goes here
 	},
 });
 ```
 
-### 2. Add Resource Integration
+The first argument to the handler is the `ctx` (context) object, which provides access to resources, event emitters, and other core utilities.
+
+### 2. Calling a Resource
+
+The primary job of most actions is to call a resource's write method. This resource could be one generated from `wpk.config.ts` or one you've defined manually with `defineResource`.
 
 ```typescript
 import { defineAction } from '@wpkernel/core/actions';
-import { post } from '@/resources/post';
+import { post } from '@/resources'; // Your resource object
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
 	handler: async (ctx, { title, content }) => {
-		// Call the resource (this does the actual API work)
-		const created = await post.create({ title, content });
-
-		return created;
+		// Call the resource to perform the API request
+		const createdPost = await post.create({ title, content });
+		return createdPost;
 	},
 });
 ```
 
-### 3. Add Event Emission
+### 3. Managing Side Effects
+
+The `ctx` object is your toolkit for managing all the side effects related to a write operation.
 
 ```typescript
 import { defineAction } from '@wpkernel/core/actions';
-import { post } from '@/resources/post';
-
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	handler: async (ctx, { title, content }) => {
-		const created = await post.create({ title, content });
-
-		// Emit canonical domain events
-		ctx.emit('post.created', {
-			postId: created.id,
-			data: created,
-		});
-
-		return created;
-	},
-});
-```
-
-### 4. Add Cache Invalidation
-
-```typescript
-import { defineAction } from '@wpkernel/core/actions';
-import { post } from '@/resources/post';
-
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	handler: async (ctx, { title, content }) => {
-		const created = await post.create({ title, content });
-
-		ctx.emit('post.created', {
-			postId: created.id,
-			data: created,
-		});
-
-		// Invalidate relevant cache keys
-		ctx.invalidate(['post', 'post:list']);
-
-		return created;
-	},
-});
-```
-
-### 5. Add Background Jobs
-
-```typescript
-import { defineAction } from '@wpkernel/core/actions';
-import { post } from '@/resources/post';
-
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	handler: async (ctx, { title, content, notifySubscribers = false }) => {
-		const created = await post.create({ title, content });
-
-		ctx.emit('post.created', {
-			postId: created.id,
-			data: created,
-		});
-
-		ctx.invalidate(['post', 'post:list']);
-
-		// Queue background work
-		if (notifySubscribers) {
-			await ctx.jobs.enqueue('SendPostNotification', {
-				postId: created.id,
-			});
-		}
-
-		return created;
-	},
-});
-```
-
-### 6. Add Error Handling & Validation
-
-```typescript
-import { defineAction } from '@wpkernel/core/actions';
-import { post } from '@/resources/post';
+import { post } from '@/resources';
 import { WPKernelError } from '@wpkernel/core/error';
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
 	handler: async (ctx, { title, content, notifySubscribers = false }) => {
-		// Validation
+		// 1. Validate input
 		if (!title?.trim()) {
 			throw new WPKernelError('ValidationError', {
 				message: 'Post title is required',
-				field: 'title',
 			});
 		}
 
-		// Permission check via capability surface
-		ctx.capability.assert('publish_posts');
+		// 2. Check permissions
+		ctx.capability.assert('post.create');
 
-		try {
-			const created = await post.create({ title, content });
+		// 3. Call the resource
+		const createdPost = await post.create({ title, content });
 
-			ctx.emit('post.created', {
-				postId: created.id,
-				data: created,
+		// 4. Emit domain events
+		ctx.emit('post.created', { postId: createdPost.id });
+
+		// 5. Invalidate cache
+		ctx.invalidate(post.cache.key('list'));
+
+		// 6. Enqueue background jobs
+		if (notifySubscribers) {
+			await ctx.jobs.enqueue('SendPostNotification', {
+				postId: createdPost.id,
 			});
-
-			ctx.invalidate(['post', 'post:list']);
-
-			if (notifySubscribers) {
-				await ctx.jobs.enqueue('SendPostNotification', {
-					postId: created.id,
-				});
-			}
-
-			return created;
-		} catch (error) {
-			// Error is automatically normalized and emitted via wpk.action.error
-			ctx.reporter.error('Post creation failed', { title, error });
-			throw error;
 		}
+
+		return createdPost;
 	},
 });
 ```
 
-### Reporting and notices
+By centralizing this logic, you ensure that creating a post is always done the same way, whether it's triggered from a generated admin UI, a custom block, or a command-line script.
 
-`ctx.reporter` forwards structured telemetry to the reporter module. With `channel: 'all'` the message prints in development
-consoles and emits `showcase.reporter.error` via `wp.hooks`. Once [`configureWPKernel()`](/guide/data) runs the
-`wpkEventsPlugin()` listens for `wpk.action.error` and raises `core/notices` alerts automatically. The same lifecycle appears on `wpk.events`
-so JavaScript consumers can subscribe with full typing:
+## Using Actions in Custom UIs
 
-```ts
-wpk.events.on('action:start', (event) => {
-	analytics.track('action:start', event);
-});
-```
+The `@wpkernel/ui` package provides the `useAction` hook to make calling actions from your custom React components simple and declarative.
 
-## Using Actions in Your UI
-
-Once you have an action, using it is simple and consistent:
-
-### In React Components
-
-```typescript
+```tsx
 import { useAction } from '@wpkernel/ui';
 import { CreatePost } from '@/actions/CreatePost';
+import { Notice } from '@wordpress/components';
 
 function PostForm() {
-  const { run, status, error } = useAction(CreatePost, {
-    autoInvalidate: () => [['post', 'list']],
-  });
+	const { run, status, error } = useAction(CreatePost);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const formData = new FormData(event.currentTarget);
+		const title = formData.get('title') as string;
+		const content = formData.get('content') as string;
 
-    try {
-      await run({
-        title: form.get('title') as string,
-        content: form.get('content') as string,
-      });
-    } catch {
-      // error already normalised to WPKernelError and exposed via `error`
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* form fields */}
-      <button type="submit" disabled={status === 'running'}>
-        {status === 'running' ? 'Creating…' : 'Create Post'}
-      </button>
-      {status === 'error' && <Notice status="error">{error?.message}</Notice>}
-    </form>
-  );
-}
-```
-
-> ℹ️ Wrap your application with `WPKernelUIProvider` after calling
-> `configureWPKernel({ ui: { attach: attachUIBindings } })` so that `useAction()`
-> can resolve the action dispatcher from the runtime.
-
-`useAction` exposes the request lifecycle (`status`, `error`, `result`) and
-allows you to tune concurrency:
-
-- **parallel** (default) keeps every invocation in flight and updates the state
-  when each resolves.
-- **switch** cancels local tracking of previous runs so that the latest attempt
-  owns the state (useful for typeahead inputs).
-- **queue** chains requests, guaranteeing sequential execution.
-- **drop** ignores new calls while the previous one is running.
-
-Combine `dedupeKey` with the concurrency strategy to share in-flight promises:
-
-```ts
-const search = useAction(SearchPosts, {
-	concurrency: 'switch',
-	dedupeKey: (query) => query.trim(),
-});
-```
-
-When a dedupe key matches, subsequent `run()` calls return the same promise and
-do not dispatch a new Action; both callers receive the eventual result.
-
-`autoInvalidate` is a convenient place to emit cache keys that should refresh
-after a successful run. It forwards the patterns to the resource cache helper
-(`invalidate`) and keeps invalidation logic beside the UI that depends on it.
-
-➡️ See the [`useAction` API reference](/api/@wpkernel/ui/functions/useAction) for the full option
-surface and additional examples.
-
-### In Block Editor
-
-```typescript
-import { CreatePost } from '@/actions/CreatePost';
-
-// In your block's save or edit function
-const handleCreatePost = async () => {
-	await CreatePost({
-		title: 'Generated from block',
-		content: 'Block-generated content',
-	});
-};
-```
-
-### In Interactivity API
-
-```typescript
-import { store } from '@wordpress/interactivity';
-import { CreatePost } from '@/actions/CreatePost';
-
-store('my-plugin', {
-	actions: {
-		async createPost() {
-			const { title, content } = context;
-			await CreatePost({ title, content });
-			// UI automatically updates via store integration
-		},
-	},
-});
-```
-
-## Common Patterns
-
-### Optimistic Updates
-
-```typescript
-export const UpdatePost = defineAction({
-	name: 'Post.Update',
-	handler: async (ctx, { id, updates }) => {
-		// Note: Optimistic updates would require additional store integration
-		// beyond the action itself. This is a conceptual example.
-
-		const updated = await post.update(id, updates);
-		ctx.invalidate([`post:${id}`, 'post:list']);
-		ctx.emit('post.updated', { postId: id, data: updated });
-
-		return updated;
-	},
-});
-```
-
-### Batch Operations
-
-```typescript
-export const BulkDeletePosts = defineAction({
-	name: 'Post.BulkDelete',
-	handler: async (ctx, { ids }) => {
-		const results = [];
-
-		for (const id of ids) {
-			try {
-				await post.delete(id);
-				results.push({ id, success: true });
-			} catch (error) {
-				results.push({ id, success: false, error: error.message });
-			}
-		}
-
-		// Invalidate cache once at the end
-		ctx.invalidate(['post', 'post:list']);
-
-		ctx.emit('bulk.operation.completed', {
-			operation: 'delete',
-			results,
-		});
-
-		return results;
-	},
-});
-```
-
-### Conditional Side Effects
-
-```typescript
-export const PublishPost = defineAction({
-	name: 'Post.Publish',
-	handler: async (ctx, { id, scheduleNotifications = true }) => {
-		const updated = await post.update(id, { status: 'publish' });
-
-		ctx.emit('post.published', {
-			postId: updated.id,
-			data: updated,
-		});
-
-		ctx.invalidate(['post', 'post:list', 'post:featured']);
-
-		// Conditional side effects based on post properties
-		if (updated.featured && scheduleNotifications) {
-			await ctx.jobs.enqueue('SendFeaturedPostNotification', {
-				postId: id,
-			});
-		}
-
-		if (updated.categories.includes('breaking-news')) {
-			await ctx.jobs.enqueue('SendBreakingNewsAlert', { postId: id });
-		}
-
-		return updated;
-	},
-});
-```
-
-### Redux Middleware Integration
-
-For complex admin UIs or block editor environments using `@wordpress/data`, actions can be dispatched through Redux stores:
-
-```typescript
-import {
-	createActionMiddleware,
-	invokeAction,
-} from '@wpkernel/core/actions';
-import { createReduxStore, register } from '@wordpress/data';
-import { CreatePost } from '@/actions/CreatePost';
-
-// Setup store with action middleware
-const actionMiddleware = createActionMiddleware();
-
-register(
-	createReduxStore('my-plugin/posts', {
-		reducer: postsReducer,
-		actions: {
-			// Standard Redux actions...
-		},
-		selectors: {
-			// Standard selectors...
-		},
-		__experimentalUseMiddleware: () => [actionMiddleware],
-	})
-);
-
-// In your components
-import { useDispatch } from '@wordpress/data';
-
-function PostEditor() {
-	const dispatch = useDispatch('my-plugin/posts');
-
-	const handlePublish = async () => {
-		// Dispatch wpk action through Redux
-		const envelope = invokeAction(CreatePost, {
-			title: 'New Post',
-			content: '...',
-		});
-
-		const result = await dispatch(envelope);
-		// Result is returned directly, bypassing reducers
-		console.log('Created post:', result);
+		await run({ title, content });
 	};
 
-	return <button onClick={handlePublish}>Publish</button>;
+	return (
+		<form onSubmit={handleSubmit}>
+			{/* ... form fields ... */}
+			<button type="submit" disabled={status === 'running'}>
+				{status === 'running' ? 'Creating...' : 'Create Post'}
+			</button>
+			{status === 'error' && (
+				<Notice status="error" isDismissible={false}>
+					{error?.message}
+				</Notice>
+			)}
+		</form>
+	);
 }
 ```
 
-**How it works**:
-
-1. `createActionMiddleware()` creates Redux middleware that intercepts wpk action envelopes
-2. `invokeAction()` wraps your action in a Redux-compatible envelope
-3. The middleware executes the action (with all lifecycle events, cache invalidation, etc.)
-4. The action's result is returned directly, bypassing Redux reducers
-5. Standard Redux actions pass through normally
-
-**When to use Redux middleware**:
-
-- ✓ WordPress block editor environments (Gutenberg)
-- ✓ Complex admin UIs with existing Redux state
-- ✓ Apps needing Redux DevTools integration for debugging
-
-**When to call actions directly**:
-
-- ✓ Simple components: `await CreatePost(args)`
-- ✓ Non-Redux state management (Zustand, MobX, etc.)
-- ✓ Server-side contexts or React Server Components
-
-## Why This Pattern Works
-
-### For Developers
-
-- **Predictable**: Every action follows the same pattern
-- **Testable**: Mock at the action level for clean unit tests
-- **Debuggable**: Clear flow from UI → Action → Side Effects
-- **Reusable**: Actions can be called from anywhere (UI, CLI, jobs, etc.)
-
-### For Users
-
-- **Responsive**: Optimistic updates provide immediate feedback
-- **Reliable**: Consistent error handling and recovery
-- **Informed**: Events keep different parts of the app in sync
-
-### For Teams
-
-- **Consistent**: Everyone follows the same patterns
-- **Maintainable**: Side effects are centralized and documented
-- **Extensible**: Other developers can hook into events
-- **Auditable**: All changes flow through trackable actions
+The `useAction` hook provides the `run` function to trigger the action, as well as the current `status` of the request (`idle`, `running`, `success`, `error`) and any resulting `error`. This keeps your component clean and focused on presentation.
 
 ## What's Next?
 
-- **[UI Implementation Patterns](/packages/ui#implementation-patterns)** - Real-world examples with DataViews and admin interfaces
-- **[CLI Generators](/packages/cli#generator-patterns)** - Scaffold complete CRUD actions automatically
-- **[Events Guide](/guide/events)** - How actions coordinate with the rest of your app
-- **[Jobs Guide](/guide/jobs)** - Background processing patterns
-- **[Testing Actions](/contributing/testing#testing-actions)** - Unit and integration testing strategies
-
-Actions are where the magic happens in WPKernel. They're the bridge between user intent and system reality, ensuring every operation is predictable, reliable, and extensible.
+- **[Events](/guide/events)**: Learn how actions and events work together to create a reactive system.
+- **[UI Package](/packages/ui)**: Explore more UI hooks and components for building your own interfaces.
+- **[Testing](/contributing/testing)**: See strategies for unit and integration testing your actions.

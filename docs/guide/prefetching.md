@@ -30,10 +30,7 @@ caching layers.
 - `useNextPagePrefetch` - compute the next page query from the current list and
   run it after the list finishes loading.
 
-All of the helpers delegate to the resource runtime in
-[`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts),
-which means dedupe and store registration behave exactly like the imperative
-prefetch utilities.
+All of the helpers delegate to the resource runtime (defined in your `wpk.config.ts` and further explained in the [Resources Guide](../guide/resources.md)), which means dedupe and store registration behave exactly like the imperative prefetch utilities.
 
 ## Example: prefetch job detail on hover
 
