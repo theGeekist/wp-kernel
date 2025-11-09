@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### origin
+### capabilityMap
 
 ```ts
-readonly origin: string;
+readonly capabilityMap: CapabilityMapConfig;
 ```
 
 ---
@@ -24,10 +24,10 @@ readonly namespace: string;
 
 ---
 
-### capabilityMap
+### origin
 
 ```ts
-readonly capabilityMap: CapabilityMapConfig;
+readonly origin: string;
 ```
 
 ---

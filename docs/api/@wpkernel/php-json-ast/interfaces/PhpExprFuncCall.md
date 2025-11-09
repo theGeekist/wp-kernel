@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,26 +13,6 @@ Represents a PHP function call expression (e.g., `myFunction()`).
 - [`PhpExprBase`](PhpExprBase.md)
 
 ## Properties
-
-### nodeType
-
-```ts
-readonly nodeType: "Expr_FuncCall";
-```
-
-#### Overrides
-
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpExpr | PhpName;
-```
-
----
 
 ### args
 
@@ -51,3 +31,23 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name: PhpExpr | PhpName;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Expr_FuncCall";
+```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)

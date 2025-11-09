@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,13 +14,33 @@ Event payload for wpk.resource.error
 
 ## Properties
 
-### requestId
+### code
 
 ```ts
-requestId: string;
+code: string;
 ```
 
-Request ID for correlation
+Error code
+
+---
+
+### duration
+
+```ts
+duration: number;
+```
+
+Duration in milliseconds
+
+---
+
+### message
+
+```ts
+message: string;
+```
+
+Error message
 
 ---
 
@@ -44,33 +64,13 @@ Request path
 
 ---
 
-### code
+### requestId
 
 ```ts
-code: string;
+requestId: string;
 ```
 
-Error code
-
----
-
-### message
-
-```ts
-message: string;
-```
-
-Error message
-
----
-
-### duration
-
-```ts
-duration: number;
-```
-
-Duration in milliseconds
+Request ID for correlation
 
 ---
 

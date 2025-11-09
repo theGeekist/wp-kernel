@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,6 +20,16 @@ A harness for testing action pipelines.
 
 ## Properties
 
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+The namespace of the reporter.
+
+---
+
 ### pipeline
 
 ```ts
@@ -37,16 +47,6 @@ readonly reporter: MemoryReporter;
 ```
 
 The memory reporter instance.
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
-The namespace of the reporter.
 
 ---
 

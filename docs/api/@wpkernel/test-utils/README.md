@@ -1,8 +1,8 @@
-**@wpkernel/test-utils v0.12.0**
+**@wpkernel/test-utils v0.12.1-beta.2**
 
 ---
 
-# @wpkernel/test-utils v0.12.0
+# @wpkernel/test-utils v0.12.1-beta.2
 
 ## Classes
 
@@ -14,11 +14,11 @@
 
 ### WordPress Harness
 
+- [ApiFetchHarness](interfaces/ApiFetchHarness.md)
+- [ApiFetchHarnessOptions](interfaces/ApiFetchHarnessOptions.md)
+- [WithWordPressDataOptions](interfaces/WithWordPressDataOptions.md)
 - [WordPressHarnessOverrides](interfaces/WordPressHarnessOverrides.md)
 - [WordPressTestHarness](interfaces/WordPressTestHarness.md)
-- [WithWordPressDataOptions](interfaces/WithWordPressDataOptions.md)
-- [ApiFetchHarnessOptions](interfaces/ApiFetchHarnessOptions.md)
-- [ApiFetchHarness](interfaces/ApiFetchHarness.md)
 
 ### Action Runtime
 
@@ -26,20 +26,20 @@
 
 ### UI Harness
 
-- [WPKernelUITestHarnessOptions](interfaces/WPKernelUITestHarnessOptions.md)
 - [WPKernelUITestHarness](interfaces/WPKernelUITestHarness.md)
+- [WPKernelUITestHarnessOptions](interfaces/WPKernelUITestHarnessOptions.md)
 
 ### CLI Helpers
 
-- [BaseContext](interfaces/BaseContext.md)
-- [CommandContextOptions](interfaces/CommandContextOptions.md)
-- [CommandContextHarness](interfaces/CommandContextHarness.md)
-- [FlushAsyncOptions](interfaces/FlushAsyncOptions.md)
-- [ApplyLogFlags](interfaces/ApplyLogFlags.md)
-- [ApplyLogSummary](interfaces/ApplyLogSummary.md)
-- [ApplyLogRecord](interfaces/ApplyLogRecord.md)
 - [ApplyLogEntry](interfaces/ApplyLogEntry.md)
+- [ApplyLogFlags](interfaces/ApplyLogFlags.md)
+- [ApplyLogRecord](interfaces/ApplyLogRecord.md)
+- [ApplyLogSummary](interfaces/ApplyLogSummary.md)
+- [BaseContext](interfaces/BaseContext.md)
 - [BuildLoadedConfigOptions](interfaces/BuildLoadedConfigOptions.md)
+- [CommandContextHarness](interfaces/CommandContextHarness.md)
+- [CommandContextOptions](interfaces/CommandContextOptions.md)
+- [FlushAsyncOptions](interfaces/FlushAsyncOptions.md)
 - [ReporterMockOptions](interfaces/ReporterMockOptions.md)
 
 ### Integration
@@ -48,23 +48,23 @@
 
 ### Test Support
 
-- [MemoryReporterEntry](interfaces/MemoryReporterEntry.md)
-- [MemoryReporter](interfaces/MemoryReporter.md)
-- [RuntimeOverrides](interfaces/RuntimeOverrides.md)
 - [BuildCoreActionPipelineHarnessOptions](interfaces/BuildCoreActionPipelineHarnessOptions.md)
-- [CoreActionPipelineHarness](interfaces/CoreActionPipelineHarness.md)
 - [BuildCoreResourcePipelineHarnessOptions](interfaces/BuildCoreResourcePipelineHarnessOptions.md)
+- [CoreActionPipelineHarness](interfaces/CoreActionPipelineHarness.md)
 - [CoreResourcePipelineHarness](interfaces/CoreResourcePipelineHarness.md)
+- [MemoryReporter](interfaces/MemoryReporter.md)
+- [MemoryReporterEntry](interfaces/MemoryReporterEntry.md)
+- [RuntimeOverrides](interfaces/RuntimeOverrides.md)
 
 ### Other
 
-- [WordPressPackage](interfaces/WordPressPackage.md)
-- [SchemaConfigLike](interfaces/SchemaConfigLike.md)
-- [SchemaRegistryLike](interfaces/SchemaRegistryLike.md)
+- [LoadedWPKConfigV1Like](interfaces/LoadedWPKConfigV1Like.md)
 - [ResourceConfigLike](interfaces/ResourceConfigLike.md)
 - [ResourceRegistryLike](interfaces/ResourceRegistryLike.md)
+- [SchemaConfigLike](interfaces/SchemaConfigLike.md)
+- [SchemaRegistryLike](interfaces/SchemaRegistryLike.md)
+- [WordPressPackage](interfaces/WordPressPackage.md)
 - [WPKConfigV1Like](interfaces/WPKConfigV1Like.md)
-- [LoadedWPKConfigV1Like](interfaces/LoadedWPKConfigV1Like.md)
 
 ## Type Aliases
 
@@ -96,9 +96,9 @@
 
 ### WordPress Harness
 
+- [createApiFetchHarness](functions/createApiFetchHarness.md)
 - [createWordPressTestHarness](functions/createWordPressTestHarness.md)
 - [withWordPressData](functions/withWordPressData.md)
-- [createApiFetchHarness](functions/createApiFetchHarness.md)
 
 ### Action Runtime
 
@@ -111,34 +111,34 @@
 
 ### CLI Helpers
 
-- [createMemoryStream](functions/createMemoryStream.md)
-- [createCommandContext](functions/createCommandContext.md)
 - [assignCommandContext](functions/assignCommandContext.md)
-- [flushAsync](functions/flushAsync.md)
 - [buildLoadedConfig](functions/buildLoadedConfig.md)
-- [ensureDirectory](functions/ensureDirectory.md)
-- [toFsPath](functions/toFsPath.md)
-- [seedPlan](functions/seedPlan.md)
-- [readApplyLogEntries](functions/readApplyLogEntries.md)
+- [createCommandContext](functions/createCommandContext.md)
+- [createMemoryStream](functions/createMemoryStream.md)
 - [createReporterMock](functions/createReporterMock.md)
+- [ensureDirectory](functions/ensureDirectory.md)
+- [flushAsync](functions/flushAsync.md)
+- [readApplyLogEntries](functions/readApplyLogEntries.md)
+- [seedPlan](functions/seedPlan.md)
+- [toFsPath](functions/toFsPath.md)
 
 ### Integration
 
-- [withWorkspace](functions/withWorkspace.md)
-- [createWorkspaceRunner](functions/createWorkspaceRunner.md)
 - [buildPhpIntegrationEnv](functions/buildPhpIntegrationEnv.md)
+- [createWorkspaceRunner](functions/createWorkspaceRunner.md)
+- [withWorkspace](functions/withWorkspace.md)
 
 ### Test Support
 
-- [createMemoryReporter](functions/createMemoryReporter.md)
 - [buildCoreActionPipelineHarness](functions/buildCoreActionPipelineHarness.md)
 - [buildCoreResourcePipelineHarness](functions/buildCoreResourcePipelineHarness.md)
+- [createMemoryReporter](functions/createMemoryReporter.md)
 
 ### Other
 
-- [ensureWpData](functions/ensureWpData.md)
-- [createMockWpPackage](functions/createMockWpPackage.md)
-- [setKernelPackage](functions/setKernelPackage.md)
-- [setWpPluginData](functions/setWpPluginData.md)
-- [setProcessEnv](functions/setProcessEnv.md)
 - [clearNamespaceState](functions/clearNamespaceState.md)
+- [createMockWpPackage](functions/createMockWpPackage.md)
+- [ensureWpData](functions/ensureWpData.md)
+- [setKernelPackage](functions/setKernelPackage.md)
+- [setProcessEnv](functions/setProcessEnv.md)
+- [setWpPluginData](functions/setWpPluginData.md)

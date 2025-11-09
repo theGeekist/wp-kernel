@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,11 @@
 # Type Alias: BuilderHelper
 
 ```ts
-type BuilderHelper = PhpBuilderHelper & lt;
-(PipelineContext, BuilderInput, BuilderOutput & gt);
+type BuilderHelper = PhpBuilderHelper<
+	PipelineContext,
+	BuilderInput,
+	BuilderOutput
+>;
 ```
 
 A helper specifically designed for builder processing within the pipeline.

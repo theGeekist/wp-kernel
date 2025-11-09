@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -23,8 +23,7 @@ Configuration object accepted by `defineCapability()`.
 ### map
 
 ```ts
-map: CapabilityMap & lt;
-K & gt;
+map: CapabilityMap<K>;
 ```
 
 ---

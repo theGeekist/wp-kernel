@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,28 +10,10 @@ The runtime for DataViews.
 
 ## Properties
 
-### registry
-
-```ts
-registry: Map & lt;
-(string, DataViewRegistryEntry & gt);
-```
-
----
-
 ### controllers
 
 ```ts
-controllers: Map & lt;
-(string, unknown & gt);
-```
-
----
-
-### preferences
-
-```ts
-preferences: DataViewPreferencesRuntime;
+controllers: Map<string, unknown>;
 ```
 
 ---
@@ -40,22 +22,6 @@ preferences: DataViewPreferencesRuntime;
 
 ```ts
 events: DataViewsEventEmitter;
-```
-
----
-
-### reporter
-
-```ts
-reporter: Reporter;
-```
-
----
-
-### options
-
-```ts
-options: NormalizedDataViewsRuntimeOptions;
 ```
 
 ---
@@ -75,3 +41,35 @@ getResourceReporter: (resource) => Reporter;
 #### Returns
 
 `Reporter`
+
+---
+
+### options
+
+```ts
+options: NormalizedDataViewsRuntimeOptions;
+```
+
+---
+
+### preferences
+
+```ts
+preferences: DataViewPreferencesRuntime;
+```
+
+---
+
+### registry
+
+```ts
+registry: Map<string, DataViewRegistryEntry>;
+```
+
+---
+
+### reporter
+
+```ts
+reporter: Reporter;
+```

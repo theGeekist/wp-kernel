@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,6 +24,50 @@ The result of the useAction hook.
 
 ## Properties
 
+### cancel()
+
+```ts
+cancel: () => void;
+```
+
+A function to cancel all in-flight requests.
+
+#### Returns
+
+`void`
+
+---
+
+### inFlight
+
+```ts
+inFlight: number;
+```
+
+The number of in-flight requests.
+
+#### Inherited from
+
+```ts
+UseActionState.inFlight;
+```
+
+---
+
+### reset()
+
+```ts
+reset: () => void;
+```
+
+A function to reset the state of the hook.
+
+#### Returns
+
+`void`
+
+---
+
 ### run()
 
 ```ts
@@ -48,34 +92,6 @@ A promise that resolves with the result of the action.
 
 ---
 
-### cancel()
-
-```ts
-cancel: () => void;
-```
-
-A function to cancel all in-flight requests.
-
-#### Returns
-
-`void`
-
----
-
-### reset()
-
-```ts
-reset: () => void;
-```
-
-A function to reset the state of the hook.
-
-#### Returns
-
-`void`
-
----
-
 ### status
 
 ```ts
@@ -88,22 +104,6 @@ The status of the action.
 
 ```ts
 UseActionState.status;
-```
-
----
-
-### inFlight
-
-```ts
-inFlight: number;
-```
-
-The number of in-flight requests.
-
-#### Inherited from
-
-```ts
-UseActionState.inFlight;
 ```
 
 ---

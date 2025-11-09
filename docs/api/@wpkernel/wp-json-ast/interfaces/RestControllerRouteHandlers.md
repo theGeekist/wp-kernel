@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,18 @@
 
 ## Properties
 
-### list?
+### create?
 
 ```ts
-readonly optional list: RestControllerRouteStatementsBuilder;
+readonly optional create: RestControllerRouteStatementsBuilder;
+```
+
+---
+
+### custom?
+
+```ts
+readonly optional custom: RestControllerRouteStatementsBuilder;
 ```
 
 ---
@@ -24,18 +32,10 @@ readonly optional get: RestControllerRouteStatementsBuilder;
 
 ---
 
-### create?
+### list?
 
 ```ts
-readonly optional create: RestControllerRouteStatementsBuilder;
-```
-
----
-
-### update?
-
-```ts
-readonly optional update: RestControllerRouteStatementsBuilder;
+readonly optional list: RestControllerRouteStatementsBuilder;
 ```
 
 ---
@@ -48,8 +48,8 @@ readonly optional remove: RestControllerRouteStatementsBuilder;
 
 ---
 
-### custom?
+### update?
 
 ```ts
-readonly optional custom: RestControllerRouteStatementsBuilder;
+readonly optional update: RestControllerRouteStatementsBuilder;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -18,13 +18,37 @@ Additional properties for the context.
 
 ## Properties
 
-### stdout
+### colorDepth
 
 ```ts
-stdout: MemoryStream;
+colorDepth: number;
 ```
 
-The standard output stream.
+The color depth of the terminal.
+
+---
+
+### cwd()
+
+```ts
+cwd: () => string;
+```
+
+A function that returns the current working directory.
+
+#### Returns
+
+`string`
+
+---
+
+### env
+
+```ts
+env: ProcessEnv;
+```
+
+The environment variables for the command.
 
 ---
 
@@ -48,34 +72,10 @@ The standard input stream.
 
 ---
 
-### env
+### stdout
 
 ```ts
-env: ProcessEnv;
+stdout: MemoryStream;
 ```
 
-The environment variables for the command.
-
----
-
-### cwd()
-
-```ts
-cwd: () => string;
-```
-
-A function that returns the current working directory.
-
-#### Returns
-
-`string`
-
----
-
-### colorDepth
-
-```ts
-colorDepth: number;
-```
-
-The color depth of the terminal.
+The standard output stream.

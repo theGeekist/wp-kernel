@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,16 +9,6 @@
 Options for creating a `WPKernelUITestHarness`.
 
 ## Properties
-
-### reporter?
-
-```ts
-optional reporter: Partial<Reporter>;
-```
-
-Partial overrides for the reporter.
-
----
 
 ### namespace?
 
@@ -37,3 +27,13 @@ optional provider: WPKernelUIProviderComponent;
 ```
 
 The WPKernelUIProvider component to use.
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Partial<Reporter>;
+```
+
+Partial overrides for the reporter.

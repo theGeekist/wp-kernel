@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,8 +13,7 @@ Declarative configuration describing the desired manifest state.
 ### files
 
 ```ts
-files: Record & lt;
-(string, ManifestFileDefinition & gt);
+files: Record<string, ManifestFileDefinition>;
 ```
 
 ---

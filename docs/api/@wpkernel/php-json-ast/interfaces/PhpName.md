@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,18 @@ Represents a PHP name node (e.g., namespace, class name).
 - [`PhpNode`](PhpNode.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
 
 ### nodeType
 
@@ -31,15 +43,3 @@ readonly nodeType: "Name" | "Name_FullyQualified" | "Name_Relative";
 ```ts
 readonly parts: string[];
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)

@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -22,18 +22,18 @@
 
 ## Properties
 
-### config
+### composerCheck
 
 ```ts
-readonly config: TConfig;
+readonly composerCheck: TComposerCheck;
 ```
 
 ---
 
-### sourcePath
+### config
 
 ```ts
-readonly sourcePath: string;
+readonly config: TConfig;
 ```
 
 ---
@@ -46,16 +46,16 @@ readonly configOrigin: TOrigin;
 
 ---
 
-### composerCheck
-
-```ts
-readonly composerCheck: TComposerCheck;
-```
-
----
-
 ### namespace
 
 ```ts
 readonly namespace: string;
+```
+
+---
+
+### sourcePath
+
+```ts
+readonly sourcePath: string;
 ```

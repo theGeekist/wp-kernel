@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,58 @@ Represents a PHP parameter node in a function or method signature.
 - [`PhpNode`](PhpNode.md)
 
 ## Properties
+
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
+### default
+
+```ts
+readonly default: PhpExpr | null;
+```
+
+---
+
+### flags
+
+```ts
+readonly flags: number;
+```
+
+---
+
+### hooks
+
+```ts
+readonly hooks: PhpPropertyHook[];
+```
+
+---
 
 ### nodeType
 
@@ -34,10 +86,10 @@ readonly type: PhpType | null;
 
 ---
 
-### byRef
+### var
 
 ```ts
-readonly byRef: boolean;
+readonly var: PhpExpr;
 ```
 
 ---
@@ -47,55 +99,3 @@ readonly byRef: boolean;
 ```ts
 readonly variadic: boolean;
 ```
-
----
-
-### var
-
-```ts
-readonly var: PhpExpr;
-```
-
----
-
-### default
-
-```ts
-readonly default: PhpExpr | null;
-```
-
----
-
-### flags
-
-```ts
-readonly flags: number;
-```
-
----
-
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### hooks
-
-```ts
-readonly hooks: PhpPropertyHook[];
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)

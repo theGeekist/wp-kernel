@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,30 +14,6 @@
 
 ## Properties
 
-### suspense?
-
-```ts
-optional suspense: boolean;
-```
-
----
-
-### notices?
-
-```ts
-optional notices: boolean;
-```
-
----
-
-### devtools?
-
-```ts
-optional devtools: boolean;
-```
-
----
-
 ### dataviews?
 
 ```ts
@@ -50,20 +26,44 @@ optional dataviews: object;
 [key: string]: unknown
 ```
 
-#### enable?
-
-```ts
-optional enable: boolean;
-```
-
 #### autoRegisterResources?
 
 ```ts
 optional autoRegisterResources: boolean;
 ```
 
+#### enable?
+
+```ts
+optional enable: boolean;
+```
+
 #### preferences?
 
 ```ts
 optional preferences: unknown;
+```
+
+---
+
+### devtools?
+
+```ts
+optional devtools: boolean;
+```
+
+---
+
+### notices?
+
+```ts
+optional notices: boolean;
+```
+
+---
+
+### suspense?
+
+```ts
+optional suspense: boolean;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,6 +11,18 @@
 - [`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md)
 
 ## Properties
+
+### cacheSegments
+
+```ts
+readonly cacheSegments: readonly unknown[];
+```
+
+#### Inherited from
+
+[`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`cacheSegments`](BuildTransientRouteBaseOptions.md#cachesegments)
+
+---
 
 ### errorCodeFactory()
 
@@ -30,18 +42,6 @@ readonly errorCodeFactory: (suffix) => string;
 
 ---
 
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
-#### Inherited from
-
-[`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`pascalName`](BuildTransientRouteBaseOptions.md#pascalname)
-
----
-
 ### metadataHost
 
 ```ts
@@ -54,15 +54,15 @@ readonly metadataHost: ResourceMetadataHost;
 
 ---
 
-### cacheSegments
+### pascalName
 
 ```ts
-readonly cacheSegments: readonly unknown[];
+readonly pascalName: string;
 ```
 
 #### Inherited from
 
-[`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`cacheSegments`](BuildTransientRouteBaseOptions.md#cachesegments)
+[`BuildTransientRouteBaseOptions`](BuildTransientRouteBaseOptions.md).[`pascalName`](BuildTransientRouteBaseOptions.md#pascalname)
 
 ---
 

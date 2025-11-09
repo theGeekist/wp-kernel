@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,7 @@
 # Type Alias: PhpProgram
 
 ```ts
-type PhpProgram = ReadonlyArray & lt;
-PhpStmt & gt;
+type PhpProgram = ReadonlyArray<PhpStmt>;
 ```
 
 Represents a complete PHP program as an array of statements.

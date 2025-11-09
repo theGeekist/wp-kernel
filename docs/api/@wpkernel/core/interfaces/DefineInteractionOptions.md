@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -28,14 +28,6 @@ Options accepted by `defineInteraction`.
 
 ## Properties
 
-### resource
-
-```ts
-readonly resource: ResourceObject<TEntity, TQuery>;
-```
-
----
-
 ### feature
 
 ```ts
@@ -44,10 +36,10 @@ readonly feature: string;
 
 ---
 
-### store?
+### resource
 
 ```ts
-readonly optional store: TStore;
+readonly resource: ResourceObject<TEntity, TQuery>;
 ```
 
 ---
@@ -56,22 +48,6 @@ readonly optional store: TStore;
 
 ```ts
 readonly optional actions: TActions;
-```
-
----
-
-### registry?
-
-```ts
-readonly optional registry: WPKernelRegistry;
-```
-
----
-
-### namespace?
-
-```ts
-readonly optional namespace: string;
 ```
 
 ---
@@ -99,3 +75,27 @@ readonly optional hydrateServerState: (input) => void;
 #### Returns
 
 `void`
+
+---
+
+### namespace?
+
+```ts
+readonly optional namespace: string;
+```
+
+---
+
+### registry?
+
+```ts
+readonly optional registry: WPKernelRegistry;
+```
+
+---
+
+### store?
+
+```ts
+readonly optional store: TStore;
+```

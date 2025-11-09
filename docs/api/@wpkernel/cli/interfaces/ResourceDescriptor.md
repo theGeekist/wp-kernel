@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,26 +9,6 @@
 Describes a resource with its associated configuration and dataviews.
 
 ## Properties
-
-### key
-
-```ts
-readonly key: string;
-```
-
-The unique key of the resource.
-
----
-
-### name
-
-```ts
-readonly name: string;
-```
-
-The name of the resource.
-
----
 
 ### config
 
@@ -47,3 +27,23 @@ readonly dataviews: ResourceDataViewsUIConfig;
 ```
 
 The admin dataviews configuration for the resource.
+
+---
+
+### key
+
+```ts
+readonly key: string;
+```
+
+The unique key of the resource.
+
+---
+
+### name
+
+```ts
+readonly name: string;
+```
+
+The name of the resource.

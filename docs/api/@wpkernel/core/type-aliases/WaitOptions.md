@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,16 +14,16 @@ Options for waiting on a background job.
 
 ## Properties
 
-### timeoutMs?
-
-```ts
-optional timeoutMs: number;
-```
-
----
-
 ### pollIntervalMs?
 
 ```ts
 optional pollIntervalMs: number;
+```
+
+---
+
+### timeoutMs?
+
+```ts
+optional timeoutMs: number;
 ```

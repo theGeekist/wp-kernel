@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -28,13 +28,13 @@ All routes are optional. At minimum, define the operations your resource support
 
 ## Properties
 
-### list?
+### create?
 
 ```ts
-optional list: ResourceRoute;
+optional create: ResourceRoute;
 ```
 
-Fetch a list/collection of resources
+Create a new resource
 
 ---
 
@@ -48,23 +48,13 @@ Fetch a single resource by identifier
 
 ---
 
-### create?
+### list?
 
 ```ts
-optional create: ResourceRoute;
+optional list: ResourceRoute;
 ```
 
-Create a new resource
-
----
-
-### update?
-
-```ts
-optional update: ResourceRoute;
-```
-
-Update an existing resource
+Fetch a list/collection of resources
 
 ---
 
@@ -75,3 +65,13 @@ optional remove: ResourceRoute;
 ```
 
 Delete a resource
+
+---
+
+### update?
+
+```ts
+optional update: ResourceRoute;
+```
+
+Update an existing resource

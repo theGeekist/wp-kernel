@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,7 @@
 # Type Alias: ResourceQueryParams
 
 ```ts
-type ResourceQueryParams = Record & lt;
-(string, ResourceQueryParamDescriptor & gt);
+type ResourceQueryParams = Record<string, ResourceQueryParamDescriptor>;
 ```
 
 Declarative map of supported query parameters for the resource.

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,26 +13,6 @@ Represents a PHP `trait use` statement.
 - [`PhpStmtBase`](PhpStmtBase.md)
 
 ## Properties
-
-### nodeType
-
-```ts
-readonly nodeType: "Stmt_TraitUse";
-```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### traits
-
-```ts
-readonly traits: PhpName[];
-```
-
----
 
 ### adaptations
 
@@ -51,3 +31,23 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_TraitUse";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### traits
+
+```ts
+readonly traits: PhpName[];
+```

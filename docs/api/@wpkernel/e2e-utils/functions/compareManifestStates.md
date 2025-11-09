@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,8 +11,8 @@ function compareManifestStates(
 	workspace,
 	definition
 ): Promise<{
-	before: FileManifest;
 	after: FileManifest;
+	before: FileManifest;
 	diff: FileManifestDiff;
 }>;
 ```
@@ -32,7 +32,7 @@ Apply mutations and collect before/after manifests for comparison.
 ## Returns
 
 `Promise`\<\{
-`before`: [`FileManifest`](../interfaces/FileManifest.md);
 `after`: [`FileManifest`](../interfaces/FileManifest.md);
+`before`: [`FileManifest`](../interfaces/FileManifest.md);
 `diff`: [`FileManifestDiff`](../interfaces/FileManifestDiff.md);
 \}\>

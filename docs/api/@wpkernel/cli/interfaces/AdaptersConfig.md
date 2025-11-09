@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,16 @@ Optional adapters configured by a wpk project.
 
 ## Properties
 
-### php?
-
-```ts
-optional php: PhpAdapterFactory;
-```
-
----
-
 ### extensions?
 
 ```ts
 optional extensions: AdapterExtensionFactory[];
+```
+
+---
+
+### php?
+
+```ts
+optional php: PhpAdapterFactory;
 ```

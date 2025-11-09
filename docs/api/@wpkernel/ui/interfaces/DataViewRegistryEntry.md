@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### resource
-
-```ts
-resource: string;
-```
-
----
-
 ### preferencesKey
 
 ```ts
 preferencesKey: string;
+```
+
+---
+
+### resource
+
+```ts
+resource: string;
 ```
 
 ---

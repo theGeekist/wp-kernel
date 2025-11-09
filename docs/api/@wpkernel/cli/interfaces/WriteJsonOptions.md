@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,10 +14,16 @@ Options for writing JSON files within the workspace.
 
 ## Properties
 
-### pretty?
+### ensureDir?
 
 ```ts
-readonly optional pretty: boolean;
+readonly optional ensureDir: boolean;
+```
+
+#### Inherited from
+
+```ts
+WriteOptions.ensureDir;
 ```
 
 ---
@@ -36,14 +42,8 @@ WriteOptions.mode;
 
 ---
 
-### ensureDir?
+### pretty?
 
 ```ts
-readonly optional ensureDir: boolean;
-```
-
-#### Inherited from
-
-```ts
-WriteOptions.ensureDir;
+readonly optional pretty: boolean;
 ```

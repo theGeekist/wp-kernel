@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -37,31 +37,6 @@ Reporter instance with child helpers
 
 ### IR
 
-#### registerFragments()?
-
-```ts
-readonly optional registerFragments: (pipeline) => void;
-```
-
-Registers the core IR fragments with the pipeline.
-
-These fragments are responsible for extracting various pieces of information
-from the configuration and building up the Intermediate Representation.
-
-##### Parameters
-
-###### pipeline
-
-[`Pipeline`](../type-aliases/Pipeline.md)
-
-The pipeline instance to register fragments with.
-
-##### Returns
-
-`void`
-
----
-
 #### registerBuilders()?
 
 ```ts
@@ -80,6 +55,31 @@ and generating various output artifacts (e.g., PHP, TypeScript, bundles).
 [`Pipeline`](../type-aliases/Pipeline.md)
 
 The pipeline instance to register builders with.
+
+##### Returns
+
+`void`
+
+---
+
+#### registerFragments()?
+
+```ts
+readonly optional registerFragments: (pipeline) => void;
+```
+
+Registers the core IR fragments with the pipeline.
+
+These fragments are responsible for extracting various pieces of information
+from the configuration and building up the Intermediate Representation.
+
+##### Parameters
+
+###### pipeline
+
+[`Pipeline`](../type-aliases/Pipeline.md)
+
+The pipeline instance to register fragments with.
 
 ##### Returns
 
@@ -107,6 +107,36 @@ A `Pipeline` instance configured for CLI operations.
 
 ### Other
 
+#### buildAdapterExtensionsExtension()?
+
+```ts
+readonly optional buildAdapterExtensionsExtension: () => PipelineExtension;
+```
+
+##### Returns
+
+[`PipelineExtension`](../type-aliases/PipelineExtension.md)
+
+---
+
+#### buildWorkspace()?
+
+```ts
+readonly optional buildWorkspace: (root) => Workspace;
+```
+
+##### Parameters
+
+###### root
+
+`string` = `...`
+
+##### Returns
+
+[`Workspace`](Workspace.md)
+
+---
+
 #### loadWPKernelConfig()?
 
 ```ts
@@ -129,36 +159,6 @@ The validated wpk config and associated metadata.
 ##### Throws
 
 WPKernelError when discovery, parsing or validation fails.
-
----
-
-#### buildWorkspace()?
-
-```ts
-readonly optional buildWorkspace: (root) => Workspace;
-```
-
-##### Parameters
-
-###### root
-
-`string` = `...`
-
-##### Returns
-
-[`Workspace`](Workspace.md)
-
----
-
-#### buildAdapterExtensionsExtension()?
-
-```ts
-readonly optional buildAdapterExtensionsExtension: () => PipelineExtension;
-```
-
-##### Returns
-
-[`PipelineExtension`](../type-aliases/PipelineExtension.md)
 
 ---
 

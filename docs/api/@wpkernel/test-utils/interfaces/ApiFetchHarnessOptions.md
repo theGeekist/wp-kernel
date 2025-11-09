@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,16 @@
 Options for creating an `ApiFetchHarness`.
 
 ## Properties
+
+### apiFetch?
+
+```ts
+optional apiFetch: any;
+```
+
+A mock `apiFetch` function.
+
+---
 
 ### data?
 
@@ -27,13 +37,3 @@ optional hooks: Partial<any>;
 ```
 
 Partial overrides for `window.wp.hooks`.
-
----
-
-### apiFetch?
-
-```ts
-optional apiFetch: any;
-```
-
-A mock `apiFetch` function.

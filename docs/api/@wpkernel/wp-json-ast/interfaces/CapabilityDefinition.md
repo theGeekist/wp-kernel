@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### key
+### appliesTo
 
 ```ts
-readonly key: string;
+readonly appliesTo: CapabilityScope;
 ```
 
 ---
@@ -24,10 +24,10 @@ readonly capability: string;
 
 ---
 
-### appliesTo
+### key
 
 ```ts
-readonly appliesTo: CapabilityScope;
+readonly key: string;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,10 +24,10 @@ readonly program: PhpProgram;
 
 ---
 
-### metadata?
+### codemod?
 
 ```ts
-readonly optional metadata: PhpFileMetadata;
+readonly optional codemod: PhpProgramCodemodResult;
 ```
 
 ---
@@ -40,10 +40,10 @@ readonly optional docblock: readonly string[];
 
 ---
 
-### uses?
+### metadata?
 
 ```ts
-readonly optional uses: readonly string[];
+readonly optional metadata: PhpFileMetadata;
 ```
 
 ---
@@ -56,8 +56,8 @@ readonly optional statements: readonly string[];
 
 ---
 
-### codemod?
+### uses?
 
 ```ts
-readonly optional codemod: PhpProgramCodemodResult;
+readonly optional uses: readonly string[];
 ```

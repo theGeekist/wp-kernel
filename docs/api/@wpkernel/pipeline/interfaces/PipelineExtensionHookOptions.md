@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,6 +24,14 @@ Options passed to pipeline extension hooks.
 
 ## Properties
 
+### artifact
+
+```ts
+readonly artifact: TArtifact;
+```
+
+---
+
 ### context
 
 ```ts
@@ -36,12 +44,4 @@ readonly context: TContext;
 
 ```ts
 readonly options: TOptions;
-```
-
----
-
-### artifact
-
-```ts
-readonly artifact: TArtifact;
 ```

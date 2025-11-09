@@ -29,6 +29,31 @@ features:
       details: Add `ui.admin.dataviews` to create full DataViews admin screens with React, interactivity, and access control.
 ---
 
+## The Appliance Factory: Precision, Not Patchwork
+
+Imagine building a high-end appliance. Instead of dozens of workers manually hammering parts with variable results, you design the entire product on a single blueprint (`wpk.config.ts`). The factory machinery (the WPKernel CLI and generator) then produces every component - PHP, JavaScript, UI, security - to identical specifications, using a strict, automated assembly line (The Golden Path). If you need to change the assembly line itself, you use dedicated extension hooks, ensuring that custom modifications are contained, traceable, and transactional.
+
+This is WPKernel: a framework that brings **determinism** and **predictability** to WordPress development, transforming a often-chaotic process into a streamlined, reliable one.
+
+## Solving WordPress Developer Pain Points
+
+WordPress's flexibility is its strength, but it often leads to a patchwork of inconsistent code, security vulnerabilities, and maintenance headaches. WPKernel directly addresses these critical pain points:
+
+- **No More Spaghetti Code or Plugin Bloat**: WPKernel enforces a clear separation of concerns. Your `wpk.config.ts` defines your application's intent, and the CLI generates clean, structured code. This eliminates the need for dozens of conflicting plugins and reduces the "spaghetti PHP" often found in custom solutions.
+- **Robust Security and Reliability**: By generating server-side permission checks and client-side utilities from a single source of truth, WPKernel drastically reduces security vulnerabilities. Updates become less fragile, as the generated code adheres to consistent standards, minimizing unexpected breaks.
+- **Streamlined Tooling and Workflow**: WPKernel simplifies dependency management, custom routing, and meta-field definitions. It provides a consistent development experience, moving away from global state reliance and making your logic easier to test and understand.
+- **Predictable Client Interactions**: With a deterministic generation process, what you define is what you get. This reduces layout breaks from client "tweaks" and helps manage expectations by providing a clear, consistent foundation for your application.
+
+## Actions-First: The Guardrail for Reliability
+
+A core architectural discipline in WPKernel is the **Actions-First Philosophy**. UI components **never** modify data directly. Instead, they invoke an Action, which acts as a central orchestrator for all write operations. This ensures:
+
+- **Consistent Side Effects**: Every data modification follows a predictable lifecycle, including cache invalidation, event emission, and background job queuing.
+- **Unbreakable Logic**: By centralizing side effects, you create a robust system where critical operations are never forgotten or inconsistently applied.
+- **Enhanced Testability**: Actions become isolated units of business logic, making them easier to test independently of the UI.
+
+This "Actions-First" approach is a non-negotiable core of WPKernel, providing the guardrails necessary for building truly reliable and maintainable WordPress applications.
+
 ## The three-minute path
 
 ### 1 · Create a plugin workspace

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,71 +14,15 @@ Execution context provided to adapter extensions.
 
 ## Properties
 
-### ir
+### config
 
 ```ts
-ir: IRv1;
+config: WPKernelConfigV1;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
-
----
-
-### outputDir
-
-```ts
-outputDir: string;
-```
-
----
-
-### tempDir
-
-```ts
-tempDir: string;
-```
-
----
-
-### queueFile()
-
-```ts
-queueFile: (filePath, contents) => Promise<void>;
-```
-
-#### Parameters
-
-##### filePath
-
-`string`
-
-##### contents
-
-`string`
-
-#### Returns
-
-`Promise`\<`void`\>
-
----
-
-### updateIr()
-
-```ts
-updateIr: (ir) => void;
-```
-
-#### Parameters
-
-##### ir
-
-[`IRv1`](IRv1.md)
-
-#### Returns
-
-`void`
+[`AdapterContext`](AdapterContext.md).[`config`](AdapterContext.md#config)
 
 ---
 
@@ -126,15 +70,57 @@ formatTs: (filePath, contents) => Promise<string>;
 
 ---
 
-### config
+### ir
 
 ```ts
-config: WPKernelConfigV1;
+ir: IRv1;
+```
+
+#### Overrides
+
+[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
+
+---
+
+### namespace
+
+```ts
+namespace: string;
 ```
 
 #### Inherited from
 
-[`AdapterContext`](AdapterContext.md).[`config`](AdapterContext.md#config)
+[`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
+
+---
+
+### outputDir
+
+```ts
+outputDir: string;
+```
+
+---
+
+### queueFile()
+
+```ts
+queueFile: (filePath, contents) => Promise<void>;
+```
+
+#### Parameters
+
+##### filePath
+
+`string`
+
+##### contents
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
 
 ---
 
@@ -150,15 +136,29 @@ reporter: Reporter;
 
 ---
 
-### namespace
+### tempDir
 
 ```ts
-namespace: string;
+tempDir: string;
 ```
 
-#### Inherited from
+---
 
-[`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
+### updateIr()
+
+```ts
+updateIr: (ir) => void;
+```
+
+#### Parameters
+
+##### ir
+
+[`IRv1`](IRv1.md)
+
+#### Returns
+
+`void`
 
 ---
 

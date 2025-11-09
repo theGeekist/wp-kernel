@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,34 @@ Represents an item within a PHP array expression.
 
 ## Properties
 
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
+### key
+
+```ts
+readonly key: PhpExpr | null;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -26,10 +54,10 @@ readonly nodeType: "ArrayItem";
 
 ---
 
-### key
+### unpack
 
 ```ts
-readonly key: PhpExpr | null;
+readonly unpack: boolean;
 ```
 
 ---
@@ -39,31 +67,3 @@ readonly key: PhpExpr | null;
 ```ts
 readonly value: PhpExpr;
 ```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
-
----
-
-### unpack
-
-```ts
-readonly unpack: boolean;
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)

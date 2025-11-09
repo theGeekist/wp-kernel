@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -22,9 +22,9 @@ Configuration for the arrow function (static, by reference, parameters, return t
 
 [`PhpExpr`](../type-aliases/PhpExpr.md)
 
-#### static?
+#### attrGroups?
 
-`boolean`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### byRef?
 
@@ -38,9 +38,9 @@ Configuration for the arrow function (static, by reference, parameters, return t
 
 [`PhpType`](../type-aliases/PhpType.md) \| `null`
 
-#### attrGroups?
+#### static?
 
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
+`boolean`
 
 ### attributes?
 

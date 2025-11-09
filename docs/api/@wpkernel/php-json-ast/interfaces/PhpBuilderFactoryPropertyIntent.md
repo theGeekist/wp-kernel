@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,22 +16,6 @@ readonly name: string;
 
 ---
 
-### visibility?
-
-```ts
-readonly optional visibility: "public" | "protected" | "private";
-```
-
----
-
-### type?
-
-```ts
-readonly optional type: string | null;
-```
-
----
-
 ### default?
 
 ```ts
@@ -40,10 +24,10 @@ readonly optional default: PhpBuilderFactoryLiteral;
 
 ---
 
-### isStatic?
+### docblock?
 
 ```ts
-readonly optional isStatic: boolean;
+readonly optional docblock: readonly string[];
 ```
 
 ---
@@ -56,8 +40,24 @@ readonly optional isReadonly: boolean;
 
 ---
 
-### docblock?
+### isStatic?
 
 ```ts
-readonly optional docblock: readonly string[];
+readonly optional isStatic: boolean;
+```
+
+---
+
+### type?
+
+```ts
+readonly optional type: string | null;
+```
+
+---
+
+### visibility?
+
+```ts
+readonly optional visibility: "public" | "protected" | "private";
 ```

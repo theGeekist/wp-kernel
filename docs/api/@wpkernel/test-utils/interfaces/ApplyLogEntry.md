@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,26 +10,10 @@ Represents a complete entry in the apply log.
 
 ## Properties
 
-### version
+### actions
 
 ```ts
-readonly version: number;
-```
-
----
-
-### timestamp
-
-```ts
-readonly timestamp: string;
-```
-
----
-
-### status
-
-```ts
-readonly status: ApplyLogStatus;
+readonly actions: readonly string[];
 ```
 
 ---
@@ -50,14 +34,6 @@ readonly flags: ApplyLogFlags;
 
 ---
 
-### summary
-
-```ts
-readonly summary: ApplyLogSummary | null;
-```
-
----
-
 ### records
 
 ```ts
@@ -66,10 +42,34 @@ readonly records: readonly ApplyLogRecord[];
 
 ---
 
-### actions
+### status
 
 ```ts
-readonly actions: readonly string[];
+readonly status: ApplyLogStatus;
+```
+
+---
+
+### summary
+
+```ts
+readonly summary: ApplyLogSummary | null;
+```
+
+---
+
+### timestamp
+
+```ts
+readonly timestamp: string;
+```
+
+---
+
+### version
+
+```ts
+readonly version: number;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,18 +30,6 @@ readonly errorCodeFactory: (suffix) => string;
 
 ---
 
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
-#### Inherited from
-
-[`BuildWpOptionRouteBaseOptions`](BuildWpOptionRouteBaseOptions.md).[`pascalName`](BuildWpOptionRouteBaseOptions.md#pascalname)
-
----
-
 ### optionName
 
 ```ts
@@ -51,3 +39,15 @@ readonly optionName: string;
 #### Inherited from
 
 [`BuildWpOptionRouteBaseOptions`](BuildWpOptionRouteBaseOptions.md).[`optionName`](BuildWpOptionRouteBaseOptions.md#optionname)
+
+---
+
+### pascalName
+
+```ts
+readonly pascalName: string;
+```
+
+#### Inherited from
+
+[`BuildWpOptionRouteBaseOptions`](BuildWpOptionRouteBaseOptions.md).[`pascalName`](BuildWpOptionRouteBaseOptions.md#pascalname)

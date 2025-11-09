@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,18 +14,6 @@ Represents a PHP property hook (e.g., `__get`, `__set`).
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: "PropertyHook";
-```
-
-#### Overrides
-
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
 ### attrGroups
 
 ```ts
@@ -34,35 +22,15 @@ readonly attrGroups: PhpAttrGroup[];
 
 ---
 
-### flags
+### attributes
 
 ```ts
-readonly flags: number;
+readonly attributes: PhpAttributes;
 ```
 
----
+#### Inherited from
 
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
-
----
-
-### name
-
-```ts
-readonly name: PhpIdentifier;
-```
-
----
-
-### params
-
-```ts
-readonly params: PhpParam[];
-```
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
 ---
 
@@ -77,12 +45,44 @@ readonly body:
 
 ---
 
-### attributes
+### byRef
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly byRef: boolean;
 ```
 
-#### Inherited from
+---
 
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+### flags
+
+```ts
+readonly flags: number;
+```
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "PropertyHook";
+```
+
+#### Overrides
+
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
+
+---
+
+### params
+
+```ts
+readonly params: PhpParam[];
+```

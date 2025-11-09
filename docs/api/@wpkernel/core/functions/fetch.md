@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -50,9 +50,7 @@ WPKernelError on request failure
 ```typescript
 import { fetch } from '@wpkernel/core/http';
 
-const response = (await fetch) & lt;
-Thing & gt;
-({
+const response = await fetch<Thing>({
 	path: '/my-plugin/v1/things/123',
 	method: 'GET',
 });

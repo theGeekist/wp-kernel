@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: BuildRestControllerModuleFromPlanOptions
 
 ## Properties
+
+### capabilityClass
+
+```ts
+readonly capabilityClass: string;
+```
+
+---
 
 ### origin
 
@@ -24,22 +32,6 @@ readonly pluginNamespace: string;
 
 ---
 
-### sanitizedNamespace
-
-```ts
-readonly sanitizedNamespace: string;
-```
-
----
-
-### capabilityClass
-
-```ts
-readonly capabilityClass: string;
-```
-
----
-
 ### resources
 
 ```ts
@@ -48,10 +40,18 @@ readonly resources: readonly RestControllerResourcePlan[];
 
 ---
 
-### includeBaseController?
+### sanitizedNamespace
 
 ```ts
-readonly optional includeBaseController: boolean;
+readonly sanitizedNamespace: string;
+```
+
+---
+
+### additionalIndexEntries?
+
+```ts
+readonly optional additionalIndexEntries: readonly ModuleIndexEntry[];
 ```
 
 ---
@@ -64,8 +64,8 @@ readonly optional baseControllerFileName: string;
 
 ---
 
-### additionalIndexEntries?
+### includeBaseController?
 
 ```ts
-readonly optional additionalIndexEntries: readonly ModuleIndexEntry[];
+readonly optional includeBaseController: boolean;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,29 +24,29 @@ The name of the class, or `null` for an anonymous class.
 
 Optional configuration for the class (flags, extends, implements, statements, attribute groups, namespaced name).
 
-#### flags?
+#### attrGroups?
 
-`number`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### extends?
 
 [`PhpName`](../interfaces/PhpName.md) \| `null`
 
+#### flags?
+
+`number`
+
 #### implements?
 
 [`PhpName`](../interfaces/PhpName.md)[]
 
-#### stmts?
-
-[`PhpClassStmt`](../type-aliases/PhpClassStmt.md)[]
-
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
-
 #### namespacedName?
 
 [`PhpName`](../interfaces/PhpName.md) \| `null`
+
+#### stmts?
+
+[`PhpClassStmt`](../type-aliases/PhpClassStmt.md)[]
 
 ### attributes?
 

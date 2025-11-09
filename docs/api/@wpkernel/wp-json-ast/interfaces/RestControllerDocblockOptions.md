@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,6 +30,16 @@ The name of the resource.
 
 ---
 
+### routes
+
+```ts
+readonly routes: readonly ResourceControllerRouteMetadata[];
+```
+
+The routes of the controller.
+
+---
+
 ### schemaKey
 
 ```ts
@@ -47,13 +57,3 @@ readonly schemaProvenance: string;
 ```
 
 The provenance of the schema.
-
----
-
-### routes
-
-```ts
-readonly routes: readonly ResourceControllerRouteMetadata[];
-```
-
-The routes of the controller.

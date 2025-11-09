@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,23 +14,23 @@ Represents a PHP class method declaration statement.
 
 ## Properties
 
-### nodeType
+### attrGroups
 
 ```ts
-readonly nodeType: "Stmt_ClassMethod";
+readonly attrGroups: PhpAttrGroup[];
 ```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
-### name
+### attributes
 
 ```ts
-readonly name: PhpIdentifier;
+readonly attributes: PhpAttributes;
 ```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
 ---
 
@@ -47,6 +47,26 @@ readonly byRef: boolean;
 ```ts
 readonly flags: number;
 ```
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_ClassMethod";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -71,23 +91,3 @@ readonly returnType: PhpType | null;
 ```ts
 readonly stmts: PhpStmt[] | null;
 ```
-
----
-
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

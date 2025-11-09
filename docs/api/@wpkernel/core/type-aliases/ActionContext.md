@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -51,13 +51,13 @@ async function CreatePost(ctx: ActionContext, input: CreatePostInput) {
 
 ## Properties
 
-### requestId
+### capability
 
 ```ts
-readonly requestId: string;
+readonly capability: Pick<CapabilityHelpers<Record<string, unknown>>, "assert" | "can">;
 ```
 
-Correlation identifier shared with transport calls.
+Capability enforcement helpers.
 
 ---
 
@@ -119,13 +119,13 @@ Background job helpers.
 
 ---
 
-### capability
+### namespace
 
 ```ts
-readonly capability: Pick<CapabilityHelpers<Record<string, unknown>>, "assert" | "can">;
+readonly namespace: string;
 ```
 
-Capability enforcement helpers.
+Resolved namespace of the current action.
 
 ---
 
@@ -139,10 +139,10 @@ Structured logging surface.
 
 ---
 
-### namespace
+### requestId
 
 ```ts
-readonly namespace: string;
+readonly requestId: string;
 ```
 
-Resolved namespace of the current action.
+Correlation identifier shared with transport calls.

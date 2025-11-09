@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,16 +20,6 @@ A list of file paths that were emitted.
 
 ---
 
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
-The workspace instance.
-
----
-
 ### reporter
 
 ```ts
@@ -37,3 +27,13 @@ readonly reporter: Reporter;
 ```
 
 The reporter instance.
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
+```
+
+The workspace instance.

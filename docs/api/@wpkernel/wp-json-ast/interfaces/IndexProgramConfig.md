@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### origin
+### entries
 
 ```ts
-readonly origin: string;
+readonly entries: readonly ModuleIndexEntry[];
 ```
 
 ---
@@ -24,18 +24,10 @@ readonly namespace: string | null;
 
 ---
 
-### entries
+### origin
 
 ```ts
-readonly entries: readonly ModuleIndexEntry[];
-```
-
----
-
-### metadataName?
-
-```ts
-readonly optional metadataName: string;
+readonly origin: string;
 ```
 
 ---
@@ -44,4 +36,12 @@ readonly optional metadataName: string;
 
 ```ts
 readonly optional augment: readonly ModuleIndexAugmentor[];
+```
+
+---
+
+### metadataName?
+
+```ts
+readonly optional metadataName: string;
 ```

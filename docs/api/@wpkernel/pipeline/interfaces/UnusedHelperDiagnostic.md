@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,14 +16,6 @@ Diagnostic for unused helpers.
 
 ## Properties
 
-### type
-
-```ts
-readonly type: "unused-helper";
-```
-
----
-
 ### key
 
 ```ts
@@ -40,10 +32,18 @@ readonly message: string;
 
 ---
 
-### kind?
+### type
 
 ```ts
-readonly optional kind: TKind;
+readonly type: "unused-helper";
+```
+
+---
+
+### dependsOn?
+
+```ts
+readonly optional dependsOn: readonly string[];
 ```
 
 ---
@@ -56,8 +56,8 @@ readonly optional helper: string;
 
 ---
 
-### dependsOn?
+### kind?
 
 ```ts
-readonly optional dependsOn: readonly string[];
+readonly optional kind: TKind;
 ```

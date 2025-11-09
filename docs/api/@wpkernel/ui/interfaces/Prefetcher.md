@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -29,8 +29,7 @@ Prefetches a single item from the resource.
 ### prefetchList
 
 ```ts
-prefetchList: PrefetchList & lt;
-TQuery & gt;
+prefetchList: PrefetchList<TQuery>;
 ```
 
 Prefetches a list of items from the resource.

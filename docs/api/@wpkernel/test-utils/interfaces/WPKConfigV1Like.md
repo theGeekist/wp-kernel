@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -22,18 +22,18 @@
 
 ## Properties
 
-### version
-
-```ts
-readonly version: 1;
-```
-
----
-
 ### namespace
 
 ```ts
 readonly namespace: string;
+```
+
+---
+
+### resources
+
+```ts
+readonly resources: TResources;
 ```
 
 ---
@@ -46,10 +46,10 @@ readonly schemas: TSchemas;
 
 ---
 
-### resources
+### version
 
 ```ts
-readonly resources: TResources;
+readonly version: 1;
 ```
 
 ---

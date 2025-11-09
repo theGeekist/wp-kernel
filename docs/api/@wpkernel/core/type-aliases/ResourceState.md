@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -25,14 +25,41 @@ Entity shape stored in the resource.
 
 ## Properties
 
+### errors
+
+```ts
+errors: Record<string, string>;
+```
+
+Error messages by cache key.
+
+---
+
 ### items
 
 ```ts
-items: Record & lt;
-(string | number, T & gt);
+items: Record<string | number, T>;
 ```
 
 Map of items by ID.
+
+---
+
+### listMeta
+
+```ts
+listMeta: Record<
+	string,
+	{
+		hasMore?: boolean;
+		nextCursor?: string;
+		status?: ResourceListStatus;
+		total?: number;
+	}
+>;
+```
+
+List metadata (total count, pagination, etc).
 
 ---
 
@@ -44,32 +71,3 @@ lists: Record<string, (string | number)[]>;
 
 List queries and their results.
 Key is stringified query params, value is array of IDs.
-
----
-
-### listMeta
-
-```ts
-listMeta: Record<
-	string,
-	{
-		total?: number;
-		hasMore?: boolean;
-		nextCursor?: string;
-		status?: ResourceListStatus;
-	}
->;
-```
-
-List metadata (total count, pagination, etc).
-
----
-
-### errors
-
-```ts
-errors: Record & lt;
-(string, string & gt);
-```
-
-Error messages by cache key.

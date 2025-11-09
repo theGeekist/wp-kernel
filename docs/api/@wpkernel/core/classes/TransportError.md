@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -39,29 +39,29 @@ Create a new TransportError
 
 Transport error options
 
-###### status
+###### method
 
-`number`
+`string`
 
 ###### path
 
 `string`
 
-###### method
+###### status
 
-`string`
+`number`
 
-###### message?
+###### context?
 
-`string`
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 ###### data?
 
 [`ErrorData`](../type-aliases/ErrorData.md)
 
-###### context?
+###### message?
 
-[`ErrorContext`](../type-aliases/ErrorContext.md)
+`string`
 
 #### Returns
 
@@ -72,36 +72,6 @@ Transport error options
 [`WPKernelError`](WPKernelError.md).[`constructor`](WPKernelError.md#constructor)
 
 ## Properties
-
-### status
-
-```ts
-readonly status: number;
-```
-
-HTTP status code
-
----
-
-### path
-
-```ts
-readonly path: string;
-```
-
-Request path
-
----
-
-### method
-
-```ts
-readonly method: string;
-```
-
-HTTP method
-
----
 
 ### code
 
@@ -117,17 +87,33 @@ Error code - identifies the type of error
 
 ---
 
-### data?
+### method
 
 ```ts
-readonly optional data: ErrorData;
+readonly method: string;
 ```
 
-Additional data about the error
+HTTP method
 
-#### Inherited from
+---
 
-[`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
+### path
+
+```ts
+readonly path: string;
+```
+
+Request path
+
+---
+
+### status
+
+```ts
+readonly status: number;
+```
+
+HTTP status code
 
 ---
 
@@ -142,6 +128,20 @@ Context in which the error occurred
 #### Inherited from
 
 [`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
+
+---
+
+### data?
+
+```ts
+readonly optional data: ErrorData;
+```
+
+Additional data about the error
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
 
 ## Methods
 
@@ -173,6 +173,70 @@ New WPKernelError instance
 
 ---
 
+### isClientError()
+
+```ts
+isClientError(): boolean;
+```
+
+Check if error is a client error (4xx)
+
+#### Returns
+
+`boolean`
+
+True if this is a client error
+
+---
+
+### isRetryable()
+
+```ts
+isRetryable(): boolean;
+```
+
+Check if error is retryable
+
+#### Returns
+
+`boolean`
+
+True if request should be retried
+
+---
+
+### isServerError()
+
+```ts
+isServerError(): boolean;
+```
+
+Check if error is a server error (5xx)
+
+#### Returns
+
+`boolean`
+
+True if this is a server error
+
+---
+
+### isTimeout()
+
+```ts
+isTimeout(): boolean;
+```
+
+Check if error is a network timeout
+
+#### Returns
+
+`boolean`
+
+True if this is a timeout error
+
+---
+
 ### isWPKernelError()
 
 ```ts
@@ -198,6 +262,26 @@ True if error is a WPKernelError
 #### Inherited from
 
 [`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
+
+---
+
+### toJSON()
+
+```ts
+toJSON(): SerializedError;
+```
+
+Serialize error to JSON-safe format
+
+#### Returns
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
 
 ---
 
@@ -241,87 +325,3 @@ New WPKernelError wrapping the original
 #### Inherited from
 
 [`WPKernelError`](WPKernelError.md).[`wrap`](WPKernelError.md#wrap)
-
----
-
-### isTimeout()
-
-```ts
-isTimeout(): boolean;
-```
-
-Check if error is a network timeout
-
-#### Returns
-
-`boolean`
-
-True if this is a timeout error
-
----
-
-### isRetryable()
-
-```ts
-isRetryable(): boolean;
-```
-
-Check if error is retryable
-
-#### Returns
-
-`boolean`
-
-True if request should be retried
-
----
-
-### isClientError()
-
-```ts
-isClientError(): boolean;
-```
-
-Check if error is a client error (4xx)
-
-#### Returns
-
-`boolean`
-
-True if this is a client error
-
----
-
-### isServerError()
-
-```ts
-isServerError(): boolean;
-```
-
-Check if error is a server error (5xx)
-
-#### Returns
-
-`boolean`
-
-True if this is a server error
-
----
-
-### toJSON()
-
-```ts
-toJSON(): SerializedError;
-```
-
-Serialize error to JSON-safe format
-
-#### Returns
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)

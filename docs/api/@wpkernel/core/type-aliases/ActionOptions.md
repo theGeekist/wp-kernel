@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -39,16 +39,6 @@ defineAction({
 
 ## Properties
 
-### scope?
-
-```ts
-optional scope: "crossTab" | "tabLocal";
-```
-
-Event scope: whether events broadcast cross-tab or stay in current tab.
-
----
-
 ### bridged?
 
 ```ts
@@ -56,3 +46,13 @@ optional bridged: boolean;
 ```
 
 Whether to bridge lifecycle events to PHP server. Ignored when scope is tabLocal.
+
+---
+
+### scope?
+
+```ts
+optional scope: "crossTab" | "tabLocal";
+```
+
+Event scope: whether events broadcast cross-tab or stay in current tab.

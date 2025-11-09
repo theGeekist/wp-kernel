@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,16 +20,16 @@ events: WPKernelEventBus;
 
 ---
 
-### reporter?
-
-```ts
-optional reporter: Reporter;
-```
-
----
-
 ### registry?
 
 ```ts
 optional registry: WPKernelRegistry;
+```
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Reporter;
 ```

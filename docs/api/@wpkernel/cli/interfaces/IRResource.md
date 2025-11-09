@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,56 @@
 Represents an Intermediate Representation (IR) for a resource.
 
 ## Properties
+
+### cacheKeys
+
+```ts
+cacheKeys: object;
+```
+
+Cache key definitions for various resource operations.
+
+#### get
+
+```ts
+get: IRResourceCacheKey;
+```
+
+#### list
+
+```ts
+list: IRResourceCacheKey;
+```
+
+#### create?
+
+```ts
+optional create: IRResourceCacheKey;
+```
+
+#### remove?
+
+```ts
+optional remove: IRResourceCacheKey;
+```
+
+#### update?
+
+```ts
+optional update: IRResourceCacheKey;
+```
+
+---
+
+### hash
+
+```ts
+hash: IRHashProvenance;
+```
+
+A hash of the resource definition for change detection.
+
+---
 
 ### id
 
@@ -27,6 +77,16 @@ name: string;
 ```
 
 The name of the resource.
+
+---
+
+### routes
+
+```ts
+routes: IRRoute[];
+```
+
+An array of routes defined for this resource.
 
 ---
 
@@ -50,66 +110,6 @@ The provenance of the schema.
 
 ---
 
-### routes
-
-```ts
-routes: IRRoute[];
-```
-
-An array of routes defined for this resource.
-
----
-
-### cacheKeys
-
-```ts
-cacheKeys: object;
-```
-
-Cache key definitions for various resource operations.
-
-#### list
-
-```ts
-list: IRResourceCacheKey;
-```
-
-#### get
-
-```ts
-get: IRResourceCacheKey;
-```
-
-#### create?
-
-```ts
-optional create: IRResourceCacheKey;
-```
-
-#### update?
-
-```ts
-optional update: IRResourceCacheKey;
-```
-
-#### remove?
-
-```ts
-optional remove: IRResourceCacheKey;
-```
-
----
-
-### hash
-
-```ts
-hash: IRHashProvenance;
-```
-
-A hash of the resource definition for change detection.
-
----
-
 ### warnings
 
 ```ts
@@ -117,6 +117,16 @@ warnings: IRWarning[];
 ```
 
 An array of warnings associated with this resource.
+
+---
+
+### capabilities?
+
+```ts
+optional capabilities: Partial<Record<string, string | ResourceCapabilityDescriptor>>;
+```
+
+Optional: Inline capability mappings for the resource.
 
 ---
 
@@ -130,16 +140,6 @@ Optional: Identity configuration for the resource.
 
 ---
 
-### storage?
-
-```ts
-optional storage: ResourceStorageConfig;
-```
-
-Optional: Storage configuration for the resource.
-
----
-
 ### queryParams?
 
 ```ts
@@ -150,6 +150,16 @@ Optional: Query parameters configuration for the resource.
 
 ---
 
+### storage?
+
+```ts
+optional storage: ResourceStorageConfig;
+```
+
+Optional: Storage configuration for the resource.
+
+---
+
 ### ui?
 
 ```ts
@@ -157,13 +167,3 @@ optional ui: ResourceUIConfig<unknown, unknown>;
 ```
 
 Optional: UI configuration for the resource.
-
----
-
-### capabilities?
-
-```ts
-optional capabilities: ResourceCapabilityMap;
-```
-
-Optional: Inline capability mappings for the resource.

@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,14 +8,6 @@
 
 ## Properties
 
-### command
-
-```ts
-command: string;
-```
-
----
-
 ### args
 
 ```ts
@@ -24,18 +16,10 @@ args: string[];
 
 ---
 
-### cwd
+### command
 
 ```ts
-cwd: string;
-```
-
----
-
-### startedAt
-
-```ts
-startedAt: string;
+command: string;
 ```
 
 ---
@@ -48,10 +32,26 @@ completedAt: string;
 
 ---
 
+### cwd
+
+```ts
+cwd: string;
+```
+
+---
+
 ### durationMs
 
 ```ts
 durationMs: number;
+```
+
+---
+
+### env
+
+```ts
+env: Record<string, string | undefined>;
 ```
 
 ---
@@ -64,10 +64,10 @@ exitCode: number;
 
 ---
 
-### stdout
+### startedAt
 
 ```ts
-stdout: string;
+startedAt: string;
 ```
 
 ---
@@ -80,9 +80,8 @@ stderr: string;
 
 ---
 
-### env
+### stdout
 
 ```ts
-env: Record & lt;
-(string, string | (undefined & gt));
+stdout: string;
 ```

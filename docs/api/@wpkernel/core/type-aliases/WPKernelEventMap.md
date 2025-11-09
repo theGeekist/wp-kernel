@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,10 +12,10 @@ type WPKernelEventMap = object;
 
 ## Properties
 
-### resource:defined
+### action:complete
 
 ```ts
-resource: defined: GenericResourceDefinedEvent;
+action: complete: ActionLifecycleEvent;
 ```
 
 ---
@@ -28,18 +28,10 @@ action: defined: ActionDefinedEvent;
 
 ---
 
-### action:start
+### action:domain
 
 ```ts
-action: start: ActionLifecycleEvent;
-```
-
----
-
-### action:complete
-
-```ts
-action: complete: ActionLifecycleEvent;
+action: domain: ActionDomainEvent;
 ```
 
 ---
@@ -52,10 +44,10 @@ action: error: ActionLifecycleEvent;
 
 ---
 
-### action:domain
+### action:start
 
 ```ts
-action: domain: ActionDomainEvent;
+action: start: ActionLifecycleEvent;
 ```
 
 ---
@@ -72,4 +64,12 @@ cache: invalidated: CacheInvalidatedEvent;
 
 ```ts
 custom: event: CustomKernelEvent;
+```
+
+---
+
+### resource:defined
+
+```ts
+resource: defined: GenericResourceDefinedEvent;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,14 +9,6 @@
 Represents the flags used during an apply operation.
 
 ## Properties
-
-### yes
-
-```ts
-readonly yes: boolean;
-```
-
----
 
 ### backup
 
@@ -30,4 +22,12 @@ readonly backup: boolean;
 
 ```ts
 readonly force: boolean;
+```
+
+---
+
+### yes
+
+```ts
+readonly yes: boolean;
 ```

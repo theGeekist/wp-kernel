@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -26,16 +26,16 @@ readonly label: string;
 
 ---
 
-### status
-
-```ts
-readonly status: DoctorStatus;
-```
-
----
-
 ### message
 
 ```ts
 readonly message: string;
+```
+
+---
+
+### status
+
+```ts
+readonly status: DoctorStatus;
 ```

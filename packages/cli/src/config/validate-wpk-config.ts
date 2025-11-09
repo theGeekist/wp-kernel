@@ -19,7 +19,7 @@
  * - Write methods (POST/PUT/PATCH/DELETE) should have capabilities
  *
  * @module config/validate-kernel-config
- * @see {@link https://github.com/theGeekist/wp-kernel/blob/main/docs/internal/cli-migration-phases.md#runtime}
+ * @see {@link https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#runtime}
  */
 
 import type { Reporter } from '@wpkernel/core/reporter';

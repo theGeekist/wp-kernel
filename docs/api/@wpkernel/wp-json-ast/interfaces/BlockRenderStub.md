@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,14 +12,6 @@
 
 ## Properties
 
-### contents
-
-```ts
-readonly contents: string;
-```
-
----
-
 ### absolutePath
 
 ```ts
@@ -29,6 +21,14 @@ readonly absolutePath: string;
 #### Inherited from
 
 [`BlockRenderTarget`](BlockRenderTarget.md).[`absolutePath`](BlockRenderTarget.md#absolutepath)
+
+---
+
+### contents
+
+```ts
+readonly contents: string;
+```
 
 ---
 

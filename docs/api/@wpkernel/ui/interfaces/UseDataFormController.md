@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -17,6 +17,44 @@ Interface for the Data Form Controller hook.
 The type of the result returned by the form submission action.
 
 ## Properties
+
+### cancel()
+
+```ts
+cancel: () => void;
+```
+
+Cancels any in-flight form submissions.
+
+#### Returns
+
+`void`
+
+---
+
+### reset()
+
+```ts
+reset: () => void;
+```
+
+Resets the form's state.
+
+#### Returns
+
+`void`
+
+---
+
+### state
+
+```ts
+state: DataFormControllerState<TResult>;
+```
+
+The current state of the form.
+
+---
 
 ### submit()
 
@@ -39,42 +77,3 @@ The input data for the form.
 `Promise`\<`TResult`\>
 
 A promise that resolves with the action's result.
-
----
-
-### reset()
-
-```ts
-reset: () => void;
-```
-
-Resets the form's state.
-
-#### Returns
-
-`void`
-
----
-
-### cancel()
-
-```ts
-cancel: () => void;
-```
-
-Cancels any in-flight form submissions.
-
-#### Returns
-
-`void`
-
----
-
-### state
-
-```ts
-state: DataFormControllerState & lt;
-TResult & gt;
-```
-
-The current state of the form.

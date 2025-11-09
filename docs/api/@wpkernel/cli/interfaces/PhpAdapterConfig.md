@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,14 +9,6 @@
 Configuration returned by the PHP adapter factory.
 
 ## Properties
-
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
----
 
 ### autoload?
 
@@ -45,3 +37,11 @@ optional customise: (builder, context) => void;
 #### Returns
 
 `void`
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
+```

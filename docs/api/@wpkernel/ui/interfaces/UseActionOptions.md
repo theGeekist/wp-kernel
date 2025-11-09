@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -19,6 +19,36 @@ Options for the useAction hook.
 `TResult`
 
 ## Properties
+
+### autoInvalidate()?
+
+```ts
+optional autoInvalidate: (result, input) => false | CacheKeyPattern[];
+```
+
+A function that returns a list of cache key patterns to invalidate on success.
+
+#### Parameters
+
+##### result
+
+`TResult`
+
+The result of the action.
+
+##### input
+
+`TInput`
+
+The input to the action.
+
+#### Returns
+
+`false` \| `CacheKeyPattern`[]
+
+A list of cache key patterns to invalidate, or false to skip invalidation.
+
+---
 
 ### concurrency?
 
@@ -56,33 +86,3 @@ The input to the action.
 `string`
 
 A string to use for deduplication.
-
----
-
-### autoInvalidate()?
-
-```ts
-optional autoInvalidate: (result, input) => false | CacheKeyPattern[];
-```
-
-A function that returns a list of cache key patterns to invalidate on success.
-
-#### Parameters
-
-##### result
-
-`TResult`
-
-The result of the action.
-
-##### input
-
-`TInput`
-
-The input to the action.
-
-#### Returns
-
-`false` \| `CacheKeyPattern`[]
-
-A list of cache key patterns to invalidate, or false to skip invalidation.

@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,22 @@
 Options for the useVisiblePrefetch hook.
 
 ## Properties
+
+### once?
+
+```ts
+optional once: boolean;
+```
+
+If true, the prefetch will only be triggered once.
+
+#### Default
+
+```ts
+true;
+```
+
+---
 
 ### rootMargin?
 
@@ -26,20 +42,4 @@ https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver/rootMargin
 
 ```ts
 '200px';
-```
-
----
-
-### once?
-
-```ts
-optional once: boolean;
-```
-
-If true, the prefetch will only be triggered once.
-
-#### Default
-
-```ts
-true;
 ```

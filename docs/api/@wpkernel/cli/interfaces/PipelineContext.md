@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,16 +14,6 @@ Context object passed through the entire pipeline execution.
 
 ## Properties
 
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
-The current workspace information.
-
----
-
 ### generationState
 
 ```ts
@@ -31,6 +21,20 @@ readonly generationState: GenerationManifest;
 ```
 
 The state of the code generation process.
+
+---
+
+### phase
+
+```ts
+readonly phase: PipelinePhase;
+```
+
+#### Inherited from
+
+```ts
+Omit.phase;
+```
 
 ---
 
@@ -48,14 +52,10 @@ Omit.reporter;
 
 ---
 
-### phase
+### workspace
 
 ```ts
-readonly phase: PipelinePhase;
+readonly workspace: Workspace;
 ```
 
-#### Inherited from
-
-```ts
-Omit.phase;
-```
+The current workspace information.

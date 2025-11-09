@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,16 +30,6 @@ The namespace for the reporter.
 
 ---
 
-### runtime?
-
-```ts
-readonly optional runtime: RuntimeOverrides;
-```
-
-Overrides for the action runtime.
-
----
-
 ### pipelineFactory()?
 
 ```ts
@@ -51,3 +41,13 @@ A factory function to create the action pipeline.
 #### Returns
 
 `ActionPipeline`\<`TArgs`, `TResult`\>
+
+---
+
+### runtime?
+
+```ts
+readonly optional runtime: RuntimeOverrides;
+```
+
+Overrides for the action runtime.

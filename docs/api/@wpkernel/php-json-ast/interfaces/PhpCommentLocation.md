@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,26 +14,10 @@ Represents the location of a PHP comment in the source code.
 
 ## Properties
 
-### line?
+### endFilePos?
 
 ```ts
-readonly optional line: number;
-```
-
----
-
-### filePos?
-
-```ts
-readonly optional filePos: number;
-```
-
----
-
-### tokenPos?
-
-```ts
-readonly optional tokenPos: number;
+readonly optional endFilePos: number;
 ```
 
 ---
@@ -46,16 +30,32 @@ readonly optional endLine: number;
 
 ---
 
-### endFilePos?
-
-```ts
-readonly optional endFilePos: number;
-```
-
----
-
 ### endTokenPos?
 
 ```ts
 readonly optional endTokenPos: number;
+```
+
+---
+
+### filePos?
+
+```ts
+readonly optional filePos: number;
+```
+
+---
+
+### line?
+
+```ts
+readonly optional line: number;
+```
+
+---
+
+### tokenPos?
+
+```ts
+readonly optional tokenPos: number;
 ```

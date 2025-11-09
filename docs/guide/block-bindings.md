@@ -1,3 +1,3 @@
-# Block bindings
+# Block Bindings
 
-This page has moved to [Blocks](/guide/blocks). The new guide covers block manifests, bindings, SSR templates, and Script Modules in one place.
+This guide is a work in progress. It will explain how to connect block attributes to data sources like post meta.

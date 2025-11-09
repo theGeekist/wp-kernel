@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,28 @@ Represents a PHP property fetch expression (e.g., `$object->property`).
 - [`PhpExprBase`](PhpExprBase.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name:
+  | PhpExpr
+  | PhpIdentifier;
+```
+
+---
 
 ### nodeType
 
@@ -31,25 +53,3 @@ readonly nodeType: "Expr_PropertyFetch";
 ```ts
 readonly var: PhpExpr;
 ```
-
----
-
-### name
-
-```ts
-readonly name:
-  | PhpExpr
-  | PhpIdentifier;
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,18 @@ Represents a PHP `use` statement.
 - [`PhpStmtBase`](PhpStmtBase.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
 
 ### nodeType
 
@@ -39,15 +51,3 @@ readonly type: number;
 ```ts
 readonly uses: PhpStmtUseUse[];
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

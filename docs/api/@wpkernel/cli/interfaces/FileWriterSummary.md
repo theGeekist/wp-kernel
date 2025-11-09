@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -17,8 +17,7 @@ Aggregated summary returned by the `FileWriter.summarise` helper.
 ### counts
 
 ```ts
-counts: Record & lt;
-(FileWriteStatus, number & gt);
+counts: Record<FileWriteStatus, number>;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,11 +12,15 @@
 
 ## Properties
 
-### variable
+### method
 
 ```ts
-readonly variable: string;
+readonly method: string;
 ```
+
+#### Inherited from
+
+[`MethodCallExpressionOptions`](MethodCallExpressionOptions.md).[`method`](MethodCallExpressionOptions.md#method)
 
 ---
 
@@ -32,15 +36,11 @@ readonly subject: MethodCallSubject;
 
 ---
 
-### method
+### variable
 
 ```ts
-readonly method: string;
+readonly variable: string;
 ```
-
-#### Inherited from
-
-[`MethodCallExpressionOptions`](MethodCallExpressionOptions.md).[`method`](MethodCallExpressionOptions.md#method)
 
 ---
 

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,13 +10,13 @@ Diagnostic emitted when a required helper dependency is missing.
 
 ## Properties
 
-### type
+### dependency
 
 ```ts
-readonly type: "missing-dependency";
+readonly dependency: string;
 ```
 
-The type of diagnostic, always 'missing-dependency'.
+Identifier of the missing dependency helper.
 
 ---
 
@@ -30,16 +30,6 @@ The key of the helper emitting the diagnostic.
 
 ---
 
-### dependency
-
-```ts
-readonly dependency: string;
-```
-
-Identifier of the missing dependency helper.
-
----
-
 ### message
 
 ```ts
@@ -50,13 +40,13 @@ A descriptive message about the missing dependency.
 
 ---
 
-### kind?
+### type
 
 ```ts
-readonly optional kind: HelperKind;
+readonly type: "missing-dependency";
 ```
 
-Helper kind associated with the diagnostic.
+The type of diagnostic, always 'missing-dependency'.
 
 ---
 
@@ -67,3 +57,13 @@ readonly optional helper: string;
 ```
 
 Optional helper key associated with the dependency.
+
+---
+
+### kind?
+
+```ts
+readonly optional kind: HelperKind;
+```
+
+Helper kind associated with the diagnostic.

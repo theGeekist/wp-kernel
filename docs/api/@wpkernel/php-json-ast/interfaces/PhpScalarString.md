@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,18 @@ Represents a PHP string scalar node.
 - [`PhpScalarBase`](PhpScalarBase.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpScalarBase`](PhpScalarBase.md).[`attributes`](PhpScalarBase.md#attributes)
+
+---
 
 ### nodeType
 
@@ -31,15 +43,3 @@ readonly nodeType: "Scalar_String";
 ```ts
 readonly value: string;
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpScalarBase`](PhpScalarBase.md).[`attributes`](PhpScalarBase.md#attributes)

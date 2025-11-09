@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,6 +24,16 @@ Options for building a loaded wpk configuration.
 
 ## Properties
 
+### composerCheck?
+
+```ts
+readonly optional composerCheck: TComposerCheck;
+```
+
+The composer check status.
+
+---
+
 ### config?
 
 ```ts
@@ -31,6 +41,16 @@ readonly optional config: TConfig;
 ```
 
 The wpk configuration object.
+
+---
+
+### configOrigin?
+
+```ts
+readonly optional configOrigin: TOrigin;
+```
+
+The origin of the configuration (e.g., 'project', 'workspace').
 
 ---
 
@@ -51,23 +71,3 @@ readonly optional sourcePath: string;
 ```
 
 The source path of the configuration file.
-
----
-
-### configOrigin?
-
-```ts
-readonly optional configOrigin: TOrigin;
-```
-
-The origin of the configuration (e.g., 'project', 'workspace').
-
----
-
-### composerCheck?
-
-```ts
-readonly optional composerCheck: TComposerCheck;
-```
-
-The composer check status.

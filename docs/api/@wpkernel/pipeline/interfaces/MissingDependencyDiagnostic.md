@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,10 +16,10 @@ Diagnostic for missing helper dependencies.
 
 ## Properties
 
-### type
+### dependency
 
 ```ts
-readonly type: "missing-dependency";
+readonly dependency: string;
 ```
 
 ---
@@ -32,14 +32,6 @@ readonly key: string;
 
 ---
 
-### dependency
-
-```ts
-readonly dependency: string;
-```
-
----
-
 ### message
 
 ```ts
@@ -48,10 +40,10 @@ readonly message: string;
 
 ---
 
-### kind?
+### type
 
 ```ts
-readonly optional kind: TKind;
+readonly type: "missing-dependency";
 ```
 
 ---
@@ -60,4 +52,12 @@ readonly optional kind: TKind;
 
 ```ts
 readonly optional helper: string;
+```
+
+---
+
+### kind?
+
+```ts
+readonly optional kind: TKind;
 ```

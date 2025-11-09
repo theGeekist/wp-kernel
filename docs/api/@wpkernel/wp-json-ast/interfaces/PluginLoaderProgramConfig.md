@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,14 +8,6 @@
 
 ## Properties
 
-### origin
-
-```ts
-readonly origin: string;
-```
-
----
-
 ### namespace
 
 ```ts
@@ -24,10 +16,10 @@ readonly namespace: string;
 
 ---
 
-### sanitizedNamespace
+### origin
 
 ```ts
-readonly sanitizedNamespace: string;
+readonly origin: string;
 ```
 
 ---
@@ -36,6 +28,14 @@ readonly sanitizedNamespace: string;
 
 ```ts
 readonly resourceClassNames: readonly string[];
+```
+
+---
+
+### sanitizedNamespace
+
+```ts
+readonly sanitizedNamespace: string;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,10 +30,10 @@ actionName: string;
 
 ---
 
-### requestId
+### bridged
 
 ```ts
-requestId: string;
+bridged: boolean;
 ```
 
 ---
@@ -46,18 +46,18 @@ namespace: string;
 
 ---
 
-### scope
+### requestId
 
 ```ts
-scope: 'crossTab' | 'tabLocal';
+requestId: string;
 ```
 
 ---
 
-### bridged
+### scope
 
 ```ts
-bridged: boolean;
+scope: 'crossTab' | 'tabLocal';
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,6 +11,38 @@ type DataViewsEventPayloadMap = object;
 ```
 
 ## Properties
+
+### ui:dataviews:action-triggered
+
+```ts
+ui:dataviews:action-triggered: DataViewActionTriggeredPayload;
+```
+
+---
+
+### ui:dataviews:boundary-transition
+
+```ts
+ui:dataviews:boundary-transition: DataViewBoundaryTransitionPayload;
+```
+
+---
+
+### ui:dataviews:fetch-failed
+
+```ts
+ui:dataviews:fetch-failed: DataViewFetchFailedPayload;
+```
+
+---
+
+### ui:dataviews:permission-denied
+
+```ts
+ui:dataviews:permission-denied: DataViewPermissionDeniedPayload;
+```
+
+---
 
 ### ui:dataviews:registered
 
@@ -32,36 +64,4 @@ ui: dataviews: unregistered: DataViewRegisteredPayload;
 
 ```ts
 ui:dataviews:view-changed: DataViewChangedPayload;
-```
-
----
-
-### ui:dataviews:action-triggered
-
-```ts
-ui:dataviews:action-triggered: DataViewActionTriggeredPayload;
-```
-
----
-
-### ui:dataviews:permission-denied
-
-```ts
-ui:dataviews:permission-denied: DataViewPermissionDeniedPayload;
-```
-
----
-
-### ui:dataviews:fetch-failed
-
-```ts
-ui:dataviews:fetch-failed: DataViewFetchFailedPayload;
-```
-
----
-
-### ui:dataviews:boundary-transition
-
-```ts
-ui:dataviews:boundary-transition: DataViewBoundaryTransitionPayload;
 ```

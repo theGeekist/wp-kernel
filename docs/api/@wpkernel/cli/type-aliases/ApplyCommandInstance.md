@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,12 +14,6 @@ Represents an instance of the Apply command.
 
 ## Type Declaration
 
-### yes
-
-```ts
-yes: boolean;
-```
-
 ### backup
 
 ```ts
@@ -32,10 +26,10 @@ backup: boolean;
 force: boolean;
 ```
 
-### summary
+### manifest
 
 ```ts
-summary: PatchManifestSummary | null;
+manifest: PatchManifest | null;
 ```
 
 ### records
@@ -44,10 +38,16 @@ summary: PatchManifestSummary | null;
 records: PatchRecord[];
 ```
 
-### manifest
+### summary
 
 ```ts
-manifest: PatchManifest | null;
+summary: PatchManifestSummary | null;
+```
+
+### yes
+
+```ts
+yes: boolean;
 ```
 
 ### cleanup?

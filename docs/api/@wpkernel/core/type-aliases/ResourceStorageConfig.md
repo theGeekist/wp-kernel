@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,10 +13,10 @@ type ResourceStorageConfig =
 	  }
 	| {
 			mode: 'wp-post';
+			meta?: Record<string, ResourcePostMetaDescriptor>;
 			postType?: string;
 			statuses?: string[];
 			supports?: ('title' | 'editor' | 'excerpt' | 'custom-fields')[];
-			meta?: Record<string, ResourcePostMetaDescriptor>;
 			taxonomies?: Record<
 				string,
 				{

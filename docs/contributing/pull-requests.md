@@ -2,8 +2,6 @@
 
 Guide to submitting pull requests to WPKernel.
 
-> **📖 For release workflow and versioning**, see `RELEASING.md` in project root and the [Framework Release Playbook](../releases/framework-release-playbook.md).
-
 ## Before You Start
 
 - Read the [Contributing Guide](/contributing/)

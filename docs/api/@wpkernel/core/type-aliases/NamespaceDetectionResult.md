@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,6 +24,16 @@ The detected/resolved namespace
 
 ---
 
+### sanitized
+
+```ts
+sanitized: boolean;
+```
+
+Whether the namespace was sanitized
+
+---
+
 ### source
 
 ```ts
@@ -38,16 +48,6 @@ source:
 ```
 
 Source of the namespace
-
----
-
-### sanitized
-
-```ts
-sanitized: boolean;
-```
-
-Whether the namespace was sanitized
 
 ---
 

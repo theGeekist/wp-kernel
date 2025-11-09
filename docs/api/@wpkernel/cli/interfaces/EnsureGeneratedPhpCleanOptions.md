@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ Options for the `ensureGeneratedPhpClean` function.
 
 ## Properties
 
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
-The workspace instance.
-
----
-
 ### reporter
 
 ```ts
@@ -27,6 +17,16 @@ readonly reporter: Reporter;
 ```
 
 The reporter instance for logging.
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
+```
+
+The workspace instance.
 
 ---
 

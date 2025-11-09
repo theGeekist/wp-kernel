@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,23 +10,17 @@ A test utility that captures reporter output in memory.
 
 ## Properties
 
-### reporter
+### clear()
 
 ```ts
-readonly reporter: Reporter;
+clear: () => void;
 ```
 
-The reporter instance.
+Clears all captured log entries.
 
----
+#### Returns
 
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
-The namespace of the reporter.
+`void`
 
 ---
 
@@ -40,14 +34,20 @@ An array of captured log entries.
 
 ---
 
-### clear()
+### namespace
 
 ```ts
-clear: () => void;
+readonly namespace: string;
 ```
 
-Clears all captured log entries.
+The namespace of the reporter.
 
-#### Returns
+---
 
-`void`
+### reporter
+
+```ts
+readonly reporter: Reporter;
+```
+
+The reporter instance.

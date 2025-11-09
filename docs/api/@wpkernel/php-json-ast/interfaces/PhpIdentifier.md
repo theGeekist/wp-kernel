@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,15 +14,15 @@ Represents a PHP identifier node.
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "Identifier";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
 ---
 
@@ -34,12 +34,12 @@ readonly name: string;
 
 ---
 
-### attributes
+### nodeType
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly nodeType: "Identifier";
 ```
 
-#### Inherited from
+#### Overrides
 
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

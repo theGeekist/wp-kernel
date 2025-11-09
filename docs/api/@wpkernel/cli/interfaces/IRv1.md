@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,6 +10,46 @@ The top-level Intermediate Representation (IR) for version 1.
 
 ## Properties
 
+### blocks
+
+```ts
+blocks: IRBlock[];
+```
+
+An array of block IRs.
+
+---
+
+### capabilities
+
+```ts
+capabilities: IRCapabilityHint[];
+```
+
+An array of capability hints.
+
+---
+
+### capabilityMap
+
+```ts
+capabilityMap: IRCapabilityMap;
+```
+
+The capability map IR.
+
+---
+
+### config
+
+```ts
+config: WPKernelConfigV1;
+```
+
+The original WPKernel configuration.
+
+---
+
 ### meta
 
 ```ts
@@ -17,36 +57,6 @@ meta: object;
 ```
 
 Metadata about the IR, including version, namespace, and source information.
-
-#### version
-
-```ts
-version: 1;
-```
-
-#### namespace
-
-```ts
-namespace: string;
-```
-
-#### sourcePath
-
-```ts
-sourcePath: string;
-```
-
-#### origin
-
-```ts
-origin: string;
-```
-
-#### sanitizedNamespace
-
-```ts
-sanitizedNamespace: string;
-```
 
 #### features
 
@@ -66,18 +76,6 @@ ids: object;
 algorithm: 'sha256';
 ```
 
-##### ids.resourcePrefix
-
-```ts
-resourcePrefix: 'res:';
-```
-
-##### ids.schemaPrefix
-
-```ts
-schemaPrefix: 'sch:';
-```
-
 ##### ids.blockPrefix
 
 ```ts
@@ -90,10 +88,16 @@ blockPrefix: 'blk:';
 capabilityPrefix: 'cap:';
 ```
 
-#### redactions
+##### ids.resourcePrefix
 
 ```ts
-redactions: string[];
+resourcePrefix: 'res:';
+```
+
+##### ids.schemaPrefix
+
+```ts
+schemaPrefix: 'sch:';
 ```
 
 #### limits
@@ -120,65 +124,41 @@ maxSchemaKB: number;
 policy: 'truncate' | 'error';
 ```
 
----
-
-### config
+#### namespace
 
 ```ts
-config: WPKernelConfigV1;
+namespace: string;
 ```
 
-The original WPKernel configuration.
-
----
-
-### schemas
+#### origin
 
 ```ts
-schemas: IRSchema[];
+origin: string;
 ```
 
-An array of schema IRs.
-
----
-
-### resources
+#### redactions
 
 ```ts
-resources: IRResource[];
+redactions: string[];
 ```
 
-An array of resource IRs.
-
----
-
-### capabilities
+#### sanitizedNamespace
 
 ```ts
-capabilities: IRCapabilityHint[];
+sanitizedNamespace: string;
 ```
 
-An array of capability hints.
-
----
-
-### capabilityMap
+#### sourcePath
 
 ```ts
-capabilityMap: IRCapabilityMap;
+sourcePath: string;
 ```
 
-The capability map IR.
-
----
-
-### blocks
+#### version
 
 ```ts
-blocks: IRBlock[];
+version: 1;
 ```
-
-An array of block IRs.
 
 ---
 
@@ -192,13 +172,23 @@ The PHP project IR.
 
 ---
 
-### diagnostics?
+### resources
 
 ```ts
-optional diagnostics: IRDiagnostic[];
+resources: IRResource[];
 ```
 
-Optional: An array of diagnostic messages.
+An array of resource IRs.
+
+---
+
+### schemas
+
+```ts
+schemas: IRSchema[];
+```
+
+An array of schema IRs.
 
 ---
 
@@ -209,6 +199,16 @@ optional adapterAudit: IRAdapterAudit;
 ```
 
 Optional: Adapter change audit trail.
+
+---
+
+### diagnostics?
+
+```ts
+optional diagnostics: IRDiagnostic[];
+```
+
+Optional: An array of diagnostic messages.
 
 ---
 

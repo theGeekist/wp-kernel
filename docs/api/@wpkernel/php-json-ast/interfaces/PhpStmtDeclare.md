@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,26 @@ Represents a PHP `declare` statement.
 
 ## Properties
 
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### declares
+
+```ts
+readonly declares: PhpDeclareItem[];
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -26,28 +46,8 @@ readonly nodeType: "Stmt_Declare";
 
 ---
 
-### declares
-
-```ts
-readonly declares: PhpDeclareItem[];
-```
-
----
-
 ### stmts
 
 ```ts
 readonly stmts: PhpStmt[] | null;
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

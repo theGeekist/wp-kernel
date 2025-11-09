@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -34,17 +34,17 @@ Options for seeding the plan (base content, incoming content, description, curre
 
 `string`
 
-#### incoming?
+#### current?
 
-`string` \| `null`
+`string`
 
 #### description?
 
 `string`
 
-#### current?
+#### incoming?
 
-`string`
+`string` \| `null`
 
 ## Returns
 

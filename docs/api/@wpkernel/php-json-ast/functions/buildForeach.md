@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -28,13 +28,13 @@ Configuration for the `foreach` loop (value variable, optional key variable, by 
 
 [`PhpExpr`](../type-aliases/PhpExpr.md)
 
-#### keyVar?
-
-[`PhpExpr`](../type-aliases/PhpExpr.md) \| `null`
-
 #### byRef?
 
 `boolean`
+
+#### keyVar?
+
+[`PhpExpr`](../type-aliases/PhpExpr.md) \| `null`
 
 #### stmts?
 

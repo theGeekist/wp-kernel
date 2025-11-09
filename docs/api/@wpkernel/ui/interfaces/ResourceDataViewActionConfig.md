@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,34 +24,13 @@ Action configuration for ResourceDataView.
 
 ## Properties
 
-### id
-
-```ts
-id: string;
-```
-
-Unique identifier, mirrored in events.
-
----
-
 ### action
 
 ```ts
-action: DefinedAction & lt;
-(TInput, TResult & gt);
+action: DefinedAction<TInput, TResult>;
 ```
 
 Action implementation to invoke.
-
----
-
-### label
-
-```ts
-label: string | (items) => string;
-```
-
-Label shown in DataViews UI.
 
 ---
 
@@ -67,13 +46,13 @@ Build action input payload from the current selection and items.
 
 ##### context
 
-###### selection
-
-(`string` \| `number`)[]
-
 ###### items
 
 `TItem`[]
+
+###### selection
+
+(`string` \| `number`)[]
 
 #### Returns
 
@@ -81,33 +60,49 @@ Build action input payload from the current selection and items.
 
 ---
 
-### supportsBulk?
+### id
 
 ```ts
-optional supportsBulk: boolean;
+id: string;
 ```
 
-Whether bulk selection is supported.
+Unique identifier, mirrored in events.
 
 ---
 
-### isDestructive?
+### label
 
 ```ts
-optional isDestructive: boolean;
+label: string | (items) => string;
 ```
 
-Flag destructive styling.
+Label shown in DataViews UI.
 
 ---
 
-### isPrimary?
+### buildMeta()?
 
 ```ts
-optional isPrimary: boolean;
+optional buildMeta: (context) => Record<string, unknown> | undefined;
 ```
 
-Flag primary styling.
+Optional meta object included in action triggered events.
+
+#### Parameters
+
+##### context
+
+###### items
+
+`TItem`[]
+
+###### selection
+
+(`string` \| `number`)[]
+
+#### Returns
+
+`Record`\<`string`, `unknown`\> \| `undefined`
 
 ---
 
@@ -131,32 +126,6 @@ When true, render disabled instead of hiding on capability denial.
 
 ---
 
-### buildMeta()?
-
-```ts
-optional buildMeta: (context) => Record<string, unknown> | undefined;
-```
-
-Optional meta object included in action triggered events.
-
-#### Parameters
-
-##### context
-
-###### selection
-
-(`string` \| `number`)[]
-
-###### items
-
-`TItem`[]
-
-#### Returns
-
-`Record`\<`string`, `unknown`\> \| `undefined`
-
----
-
 ### invalidateOnSuccess()?
 
 ```ts
@@ -173,18 +142,48 @@ Optional invalidate hook overriding the default behaviour.
 
 ##### context
 
-###### selection
+###### input
 
-(`string` \| `number`)[]
+`TInput`
 
 ###### items
 
 `TItem`[]
 
-###### input
+###### selection
 
-`TInput`
+(`string` \| `number`)[]
 
 #### Returns
 
 `false` \| `CacheKeyPattern`[]
+
+---
+
+### isDestructive?
+
+```ts
+optional isDestructive: boolean;
+```
+
+Flag destructive styling.
+
+---
+
+### isPrimary?
+
+```ts
+optional isPrimary: boolean;
+```
+
+Flag primary styling.
+
+---
+
+### supportsBulk?
+
+```ts
+optional supportsBulk: boolean;
+```
+
+Whether bulk selection is supported.

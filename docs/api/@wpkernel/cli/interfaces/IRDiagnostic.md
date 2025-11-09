@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -40,16 +40,6 @@ The severity of the diagnostic.
 
 ---
 
-### target?
-
-```ts
-optional target: IRDiagnosticTarget;
-```
-
-Optional: Entity the diagnostic refers to.
-
----
-
 ### hint?
 
 ```ts
@@ -67,3 +57,13 @@ optional source: string;
 ```
 
 Optional: Source that emitted the diagnostic (fragment, adapter, etc.).
+
+---
+
+### target?
+
+```ts
+optional target: IRDiagnosticTarget;
+```
+
+Optional: Entity the diagnostic refers to.

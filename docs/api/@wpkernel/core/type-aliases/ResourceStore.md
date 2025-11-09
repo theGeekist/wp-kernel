@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -28,46 +28,23 @@ The query parameter type for list operations
 
 ## Properties
 
-### storeKey
-
-```ts
-storeKey: string;
-```
-
-Store key for registration with @wordpress/data.
-
----
-
-### selectors
-
-```ts
-selectors: ResourceSelectors & lt;
-(T, TQuery & gt);
-```
-
-State selectors.
-
----
-
 ### actions
 
 ```ts
-actions: ResourceActions & lt;
-T & gt;
+actions: ResourceActions<T>;
 ```
 
 State actions.
 
 ---
 
-### resolvers
+### initialState
 
 ```ts
-resolvers: ResourceResolvers & lt;
-(T, TQuery & gt);
+initialState: ResourceState<T>;
 ```
 
-Resolvers for async data fetching.
+Initial state.
 
 ---
 
@@ -95,14 +72,33 @@ Reducer function for state updates.
 
 ---
 
-### initialState
+### resolvers
 
 ```ts
-initialState: ResourceState & lt;
-T & gt;
+resolvers: ResourceResolvers<T, TQuery>;
 ```
 
-Initial state.
+Resolvers for async data fetching.
+
+---
+
+### selectors
+
+```ts
+selectors: ResourceSelectors<T, TQuery>;
+```
+
+State selectors.
+
+---
+
+### storeKey
+
+```ts
+storeKey: string;
+```
+
+Store key for registration with @wordpress/data.
 
 ---
 

@@ -6,14 +6,14 @@ import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
  * This file is the single source of truth for all code generation,
  * resource management, and plugin metadata.
  *
- * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules
+ * @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules
  */
 export const wpkConfig: WPKernelConfigV1 = {
 	/**
 	 * The configuration version. This is used to ensure that the
 	 * configuration is compatible with the version of the CLI.
 	 *
-	 * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules
+	 * @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules
 	 */
 	version: 1,
 	/**
@@ -42,7 +42,7 @@ export const wpkConfig: WPKernelConfigV1 = {
 	 *   },
 	 * },
 	 *
-	 * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/guide/data.md
+	 * @see https://github.com/wpkernel/wpkernel/blob/main/docs/guide/data.md
 	 */
 	schemas: {},
 	/**

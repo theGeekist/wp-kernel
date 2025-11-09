@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -83,20 +83,6 @@ The `CommandConstructor` class for the generate command.
 
 ### Other
 
-#### loadWatch()?
-
-```ts
-readonly optional loadWatch: () => Promise<(paths, options?) => FSWatcher>;
-```
-
-Optional: Custom function to load the `chokidar.watch` function.
-
-##### Returns
-
-`Promise`\<(`paths`, `options?`) => `FSWatcher`\>
-
----
-
 #### adoptCommandEnvironment()?
 
 ```ts
@@ -128,6 +114,20 @@ readonly optional fileSystem: Partial<FileSystem>;
 ```
 
 Optional: Partial file system utility functions for testing.
+
+---
+
+#### loadWatch()?
+
+```ts
+readonly optional loadWatch: () => Promise<(paths, options?) => FSWatcher>;
+```
+
+Optional: Custom function to load the `chokidar.watch` function.
+
+##### Returns
+
+`Promise`\<(`paths`, `options?`) => `FSWatcher`\>
 
 ---
 

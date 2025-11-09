@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,58 @@ type WPKernelUtils = object;
 Main wpk utilities object returned by factory
 
 ## Properties
+
+### dataview()
+
+```ts
+dataview: (options) => DataViewHelper;
+```
+
+Interact with a DataView rendered via ResourceDataView.
+
+#### Parameters
+
+##### options
+
+[`DataViewHelperOptions`](DataViewHelperOptions.md)
+
+Selection options for the DataView wrapper.
+
+#### Returns
+
+[`DataViewHelper`](DataViewHelper.md)
+
+---
+
+### events()
+
+```ts
+events: <P>(options?) => Promise<EventRecorder<P>>;
+```
+
+Create event recorder for capturing wpk events
+
+#### Type Parameters
+
+##### P
+
+`P` = `unknown`
+
+#### Parameters
+
+##### options?
+
+[`EventRecorderOptions`](EventRecorderOptions.md)
+
+Optional configuration for event filtering
+
+#### Returns
+
+`Promise`\<[`EventRecorder`](EventRecorder.md)\<`P`\>\>
+
+Event recorder with capture and query methods
+
+---
 
 ### resource()
 
@@ -71,55 +123,3 @@ WordPress data store key (e.g., 'wpk/job')
 [`StoreUtils`](StoreUtils.md)\<`T`\>
 
 Store utilities with typed methods
-
----
-
-### events()
-
-```ts
-events: <P>(options?) => Promise<EventRecorder<P>>;
-```
-
-Create event recorder for capturing wpk events
-
-#### Type Parameters
-
-##### P
-
-`P` = `unknown`
-
-#### Parameters
-
-##### options?
-
-[`EventRecorderOptions`](EventRecorderOptions.md)
-
-Optional configuration for event filtering
-
-#### Returns
-
-`Promise`\<[`EventRecorder`](EventRecorder.md)\<`P`\>\>
-
-Event recorder with capture and query methods
-
----
-
-### dataview()
-
-```ts
-dataview: (options) => DataViewHelper;
-```
-
-Interact with a DataView rendered via ResourceDataView.
-
-#### Parameters
-
-##### options
-
-[`DataViewHelperOptions`](DataViewHelperOptions.md)
-
-Selection options for the DataView wrapper.
-
-#### Returns
-
-[`DataViewHelper`](DataViewHelper.md)

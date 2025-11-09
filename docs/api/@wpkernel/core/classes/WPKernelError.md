@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -48,17 +48,17 @@ Error code identifying the error type
 
 Error options
 
-###### message?
+###### context?
 
-`string`
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 ###### data?
 
 [`ErrorData`](../type-aliases/ErrorData.md)
 
-###### context?
+###### message?
 
-[`ErrorContext`](../type-aliases/ErrorContext.md)
+`string`
 
 #### Returns
 
@@ -82,16 +82,6 @@ Error code - identifies the type of error
 
 ---
 
-### data?
-
-```ts
-readonly optional data: ErrorData;
-```
-
-Additional data about the error
-
----
-
 ### context?
 
 ```ts
@@ -99,6 +89,16 @@ readonly optional context: ErrorContext;
 ```
 
 Context in which the error occurred
+
+---
+
+### data?
+
+```ts
+readonly optional data: ErrorData;
+```
+
+Additional data about the error
 
 ## Methods
 
@@ -150,6 +150,22 @@ True if error is a WPKernelError
 
 ---
 
+### toJSON()
+
+```ts
+toJSON(): SerializedError;
+```
+
+Serialize error to JSON-safe format
+
+#### Returns
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
+
+---
+
 ### wrap()
 
 ```ts
@@ -186,19 +202,3 @@ Additional context
 `WPKernelError`
 
 New WPKernelError wrapping the original
-
----
-
-### toJSON()
-
-```ts
-toJSON(): SerializedError;
-```
-
-Serialize error to JSON-safe format
-
-#### Returns
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object

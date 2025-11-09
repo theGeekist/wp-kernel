@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -39,6 +39,52 @@ The resolved DataView controller bound to the interaction.
 
 ---
 
+### getServerState()
+
+```ts
+readonly getServerState: () => object;
+```
+
+#### Returns
+
+`object`
+
+#### Inherited from
+
+```ts
+DefinedInteraction.getServerState;
+```
+
+---
+
+### getState()
+
+```ts
+readonly getState: () => DataViewInteractionState<TQuery>;
+```
+
+Returns the latest computed DataView interaction state.
+
+#### Returns
+
+[`DataViewInteractionState`](../type-aliases/DataViewInteractionState.md)\<`TQuery`\>
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+#### Inherited from
+
+```ts
+DefinedInteraction.namespace;
+```
+
+---
+
 ### setSelection()
 
 ```ts
@@ -57,48 +103,6 @@ elements that mutate the DataView selection outside controller events.
 #### Returns
 
 `void`
-
----
-
-### getState()
-
-```ts
-readonly getState: () => DataViewInteractionState<TQuery>;
-```
-
-Returns the latest computed DataView interaction state.
-
-#### Returns
-
-[`DataViewInteractionState`](../type-aliases/DataViewInteractionState.md)\<`TQuery`\>
-
----
-
-### teardown()
-
-```ts
-readonly teardown: () => void;
-```
-
-Restores controller emitters to their original implementations.
-
-#### Returns
-
-`void`
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
-#### Inherited from
-
-```ts
-DefinedInteraction.namespace;
-```
 
 ---
 
@@ -134,18 +138,14 @@ DefinedInteraction.syncServerState;
 
 ---
 
-### getServerState()
+### teardown()
 
 ```ts
-readonly getServerState: () => object;
+readonly teardown: () => void;
 ```
+
+Restores controller emitters to their original implementations.
 
 #### Returns
 
-`object`
-
-#### Inherited from
-
-```ts
-DefinedInteraction.getServerState;
-```
+`void`

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,7 @@
 # Type Alias: PathParams
 
 ```ts
-type PathParams = Record & lt;
-(string, string | number | (boolean & gt));
+type PathParams = Record<string, string | number | boolean>;
 ```
 
 Path parameter values (string, number, or boolean)

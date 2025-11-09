@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,7 @@
 # Type Alias: GenericResourceDefinedEvent
 
 ```ts
-type GenericResourceDefinedEvent = ResourceDefinedEvent & lt;
-(unknown, unknown & gt);
+type GenericResourceDefinedEvent = ResourceDefinedEvent<unknown, unknown>;
 ```
 
 A generic version of ResourceDefinedEvent, used for tracking all registered resources.

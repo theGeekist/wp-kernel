@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ Overrides for the action runtime.
 
 ## Properties
 
-### runtime?
-
-```ts
-optional runtime: Partial<ActionRuntime>;
-```
-
-Partial overrides for the entire runtime object.
-
----
-
 ### capability?
 
 ```ts
@@ -27,3 +17,13 @@ optional capability: Partial<CapabilityHelpers<Record<string, unknown>>>;
 ```
 
 Override for the capability object within the runtime.
+
+---
+
+### runtime?
+
+```ts
+optional runtime: Partial<ActionRuntime>;
+```
+
+Partial overrides for the entire runtime object.

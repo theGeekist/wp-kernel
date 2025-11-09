@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,30 +7,6 @@
 # Interface: BuildWpTaxonomyHelperMethodsOptions
 
 ## Properties
-
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
----
-
-### storage
-
-```ts
-readonly storage: WpTaxonomyStorageConfig;
-```
-
----
-
-### identity
-
-```ts
-readonly identity: ResolvedIdentity;
-```
-
----
 
 ### errorCodeFactory()
 
@@ -47,3 +23,27 @@ readonly errorCodeFactory: (suffix) => string;
 #### Returns
 
 `string`
+
+---
+
+### identity
+
+```ts
+readonly identity: ResolvedIdentity;
+```
+
+---
+
+### pascalName
+
+```ts
+readonly pascalName: string;
+```
+
+---
+
+### storage
+
+```ts
+readonly storage: WpTaxonomyStorageConfig;
+```

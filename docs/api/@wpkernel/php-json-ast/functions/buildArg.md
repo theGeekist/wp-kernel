@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -28,13 +28,13 @@ Optional configuration for the argument (by reference, unpack, name).
 
 `boolean`
 
-#### unpack?
-
-`boolean`
-
 #### name?
 
 [`PhpIdentifier`](../interfaces/PhpIdentifier.md) \| `null`
+
+#### unpack?
+
+`boolean`
 
 ### attributes?
 

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,26 @@ Represents a PHP `use` statement in a closure (e.g., `function () use ($var)`).
 - [`PhpNode`](PhpNode.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
 
 ### nodeType
 
@@ -31,23 +51,3 @@ readonly nodeType: "ClosureUse" | "Expr_ClosureUse";
 ```ts
 readonly var: PhpExprVariable;
 ```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)

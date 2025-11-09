@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,14 +8,6 @@
 
 ## Properties
 
-### target
-
-```ts
-readonly target: string;
-```
-
----
-
 ### argsVariable
 
 ```ts
@@ -24,10 +16,10 @@ readonly argsVariable: string;
 
 ---
 
-### indentLevel?
+### target
 
 ```ts
-readonly optional indentLevel: number;
+readonly target: string;
 ```
 
 ---
@@ -44,16 +36,16 @@ readonly optional cache: object;
 readonly host: ResourceMetadataHost;
 ```
 
-#### scope
-
-```ts
-readonly scope: "list" | "get" | "create" | "update" | "remove" | "custom";
-```
-
 #### operation
 
 ```ts
 readonly operation: ResourceControllerCacheOperation;
+```
+
+#### scope
+
+```ts
+readonly scope: "list" | "get" | "create" | "update" | "remove" | "custom";
 ```
 
 #### segments
@@ -66,4 +58,12 @@ readonly segments: readonly unknown[];
 
 ```ts
 readonly optional description: string;
+```
+
+---
+
+### indentLevel?
+
+```ts
+readonly optional indentLevel: number;
 ```

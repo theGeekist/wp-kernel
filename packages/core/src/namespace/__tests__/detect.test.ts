@@ -704,7 +704,7 @@ describe('development warnings', () => {
 
 		expect(console).toHaveWarnedWith(
 			'[wpk.namespace]',
-			'🔧 WPKernel: Using fallback namespace "custom-fallback". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection'
+			'🔧 WPKernel: Using fallback namespace "custom-fallback". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/wpkernel/wpkernel/docs/namespace-detection'
 		);
 
 		expect(result.source).toBe('fallback');
@@ -716,7 +716,7 @@ describe('development warnings', () => {
 
 		expect(console).toHaveWarnedWith(
 			'[wpk.namespace]',
-			'📦 WPKernel: Using package.json name for namespace "test-package". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection'
+			'📦 WPKernel: Using package.json name for namespace "test-package". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/wpkernel/wpkernel/docs/namespace-detection'
 		);
 
 		expect(result.source).toBe('package-json');

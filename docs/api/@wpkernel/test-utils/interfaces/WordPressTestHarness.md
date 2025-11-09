@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,16 +9,6 @@
 Represents a WordPress test harness, providing mocked WordPress globals and utility functions.
 
 ## Properties
-
-### wp
-
-```ts
-wp: any;
-```
-
-The mock WordPress global that has been installed.
-
----
 
 ### data
 
@@ -56,3 +46,13 @@ Restore the previous global and perform a reset.
 #### Returns
 
 `void`
+
+---
+
+### wp
+
+```ts
+wp: any;
+```
+
+The mock WordPress global that has been installed.

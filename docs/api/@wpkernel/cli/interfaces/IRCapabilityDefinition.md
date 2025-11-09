@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,26 @@
 Represents an Intermediate Representation (IR) for a capability definition.
 
 ## Properties
+
+### appliesTo
+
+```ts
+appliesTo: IRCapabilityScope;
+```
+
+The scope to which the capability applies.
+
+---
+
+### capability
+
+```ts
+capability: string;
+```
+
+The underlying capability string.
+
+---
 
 ### id
 
@@ -27,26 +47,6 @@ key: string;
 ```
 
 The key of the capability.
-
----
-
-### capability
-
-```ts
-capability: string;
-```
-
-The underlying capability string.
-
----
-
-### appliesTo
-
-```ts
-appliesTo: IRCapabilityScope;
-```
-
-The scope to which the capability applies.
 
 ---
 

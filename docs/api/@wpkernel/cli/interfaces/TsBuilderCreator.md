@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,16 +12,6 @@ A creator is responsible for generating specific TypeScript files or code
 based on the provided context.
 
 ## Properties
-
-### key
-
-```ts
-readonly key: string;
-```
-
-A unique key for the creator.
-
----
 
 ### create()
 
@@ -40,3 +30,13 @@ The function that creates the TypeScript artifact.
 #### Returns
 
 `Promise`\<`void`\>
+
+---
+
+### key
+
+```ts
+readonly key: string;
+```
+
+A unique key for the creator.

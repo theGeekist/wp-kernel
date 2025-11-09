@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,17 +8,16 @@
 
 ## Properties
 
-### generatedAt
+### files
 
 ```ts
-generatedAt: string;
+files: Record<string, FileHashEntry>;
 ```
 
 ---
 
-### files
+### generatedAt
 
 ```ts
-files: Record & lt;
-(string, FileHashEntry & gt);
+generatedAt: string;
 ```

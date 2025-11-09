@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -47,6 +47,22 @@ Preference value or undefined
 
 ---
 
+### getScopeOrder()
+
+```ts
+getScopeOrder: () => DataViewPreferenceScope[];
+```
+
+Get the preference scope resolution order
+
+#### Returns
+
+[`DataViewPreferenceScope`](../type-aliases/DataViewPreferenceScope.md)[]
+
+Array of scopes in priority order
+
+---
+
 ### set()
 
 ```ts
@@ -72,19 +88,3 @@ Preference value
 #### Returns
 
 `Promise`\<`void`\>
-
----
-
-### getScopeOrder()
-
-```ts
-getScopeOrder: () => DataViewPreferenceScope[];
-```
-
-Get the preference scope resolution order
-
-#### Returns
-
-[`DataViewPreferenceScope`](../type-aliases/DataViewPreferenceScope.md)[]
-
-Array of scopes in priority order

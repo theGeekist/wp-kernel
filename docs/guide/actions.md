@@ -14,12 +14,12 @@ graph LR
     B --> E[Event Emission]
     B --> F[Background Jobs]
 
-    classDef blue fill:var(--vp-c-blue-soft),stroke:var(--vp-c-blue-1),color:var(--vp-c-text-1)
-    classDef purple fill:var(--vp-c-purple-soft),stroke:var(--vp-c-purple-1),color:var(--vp-c-text-1)
-    classDef green fill:var(--vp-c-green-soft),stroke:var(--vp-c-green-1),color:var(--vp-c-text-1)
-    classDef red fill:var(--vp-c-red-soft),stroke:var(--vp-c-red-1),color:var(--vp-c-text-1)
-    classDef yellow fill:var(--vp-c-yellow-soft),stroke:var(--vp-c-yellow-1),color:var(--vp-c-text-1)
-    classDef gray fill:var(--vp-c-gray-soft-2),stroke:var(--vp-c-gray-2),color:var(--vp-c-text-1)
+    classDef blue stroke-width:0px;
+    classDef purple stroke-width:0px;
+    classDef green stroke-width:0px;
+    classDef red stroke-width:0px;
+    classDef yellow stroke-width:0px;
+    classDef gray stroke-width:0px;
 
     class A blue
     class B purple

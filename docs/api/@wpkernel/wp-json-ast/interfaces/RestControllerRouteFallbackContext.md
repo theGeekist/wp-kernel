@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,10 @@
 
 ## Properties
 
-### resource?
+### hint?
 
 ```ts
-readonly optional resource: string;
-```
-
----
-
-### transport?
-
-```ts
-readonly optional transport: string;
+readonly optional hint: string;
 ```
 
 ---
@@ -32,14 +24,6 @@ readonly optional kind: "list" | "get" | "create" | "update" | "remove" | "custo
 
 ---
 
-### storageMode?
-
-```ts
-readonly optional storageMode: string;
-```
-
----
-
 ### reason?
 
 ```ts
@@ -48,8 +32,24 @@ readonly optional reason: string;
 
 ---
 
-### hint?
+### resource?
 
 ```ts
-readonly optional hint: string;
+readonly optional resource: string;
+```
+
+---
+
+### storageMode?
+
+```ts
+readonly optional storageMode: string;
+```
+
+---
+
+### transport?
+
+```ts
+readonly optional transport: string;
 ```

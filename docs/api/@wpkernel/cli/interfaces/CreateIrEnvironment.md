@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,26 +9,6 @@
 Defines the environment for creating an Intermediate Representation (IR).
 
 ## Properties
-
-### workspace?
-
-```ts
-readonly optional workspace: Workspace;
-```
-
-Optional: The workspace instance to use.
-
----
-
-### reporter?
-
-```ts
-readonly optional reporter: Reporter;
-```
-
-Optional: The reporter instance for logging.
-
----
 
 ### phase?
 
@@ -47,3 +27,23 @@ readonly optional pipeline: Pipeline;
 ```
 
 Optional: The pipeline instance to use.
+
+---
+
+### reporter?
+
+```ts
+readonly optional reporter: Reporter;
+```
+
+Optional: The reporter instance for logging.
+
+---
+
+### workspace?
+
+```ts
+readonly optional workspace: Workspace;
+```
+
+Optional: The workspace instance to use.

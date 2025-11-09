@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,7 @@
 # Type Alias: InteractivityStoreResult
 
 ```ts
-type InteractivityStoreResult = Record & lt;
-(string, unknown & gt);
+type InteractivityStoreResult = Record<string, unknown>;
 ```
 
 Result returned by the interactivity runtime after registering a store.

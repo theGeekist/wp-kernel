@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ readonly remaining: string;
 
 ---
 
-### message?
-
-```ts
-readonly optional message: PhpProgramIngestionMessage;
-```
-
----
-
 ### error?
 
 ```ts
 readonly optional error: unknown;
+```
+
+---
+
+### message?
+
+```ts
+readonly optional message: PhpProgramIngestionMessage;
 ```

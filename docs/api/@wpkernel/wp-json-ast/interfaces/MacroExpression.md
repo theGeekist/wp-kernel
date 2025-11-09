@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,16 +8,16 @@
 
 ## Properties
 
-### expression
-
-```ts
-readonly expression: PhpExpr;
-```
-
----
-
 ### display
 
 ```ts
 readonly display: string;
+```
+
+---
+
+### expression
+
+```ts
+readonly expression: PhpExpr;
 ```

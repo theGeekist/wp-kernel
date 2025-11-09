@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -103,26 +103,6 @@ Optional: Custom workspace builder function.
 
 ---
 
-#### runWorkflow()?
-
-```ts
-readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
-```
-
-Optional: Custom workflow runner function.
-
-##### Parameters
-
-###### \_\_namedParameters
-
-[`InitWorkflowOptions`](InitWorkflowOptions.md)
-
-##### Returns
-
-`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>
-
----
-
 #### checkGitRepository()?
 
 ```ts
@@ -171,6 +151,30 @@ Optional: Custom git repository initializer function.
 
 ---
 
+#### installComposerDependencies()?
+
+```ts
+readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise<void>;
+```
+
+Optional: Custom Composer dependency installer function.
+
+##### Parameters
+
+###### cwd
+
+`string`
+
+###### \_\_namedParameters
+
+[`InstallerDependencies`](InstallerDependencies.md) = `{}`
+
+##### Returns
+
+`Promise`\<`void`\>
+
+---
+
 #### installNodeDependencies()?
 
 ```ts
@@ -195,24 +199,20 @@ Optional: Custom Node.js dependency installer function.
 
 ---
 
-#### installComposerDependencies()?
+#### runWorkflow()?
 
 ```ts
-readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise<void>;
+readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
 ```
 
-Optional: Custom Composer dependency installer function.
+Optional: Custom workflow runner function.
 
 ##### Parameters
 
-###### cwd
-
-`string`
-
 ###### \_\_namedParameters
 
-[`InstallerDependencies`](InstallerDependencies.md) = `{}`
+[`InitWorkflowOptions`](InitWorkflowOptions.md)
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>

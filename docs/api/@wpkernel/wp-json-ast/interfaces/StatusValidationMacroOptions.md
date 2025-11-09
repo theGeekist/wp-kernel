@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,6 +11,20 @@
 - `MacroOptionsBase`
 
 ## Properties
+
+### metadataKeys
+
+```ts
+readonly metadataKeys: MutationMetadataKeys;
+```
+
+#### Inherited from
+
+```ts
+MacroOptionsBase.metadataKeys;
+```
+
+---
 
 ### pascalName
 
@@ -28,24 +42,10 @@ readonly target: MacroExpression;
 
 ---
 
-### metadataKeys
+### guardWithNullCheck?
 
 ```ts
-readonly metadataKeys: MutationMetadataKeys;
-```
-
-#### Inherited from
-
-```ts
-MacroOptionsBase.metadataKeys;
-```
-
----
-
-### statusVariable?
-
-```ts
-readonly optional statusVariable: MacroExpression;
+readonly optional guardWithNullCheck: boolean;
 ```
 
 ---
@@ -66,8 +66,8 @@ readonly optional statusParam: string;
 
 ---
 
-### guardWithNullCheck?
+### statusVariable?
 
 ```ts
-readonly optional guardWithNullCheck: boolean;
+readonly optional statusVariable: MacroExpression;
 ```

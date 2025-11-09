@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,6 +20,14 @@ Base descriptor for a pipeline helper.
 `TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+---
 
 ### key
 
@@ -53,22 +61,6 @@ readonly priority: number;
 
 ---
 
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
----
-
-### origin?
-
-```ts
-readonly optional origin: string;
-```
-
----
-
 ### optional?
 
 ```ts
@@ -83,4 +75,12 @@ Useful for conditional/feature-flag helpers.
 
 ```ts
 false;
+```
+
+---
+
+### origin?
+
+```ts
+readonly optional origin: string;
 ```

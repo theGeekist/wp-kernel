@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -17,14 +17,6 @@ External code (plugins, themes) can listen to these events.
 
 ## Type Declaration
 
-### ACTION_START
-
-```ts
-readonly ACTION_START: "wpk.action.start";
-```
-
-Action lifecycle events
-
 ### ACTION_COMPLETE
 
 ```ts
@@ -35,6 +27,28 @@ readonly ACTION_COMPLETE: "wpk.action.complete";
 
 ```ts
 readonly ACTION_ERROR: "wpk.action.error";
+```
+
+### ACTION_START
+
+```ts
+readonly ACTION_START: "wpk.action.start";
+```
+
+Action lifecycle events
+
+### CACHE_INVALIDATED
+
+```ts
+readonly CACHE_INVALIDATED: "wpk.cache.invalidated";
+```
+
+Cache invalidation events
+
+### RESOURCE_ERROR
+
+```ts
+readonly RESOURCE_ERROR: "wpk.resource.error";
 ```
 
 ### RESOURCE_REQUEST
@@ -50,17 +64,3 @@ Resource transport events
 ```ts
 readonly RESOURCE_RESPONSE: "wpk.resource.response";
 ```
-
-### RESOURCE_ERROR
-
-```ts
-readonly RESOURCE_ERROR: "wpk.resource.error";
-```
-
-### CACHE_INVALIDATED
-
-```ts
-readonly CACHE_INVALIDATED: "wpk.cache.invalidated";
-```
-
-Cache invalidation events

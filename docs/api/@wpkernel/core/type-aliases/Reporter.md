@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,6 +11,68 @@ type Reporter = object;
 ```
 
 ## Properties
+
+### child()
+
+```ts
+child: (namespace) => Reporter;
+```
+
+#### Parameters
+
+##### namespace
+
+`string`
+
+#### Returns
+
+`Reporter`
+
+---
+
+### debug()
+
+```ts
+debug: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
+
+### error()
+
+```ts
+error: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
 
 ### info()
 
@@ -53,65 +115,3 @@ warn: (message, context?) => void;
 #### Returns
 
 `void`
-
----
-
-### error()
-
-```ts
-error: (message, context?) => void;
-```
-
-#### Parameters
-
-##### message
-
-`string`
-
-##### context?
-
-`unknown`
-
-#### Returns
-
-`void`
-
----
-
-### debug()
-
-```ts
-debug: (message, context?) => void;
-```
-
-#### Parameters
-
-##### message
-
-`string`
-
-##### context?
-
-`unknown`
-
-#### Returns
-
-`void`
-
----
-
-### child()
-
-```ts
-child: (namespace) => Reporter;
-```
-
-#### Parameters
-
-##### namespace
-
-`string`
-
-#### Returns
-
-`Reporter`

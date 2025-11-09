@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### enable?
-
-```ts
-optional enable: boolean;
-```
-
----
-
 ### attach?
 
 ```ts
 optional attach: WPKernelUIAttach;
+```
+
+---
+
+### enable?
+
+```ts
+optional enable: boolean;
 ```
 
 ---

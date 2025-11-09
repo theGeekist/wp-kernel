@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,18 @@ type CapabilityCache = object;
 Minimal cache contract used by the capability runtime and React hook.
 
 ## Properties
+
+### clear()
+
+```ts
+clear: () => void;
+```
+
+#### Returns
+
+`void`
+
+---
 
 ### get()
 
@@ -32,39 +44,15 @@ get: (key) => boolean | undefined;
 
 ---
 
-### set()
+### getSnapshot()
 
 ```ts
-set: (key, value, options?) => void;
+getSnapshot: () => number;
 ```
-
-#### Parameters
-
-##### key
-
-`string`
-
-##### value
-
-`boolean`
-
-##### options?
-
-###### ttlMs?
-
-`number`
-
-###### source?
-
-`"local"` \| `"remote"`
-
-###### expiresAt?
-
-`number`
 
 #### Returns
 
-`void`
+`number`
 
 ---
 
@@ -86,18 +74,6 @@ invalidate: (capabilityKey?) => void;
 
 ---
 
-### clear()
-
-```ts
-clear: () => void;
-```
-
-#### Returns
-
-`void`
-
----
-
 ### keys()
 
 ```ts
@@ -107,6 +83,42 @@ keys: () => string[];
 #### Returns
 
 `string`[]
+
+---
+
+### set()
+
+```ts
+set: (key, value, options?) => void;
+```
+
+#### Parameters
+
+##### key
+
+`string`
+
+##### value
+
+`boolean`
+
+##### options?
+
+###### expiresAt?
+
+`number`
+
+###### source?
+
+`"local"` \| `"remote"`
+
+###### ttlMs?
+
+`number`
+
+#### Returns
+
+`void`
 
 ---
 
@@ -131,15 +143,3 @@ subscribe: (listener) => () => void;
 ##### Returns
 
 `void`
-
----
-
-### getSnapshot()
-
-```ts
-getSnapshot: () => number;
-```
-
-#### Returns
-
-`number`

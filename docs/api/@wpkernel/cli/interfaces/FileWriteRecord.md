@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,14 @@
 Metadata describing an individual file write event.
 
 ## Properties
+
+### hash
+
+```ts
+hash: string;
+```
+
+---
 
 ### path
 
@@ -22,14 +30,6 @@ path: string;
 
 ```ts
 status: FileWriteStatus;
-```
-
----
-
-### hash
-
-```ts
-hash: string;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,16 +24,6 @@ The type of the query parameters for the resource.
 
 ## Properties
 
-### resource?
-
-```ts
-optional resource: ResourceObject<TItem, TQuery>;
-```
-
-The resource object to display.
-
----
-
 ### config?
 
 ```ts
@@ -54,15 +44,13 @@ An optional pre-configured controller for the DataView.
 
 ---
 
-### runtime?
+### emptyState?
 
 ```ts
-optional runtime:
-  | WPKernelUIRuntime
-  | DataViewsRuntimeContext;
+optional emptyState: ReactNode;
 ```
 
-The runtime context for the DataView.
+Content to display when the DataView is empty.
 
 ---
 
@@ -86,10 +74,22 @@ An optional function to fetch a list of items, overriding the resource's fetchLi
 
 ---
 
-### emptyState?
+### resource?
 
 ```ts
-optional emptyState: ReactNode;
+optional resource: ResourceObject<TItem, TQuery>;
 ```
 
-Content to display when the DataView is empty.
+The resource object to display.
+
+---
+
+### runtime?
+
+```ts
+optional runtime:
+  | WPKernelUIRuntime
+  | DataViewsRuntimeContext;
+```
+
+The runtime context for the DataView.

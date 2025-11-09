@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### file
+### docblock
 
 ```ts
-readonly file: string;
+readonly docblock: readonly string[];
 ```
 
 ---
 
-### program
+### file
 
 ```ts
-readonly program: PhpProgram;
+readonly file: string;
 ```
 
 ---
@@ -32,18 +32,10 @@ readonly metadata: PhpFileMetadata;
 
 ---
 
-### docblock
+### program
 
 ```ts
-readonly docblock: readonly string[];
-```
-
----
-
-### uses
-
-```ts
-readonly uses: readonly string[];
+readonly program: PhpProgram;
 ```
 
 ---
@@ -52,6 +44,14 @@ readonly uses: readonly string[];
 
 ```ts
 readonly statements: readonly string[];
+```
+
+---
+
+### uses
+
+```ts
+readonly uses: readonly string[];
 ```
 
 ---

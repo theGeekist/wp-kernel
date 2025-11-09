@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,6 +24,16 @@ Configuration object accepted by `defineAction()`.
 
 ## Properties
 
+### handler
+
+```ts
+handler: ActionFn<TArgs, TResult>;
+```
+
+Implementation invoked when the action is executed.
+
+---
+
 ### name
 
 ```ts
@@ -31,17 +41,6 @@ name: string;
 ```
 
 Unique action identifier.
-
----
-
-### handler
-
-```ts
-handler: ActionFn & lt;
-(TArgs, TResult & gt);
-```
-
-Implementation invoked when the action is executed.
 
 ---
 

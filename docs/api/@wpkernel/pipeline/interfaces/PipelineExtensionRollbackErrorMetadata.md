@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,10 +10,10 @@ Metadata about an error during extension rollback.
 
 ## Properties
 
-### name?
+### cause?
 
 ```ts
-readonly optional name: string;
+readonly optional cause: unknown;
 ```
 
 ---
@@ -26,16 +26,16 @@ readonly optional message: string;
 
 ---
 
-### stack?
+### name?
 
 ```ts
-readonly optional stack: string;
+readonly optional name: string;
 ```
 
 ---
 
-### cause?
+### stack?
 
 ```ts
-readonly optional cause: unknown;
+readonly optional stack: string;
 ```

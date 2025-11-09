@@ -24,7 +24,7 @@
 	"gitRevision": "main",
 	"includeVersion": true,
 	"disableSources": true,
-	"sort": ["visibility", "required-first", "kind"],
+	"sort": ["required-first", "visibility", "kind", "alphabetical"],
 	"kindSortOrder": [
 		"Function",
 		"TypeAlias",

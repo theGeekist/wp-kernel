@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -22,17 +22,16 @@ type ResourceDefinedEvent<T, TQuery> = object;
 
 ## Properties
 
-### resource
-
-```ts
-resource: ResourceObject & lt;
-(T, TQuery & gt);
-```
-
----
-
 ### namespace
 
 ```ts
 namespace: string;
+```
+
+---
+
+### resource
+
+```ts
+resource: ResourceObject<T, TQuery>;
 ```

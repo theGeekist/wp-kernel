@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -57,15 +57,37 @@ A `BuilderHelper` instance for applying patches.
 
 ### Other
 
-#### loadWPKernelConfig()?
+#### appendApplyLog()?
 
 ```ts
-readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
+readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
+```
+
+##### Parameters
+
+###### workspace
+
+[`Workspace`](Workspace.md)
+
+###### entry
+
+[`ApplyLogEntry`](ApplyLogEntry.md)
+
+##### Returns
+
+`Promise`\<`void`\>
+
+---
+
+#### buildBuilderOutput()?
+
+```ts
+readonly optional buildBuilderOutput: () => BuilderOutput;
 ```
 
 ##### Returns
 
-`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
+`BuilderOutput`
 
 ---
 
@@ -87,15 +109,83 @@ readonly optional buildWorkspace: (root) => Workspace;
 
 ---
 
-#### buildBuilderOutput()?
+#### createBackups()?
 
 ```ts
-readonly optional buildBuilderOutput: () => BuilderOutput;
+readonly optional createBackups: (options) => Promise<void>;
+```
+
+##### Parameters
+
+###### options
+
+[`CreateBackupsOptions`](CreateBackupsOptions.md)
+
+##### Returns
+
+`Promise`\<`void`\>
+
+---
+
+#### ensureGitRepository()?
+
+```ts
+readonly optional ensureGitRepository: (workspace) => Promise<void>;
+```
+
+##### Parameters
+
+###### workspace
+
+[`Workspace`](Workspace.md)
+
+##### Returns
+
+`Promise`\<`void`\>
+
+---
+
+#### loadWPKernelConfig()?
+
+```ts
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
 ##### Returns
 
-`BuilderOutput`
+`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
+
+---
+
+#### promptConfirm()?
+
+```ts
+readonly optional promptConfirm: (options) => Promise<boolean>;
+```
+
+##### Parameters
+
+###### options
+
+###### defaultValue
+
+`boolean`
+
+###### input
+
+`ReadableStream`
+
+###### message
+
+`string`
+
+###### output
+
+`WritableStream`
+
+##### Returns
+
+`Promise`\<`boolean`\>
 
 ---
 
@@ -132,93 +222,3 @@ readonly optional resolveWorkspaceRoot: (loaded) => string;
 ##### Returns
 
 `string`
-
----
-
-#### promptConfirm()?
-
-```ts
-readonly optional promptConfirm: (options) => Promise<boolean>;
-```
-
-##### Parameters
-
-###### options
-
-###### message
-
-`string`
-
-###### defaultValue
-
-`boolean`
-
-###### input
-
-`ReadableStream`
-
-###### output
-
-`WritableStream`
-
-##### Returns
-
-`Promise`\<`boolean`\>
-
----
-
-#### ensureGitRepository()?
-
-```ts
-readonly optional ensureGitRepository: (workspace) => Promise<void>;
-```
-
-##### Parameters
-
-###### workspace
-
-[`Workspace`](Workspace.md)
-
-##### Returns
-
-`Promise`\<`void`\>
-
----
-
-#### createBackups()?
-
-```ts
-readonly optional createBackups: (options) => Promise<void>;
-```
-
-##### Parameters
-
-###### options
-
-[`CreateBackupsOptions`](CreateBackupsOptions.md)
-
-##### Returns
-
-`Promise`\<`void`\>
-
----
-
-#### appendApplyLog()?
-
-```ts
-readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
-```
-
-##### Parameters
-
-###### workspace
-
-[`Workspace`](Workspace.md)
-
-###### entry
-
-[`ApplyLogEntry`](ApplyLogEntry.md)
-
-##### Returns
-
-`Promise`\<`void`\>

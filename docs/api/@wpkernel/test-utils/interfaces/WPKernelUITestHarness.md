@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,16 +9,6 @@
 A harness for testing UI components that interact with the WPKernel UI runtime.
 
 ## Properties
-
-### wordpress
-
-```ts
-wordpress: WordPressTestHarness;
-```
-
-The WordPress test harness.
-
----
 
 ### createRuntime()
 
@@ -90,6 +80,20 @@ Resets the action store registration.
 
 ---
 
+### restoreConsoleError()
+
+```ts
+restoreConsoleError: () => void;
+```
+
+Restores the original console error function.
+
+#### Returns
+
+`void`
+
+---
+
 ### suppressConsoleError()
 
 ```ts
@@ -110,20 +114,6 @@ Suppresses console errors that match a given predicate.
 
 ---
 
-### restoreConsoleError()
-
-```ts
-restoreConsoleError: () => void;
-```
-
-Restores the original console error function.
-
-#### Returns
-
-`void`
-
----
-
 ### teardown()
 
 ```ts
@@ -135,3 +125,13 @@ Tears down the harness, restoring original globals.
 #### Returns
 
 `void`
+
+---
+
+### wordpress
+
+```ts
+wordpress: WordPressTestHarness;
+```
+
+The WordPress test harness.

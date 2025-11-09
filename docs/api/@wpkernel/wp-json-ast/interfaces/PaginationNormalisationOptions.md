@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,14 +24,6 @@ readonly targetVariable: string;
 
 ---
 
-### param?
-
-```ts
-readonly optional param: string;
-```
-
----
-
 ### defaultValue?
 
 ```ts
@@ -52,4 +44,12 @@ readonly optional maximum: number;
 
 ```ts
 readonly optional nonPositiveGuard: number;
+```
+
+---
+
+### param?
+
+```ts
+readonly optional param: string;
 ```

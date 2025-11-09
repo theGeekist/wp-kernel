@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ hash: string;
 
 ---
 
-### size
-
-```ts
-size: number;
-```
-
----
-
 ### mode
 
 ```ts
 mode: number;
+```
+
+---
+
+### size
+
+```ts
+size: number;
 ```

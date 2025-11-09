@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ readonly name: string;
 
 ---
 
-### type?
-
-```ts
-readonly optional type: string | null;
-```
-
----
-
 ### default?
 
 ```ts
 readonly optional default: PhpBuilderFactoryLiteral;
+```
+
+---
+
+### type?
+
+```ts
+readonly optional type: string | null;
 ```

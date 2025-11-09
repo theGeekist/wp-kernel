@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,14 +10,6 @@ Schema configuration compatible with CLI SchemaConfig
 
 ## Properties
 
-### path
-
-```ts
-path: string;
-```
-
----
-
 ### generated
 
 ```ts
@@ -28,6 +20,14 @@ generated: object;
 
 ```ts
 types: string;
+```
+
+---
+
+### path
+
+```ts
+path: string;
 ```
 
 ---

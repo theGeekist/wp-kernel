@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,16 +20,6 @@ The created command context.
 
 ---
 
-### stdout
-
-```ts
-stdout: MemoryStream;
-```
-
-The `MemoryStream` for standard output.
-
----
-
 ### stderr
 
 ```ts
@@ -37,3 +27,13 @@ stderr: MemoryStream;
 ```
 
 The `MemoryStream` for standard error.
+
+---
+
+### stdout
+
+```ts
+stdout: MemoryStream;
+```
+
+The `MemoryStream` for standard output.

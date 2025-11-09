@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -26,6 +26,20 @@ The name of the parameter to retrieve.
 
 ---
 
+### cast?
+
+```ts
+readonly optional cast: ScalarCastKind;
+```
+
+An optional scalar cast to apply to the parameter value.
+
+#### Inherited from
+
+[`RequestParamAssignmentOptions`](RequestParamAssignmentOptions.md).[`cast`](RequestParamAssignmentOptions.md#cast)
+
+---
+
 ### requestVariable?
 
 ```ts
@@ -45,17 +59,3 @@ The name of the variable to which the parameter value will be assigned. Defaults
 #### Inherited from
 
 [`RequestParamAssignmentOptions`](RequestParamAssignmentOptions.md).[`targetVariable`](RequestParamAssignmentOptions.md#targetvariable)
-
----
-
-### cast?
-
-```ts
-readonly optional cast: ScalarCastKind;
-```
-
-An optional scalar cast to apply to the parameter value.
-
-#### Inherited from
-
-[`RequestParamAssignmentOptions`](RequestParamAssignmentOptions.md).[`cast`](RequestParamAssignmentOptions.md#cast)

@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ Overrides for the WordPress test harness.
 
 ## Properties
 
-### data?
-
-```ts
-optional data: Partial<WordPressData>;
-```
-
-Partial overrides for `window.wp.data`.
-
----
-
 ### apiFetch?
 
 ```ts
@@ -27,6 +17,16 @@ optional apiFetch: any;
 ```
 
 A mock `apiFetch` function.
+
+---
+
+### data?
+
+```ts
+optional data: Partial<WordPressData>;
+```
+
+Partial overrides for `window.wp.data`.
 
 ---
 

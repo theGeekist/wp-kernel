@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,13 +10,13 @@ Options for the `withWordPressData` helper.
 
 ## Properties
 
-### wp?
+### apiFetch?
 
 ```ts
-optional wp: any;
+optional apiFetch: any;
 ```
 
-Optional `wp` global override. Set to `null` to unset.
+Optional `wp.apiFetch` override. Set to `null` to unset.
 
 ---
 
@@ -40,10 +40,10 @@ Optional `wp.hooks` override. Set to `null` to unset.
 
 ---
 
-### apiFetch?
+### wp?
 
 ```ts
-optional apiFetch: any;
+optional wp: any;
 ```
 
-Optional `wp.apiFetch` override. Set to `null` to unset.
+Optional `wp` global override. Set to `null` to unset.

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: MutationMetadataKeys
 
 ## Properties
+
+### cachePriming
+
+```ts
+readonly cachePriming: string;
+```
+
+---
 
 ### cacheSegment
 
@@ -44,12 +52,4 @@ readonly syncMeta: string;
 
 ```ts
 readonly syncTaxonomies: string;
-```
-
----
-
-### cachePriming
-
-```ts
-readonly cachePriming: string;
 ```

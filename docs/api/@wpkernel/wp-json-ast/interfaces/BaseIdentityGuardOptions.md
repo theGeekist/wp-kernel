@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,14 +12,6 @@
 - [`StringIdentityGuardOptions`](StringIdentityGuardOptions.md)
 
 ## Properties
-
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
----
 
 ### errorCodeFactory()
 
@@ -36,3 +28,11 @@ readonly errorCodeFactory: (suffix) => string;
 #### Returns
 
 `string`
+
+---
+
+### pascalName
+
+```ts
+readonly pascalName: string;
+```

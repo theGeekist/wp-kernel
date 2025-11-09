@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,10 +16,10 @@ Diagnostic for conflicting helper registrations.
 
 ## Properties
 
-### type
+### helpers
 
 ```ts
-readonly type: "conflict";
+readonly helpers: readonly string[];
 ```
 
 ---
@@ -32,6 +32,14 @@ readonly key: string;
 
 ---
 
+### message
+
+```ts
+readonly message: string;
+```
+
+---
+
 ### mode
 
 ```ts
@@ -40,18 +48,10 @@ readonly mode: HelperMode;
 
 ---
 
-### helpers
+### type
 
 ```ts
-readonly helpers: readonly string[];
-```
-
----
-
-### message
-
-```ts
-readonly message: string;
+readonly type: "conflict";
 ```
 
 ---

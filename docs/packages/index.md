@@ -1,27 +1,49 @@
-# Packages
+---
+layout: home
+title: Packages
+hero:
+    name: WPKernel Packages
+    text: 'Explore every package that powers the WPKernel ecosystem.'
+    tagline: 'Each module serves a focused purpose — from scaffolding and code generation to UI, testing, and runtime orchestration.'
+    actions:
+        - theme: brand
+          text: Get Started →
+          link: ../guide/introduction
+        - theme: alt
+          text: View on GitHub
+          link: https://github.com/wpkernel/wpkernel
+features:
+    - title: '@wpkernel/cli'
+      details: 'CLI tools for generating and applying project artefacts. Includes Plugin Developer and Framework Contributor guides.'
+      link: './cli.md'
+    - title: '@wpkernel/core'
+      details: 'Runtime primitives and resource helpers that form the backbone of WPKernel.'
+      link: './core.md'
+    - title: '@wpkernel/create-wpk'
+      details: 'Bootstrapper for new WPKernel projects — quickly scaffold plugin folders and configs.'
+      link: './create-wpk.md'
+    - title: '@wpkernel/pipeline'
+      details: 'Pipeline engine for builders, adapters, and code generation extensions.'
+      link: './pipeline.md'
+    - title: '@wpkernel/ui'
+      details: 'React UI primitives, DataViews, and admin screen helpers.'
+      link: './ui.md'
+    - title: '@wpkernel/e2e-utils'
+      details: 'Playwright test harness and utilities for WordPress Playground.'
+      link: './e2e-utils.md'
+    - title: '@wpkernel/php-driver'
+      details: 'Bridge between the PHP code generator and project autoloading.'
+      link: './php-driver.md'
+    - title: '@wpkernel/php-json-ast'
+      details: 'Codemod runtime for transforming PHP source via JSON AST.'
+      link: './php-json-ast.md'
+    - title: '@wpkernel/test-utils'
+      details: 'Integration and unit testing helpers shared across packages.'
+      link: './test-utils.md'
+    - title: '@wpkernel/wp-json-ast'
+      details: 'WordPress-aware layer for interacting with the PHP AST system.'
+      link: './wp-json-ast.md'
+---
 
-This section provides detailed documentation for each package in the WPKernel monorepo.
-
-- [@wpkernel/cli](./cli.md)
-    - [Plugin Developers](./cli/plugin-developers.md)
-    - [Framework Contributors](./cli/framework-contributors.md)
-- [@wpkernel/core](./core.md)
-    - [Core for Plugin Developers](./core/plugin-developers.md)
-    - [Core for Framework Contributors](./core/framework-contributors.md)
-- [@wpkernel/create-wpk](./create-wpk.md)
-- [@wpkernel/e2e-utils](./e2e-utils.md)
-    - [Playwright Guide](./e2e-utils/e2e-testing-guide.md)
-    - [Framework Contributors](./e2e-utils/framework-contributors.md)
-- [@wpkernel/php-driver](./php-driver.md)
-- [@wpkernel/php-json-ast](./php-json-ast.md)
-- [@wpkernel/pipeline](./pipeline.md)
-    - [Architecture Guide](./pipeline/architecture.md)
-    - [Framework Contributors](./pipeline/framework-contributors.md)
-    - [Migration Guide](./pipeline/migration.md)
-- [@wpkernel/test-utils](./test-utils.md)
-    - [Testing Cookbook](./test-utils/testing-cookbook.md)
-    - [Framework Contributors](./test-utils/framework-contributors.md)
-- [@wpkernel/ui](./ui.md)
-    - [Plugin Developers](./ui/plugin-developers.md)
-    - [Framework Contributors](./ui/framework-contributors.md)
-- [@wpkernel/wp-json-ast](./wp-json-ast.md)
+> Pick a card below to explore each package.  
+> Every module is documented for both plugin developers and framework contributors.

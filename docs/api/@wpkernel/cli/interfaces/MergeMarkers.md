@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,10 +10,10 @@ Marker strings used when performing three-way merges.
 
 ## Properties
 
-### start
+### end
 
 ```ts
-readonly start: string;
+readonly end: string;
 ```
 
 ---
@@ -26,8 +26,8 @@ readonly mid: string;
 
 ---
 
-### end
+### start
 
 ```ts
-readonly end: string;
+readonly start: string;
 ```

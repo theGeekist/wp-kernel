@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,13 +16,13 @@ Component type for WPKernel UI Provider.
 
 ### props
 
-#### runtime
-
-`WPKernelUIRuntime`
-
 #### children
 
 `ReactNode`
+
+#### runtime
+
+`WPKernelUIRuntime`
 
 ## Returns
 

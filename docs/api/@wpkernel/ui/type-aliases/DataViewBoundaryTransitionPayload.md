@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,18 +12,10 @@ type DataViewBoundaryTransitionPayload = object;
 
 ## Properties
 
-### resource
+### itemCount
 
 ```ts
-resource: string;
-```
-
----
-
-### state
-
-```ts
-state: DataViewBoundaryState;
+itemCount: number;
 ```
 
 ---
@@ -44,10 +36,18 @@ permissionStatus: string;
 
 ---
 
-### itemCount
+### resource
 
 ```ts
-itemCount: number;
+resource: string;
+```
+
+---
+
+### state
+
+```ts
+state: DataViewBoundaryState;
 ```
 
 ---

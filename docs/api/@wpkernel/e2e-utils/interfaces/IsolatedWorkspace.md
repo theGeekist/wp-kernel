@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,13 +12,21 @@
 
 ## Properties
 
-### root
+### dispose()
 
 ```ts
-readonly root: string;
+dispose: () => void | Promise<void>;
 ```
 
-Absolute path to the workspace root
+#### Returns
+
+`void` \| `Promise`\<`void`\>
+
+#### Inherited from
+
+```ts
+Disposable.dispose;
+```
 
 ---
 
@@ -32,13 +40,13 @@ Normalised environment variables applied to spawned processes
 
 ---
 
-### tools
+### root
 
 ```ts
-readonly tools: WorkspaceTools;
+readonly root: string;
 ```
 
-Convenience accessor for pinned tooling
+Absolute path to the workspace root
 
 ---
 
@@ -76,18 +84,10 @@ spawn overrides
 
 ---
 
-### dispose()
+### tools
 
 ```ts
-dispose: () => void | Promise<void>;
+readonly tools: WorkspaceTools;
 ```
 
-#### Returns
-
-`void` \| `Promise`\<`void`\>
-
-#### Inherited from
-
-```ts
-Disposable.dispose;
-```
+Convenience accessor for pinned tooling

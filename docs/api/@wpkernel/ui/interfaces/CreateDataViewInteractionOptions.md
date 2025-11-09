@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -33,16 +33,6 @@ Optional interactivity actions map to augment the interaction.
 
 ## Properties
 
-### runtime
-
-```ts
-runtime: DataViewsRuntimeContext;
-```
-
-Runtime context containing the registered controllers and reporter hooks.
-
----
-
 ### feature
 
 ```ts
@@ -54,6 +44,38 @@ runtime. Typically matches the UI feature slug.
 
 ---
 
+### runtime
+
+```ts
+runtime: DataViewsRuntimeContext;
+```
+
+Runtime context containing the registered controllers and reporter hooks.
+
+---
+
+### actions?
+
+```ts
+optional actions: TActions;
+```
+
+Additional interactivity actions exposed alongside the default resource
+actions.
+
+---
+
+### autoHydrate?
+
+```ts
+optional autoHydrate: boolean;
+```
+
+When true, hydrates cached state from the server automatically using the
+controller schema.
+
+---
+
 ### controller?
 
 ```ts
@@ -62,6 +84,49 @@ optional controller: ResourceDataViewController<TItem, TQuery>;
 
 Optional controller instance. When omitted, the helper resolves the
 controller from the runtime registry using [resourceName](#resourcename).
+
+---
+
+### hydrateServerState()?
+
+```ts
+optional hydrateServerState: (input) => void;
+```
+
+Custom server-state hydration handler invoked when [autoHydrate](#autohydrate) is
+enabled.
+
+#### Parameters
+
+##### input
+
+`HydrateServerStateInput`\<`TItem`, `TQuery`\>
+
+#### Returns
+
+`void`
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
+```
+
+Optional namespace override that will be forwarded to
+defineInteraction. Defaults to the runtime namespace.
+
+---
+
+### registry?
+
+```ts
+optional registry: WPKernelRegistry;
+```
+
+Custom registry implementation to use for dispatch and selectors. Defaults
+to the registry registered with the runtime.
 
 ---
 
@@ -96,68 +161,3 @@ optional store: Record<string, unknown>;
 
 Optional store object that will be extended with the DataView state before
 being provided to defineInteraction.
-
----
-
-### actions?
-
-```ts
-optional actions: TActions;
-```
-
-Additional interactivity actions exposed alongside the default resource
-actions.
-
----
-
-### registry?
-
-```ts
-optional registry: WPKernelRegistry;
-```
-
-Custom registry implementation to use for dispatch and selectors. Defaults
-to the registry registered with the runtime.
-
----
-
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
-Optional namespace override that will be forwarded to
-defineInteraction. Defaults to the runtime namespace.
-
----
-
-### autoHydrate?
-
-```ts
-optional autoHydrate: boolean;
-```
-
-When true, hydrates cached state from the server automatically using the
-controller schema.
-
----
-
-### hydrateServerState()?
-
-```ts
-optional hydrateServerState: (input) => void;
-```
-
-Custom server-state hydration handler invoked when [autoHydrate](#autohydrate) is
-enabled.
-
-#### Parameters
-
-##### input
-
-`HydrateServerStateInput`\<`TItem`, `TQuery`\>
-
-#### Returns
-
-`void`

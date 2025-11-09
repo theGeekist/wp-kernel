@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,16 +13,6 @@ type ResourceRequestEvent = object;
 Event payload for wpk.resource.request
 
 ## Properties
-
-### requestId
-
-```ts
-requestId: string;
-```
-
-Request ID for correlation
-
----
 
 ### method
 
@@ -41,6 +31,16 @@ path: string;
 ```
 
 Request path
+
+---
+
+### requestId
+
+```ts
+requestId: string;
+```
+
+Request ID for correlation
 
 ---
 

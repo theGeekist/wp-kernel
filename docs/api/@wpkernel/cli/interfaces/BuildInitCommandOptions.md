@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -72,26 +72,6 @@ Optional: Custom workspace builder function.
 
 ---
 
-#### runWorkflow()?
-
-```ts
-readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
-```
-
-Optional: Custom workflow runner function.
-
-##### Parameters
-
-###### \_\_namedParameters
-
-[`InitWorkflowOptions`](InitWorkflowOptions.md)
-
-##### Returns
-
-`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>
-
----
-
 #### checkGitRepository()?
 
 ```ts
@@ -113,3 +93,23 @@ Optional: Custom git repository checker function.
 ##### Returns
 
 `Promise`\<`boolean`\>
+
+---
+
+#### runWorkflow()?
+
+```ts
+readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
+```
+
+Optional: Custom workflow runner function.
+
+##### Parameters
+
+###### \_\_namedParameters
+
+[`InitWorkflowOptions`](InitWorkflowOptions.md)
+
+##### Returns
+
+`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>

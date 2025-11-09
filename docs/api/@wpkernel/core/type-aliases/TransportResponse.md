@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,21 +30,10 @@ Response data
 
 ---
 
-### status
-
-```ts
-status: number;
-```
-
-HTTP status code
-
----
-
 ### headers
 
 ```ts
-headers: Record & lt;
-(string, string & gt);
+headers: Record<string, string>;
 ```
 
 Response headers
@@ -58,3 +47,13 @@ requestId: string;
 ```
 
 Request ID used for this request (for correlation)
+
+---
+
+### status
+
+```ts
+status: number;
+```
+
+HTTP status code

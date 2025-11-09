@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -38,10 +38,10 @@ optional context: Record<string, unknown>;
 
 ---
 
-### requestId?
+### messageKey?
 
 ```ts
-optional requestId: string;
+optional messageKey: string;
 ```
 
 ---
@@ -54,8 +54,8 @@ optional reason: string;
 
 ---
 
-### messageKey?
+### requestId?
 
 ```ts
-optional messageKey: string;
+optional requestId: string;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,18 @@ Represents a PHP group `use` statement.
 
 ## Properties
 
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
 ### nodeType
 
 ```ts
@@ -26,18 +38,18 @@ readonly nodeType: "Stmt_GroupUse";
 
 ---
 
-### type
-
-```ts
-readonly type: number;
-```
-
----
-
 ### prefix
 
 ```ts
 readonly prefix: PhpName;
+```
+
+---
+
+### type
+
+```ts
+readonly type: number;
 ```
 
 ---
@@ -47,15 +59,3 @@ readonly prefix: PhpName;
 ```ts
 readonly uses: PhpStmtUseUse[];
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

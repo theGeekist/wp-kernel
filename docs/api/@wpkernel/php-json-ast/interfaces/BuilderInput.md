@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### phase
+### ir
 
 ```ts
-readonly phase: PipelinePhase;
+readonly ir: unknown;
 ```
 
 ---
@@ -24,8 +24,8 @@ readonly options: unknown;
 
 ---
 
-### ir
+### phase
 
 ```ts
-readonly ir: unknown;
+readonly phase: PipelinePhase;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -44,18 +44,6 @@ Base interface for all PHP statement nodes.
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: `Stmt_${string}` | "UseItem" | "PropertyItem";
-```
-
-#### Overrides
-
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
 ### attributes
 
 ```ts
@@ -65,3 +53,15 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: `Stmt_${string}` | "UseItem" | "PropertyItem";
+```
+
+#### Overrides
+
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

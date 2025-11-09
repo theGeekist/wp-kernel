@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,10 +12,10 @@
 
 ## Properties
 
-### pascalName
+### cacheSegments
 
 ```ts
-readonly pascalName: string;
+readonly cacheSegments: readonly unknown[];
 ```
 
 ---
@@ -28,10 +28,10 @@ readonly metadataHost: ResourceMetadataHost;
 
 ---
 
-### cacheSegments
+### pascalName
 
 ```ts
-readonly cacheSegments: readonly unknown[];
+readonly pascalName: string;
 ```
 
 ---

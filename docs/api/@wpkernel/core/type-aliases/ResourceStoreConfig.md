@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -17,8 +17,7 @@ Store configuration for a resource.
 ### resource
 
 ```ts
-resource: ResourceObject & lt;
-(T, TQuery & gt);
+resource: ResourceObject<T, TQuery>;
 ```
 
 The resource object this store is for.

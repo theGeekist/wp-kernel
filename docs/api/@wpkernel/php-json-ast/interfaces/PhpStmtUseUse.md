@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,38 +14,10 @@ Represents an item within a PHP `use` statement.
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: "UseItem";
-```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpName;
-```
-
----
-
 ### alias
 
 ```ts
 readonly alias: PhpIdentifier | null;
-```
-
----
-
-### type
-
-```ts
-readonly type: number;
 ```
 
 ---
@@ -59,3 +31,31 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name: PhpName;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "UseItem";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### type
+
+```ts
+readonly type: number;
+```

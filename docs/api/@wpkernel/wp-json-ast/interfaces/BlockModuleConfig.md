@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### origin
+### manifest
 
 ```ts
-readonly origin: string;
+readonly manifest: BlockManifestConfig;
 ```
 
 ---
@@ -24,10 +24,18 @@ readonly namespace: string;
 
 ---
 
-### manifest
+### origin
 
 ```ts
-readonly manifest: BlockManifestConfig;
+readonly origin: string;
+```
+
+---
+
+### hooks?
+
+```ts
+readonly optional hooks: BlockModuleHooks;
 ```
 
 ---
@@ -44,12 +52,4 @@ readonly optional registrarFileName: string;
 
 ```ts
 readonly optional renderStubs: readonly BlockRenderStubDescriptor[];
-```
-
----
-
-### hooks?
-
-```ts
-readonly optional hooks: BlockModuleHooks;
 ```

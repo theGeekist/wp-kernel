@@ -1,13 +1,13 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
 [@wpkernel/core](../README.md) / ResourceObject
 
-# Type Alias: ResourceObject\<T, TQuery\>
+# Type Alias: ResourceObject\<T, TQuery, TRoutes\>
 
 ```ts
-type ResourceObject<T, TQuery> = object & ResourceClient<T, TQuery>;
+type ResourceObject<T, TQuery, TRoutes> = object & ResourceClient<T, TQuery>;
 ```
 
 Complete resource object returned by defineResource
@@ -17,41 +17,137 @@ Provides both thin-flat API (direct methods) and grouped API (namespaces).
 
 ## Type Declaration
 
-### name
+### cache
 
 ```ts
-name: string;
+cache: object;
 ```
 
-Resource name
+Grouped API: Cache control
 
-### storeKey
+Fine-grained cache management operations.
+
+#### cache.invalidate
 
 ```ts
-storeKey: string;
+invalidate: object;
 ```
 
-WordPress data store key (e.g., 'my-plugin/thing')
+Cache invalidation operations
 
-Used for store registration and selectors
-
-### store
+#### cache.invalidate.all()
 
 ```ts
-readonly store: unknown;
+all: () => void;
 ```
 
-Lazy-loaded @wordpress/data store
+Invalidate all cached data for this resource
 
-Automatically registered on first access.
-Returns the store descriptor compatible with select/dispatch.
+##### Returns
 
-#### Example
+`void`
+
+#### cache.invalidate.item()
 
 ```ts
-import { select } from '@wordpress/data';
-const item = select(thing.store).getItem(123);
+item: (id) => void;
 ```
+
+Invalidate cached item by ID
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+##### Returns
+
+`void`
+
+#### cache.invalidate.list()
+
+```ts
+list: (query?) => void;
+```
+
+Invalidate cached list by query
+
+##### Parameters
+
+###### query?
+
+`TQuery`
+
+##### Returns
+
+`void`
+
+#### cache.key()
+
+```ts
+key: (operation, params?) => (string | number | boolean)[];
+```
+
+Generate cache key
+
+##### Parameters
+
+###### operation
+
+`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
+
+###### params?
+
+`TQuery` | `string` | `number` | `Partial`\<`T`\>
+
+##### Returns
+
+(`string` \| `number` \| `boolean`)[]
+
+#### cache.prefetch
+
+```ts
+prefetch: object;
+```
+
+Prefetch operations (eager loading)
+
+#### cache.prefetch.item()
+
+```ts
+item: (id) => Promise<void>;
+```
+
+Prefetch single item into cache
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+##### Returns
+
+`Promise`\<`void`\>
+
+#### cache.prefetch.list()
+
+```ts
+list: (query?) => Promise<void>;
+```
+
+Prefetch list into cache
+
+##### Parameters
+
+###### query?
+
+`TQuery`
+
+##### Returns
+
+`Promise`\<`void`\>
 
 ### cacheKeys
 
@@ -62,22 +158,6 @@ cacheKeys: Required<CacheKeys<TQuery>>;
 Cache key generators for all operations
 
 Use these to generate cache keys for invalidation
-
-### routes
-
-```ts
-routes: ResourceRoutes;
-```
-
-REST route definitions (normalized)
-
-### reporter
-
-```ts
-reporter: Reporter;
-```
-
-Reporter instance used for resource instrumentation.
 
 ### invalidate()
 
@@ -155,137 +235,47 @@ const key2 = thing.key('get', 123);
 // => ['thing', 'get', 123]
 ```
 
-### cache
+### name
 
 ```ts
-cache: object;
+name: string;
 ```
 
-Grouped API: Cache control
+Resource name
 
-Fine-grained cache management operations.
-
-#### cache.prefetch
+### reporter
 
 ```ts
-prefetch: object;
+reporter: Reporter;
 ```
 
-Prefetch operations (eager loading)
+Reporter instance used for resource instrumentation.
 
-#### cache.prefetch.item()
+### routes
 
 ```ts
-item: (id) => Promise<void>;
+routes: TRoutes;
 ```
 
-Prefetch single item into cache
+REST route definitions (normalized)
 
-##### Parameters
-
-###### id
-
-`string` | `number`
-
-##### Returns
-
-`Promise`\<`void`\>
-
-#### cache.prefetch.list()
+### store
 
 ```ts
-list: (query?) => Promise<void>;
+readonly store: unknown;
 ```
 
-Prefetch list into cache
+Lazy-loaded @wordpress/data store
 
-##### Parameters
+Automatically registered on first access.
+Returns the store descriptor compatible with select/dispatch.
 
-###### query?
-
-`TQuery`
-
-##### Returns
-
-`Promise`\<`void`\>
-
-#### cache.invalidate
+#### Example
 
 ```ts
-invalidate: object;
+import { select } from '@wordpress/data';
+const item = select(thing.store).getItem(123);
 ```
-
-Cache invalidation operations
-
-#### cache.invalidate.item()
-
-```ts
-item: (id) => void;
-```
-
-Invalidate cached item by ID
-
-##### Parameters
-
-###### id
-
-`string` | `number`
-
-##### Returns
-
-`void`
-
-#### cache.invalidate.list()
-
-```ts
-list: (query?) => void;
-```
-
-Invalidate cached list by query
-
-##### Parameters
-
-###### query?
-
-`TQuery`
-
-##### Returns
-
-`void`
-
-#### cache.invalidate.all()
-
-```ts
-all: () => void;
-```
-
-Invalidate all cached data for this resource
-
-##### Returns
-
-`void`
-
-#### cache.key()
-
-```ts
-key: (operation, params?) => (string | number | boolean)[];
-```
-
-Generate cache key
-
-##### Parameters
-
-###### operation
-
-`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
-
-###### params?
-
-`TQuery` | `string` | `number` | `Partial`\<`T`\>
-
-##### Returns
-
-(`string` \| `number` \| `boolean`)[]
 
 ### storeApi
 
@@ -297,14 +287,6 @@ Grouped API: Store access
 
 Direct access to @wordpress/data store internals.
 
-#### storeApi.key
-
-```ts
-key: string;
-```
-
-Store key for @wordpress/data
-
 #### storeApi.descriptor
 
 ```ts
@@ -313,113 +295,186 @@ descriptor: unknown;
 
 Store descriptor (lazy-loaded)
 
-### useGet()?
+#### storeApi.key
 
 ```ts
-optional useGet: (id) => object;
+key: string;
 ```
 
-React hook to fetch a single item
+Store key for @wordpress/data
 
-Uses @wordpress/data's useSelect under the hood.
-Automatically handles loading states and re-fetching.
-Requires the `@wpkernel/ui` package to register hooks.
+### storeKey
 
-#### Parameters
+```ts
+storeKey: string;
+```
 
-##### id
+WordPress data store key (e.g., 'my-plugin/thing')
+
+Used for store registration and selectors
+
+### events?
+
+```ts
+optional events: object;
+```
+
+Grouped API: Event names
+
+Canonical event names for this resource.
+
+#### events.created
+
+```ts
+created: string;
+```
+
+Fired when item is created
+
+#### events.removed
+
+```ts
+removed: string;
+```
+
+Fired when item is removed
+
+#### events.updated
+
+```ts
+updated: string;
+```
+
+Fired when item is updated
+
+### get?
+
+```ts
+optional get: object;
+```
+
+Grouped API: Explicit data fetching (bypass cache)
+
+Direct network calls that always hit the server.
+Useful for refresh actions or real-time data requirements.
+
+#### get.item()
+
+```ts
+item: (id) => Promise<T>;
+```
+
+Get item from server (bypass cache)
+
+Always fetches fresh data from the server, ignoring cache.
+Use for explicit refresh actions or real-time requirements.
+
+##### Parameters
+
+###### id
 
 Item identifier
 
 `string` | `number`
 
-#### Returns
+##### Returns
 
-`object`
+`Promise`\<`T`\>
 
-Hook result with data, isLoading, error
+Promise resolving to the item
 
-##### data
-
-```ts
-data: T | undefined;
-```
-
-##### isLoading
+#### get.list()
 
 ```ts
-isLoading: boolean;
+list: (query?) => Promise<ListResponse<T>>;
 ```
 
-##### error
+Get list from server (bypass cache)
 
-```ts
-error: string | undefined;
-```
+Always fetches fresh data from the server, ignoring cache.
+Use for explicit refresh actions or real-time requirements.
 
-#### Example
+##### Parameters
 
-```ts
-function ThingView({ id }: { id: number }) {
-  const { data: thing, isLoading } = thing.useGet(id);
-  if (isLoading) return <Spinner />;
-  return <div>{thing.title}</div>;
-}
-```
-
-### useList()?
-
-```ts
-optional useList: (query?) => object;
-```
-
-React hook to fetch a list of items
-
-Uses @wordpress/data's useSelect under the hood.
-Automatically handles loading states and re-fetching.
-Requires the `@wpkernel/ui` package to register hooks.
-
-#### Parameters
-
-##### query?
+###### query?
 
 `TQuery`
 
-Query parameters
+Optional query parameters
 
-#### Returns
+##### Returns
 
-`object`
+`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
 
-Hook result with data, isLoading, error
+Promise resolving to list response
 
-##### data
-
-```ts
-data: ListResponse<T> | undefined;
-```
-
-##### isLoading
+### mutate?
 
 ```ts
-isLoading: boolean;
+optional mutate: object;
 ```
 
-##### error
+Grouped API: Mutations (CRUD operations)
+
+Write operations that modify server state.
+
+#### mutate.create()
 
 ```ts
-error: string | undefined;
+create: (data) => Promise<T>;
 ```
 
-#### Example
+Create new item
+
+##### Parameters
+
+###### data
+
+`Partial`\<`T`\>
+
+##### Returns
+
+`Promise`\<`T`\>
+
+#### mutate.remove()
 
 ```ts
-function ThingList({ status }: { status: string }) {
-  const { data, isLoading } = thing.useList({ status });
-  if (isLoading) return <Spinner />;
-  return <List items={data?.items} />;
-}
+remove: (id) => Promise<void>;
 ```
+
+Delete item
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+##### Returns
+
+`Promise`\<`void`\>
+
+#### mutate.update()
+
+```ts
+update: (id, data) => Promise<T>;
+```
+
+Update existing item
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+###### data
+
+`Partial`\<`T`\>
+
+##### Returns
+
+`Promise`\<`T`\>
 
 ### prefetchGet()?
 
@@ -558,168 +613,113 @@ Query parameters
 
 Array of items matching query or empty array
 
-### get?
+### useGet()?
 
 ```ts
-optional get: object;
+optional useGet: (id) => object;
 ```
 
-Grouped API: Explicit data fetching (bypass cache)
+React hook to fetch a single item
 
-Direct network calls that always hit the server.
-Useful for refresh actions or real-time data requirements.
+Uses @wordpress/data's useSelect under the hood.
+Automatically handles loading states and re-fetching.
+Requires the `@wpkernel/ui` package to register hooks.
 
-#### get.item()
+#### Parameters
 
-```ts
-item: (id) => Promise<T>;
-```
-
-Get item from server (bypass cache)
-
-Always fetches fresh data from the server, ignoring cache.
-Use for explicit refresh actions or real-time requirements.
-
-##### Parameters
-
-###### id
+##### id
 
 Item identifier
 
 `string` | `number`
 
-##### Returns
+#### Returns
 
-`Promise`\<`T`\>
+`object`
 
-Promise resolving to the item
+Hook result with data, isLoading, error
 
-#### get.list()
+##### data
 
 ```ts
-list: (query?) => Promise<ListResponse<T>>;
+data: T | undefined;
 ```
 
-Get list from server (bypass cache)
+##### error
 
-Always fetches fresh data from the server, ignoring cache.
-Use for explicit refresh actions or real-time requirements.
+```ts
+error: string | undefined;
+```
 
-##### Parameters
+##### isLoading
 
-###### query?
+```ts
+isLoading: boolean;
+```
+
+#### Example
+
+```ts
+function ThingView({ id }: { id: number }) {
+  const { data: thing, isLoading } = thing.useGet(id);
+  if (isLoading) return <Spinner />;
+  return <div>{thing.title}</div>;
+}
+```
+
+### useList()?
+
+```ts
+optional useList: (query?) => object;
+```
+
+React hook to fetch a list of items
+
+Uses @wordpress/data's useSelect under the hood.
+Automatically handles loading states and re-fetching.
+Requires the `@wpkernel/ui` package to register hooks.
+
+#### Parameters
+
+##### query?
 
 `TQuery`
 
-Optional query parameters
+Query parameters
 
-##### Returns
+#### Returns
 
-`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
+`object`
 
-Promise resolving to list response
+Hook result with data, isLoading, error
 
-### mutate?
-
-```ts
-optional mutate: object;
-```
-
-Grouped API: Mutations (CRUD operations)
-
-Write operations that modify server state.
-
-#### mutate.create()
+##### data
 
 ```ts
-create: (data) => Promise<T>;
+data: ListResponse<T> | undefined;
 ```
 
-Create new item
-
-##### Parameters
-
-###### data
-
-`Partial`\<`T`\>
-
-##### Returns
-
-`Promise`\<`T`\>
-
-#### mutate.update()
+##### error
 
 ```ts
-update: (id, data) => Promise<T>;
+error: string | undefined;
 ```
 
-Update existing item
-
-##### Parameters
-
-###### id
-
-`string` | `number`
-
-###### data
-
-`Partial`\<`T`\>
-
-##### Returns
-
-`Promise`\<`T`\>
-
-#### mutate.remove()
+##### isLoading
 
 ```ts
-remove: (id) => Promise<void>;
+isLoading: boolean;
 ```
 
-Delete item
-
-##### Parameters
-
-###### id
-
-`string` | `number`
-
-##### Returns
-
-`Promise`\<`void`\>
-
-### events?
+#### Example
 
 ```ts
-optional events: object;
+function ThingList({ status }: { status: string }) {
+  const { data, isLoading } = thing.useList({ status });
+  if (isLoading) return <Spinner />;
+  return <List items={data?.items} />;
+}
 ```
-
-Grouped API: Event names
-
-Canonical event names for this resource.
-
-#### events.created
-
-```ts
-created: string;
-```
-
-Fired when item is created
-
-#### events.updated
-
-```ts
-updated: string;
-```
-
-Fired when item is updated
-
-#### events.removed
-
-```ts
-removed: string;
-```
-
-Fired when item is removed
 
 ## Type Parameters
 
@@ -734,6 +734,10 @@ The resource entity type
 `TQuery` = `unknown`
 
 Query parameters type for list operations
+
+### TRoutes
+
+`TRoutes` _extends_ [`ResourceRoutes`](ResourceRoutes.md) = [`ResourceRoutes`](ResourceRoutes.md)
 
 ## Example
 

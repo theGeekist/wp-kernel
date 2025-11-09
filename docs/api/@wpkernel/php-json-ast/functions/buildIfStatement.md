@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,13 +30,13 @@ An array of `PhpStmt` nodes for the `if` block.
 
 Optional configuration for `elseif` and `else` branches.
 
-#### elseifs?
-
-[`PhpStmtElseIf`](../interfaces/PhpStmtElseIf.md)[]
-
 #### elseBranch?
 
 [`PhpStmtElse`](../interfaces/PhpStmtElse.md) \| `null`
+
+#### elseifs?
+
+[`PhpStmtElseIf`](../interfaces/PhpStmtElseIf.md)[]
 
 ### attributes?
 

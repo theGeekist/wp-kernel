@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -19,34 +19,6 @@ Runtime helpers exposed by `defineCapability()`.
 `K` _extends_ `Record`\<`string`, `unknown`\>
 
 ## Properties
-
-### can()
-
-```ts
-can: <Key>(key, ...params) => boolean | Promise<boolean>;
-```
-
-#### Type Parameters
-
-##### Key
-
-`Key` _extends_ keyof `K`
-
-#### Parameters
-
-##### key
-
-`Key`
-
-##### params
-
-...[`ParamsOf`](ParamsOf.md)\<`K`, `Key`\>
-
-#### Returns
-
-`boolean` \| `Promise`\<`boolean`\>
-
----
 
 ### assert()
 
@@ -76,15 +48,39 @@ assert: <Key>(key, ...params) => void | Promise<void>;
 
 ---
 
-### keys()
+### cache
 
 ```ts
-keys: () => keyof K[];
+readonly cache: CapabilityCache;
 ```
+
+---
+
+### can()
+
+```ts
+can: <Key>(key, ...params) => boolean | Promise<boolean>;
+```
+
+#### Type Parameters
+
+##### Key
+
+`Key` _extends_ keyof `K`
+
+#### Parameters
+
+##### key
+
+`Key`
+
+##### params
+
+...[`ParamsOf`](ParamsOf.md)\<`K`, `Key`\>
 
 #### Returns
 
-keyof `K`[]
+`boolean` \| `Promise`\<`boolean`\>
 
 ---
 
@@ -106,8 +102,12 @@ extend: (additionalMap) => void;
 
 ---
 
-### cache
+### keys()
 
 ```ts
-readonly cache: CapabilityCache;
+keys: () => keyof K[];
 ```
+
+#### Returns
+
+keyof `K`[]

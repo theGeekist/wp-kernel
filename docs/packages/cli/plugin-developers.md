@@ -1,8 +1,10 @@
 # @wpkernel/cli for Plugin Developers
 
+> For plugin teams using WPKernel to scaffold and maintain synchronised PHP, JS, and UI code.
+
 ## Overview
 
-The CLI scaffolds kernel-ready plugins and manages PHP builders, manifest generation, and codemod execution. Plugin teams run `init`, iterate with `generate`, and apply workspace patches through the kernel-aware pipeline so PHP, TypeScript, and UI scaffolding stay in sync.
+The CLI scaffolds wpk-ready plugins and manages PHP builders, manifest generation, and codemod execution. Plugin teams run `init`, iterate with `generate`, and `apply` workspace patches through the wpk-aware pipeline so PHP, TypeScript, and UI scaffolding stay in sync.
 
 ## Workflow
 
@@ -31,7 +33,7 @@ expect(summariesByPath.get('composer.json')).toBe('created');
 
 ## Patterns
 
-Leave `composer.json` and existing front-end assets untouched unless `--force` is intentional. The CLI inspects the workspace before writing so repeated runs remain idempotent. When iterating on scaffolds, rerun `generate` after editing `wpk.config.ts` so changes propagate into controllers and PHP manifests.
+Leaves `composer.json` and existing front-end assets untouched unless `--force` is intentional. The CLI inspects the workspace before writing so repeated runs remain idempotent. When iterating on scaffolds, rerun `generate` after editing `wpk.config.ts` so changes propagate into controllers and PHP manifests.
 
 ## Extension Points
 

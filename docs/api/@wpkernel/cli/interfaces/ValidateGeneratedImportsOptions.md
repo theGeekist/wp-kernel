@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -18,16 +18,16 @@ projectRoot: string;
 
 ---
 
-### summary
-
-```ts
-summary: GenerationSummary;
-```
-
----
-
 ### reporter
 
 ```ts
 reporter: Reporter;
+```
+
+---
+
+### summary
+
+```ts
+summary: GenerationSummary;
 ```

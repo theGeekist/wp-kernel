@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,10 +24,10 @@ type: 'string' | 'enum';
 
 ---
 
-### optional?
+### description?
 
 ```ts
-optional optional: boolean;
+optional description: string;
 ```
 
 ---
@@ -40,8 +40,8 @@ optional enum: readonly string[];
 
 ---
 
-### description?
+### optional?
 
 ```ts
-optional description: string;
+optional optional: boolean;
 ```

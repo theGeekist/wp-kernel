@@ -1,8 +1,8 @@
-**@wpkernel/cli v0.12.0**
+**@wpkernel/cli v0.12.1-beta.2**
 
 ---
 
-# @wpkernel/cli v0.12.0
+# @wpkernel/cli v0.12.1-beta.2
 
 Top-level exports for the `@wpkernel/cli` package.
 
@@ -14,41 +14,41 @@ wpk and UI packages.
 
 ### Commands
 
-- [BuildInitCommandOptions](interfaces/BuildInitCommandOptions.md)
 - [BuildCreateCommandOptions](interfaces/BuildCreateCommandOptions.md)
-- [ValidateGeneratedImportsOptions](interfaces/ValidateGeneratedImportsOptions.md)
-- [BuildStartCommandOptions](interfaces/BuildStartCommandOptions.md)
-- [FileSystem](interfaces/FileSystem.md)
 - [BuildDoctorCommandOptions](interfaces/BuildDoctorCommandOptions.md)
-- [DoctorCheckResult](interfaces/DoctorCheckResult.md)
+- [BuildInitCommandOptions](interfaces/BuildInitCommandOptions.md)
+- [BuildStartCommandOptions](interfaces/BuildStartCommandOptions.md)
 - [CheckPhpEnvironmentOptions](interfaces/CheckPhpEnvironmentOptions.md)
+- [DoctorCheckResult](interfaces/DoctorCheckResult.md)
+- [FileSystem](interfaces/FileSystem.md)
+- [ValidateGeneratedImportsOptions](interfaces/ValidateGeneratedImportsOptions.md)
 
 ### Config
 
-- [WPKernelConfigV1](interfaces/WPKernelConfigV1.md)
+- [LoadedWPKernelConfig](interfaces/LoadedWPKernelConfig.md)
+- [ResourceRegistry](interfaces/ResourceRegistry.md)
 - [SchemaConfig](interfaces/SchemaConfig.md)
 - [SchemaRegistry](interfaces/SchemaRegistry.md)
-- [ResourceRegistry](interfaces/ResourceRegistry.md)
-- [LoadedWPKernelConfig](interfaces/LoadedWPKernelConfig.md)
+- [WPKernelConfigV1](interfaces/WPKernelConfigV1.md)
 
 ### AST Builders
 
 - [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)
 - [CreateTsBuilderOptions](interfaces/CreateTsBuilderOptions.md)
+- [ResourceDescriptor](interfaces/ResourceDescriptor.md)
+- [TsBuilderAfterEmitOptions](interfaces/TsBuilderAfterEmitOptions.md)
 - [TsBuilderCreator](interfaces/TsBuilderCreator.md)
 - [TsBuilderCreatorContext](interfaces/TsBuilderCreatorContext.md)
-- [TsBuilderLifecycleHooks](interfaces/TsBuilderLifecycleHooks.md)
-- [TsBuilderAfterEmitOptions](interfaces/TsBuilderAfterEmitOptions.md)
 - [TsBuilderEmitOptions](interfaces/TsBuilderEmitOptions.md)
-- [ResourceDescriptor](interfaces/ResourceDescriptor.md)
+- [TsBuilderLifecycleHooks](interfaces/TsBuilderLifecycleHooks.md)
 
 ### Adapters
 
-- [AdaptersConfig](interfaces/AdaptersConfig.md)
-- [PhpAdapterConfig](interfaces/PhpAdapterConfig.md)
 - [AdapterContext](interfaces/AdapterContext.md)
 - [AdapterExtension](interfaces/AdapterExtension.md)
 - [AdapterExtensionContext](interfaces/AdapterExtensionContext.md)
+- [AdaptersConfig](interfaces/AdaptersConfig.md)
+- [PhpAdapterConfig](interfaces/PhpAdapterConfig.md)
 
 ### CLI
 
@@ -56,76 +56,76 @@ wpk and UI packages.
 
 ### Workspace
 
-- [EnsureGeneratedPhpCleanOptions](interfaces/EnsureGeneratedPhpCleanOptions.md)
-- [EnsureCleanDirectoryOptions](interfaces/EnsureCleanDirectoryOptions.md)
 - [ConfirmPromptOptions](interfaces/ConfirmPromptOptions.md)
-- [Workspace](interfaces/Workspace.md)
+- [EnsureCleanDirectoryOptions](interfaces/EnsureCleanDirectoryOptions.md)
+- [EnsureGeneratedPhpCleanOptions](interfaces/EnsureGeneratedPhpCleanOptions.md)
 - [FileManifest](interfaces/FileManifest.md)
-- [MergeOptions](interfaces/MergeOptions.md)
 - [MergeMarkers](interfaces/MergeMarkers.md)
-- [WriteJsonOptions](interfaces/WriteJsonOptions.md)
+- [MergeOptions](interfaces/MergeOptions.md)
 - [RemoveOptions](interfaces/RemoveOptions.md)
+- [Workspace](interfaces/Workspace.md)
+- [WriteJsonOptions](interfaces/WriteJsonOptions.md)
 
 ### IR
 
-- [IRv1](interfaces/IRv1.md)
-- [IRSchema](interfaces/IRSchema.md)
-- [IRResource](interfaces/IRResource.md)
-- [IRRoute](interfaces/IRRoute.md)
-- [IRCapabilityHint](interfaces/IRCapabilityHint.md)
-- [IRBlock](interfaces/IRBlock.md)
-- [IRPhpProject](interfaces/IRPhpProject.md)
 - [BuildIrOptions](interfaces/BuildIrOptions.md)
 - [CreateIrEnvironment](interfaces/CreateIrEnvironment.md)
-- [IRDiagnostic](interfaces/IRDiagnostic.md)
+- [IRBlock](interfaces/IRBlock.md)
 - [IRCapabilityDefinition](interfaces/IRCapabilityDefinition.md)
+- [IRCapabilityHint](interfaces/IRCapabilityHint.md)
 - [IRCapabilityMap](interfaces/IRCapabilityMap.md)
+- [IRDiagnostic](interfaces/IRDiagnostic.md)
+- [IRPhpProject](interfaces/IRPhpProject.md)
+- [IRResource](interfaces/IRResource.md)
 - [IRResourceCacheKey](interfaces/IRResourceCacheKey.md)
+- [IRRoute](interfaces/IRRoute.md)
+- [IRSchema](interfaces/IRSchema.md)
+- [IRv1](interfaces/IRv1.md)
 - [IRWarning](interfaces/IRWarning.md)
 
 ### Runtime
 
+- [BuilderInput](interfaces/BuilderInput.md)
+- [ConflictDiagnostic](interfaces/ConflictDiagnostic.md)
+- [FragmentInput](interfaces/FragmentInput.md)
+- [FragmentOutput](interfaces/FragmentOutput.md)
+- [MissingDependencyDiagnostic](interfaces/MissingDependencyDiagnostic.md)
+- [PipelineContext](interfaces/PipelineContext.md)
+- [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 - [PipelineRunOptions](interfaces/PipelineRunOptions.md)
 - [PipelineRunResult](interfaces/PipelineRunResult.md)
 - [PipelineStep](interfaces/PipelineStep.md)
-- [ConflictDiagnostic](interfaces/ConflictDiagnostic.md)
-- [MissingDependencyDiagnostic](interfaces/MissingDependencyDiagnostic.md)
 - [UnusedHelperDiagnostic](interfaces/UnusedHelperDiagnostic.md)
-- [BuilderInput](interfaces/BuilderInput.md)
-- [FragmentInput](interfaces/FragmentInput.md)
-- [FragmentOutput](interfaces/FragmentOutput.md)
-- [PipelineContext](interfaces/PipelineContext.md)
-- [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 
 ### Other
 
+- [ApplyFlags](interfaces/ApplyFlags.md)
+- [ApplyLogEntry](interfaces/ApplyLogEntry.md)
+- [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
+- [BuildGenerateCommandOptions](interfaces/BuildGenerateCommandOptions.md)
+- [CreateBackupsOptions](interfaces/CreateBackupsOptions.md)
+- [CreateHelperOptions](interfaces/CreateHelperOptions.md)
+- [FileWriteRecord](interfaces/FileWriteRecord.md)
+- [FileWriterSummary](interfaces/FileWriterSummary.md)
+- [GenerationManifest](interfaces/GenerationManifest.md)
+- [GenerationManifestFilePair](interfaces/GenerationManifestFilePair.md)
+- [GenerationManifestResourceArtifacts](interfaces/GenerationManifestResourceArtifacts.md)
+- [GenerationManifestResourceEntry](interfaces/GenerationManifestResourceEntry.md)
+- [GenerationSummary](interfaces/GenerationSummary.md)
+- [GitDependencies](interfaces/GitDependencies.md)
 - [Helper](interfaces/Helper.md)
 - [HelperApplyOptions](interfaces/HelperApplyOptions.md)
 - [HelperDescriptor](interfaces/HelperDescriptor.md)
-- [CreateHelperOptions](interfaces/CreateHelperOptions.md)
-- [MutableIr](interfaces/MutableIr.md)
+- [InitWorkflowOptions](interfaces/InitWorkflowOptions.md)
+- [InitWorkflowResult](interfaces/InitWorkflowResult.md)
+- [InstallerDependencies](interfaces/InstallerDependencies.md)
 - [IrFragmentInput](interfaces/IrFragmentInput.md)
 - [IrFragmentOutput](interfaces/IrFragmentOutput.md)
-- [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
-- [GenerationManifest](interfaces/GenerationManifest.md)
-- [GenerationManifestResourceEntry](interfaces/GenerationManifestResourceEntry.md)
-- [GenerationManifestResourceArtifacts](interfaces/GenerationManifestResourceArtifacts.md)
-- [GenerationManifestFilePair](interfaces/GenerationManifestFilePair.md)
+- [MutableIr](interfaces/MutableIr.md)
 - [PatchManifest](interfaces/PatchManifest.md)
 - [PatchManifestSummary](interfaces/PatchManifestSummary.md)
 - [PatchRecord](interfaces/PatchRecord.md)
-- [ApplyLogEntry](interfaces/ApplyLogEntry.md)
-- [ApplyFlags](interfaces/ApplyFlags.md)
-- [CreateBackupsOptions](interfaces/CreateBackupsOptions.md)
-- [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
-- [InitWorkflowOptions](interfaces/InitWorkflowOptions.md)
-- [InitWorkflowResult](interfaces/InitWorkflowResult.md)
-- [GitDependencies](interfaces/GitDependencies.md)
-- [InstallerDependencies](interfaces/InstallerDependencies.md)
-- [BuildGenerateCommandOptions](interfaces/BuildGenerateCommandOptions.md)
-- [GenerationSummary](interfaces/GenerationSummary.md)
-- [FileWriterSummary](interfaces/FileWriterSummary.md)
-- [FileWriteRecord](interfaces/FileWriteRecord.md)
+- [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
 
 ## Type Aliases
 
@@ -136,11 +136,11 @@ wpk and UI packages.
 
 ### Commands
 
-- [InitCommandConstructor](type-aliases/InitCommandConstructor.md)
-- [InitCommandInstance](type-aliases/InitCommandInstance.md)
 - [CreateCommandConstructor](type-aliases/CreateCommandConstructor.md)
 - [CreateCommandInstance](type-aliases/CreateCommandInstance.md)
 - [DoctorStatus](type-aliases/DoctorStatus.md)
+- [InitCommandConstructor](type-aliases/InitCommandConstructor.md)
+- [InitCommandInstance](type-aliases/InitCommandInstance.md)
 
 ### Config
 
@@ -148,8 +148,8 @@ wpk and UI packages.
 
 ### Adapters
 
-- [PhpAdapterFactory](type-aliases/PhpAdapterFactory.md)
 - [AdapterExtensionFactory](type-aliases/AdapterExtensionFactory.md)
+- [PhpAdapterFactory](type-aliases/PhpAdapterFactory.md)
 
 ### Workspace
 
@@ -157,41 +157,41 @@ wpk and UI packages.
 
 ### IR
 
-- [IRDiagnosticSeverity](type-aliases/IRDiagnosticSeverity.md)
 - [IRCapabilityScope](type-aliases/IRCapabilityScope.md)
+- [IRDiagnosticSeverity](type-aliases/IRDiagnosticSeverity.md)
 - [IRRouteTransport](type-aliases/IRRouteTransport.md)
 - [SchemaProvenance](type-aliases/SchemaProvenance.md)
 
 ### Runtime
 
-- [Pipeline](type-aliases/Pipeline.md)
-- [PipelineDiagnostic](type-aliases/PipelineDiagnostic.md)
+- [BuilderHelper](type-aliases/BuilderHelper.md)
 - [BuilderOutput](type-aliases/BuilderOutput.md)
 - [BuilderWriteAction](type-aliases/BuilderWriteAction.md)
-- [BuilderHelper](type-aliases/BuilderHelper.md)
 - [FragmentHelper](type-aliases/FragmentHelper.md)
+- [Pipeline](type-aliases/Pipeline.md)
+- [PipelineDiagnostic](type-aliases/PipelineDiagnostic.md)
 - [PipelineExtension](type-aliases/PipelineExtension.md)
 - [PipelineExtensionHook](type-aliases/PipelineExtensionHook.md)
 - [PipelineExtensionHookOptions](type-aliases/PipelineExtensionHookOptions.md)
 
 ### Other
 
+- [ApplyCommandConstructor](type-aliases/ApplyCommandConstructor.md)
+- [ApplyCommandInstance](type-aliases/ApplyCommandInstance.md)
+- [ApplyLogStatus](type-aliases/ApplyLogStatus.md)
+- [BuilderHelperOptions](type-aliases/BuilderHelperOptions.md)
 - [CapabilityMapScope](type-aliases/CapabilityMapScope.md)
+- [CliReporter](type-aliases/CliReporter.md)
+- [CommandConstructor](type-aliases/CommandConstructor.md)
+- [FileWriteStatus](type-aliases/FileWriteStatus.md)
+- [FragmentHelperOptions](type-aliases/FragmentHelperOptions.md)
 - [HelperApplyFn](type-aliases/HelperApplyFn.md)
 - [HelperKind](type-aliases/HelperKind.md)
 - [HelperMode](type-aliases/HelperMode.md)
-- [FragmentHelperOptions](type-aliases/FragmentHelperOptions.md)
-- [BuilderHelperOptions](type-aliases/BuilderHelperOptions.md)
-- [CliReporter](type-aliases/CliReporter.md)
-- [PipelinePhase](type-aliases/PipelinePhase.md)
 - [IrFragment](type-aliases/IrFragment.md)
 - [PatchStatus](type-aliases/PatchStatus.md)
-- [ApplyLogStatus](type-aliases/ApplyLogStatus.md)
-- [ApplyCommandConstructor](type-aliases/ApplyCommandConstructor.md)
-- [ApplyCommandInstance](type-aliases/ApplyCommandInstance.md)
+- [PipelinePhase](type-aliases/PipelinePhase.md)
 - [ScaffoldStatus](type-aliases/ScaffoldStatus.md)
-- [CommandConstructor](type-aliases/CommandConstructor.md)
-- [FileWriteStatus](type-aliases/FileWriteStatus.md)
 
 ## Variables
 
@@ -217,20 +217,20 @@ wpk and UI packages.
 ### Commands
 
 - [buildApplyCommand](functions/buildApplyCommand.md)
-- [buildInitCommand](functions/buildInitCommand.md)
 - [buildCreateCommand](functions/buildCreateCommand.md)
-- [buildGenerateCommand](functions/buildGenerateCommand.md)
-- [buildStartCommand](functions/buildStartCommand.md)
 - [buildDoctorCommand](functions/buildDoctorCommand.md)
+- [buildGenerateCommand](functions/buildGenerateCommand.md)
+- [buildInitCommand](functions/buildInitCommand.md)
+- [buildStartCommand](functions/buildStartCommand.md)
 
 ### AST Builders
 
+- [createApplyPlanBuilder](functions/createApplyPlanBuilder.md)
 - [createBundler](functions/createBundler.md)
-- [createPhpBuilder](functions/createPhpBuilder.md)
-- [createTsBuilder](functions/createTsBuilder.md)
 - [createJsBlocksBuilder](functions/createJsBlocksBuilder.md)
 - [createPatcher](functions/createPatcher.md)
-- [createApplyPlanBuilder](functions/createApplyPlanBuilder.md)
+- [createPhpBuilder](functions/createPhpBuilder.md)
+- [createTsBuilder](functions/createTsBuilder.md)
 
 ### CLI
 
@@ -239,25 +239,25 @@ wpk and UI packages.
 ### Workspace
 
 - [buildWorkspace](functions/buildWorkspace.md)
-- [ensureGeneratedPhpClean](functions/ensureGeneratedPhpClean.md)
 - [ensureCleanDirectory](functions/ensureCleanDirectory.md)
+- [ensureGeneratedPhpClean](functions/ensureGeneratedPhpClean.md)
 - [promptConfirm](functions/promptConfirm.md)
 
 ### IR
 
 - [buildIr](functions/buildIr.md)
-- [createIr](functions/createIr.md)
-- [registerCoreFragments](functions/registerCoreFragments.md)
-- [registerCoreBuilders](functions/registerCoreBuilders.md)
-- [createMetaFragment](functions/createMetaFragment.md)
-- [createSchemasFragment](functions/createSchemasFragment.md)
-- [createResourcesFragment](functions/createResourcesFragment.md)
+- [createBlocksFragment](functions/createBlocksFragment.md)
 - [createCapabilitiesFragment](functions/createCapabilitiesFragment.md)
 - [createCapabilityMapFragment](functions/createCapabilityMapFragment.md)
 - [createDiagnosticsFragment](functions/createDiagnosticsFragment.md)
-- [createBlocksFragment](functions/createBlocksFragment.md)
+- [createIr](functions/createIr.md)
+- [createMetaFragment](functions/createMetaFragment.md)
 - [createOrderingFragment](functions/createOrderingFragment.md)
+- [createResourcesFragment](functions/createResourcesFragment.md)
+- [createSchemasFragment](functions/createSchemasFragment.md)
 - [createValidationFragment](functions/createValidationFragment.md)
+- [registerCoreBuilders](functions/registerCoreBuilders.md)
+- [registerCoreFragments](functions/registerCoreFragments.md)
 
 ### Runtime
 
@@ -267,4 +267,6 @@ wpk and UI packages.
 ### Other
 
 - [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
+- [createTsCapabilityBuilder](functions/createTsCapabilityBuilder.md)
+- [createTsIndexBuilder](functions/createTsIndexBuilder.md)
 - [toWorkspaceRelative](functions/toWorkspaceRelative.md)

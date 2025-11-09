@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### yes
-
-```ts
-readonly yes: boolean;
-```
-
----
-
 ### backup
 
 ```ts
 readonly backup: boolean;
+```
+
+---
+
+### cleanup
+
+```ts
+readonly cleanup: readonly string[];
 ```
 
 ---
@@ -32,8 +32,8 @@ readonly force: boolean;
 
 ---
 
-### cleanup
+### yes
 
 ```ts
-readonly cleanup: readonly string[];
+readonly yes: boolean;
 ```

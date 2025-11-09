@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,14 +12,6 @@
 
 ## Properties
 
-### type
-
-```ts
-readonly type: "string" | "number";
-```
-
----
-
 ### param
 
 ```ts
@@ -29,3 +21,11 @@ readonly param: string;
 #### Inherited from
 
 [`ResourceControllerIdentityPlan`](ResourceControllerIdentityPlan.md).[`param`](ResourceControllerIdentityPlan.md#param)
+
+---
+
+### type
+
+```ts
+readonly type: "string" | "number";
+```

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,16 +9,6 @@
 Output for a fragment helper.
 
 ## Properties
-
-### draft
-
-```ts
-readonly draft: MutableIr;
-```
-
-The mutable Intermediate Representation draft.
-
----
 
 ### assign()
 
@@ -39,3 +29,13 @@ The partial IR to assign.
 #### Returns
 
 `void`
+
+---
+
+### draft
+
+```ts
+readonly draft: MutableIr;
+```
+
+The mutable Intermediate Representation draft.

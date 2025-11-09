@@ -50,5 +50,6 @@ This flow keeps the catalogue discoverable and avoids duplicate effort across te
 ## Additional resources
 
 - `tests/TEST_PATTERNS.md` - canonical examples and escalation paths.
+- [E2E Testing Guide](./e2e-testing.md) - for end-to-end testing with Playwright.
 - Package READMEs - quick reminder of helper entry points per package.
 - `/docs/packages/*` - lightweight overviews linking to helper docs and API reference pages.

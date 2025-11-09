@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,15 +14,23 @@ Represents a PHP function declaration statement.
 
 ## Properties
 
-### nodeType
+### attrGroups
 
 ```ts
-readonly nodeType: "Stmt_Function";
+readonly attrGroups: PhpAttrGroup[];
 ```
 
-#### Overrides
+---
 
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
 ---
 
@@ -39,6 +47,26 @@ readonly byRef: boolean;
 ```ts
 readonly name: PhpIdentifier;
 ```
+
+---
+
+### namespacedName
+
+```ts
+readonly namespacedName: PhpName | null;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_Function";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -63,31 +91,3 @@ readonly returnType: PhpType | null;
 ```ts
 readonly stmts: PhpStmt[];
 ```
-
----
-
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### namespacedName
-
-```ts
-readonly namespacedName: PhpName | null;
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

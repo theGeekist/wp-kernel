@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### resource
+### identity
 
 ```ts
-readonly resource: MutationHelperResource;
+readonly identity: MutationIdentity;
 ```
 
 ---
@@ -24,8 +24,8 @@ readonly pascalName: string;
 
 ---
 
-### identity
+### resource
 
 ```ts
-readonly identity: MutationIdentity;
+readonly resource: MutationHelperResource;
 ```

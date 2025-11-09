@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -35,10 +35,10 @@ Return type from the action
 
 ## Properties
 
-### type
+### \_\_kernelAction
 
 ```ts
-type: typeof EXECUTE_ACTION_TYPE;
+__kernelAction: true;
 ```
 
 ---
@@ -52,8 +52,7 @@ payload: object;
 #### action
 
 ```ts
-action: DefinedAction & lt;
-(TArgs, TResult & gt);
+action: DefinedAction<TArgs, TResult>;
 ```
 
 #### args
@@ -64,10 +63,10 @@ args: TArgs;
 
 ---
 
-### \_\_kernelAction
+### type
 
 ```ts
-__kernelAction: true;
+type: typeof EXECUTE_ACTION_TYPE;
 ```
 
 ---

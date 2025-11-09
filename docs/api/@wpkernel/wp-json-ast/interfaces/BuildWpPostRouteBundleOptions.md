@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,30 +7,6 @@
 # Interface: BuildWpPostRouteBundleOptions
 
 ## Properties
-
-### resource
-
-```ts
-readonly resource: MutationHelperResource;
-```
-
----
-
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
----
-
-### identity
-
-```ts
-readonly identity: ResolvedIdentity;
-```
-
----
 
 ### errorCodeFactory()
 
@@ -47,3 +23,27 @@ readonly errorCodeFactory: (suffix) => string;
 #### Returns
 
 `string`
+
+---
+
+### identity
+
+```ts
+readonly identity: ResolvedIdentity;
+```
+
+---
+
+### pascalName
+
+```ts
+readonly pascalName: string;
+```
+
+---
+
+### resource
+
+```ts
+readonly resource: MutationHelperResource;
+```
