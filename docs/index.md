@@ -1,44 +1,122 @@
 ---
+layout: home
 title: WPKernel
+titleTemplate: A modern framework for WordPress apps
+
+hero:
+    name: WPKernel
+    text: Start with one config file
+    tagline: Edit `wpk.config` → run wpk generate + wpk apply
+    actions:
+        - theme: brand
+          text: Quickstart (3 mins)
+          link: /guide/quickstart
+        - theme: alt
+          text: Edit wpk.config.ts
+          link: /guide/config
+        - theme: alt
+          text: Philosophy & Architecture
+          link: /guide/philosophy
+
+features:
+    - title: Single source of truth
+      details: One `wpk.config.ts` defines resources, capabilities, schemas, and targets. Generators build the rest.
+    - title: Deterministic generation
+      details: '`wpk generate` produces PHP controllers, JS hooks, types, and docs; `wpk apply` commits atomically or rolls back.'
+    - title: Inline capability mapping
+      details: Declare friendly capability keys once. The CLI validates, injects server checks, and emits a JS runtime map.
+    - title: Ready for WordPress UI
+      details: Add `ui.admin.dataviews` to create full DataViews admin screens with React, interactivity, and access control.
 ---
 
-# Build modern WordPress plugins from one source of truth
+## The three-minute path
 
-WPKernel gives WordPress developers a predictable workflow. Describe resources and capabilities in `wpk.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
+### 1 · Create a plugin workspace
 
-<div class="cta-buttons">
-<a class="vp-button" href="/getting-started/quick-start">Quick Start</a>
-<a class="vp-button" href="/examples/">See Examples</a>
-<a class="vp-button" href="/guide/">Core Concepts</a>
-</div>
-
-## Conventions over glue code
-
-`defineResource` provides REST helpers, cache keys, React hooks, and grouped APIs in one place. `wpk generate` turns that config into `.generated/` TypeScript declarations and PHP controllers, and `wpk apply` moves the PHP layer into `inc/`. You can review the builders in `packages/cli/src/builders` to see exactly what is produced.
-
-```ts
-// src/index.ts
-import { configureWPKernel } from '@wpkernel/core/data';
-import type { WPKInstance } from '@wpkernel/core/data';
-import { wpkConfig } from '../wpk.config';
-
-export function bootstrapKernel(): WPKInstance {
-	return configureWPKernel({
-		namespace: wpkConfig.namespace,
-	});
-}
-
-export const wpk = bootstrapKernel();
+```bash
+npm create @wpkernel/wpk my-plugin
+cd my-plugin
 ```
 
-## Works with the WordPress runtime
+### 2 · Open `wpk.config.ts`
 
-The wpk integrates with WordPress data stores and emits public events through `@wordpress/hooks`. Generated PHP controllers honour storage modes (`wp-post`, `wp-option`, `transient`) and fall back to `WP_Error(501, 'Not Implemented')` when you mark routes as local but omit storage. When you provide DataViews metadata in the config the CLI creates React screens under `.generated/ui/app/**` and admin menu shims under `.generated/php/Admin/**` so you can enqueue them immediately.【F:packages/cli/src/builders/php/resourceController.ts†L1-L220】【F:packages/cli/src/builders/ts.ts†L1-L200】
+Declare your first resource.
 
-## Three ways to dive in
+```ts
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
 
-- **Getting Started** - Install the CLI and walk the golden path from `wpk init` through `wpk start`.
-- **Guide** - Learn how resources, actions, capabilities, and UI bindings work together.
-- **API Reference** - Browse the generated Typedoc for `@wpkernel/cli`, `@wpkernel/core`, and `@wpkernel/ui`.
+const config: WPKernelConfigV1 = {
+	version: 1,
+	namespace: 'MyOrg\\Demo',
 
-When you are ready, begin with the [Quick Start](/getting-started/quick-start) or explore the [Showcase plugin](/examples/showcase) to see a full workflow in action.【F:docs/getting-started/quick-start.md†L1-L72】【F:examples/showcase/wpk.config.ts†L1-L115】
+	resources: {
+		post: {
+			name: 'post',
+
+			routes: {
+				list: {
+					path: '/wpk/v1/post',
+					method: 'GET',
+					capability: 'post.list',
+				},
+				get: {
+					path: '/wpk/v1/post/:id',
+					method: 'GET',
+					capability: 'post.get',
+				},
+				create: {
+					path: '/wpk/v1/post',
+					method: 'POST',
+					capability: 'post.create',
+				},
+			},
+
+			capabilities: {
+				'post.list': 'read',
+				'post.get': 'read',
+				'post.create': 'edit_posts',
+			},
+
+			ui: {
+				admin: {
+					view: 'dataviews',
+					dataviews: { search: true },
+				},
+			},
+		},
+	},
+
+	adapters: {},
+};
+
+export default config;
+```
+
+### 3 · Generate, then apply
+
+```bash
+wpk generate   # build PHP controllers, JS hooks, types, and UI shims
+wpk apply      # transactional write (commit / rollback)
+```
+
+### 4 · Activate in WordPress
+
+Enable your plugin and open its admin screen (it’s already capability-gated.)
+
+::: tip What just happened?
+`wpk.config.ts` became REST endpoints, capability enforcement, typed React hooks, and an optional admin UI, all without boilerplate.
+:::
+
+## Next steps
+
+- **Edit the config** → [/guide/config](/guide/config)
+- **Understand the workflow** → [/guide](/guide/index)
+- **CLI reference** → [/packages/cli](/packages/cli)
+
+### Philosophy
+
+WPKernel follows a **config-first** principle:
+
+- _Describe intent once._ The CLI derives artefacts deterministically.
+- _Generate, don’t scaffold._ Each run syncs code, types, and enforcement from your config.
+- _Stay reversible._ Every `apply` is transactional, safe to rerun, easy to roll back.
