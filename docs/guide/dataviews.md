@@ -42,7 +42,7 @@ resources: {
           },
         },
       },
-    },
+			    },
   },
 },
 ```
@@ -53,7 +53,7 @@ Running `wpk generate` with this configuration produces a surprising amount of c
 
 1.  **A PHP Menu Page**: Registers a new admin page in WordPress under "Jobs".
 2.  **A React Screen Component**: A new file like `.generated/ui/app/job/admin/JobsAdminScreen.tsx` is created. This component is the root of your admin page.
-3.  **Pre-wired `<ResourceDataView>`**: The generated screen component renders the `<ResourceDataView>` from `@wpkernel/ui`, passing all your configuration to it automatically.
+3.  **Pre-wired [`<ResourceDataView>`](/api/@wpkernel/ui/functions/ResourceDataView)**: The generated screen component renders the [`<ResourceDataView>`](/api/@wpkernel/ui/functions/ResourceDataView) from `@wpkernel/ui`, passing all your configuration to it automatically.
 4.  **Automatic Interactivity**: The CLI generates an "interactivity fixture" that connects the actions you defined (e.g., `Job.Publish`) to the buttons in the DataView. Clicks, state changes, and API calls work out of the box.
 5.  **Event Integration**: All actions dispatched by the DataView will emit standard WPKernel events, which you can listen to for custom integrations.
 
@@ -77,7 +77,7 @@ import {
 import { job } from '@/resources/job'; // Your resource object
 
 // 1. Create a controller for the DataView
-const controller = createResourceDataViewController({
+const controller = [`createResourceDataViewController`](/api/@wpkernel/ui/functions/createResourceDataViewController)({
 	resource: job,
 	// You can pass the config from the resource, or define it inline
 	config: job.ui?.admin?.dataviews!,

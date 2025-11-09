@@ -20,7 +20,7 @@ features:
       link: ./actions.md
     - title: “Events”
       details: Bus, WP hooks parity plan, and client/server bridge.
-      link: ./interactivity.md
+      link: ./events.md
     - title: “DataViews”
       details: Admin list UIs, fixtures, interactivity wiring.
       link: ./dataviews.md

@@ -9,7 +9,7 @@ namespaces, levels, and context metadata.
 - **Single source of truth** - Actions, capabilities, and registry plugins rely on the same transport configuration.
 - **Structured payloads** - Hooks receive `{ message, context, timestamp }` so downstream consumers stay typed.
 - **Environment aware** - Console logging is skipped in production, while hooks remain active for instrumentation.
-- **Lint enforcement** - The `@kernel/no-console-in-kernel` rule blocks accidental `console.*` usage in core code.
+- **Lint enforcement** - The [`@kernel/no-console-in-kernel`](/eslint-rules/no-console-in-wpkernel.js) rule blocks accidental `console.*` usage in core code.
 
 ## Creating a reporter
 
@@ -32,7 +32,7 @@ The action runtime automatically provisions a reporter scoped to the detected na
 inside your action implementations:
 
 ```typescript
-async function CreatePost(ctx, input) {
+async function CreatePost(ctx: ActionContext, input) {
 	ctx.reporter.debug('Creating post', { input });
 	try {
 		const post = await postResource.create(input);
@@ -45,7 +45,7 @@ async function CreatePost(ctx, input) {
 }
 ```
 
-When an action throws, the reporter also feeds the `wpkEventsPlugin()` bridge so failures show up as `core/notices` alerts.
+When an action throws, the reporter also feeds the [`wpkEventsPlugin()`](/packages/core/src/data/plugins/events.ts) bridge so failures show up as `core/notices` alerts.
 
 ## In capabilities
 
@@ -63,7 +63,7 @@ Without `debug`, the capability reporter becomes a no-op and avoids console nois
 
 ## Registry integration
 
-`configureWPKernel()` wires wpk middleware into an `@wordpress/data` registry:
+[`configureWPKernel()`](/api/@wpkernel/core/functions/configureWPKernel.md) wires wpk middleware into an `@wordpress/data` registry:
 
 ```typescript
 import { configureWPKernel } from '@wpkernel/core';
@@ -77,7 +77,7 @@ const wpk = configureWPKernel({
 ```
 
 - Installs the action middleware so dispatched envelopes execute wpk actions.
-- Registers the events plugin which converts `wpk.action.error` into `core/notices` entries and logs via the reporter.
+- Registers the events plugin which converts `wpk.action.error` into `core/notices` alerts and logs via the reporter.
 - Accepts additional middleware through the `middleware` option.
 
 Call `kernel.teardown()` when hot reloading or tearing down tests to remove middleware and hook listeners.

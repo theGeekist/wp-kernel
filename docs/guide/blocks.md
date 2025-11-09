@@ -104,5 +104,4 @@ This workflow allows you to focus on building your block's functionality, not on
 
 ## What's Next?
 
-- **[Block Bindings](./block-bindings.md)**: Learn how to connect block attributes to data sources like post meta.
 - **[Resources Guide](./resources.md)**: Fetch data for your blocks using WPKernel resources.

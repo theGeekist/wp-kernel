@@ -225,10 +225,6 @@ export default withMermaid(
 							{ text: 'Events', link: '/guide/events' },
 							{ text: 'Blocks', link: '/guide/blocks' },
 							{
-								text: 'Block Bindings',
-								link: '/guide/block-bindings',
-							},
-							{
 								text: 'Interactivity',
 								link: '/guide/interactivity',
 							},

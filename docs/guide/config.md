@@ -107,7 +107,7 @@ Each resource defines a self-contained unit with its own routes and permissions.
 
 ## Capabilities and Enforcement
 
-Each route can be assigned a `capability`, which is then mapped to a WordPress capability in the `capabilities` object. WPKernel uses this map to generate both unbreakable server-side permission checks and a convenient client-side utility for gating UI elements.
+Each route can be assigned a `capability`, which is then mapped to a WordPress capability in the `capabilities` object. WPKernel uses this map to generate both server-side permission checks and a convenient client-side utility for gating UI elements.
 
 This powerful feature ensures that your security rules, defined once, are enforced everywhere.
 

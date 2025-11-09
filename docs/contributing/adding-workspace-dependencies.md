@@ -1,6 +1,6 @@
 # Adding A New Workspace Package (And Wiring Internal Dependencies)
 
-Bringing a new package online inside the wp-kernel monorepo, and then teaching it about sibling packages like `@wpkernel/core`, involves touching several pieces of tooling. This guide captures the process we followed for `@wpkernel/php-json-ast` and `@wpkernel/cli`, so the next package onboarding doesn’t require rediscovery.
+Bringing a new package online inside the wp-kernel monorepo, and then teaching it about sibling packages like `@wpkernel/core`, involves touching several pieces of tooling. This guide captures the process we followed for [`@wpkernel/php-json-ast`](../packages/php-json-ast.md) and [`@wpkernel/cli`](../packages/cli.md), so the next package onboarding doesn’t require rediscovery.
 
 ## 1. Package manifest
 
@@ -112,7 +112,7 @@ testPathIgnorePatterns: [
 - `*.test-support.ts` = utility files (should be ignored)
 - `*.test-support.test.ts` = actual tests for utility functionality (should run)
 
-## 8. Automation opportunities
+<h2>8. Automation opportunities</h2>
 
 The steps above are deterministic but verbose. Useful automation ideas:
 

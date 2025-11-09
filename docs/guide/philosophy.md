@@ -77,10 +77,9 @@ graph LR
 
 1.  **UI Components** (often auto-generated) trigger user interactions.
 2.  **Actions** orchestrate write operations.
-3.  **Resources** handle data transport and caching against the REST API.
-4.  **Events** notify other parts of the system of changes.
-5.  **Jobs** process background work.
-6.  The **PHP Bridge** provides the server-side implementation of the REST API and capabilities.
+3.  **[Resources](./resources.md)** handle data transport and caching against the REST API.
+4.  **[Events](./events.md)** notify other parts of the system of changes.
+5.  The **PHP Bridge** provides the server-side implementation of the REST API and capabilities.
 
 ### Actions-First
 

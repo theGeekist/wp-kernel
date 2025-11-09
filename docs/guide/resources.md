@@ -5,7 +5,7 @@ Resources are the core data entities in a WPKernel application. They are the bri
 WPKernel offers two primary ways to work with resources, giving you the flexibility to choose the approach that best fits your project's needs.
 
 1.  **Declarative (Config-First)**: Define resources in `wpk.config.ts` to automatically generate PHP REST controllers, admin UIs, and typed client libraries. This is the fastest way to get a full CRUD interface up and running.
-2.  **Programmatic (API-First)**: Use the `defineResource` function directly in your TypeScript code to create a client-side resource object. This approach gives you full control when building custom UIs or integrating with existing frontends.
+2.  **Programmatic (API-First)**: Use the [`defineResource`](/api/@wpkernel/core/functions/defineResource.md) function directly in your TypeScript code to create a client-side resource object. This approach gives you full control when building custom UIs or integrating with existing frontends.
 
 Both approaches yield a powerful, consistent resource object for use in your application.
 
