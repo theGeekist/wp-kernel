@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,16 +24,16 @@ optional env: ProcessEnv;
 
 ---
 
-### timeoutMs?
-
-```ts
-optional timeoutMs: number;
-```
-
----
-
 ### stdin?
 
 ```ts
 optional stdin: string;
+```
+
+---
+
+### timeoutMs?
+
+```ts
+optional timeoutMs: number;
 ```

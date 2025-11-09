@@ -548,12 +548,6 @@ docker exec -it <container-id> tail -f /var/www/html/wp-content/debug.log
 
 ---
 
-## Deployment Modes
-
-> **🚧 Roadmap**: upcoming initiatives • See [Modes Guide](../guide/modes.md) for complete specification
-
-WPKernel supports three deployment modes: Dynamic WordPress, Headless, and Static Export. Each mode has specific build and deployment requirements.
-
 ### Dynamic WordPress (Default)
 
 Standard WordPress deployment with full runtime.
@@ -791,4 +785,3 @@ pnpm e2e packages/e2e-utils/tests/my-feature.spec.ts
 - [Testing](/contributing/testing) - Unit testing guide
 - [E2E Testing](/contributing/e2e-testing) - E2E testing guide
 - [Pull Requests](/contributing/pull-requests) - PR process
-- [Modes Guide](/guide/modes) - Deployment modes deep dive

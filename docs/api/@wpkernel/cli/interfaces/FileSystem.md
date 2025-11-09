@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -63,6 +63,46 @@ Fulfills with `undefined` upon success.
 #### Since
 
 v10.0.0
+
+---
+
+### cp()
+
+```ts
+readonly cp: (source, destination, opts?) => Promise<void>;
+```
+
+**`Experimental`**
+
+Asynchronously copies the entire directory structure from `src` to `dest`,
+including subdirectories and files.
+
+When copying a directory to another directory, globs are not supported and
+behavior is similar to `cp dir1/ dir2/`.
+
+#### Parameters
+
+##### source
+
+`string` | `URL`
+
+##### destination
+
+`string` | `URL`
+
+##### opts?
+
+`CopyOptions`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Fulfills with `undefined` upon success.
+
+#### Since
+
+v16.7.0
 
 ---
 
@@ -175,43 +215,3 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 ##### Returns
 
 `Promise`\<`string` \| `undefined`\>
-
----
-
-### cp()
-
-```ts
-readonly cp: (source, destination, opts?) => Promise<void>;
-```
-
-**`Experimental`**
-
-Asynchronously copies the entire directory structure from `src` to `dest`,
-including subdirectories and files.
-
-When copying a directory to another directory, globs are not supported and
-behavior is similar to `cp dir1/ dir2/`.
-
-#### Parameters
-
-##### source
-
-`string` | `URL`
-
-##### destination
-
-`string` | `URL`
-
-##### opts?
-
-`CopyOptions`
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Fulfills with `undefined` upon success.
-
-#### Since
-
-v16.7.0

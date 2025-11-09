@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,78 @@
 # Interface: DataViewsEventEmitter
 
 ## Properties
+
+### actionTriggered()
+
+```ts
+actionTriggered: (payload) => void;
+```
+
+#### Parameters
+
+##### payload
+
+[`DataViewActionTriggeredPayload`](../type-aliases/DataViewActionTriggeredPayload.md)
+
+#### Returns
+
+`void`
+
+---
+
+### boundaryChanged()
+
+```ts
+boundaryChanged: (payload) => void;
+```
+
+#### Parameters
+
+##### payload
+
+[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md)
+
+#### Returns
+
+`void`
+
+---
+
+### fetchFailed()
+
+```ts
+fetchFailed: (payload) => void;
+```
+
+#### Parameters
+
+##### payload
+
+[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md)
+
+#### Returns
+
+`void`
+
+---
+
+### permissionDenied()
+
+```ts
+permissionDenied: (payload) => void;
+```
+
+#### Parameters
+
+##### payload
+
+[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md)
+
+#### Returns
+
+`void`
+
+---
 
 ### registered()
 
@@ -55,78 +127,6 @@ viewChanged: (payload) => void;
 ##### payload
 
 [`DataViewChangedPayload`](../type-aliases/DataViewChangedPayload.md)
-
-#### Returns
-
-`void`
-
----
-
-### actionTriggered()
-
-```ts
-actionTriggered: (payload) => void;
-```
-
-#### Parameters
-
-##### payload
-
-[`DataViewActionTriggeredPayload`](../type-aliases/DataViewActionTriggeredPayload.md)
-
-#### Returns
-
-`void`
-
----
-
-### permissionDenied()
-
-```ts
-permissionDenied: (payload) => void;
-```
-
-#### Parameters
-
-##### payload
-
-[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md)
-
-#### Returns
-
-`void`
-
----
-
-### fetchFailed()
-
-```ts
-fetchFailed: (payload) => void;
-```
-
-#### Parameters
-
-##### payload
-
-[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md)
-
-#### Returns
-
-`void`
-
----
-
-### boundaryChanged()
-
-```ts
-boundaryChanged: (payload) => void;
-```
-
-#### Parameters
-
-##### payload
-
-[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md)
 
 #### Returns
 

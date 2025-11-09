@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,16 +8,16 @@
 
 ## Properties
 
-### file
-
-```ts
-readonly file: string;
-```
-
----
-
 ### contents
 
 ```ts
 readonly contents: string | Buffer<ArrayBufferLike>;
+```
+
+---
+
+### file
+
+```ts
+readonly file: string;
 ```

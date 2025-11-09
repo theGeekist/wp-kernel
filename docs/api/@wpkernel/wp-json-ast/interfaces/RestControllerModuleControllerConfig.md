@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,34 +12,6 @@
 
 ## Properties
 
-### resourceName
-
-```ts
-readonly resourceName: string;
-```
-
-#### Overrides
-
-[`RestControllerClassConfig`](RestControllerClassConfig.md).[`resourceName`](RestControllerClassConfig.md#resourcename)
-
----
-
-### schemaProvenance
-
-```ts
-readonly schemaProvenance: string;
-```
-
----
-
-### fileName
-
-```ts
-readonly fileName: string;
-```
-
----
-
 ### className
 
 ```ts
@@ -52,27 +24,11 @@ readonly className: string;
 
 ---
 
-### schemaKey
+### fileName
 
 ```ts
-readonly schemaKey: string;
+readonly fileName: string;
 ```
-
-#### Inherited from
-
-[`RestControllerClassConfig`](RestControllerClassConfig.md).[`schemaKey`](RestControllerClassConfig.md#schemakey)
-
----
-
-### restArgsExpression
-
-```ts
-readonly restArgsExpression: PhpExpr;
-```
-
-#### Inherited from
-
-[`RestControllerClassConfig`](RestControllerClassConfig.md).[`restArgsExpression`](RestControllerClassConfig.md#restargsexpression)
 
 ---
 
@@ -88,6 +44,30 @@ readonly identity: RestControllerIdentity;
 
 ---
 
+### resourceName
+
+```ts
+readonly resourceName: string;
+```
+
+#### Overrides
+
+[`RestControllerClassConfig`](RestControllerClassConfig.md).[`resourceName`](RestControllerClassConfig.md#resourcename)
+
+---
+
+### restArgsExpression
+
+```ts
+readonly restArgsExpression: PhpExpr;
+```
+
+#### Inherited from
+
+[`RestControllerClassConfig`](RestControllerClassConfig.md).[`restArgsExpression`](RestControllerClassConfig.md#restargsexpression)
+
+---
+
 ### routes
 
 ```ts
@@ -100,11 +80,35 @@ readonly routes: readonly RestRouteConfig[];
 
 ---
 
-### metadata?
+### schemaKey
 
 ```ts
-readonly optional metadata: ResourceControllerMetadata;
+readonly schemaKey: string;
 ```
+
+#### Inherited from
+
+[`RestControllerClassConfig`](RestControllerClassConfig.md).[`schemaKey`](RestControllerClassConfig.md#schemakey)
+
+---
+
+### schemaProvenance
+
+```ts
+readonly schemaProvenance: string;
+```
+
+---
+
+### capabilityClass?
+
+```ts
+readonly optional capabilityClass: string;
+```
+
+#### Inherited from
+
+[`RestControllerClassConfig`](RestControllerClassConfig.md).[`capabilityClass`](RestControllerClassConfig.md#capabilityclass)
 
 ---
 
@@ -120,12 +124,8 @@ readonly optional helperMethods: readonly PhpStmtClassMethod[];
 
 ---
 
-### capabilityClass?
+### metadata?
 
 ```ts
-readonly optional capabilityClass: string;
+readonly optional metadata: ResourceControllerMetadata;
 ```
-
-#### Inherited from
-
-[`RestControllerClassConfig`](RestControllerClassConfig.md).[`capabilityClass`](RestControllerClassConfig.md#capabilityclass)

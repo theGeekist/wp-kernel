@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,16 @@
 
 ## Properties
 
-### mutationKinds
-
-```ts
-readonly mutationKinds: readonly ("create" | "update" | "delete")[];
-```
-
----
-
 ### helperFactories
 
 ```ts
 readonly helperFactories: object;
+```
+
+#### prepareResponse
+
+```ts
+readonly prepareResponse: string;
 ```
 
 #### syncMeta
@@ -32,12 +30,6 @@ readonly syncMeta: string;
 
 ```ts
 readonly syncTaxonomies: string;
-```
-
-#### prepareResponse
-
-```ts
-readonly prepareResponse: string;
 ```
 
 ---
@@ -60,6 +52,12 @@ readonly mutationGuard: string;
 
 ```ts
 readonly metadataKeys: object;
+```
+
+#### cachePriming
+
+```ts
+readonly cachePriming: string;
 ```
 
 #### cacheSegment
@@ -92,8 +90,10 @@ readonly syncMeta: string;
 readonly syncTaxonomies: string;
 ```
 
-#### cachePriming
+---
+
+### mutationKinds
 
 ```ts
-readonly cachePriming: string;
+readonly mutationKinds: readonly ("create" | "update" | "delete")[];
 ```

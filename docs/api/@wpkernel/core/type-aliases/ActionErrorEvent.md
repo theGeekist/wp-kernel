@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -22,10 +22,10 @@ Event name: `wpk.action.error`
 
 ## Type Declaration
 
-### phase
+### durationMs
 
 ```ts
-phase: 'error';
+durationMs: number;
 ```
 
 ### error
@@ -34,8 +34,8 @@ phase: 'error';
 error: unknown;
 ```
 
-### durationMs
+### phase
 
 ```ts
-durationMs: number;
+phase: 'error';
 ```

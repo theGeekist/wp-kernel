@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,22 +24,6 @@ readonly optional docblock: readonly string[];
 
 ---
 
-### isFinal?
-
-```ts
-readonly optional isFinal: boolean;
-```
-
----
-
-### isAbstract?
-
-```ts
-readonly optional isAbstract: boolean;
-```
-
----
-
 ### extends?
 
 ```ts
@@ -56,10 +40,18 @@ readonly optional implements: readonly string[];
 
 ---
 
-### properties?
+### isAbstract?
 
 ```ts
-readonly optional properties: readonly PhpBuilderFactoryPropertyIntent[];
+readonly optional isAbstract: boolean;
+```
+
+---
+
+### isFinal?
+
+```ts
+readonly optional isFinal: boolean;
 ```
 
 ---
@@ -68,4 +60,12 @@ readonly optional properties: readonly PhpBuilderFactoryPropertyIntent[];
 
 ```ts
 readonly optional methods: readonly PhpBuilderFactoryMethodIntent[];
+```
+
+---
+
+### properties?
+
+```ts
+readonly optional properties: readonly PhpBuilderFactoryPropertyIntent[];
 ```

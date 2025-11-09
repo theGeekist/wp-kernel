@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,16 @@ BlockManifestMetadata
 
 ## Properties
 
+### block
+
+```ts
+readonly block: string;
+```
+
+The name of the block.
+
+---
+
 ### code
 
 ```ts
@@ -26,16 +36,6 @@ readonly code:
 ```
 
 The error code.
-
----
-
-### block
-
-```ts
-readonly block: string;
-```
-
-The name of the block.
 
 ---
 

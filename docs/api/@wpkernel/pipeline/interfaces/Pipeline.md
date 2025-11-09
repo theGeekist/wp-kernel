@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -72,43 +72,11 @@ A pipeline instance with helper registration and execution methods.
 
 ## Properties
 
-### fragmentKind
-
-```ts
-readonly fragmentKind: TFragmentKind;
-```
-
----
-
 ### builderKind
 
 ```ts
 readonly builderKind: TBuilderKind;
 ```
-
----
-
-### ir
-
-```ts
-readonly ir: object;
-```
-
-#### use()
-
-```ts
-use: (helper) => void;
-```
-
-##### Parameters
-
-###### helper
-
-`TFragmentHelper`
-
-##### Returns
-
-`void`
 
 ---
 
@@ -160,19 +128,33 @@ use: (extension) => unknown;
 
 ---
 
-### use()
+### fragmentKind
+
+```ts
+readonly fragmentKind: TFragmentKind;
+```
+
+---
+
+### ir
+
+```ts
+readonly ir: object;
+```
+
+#### use()
 
 ```ts
 use: (helper) => void;
 ```
 
-#### Parameters
+##### Parameters
 
-##### helper
+###### helper
 
-`TFragmentHelper` | `TBuilderHelper`
+`TFragmentHelper`
 
-#### Returns
+##### Returns
 
 `void`
 
@@ -193,3 +175,21 @@ run: (options) => MaybePromise<TRunResult>;
 #### Returns
 
 [`MaybePromise`](../type-aliases/MaybePromise.md)\<`TRunResult`\>
+
+---
+
+### use()
+
+```ts
+use: (helper) => void;
+```
+
+#### Parameters
+
+##### helper
+
+`TFragmentHelper` | `TBuilderHelper`
+
+#### Returns
+
+`void`

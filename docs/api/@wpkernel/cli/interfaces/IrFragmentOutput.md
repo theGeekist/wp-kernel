@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: IrFragmentOutput
 
 ## Properties
-
-### draft
-
-```ts
-readonly draft: MutableIr;
-```
-
----
 
 ### assign()
 
@@ -31,3 +23,11 @@ assign: (partial) => void;
 #### Returns
 
 `void`
+
+---
+
+### draft
+
+```ts
+readonly draft: MutableIr;
+```

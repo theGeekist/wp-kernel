@@ -24,7 +24,7 @@ job.events.updated; // 'acme-jobs.job.updated'
 job.events.removed; // 'acme-jobs.job.removed'
 ```
 
-These values come directly from `defineResource` and match the namespace detection logic in the runtime.【F:packages/core/src/resource/define.ts†L360-L430】
+These values are emitted via `ctx.emit()` inside an action, and match the namespace detection logic in the runtime.【F:packages/core/src/actions/context.ts†L380-L430】
 
 ## Error taxonomy
 

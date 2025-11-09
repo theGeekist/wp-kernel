@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: PhpNodeFinderQueryResultEntry
 
 ## Properties
+
+### description
+
+```ts
+readonly description: string;
+```
+
+---
 
 ### key
 
@@ -24,10 +32,10 @@ readonly label: string;
 
 ---
 
-### description
+### matchCount
 
 ```ts
-readonly description: string;
+readonly matchCount: number;
 ```
 
 ---
@@ -36,12 +44,4 @@ readonly description: string;
 
 ```ts
 readonly matches: readonly PhpNodeFinderQueryMatch[];
-```
-
----
-
-### matchCount
-
-```ts
-readonly matchCount: number;
 ```

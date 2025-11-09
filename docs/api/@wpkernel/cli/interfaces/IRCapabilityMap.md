@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -28,16 +28,16 @@ fallback: object;
 
 Fallback capability definition.
 
-#### capability
-
-```ts
-capability: string;
-```
-
 #### appliesTo
 
 ```ts
 appliesTo: IRCapabilityScope;
+```
+
+#### capability
+
+```ts
+capability: string;
 ```
 
 ---

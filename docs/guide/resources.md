@@ -90,6 +90,67 @@ export const job = defineResource<Job, JobQuery>({
 You can even mix and match. Use `wpk.config.ts` to generate the backend PHP controllers, and then use `defineResource` on the client to interact with them in a custom UI.
 :::
 
+## Defining Relationships
+
+When your resources are stored as WordPress posts (`mode: 'wp-post'`), you can define relationships with other data using the `meta` and `taxonomies` properties within the `storage` configuration.
+
+### One-to-One and One-to-Many (via Meta)
+
+You can use post meta to store simple values or to create relationships with other resources. For example, a `book` resource might have an `author_id` to link to an author.
+
+```ts
+// In wpk.config.ts
+resources: {
+  book: {
+    // ... other resource config
+    storage: {
+        mode: 'wp-post',
+        postType: 'book',
+        meta: {
+            // Simple value
+            status: { type: 'string', single: true },
+            // Relationship to another resource
+            author_id: { type: 'integer', single: true },
+            // One-to-many with simple values
+            tags: { type: 'array', single: false },
+        }
+    },
+  },
+},
+```
+
+In this example:
+
+- `status` is a simple string meta field.
+- `author_id` could store the ID of a post from another post type, effectively creating a one-to-one relationship.
+- `tags` stores an array of strings, representing a one-to-many relationship with simple values.
+
+### Many-to-Many (via Taxonomies)
+
+For many-to-many relationships, you can use WordPress taxonomies. For example, a `book` can have multiple `genres`, and a `genre` can be applied to multiple books.
+
+```ts
+// In wpk.config.ts
+resources: {
+  book: {
+    // ... other resource config
+    storage: {
+        mode: 'wp-post',
+        postType: 'book',
+        taxonomies: {
+            genres: { taxonomy: 'book_genre' },
+        }
+    },
+  },
+},
+```
+
+In this configuration:
+
+- `genres` defines a relationship to the `book_genre` taxonomy.
+- When fetching a `book`, the response will include an array of term IDs for the `genres`.
+- When creating or updating a `book`, you can pass an array of term IDs to associate it with the specified genres.
+
 ## Using Resources in a Custom UI
 
 Regardless of how you define it, using a resource in your React components is the same. The resource object provides easy-to-use hooks for data fetching.

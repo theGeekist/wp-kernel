@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,16 @@ Metadata for a resource controller route.
 ResourceControllerMetadata
 
 ## Properties
+
+### kind
+
+```ts
+readonly kind: "list" | "get" | "create" | "update" | "remove" | "custom";
+```
+
+The kind of route.
+
+---
 
 ### method
 
@@ -31,16 +41,6 @@ readonly path: string;
 ```
 
 The path for the route.
-
----
-
-### kind
-
-```ts
-readonly kind: "list" | "get" | "create" | "update" | "remove" | "custom";
-```
-
-The kind of route.
 
 ---
 

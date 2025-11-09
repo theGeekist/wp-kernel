@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,56 +8,10 @@
 
 ## Properties
 
-### meta
+### blocks
 
 ```ts
-meta:
-  | {
-  version: 1;
-  namespace: string;
-  sourcePath: string;
-  origin: string;
-  sanitizedNamespace: string;
-  features: string[];
-  ids: {
-     algorithm: "sha256";
-     resourcePrefix: "res:";
-     schemaPrefix: "sch:";
-     blockPrefix: "blk:";
-     capabilityPrefix: "cap:";
-  };
-  redactions: string[];
-  limits: {
-     maxConfigKB: number;
-     maxSchemaKB: number;
-     policy: "truncate" | "error";
-  };
-}
-  | null;
-```
-
----
-
-### config
-
-```ts
-readonly config: WPKernelConfigV1;
-```
-
----
-
-### schemas
-
-```ts
-schemas: IRSchema[];
-```
-
----
-
-### resources
-
-```ts
-resources: IRResource[];
+blocks: IRBlock[];
 ```
 
 ---
@@ -78,18 +32,10 @@ capabilityMap: IRCapabilityMap | null;
 
 ---
 
-### blocks
+### config
 
 ```ts
-blocks: IRBlock[];
-```
-
----
-
-### php
-
-```ts
-php: IRPhpProject | null;
+readonly config: WPKernelConfigV1;
 ```
 
 ---
@@ -102,6 +48,52 @@ diagnostics: IRDiagnostic[];
 
 ---
 
+### extensions
+
+```ts
+extensions: Record<string, unknown>;
+```
+
+---
+
+### meta
+
+```ts
+meta:
+  | {
+  features: string[];
+  ids: {
+     algorithm: "sha256";
+     blockPrefix: "blk:";
+     capabilityPrefix: "cap:";
+     resourcePrefix: "res:";
+     schemaPrefix: "sch:";
+  };
+  limits: {
+     maxConfigKB: number;
+     maxSchemaKB: number;
+     policy: "truncate" | "error";
+  };
+  namespace: string;
+  origin: string;
+  redactions: string[];
+  sanitizedNamespace: string;
+  sourcePath: string;
+  version: 1;
+}
+  | null;
+```
+
+---
+
+### php
+
+```ts
+php: IRPhpProject | null;
+```
+
+---
+
 ### references
 
 ```ts
@@ -110,9 +102,16 @@ references: IRReferenceSummary | null;
 
 ---
 
-### extensions
+### resources
 
 ```ts
-extensions: Record & lt;
-(string, unknown & gt);
+resources: IRResource[];
+```
+
+---
+
+### schemas
+
+```ts
+schemas: IRSchema[];
 ```

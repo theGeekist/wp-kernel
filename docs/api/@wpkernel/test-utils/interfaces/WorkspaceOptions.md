@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,16 +9,6 @@
 Options for configuring a temporary workspace.
 
 ## Properties
-
-### prefix?
-
-```ts
-optional prefix: string;
-```
-
-A prefix for the temporary directory name.
-
----
 
 ### chdir?
 
@@ -37,6 +27,16 @@ optional files: Record<string, string | Buffer<ArrayBufferLike>>;
 ```
 
 A map of relative file paths to their content (string or Buffer).
+
+---
+
+### prefix?
+
+```ts
+optional prefix: string;
+```
+
+A prefix for the temporary directory name.
 
 ---
 

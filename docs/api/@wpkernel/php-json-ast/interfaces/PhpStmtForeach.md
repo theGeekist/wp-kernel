@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,15 +14,23 @@ Represents a PHP `foreach` loop statement.
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "Stmt_Foreach";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
 
 ---
 
@@ -30,14 +38,6 @@ readonly nodeType: "Stmt_Foreach";
 
 ```ts
 readonly expr: PhpExpr;
-```
-
----
-
-### valueVar
-
-```ts
-readonly valueVar: PhpExpr;
 ```
 
 ---
@@ -50,11 +50,15 @@ readonly keyVar: PhpExpr | null;
 
 ---
 
-### byRef
+### nodeType
 
 ```ts
-readonly byRef: boolean;
+readonly nodeType: "Stmt_Foreach";
 ```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -66,12 +70,8 @@ readonly stmts: PhpStmt[];
 
 ---
 
-### attributes
+### valueVar
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly valueVar: PhpExpr;
 ```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

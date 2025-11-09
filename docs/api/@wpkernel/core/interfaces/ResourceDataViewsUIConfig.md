@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -39,28 +39,6 @@ Additional fields reserved for future extensions.
 
 ## Properties
 
-### fields?
-
-```ts
-optional fields:
-  | readonly Record<string, unknown>[]
-  | Record<string, unknown>[];
-```
-
-Column/field descriptors forwarded to DataViews.
-
----
-
-### defaultView?
-
-```ts
-optional defaultView: Record<string, unknown>;
-```
-
-Default view configuration used when no preference is stored.
-
----
-
 ### actions?
 
 ```ts
@@ -74,42 +52,45 @@ The CLI and runtime use these to wire interactivity bindings.
 
 ---
 
-### mapQuery()?
+### defaultLayouts?
 
 ```ts
-optional mapQuery: (viewState) => TQuery;
+optional defaultLayouts: Record<string, Record<string, unknown> | null | undefined>;
 ```
 
-Maps DataViews state into the resource's query shape.
-This function is the primary bridge between UI filters and REST queries.
-
-#### Parameters
-
-##### viewState
-
-`Record`\<`string`, `unknown`\>
-
-#### Returns
-
-`TQuery`
+Per-layout defaults (e.g. table/grid) merged with user preferences.
 
 ---
 
-### search?
+### defaultView?
 
 ```ts
-optional search: boolean;
+optional defaultView: Record<string, unknown>;
 ```
 
-Enables search UI and, optionally, customizes its label.
+Default view configuration used when no preference is stored.
 
 ---
 
-### searchLabel?
+### empty?
 
 ```ts
-optional searchLabel: string;
+optional empty: unknown;
 ```
+
+Optional empty state configuration; forwarded to UI helpers.
+
+---
+
+### fields?
+
+```ts
+optional fields:
+  | readonly Record<string, unknown>[]
+  | Record<string, unknown>[];
+```
+
+Column/field descriptors forwarded to DataViews.
 
 ---
 
@@ -134,13 +115,34 @@ Defaults to `item.id` when omitted.
 
 ---
 
-### empty?
+### interactivity?
 
 ```ts
-optional empty: unknown;
+optional interactivity: ResourceDataViewsInteractivityConfig;
 ```
 
-Optional empty state configuration; forwarded to UI helpers.
+Interactivity metadata used to derive namespaces and features.
+
+---
+
+### mapQuery()?
+
+```ts
+optional mapQuery: (viewState) => TQuery;
+```
+
+Maps DataViews state into the resource's query shape.
+This function is the primary bridge between UI filters and REST queries.
+
+#### Parameters
+
+##### viewState
+
+`Record`\<`string`, `unknown`\>
+
+#### Returns
+
+`TQuery`
 
 ---
 
@@ -154,13 +156,41 @@ Page size options exposed in the DataView.
 
 ---
 
-### defaultLayouts?
+### preferencesKey?
 
 ```ts
-optional defaultLayouts: Record<string, Record<string, unknown> | null | undefined>;
+optional preferencesKey: string;
 ```
 
-Per-layout defaults (e.g. table/grid) merged with user preferences.
+Key used to persist user preferences for this DataView.
+
+---
+
+### screen?
+
+```ts
+optional screen: ResourceDataViewsScreenConfig;
+```
+
+Admin screen configuration for this DataView.
+
+---
+
+### search?
+
+```ts
+optional search: boolean;
+```
+
+Enables search UI and, optionally, customizes its label.
+
+---
+
+### searchLabel?
+
+```ts
+optional searchLabel: string;
+```
 
 ---
 
@@ -173,33 +203,3 @@ optional views:
 ```
 
 Server-defined saved views available on first render.
-
----
-
-### preferencesKey?
-
-```ts
-optional preferencesKey: string;
-```
-
-Key used to persist user preferences for this DataView.
-
----
-
-### interactivity?
-
-```ts
-optional interactivity: ResourceDataViewsInteractivityConfig;
-```
-
-Interactivity metadata used to derive namespaces and features.
-
----
-
-### screen?
-
-```ts
-optional screen: ResourceDataViewsScreenConfig;
-```
-
-Admin screen configuration for this DataView.

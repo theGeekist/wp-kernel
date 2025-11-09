@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: Workspace
 
 ## Properties
-
-### root
-
-```ts
-readonly root: string;
-```
-
----
 
 ### cwd()
 
@@ -25,6 +17,24 @@ cwd: () => string;
 #### Returns
 
 `string`
+
+---
+
+### exists()
+
+```ts
+exists: (target) => Promise<boolean>;
+```
+
+#### Parameters
+
+##### target
+
+`string`
+
+#### Returns
+
+`Promise`\<`boolean`\>
 
 ---
 
@@ -43,6 +53,14 @@ resolve: (...parts) => string;
 #### Returns
 
 `string`
+
+---
+
+### root
+
+```ts
+readonly root: string;
+```
 
 ---
 
@@ -69,21 +87,3 @@ write: (file, contents, options?) => Promise<void>;
 #### Returns
 
 `Promise`\<`void`\>
-
----
-
-### exists()
-
-```ts
-exists: (target) => Promise<boolean>;
-```
-
-#### Parameters
-
-##### target
-
-`string`
-
-#### Returns
-
-`Promise`\<`boolean`\>

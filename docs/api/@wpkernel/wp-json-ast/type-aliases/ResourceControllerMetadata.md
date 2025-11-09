@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,30 @@ type ResourceControllerMetadata = BasePhpFileMetadata & object;
 Metadata for a resource controller.
 
 ## Type Declaration
+
+### identity
+
+```ts
+readonly identity: object;
+```
+
+The identity of the resource.
+
+#### identity.param
+
+```ts
+readonly param: string;
+```
+
+The name of the identity parameter.
+
+#### identity.type
+
+```ts
+readonly type: "number" | "string";
+```
+
+The type of the identity.
 
 ### kind
 
@@ -29,30 +53,6 @@ readonly name: string;
 ```
 
 The name of the resource.
-
-### identity
-
-```ts
-readonly identity: object;
-```
-
-The identity of the resource.
-
-#### identity.type
-
-```ts
-readonly type: "number" | "string";
-```
-
-The type of the identity.
-
-#### identity.param
-
-```ts
-readonly param: string;
-```
-
-The name of the identity parameter.
 
 ### routes
 

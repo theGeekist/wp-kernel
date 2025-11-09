@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,14 @@ Represents an instance of the `init` command.
 
 ## Type Declaration
 
+### dependencySource
+
+```ts
+dependencySource: string | null;
+```
+
+The source of dependencies used.
+
 ### force
 
 ```ts
@@ -22,13 +30,13 @@ force: boolean;
 
 Whether to force overwrite existing files.
 
-### verbose
+### manifest
 
 ```ts
-verbose: boolean;
+manifest: FileManifest | null;
 ```
 
-Whether to enable verbose logging.
+The manifest of files created or modified.
 
 ### preferRegistryVersions
 
@@ -46,21 +54,13 @@ summary: string | null;
 
 A summary of the initialization process.
 
-### manifest
+### verbose
 
 ```ts
-manifest: FileManifest | null;
+verbose: boolean;
 ```
 
-The manifest of files created or modified.
-
-### dependencySource
-
-```ts
-dependencySource: string | null;
-```
-
-The source of dependencies used.
+Whether to enable verbose logging.
 
 ### name?
 

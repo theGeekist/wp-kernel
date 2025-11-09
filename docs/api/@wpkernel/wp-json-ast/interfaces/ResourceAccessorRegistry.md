@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### addRequest()
+### addCache()
 
 ```ts
-addRequest: (descriptor) => void;
+addCache: (descriptor) => void;
 ```
 
 #### Parameters
@@ -26,10 +26,10 @@ addRequest: (descriptor) => void;
 
 ---
 
-### addQuery()
+### addHelper()
 
 ```ts
-addQuery: (descriptor) => void;
+addHelper: (descriptor) => void;
 ```
 
 #### Parameters
@@ -62,10 +62,10 @@ addMutation: (descriptor) => void;
 
 ---
 
-### addCache()
+### addQuery()
 
 ```ts
-addCache: (descriptor) => void;
+addQuery: (descriptor) => void;
 ```
 
 #### Parameters
@@ -80,10 +80,10 @@ addCache: (descriptor) => void;
 
 ---
 
-### addHelper()
+### addRequest()
 
 ```ts
-addHelper: (descriptor) => void;
+addRequest: (descriptor) => void;
 ```
 
 #### Parameters

@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,16 +20,6 @@ Resource DataView configuration.
 
 ## Properties
 
-### fields
-
-```ts
-fields: Field & lt;
-TItem & gt;
-[];
-```
-
----
-
 ### defaultView
 
 ```ts
@@ -38,11 +28,18 @@ defaultView: View;
 
 ---
 
+### fields
+
+```ts
+fields: Field < TItem > [];
+```
+
+---
+
 ### mapQuery
 
 ```ts
-mapQuery: QueryMapping & lt;
-TQuery & gt;
+mapQuery: QueryMapping<TQuery>;
 ```
 
 ---
@@ -55,18 +52,18 @@ optional actions: ResourceDataViewActionConfig<TItem, unknown, unknown>[];
 
 ---
 
-### search?
+### defaultLayouts?
 
 ```ts
-optional search: boolean;
+optional defaultLayouts: Record<string, unknown>;
 ```
 
 ---
 
-### searchLabel?
+### empty?
 
 ```ts
-optional searchLabel: string;
+optional empty: ReactNode;
 ```
 
 ---
@@ -89,14 +86,6 @@ optional getItemId: (item) => string;
 
 ---
 
-### empty?
-
-```ts
-optional empty: ReactNode;
-```
-
----
-
 ### perPageSizes?
 
 ```ts
@@ -105,10 +94,26 @@ optional perPageSizes: number[];
 
 ---
 
-### defaultLayouts?
+### screen?
 
 ```ts
-optional defaultLayouts: Record<string, unknown>;
+optional screen: ResourceDataViewsScreenConfig;
+```
+
+---
+
+### search?
+
+```ts
+optional search: boolean;
+```
+
+---
+
+### searchLabel?
+
+```ts
+optional searchLabel: string;
 ```
 
 ---
@@ -117,12 +122,4 @@ optional defaultLayouts: Record<string, unknown>;
 
 ```ts
 optional views: ResourceDataViewSavedView[];
-```
-
----
-
-### screen?
-
-```ts
-optional screen: ResourceDataViewsScreenConfig;
 ```

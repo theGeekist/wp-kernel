@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,10 +14,10 @@
 
 ## Properties
 
-### workspace
+### file
 
 ```ts
-readonly workspace: Workspace;
+readonly file: TFile;
 ```
 
 ---
@@ -30,10 +30,10 @@ readonly outputDir: string;
 
 ---
 
-### file
+### workspace
 
 ```ts
-readonly file: TFile;
+readonly workspace: Workspace;
 ```
 
 ---

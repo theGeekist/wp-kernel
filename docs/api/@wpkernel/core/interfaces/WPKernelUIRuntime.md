@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: WPKernelUIRuntime
 
 ## Properties
+
+### events
+
+```ts
+events: WPKernelEventBus;
+```
+
+---
 
 ### namespace
 
@@ -24,34 +32,18 @@ reporter: Reporter;
 
 ---
 
-### events
-
-```ts
-events: WPKernelEventBus;
-```
-
----
-
-### wpk?
-
-```ts
-optional wpk: WPKInstance;
-```
-
----
-
-### registry?
-
-```ts
-optional registry: WPKernelRegistry;
-```
-
----
-
 ### capabilities?
 
 ```ts
 optional capabilities: WPKUICapabilityRuntime;
+```
+
+---
+
+### dataviews?
+
+```ts
+optional dataviews: WPKernelDataViewsRuntime;
 ```
 
 ---
@@ -86,8 +78,16 @@ optional options: UIIntegrationOptions;
 
 ---
 
-### dataviews?
+### registry?
 
 ```ts
-optional dataviews: WPKernelDataViewsRuntime;
+optional registry: WPKernelRegistry;
+```
+
+---
+
+### wpk?
+
+```ts
+optional wpk: WPKInstance;
 ```

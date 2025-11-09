@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,12 +7,13 @@
 # Type Alias: FragmentHelperOptions
 
 ```ts
-type FragmentHelperOptions = CreateHelperOptions & lt;
-(PipelineContext,
+type FragmentHelperOptions = CreateHelperOptions<
+	PipelineContext,
 	FragmentInput,
 	FragmentOutput,
 	CliReporter,
-	FragmentHelper['kind'] & gt);
+	FragmentHelper['kind']
+>;
 ```
 
 Options for creating a fragment helper.

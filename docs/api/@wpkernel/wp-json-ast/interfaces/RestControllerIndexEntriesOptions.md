@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,10 @@
 
 ## Properties
 
-### namespace
+### additionalEntries
 
 ```ts
-readonly namespace: string;
-```
-
----
-
-### includeBase
-
-```ts
-readonly includeBase: boolean;
+readonly additionalEntries: readonly ModuleIndexEntry[];
 ```
 
 ---
@@ -40,8 +32,16 @@ readonly controllers: readonly RestControllerModuleControllerConfig[];
 
 ---
 
-### additionalEntries
+### includeBase
 
 ```ts
-readonly additionalEntries: readonly ModuleIndexEntry[];
+readonly includeBase: boolean;
+```
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
 ```

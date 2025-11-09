@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,15 +14,15 @@ Represents a PHP integer cast expression (e.g., `(int) $var`).
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "Expr_Cast_Int";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
 ---
 
@@ -34,12 +34,12 @@ readonly expr: PhpExpr;
 
 ---
 
-### attributes
+### nodeType
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly nodeType: "Expr_Cast_Int";
 ```
 
-#### Inherited from
+#### Overrides
 
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)

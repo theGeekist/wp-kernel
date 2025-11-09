@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -18,16 +18,6 @@ The type of the result returned by the form submission action.
 
 ## Properties
 
-### status
-
-```ts
-status: 'idle' | 'running' | 'success' | 'error';
-```
-
-The current status of the form submission.
-
----
-
 ### inFlight
 
 ```ts
@@ -35,6 +25,16 @@ inFlight: number;
 ```
 
 The number of in-flight submissions.
+
+---
+
+### status
+
+```ts
+status: 'idle' | 'running' | 'success' | 'error';
+```
+
+The current status of the form submission.
 
 ---
 

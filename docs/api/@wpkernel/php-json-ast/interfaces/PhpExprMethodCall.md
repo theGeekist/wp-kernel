@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,36 +13,6 @@ Represents a PHP method call expression (e.g., `$object->method()`).
 - [`PhpExprBase`](PhpExprBase.md)
 
 ## Properties
-
-### nodeType
-
-```ts
-readonly nodeType: "Expr_MethodCall";
-```
-
-#### Overrides
-
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### var
-
-```ts
-readonly var: PhpExpr;
-```
-
----
-
-### name
-
-```ts
-readonly name:
-  | PhpExpr
-  | PhpIdentifier;
-```
-
----
 
 ### args
 
@@ -61,3 +31,33 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name:
+  | PhpExpr
+  | PhpIdentifier;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Expr_MethodCall";
+```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
+
+---
+
+### var
+
+```ts
+readonly var: PhpExpr;
+```

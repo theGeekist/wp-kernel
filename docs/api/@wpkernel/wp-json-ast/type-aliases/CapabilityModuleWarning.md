@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,14 +13,14 @@ type CapabilityModuleWarning =
 			warning: CapabilityMapWarning;
 	  }
 	| {
-			kind: 'capability-definition-missing';
 			capability: string;
 			fallbackCapability: string;
 			fallbackScope: CapabilityScope;
+			kind: 'capability-definition-missing';
 	  }
 	| {
-			kind: 'capability-definition-unused';
 			capability: string;
+			kind: 'capability-definition-unused';
 			scope?: CapabilityScope;
 	  };
 ```

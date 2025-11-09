@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,66 +13,6 @@ Represents a PHP closure expression (anonymous function).
 - [`PhpExprBase`](PhpExprBase.md)
 
 ## Properties
-
-### nodeType
-
-```ts
-readonly nodeType: "Expr_Closure";
-```
-
-#### Overrides
-
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### static
-
-```ts
-readonly static: boolean;
-```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
-
----
-
-### params
-
-```ts
-readonly params: PhpParam[];
-```
-
----
-
-### uses
-
-```ts
-readonly uses: PhpClosureUse[];
-```
-
----
-
-### returnType
-
-```ts
-readonly returnType: PhpType | null;
-```
-
----
-
-### stmts
-
-```ts
-readonly stmts: PhpStmt[];
-```
-
----
 
 ### attrGroups
 
@@ -91,3 +31,63 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Expr_Closure";
+```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
+
+---
+
+### params
+
+```ts
+readonly params: PhpParam[];
+```
+
+---
+
+### returnType
+
+```ts
+readonly returnType: PhpType | null;
+```
+
+---
+
+### static
+
+```ts
+readonly static: boolean;
+```
+
+---
+
+### stmts
+
+```ts
+readonly stmts: PhpStmt[];
+```
+
+---
+
+### uses
+
+```ts
+readonly uses: PhpClosureUse[];
+```

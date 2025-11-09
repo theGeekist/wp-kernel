@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,13 +16,13 @@ A generate helper overrides another helper with the same key.
 
 ## Properties
 
-### type
+### helpers
 
 ```ts
-readonly type: "conflict";
+readonly helpers: readonly string[];
 ```
 
-The type of diagnostic, always 'conflict'.
+A list of helpers involved in the conflict.
 
 ---
 
@@ -36,6 +36,16 @@ The key of the helper that caused the conflict.
 
 ---
 
+### message
+
+```ts
+readonly message: string;
+```
+
+A descriptive message about the conflict.
+
+---
+
 ### mode
 
 ```ts
@@ -46,23 +56,13 @@ The conflict resolution mode (e.g., 'override').
 
 ---
 
-### helpers
+### type
 
 ```ts
-readonly helpers: readonly string[];
+readonly type: "conflict";
 ```
 
-A list of helpers involved in the conflict.
-
----
-
-### message
-
-```ts
-readonly message: string;
-```
-
-A descriptive message about the conflict.
+The type of diagnostic, always 'conflict'.
 
 ---
 

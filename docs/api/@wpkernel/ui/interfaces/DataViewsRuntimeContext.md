@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,18 +14,18 @@ Runtime shape exposed to UI consumers (kernel or standalone).
 
 ## Properties
 
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
----
-
 ### dataviews
 
 ```ts
 readonly dataviews: DataViewsControllerRuntime;
+```
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
 ```
 
 ---

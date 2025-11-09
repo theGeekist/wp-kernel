@@ -216,10 +216,18 @@ export default withMermaid(
 								text: 'Philosophy & Architecture',
 								link: '/guide/philosophy',
 							},
+							{
+								text: 'Generated Artifacts',
+								link: '/guide/generated-artifacts',
+							},
 							{ text: 'Resources', link: '/guide/resources' },
 							{ text: 'Actions', link: '/guide/actions' },
 							{ text: 'Events', link: '/guide/events' },
 							{ text: 'Blocks', link: '/guide/blocks' },
+							{
+								text: 'Block Bindings',
+								link: '/guide/block-bindings',
+							},
 							{
 								text: 'Interactivity',
 								link: '/guide/interactivity',

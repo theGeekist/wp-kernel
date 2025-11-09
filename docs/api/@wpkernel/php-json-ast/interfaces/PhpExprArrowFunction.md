@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,42 @@ Represents a PHP arrow function expression (e.g., `fn($x) => $x * 2`).
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
+### expr
+
+```ts
+readonly expr: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -23,22 +59,6 @@ readonly nodeType: "Expr_ArrowFunction";
 #### Overrides
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### static
-
-```ts
-readonly static: boolean;
-```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
 
 ---
 
@@ -58,28 +78,8 @@ readonly returnType: PhpType | null;
 
 ---
 
-### expr
+### static
 
 ```ts
-readonly expr: PhpExpr;
+readonly static: boolean;
 ```
-
----
-
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,18 +12,18 @@ type TransportMeta = object;
 
 ## Properties
 
-### reporter?
-
-```ts
-optional reporter: Reporter;
-```
-
----
-
 ### namespace?
 
 ```ts
 optional namespace: string;
+```
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Reporter;
 ```
 
 ---

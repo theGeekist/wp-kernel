@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,6 +30,14 @@ readonly map: object;
 
 The capability map.
 
+#### map.definitions
+
+```ts
+readonly definitions: readonly CapabilityHelperDefinitionMetadata[];
+```
+
+The capability definitions.
+
 #### map.fallback
 
 ```ts
@@ -37,14 +45,6 @@ readonly fallback: object;
 ```
 
 The fallback capability.
-
-#### map.fallback.capability
-
-```ts
-readonly capability: string;
-```
-
-The name of the fallback capability.
 
 #### map.fallback.appliesTo
 
@@ -54,13 +54,13 @@ readonly appliesTo: "resource" | "object";
 
 The scope to which the fallback capability applies.
 
-#### map.definitions
+#### map.fallback.capability
 
 ```ts
-readonly definitions: readonly CapabilityHelperDefinitionMetadata[];
+readonly capability: string;
 ```
 
-The capability definitions.
+The name of the fallback capability.
 
 #### map.missing
 

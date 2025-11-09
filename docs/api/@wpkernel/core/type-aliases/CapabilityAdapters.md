@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -56,6 +56,24 @@ const capability = defineCapability({
 
 ## Properties
 
+### restProbe()?
+
+```ts
+optional restProbe: (key) => Promise<boolean>;
+```
+
+#### Parameters
+
+##### key
+
+`string`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+---
+
 ### wp?
 
 ```ts
@@ -87,21 +105,3 @@ canUser: (action, resource) => boolean | Promise<boolean>;
 ##### Returns
 
 `boolean` \| `Promise`\<`boolean`\>
-
----
-
-### restProbe()?
-
-```ts
-optional restProbe: (key) => Promise<boolean>;
-```
-
-#### Parameters
-
-##### key
-
-`string`
-
-#### Returns
-
-`Promise`\<`boolean`\>

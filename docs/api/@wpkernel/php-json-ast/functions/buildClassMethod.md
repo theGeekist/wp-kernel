@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,6 +24,10 @@ The name of the method.
 
 Optional configuration for the method (by reference, flags, parameters, return type, statements, attribute groups).
 
+#### attrGroups?
+
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
+
 #### byRef?
 
 `boolean`
@@ -43,10 +47,6 @@ Optional configuration for the method (by reference, flags, parameters, return t
 #### stmts?
 
 [`PhpStmt`](../type-aliases/PhpStmt.md)[] \| `null`
-
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 ### attributes?
 

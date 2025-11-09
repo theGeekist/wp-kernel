@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ readonly optional binary: string;
 
 ---
 
-### scriptPath?
-
-```ts
-readonly optional scriptPath: string;
-```
-
----
-
 ### importMetaUrl?
 
 ```ts
 readonly optional importMetaUrl: string;
+```
+
+---
+
+### scriptPath?
+
+```ts
+readonly optional scriptPath: string;
 ```

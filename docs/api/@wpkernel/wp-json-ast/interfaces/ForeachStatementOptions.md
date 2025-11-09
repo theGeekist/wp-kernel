@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,14 +16,6 @@ readonly iterable: PhpExpr;
 
 ---
 
-### value
-
-```ts
-readonly value: string | PhpExpr;
-```
-
----
-
 ### statements
 
 ```ts
@@ -32,10 +24,10 @@ readonly statements: readonly PhpStmt[];
 
 ---
 
-### key?
+### value
 
 ```ts
-readonly optional key: string | PhpExpr | null;
+readonly value: string | PhpExpr;
 ```
 
 ---
@@ -44,4 +36,12 @@ readonly optional key: string | PhpExpr | null;
 
 ```ts
 readonly optional byRef: boolean;
+```
+
+---
+
+### key?
+
+```ts
+readonly optional key: string | PhpExpr | null;
 ```

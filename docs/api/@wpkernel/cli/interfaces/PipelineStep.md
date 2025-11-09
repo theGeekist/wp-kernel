@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,18 @@ Represents a single step executed within the pipeline.
 - [`HelperDescriptor`](HelperDescriptor.md)
 
 ## Properties
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
+
+---
 
 ### id
 
@@ -82,30 +94,6 @@ readonly priority: number;
 
 ---
 
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
-
----
-
-### origin?
-
-```ts
-readonly optional origin: string;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`origin`](HelperDescriptor.md#origin)
-
----
-
 ### optional?
 
 ```ts
@@ -125,3 +113,15 @@ false;
 #### Inherited from
 
 [`HelperDescriptor`](HelperDescriptor.md).[`optional`](HelperDescriptor.md#optional)
+
+---
+
+### origin?
+
+```ts
+readonly optional origin: string;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](HelperDescriptor.md).[`origin`](HelperDescriptor.md#origin)

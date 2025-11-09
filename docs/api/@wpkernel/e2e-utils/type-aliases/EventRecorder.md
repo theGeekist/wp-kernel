@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,17 +20,17 @@ Event utilities for capturing and asserting on wpk events
 
 ## Properties
 
-### list()
+### clear()
 
 ```ts
-list: () => Promise<CapturedEvent<P>[]>;
+clear: () => Promise<void>;
 ```
 
-Get all captured events
+Clear all captured events
 
 #### Returns
 
-`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\>[]\>
+`Promise`\<`void`\>
 
 ---
 
@@ -82,17 +82,17 @@ Array of matching events
 
 ---
 
-### clear()
+### list()
 
 ```ts
-clear: () => Promise<void>;
+list: () => Promise<CapturedEvent<P>[]>;
 ```
 
-Clear all captured events
+Get all captured events
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\>[]\>
 
 ---
 

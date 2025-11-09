@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -27,16 +27,7 @@ Options for creating a `DataFormController`.
 ### action
 
 ```ts
-action: DefinedAction & lt;
-(TInput, TResult & gt);
-```
-
----
-
-### runtime
-
-```ts
-runtime: DataViewsRuntimeContext;
+action: DefinedAction<TInput, TResult>;
 ```
 
 ---
@@ -49,10 +40,10 @@ resourceName: string;
 
 ---
 
-### resource?
+### runtime
 
 ```ts
-optional resource: ResourceObject<unknown, TQuery>;
+runtime: DataViewsRuntimeContext;
 ```
 
 ---
@@ -79,6 +70,24 @@ optional invalidate: (result, input) => false | CacheKeyPattern[];
 
 ---
 
+### onError()?
+
+```ts
+optional onError: (error) => void;
+```
+
+#### Parameters
+
+##### error
+
+`WPKernelError`
+
+#### Returns
+
+`void`
+
+---
+
 ### onSuccess()?
 
 ```ts
@@ -97,18 +106,8 @@ optional onSuccess: (result) => void;
 
 ---
 
-### onError()?
+### resource?
 
 ```ts
-optional onError: (error) => void;
+optional resource: ResourceObject<unknown, TQuery>;
 ```
-
-#### Parameters
-
-##### error
-
-`WPKernelError`
-
-#### Returns
-
-`void`

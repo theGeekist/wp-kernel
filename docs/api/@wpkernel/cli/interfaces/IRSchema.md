@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,16 @@
 Represents an Intermediate Representation (IR) for a schema.
 
 ## Properties
+
+### hash
+
+```ts
+hash: IRHashProvenance;
+```
+
+A hash of the schema content for change detection.
+
+---
 
 ### id
 
@@ -30,23 +40,13 @@ A unique key for the schema.
 
 ---
 
-### sourcePath
+### provenance
 
 ```ts
-sourcePath: string;
+provenance: SchemaProvenance;
 ```
 
-The source path of the schema definition.
-
----
-
-### hash
-
-```ts
-hash: IRHashProvenance;
-```
-
-A hash of the schema content for change detection.
+The provenance of the schema (manual or auto-generated).
 
 ---
 
@@ -60,13 +60,13 @@ The actual schema definition.
 
 ---
 
-### provenance
+### sourcePath
 
 ```ts
-provenance: SchemaProvenance;
+sourcePath: string;
 ```
 
-The provenance of the schema (manual or auto-generated).
+The source path of the schema definition.
 
 ---
 
@@ -78,14 +78,14 @@ optional generatedFrom: object;
 
 Optional: Information about what the schema was generated from.
 
-#### type
-
-```ts
-type: 'storage';
-```
-
 #### resource
 
 ```ts
 resource: string;
+```
+
+#### type
+
+```ts
+type: 'storage';
 ```

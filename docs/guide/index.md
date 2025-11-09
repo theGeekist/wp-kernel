@@ -39,4 +39,7 @@ features:
     - title: “Extensions”
       details: Adapters & pipeline extensions; lifecycle, contracts, testing.
       link: ./extensions.md
+    - title: “Generated Artifacts”
+      details: The PHP and TypeScript files that make up the runtime of your WPKernel application.
+      link: ./generated-artifacts.md
 ---

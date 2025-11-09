@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ Options for building a request parameter assignment statement.
 
 ## Properties
 
-### requestVariable
-
-```ts
-readonly requestVariable: string;
-```
-
-The name of the variable holding the `WP_REST_Request` object.
-
----
-
 ### param
 
 ```ts
@@ -30,13 +20,13 @@ The name of the parameter to retrieve.
 
 ---
 
-### targetVariable?
+### requestVariable
 
 ```ts
-readonly optional targetVariable: string;
+readonly requestVariable: string;
 ```
 
-The name of the variable to which the parameter value will be assigned. Defaults to the value of `param`.
+The name of the variable holding the `WP_REST_Request` object.
 
 ---
 
@@ -47,3 +37,13 @@ readonly optional cast: ScalarCastKind;
 ```
 
 An optional scalar cast to apply to the parameter value.
+
+---
+
+### targetVariable?
+
+```ts
+readonly optional targetVariable: string;
+```
+
+The name of the variable to which the parameter value will be assigned. Defaults to the value of `param`.

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -50,13 +50,13 @@ Additional error data
 [key: string]: unknown
 ```
 
-#### status?
+#### details?
 
 ```ts
-optional status: number;
+optional details: Record<string, unknown>;
 ```
 
-HTTP status code
+Detailed validation or error information
 
 #### params?
 
@@ -66,10 +66,10 @@ optional params: Record<string, string>;
 
 Invalid parameters that caused the error
 
-#### details?
+#### status?
 
 ```ts
-optional details: Record<string, unknown>;
+optional status: number;
 ```
 
-Detailed validation or error information
+HTTP status code

@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,16 +30,6 @@ The namespace for the reporter.
 
 ---
 
-### resourceName?
-
-```ts
-readonly optional resourceName: string;
-```
-
-The name of the resource.
-
----
-
 ### pipelineFactory()?
 
 ```ts
@@ -51,3 +41,13 @@ A factory function to create the resource pipeline.
 #### Returns
 
 `ResourcePipeline`\<`T`, `TQuery`\>
+
+---
+
+### resourceName?
+
+```ts
+readonly optional resourceName: string;
+```
+
+The name of the resource.

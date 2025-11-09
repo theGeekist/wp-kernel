@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -83,33 +83,6 @@ Options for the cleanliness check.
 
 ### Other
 
-#### loadWPKernelConfig()?
-
-```ts
-readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
-```
-
-Optional: Custom function to load the WPKernel configuration.
-
-Locate and load the project's wpk configuration.
-
-The function searches for supported config files, executes them via
-cosmiconfig loaders, validates the resulting structure and performs a
-Composer autoload sanity check to ensure PHP namespaces are mapped
-correctly.
-
-##### Returns
-
-`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
-
-The validated wpk config and associated metadata.
-
-##### Throws
-
-WPKernelError when discovery, parsing or validation fails.
-
----
-
 #### buildWorkspace()?
 
 ```ts
@@ -147,3 +120,30 @@ Optional: Custom function to check the PHP environment.
 ##### Returns
 
 `Promise`\<[`DoctorCheckResult`](DoctorCheckResult.md)[]\>
+
+---
+
+#### loadWPKernelConfig()?
+
+```ts
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
+```
+
+Optional: Custom function to load the WPKernel configuration.
+
+Locate and load the project's wpk configuration.
+
+The function searches for supported config files, executes them via
+cosmiconfig loaders, validates the resulting structure and performs a
+Composer autoload sanity check to ensure PHP namespaces are mapped
+correctly.
+
+##### Returns
+
+`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
+
+The validated wpk config and associated metadata.
+
+##### Throws
+
+WPKernelError when discovery, parsing or validation fails.

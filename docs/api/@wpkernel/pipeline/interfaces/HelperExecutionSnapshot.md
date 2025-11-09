@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,22 +16,6 @@ Snapshot of helper execution status.
 
 ## Properties
 
-### kind
-
-```ts
-readonly kind: TKind;
-```
-
----
-
-### registered
-
-```ts
-readonly registered: readonly string[];
-```
-
----
-
 ### executed
 
 ```ts
@@ -40,8 +24,24 @@ readonly executed: readonly string[];
 
 ---
 
+### kind
+
+```ts
+readonly kind: TKind;
+```
+
+---
+
 ### missing
 
 ```ts
 readonly missing: readonly string[];
+```
+
+---
+
+### registered
+
+```ts
+readonly registered: readonly string[];
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,14 +13,6 @@ type CapabilityOptions = object;
 Additional options accepted by `defineCapability()`.
 
 ## Properties
-
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
----
 
 ### adapters?
 
@@ -42,4 +34,12 @@ optional cache: CapabilityCacheOptions;
 
 ```ts
 optional debug: boolean;
+```
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
 ```

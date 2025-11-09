@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,24 +7,6 @@
 # Interface: IdentityHelpers
 
 ## Properties
-
-### resolveIdentityConfig()
-
-```ts
-readonly resolveIdentityConfig: (resource) => ResolvedIdentity;
-```
-
-#### Parameters
-
-##### resource
-
-[`IdentityResolutionSource`](IdentityResolutionSource.md)
-
-#### Returns
-
-[`ResolvedIdentity`](../type-aliases/ResolvedIdentity.md)
-
----
 
 ### buildIdentityGuardStatements()
 
@@ -41,3 +23,21 @@ readonly buildIdentityGuardStatements: (options) => readonly PhpStmt[];
 #### Returns
 
 readonly `PhpStmt`[]
+
+---
+
+### resolveIdentityConfig()
+
+```ts
+readonly resolveIdentityConfig: (resource) => ResolvedIdentity;
+```
+
+#### Parameters
+
+##### resource
+
+[`IdentityResolutionSource`](IdentityResolutionSource.md)
+
+#### Returns
+
+[`ResolvedIdentity`](../type-aliases/ResolvedIdentity.md)

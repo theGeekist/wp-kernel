@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,16 @@
 Options for creating a command context.
 
 ## Properties
+
+### colorDepth?
+
+```ts
+optional colorDepth: number;
+```
+
+The color depth of the terminal.
+
+---
 
 ### cwd?
 
@@ -37,13 +47,3 @@ optional stdin: ReadStream;
 ```
 
 The standard input stream for the command.
-
----
-
-### colorDepth?
-
-```ts
-optional colorDepth: number;
-```
-
-The color depth of the terminal.

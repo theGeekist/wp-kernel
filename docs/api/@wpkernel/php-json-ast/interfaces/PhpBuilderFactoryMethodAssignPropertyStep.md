@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ readonly kind: "assignPropertyFromParameter";
 
 ---
 
-### property
-
-```ts
-readonly property: string;
-```
-
----
-
 ### parameter
 
 ```ts
 readonly parameter: string;
+```
+
+---
+
+### property
+
+```ts
+readonly property: string;
 ```

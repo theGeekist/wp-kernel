@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,14 +9,6 @@
 Options for creating backups.
 
 ## Properties
-
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
----
 
 ### manifest
 
@@ -30,4 +22,12 @@ readonly manifest: FileManifest;
 
 ```ts
 readonly reporter: Reporter;
+```
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
 ```

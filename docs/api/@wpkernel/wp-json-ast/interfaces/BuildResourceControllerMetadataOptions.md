@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### name
+### cacheKeys
 
 ```ts
-readonly name: string;
+readonly cacheKeys: ResourceCacheKeysPlan;
 ```
 
 ---
@@ -24,18 +24,18 @@ readonly identity: ResourceControllerIdentityMetadataPlan;
 
 ---
 
-### routes
+### name
 
 ```ts
-readonly routes: readonly RouteDefinition[];
+readonly name: string;
 ```
 
 ---
 
-### cacheKeys
+### routes
 
 ```ts
-readonly cacheKeys: ResourceCacheKeysPlan;
+readonly routes: readonly RouteDefinition[];
 ```
 
 ---

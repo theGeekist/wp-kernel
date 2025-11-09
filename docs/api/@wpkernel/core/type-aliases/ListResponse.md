@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -32,13 +32,13 @@ Array of resource entities
 
 ---
 
-### total?
+### hasMore?
 
 ```ts
-optional total: number;
+optional hasMore: boolean;
 ```
 
-Total count of items (if available)
+Whether there are more pages
 
 ---
 
@@ -52,10 +52,10 @@ Pagination cursor for next page
 
 ---
 
-### hasMore?
+### total?
 
 ```ts
-optional hasMore: boolean;
+optional total: number;
 ```
 
-Whether there are more pages
+Total count of items (if available)

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -34,13 +34,13 @@ Optional configuration for the property hook (attribute groups, flags, by refere
 
 [`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
-#### flags?
-
-`number`
-
 #### byRef?
 
 `boolean`
+
+#### flags?
+
+`number`
 
 #### params?
 

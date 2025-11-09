@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,5 @@
 # Type Alias: BlockManifestFile
 
 ```ts
-type BlockManifestFile = BlockModuleFile & lt;
-BlockManifestMetadata & gt;
+type BlockManifestFile = BlockModuleFile<BlockManifestMetadata>;
 ```

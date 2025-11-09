@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,14 +9,6 @@
 Adapter extension contract.
 
 ## Properties
-
-### name
-
-```ts
-name: string;
-```
-
----
 
 ### apply()
 
@@ -33,3 +25,11 @@ apply: (context) => void | Promise<void>;
 #### Returns
 
 `void` \| `Promise`\<`void`\>
+
+---
+
+### name
+
+```ts
+name: string;
+```

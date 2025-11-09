@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,13 +16,29 @@ Keys used for browser APIs (storage, channels), WordPress hooks, and public even
 
 ## Type Declaration
 
-### CAPABILITY_CACHE_STORAGE
+### ACTIONS_CHANNEL
 
 ```ts
-readonly CAPABILITY_CACHE_STORAGE: "wpk.capability.cache";
+readonly ACTIONS_CHANNEL: "wpk.actions";
 ```
 
-Storage key prefix for capability cache
+BroadcastChannel name for action lifecycle events
+
+### ACTIONS_MESSAGE_TYPE_EVENT
+
+```ts
+readonly ACTIONS_MESSAGE_TYPE_EVENT: "wpk.action.event";
+```
+
+BroadcastChannel message type for action custom events
+
+### ACTIONS_MESSAGE_TYPE_LIFECYCLE
+
+```ts
+readonly ACTIONS_MESSAGE_TYPE_LIFECYCLE: "wpk.action.lifecycle";
+```
+
+BroadcastChannel message type for action lifecycle events
 
 ### CAPABILITY_CACHE_CHANNEL
 
@@ -32,6 +48,14 @@ readonly CAPABILITY_CACHE_CHANNEL: "wpk.capability.cache";
 
 BroadcastChannel name for capability cache sync
 
+### CAPABILITY_CACHE_STORAGE
+
+```ts
+readonly CAPABILITY_CACHE_STORAGE: "wpk.capability.cache";
+```
+
+Storage key prefix for capability cache
+
 ### CAPABILITY_EVENT_CHANNEL
 
 ```ts
@@ -39,14 +63,6 @@ readonly CAPABILITY_EVENT_CHANNEL: "wpk.capability.events";
 ```
 
 BroadcastChannel name for capability events
-
-### ACTIONS_CHANNEL
-
-```ts
-readonly ACTIONS_CHANNEL: "wpk.actions";
-```
-
-BroadcastChannel name for action lifecycle events
 
 ### WP_HOOKS_NAMESPACE_PREFIX
 
@@ -63,19 +79,3 @@ readonly WP_HOOKS_NAMESPACE_UI_DATAVIEWS: "wpk/ui/dataviews";
 ```
 
 WordPress hooks namespace for UI DataViews bridge (default base)
-
-### ACTIONS_MESSAGE_TYPE_LIFECYCLE
-
-```ts
-readonly ACTIONS_MESSAGE_TYPE_LIFECYCLE: "wpk.action.lifecycle";
-```
-
-BroadcastChannel message type for action lifecycle events
-
-### ACTIONS_MESSAGE_TYPE_EVENT
-
-```ts
-readonly ACTIONS_MESSAGE_TYPE_EVENT: "wpk.action.event";
-```
-
-BroadcastChannel message type for action custom events

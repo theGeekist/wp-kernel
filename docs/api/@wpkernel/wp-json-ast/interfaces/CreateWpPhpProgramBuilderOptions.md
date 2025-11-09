@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -47,20 +47,6 @@ const builder = createWpPhpProgramBuilder({
 
 ## Properties
 
-### metadata
-
-```ts
-readonly metadata: WpPhpFileMetadata;
-```
-
-Metadata for the WordPress PHP file.
-
-#### See
-
-WpPhpFileMetadata
-
----
-
 ### build()
 
 ```ts
@@ -89,6 +75,20 @@ The PHP AST context entry.
 
 ---
 
+### filePath
+
+```ts
+readonly filePath: string;
+```
+
+#### Inherited from
+
+```ts
+Omit.filePath;
+```
+
+---
+
 ### key
 
 ```ts
@@ -103,17 +103,17 @@ Omit.key;
 
 ---
 
-### filePath
+### metadata
 
 ```ts
-readonly filePath: string;
+readonly metadata: WpPhpFileMetadata;
 ```
 
-#### Inherited from
+Metadata for the WordPress PHP file.
 
-```ts
-Omit.filePath;
-```
+#### See
+
+WpPhpFileMetadata
 
 ---
 
@@ -159,20 +159,6 @@ Omit.mode;
 
 ---
 
-### priority?
-
-```ts
-readonly optional priority: number;
-```
-
-#### Inherited from
-
-```ts
-Omit.priority;
-```
-
----
-
 ### origin?
 
 ```ts
@@ -183,4 +169,18 @@ readonly optional origin: string;
 
 ```ts
 Omit.origin;
+```
+
+---
+
+### priority?
+
+```ts
+readonly optional priority: number;
+```
+
+#### Inherited from
+
+```ts
+Omit.priority;
 ```

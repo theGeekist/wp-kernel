@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,16 +20,6 @@ Route definition for a single REST operation
 
 ## Properties
 
-### path
-
-```ts
-path: string;
-```
-
-REST API path (may include :id, :slug patterns)
-
----
-
 ### method
 
 ```ts
@@ -37,6 +27,16 @@ method: HttpMethod;
 ```
 
 HTTP method
+
+---
+
+### path
+
+```ts
+path: string;
+```
+
+REST API path (may include :id, :slug patterns)
 
 ---
 

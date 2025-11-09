@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,5 @@ type StructuredPhpValue =
 	| bigint
 	| null
 	| readonly unknown[]
-	| (Record & lt);
-(string, unknown & gt);
+	| Record<string, unknown>;
 ```

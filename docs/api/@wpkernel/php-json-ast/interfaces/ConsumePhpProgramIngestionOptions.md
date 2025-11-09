@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,18 +24,18 @@ readonly source: PhpProgramIngestionSource;
 
 ---
 
-### reporter?
-
-```ts
-readonly optional reporter: Reporter;
-```
-
----
-
 ### defaultMetadata?
 
 ```ts
 readonly optional defaultMetadata: PhpFileMetadata;
+```
+
+---
+
+### reporter?
+
+```ts
+readonly optional reporter: Reporter;
 ```
 
 ---

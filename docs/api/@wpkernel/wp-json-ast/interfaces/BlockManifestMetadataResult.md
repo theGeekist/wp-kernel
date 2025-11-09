@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,16 +8,16 @@
 
 ## Properties
 
-### manifest
-
-```ts
-readonly manifest: BlockManifestMap;
-```
-
----
-
 ### errors
 
 ```ts
 readonly errors: readonly BlockManifestValidationError[];
+```
+
+---
+
+### manifest
+
+```ts
+readonly manifest: BlockManifestMap;
 ```

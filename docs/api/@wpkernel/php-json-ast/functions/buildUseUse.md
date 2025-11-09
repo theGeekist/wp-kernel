@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -30,13 +30,13 @@ An optional alias for the item.
 
 Optional configuration for the use item (type, attributes).
 
-#### type?
-
-`number`
-
 #### attributes?
 
 `Readonly`\<`Record`\<`string`, `unknown`\>\>
+
+#### type?
+
+`number`
 
 ## Returns
 

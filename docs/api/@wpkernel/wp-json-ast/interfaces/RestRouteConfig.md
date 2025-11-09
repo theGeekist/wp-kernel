@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### methodName
-
-```ts
-readonly methodName: string;
-```
-
----
-
 ### metadata
 
 ```ts
 readonly metadata: ResourceControllerRouteMetadata;
+```
+
+---
+
+### methodName
+
+```ts
+readonly methodName: string;
 ```
 
 ---
@@ -48,16 +48,16 @@ readonly optional docblockSummary: string;
 
 ---
 
-### usesIdentity?
-
-```ts
-readonly optional usesIdentity: boolean;
-```
-
----
-
 ### requestParameters?
 
 ```ts
 readonly optional requestParameters: readonly RestRouteRequestParameter[];
+```
+
+---
+
+### usesIdentity?
+
+```ts
+readonly optional usesIdentity: boolean;
 ```

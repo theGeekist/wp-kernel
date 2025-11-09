@@ -1,8 +1,8 @@
-**@wpkernel/ui v0.12.0**
+**@wpkernel/ui v0.12.1-beta.2**
 
 ---
 
-# @wpkernel/ui v0.12.0
+# @wpkernel/ui v0.12.1-beta.2
 
 WPKernel UI - Component Library Package
 
@@ -13,16 +13,16 @@ Reusable UI components for WPKernel.
 ### DataViews Integration
 
 - [CreateDataFormControllerOptions](interfaces/CreateDataFormControllerOptions.md)
-- [UseDataFormController](interfaces/UseDataFormController.md)
+- [CreateDataViewInteractionOptions](interfaces/CreateDataViewInteractionOptions.md)
 - [DataFormControllerState](interfaces/DataFormControllerState.md)
+- [DataViewInteractionResult](interfaces/DataViewInteractionResult.md)
+- [DataViewsRuntimeOptions](interfaces/DataViewsRuntimeOptions.md)
+- [DataViewsStandaloneRuntime](interfaces/DataViewsStandaloneRuntime.md)
 - [ResourceDataViewController](interfaces/ResourceDataViewController.md)
 - [ResourceDataViewControllerOptions](interfaces/ResourceDataViewControllerOptions.md)
-- [ResourceDataViewSavedView](interfaces/ResourceDataViewSavedView.md)
-- [DataViewsStandaloneRuntime](interfaces/DataViewsStandaloneRuntime.md)
-- [DataViewsRuntimeOptions](interfaces/DataViewsRuntimeOptions.md)
-- [CreateDataViewInteractionOptions](interfaces/CreateDataViewInteractionOptions.md)
-- [DataViewInteractionResult](interfaces/DataViewInteractionResult.md)
 - [ResourceDataViewProps](interfaces/ResourceDataViewProps.md)
+- [ResourceDataViewSavedView](interfaces/ResourceDataViewSavedView.md)
+- [UseDataFormController](interfaces/UseDataFormController.md)
 
 ### Action Bindings
 
@@ -35,35 +35,35 @@ Reusable UI components for WPKernel.
 
 ### Utilities
 
+- [HoverPrefetchOptions](interfaces/HoverPrefetchOptions.md)
+- [NextPagePrefetchOptions](interfaces/NextPagePrefetchOptions.md)
+- [Prefetcher](interfaces/Prefetcher.md)
 - [UseResourceItemResult](interfaces/UseResourceItemResult.md)
 - [UseResourceListResult](interfaces/UseResourceListResult.md)
-- [Prefetcher](interfaces/Prefetcher.md)
-- [HoverPrefetchOptions](interfaces/HoverPrefetchOptions.md)
 - [VisiblePrefetchOptions](interfaces/VisiblePrefetchOptions.md)
-- [NextPagePrefetchOptions](interfaces/NextPagePrefetchOptions.md)
 
 ### Other
 
-- [ResourceDataViewConfig](interfaces/ResourceDataViewConfig.md)
-- [ResourceDataViewActionConfig](interfaces/ResourceDataViewActionConfig.md)
-- [DataViewsRuntimeContext](interfaces/DataViewsRuntimeContext.md)
-- [DataViewsControllerRuntime](interfaces/DataViewsControllerRuntime.md)
-- [WPKernelDataViewsRuntime](interfaces/WPKernelDataViewsRuntime.md)
-- [NormalizedDataViewsRuntimeOptions](interfaces/NormalizedDataViewsRuntimeOptions.md)
-- [DataViewRegistryEntry](interfaces/DataViewRegistryEntry.md)
-- [DataViewsEventEmitter](interfaces/DataViewsEventEmitter.md)
-- [SubscribeToDataViewsEventOptions](interfaces/SubscribeToDataViewsEventOptions.md)
-- [DataViewPreferencesRuntime](interfaces/DataViewPreferencesRuntime.md)
 - [DataViewPreferencesAdapter](interfaces/DataViewPreferencesAdapter.md)
+- [DataViewPreferencesRuntime](interfaces/DataViewPreferencesRuntime.md)
+- [DataViewRegistryEntry](interfaces/DataViewRegistryEntry.md)
+- [DataViewsControllerRuntime](interfaces/DataViewsControllerRuntime.md)
+- [DataViewsEventEmitter](interfaces/DataViewsEventEmitter.md)
+- [DataViewsRuntimeContext](interfaces/DataViewsRuntimeContext.md)
+- [NormalizedDataViewsRuntimeOptions](interfaces/NormalizedDataViewsRuntimeOptions.md)
+- [ResourceDataViewActionConfig](interfaces/ResourceDataViewActionConfig.md)
+- [ResourceDataViewConfig](interfaces/ResourceDataViewConfig.md)
+- [SubscribeToDataViewsEventOptions](interfaces/SubscribeToDataViewsEventOptions.md)
+- [WPKernelDataViewsRuntime](interfaces/WPKernelDataViewsRuntime.md)
 
 ## Type Aliases
 
 ### DataViews Integration
 
+- [DataViewInteractionState](type-aliases/DataViewInteractionState.md)
 - [ResourceDataViewMenuConfig](type-aliases/ResourceDataViewMenuConfig.md)
 - [ResourceDataViewScreenConfig](type-aliases/ResourceDataViewScreenConfig.md)
 - [WPKUICapabilityRuntimeSource](type-aliases/WPKUICapabilityRuntimeSource.md)
-- [DataViewInteractionState](type-aliases/DataViewInteractionState.md)
 
 ### Utilities
 
@@ -72,17 +72,17 @@ Reusable UI components for WPKernel.
 
 ### Other
 
-- [QueryMapping](type-aliases/QueryMapping.md)
-- [DataViewChangedPayload](type-aliases/DataViewChangedPayload.md)
-- [DataViewRegisteredPayload](type-aliases/DataViewRegisteredPayload.md)
 - [DataViewActionTriggeredPayload](type-aliases/DataViewActionTriggeredPayload.md)
-- [DataViewPermissionDeniedPayload](type-aliases/DataViewPermissionDeniedPayload.md)
-- [DataViewFetchFailedPayload](type-aliases/DataViewFetchFailedPayload.md)
-- [DataViewBoundaryTransitionPayload](type-aliases/DataViewBoundaryTransitionPayload.md)
 - [DataViewBoundaryState](type-aliases/DataViewBoundaryState.md)
+- [DataViewBoundaryTransitionPayload](type-aliases/DataViewBoundaryTransitionPayload.md)
+- [DataViewChangedPayload](type-aliases/DataViewChangedPayload.md)
+- [DataViewFetchFailedPayload](type-aliases/DataViewFetchFailedPayload.md)
+- [DataViewPermissionDeniedPayload](type-aliases/DataViewPermissionDeniedPayload.md)
+- [DataViewPreferenceScope](type-aliases/DataViewPreferenceScope.md)
+- [DataViewRegisteredPayload](type-aliases/DataViewRegisteredPayload.md)
 - [DataViewsEventName](type-aliases/DataViewsEventName.md)
 - [DataViewsEventPayloadMap](type-aliases/DataViewsEventPayloadMap.md)
-- [DataViewPreferenceScope](type-aliases/DataViewPreferenceScope.md)
+- [QueryMapping](type-aliases/QueryMapping.md)
 
 ## Variables
 
@@ -98,12 +98,12 @@ Reusable UI components for WPKernel.
 
 ### DataViews Integration
 
-- [ResourceDataView](functions/ResourceDataView.md)
-- [createResourceDataViewController](functions/createResourceDataViewController.md)
 - [createDataFormController](functions/createDataFormController.md)
-- [createDataViewsRuntime](functions/createDataViewsRuntime.md)
-- [ensureControllerRuntime](functions/ensureControllerRuntime.md)
 - [createDataViewInteraction](functions/createDataViewInteraction.md)
+- [createDataViewsRuntime](functions/createDataViewsRuntime.md)
+- [createResourceDataViewController](functions/createResourceDataViewController.md)
+- [ensureControllerRuntime](functions/ensureControllerRuntime.md)
+- [ResourceDataView](functions/ResourceDataView.md)
 
 ### Action Bindings
 
@@ -111,17 +111,17 @@ Reusable UI components for WPKernel.
 
 ### Provider
 
-- [WPKernelUIProvider](functions/WPKernelUIProvider.md)
 - [useWPKernelUI](functions/useWPKernelUI.md)
+- [WPKernelUIProvider](functions/WPKernelUIProvider.md)
 
 ### Utilities
 
-- [useCapability](functions/useCapability.md)
 - [attachResourceHooks](functions/attachResourceHooks.md)
-- [usePrefetcher](functions/usePrefetcher.md)
+- [useCapability](functions/useCapability.md)
 - [useHoverPrefetch](functions/useHoverPrefetch.md)
-- [useVisiblePrefetch](functions/useVisiblePrefetch.md)
 - [useNextPagePrefetch](functions/useNextPagePrefetch.md)
+- [usePrefetcher](functions/usePrefetcher.md)
+- [useVisiblePrefetch](functions/useVisiblePrefetch.md)
 
 ### Other
 

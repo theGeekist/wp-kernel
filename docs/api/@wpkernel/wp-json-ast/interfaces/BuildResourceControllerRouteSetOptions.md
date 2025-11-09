@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,38 +16,6 @@ readonly plan: Pick<RestControllerRoutePlan, "definition" | "methodName" | "docb
 
 ---
 
-### storageMode?
-
-```ts
-readonly optional storageMode: RestControllerRouteStorageMode;
-```
-
----
-
-### handlers?
-
-```ts
-readonly optional handlers: RestControllerRouteHandlers;
-```
-
----
-
-### transientHandlers?
-
-```ts
-readonly optional transientHandlers: RestControllerRouteTransientHandlers;
-```
-
----
-
-### optionHandlers?
-
-```ts
-readonly optional optionHandlers: RestControllerRouteOptionHandlers;
-```
-
----
-
 ### buildFallbackStatements?
 
 ```ts
@@ -60,4 +28,36 @@ readonly optional buildFallbackStatements: BuildRouteFallbackStatements;
 
 ```ts
 readonly optional fallbackContext: RestControllerRouteFallbackContext;
+```
+
+---
+
+### handlers?
+
+```ts
+readonly optional handlers: RestControllerRouteHandlers;
+```
+
+---
+
+### optionHandlers?
+
+```ts
+readonly optional optionHandlers: RestControllerRouteOptionHandlers;
+```
+
+---
+
+### storageMode?
+
+```ts
+readonly optional storageMode: RestControllerRouteStorageMode;
+```
+
+---
+
+### transientHandlers?
+
+```ts
+readonly optional transientHandlers: RestControllerRouteTransientHandlers;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -23,21 +23,10 @@ Options for creating a `ResourceDataViewController`.
 ### config
 
 ```ts
-config: ResourceDataViewConfig & lt;
-(TItem, TQuery & gt);
+config: ResourceDataViewConfig<TItem, TQuery>;
 ```
 
 The configuration for the DataView.
-
----
-
-### runtime
-
-```ts
-runtime: DataViewsControllerRuntime;
-```
-
-The runtime for the DataView controller.
 
 ---
 
@@ -51,53 +40,13 @@ The namespace of the project.
 
 ---
 
-### resource?
+### runtime
 
 ```ts
-optional resource: ResourceObject<TItem, TQuery>;
+runtime: DataViewsControllerRuntime;
 ```
 
-The resource object.
-
----
-
-### resourceName?
-
-```ts
-optional resourceName: string;
-```
-
-The name of the resource.
-
----
-
-### queryMapping?
-
-```ts
-optional queryMapping: QueryMapping<TQuery>;
-```
-
-A function to map the view state to a query.
-
----
-
-### invalidate()?
-
-```ts
-optional invalidate: (patterns) => void;
-```
-
-A function to invalidate cache entries.
-
-#### Parameters
-
-##### patterns
-
-`CacheKeyPattern` | `CacheKeyPattern`[]
-
-#### Returns
-
-`void`
+The runtime for the DataView controller.
 
 ---
 
@@ -108,16 +57,6 @@ optional capabilities: WPKUICapabilityRuntimeSource;
 ```
 
 The capability runtime source.
-
----
-
-### preferencesKey?
-
-```ts
-optional preferencesKey: string;
-```
-
-The key for storing preferences.
 
 ---
 
@@ -141,6 +80,36 @@ A function to fetch a list of items.
 
 ---
 
+### invalidate()?
+
+```ts
+optional invalidate: (patterns) => void;
+```
+
+A function to invalidate cache entries.
+
+#### Parameters
+
+##### patterns
+
+`CacheKeyPattern` | `CacheKeyPattern`[]
+
+#### Returns
+
+`void`
+
+---
+
+### preferencesKey?
+
+```ts
+optional preferencesKey: string;
+```
+
+The key for storing preferences.
+
+---
+
 ### prefetchList()?
 
 ```ts
@@ -158,3 +127,33 @@ A function to prefetch a list of items.
 #### Returns
 
 `Promise`\<`void`\>
+
+---
+
+### queryMapping?
+
+```ts
+optional queryMapping: QueryMapping<TQuery>;
+```
+
+A function to map the view state to a query.
+
+---
+
+### resource?
+
+```ts
+optional resource: ResourceObject<TItem, TQuery>;
+```
+
+The resource object.
+
+---
+
+### resourceName?
+
+```ts
+optional resourceName: string;
+```
+
+The name of the resource.

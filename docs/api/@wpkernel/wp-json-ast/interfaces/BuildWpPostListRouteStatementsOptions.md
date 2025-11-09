@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,10 @@
 
 ## Properties
 
-### resource
+### cacheSegments
 
 ```ts
-readonly resource: MutationHelperResource;
-```
-
----
-
-### pascalName
-
-```ts
-readonly pascalName: string;
+readonly cacheSegments: readonly unknown[];
 ```
 
 ---
@@ -32,8 +24,16 @@ readonly metadataHost: ResourceMetadataHost;
 
 ---
 
-### cacheSegments
+### pascalName
 
 ```ts
-readonly cacheSegments: readonly unknown[];
+readonly pascalName: string;
+```
+
+---
+
+### resource
+
+```ts
+readonly resource: MutationHelperResource;
 ```

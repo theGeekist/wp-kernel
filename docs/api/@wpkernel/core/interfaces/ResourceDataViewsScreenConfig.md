@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -29,10 +29,10 @@ optional component: string;
 
 ---
 
-### route?
+### menu?
 
 ```ts
-optional route: string;
+optional menu: ResourceDataViewsMenuConfig;
 ```
 
 ---
@@ -53,6 +53,14 @@ optional resourceSymbol: string;
 
 ---
 
+### route?
+
+```ts
+optional route: string;
+```
+
+---
+
 ### wpkernelImport?
 
 ```ts
@@ -65,12 +73,4 @@ optional wpkernelImport: string;
 
 ```ts
 optional wpkernelSymbol: string;
-```
-
----
-
-### menu?
-
-```ts
-optional menu: ResourceDataViewsMenuConfig;
 ```

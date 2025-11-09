@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,23 +14,15 @@ Represents a PHP `instanceof` expression (e.g., `$object instanceof MyClass`).
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "Expr_Instanceof";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### expr
-
-```ts
-readonly expr: PhpExpr;
-```
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
 
 ---
 
@@ -42,12 +34,20 @@ readonly class: PhpExpr | PhpName;
 
 ---
 
-### attributes
+### expr
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly expr: PhpExpr;
 ```
 
-#### Inherited from
+---
 
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+### nodeType
+
+```ts
+readonly nodeType: "Expr_Instanceof";
+```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)

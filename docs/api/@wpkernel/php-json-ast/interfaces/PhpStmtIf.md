@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,15 +14,15 @@ Represents a PHP `if` statement.
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "Stmt_If";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
 ---
 
@@ -30,22 +30,6 @@ readonly nodeType: "Stmt_If";
 
 ```ts
 readonly cond: PhpExpr;
-```
-
----
-
-### stmts
-
-```ts
-readonly stmts: PhpStmt[];
-```
-
----
-
-### elseifs
-
-```ts
-readonly elseifs: PhpStmtElseIf[];
 ```
 
 ---
@@ -58,12 +42,28 @@ readonly else: PhpStmtElse | null;
 
 ---
 
-### attributes
+### elseifs
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly elseifs: PhpStmtElseIf[];
 ```
 
-#### Inherited from
+---
 
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_If";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### stmts
+
+```ts
+readonly stmts: PhpStmt[];
+```

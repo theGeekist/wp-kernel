@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,16 +20,6 @@ Controller for a ResourceDataView.
 
 ## Properties
 
-### resourceName
-
-```ts
-readonly resourceName: string;
-```
-
-The name of the resource.
-
----
-
 ### config
 
 ```ts
@@ -37,66 +27,6 @@ readonly config: ResourceDataViewConfig<TItem, TQuery>;
 ```
 
 The configuration for the DataView.
-
----
-
-### queryMapping
-
-```ts
-readonly queryMapping: QueryMapping<TQuery>;
-```
-
-A function to map the view state to a query.
-
----
-
-### runtime
-
-```ts
-readonly runtime: DataViewsControllerRuntime;
-```
-
-The runtime for the DataView controller.
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
-The namespace of the project.
-
----
-
-### preferencesKey
-
-```ts
-readonly preferencesKey: string;
-```
-
-The key for storing preferences.
-
----
-
-### mapViewToQuery()
-
-```ts
-mapViewToQuery: (view) => TQuery;
-```
-
-Maps the view state to a query.
-
-#### Parameters
-
-##### view
-
-`View`
-
-#### Returns
-
-`TQuery`
 
 ---
 
@@ -136,22 +66,10 @@ page: number;
 perPage: number;
 ```
 
-##### sort?
+##### filters?
 
 ```ts
-optional sort: object;
-```
-
-###### sort.field
-
-```ts
-field: string;
-```
-
-###### sort.direction
-
-```ts
-direction: 'asc' | 'desc';
+optional filters: Record<string, unknown>;
 ```
 
 ##### search?
@@ -160,61 +78,117 @@ direction: 'asc' | 'desc';
 optional search: string;
 ```
 
-##### filters?
+##### sort?
 
 ```ts
-optional filters: Record<string, unknown>;
+optional sort: object;
+```
+
+###### sort.direction
+
+```ts
+direction: 'asc' | 'desc';
+```
+
+###### sort.field
+
+```ts
+field: string;
 ```
 
 ---
 
-### loadStoredView()
+### emitAction()
 
 ```ts
-loadStoredView: () => Promise<View | undefined>;
+emitAction: (payload) => void;
 ```
 
-Loads the stored view from preferences.
-
-#### Returns
-
-`Promise`\<`View` \| `undefined`\>
-
----
-
-### saveView()
-
-```ts
-saveView: (view) => Promise<void>;
-```
-
-Saves the view to preferences.
+Emits an action event.
 
 #### Parameters
 
-##### view
+##### payload
 
-`View`
+###### actionId
+
+`string`
+
+###### permitted
+
+`boolean`
+
+###### selection
+
+(`string` \| `number`)[]
+
+###### meta?
+
+`Record`\<`string`, `unknown`\>
+
+###### reason?
+
+`string`
 
 #### Returns
 
-`Promise`\<`void`\>
+`void`
 
 ---
 
-### emitViewChange()
+### emitBoundaryTransition()
 
 ```ts
-emitViewChange: (view) => void;
+emitBoundaryTransition: (payload) => void;
 ```
 
-Emits a view change event.
+Emits a boundary transition event.
 
 #### Parameters
 
-##### view
+##### payload
 
-`View`
+`Omit`\<[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md), `"resource"`\>
+
+#### Returns
+
+`void`
+
+---
+
+### emitFetchFailed()
+
+```ts
+emitFetchFailed: (payload) => void;
+```
+
+Emits a fetch failed event.
+
+#### Parameters
+
+##### payload
+
+`Omit`\<[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md), `"resource"`\>
+
+#### Returns
+
+`void`
+
+---
+
+### emitPermissionDenied()
+
+```ts
+emitPermissionDenied: (payload) => void;
+```
+
+Emits a permission denied event.
+
+#### Parameters
+
+##### payload
+
+`Omit`\<[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md), `"resource"`\>
 
 #### Returns
 
@@ -262,97 +236,19 @@ Emits an unregistered event.
 
 ---
 
-### emitAction()
+### emitViewChange()
 
 ```ts
-emitAction: (payload) => void;
+emitViewChange: (view) => void;
 ```
 
-Emits an action event.
+Emits a view change event.
 
 #### Parameters
 
-##### payload
+##### view
 
-###### actionId
-
-`string`
-
-###### selection
-
-(`string` \| `number`)[]
-
-###### permitted
-
-`boolean`
-
-###### reason?
-
-`string`
-
-###### meta?
-
-`Record`\<`string`, `unknown`\>
-
-#### Returns
-
-`void`
-
----
-
-### emitPermissionDenied()
-
-```ts
-emitPermissionDenied: (payload) => void;
-```
-
-Emits a permission denied event.
-
-#### Parameters
-
-##### payload
-
-`Omit`\<[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md), `"resource"`\>
-
-#### Returns
-
-`void`
-
----
-
-### emitFetchFailed()
-
-```ts
-emitFetchFailed: (payload) => void;
-```
-
-Emits a fetch failed event.
-
-#### Parameters
-
-##### payload
-
-`Omit`\<[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md), `"resource"`\>
-
-#### Returns
-
-`void`
-
----
-
-### emitBoundaryTransition()
-
-```ts
-emitBoundaryTransition: (payload) => void;
-```
-
-Emits a boundary transition event.
-
-#### Parameters
-
-##### payload
-
-`Omit`\<[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md), `"resource"`\>
+`View`
 
 #### Returns
 
@@ -374,33 +270,107 @@ Gets the reporter for the controller.
 
 ---
 
-### resource?
+### loadStoredView()
 
 ```ts
-readonly optional resource: ResourceObject<TItem, TQuery>;
+loadStoredView: () => Promise<View | undefined>;
 ```
 
-The resource object.
-
----
-
-### invalidate()?
-
-```ts
-readonly optional invalidate: (patterns) => void;
-```
-
-A function to invalidate cache entries.
-
-#### Parameters
-
-##### patterns
-
-`CacheKeyPattern` | `CacheKeyPattern`[]
+Loads the stored view from preferences.
 
 #### Returns
 
-`void`
+`Promise`\<`View` \| `undefined`\>
+
+---
+
+### mapViewToQuery()
+
+```ts
+mapViewToQuery: (view) => TQuery;
+```
+
+Maps the view state to a query.
+
+#### Parameters
+
+##### view
+
+`View`
+
+#### Returns
+
+`TQuery`
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+The namespace of the project.
+
+---
+
+### preferencesKey
+
+```ts
+readonly preferencesKey: string;
+```
+
+The key for storing preferences.
+
+---
+
+### queryMapping
+
+```ts
+readonly queryMapping: QueryMapping<TQuery>;
+```
+
+A function to map the view state to a query.
+
+---
+
+### resourceName
+
+```ts
+readonly resourceName: string;
+```
+
+The name of the resource.
+
+---
+
+### runtime
+
+```ts
+readonly runtime: DataViewsControllerRuntime;
+```
+
+The runtime for the DataView controller.
+
+---
+
+### saveView()
+
+```ts
+saveView: (view) => Promise<void>;
+```
+
+Saves the view to preferences.
+
+#### Parameters
+
+##### view
+
+`View`
+
+#### Returns
+
+`Promise`\<`void`\>
 
 ---
 
@@ -434,6 +404,26 @@ A function to fetch a list of items.
 
 ---
 
+### invalidate()?
+
+```ts
+readonly optional invalidate: (patterns) => void;
+```
+
+A function to invalidate cache entries.
+
+#### Parameters
+
+##### patterns
+
+`CacheKeyPattern` | `CacheKeyPattern`[]
+
+#### Returns
+
+`void`
+
+---
+
 ### prefetchList()?
 
 ```ts
@@ -451,3 +441,13 @@ A function to prefetch a list of items.
 #### Returns
 
 `Promise`\<`void`\>
+
+---
+
+### resource?
+
+```ts
+readonly optional resource: ResourceObject<TItem, TQuery>;
+```
+
+The resource object.

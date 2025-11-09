@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,54 +14,10 @@ Represents a PHP class property declaration statement.
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: "Stmt_Property";
-```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### flags
-
-```ts
-readonly flags: number;
-```
-
----
-
-### type
-
-```ts
-readonly type: PhpType | null;
-```
-
----
-
-### props
-
-```ts
-readonly props: PhpStmtPropertyProperty[];
-```
-
----
-
 ### attrGroups
 
 ```ts
 readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### hooks
-
-```ts
-readonly hooks: PhpPropertyHook[];
 ```
 
 ---
@@ -75,3 +31,47 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### flags
+
+```ts
+readonly flags: number;
+```
+
+---
+
+### hooks
+
+```ts
+readonly hooks: PhpPropertyHook[];
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_Property";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### props
+
+```ts
+readonly props: PhpStmtPropertyProperty[];
+```
+
+---
+
+### type
+
+```ts
+readonly type: PhpType | null;
+```

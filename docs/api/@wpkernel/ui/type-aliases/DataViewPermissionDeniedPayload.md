@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,6 +11,14 @@ type DataViewPermissionDeniedPayload = object;
 ```
 
 ## Properties
+
+### reason
+
+```ts
+reason: DataViewPermissionDeniedReason;
+```
+
+---
 
 ### resource
 
@@ -28,10 +36,10 @@ source: DataViewPermissionSource;
 
 ---
 
-### reason
+### actionId?
 
 ```ts
-reason: DataViewPermissionDeniedReason;
+optional actionId: string;
 ```
 
 ---
@@ -44,10 +52,10 @@ optional capability: string;
 
 ---
 
-### actionId?
+### error?
 
 ```ts
-optional actionId: string;
+optional error: WPKernelError;
 ```
 
 ---
@@ -56,12 +64,4 @@ optional actionId: string;
 
 ```ts
 optional selection: (string | number)[];
-```
-
----
-
-### error?
-
-```ts
-optional error: WPKernelError;
 ```

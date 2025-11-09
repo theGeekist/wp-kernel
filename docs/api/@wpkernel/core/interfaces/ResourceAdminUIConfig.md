@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -35,16 +35,6 @@ Additional fields reserved for future extensions.
 
 ## Properties
 
-### view?
-
-```ts
-optional view: string;
-```
-
-Selected admin view implementation. `'dataviews'` is the canonical value.
-
----
-
 ### dataviews?
 
 ```ts
@@ -52,3 +42,13 @@ optional dataviews: ResourceDataViewsUIConfig<TItem, TQuery>;
 ```
 
 DataViews configuration for this resource's admin screen.
+
+---
+
+### view?
+
+```ts
+optional view: string;
+```
+
+Selected admin view implementation. `'dataviews'` is the canonical value.

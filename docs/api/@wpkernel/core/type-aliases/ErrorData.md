@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -32,6 +32,32 @@ Original error if wrapping
 
 ---
 
+### serverCode?
+
+```ts
+optional serverCode: string;
+```
+
+Server error details
+
+---
+
+### serverData?
+
+```ts
+optional serverData: unknown;
+```
+
+---
+
+### serverMessage?
+
+```ts
+optional serverMessage: string;
+```
+
+---
+
 ### validationErrors?
 
 ```ts
@@ -56,30 +82,4 @@ message: string;
 
 ```ts
 optional code: string;
-```
-
----
-
-### serverCode?
-
-```ts
-optional serverCode: string;
-```
-
-Server error details
-
----
-
-### serverMessage?
-
-```ts
-optional serverMessage: string;
-```
-
----
-
-### serverData?
-
-```ts
-optional serverData: unknown;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ readonly requestVariable: string;
 
 ---
 
-### param?
-
-```ts
-readonly optional param: string;
-```
-
----
-
 ### minimum?
 
 ```ts
 readonly optional minimum: number;
+```
+
+---
+
+### param?
+
+```ts
+readonly optional param: string;
 ```

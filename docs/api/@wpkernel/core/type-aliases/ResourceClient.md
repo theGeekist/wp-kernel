@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -31,27 +31,27 @@ Query parameters type for list operations
 
 ## Properties
 
-### fetchList()?
+### create()?
 
 ```ts
-optional fetchList: (query?) => Promise<ListResponse<T>>;
+optional create: (data) => Promise<T>;
 ```
 
-Fetch a list of resources
+Create a new resource
 
 #### Parameters
 
-##### query?
+##### data
 
-`TQuery`
+`Partial`\<`T`\>
 
-Query parameters (filters, pagination, etc.)
+Resource data to create
 
 #### Returns
 
-`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
+`Promise`\<`T`\>
 
-Promise resolving to list response
+Promise resolving to created resource
 
 #### Throws
 
@@ -59,7 +59,7 @@ TransportError on network failure
 
 #### Throws
 
-ServerError on REST API error
+ServerError on REST API error (including validation errors)
 
 ---
 
@@ -95,27 +95,27 @@ ServerError on REST API error (including 404)
 
 ---
 
-### create()?
+### fetchList()?
 
 ```ts
-optional create: (data) => Promise<T>;
+optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
 
-Create a new resource
+Fetch a list of resources
 
 #### Parameters
 
-##### data
+##### query?
 
-`Partial`\<`T`\>
+`TQuery`
 
-Resource data to create
+Query parameters (filters, pagination, etc.)
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
 
-Promise resolving to created resource
+Promise resolving to list response
 
 #### Throws
 
@@ -123,45 +123,7 @@ TransportError on network failure
 
 #### Throws
 
-ServerError on REST API error (including validation errors)
-
----
-
-### update()?
-
-```ts
-optional update: (id, data) => Promise<T>;
-```
-
-Update an existing resource
-
-#### Parameters
-
-##### id
-
-Resource identifier
-
-`string` | `number`
-
-##### data
-
-`Partial`\<`T`\>
-
-Partial resource data to update
-
-#### Returns
-
-`Promise`\<`T`\>
-
-Promise resolving to updated resource
-
-#### Throws
-
-TransportError on network failure
-
-#### Throws
-
-ServerError on REST API error (including 404, validation errors)
+ServerError on REST API error
 
 ---
 
@@ -204,3 +166,41 @@ optional ui: ResourceUIConfig<T, TQuery>;
 ```
 
 Optional UI metadata carried over from ResourceConfig.ui.
+
+---
+
+### update()?
+
+```ts
+optional update: (id, data) => Promise<T>;
+```
+
+Update an existing resource
+
+#### Parameters
+
+##### id
+
+Resource identifier
+
+`string` | `number`
+
+##### data
+
+`Partial`\<`T`\>
+
+Partial resource data to update
+
+#### Returns
+
+`Promise`\<`T`\>
+
+Promise resolving to updated resource
+
+#### Throws
+
+TransportError on network failure
+
+#### Throws
+
+ServerError on REST API error (including 404, validation errors)

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,12 +7,13 @@
 # Type Alias: FragmentHelper
 
 ```ts
-type FragmentHelper = Helper & lt;
-(PipelineContext,
+type FragmentHelper = Helper<
+	PipelineContext,
 	FragmentInput,
 	FragmentOutput,
 	PipelineContext['reporter'],
-	'fragment' & gt);
+	'fragment'
+>;
 ```
 
 A helper specifically designed for fragment processing within the pipeline.

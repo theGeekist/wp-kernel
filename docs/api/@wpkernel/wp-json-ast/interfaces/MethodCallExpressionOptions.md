@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,18 +12,18 @@
 
 ## Properties
 
-### subject
-
-```ts
-readonly subject: MethodCallSubject;
-```
-
----
-
 ### method
 
 ```ts
 readonly method: string;
+```
+
+---
+
+### subject
+
+```ts
+readonly subject: MethodCallSubject;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,10 @@
 
 ## Properties
 
-### pascalName
+### cacheSegments
 
 ```ts
-readonly pascalName: string;
-```
-
----
-
-### identity
-
-```ts
-readonly identity: ResolvedIdentity;
+readonly cacheSegments: readonly unknown[];
 ```
 
 ---
@@ -42,6 +34,14 @@ readonly errorCodeFactory: (suffix) => string;
 
 ---
 
+### identity
+
+```ts
+readonly identity: ResolvedIdentity;
+```
+
+---
+
 ### metadataHost
 
 ```ts
@@ -50,10 +50,10 @@ readonly metadataHost: ResourceMetadataHost;
 
 ---
 
-### cacheSegments
+### pascalName
 
 ```ts
-readonly cacheSegments: readonly unknown[];
+readonly pascalName: string;
 ```
 
 ---
@@ -66,10 +66,10 @@ readonly storage: ResourceStorageConfig | undefined;
 
 ---
 
-### resourceName?
+### identityVariable?
 
 ```ts
-readonly optional resourceName: string;
+readonly optional identityVariable: string;
 ```
 
 ---
@@ -82,8 +82,8 @@ readonly optional requestVariable: string;
 
 ---
 
-### identityVariable?
+### resourceName?
 
 ```ts
-readonly optional identityVariable: string;
+readonly optional resourceName: string;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,64 @@ type ResourceActions<T> = object & Record<string, AnyFn>;
 Actions for a resource store.
 
 ## Type Declaration
+
+### invalidate()
+
+```ts
+invalidate: (cacheKeys) => void;
+```
+
+Clear cached data for specific cache keys.
+
+#### Parameters
+
+##### cacheKeys
+
+`string`[]
+
+Array of cache keys to invalidate
+
+#### Returns
+
+`void`
+
+### invalidateAll()
+
+```ts
+invalidateAll: () => void;
+```
+
+Clear all cached data for this resource.
+
+#### Returns
+
+`void`
+
+### receiveError()
+
+```ts
+receiveError: (cacheKey, error) => void;
+```
+
+Store an error for a given cache key.
+
+#### Parameters
+
+##### cacheKey
+
+`string`
+
+The cache key that failed
+
+##### error
+
+`string`
+
+Error message
+
+#### Returns
+
+`void`
 
 ### receiveItem()
 
@@ -60,10 +118,6 @@ Array of items
 
 List metadata (total, hasMore, nextCursor)
 
-###### total?
-
-`number`
-
 ###### hasMore?
 
 `boolean`
@@ -76,63 +130,9 @@ List metadata (total, hasMore, nextCursor)
 
 [`ResourceListStatus`](ResourceListStatus.md)
 
-#### Returns
+###### total?
 
-`void`
-
-### receiveError()
-
-```ts
-receiveError: (cacheKey, error) => void;
-```
-
-Store an error for a given cache key.
-
-#### Parameters
-
-##### cacheKey
-
-`string`
-
-The cache key that failed
-
-##### error
-
-`string`
-
-Error message
-
-#### Returns
-
-`void`
-
-### invalidate()
-
-```ts
-invalidate: (cacheKeys) => void;
-```
-
-Clear cached data for specific cache keys.
-
-#### Parameters
-
-##### cacheKeys
-
-`string`[]
-
-Array of cache keys to invalidate
-
-#### Returns
-
-`void`
-
-### invalidateAll()
-
-```ts
-invalidateAll: () => void;
-```
-
-Clear all cached data for this resource.
+`number`
 
 #### Returns
 

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,6 +12,20 @@
 
 ## Properties
 
+### metadataKeys
+
+```ts
+readonly metadataKeys: MutationMetadataKeys;
+```
+
+#### Inherited from
+
+```ts
+MacroOptionsBase.metadataKeys;
+```
+
+---
+
 ### pascalName
 
 ```ts
@@ -24,20 +38,6 @@ readonly pascalName: string;
 
 ```ts
 readonly postId: MacroExpression;
-```
-
----
-
-### metadataKeys
-
-```ts
-readonly metadataKeys: MutationMetadataKeys;
-```
-
-#### Inherited from
-
-```ts
-MacroOptionsBase.metadataKeys;
 ```
 
 ---

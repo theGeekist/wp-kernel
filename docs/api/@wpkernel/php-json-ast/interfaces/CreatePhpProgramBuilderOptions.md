@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -26,38 +26,6 @@
 
 ## Properties
 
-### key
-
-```ts
-readonly key: string;
-```
-
----
-
-### filePath
-
-```ts
-readonly filePath: string;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
----
-
-### metadata
-
-```ts
-readonly metadata: PhpFileMetadata;
-```
-
----
-
 ### build()
 
 ```ts
@@ -77,6 +45,38 @@ readonly build: (builder, entry) => void | Promise<void>;
 #### Returns
 
 `void` \| `Promise`\<`void`\>
+
+---
+
+### filePath
+
+```ts
+readonly filePath: string;
+```
+
+---
+
+### key
+
+```ts
+readonly key: string;
+```
+
+---
+
+### metadata
+
+```ts
+readonly metadata: PhpFileMetadata;
+```
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
 
 ---
 
@@ -104,18 +104,6 @@ readonly optional mode: HelperMode;
 
 ---
 
-### priority?
-
-```ts
-readonly optional priority: number;
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)
-
----
-
 ### origin?
 
 ```ts
@@ -125,3 +113,15 @@ readonly optional origin: string;
 #### Inherited from
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
+
+---
+
+### priority?
+
+```ts
+readonly optional priority: number;
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)

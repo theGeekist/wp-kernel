@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,18 +10,18 @@ Result returned when loading and validating a wpk config file.
 
 ## Properties
 
-### config
+### composerCheck
 
 ```ts
-config: WPKernelConfigV1;
+composerCheck: 'ok' | 'mismatch';
 ```
 
 ---
 
-### sourcePath
+### config
 
 ```ts
-sourcePath: string;
+config: WPKernelConfigV1;
 ```
 
 ---
@@ -34,16 +34,16 @@ configOrigin: WPKConfigSource;
 
 ---
 
-### composerCheck
-
-```ts
-composerCheck: 'ok' | 'mismatch';
-```
-
----
-
 ### namespace
 
 ```ts
 namespace: string;
+```
+
+---
+
+### sourcePath
+
+```ts
+sourcePath: string;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,16 +14,6 @@ ResourceControllerCacheMetadata
 
 ## Properties
 
-### scope
-
-```ts
-readonly scope: "list" | "get" | "create" | "update" | "remove" | "custom";
-```
-
-The scope of the cache event.
-
----
-
 ### operation
 
 ```ts
@@ -31,6 +21,16 @@ readonly operation: ResourceControllerCacheOperation;
 ```
 
 The operation of the cache event.
+
+---
+
+### scope
+
+```ts
+readonly scope: "list" | "get" | "create" | "update" | "remove" | "custom";
+```
+
+The scope of the cache event.
 
 ---
 

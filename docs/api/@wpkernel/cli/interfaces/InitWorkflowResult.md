@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,6 +8,14 @@
 
 ## Properties
 
+### dependencySource
+
+```ts
+readonly dependencySource: string;
+```
+
+---
+
 ### manifest
 
 ```ts
@@ -16,10 +24,10 @@ readonly manifest: FileManifest;
 
 ---
 
-### summaryText
+### namespace
 
 ```ts
-readonly summaryText: string;
+readonly namespace: string;
 ```
 
 ---
@@ -44,18 +52,10 @@ status: ScaffoldStatus;
 
 ---
 
-### dependencySource
+### summaryText
 
 ```ts
-readonly dependencySource: string;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
+readonly summaryText: string;
 ```
 
 ---

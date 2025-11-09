@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,26 +12,6 @@ These hooks allow for custom logic to be executed at different stages
 of the TypeScript artifact generation process.
 
 ## Properties
-
-### onBeforeCreate()?
-
-```ts
-readonly optional onBeforeCreate: (context) => Promise<void>;
-```
-
-Hook executed before a creator generates an artifact.
-
-#### Parameters
-
-##### context
-
-`Omit`\<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\>
-
-#### Returns
-
-`Promise`\<`void`\>
-
----
 
 ### onAfterCreate()?
 
@@ -66,6 +46,26 @@ Hook executed after all TypeScript files have been emitted.
 ##### options
 
 [`TsBuilderAfterEmitOptions`](TsBuilderAfterEmitOptions.md)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+---
+
+### onBeforeCreate()?
+
+```ts
+readonly optional onBeforeCreate: (context) => Promise<void>;
+```
+
+Hook executed before a creator generates an artifact.
+
+#### Parameters
+
+##### context
+
+`Omit`\<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\>
 
 #### Returns
 

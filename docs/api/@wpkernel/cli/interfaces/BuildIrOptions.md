@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,13 +20,13 @@ The WPKernel configuration.
 
 ---
 
-### sourcePath
+### namespace
 
 ```ts
-sourcePath: string;
+namespace: string;
 ```
 
-The source path of the configuration file.
+The namespace of the project.
 
 ---
 
@@ -40,10 +40,10 @@ The origin of the configuration.
 
 ---
 
-### namespace
+### sourcePath
 
 ```ts
-namespace: string;
+sourcePath: string;
 ```
 
-The namespace of the project.
+The source path of the configuration file.

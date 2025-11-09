@@ -356,7 +356,7 @@ type ShowcaseWPKernelConfigShape = {
 	resources: ShowcaseResources;
 };
 
-/** @see https://github.com/theGeekist/wp-kernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules */
+/** @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules */
 export const wpkConfig = {
 	version: 1,
 	namespace: 'wp-kernel-showcase',

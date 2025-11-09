@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -73,6 +73,18 @@ Writable._write;
 
 ---
 
+### clear()
+
+```ts
+clear(): void;
+```
+
+#### Returns
+
+`void`
+
+---
+
 ### toString()
 
 ```ts
@@ -84,15 +96,3 @@ Returns a string representation of an object.
 #### Returns
 
 `string`
-
----
-
-### clear()
-
-```ts
-clear(): void;
-```
-
-#### Returns
-
-`void`

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,7 @@
 # Type Alias: CapabilityMapDefinition
 
 ```ts
-type CapabilityMapDefinition = Record & lt;
-(string, CapabilityMapEntry & gt);
+type CapabilityMapDefinition = Record<string, CapabilityMapEntry>;
 ```
 
 Defines the structure of a capability map.

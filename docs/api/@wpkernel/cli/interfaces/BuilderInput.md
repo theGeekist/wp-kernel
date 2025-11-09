@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,16 +14,6 @@ Input for a builder helper.
 
 ## Properties
 
-### options
-
-```ts
-readonly options: BuildIrOptions;
-```
-
-Options for building the IR.
-
----
-
 ### ir
 
 ```ts
@@ -31,6 +21,16 @@ readonly ir: IRv1 | null;
 ```
 
 The finalized Intermediate Representation (IR).
+
+---
+
+### options
+
+```ts
+readonly options: BuildIrOptions;
+```
+
+Options for building the IR.
 
 ---
 

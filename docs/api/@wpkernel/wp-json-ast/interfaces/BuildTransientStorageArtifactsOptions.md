@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,30 +7,6 @@
 # Interface: BuildTransientStorageArtifactsOptions
 
 ## Properties
-
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
----
-
-### key
-
-```ts
-readonly key: string;
-```
-
----
-
-### identity
-
-```ts
-readonly identity: ResolvedIdentity;
-```
-
----
 
 ### cacheSegments
 
@@ -55,3 +31,27 @@ readonly errorCodeFactory: (suffix) => string;
 #### Returns
 
 `string`
+
+---
+
+### identity
+
+```ts
+readonly identity: ResolvedIdentity;
+```
+
+---
+
+### key
+
+```ts
+readonly key: string;
+```
+
+---
+
+### pascalName
+
+```ts
+readonly pascalName: string;
+```

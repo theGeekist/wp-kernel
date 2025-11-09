@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -41,6 +41,18 @@ A complete pipeline helper with descriptor and apply function.
 ```ts
 readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
 ```
+
+---
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
 
 ---
 
@@ -92,30 +104,6 @@ readonly priority: number;
 
 ---
 
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
-
----
-
-### origin?
-
-```ts
-readonly optional origin: string;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`origin`](HelperDescriptor.md#origin)
-
----
-
 ### optional?
 
 ```ts
@@ -135,3 +123,15 @@ false;
 #### Inherited from
 
 [`HelperDescriptor`](HelperDescriptor.md).[`optional`](HelperDescriptor.md#optional)
+
+---
+
+### origin?
+
+```ts
+readonly optional origin: string;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](HelperDescriptor.md).[`origin`](HelperDescriptor.md#origin)

@@ -250,7 +250,7 @@ export default {
 				'Enforce usage of namespace constants instead of hardcoded strings',
 			category: 'Best Practices',
 			recommended: true,
-			url: 'https://github.com/theGeekist/wp-kernel/blob/main/packages/core/src/contracts/index.ts',
+			url: 'https://github.com/wpkernel/wpkernel/blob/main/packages/core/src/contracts/index.ts',
 		},
 		messages: {
 			hardcodedNamespace:

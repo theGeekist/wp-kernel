@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,13 +24,13 @@ The expression representing the item's value.
 
 Optional configuration for the array item (key, by reference, unpack).
 
-#### key?
-
-[`PhpExpr`](../type-aliases/PhpExpr.md) \| `null`
-
 #### byRef?
 
 `boolean`
+
+#### key?
+
+[`PhpExpr`](../type-aliases/PhpExpr.md) \| `null`
 
 #### unpack?
 

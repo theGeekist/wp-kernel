@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ Props for the WPKernelUIProvider component.
 
 ## Properties
 
-### runtime
-
-```ts
-runtime: WPKernelUIRuntime;
-```
-
-The WPKernel UI runtime instance.
-
----
-
 ### children
 
 ```ts
@@ -27,3 +17,13 @@ children: ReactNode;
 ```
 
 The React nodes to render within the provider.
+
+---
+
+### runtime
+
+```ts
+runtime: WPKernelUIRuntime;
+```
+
+The WPKernel UI runtime instance.

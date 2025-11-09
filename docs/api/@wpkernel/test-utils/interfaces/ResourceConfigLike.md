@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -32,6 +32,14 @@ routes: unknown;
 
 ---
 
+### cacheKeys?
+
+```ts
+optional cacheKeys: unknown;
+```
+
+---
+
 ### identity?
 
 ```ts
@@ -44,14 +52,6 @@ optional identity: unknown;
 
 ```ts
 optional storage: unknown;
-```
-
----
-
-### cacheKeys?
-
-```ts
-optional cacheKeys: unknown;
 ```
 
 ---

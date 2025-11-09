@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,22 @@
 # Interface: ProgramUse
 
 ## Properties
+
+### alias
+
+```ts
+readonly alias: string | null;
+```
+
+---
+
+### fullyQualified
+
+```ts
+readonly fullyQualified: boolean;
+```
+
+---
 
 ### key
 
@@ -24,24 +40,8 @@ readonly parts: readonly string[];
 
 ---
 
-### alias
-
-```ts
-readonly alias: string | null;
-```
-
----
-
 ### type
 
 ```ts
 readonly type: number;
-```
-
----
-
-### fullyQualified
-
-```ts
-readonly fullyQualified: boolean;
 ```

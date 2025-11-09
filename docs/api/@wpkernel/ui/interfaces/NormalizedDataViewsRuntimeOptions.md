@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### enable
-
-```ts
-enable: boolean;
-```
-
----
-
 ### autoRegisterResources
 
 ```ts
 autoRegisterResources: boolean;
+```
+
+---
+
+### enable
+
+```ts
+enable: boolean;
 ```
 
 ---

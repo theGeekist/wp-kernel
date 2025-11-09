@@ -128,11 +128,11 @@ function emitDevWarning(source: string, namespace: string): void {
 
 	if (source === 'fallback') {
 		reporter.warn(
-			`🔧 WPKernel: Using fallback namespace "${namespace}". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
+			`🔧 WPKernel: Using fallback namespace "${namespace}". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/wpkernel/wpkernel/docs/namespace-detection`
 		);
 	} else if (source === 'package-json') {
 		reporter.warn(
-			`📦 WPKernel: Using package.json name for namespace "${namespace}". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
+			`📦 WPKernel: Using package.json name for namespace "${namespace}". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/wpkernel/wpkernel/docs/namespace-detection`
 		);
 	}
 }

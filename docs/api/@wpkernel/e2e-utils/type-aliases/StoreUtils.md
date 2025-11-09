@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -19,6 +19,36 @@ Store utilities for waiting on resolvers and state
 `T` = `unknown`
 
 ## Properties
+
+### getState()
+
+```ts
+getState: () => Promise<T>;
+```
+
+Get current store state
+
+#### Returns
+
+`Promise`\<`T`\>
+
+Current state object
+
+---
+
+### invalidate()
+
+```ts
+invalidate: () => Promise<void>;
+```
+
+Invalidate store cache to trigger refetch
+
+#### Returns
+
+`Promise`\<`void`\>
+
+---
 
 ### wait()
 
@@ -53,33 +83,3 @@ Max wait time in ms (default: 5000)
 `Promise`\<`R`\>
 
 Resolved data from selector
-
----
-
-### invalidate()
-
-```ts
-invalidate: () => Promise<void>;
-```
-
-Invalidate store cache to trigger refetch
-
-#### Returns
-
-`Promise`\<`void`\>
-
----
-
-### getState()
-
-```ts
-getState: () => Promise<T>;
-```
-
-Get current store state
-
-#### Returns
-
-`Promise`\<`T`\>
-
-Current state object

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -24,15 +24,11 @@ The variable expression for the parameter.
 
 Optional configuration for the parameter (type, by reference, variadic, default value, flags, attribute groups, hooks).
 
-#### type?
+#### attrGroups?
 
-[`PhpType`](../type-aliases/PhpType.md) \| `null`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### byRef?
-
-`boolean`
-
-#### variadic?
 
 `boolean`
 
@@ -44,13 +40,17 @@ Optional configuration for the parameter (type, by reference, variadic, default 
 
 `number`
 
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
-
 #### hooks?
 
 [`PhpPropertyHook`](../interfaces/PhpPropertyHook.md)[]
+
+#### type?
+
+[`PhpType`](../type-aliases/PhpType.md) \| `null`
+
+#### variadic?
+
+`boolean`
 
 ### attributes?
 

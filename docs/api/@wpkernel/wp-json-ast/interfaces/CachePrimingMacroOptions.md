@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,22 +11,6 @@
 - `MacroOptionsBase`
 
 ## Properties
-
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
----
-
-### postId
-
-```ts
-readonly postId: MacroExpression;
-```
-
----
 
 ### errorCode
 
@@ -58,10 +42,18 @@ MacroOptionsBase.metadataKeys;
 
 ---
 
-### requestVariable?
+### pascalName
 
 ```ts
-readonly optional requestVariable: MacroExpression;
+readonly pascalName: string;
+```
+
+---
+
+### postId
+
+```ts
+readonly postId: MacroExpression;
 ```
 
 ---
@@ -70,4 +62,12 @@ readonly optional requestVariable: MacroExpression;
 
 ```ts
 readonly optional postVariableName: string;
+```
+
+---
+
+### requestVariable?
+
+```ts
+readonly optional requestVariable: MacroExpression;
 ```

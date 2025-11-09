@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: ConfigureWPKernelOptions
 
 ## Properties
+
+### middleware?
+
+```ts
+optional middleware: ReduxMiddleware[];
+```
+
+---
 
 ### namespace?
 
@@ -28,14 +36,6 @@ optional registry: WPKernelRegistry;
 
 ```ts
 optional reporter: Reporter;
-```
-
----
-
-### middleware?
-
-```ts
-optional middleware: ReduxMiddleware[];
 ```
 
 ---

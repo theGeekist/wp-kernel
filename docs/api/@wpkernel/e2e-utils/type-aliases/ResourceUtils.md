@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -19,6 +19,43 @@ Resource utilities for seeding and cleanup
 `T` = `unknown`
 
 ## Properties
+
+### deleteAll()
+
+```ts
+deleteAll: () => Promise<void>;
+```
+
+Delete all resources (cleanup utility)
+WARNING: This will delete all resources of this type
+
+#### Returns
+
+`Promise`\<`void`\>
+
+---
+
+### remove()
+
+```ts
+remove: (id) => Promise<void>;
+```
+
+Remove a single resource by ID
+
+#### Parameters
+
+##### id
+
+Resource ID to delete
+
+`string` | `number`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+---
 
 ### seed()
 
@@ -65,40 +102,3 @@ Array of resource data to create
 `Promise`\<`T` & `object`[]\>
 
 Array of created resources with IDs
-
----
-
-### remove()
-
-```ts
-remove: (id) => Promise<void>;
-```
-
-Remove a single resource by ID
-
-#### Parameters
-
-##### id
-
-Resource ID to delete
-
-`string` | `number`
-
-#### Returns
-
-`Promise`\<`void`\>
-
----
-
-### deleteAll()
-
-```ts
-deleteAll: () => Promise<void>;
-```
-
-Delete all resources (cleanup utility)
-WARNING: This will delete all resources of this type
-
-#### Returns
-
-`Promise`\<`void`\>

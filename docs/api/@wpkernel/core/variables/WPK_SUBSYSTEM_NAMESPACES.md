@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -17,6 +17,22 @@ These provide better diagnostic context than the root namespace alone.
 
 ## Type Declaration
 
+### ACTIONS
+
+```ts
+readonly ACTIONS: "wpk.actions";
+```
+
+Action subsystem
+
+### CACHE
+
+```ts
+readonly CACHE: "wpk.cache";
+```
+
+Resource cache subsystem
+
 ### CAPABILITY
 
 ```ts
@@ -32,22 +48,6 @@ readonly CAPABILITY_CACHE: "wpk.capability.cache";
 ```
 
 Capability cache subsystem
-
-### CACHE
-
-```ts
-readonly CACHE: "wpk.cache";
-```
-
-Resource cache subsystem
-
-### ACTIONS
-
-```ts
-readonly ACTIONS: "wpk.actions";
-```
-
-Action subsystem
 
 ### EVENTS
 

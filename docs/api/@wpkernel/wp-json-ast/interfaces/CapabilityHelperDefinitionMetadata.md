@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,13 +14,13 @@ CapabilityHelperMetadata
 
 ## Properties
 
-### key
+### appliesTo
 
 ```ts
-readonly key: string;
+readonly appliesTo: "object" | "resource";
 ```
 
-The key of the capability.
+The scope to which the capability applies.
 
 ---
 
@@ -34,13 +34,13 @@ The name of the capability.
 
 ---
 
-### appliesTo
+### key
 
 ```ts
-readonly appliesTo: "object" | "resource";
+readonly key: string;
 ```
 
-The scope to which the capability applies.
+The key of the capability.
 
 ---
 

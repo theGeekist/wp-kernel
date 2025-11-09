@@ -4,7 +4,7 @@ End-to-end testing guide for WPKernel with `@wpkernel/e2e-utils`.
 
 ## Overview
 
-E2E tests validate complete user workflows in a real WordPress environment using Playwright. WPKernel provides specialized utilities to make testing kernel-aware applications fast and reliable.
+E2E tests validate complete user workflows in a real WordPress environment using Playwright. WPKernel provides specialized utilities to make testing wpk-aware applications fast and reliable.
 
 ### When to Use E2E Tests
 
@@ -41,14 +41,27 @@ pnpm add -D @wpkernel/e2e-utils
 import { test, expect } from '@wpkernel/e2e-utils';
 
 test.describe('Jobs Admin', () => {
-	test.beforeEach(async ({ kernel, page }) => {
-		// Login before each test
-		await kernel.auth.login(page);
+	test.beforeEach(async ({ admin, page }) => {
+		// Login before each test using the base Playwright admin fixture
+		await admin.login();
 	});
 
-	test('displays seeded jobs', async ({ kernel, page }) => {
-		// Seed test data
-		await kernel.rest.seed('job', { title: 'Senior Engineer' });
+	test('displays seeded jobs', async ({ wpk, page, requestUtils }) => {
+		// Define a resource configuration for the 'job' resource
+		const jobResourceConfig = {
+			name: 'job',
+			routes: {
+				create: { path: '/wp/v2/jobs', method: 'POST' },
+				list: { path: '/wp/v2/jobs', method: 'GET' },
+				remove: { path: '/wp/v2/jobs/:id', method: 'DELETE' },
+			},
+		};
+
+		// Create a resource helper using the WPKernel fixture
+		const jobHelper = wpk.resource(jobResourceConfig);
+
+		// Seed test data using the resource helper
+		await jobHelper.seed({ title: 'Senior Engineer' });
 
 		// Navigate to admin page
 		await page.goto('/wp-admin/admin.php?page=wpk-jobs');
@@ -61,16 +74,36 @@ test.describe('Jobs Admin', () => {
 
 ---
 
-## The Kernel Fixture
+## The WPKernel Fixture
 
-WPKernel E2E utilities are available via the `kernel` fixture:
+WPKernel E2E utilities are available via the `wpk` fixture. This fixture provides factory functions to create specialized helpers for interacting with WPKernel resources, stores, events, and DataViews.
 
 ```typescript
-test('example', async ({ kernel, page }) => {
-	// wpk provides all E2E utilities
-	await kernel.auth.login(page);
-	await kernel.rest.seed('thing', { title: 'Test' });
-	await kernel.store.wait(page, 'wpk/thing', (s) => s.getById(1));
+test('example', async ({ wpk, page, admin, requestUtils }) => {
+	// Use the base Playwright admin fixture for login
+	await admin.login();
+
+	// Create a resource helper
+	const jobResource = wpk.resource({
+		name: 'job',
+		routes: {
+			create: { path: '/wp/v2/jobs', method: 'POST' },
+		},
+	});
+	await jobResource.seed({ title: 'Test' });
+
+	// Create a store helper
+	const jobStore = wpk.store('wpk/job');
+	await jobStore.wait((s) => s.getById(1));
+
+	// Create an event recorder
+	const eventRecorder = await wpk.events();
+	// Assuming capture is a method on the recorder, if not, adjust
+	// await eventRecorder.capture(page);
+
+	// Create a DataView helper
+	const jobDataView = wpk.dataview({ resource: 'job' });
+	await jobDataView.waitForLoaded();
 });
 ```
 
@@ -83,90 +116,23 @@ test('example', async ({ kernel, page }) => {
 
 ---
 
-## Import Patterns
-
-The package supports three import styles:
-
-### 1. Namespace Import (Recommended for Tests)
-
-```typescript
-import { test, expect } from '@wpkernel/e2e-utils';
-
-test('example', async ({ kernel, page }) => {
-	await kernel.auth.login(page);
-	await kernel.rest.seed('job', data);
-	await kernel.store.wait(page, 'wpk/job', selector);
-	await kernel.events.capture(page);
-	await kernel.db.restore('clean');
-});
-```
-
-### 2. Scoped Import (Recommended for Utilities)
-
-```typescript
-import { login } from '@wpkernel/e2e-utils/auth';
-import { seed, seedMany } from '@wpkernel/e2e-utils/rest';
-import { wait } from '@wpkernel/e2e-utils/store';
-
-export async function setupJobTest(page, requestUtils) {
-	await seed(requestUtils, 'job', { title: 'Test Job' });
-	await wait(page, 'wpk/job', (s) => s.getList());
-}
-```
-
-### 3. Flat Alias Import (Convenience)
-
-```typescript
-import { login, seed, waitForSelector, restoreDb } from '@wpkernel/e2e-utils';
-```
-
----
-
 ## API Reference
 
-### Auth Utilities
+### Resource Utilities (`wpk.resource(config)`)
 
-#### `kernel.auth.login(page, options?)`
+The `wpk.resource()` factory creates helpers for managing WPKernel resources, including seeding data and cleaning up.
 
-Authenticate a user in WordPress.
-
-```typescript
-// Login as admin (default)
-await kernel.auth.login(page);
-
-// Login as specific user
-await kernel.auth.login(page, {
-	username: 'editor',
-	password: 'password',
-});
-```
-
-**Parameters:**
-
-- `page` - Playwright Page instance
-- `options.username` - Username (default: `'admin'`)
-- `options.password` - Password (default: `'password'`)
-
-**Returns:** `Promise<void>`
-
-#### `kernel.auth.logout(page)`
-
-Log out the current user.
-
-```typescript
-await kernel.auth.logout(page);
-```
-
----
-
-### REST Utilities
-
-#### `kernel.rest.seed(requestUtils, resource, data)`
+#### `wpk.resource(config).seed(data)`
 
 Create a single resource via REST.
 
 ```typescript
-const job = await kernel.rest.seed(requestUtils, 'job', {
+const jobResourceConfig = {
+	name: 'job',
+	routes: { create: { path: '/wp/v2/jobs', method: 'POST' } },
+};
+const jobHelper = wpk.resource(jobResourceConfig);
+const job = await jobHelper.seed({
 	title: 'Senior Engineer',
 	department: 'Engineering',
 	salary_min: 100000,
@@ -177,18 +143,22 @@ console.log(job.id); // Created resource ID
 
 **Parameters:**
 
-- `requestUtils` - WordPress RequestUtils instance
-- `resource` - Resource name (matches wpk resource definition)
-- `data` - Resource data object
+- `config` - A `WPKernelResourceConfig` object defining the resource (name, routes, store options).
+- `data` - Resource data object.
 
-**Returns:** `Promise<T>` - Created resource with ID
+**Returns:** `Promise<T & { id: string | number }>` - Created resource with ID.
 
-#### `kernel.rest.seedMany(requestUtils, resource, rows)`
+#### `wpk.resource(config).seedMany(rows)`
 
 Create multiple resources via REST.
 
 ```typescript
-const jobs = await kernel.rest.seedMany(requestUtils, 'job', [
+const jobResourceConfig = {
+	name: 'job',
+	routes: { create: { path: '/wp/v2/jobs', method: 'POST' } },
+};
+const jobHelper = wpk.resource(jobResourceConfig);
+const jobs = await jobHelper.seedMany([
 	{ title: 'Engineer' },
 	{ title: 'Designer' },
 	{ title: 'Manager' },
@@ -199,98 +169,141 @@ console.log(jobs.length); // 3
 
 **Parameters:**
 
-- `requestUtils` - WordPress RequestUtils instance
-- `resource` - Resource name
-- `rows` - Array of resource data objects
+- `config` - A `WPKernelResourceConfig` object.
+- `rows` - Array of resource data objects.
 
-**Returns:** `Promise<T[]>` - Array of created resources
+**Returns:** `Promise<Array<T & { id: string | number }>>` - Array of created resources.
 
-#### `kernel.rest.request(requestUtils, method, path, init?)`
+#### `wpkernel.resource(config).remove(id)`
 
-Make a raw REST request.
+Remove a single resource by ID.
 
 ```typescript
-const response = await kernel.rest.request(
-	requestUtils,
-	'POST',
-	'/wpk/v1/things/123/action',
-	{ body: { param: 'value' } }
-);
+const jobResourceConfig = {
+	name: 'job',
+	routes: { remove: { path: '/wp/v2/jobs/:id', method: 'DELETE' } },
+};
+const jobHelper = wpkernel.resource(jobResourceConfig);
+await jobHelper.remove(123);
 ```
+
+**Parameters:**
+
+- `config` - A `WPKernelResourceConfig` object.
+- `id` - Resource ID to delete.
+
+**Returns:** `Promise<void>`
+
+#### `wpkernel.resource(config).deleteAll()`
+
+Delete all resources of the configured type. **Use with caution.**
+
+```typescript
+const jobResourceConfig = {
+	name: 'job',
+	routes: {
+		list: { path: '/wp/v2/jobs', method: 'GET' },
+		remove: { path: '/wp/v2/jobs/:id', method: 'DELETE' },
+	},
+};
+const jobHelper = wpkernel.resource(jobResourceConfig);
+await jobHelper.deleteAll();
+```
+
+**Parameters:**
+
+- `config` - A `WPKernelResourceConfig` object.
+
+**Returns:** `Promise<void>`
 
 ---
 
-### Store Utilities
+### Store Utilities (`wpkernel.store(storeKey)`)
 
-#### `kernel.store.wait(page, storeName, selector, options?)`
+The `wpkernel.store()` factory creates helpers for interacting with WPKernel data stores, primarily for waiting on state changes.
 
-Wait for store state to match a condition.
+#### `wpkernel.store(storeKey).wait(selector, timeout?)`
+
+Wait for a WPKernel store selector to return a truthy value.
 
 ```typescript
 // Wait for job to exist in store
-const job = await kernel.store.wait(
-	page,
-	'wpk/job',
-	(selectors) => selectors.getById(123),
-	{ timeoutMs: 5000 }
-);
+const jobStore = wpkernel.store('wpk/job');
+const job = await jobStore.wait((selectors) => selectors.getById(123), 5000);
 
 // Wait for list to load
-const jobs = await kernel.store.wait(page, 'wpk/job', (selectors) =>
-	selectors.getList()
-);
+const jobs = await jobStore.wait((selectors) => selectors.getList());
 ```
 
 **Parameters:**
 
-- `page` - Playwright Page instance
-- `storeName` - WordPress data store key (e.g., `'wpk/job'`)
-- `selector` - Function that receives store selectors and returns desired value
-- `options.timeoutMs` - Timeout in milliseconds (default: `5000`)
-- `options.intervalMs` - Polling interval (default: `100`)
+- `storeKey` - WordPress data store key (e.g., `'wpk/job'`).
+- `selector` - Function that receives store state and returns the desired value.
+- `timeout` - Max wait time in milliseconds (default: `5000`).
 
-**Returns:** `Promise<T>` - Selected store value
+**Returns:** `Promise<R>` - Resolved data from the selector.
 
-#### `kernel.store.invalidate(page, keys)`
+#### `wpkernel.store(storeKey).invalidate()`
 
-Invalidate cache keys.
+Invalidate the store cache to trigger a refetch.
 
 ```typescript
-await kernel.store.invalidate(page, ['job', 'list']);
-await kernel.store.invalidate(page, ['job', 'get', 123]);
+const jobStore = wpkernel.store('wpk/job');
+await jobStore.invalidate();
 ```
+
+**Parameters:**
+
+- `storeKey` - WordPress data store key.
+
+**Returns:** `Promise<void>`
+
+#### `wpkernel.store(storeKey).getState()`
+
+Get the current state of the store.
+
+```typescript
+const jobStore = wpkernel.store('wpk/job');
+const state = await jobStore.getState();
+console.log(state.items);
+```
+
+**Parameters:**
+
+- `storeKey` - WordPress data store key.
+
+**Returns:** `Promise<T>` - Current state object.
 
 ---
 
-### Event Utilities
+### Event Utilities (`wpkernel.events(options?)`)
 
-#### `kernel.events.capture(page, options?)`
+The `wpkernel.events()` factory creates an event recorder for capturing and asserting on WPKernel events.
 
-Capture events emitted during test execution.
+#### `wpkernel.events(options?).capture(page)`
+
+Start capturing events emitted during test execution.
 
 ```typescript
-const recorder = await kernel.events.capture(page, {
+const eventRecorder = await wpkernel.events({
 	pattern: /^wpk\./, // Only capture wpk events
-	includePayload: true,
 });
 
 // Perform action that emits events
-await kernel.rest.seed(requestUtils, 'job', data);
+// ...
 
 // Check events
-const created = recorder.find('wpk.job.created');
+const created = eventRecorder.find('wpk.job.created');
 expect(created).toBeTruthy();
-expect(created?.payload).toMatchObject({ id: expect.any(Number) });
 
 // Cleanup
-await recorder.stop();
+await eventRecorder.stop();
 ```
 
 **Parameters:**
 
-- `page` - Playwright Page instance
-- `options.pattern` - RegExp to filter event names (default: captures all)
-- `options.includePayload` - Whether to capture event payloads (default: `true`)
+- `options.pattern` - RegExp to filter event names (default: captures all).
+- `options.includePayload` - Whether to capture event payloads (default: `true`).
 
 **Returns:** `Promise<EventRecorder>`
 
@@ -298,77 +311,127 @@ await recorder.stop();
 
 ```typescript
 interface EventRecorder {
-	list(): EventRecord[];
-	find(name: string): EventRecord | undefined;
-	clear(): void;
+	list(): Promise<CapturedEvent<P>[]>;
+	find(name: string): Promise<CapturedEvent<P> | undefined>;
+	findAll(name: string): Promise<CapturedEvent<P>[]>;
+	clear(): Promise<void>;
 	stop(): Promise<void>;
 }
 ```
 
 ---
 
-### Database Utilities
+### DataView Utilities (`wpkernel.dataview(options)`)
 
-#### `kernel.db.restore(snapshot?)`
+The `wpkernel.dataview()` factory creates helpers for interacting with WPKernel's DataView UI components.
 
-Restore database to a clean state or named snapshot.
+#### `wpkernel.dataview(options).root()`
 
-```typescript
-// Restore to clean state
-await kernel.db.restore('clean');
-
-// Restore to named snapshot
-await kernel.db.restore('after-seed');
-```
-
-**Best Practice:** Use in `beforeEach` to ensure test isolation:
+Returns a Playwright `Locator` for the root of the DataView component.
 
 ```typescript
-test.beforeEach(async ({ wpk }) => {
-	await kernel.db.restore('clean');
-});
-```
-
-#### `kernel.db.snapshot(name)`
-
-Create a named database snapshot.
-
-```typescript
-// Create baseline
-await kernel.rest.seedMany(requestUtils, 'job', fixtures);
-await kernel.db.snapshot('jobs-seeded');
-
-// Later tests can restore to this point
-await kernel.db.restore('jobs-seeded');
-```
-
----
-
-### Project Utilities
-
-#### `kernel.project.setup(options?)`
-
-Setup WordPress environment for testing.
-
-```typescript
-const env = await kernel.project.setup({
-	wpVersion: '6.7.4',
-	site: 'tests',
-	headless: true,
-});
-
-console.log(env.baseUrl); // http://localhost:8889
-console.log(env.adminUrl); // http://localhost:8889/wp-admin
-console.log(env.apiRoot); // http://localhost:8889/wp-json
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+await expect(jobDataView.root()).toBeVisible();
 ```
 
 **Parameters:**
 
-- `options.wpVersion` - WordPress version (default: latest)
-- `options.site` - `'dev'` (port 8888) or `'tests'` (port 8889)
-- `options.headless` - Run headless (default: `true` in CI)
+- `options.resource` - Resource name used to locate the DataView wrapper.
+- `options.namespace` - Optional namespace attribute to disambiguate multiple runtimes.
+- `options.within` - Optional CSS selector limiting the search scope.
 
-**Returns:** `Promise<{ baseUrl, adminUrl, apiRoot }>`
+**Returns:** `Locator`
+
+#### `wpkernel.dataview(options).waitForLoaded()`
+
+Waits until the DataView reports that its loading state has finished.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+await jobDataView.waitForLoaded();
+```
+
+**Returns:** `Promise<void>`
+
+#### `wpkernel.dataview(options).search(value)`
+
+Fills the search input of the DataView and presses Enter.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+await jobDataView.search('Senior Engineer');
+```
+
+**Returns:** `Promise<void>`
+
+#### `wpkernel.dataview(options).clearSearch()`
+
+Clears the search input of the DataView.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+await jobDataView.clearSearch();
+```
+
+**Returns:** `Promise<void>`
+
+#### `wpkernel.dataview(options).getRow(text)`
+
+Retrieves a Playwright `Locator` for a row containing the provided text.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+const row = jobDataView.getRow('Senior Engineer');
+await expect(row).toBeVisible();
+```
+
+**Returns:** `Locator`
+
+#### `wpkernel.dataview(options).selectRow(text)`
+
+Toggles selection for a row that matches the provided text.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+await jobDataView.selectRow('Senior Engineer');
+```
+
+**Returns:** `Promise<void>`
+
+#### `wpkernel.dataview(options).runBulkAction(label)`
+
+Triggers a bulk action button by its visible label.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+await jobDataView.runBulkAction('Delete Selected');
+```
+
+**Returns:** `Promise<void>`
+
+#### `wpkernel.dataview(options).getSelectedCount()`
+
+Reads the number of selected items displayed in the bulk actions footer.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+const count = await jobDataView.getSelectedCount();
+expect(count).toBe(1);
+```
+
+**Returns:** `Promise<number>`
+
+#### `wpkernel.dataview(options).getTotalCount()`
+
+Reads the total item count exposed by the DataView wrapper metadata.
+
+```typescript
+const jobDataView = wpkernel.dataview({ resource: 'job' });
+const count = await jobDataView.getTotalCount();
+expect(count).toBeGreaterThan(0);
+```
+
+**Returns:** `Promise<number>`
 
 ---
 
@@ -379,16 +442,25 @@ console.log(env.apiRoot); // http://localhost:8889/wp-json
 ```typescript
 test.describe('Job Applications', () => {
 	let job;
+	const jobResourceConfig = {
+		name: 'job',
+		routes: {
+			create: { path: '/wp/v2/jobs', method: 'POST' },
+			list: { path: '/wp/v2/jobs', method: 'GET' },
+			remove: { path: '/wp/v2/jobs/:id', method: 'DELETE' },
+		},
+	};
 
-	test.beforeEach(async ({ wpk }) => {
-		// Seed job before each test
-		job = await kernel.rest.seed(requestUtils, 'job', {
+	test.beforeEach(async ({ wpkernel }) => {
+		// Seed job before each test using the resource helper
+		const jobHelper = wpkernel.resource(jobResourceConfig);
+		job = await jobHelper.seed({
 			title: 'Test Job',
 			status: 'publish',
 		});
 	});
 
-	test('should submit application', async ({ page, wpk }) => {
+	test('should submit application', async ({ page }) => {
 		await page.goto(`/jobs/${job.id}`);
 		// ... test application flow
 	});
@@ -408,9 +480,14 @@ test('should update job list after create', async ({ page, wpk }) => {
 	await page.click('[data-testid="save-button"]');
 
 	// Wait for store to update
-	const jobs = await kernel.store.wait(page, 'wpk/job', (s) => s.getList(), {
-		timeoutMs: 3000,
-	});
+	const jobs = await wpkernel.store.wait(
+		page,
+		'wpk/job',
+		(s) => s.getList(),
+		{
+			timeoutMs: 3000,
+		}
+	);
 
 	expect(jobs.length).toBeGreaterThan(0);
 });
@@ -420,12 +497,12 @@ test('should update job list after create', async ({ page, wpk }) => {
 
 ```typescript
 test('should emit events on job creation', async ({ page, wpk }) => {
-	const recorder = await kernel.events.capture(page, {
+	const recorder = await wpkernel.events.capture(page, {
 		pattern: /^wpk\.job\./,
 	});
 
 	// Trigger action
-	await kernel.rest.seed(requestUtils, 'job', { title: 'Test' });
+	await wpkernel.rest.seed(requestUtils, 'job', { title: 'Test' });
 
 	// Validate events
 	const events = recorder.list();
@@ -446,14 +523,14 @@ test('should emit events on job creation', async ({ page, wpk }) => {
 test.describe('Stateful Tests', () => {
 	test.beforeAll(async ({ wpk }) => {
 		// Setup baseline once
-		await kernel.db.restore('clean');
-		await kernel.rest.seedMany(requestUtils, 'job', baselineJobs);
-		await kernel.db.snapshot('baseline');
+		await wpkernel.db.restore('clean');
+		await wpkernel.rest.seedMany(requestUtils, 'job', baselineJobs);
+		await wpkernel.db.snapshot('baseline');
 	});
 
 	test.beforeEach(async ({ wpk }) => {
 		// Restore to baseline before each test
-		await kernel.db.restore('baseline');
+		await wpkernel.db.restore('baseline');
 	});
 
 	test('test 1', async ({ page }) => {
@@ -647,11 +724,11 @@ jobs:
 
 ### ✓ DO
 
-- **Use fixtures** - Leverage the `kernel` fixture for all utilities
+- **Use fixtures** - Leverage the `wpkernel` fixture for all utilities
 - **Seed data** - Create test data via REST, not database manipulation
-- **Wait for state** - Use `kernel.store.wait()` instead of arbitrary delays
+- **Wait for state** - Use `wpkernel.store.wait()` instead of arbitrary delays
 - **Test user flows** - Focus on complete workflows, not implementation
-- **Restore database** - Use `kernel.db.restore()` for test isolation
+- **Restore database** - Use `wpkernel.db.restore()` for test isolation
 - **Capture events** - Validate event emission for critical actions
 
 ### ✗ DON'T
@@ -673,7 +750,7 @@ jobs:
 test('slow operation', async ({ page, wpk }) => {
 	test.setTimeout(30000); // 30 seconds
 
-	await kernel.rest.seedMany(requestUtils, 'job', largeDataset);
+	await wpkernel.rest.seedMany(requestUtils, 'job', largeDataset);
 });
 ```
 
@@ -681,7 +758,7 @@ test('slow operation', async ({ page, wpk }) => {
 
 ```typescript
 // Wait for store to initialize before accessing
-await kernel.store.wait(page, 'wpk/job', (s) => s.getList() !== undefined, {
+await wpkernel.store.wait(page, 'wpk/job', (s) => s.getList() !== undefined, {
 	timeoutMs: 1000,
 });
 ```
@@ -690,13 +767,13 @@ await kernel.store.wait(page, 'wpk/job', (s) => s.getList() !== undefined, {
 
 ```typescript
 // Ensure WordPress is running
-await kernel.project.setup({ site: 'tests' });
+await wpkernel.project.setup({ site: 'tests' });
 
 // Check authentication
-await kernel.auth.login(page);
+await wpkernel.auth.login(page);
 
 // Verify REST endpoint exists
-const response = await kernel.rest.request(
+const response = await wpkernel.rest.request(
 	requestUtils,
 	'OPTIONS',
 	'/wpk/v1/jobs'

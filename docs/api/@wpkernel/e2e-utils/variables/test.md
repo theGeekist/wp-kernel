@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,9 +7,10 @@
 # Variable: test
 
 ```ts
-const test: TestType & lt;
-(PlaywrightTestArgs & PlaywrightTestOptions & object & object,
-	PlaywrightWorkerArgs & PlaywrightWorkerOptions & object & gt);
+const test: TestType<
+	PlaywrightTestArgs & PlaywrightTestOptions & object & object,
+	PlaywrightWorkerArgs & PlaywrightWorkerOptions & object
+>;
 ```
 
 Extended test fixture with wpk utilities

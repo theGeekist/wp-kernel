@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,15 +20,15 @@ readonly identity: ResolvedIdentity;
 
 ---
 
-### resource
+### metadataKeys
 
 ```ts
-readonly resource: MutationHelperResource;
+readonly metadataKeys: MutationMetadataKeys;
 ```
 
 #### Inherited from
 
-[`MutationRouteBaseOptions`](MutationRouteBaseOptions.md).[`resource`](MutationRouteBaseOptions.md#resource)
+[`MutationRouteBaseOptions`](MutationRouteBaseOptions.md).[`metadataKeys`](MutationRouteBaseOptions.md#metadatakeys)
 
 ---
 
@@ -44,12 +44,12 @@ readonly pascalName: string;
 
 ---
 
-### metadataKeys
+### resource
 
 ```ts
-readonly metadataKeys: MutationMetadataKeys;
+readonly resource: MutationHelperResource;
 ```
 
 #### Inherited from
 
-[`MutationRouteBaseOptions`](MutationRouteBaseOptions.md).[`metadataKeys`](MutationRouteBaseOptions.md#metadatakeys)
+[`MutationRouteBaseOptions`](MutationRouteBaseOptions.md).[`resource`](MutationRouteBaseOptions.md#resource)

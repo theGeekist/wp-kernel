@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,22 @@
 # Interface: BuildWpTaxonomyListRouteStatementsOptions
 
 ## Properties
+
+### cacheSegments
+
+```ts
+readonly cacheSegments: readonly unknown[];
+```
+
+---
+
+### metadataHost
+
+```ts
+readonly metadataHost: ResourceMetadataHost;
+```
+
+---
 
 ### pascalName
 
@@ -24,18 +40,10 @@ readonly storage: ResourceStorageConfig | undefined;
 
 ---
 
-### metadataHost
+### requestVariable?
 
 ```ts
-readonly metadataHost: ResourceMetadataHost;
-```
-
----
-
-### cacheSegments
-
-```ts
-readonly cacheSegments: readonly unknown[];
+readonly optional requestVariable: string;
 ```
 
 ---
@@ -44,14 +52,6 @@ readonly cacheSegments: readonly unknown[];
 
 ```ts
 readonly optional resourceName: string;
-```
-
----
-
-### requestVariable?
-
-```ts
-readonly optional requestVariable: string;
 ```
 
 ---

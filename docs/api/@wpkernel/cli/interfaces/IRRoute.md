@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,6 +9,16 @@
 Represents an Intermediate Representation (IR) for a resource route.
 
 ## Properties
+
+### hash
+
+```ts
+hash: IRHashProvenance;
+```
+
+A hash of the route definition for change detection.
+
+---
 
 ### method
 
@@ -27,16 +37,6 @@ path: string;
 ```
 
 The URL path of the route.
-
----
-
-### hash
-
-```ts
-hash: IRHashProvenance;
-```
-
-A hash of the route definition for change detection.
 
 ---
 

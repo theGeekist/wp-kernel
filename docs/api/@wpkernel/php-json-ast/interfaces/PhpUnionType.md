@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,18 @@ Represents a PHP union type (e.g., `string|int`).
 - [`PhpNode`](PhpNode.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
 
 ### nodeType
 
@@ -31,15 +43,3 @@ readonly nodeType: "UnionType";
 ```ts
 readonly types: PhpType[];
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)

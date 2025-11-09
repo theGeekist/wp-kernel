@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -28,18 +28,18 @@ createReduxStore: jest.Mock;
 
 ---
 
-### register
-
-```ts
-register: jest.Mock;
-```
-
----
-
 ### dispatch
 
 ```ts
 dispatch: jest.Mock;
+```
+
+---
+
+### register
+
+```ts
+register: jest.Mock;
 ```
 
 ---

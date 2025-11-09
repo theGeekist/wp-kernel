@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,26 @@ Represents a PHP `case` statement within a `switch` block.
 
 ## Properties
 
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### cond
+
+```ts
+readonly cond: PhpExpr | null;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -26,28 +46,8 @@ readonly nodeType: "Stmt_Case";
 
 ---
 
-### cond
-
-```ts
-readonly cond: PhpExpr | null;
-```
-
----
-
 ### stmts
 
 ```ts
 readonly stmts: PhpStmt[];
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

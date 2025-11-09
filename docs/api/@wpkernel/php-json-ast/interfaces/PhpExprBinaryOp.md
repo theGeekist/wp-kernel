@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,26 @@ Represents a PHP binary operation expression (e.g., `$a + $b`).
 
 ## Properties
 
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### left
+
+```ts
+readonly left: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -26,28 +46,8 @@ readonly nodeType: `Expr_BinaryOp_${string}`;
 
 ---
 
-### left
-
-```ts
-readonly left: PhpExpr;
-```
-
----
-
 ### right
 
 ```ts
 readonly right: PhpExpr;
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)

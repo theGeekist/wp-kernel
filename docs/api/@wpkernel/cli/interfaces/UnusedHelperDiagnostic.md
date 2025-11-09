@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -9,16 +9,6 @@
 Union of all diagnostics emitted by the pipeline.
 
 ## Properties
-
-### type
-
-```ts
-readonly type: "unused-helper";
-```
-
-The type of diagnostic, always 'unused-helper'.
-
----
 
 ### key
 
@@ -40,13 +30,23 @@ A descriptive message about the unused helper.
 
 ---
 
-### kind?
+### type
 
 ```ts
-readonly optional kind: HelperKind;
+readonly type: "unused-helper";
 ```
 
-Helper kind associated with the diagnostic.
+The type of diagnostic, always 'unused-helper'.
+
+---
+
+### dependsOn?
+
+```ts
+readonly optional dependsOn: readonly string[];
+```
+
+Dependency list used when determining helper usage.
 
 ---
 
@@ -60,10 +60,10 @@ Optional helper key flagged as unused.
 
 ---
 
-### dependsOn?
+### kind?
 
 ```ts
-readonly optional dependsOn: readonly string[];
+readonly optional kind: HelperKind;
 ```
 
-Dependency list used when determining helper usage.
+Helper kind associated with the diagnostic.

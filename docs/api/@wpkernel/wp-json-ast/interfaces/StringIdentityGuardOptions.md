@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -11,26 +11,6 @@
 - [`BaseIdentityGuardOptions`](BaseIdentityGuardOptions.md)
 
 ## Properties
-
-### identity
-
-```ts
-readonly identity: ResolvedStringIdentity;
-```
-
----
-
-### pascalName
-
-```ts
-readonly pascalName: string;
-```
-
-#### Inherited from
-
-[`BaseIdentityGuardOptions`](BaseIdentityGuardOptions.md).[`pascalName`](BaseIdentityGuardOptions.md#pascalname)
-
----
 
 ### errorCodeFactory()
 
@@ -51,3 +31,23 @@ readonly errorCodeFactory: (suffix) => string;
 #### Inherited from
 
 [`BaseIdentityGuardOptions`](BaseIdentityGuardOptions.md).[`errorCodeFactory`](BaseIdentityGuardOptions.md#errorcodefactory)
+
+---
+
+### identity
+
+```ts
+readonly identity: ResolvedStringIdentity;
+```
+
+---
+
+### pascalName
+
+```ts
+readonly pascalName: string;
+```
+
+#### Inherited from
+
+[`BaseIdentityGuardOptions`](BaseIdentityGuardOptions.md).[`pascalName`](BaseIdentityGuardOptions.md#pascalname)

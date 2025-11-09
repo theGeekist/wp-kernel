@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,10 +14,10 @@ A mock implementation of the Reporter interface for testing purposes.
 
 ## Type Declaration
 
-### info
+### child
 
 ```ts
-info: jest.Mock<void, [string, unknown?]>;
+child: jest.Mock<ReporterMock, [string]>;
 ```
 
 ### debug
@@ -26,21 +26,20 @@ info: jest.Mock<void, [string, unknown?]>;
 debug: jest.Mock<void, [string, unknown?]>;
 ```
 
-### warn
-
-```ts
-warn: jest.Mock<void, [string, unknown?]>;
-```
-
 ### error
 
 ```ts
 error: jest.Mock<void, [string, unknown?]>;
 ```
 
-### child
+### info
 
 ```ts
-child: jest.Mock & lt;
-(ReporterMock, [string] & gt);
+info: jest.Mock<void, [string, unknown?]>;
+```
+
+### warn
+
+```ts
+warn: jest.Mock<void, [string, unknown?]>;
 ```

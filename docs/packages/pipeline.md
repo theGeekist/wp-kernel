@@ -4,4 +4,3 @@
 
 - [Architecture Guide](./pipeline/architecture.md)
 - [Framework Contributors](./pipeline/framework-contributors.md)
-- [Migration Guide](./pipeline/migration.md)

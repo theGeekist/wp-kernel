@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -12,14 +12,6 @@ type DataViewActionTriggeredPayload = object;
 
 ## Properties
 
-### resource
-
-```ts
-resource: string;
-```
-
----
-
 ### actionId
 
 ```ts
@@ -28,18 +20,26 @@ actionId: string;
 
 ---
 
-### selection
-
-```ts
-selection: (string | number)[];
-```
-
----
-
 ### permitted
 
 ```ts
 permitted: boolean;
+```
+
+---
+
+### resource
+
+```ts
+resource: string;
+```
+
+---
+
+### selection
+
+```ts
+selection: (string | number)[];
 ```
 
 ---

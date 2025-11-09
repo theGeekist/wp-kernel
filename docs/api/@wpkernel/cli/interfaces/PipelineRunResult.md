@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ The result of a pipeline run.
 
 ## Properties
 
-### ir
-
-```ts
-readonly ir: IRv1;
-```
-
-The generated Intermediate Representation (IR).
-
----
-
 ### diagnostics
 
 ```ts
@@ -27,6 +17,16 @@ readonly diagnostics: readonly PipelineDiagnostic[];
 ```
 
 An array of diagnostic messages.
+
+---
+
+### ir
+
+```ts
+readonly ir: IRv1;
+```
+
+The generated Intermediate Representation (IR).
 
 ---
 

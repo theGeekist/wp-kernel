@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -16,22 +16,6 @@
 
 ## Properties
 
-### fileName
-
-```ts
-readonly fileName: string;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string | null;
-```
-
----
-
 ### docblock
 
 ```ts
@@ -40,10 +24,26 @@ readonly docblock: readonly string[];
 
 ---
 
+### fileName
+
+```ts
+readonly fileName: string;
+```
+
+---
+
 ### metadata
 
 ```ts
 readonly metadata: TMetadata;
+```
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string | null;
 ```
 
 ---

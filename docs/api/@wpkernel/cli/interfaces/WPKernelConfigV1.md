@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,18 +10,18 @@ Shape of a v1 wpk configuration object.
 
 ## Properties
 
-### version
-
-```ts
-version: 1;
-```
-
----
-
 ### namespace
 
 ```ts
 namespace: string;
+```
+
+---
+
+### resources
+
+```ts
+resources: ResourceRegistry;
 ```
 
 ---
@@ -34,10 +34,10 @@ schemas: SchemaRegistry;
 
 ---
 
-### resources
+### version
 
 ```ts
-resources: ResourceRegistry;
+version: 1;
 ```
 
 ---

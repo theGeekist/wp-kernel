@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -18,9 +18,9 @@ Builds a PHP closure expression node.
 
 Optional configuration for the closure (static, by reference, parameters, uses, return type, statements, attribute groups).
 
-#### static?
+#### attrGroups?
 
-`boolean`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### byRef?
 
@@ -30,21 +30,21 @@ Optional configuration for the closure (static, by reference, parameters, uses, 
 
 [`PhpParam`](../interfaces/PhpParam.md)[]
 
-#### uses?
-
-[`PhpClosureUse`](../interfaces/PhpClosureUse.md)[]
-
 #### returnType?
 
 [`PhpType`](../type-aliases/PhpType.md) \| `null`
+
+#### static?
+
+`boolean`
 
 #### stmts?
 
 [`PhpStmt`](../type-aliases/PhpStmt.md)[]
 
-#### attrGroups?
+#### uses?
 
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
+[`PhpClosureUse`](../interfaces/PhpClosureUse.md)[]
 
 ### attributes?
 

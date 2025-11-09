@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: PhpBuilderFactoryFileIntent
 
 ## Properties
+
+### class
+
+```ts
+readonly class: PhpBuilderFactoryClassIntent;
+```
+
+---
 
 ### file
 
@@ -20,14 +28,6 @@ readonly file: string;
 
 ```ts
 readonly namespace: PhpBuilderFactoryNamespaceIntent;
-```
-
----
-
-### class
-
-```ts
-readonly class: PhpBuilderFactoryClassIntent;
 ```
 
 ---

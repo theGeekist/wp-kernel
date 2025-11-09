@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.0**](../README.md)
+[**@wpkernel/test-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ A harness for testing `apiFetch` interactions.
 
 ## Properties
 
-### harness
-
-```ts
-harness: WordPressTestHarness;
-```
-
-The underlying WordPress test harness.
-
----
-
 ### apiFetch
 
 ```ts
@@ -30,16 +20,6 @@ The mock `apiFetch` function.
 
 ---
 
-### hooks
-
-```ts
-hooks: any;
-```
-
-The mock WordPress hooks object.
-
----
-
 ### doAction
 
 ```ts
@@ -47,3 +27,23 @@ doAction: Mock;
 ```
 
 The mock `doAction` function from `wp.hooks`.
+
+---
+
+### harness
+
+```ts
+harness: WordPressTestHarness;
+```
+
+The underlying WordPress test harness.
+
+---
+
+### hooks
+
+```ts
+hooks: any;
+```
+
+The mock WordPress hooks object.

@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,23 +14,15 @@ Represents a PHP `for` loop statement.
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "Stmt_For";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### init
-
-```ts
-readonly init: PhpExpr[];
-```
+[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
 
 ---
 
@@ -38,6 +30,14 @@ readonly init: PhpExpr[];
 
 ```ts
 readonly cond: PhpExpr[];
+```
+
+---
+
+### init
+
+```ts
+readonly init: PhpExpr[];
 ```
 
 ---
@@ -50,20 +50,20 @@ readonly loop: PhpExpr[];
 
 ---
 
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_For";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
 ### stmts
 
 ```ts
 readonly stmts: PhpStmt[];
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)

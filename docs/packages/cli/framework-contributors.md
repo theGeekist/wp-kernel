@@ -1,5 +1,7 @@
 # @wpkernel/cli for Framework Contributors
 
+> For contributors maintaining CLI internals, adapters, and pipeline integrations.
+
 ## Overview
 
 CLI maintainers orchestrate the pipeline that powers scaffolding, adapters, and codemod execution. The runtime wraps the shared pipeline helpers, resolves adapter extensions, and translates diagnostics into structured reporter output so plugin projects inherit predictable tooling.

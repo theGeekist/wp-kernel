@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,26 @@ Represents a PHP assignment expression (e.g., `$var = $value`).
 - [`PhpExprBase`](PhpExprBase.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### expr
+
+```ts
+readonly expr: PhpExpr;
+```
+
+---
 
 ### nodeType
 
@@ -31,23 +51,3 @@ readonly nodeType: "Expr_Assign";
 ```ts
 readonly var: PhpExpr;
 ```
-
----
-
-### expr
-
-```ts
-readonly expr: PhpExpr;
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)

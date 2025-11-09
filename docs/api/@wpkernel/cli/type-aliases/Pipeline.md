@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,8 @@
 # Type Alias: Pipeline
 
 ```ts
-type Pipeline = CorePipeline & lt;
-(PipelineRunOptions,
+type Pipeline = CorePipeline<
+	PipelineRunOptions,
 	PipelineRunResult,
 	PipelineContext,
 	PipelineContext['reporter'],
@@ -22,7 +22,8 @@ type Pipeline = CorePipeline & lt;
 	FragmentHelper['kind'],
 	BuilderHelper['kind'],
 	FragmentHelper,
-	BuilderHelper & gt);
+	BuilderHelper
+>;
 ```
 
 The main pipeline interface for CLI operations.

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### name
+### cacheKeys
 
 ```ts
-readonly name: string;
+readonly cacheKeys: ResourceCacheKeysPlan;
 ```
 
 ---
@@ -20,6 +20,38 @@ readonly name: string;
 
 ```ts
 readonly className: string;
+```
+
+---
+
+### identity
+
+```ts
+readonly identity: RestControllerIdentity;
+```
+
+---
+
+### name
+
+```ts
+readonly name: string;
+```
+
+---
+
+### restArgsExpression
+
+```ts
+readonly restArgsExpression: PhpExpr;
+```
+
+---
+
+### routes
+
+```ts
+readonly routes: readonly RestControllerRoutePlan[];
 ```
 
 ---
@@ -40,46 +72,6 @@ readonly schemaProvenance: string;
 
 ---
 
-### restArgsExpression
-
-```ts
-readonly restArgsExpression: PhpExpr;
-```
-
----
-
-### identity
-
-```ts
-readonly identity: RestControllerIdentity;
-```
-
----
-
-### cacheKeys
-
-```ts
-readonly cacheKeys: ResourceCacheKeysPlan;
-```
-
----
-
-### routes
-
-```ts
-readonly routes: readonly RestControllerRoutePlan[];
-```
-
----
-
-### mutationMetadata?
-
-```ts
-readonly optional mutationMetadata: RouteMutationMetadataPlan;
-```
-
----
-
 ### helperMethods?
 
 ```ts
@@ -92,4 +84,12 @@ readonly optional helperMethods: readonly PhpStmtClassMethod[];
 
 ```ts
 readonly optional helperSignatures: readonly string[];
+```
+
+---
+
+### mutationMetadata?
+
+```ts
+readonly optional mutationMetadata: RouteMutationMetadataPlan;
 ```

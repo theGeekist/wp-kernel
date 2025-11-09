@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,14 +10,6 @@ Context passed to DataViews controllers for logging and event emission.
 
 ## Properties
 
-### registry
-
-```ts
-readonly registry: Map<string, unknown>;
-```
-
----
-
 ### controllers
 
 ```ts
@@ -26,34 +18,10 @@ readonly controllers: Map<string, unknown>;
 
 ---
 
-### preferences
-
-```ts
-readonly preferences: DataViewPreferencesRuntime;
-```
-
----
-
 ### events
 
 ```ts
 readonly events: DataViewsEventEmitter;
-```
-
----
-
-### reporter
-
-```ts
-readonly reporter: Reporter;
-```
-
----
-
-### options
-
-```ts
-readonly options: NormalizedDataViewsRuntimeOptions;
 ```
 
 ---
@@ -73,3 +41,35 @@ readonly getResourceReporter: (resource) => Reporter;
 #### Returns
 
 `Reporter`
+
+---
+
+### options
+
+```ts
+readonly options: NormalizedDataViewsRuntimeOptions;
+```
+
+---
+
+### preferences
+
+```ts
+readonly preferences: DataViewPreferencesRuntime;
+```
+
+---
+
+### registry
+
+```ts
+readonly registry: Map<string, unknown>;
+```
+
+---
+
+### reporter
+
+```ts
+readonly reporter: Reporter;
+```

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,6 +20,14 @@ Input shape forwarded to custom hydration callbacks.
 
 ## Properties
 
+### resource
+
+```ts
+readonly resource: ResourceObject<TEntity, TQuery>;
+```
+
+---
+
 ### serverState
 
 ```ts
@@ -30,14 +38,6 @@ readonly serverState: object;
 
 ```ts
 [key: string]: unknown
-```
-
----
-
-### resource
-
-```ts
-readonly resource: ResourceObject<TEntity, TQuery>;
 ```
 
 ---

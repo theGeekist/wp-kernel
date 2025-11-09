@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -20,13 +20,23 @@ Event payload for wpk.resource.response
 
 ## Properties
 
-### requestId
+### data
 
 ```ts
-requestId: string;
+data: T;
 ```
 
-Request ID for correlation
+Response data
+
+---
+
+### duration
+
+```ts
+duration: number;
+```
+
+Duration in milliseconds
 
 ---
 
@@ -50,6 +60,16 @@ Request path
 
 ---
 
+### requestId
+
+```ts
+requestId: string;
+```
+
+Request ID for correlation
+
+---
+
 ### status
 
 ```ts
@@ -57,26 +77,6 @@ status: number;
 ```
 
 Response status code
-
----
-
-### data
-
-```ts
-data: T;
-```
-
-Response data
-
----
-
-### duration
-
-```ts
-duration: number;
-```
-
-Duration in milliseconds
 
 ---
 

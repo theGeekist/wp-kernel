@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,6 +7,22 @@
 # Interface: RestControllerModuleConfig
 
 ## Properties
+
+### controllers
+
+```ts
+readonly controllers: readonly RestControllerModuleControllerConfig[];
+```
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+---
 
 ### origin
 
@@ -20,22 +36,6 @@ readonly origin: string;
 
 ```ts
 readonly sanitizedNamespace: string;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
----
-
-### controllers
-
-```ts
-readonly controllers: readonly RestControllerModuleControllerConfig[];
 ```
 
 ---

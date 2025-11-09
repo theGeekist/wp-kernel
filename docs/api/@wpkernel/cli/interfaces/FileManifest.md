@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,16 @@ Manifest of filesystem changes produced during a workspace operation.
 
 ## Properties
 
-### writes
-
-```ts
-readonly writes: readonly string[];
-```
-
----
-
 ### deletes
 
 ```ts
 readonly deletes: readonly string[];
+```
+
+---
+
+### writes
+
+```ts
+readonly writes: readonly string[];
 ```

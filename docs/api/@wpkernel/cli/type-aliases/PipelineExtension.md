@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -7,8 +7,12 @@
 # Type Alias: PipelineExtension
 
 ```ts
-type PipelineExtension = CorePipelineExtension & lt;
-(Pipeline, PipelineContext, PipelineRunOptions, IRv1 & gt);
+type PipelineExtension = CorePipelineExtension<
+	Pipeline,
+	PipelineContext,
+	PipelineRunOptions,
+	IRv1
+>;
 ```
 
 Represents a pipeline extension.

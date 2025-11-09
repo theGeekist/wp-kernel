@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,6 +13,26 @@ Represents a PHP array dimension fetch expression (e.g., `$array[key]`).
 - [`PhpExprBase`](PhpExprBase.md)
 
 ## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### dim
+
+```ts
+readonly dim: PhpExpr | null;
+```
+
+---
 
 ### nodeType
 
@@ -31,23 +51,3 @@ readonly nodeType: "Expr_ArrayDimFetch";
 ```ts
 readonly var: PhpExpr;
 ```
-
----
-
-### dim
-
-```ts
-readonly dim: PhpExpr | null;
-```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)

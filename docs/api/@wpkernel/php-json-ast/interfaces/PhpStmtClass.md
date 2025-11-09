@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,70 +14,10 @@ Represents a PHP class declaration statement.
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: "Stmt_Class";
-```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpIdentifier | null;
-```
-
----
-
-### flags
-
-```ts
-readonly flags: number;
-```
-
----
-
-### extends
-
-```ts
-readonly extends: PhpName | null;
-```
-
----
-
-### implements
-
-```ts
-readonly implements: PhpName[];
-```
-
----
-
-### stmts
-
-```ts
-readonly stmts: PhpClassStmt[];
-```
-
----
-
 ### attrGroups
 
 ```ts
 readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### namespacedName
-
-```ts
-readonly namespacedName: PhpName | null;
 ```
 
 ---
@@ -91,3 +31,63 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### extends
+
+```ts
+readonly extends: PhpName | null;
+```
+
+---
+
+### flags
+
+```ts
+readonly flags: number;
+```
+
+---
+
+### implements
+
+```ts
+readonly implements: PhpName[];
+```
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier | null;
+```
+
+---
+
+### namespacedName
+
+```ts
+readonly namespacedName: PhpName | null;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_Class";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### stmts
+
+```ts
+readonly stmts: PhpClassStmt[];
+```

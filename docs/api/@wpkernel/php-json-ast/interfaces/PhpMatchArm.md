@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,23 +14,15 @@ Represents a single arm in a PHP `match` expression.
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "MatchArm";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
-### conds
-
-```ts
-readonly conds: PhpExpr[] | null;
-```
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
 ---
 
@@ -42,12 +34,20 @@ readonly body: PhpExpr;
 
 ---
 
-### attributes
+### conds
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly conds: PhpExpr[] | null;
 ```
 
-#### Inherited from
+---
 
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+### nodeType
+
+```ts
+readonly nodeType: "MatchArm";
+```
+
+#### Overrides
+
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

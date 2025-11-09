@@ -15,7 +15,7 @@ export default {
 			description: 'Enforce usage of centralized test utilities',
 			category: 'Best Practices',
 			recommended: true,
-			url: 'https://github.com/theGeekist/wp-kernel/blob/main/tests/TEST_PATTERNS.md',
+			url: 'https://github.com/wpkernel/wpkernel/blob/main/tests/TEST_PATTERNS.md',
 		},
 		messages: {
 			manualWpGlobal:

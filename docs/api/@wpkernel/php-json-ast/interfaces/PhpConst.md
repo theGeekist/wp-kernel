@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,6 +14,26 @@ Represents a PHP constant definition (e.g., `const MY_CONST = 123;`).
 
 ## Properties
 
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -26,28 +46,8 @@ readonly nodeType: "Const";
 
 ---
 
-### name
-
-```ts
-readonly name: PhpIdentifier;
-```
-
----
-
 ### value
 
 ```ts
 readonly value: PhpExpr;
 ```
-
----
-
-### attributes
-
-```ts
-readonly attributes: PhpAttributes;
-```
-
-#### Inherited from
-
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)

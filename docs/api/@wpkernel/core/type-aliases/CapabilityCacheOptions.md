@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,10 +14,10 @@ Cache storage options for capability evaluations.
 
 ## Properties
 
-### ttlMs?
+### crossTab?
 
 ```ts
-optional ttlMs: number;
+optional crossTab: boolean;
 ```
 
 ---
@@ -30,8 +30,8 @@ optional storage: "memory" | "session";
 
 ---
 
-### crossTab?
+### ttlMs?
 
 ```ts
-optional crossTab: boolean;
+optional ttlMs: number;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/wp-json-ast v0.12.0**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -18,10 +18,10 @@ type ProgramTargetPlannerOptions<TFile> = object;
 
 ## Properties
 
-### workspace
+### channel
 
 ```ts
-readonly workspace: PipelineContext["workspace"];
+readonly channel: PhpBuilderChannel;
 ```
 
 ---
@@ -34,10 +34,10 @@ readonly outputDir: string;
 
 ---
 
-### channel
+### workspace
 
 ```ts
-readonly channel: PhpBuilderChannel;
+readonly workspace: PipelineContext["workspace"];
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.0**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -32,6 +32,14 @@ Options for creating a new helper.
 
 ## Properties
 
+### apply
+
+```ts
+readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
+```
+
+---
+
 ### key
 
 ```ts
@@ -48,10 +56,10 @@ readonly kind: TKind;
 
 ---
 
-### apply
+### dependsOn?
 
 ```ts
-readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
+readonly optional dependsOn: readonly string[];
 ```
 
 ---
@@ -64,24 +72,16 @@ readonly optional mode: HelperMode;
 
 ---
 
-### priority?
-
-```ts
-readonly optional priority: number;
-```
-
----
-
-### dependsOn?
-
-```ts
-readonly optional dependsOn: readonly string[];
-```
-
----
-
 ### origin?
 
 ```ts
 readonly optional origin: string;
+```
+
+---
+
+### priority?
+
+```ts
+readonly optional priority: number;
 ```

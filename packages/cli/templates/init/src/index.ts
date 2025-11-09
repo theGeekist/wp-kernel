@@ -9,7 +9,7 @@ import { wpkConfig } from '../wpk.config';
  * It is responsible for initializing the WPKernel runtime and
  * registering your plugin's resources and actions.
  *
- * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/guide/data.md
+ * @see https://github.com/wpkernel/wpkernel/blob/main/docs/guide/data.md
  */
 export function bootstrapKernel(): WPKInstance {
 	return configureWPKernel({
@@ -29,6 +29,6 @@ export function bootstrapKernel(): WPKInstance {
  * functionality, such as defining resources, invoking actions,
  * and accessing data.
  *
- * @see https://github.com/theGeekist/wp-kernel/blob/main/docs/guide/data.md
+ * @see https://github.com/wpkernel/wpkernel/blob/main/docs/guide/data.md
  */
 export const wpk = bootstrapKernel();

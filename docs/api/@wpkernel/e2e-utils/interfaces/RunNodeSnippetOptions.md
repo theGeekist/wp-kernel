@@ -1,4 +1,4 @@
-[**@wpkernel/e2e-utils v0.12.0**](../README.md)
+[**@wpkernel/e2e-utils v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -58,20 +58,6 @@ CliCommandOptions.env;
 
 ---
 
-### timeoutMs?
-
-```ts
-optional timeoutMs: number;
-```
-
-#### Inherited from
-
-```ts
-CliCommandOptions.timeoutMs;
-```
-
----
-
 ### stdin?
 
 ```ts
@@ -82,4 +68,18 @@ optional stdin: string;
 
 ```ts
 CliCommandOptions.stdin;
+```
+
+---
+
+### timeoutMs?
+
+```ts
+optional timeoutMs: number;
+```
+
+#### Inherited from
+
+```ts
+CliCommandOptions.timeoutMs;
 ```

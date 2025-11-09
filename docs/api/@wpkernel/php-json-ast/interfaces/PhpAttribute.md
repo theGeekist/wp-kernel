@@ -1,4 +1,4 @@
-[**@wpkernel/php-json-ast v0.12.0**](../README.md)
+[**@wpkernel/php-json-ast v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -13,26 +13,6 @@ Represents a single PHP attribute (e.g., `#[MyAttribute(arg: value)]`).
 - [`PhpNode`](PhpNode.md)
 
 ## Properties
-
-### nodeType
-
-```ts
-readonly nodeType: "Attribute";
-```
-
-#### Overrides
-
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpIdentifier | PhpName;
-```
-
----
 
 ### args
 
@@ -51,3 +31,23 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier | PhpName;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Attribute";
+```
+
+#### Overrides
+
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

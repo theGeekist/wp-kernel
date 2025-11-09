@@ -1,24 +1,24 @@
-**@wpkernel/e2e-utils v0.12.0**
+**@wpkernel/e2e-utils v0.12.1-beta.2**
 
 ---
 
-# @wpkernel/e2e-utils v0.12.0
+# @wpkernel/e2e-utils v0.12.1-beta.2
 
 ## Interfaces
 
 ### Test Support
 
+- [CliTranscript](interfaces/CliTranscript.md)
+- [FileHashEntry](interfaces/FileHashEntry.md)
 - [FileManifest](interfaces/FileManifest.md)
 - [FileManifestDiff](interfaces/FileManifestDiff.md)
-- [FileHashEntry](interfaces/FileHashEntry.md)
-- [CliTranscript](interfaces/CliTranscript.md)
 - [IsolatedWorkspace](interfaces/IsolatedWorkspace.md)
-- [WorkspaceTools](interfaces/WorkspaceTools.md)
-- [WorkspaceRunOptions](interfaces/WorkspaceRunOptions.md)
-- [WithIsolatedWorkspaceOptions](interfaces/WithIsolatedWorkspaceOptions.md)
-- [ManifestStateDefinition](interfaces/ManifestStateDefinition.md)
 - [ManifestComparisonDefinition](interfaces/ManifestComparisonDefinition.md)
+- [ManifestStateDefinition](interfaces/ManifestStateDefinition.md)
 - [RunNodeSnippetOptions](interfaces/RunNodeSnippetOptions.md)
+- [WithIsolatedWorkspaceOptions](interfaces/WithIsolatedWorkspaceOptions.md)
+- [WorkspaceRunOptions](interfaces/WorkspaceRunOptions.md)
+- [WorkspaceTools](interfaces/WorkspaceTools.md)
 
 ## Type Aliases
 
@@ -42,9 +42,9 @@
 
 ### Event Utilities
 
-- [EventRecorderOptions](type-aliases/EventRecorderOptions.md)
 - [CapturedEvent](type-aliases/CapturedEvent.md)
 - [EventRecorder](type-aliases/EventRecorder.md)
+- [EventRecorderOptions](type-aliases/EventRecorderOptions.md)
 
 ### DataView Helpers
 
@@ -53,9 +53,9 @@
 
 ### Test Support
 
-- [WithWorkspaceCallback](type-aliases/WithWorkspaceCallback.md)
 - [ManifestFileDefinition](type-aliases/ManifestFileDefinition.md)
 - [ManifestMutationDefinition](type-aliases/ManifestMutationDefinition.md)
+- [WithWorkspaceCallback](type-aliases/WithWorkspaceCallback.md)
 
 ### Other
 
@@ -75,13 +75,13 @@
 
 ### Integration
 
-- [withWorkspace](functions/withWorkspace.md)
 - [createWorkspaceRunner](functions/createWorkspaceRunner.md)
+- [withWorkspace](functions/withWorkspace.md)
 
 ### Test Fixtures
 
-- [createWPKernelUtils](functions/createWPKernelUtils.md)
 - [createDataViewHelper](functions/createDataViewHelper.md)
+- [createWPKernelUtils](functions/createWPKernelUtils.md)
 
 ### DataView Helpers
 
@@ -89,8 +89,8 @@
 
 ### Test Support
 
-- [withIsolatedWorkspace](functions/withIsolatedWorkspace.md)
-- [writeWorkspaceFiles](functions/writeWorkspaceFiles.md)
 - [collectManifestState](functions/collectManifestState.md)
 - [compareManifestStates](functions/compareManifestStates.md)
 - [runNodeSnippet](functions/runNodeSnippet.md)
+- [withIsolatedWorkspace](functions/withIsolatedWorkspace.md)
+- [writeWorkspaceFiles](functions/writeWorkspaceFiles.md)

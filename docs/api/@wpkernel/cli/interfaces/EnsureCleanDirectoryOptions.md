@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.0**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -10,16 +10,6 @@ Options for the `ensureCleanDirectory` function.
 
 ## Properties
 
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
-The workspace instance.
-
----
-
 ### directory
 
 ```ts
@@ -30,13 +20,13 @@ The directory to ensure is clean.
 
 ---
 
-### force?
+### workspace
 
 ```ts
-readonly optional force: boolean;
+readonly workspace: Workspace;
 ```
 
-Whether to force the cleanup, even if the directory is not empty.
+The workspace instance.
 
 ---
 
@@ -47,6 +37,16 @@ readonly optional create: boolean;
 ```
 
 Whether to create the directory if it doesn't exist.
+
+---
+
+### force?
+
+```ts
+readonly optional force: boolean;
+```
+
+Whether to force the cleanup, even if the directory is not empty.
 
 ---
 

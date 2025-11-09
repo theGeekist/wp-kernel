@@ -1,4 +1,4 @@
-[**@wpkernel/ui v0.12.0**](../README.md)
+[**@wpkernel/ui v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -46,22 +46,10 @@ page: number;
 perPage: number;
 ```
 
-#### sort?
+#### filters?
 
 ```ts
-optional sort: object;
-```
-
-##### sort.field
-
-```ts
-field: string;
-```
-
-##### sort.direction
-
-```ts
-direction: 'asc' | 'desc';
+optional filters: Record<string, unknown>;
 ```
 
 #### search?
@@ -70,8 +58,20 @@ direction: 'asc' | 'desc';
 optional search: string;
 ```
 
-#### filters?
+#### sort?
 
 ```ts
-optional filters: Record<string, unknown>;
+optional sort: object;
+```
+
+##### sort.direction
+
+```ts
+direction: 'asc' | 'desc';
+```
+
+##### sort.field
+
+```ts
+field: string;
 ```

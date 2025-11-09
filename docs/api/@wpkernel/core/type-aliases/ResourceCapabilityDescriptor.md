@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -14,16 +14,6 @@ Capability descriptor for object-level or resource-level checks.
 
 ## Properties
 
-### capability
-
-```ts
-capability: string;
-```
-
-WordPress capability to check (e.g., 'edit_posts')
-
----
-
 ### appliesTo
 
 ```ts
@@ -31,6 +21,16 @@ appliesTo: 'resource' | 'object';
 ```
 
 Whether this applies to the resource collection or individual objects
+
+---
+
+### capability
+
+```ts
+capability: string;
+```
+
+WordPress capability to check (e.g., 'edit_posts')
 
 ---
 

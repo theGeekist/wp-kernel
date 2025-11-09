@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.0**](../README.md)
+[**@wpkernel/core v0.12.1-beta.2**](../README.md)
 
 ---
 
@@ -26,6 +26,69 @@ new WPKernelEventBus(): WPKernelEventBus;
 `WPKernelEventBus`
 
 ## Methods
+
+### emit()
+
+```ts
+emit<K>(event, payload): void;
+```
+
+Emit the specified event and execute every registered listener. Any
+listener failures are reported via the resolved reporter when running
+outside of production.
+
+#### Type Parameters
+
+##### K
+
+`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
+
+#### Parameters
+
+##### event
+
+`K`
+
+##### payload
+
+[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]
+
+#### Returns
+
+`void`
+
+---
+
+### off()
+
+```ts
+off<K>(event, listener): void;
+```
+
+Remove a previously registered listener. Calling this method for a
+listener that was never registered is a no-op.
+
+#### Type Parameters
+
+##### K
+
+`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
+
+#### Parameters
+
+##### event
+
+`K`
+
+##### listener
+
+[`Listener`](../type-aliases/Listener.md)\<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]\>
+
+#### Returns
+
+`void`
+
+---
 
 ### on()
 
@@ -96,68 +159,5 @@ the event and then tears itself down.
 ```
 
 ##### Returns
-
-`void`
-
----
-
-### off()
-
-```ts
-off<K>(event, listener): void;
-```
-
-Remove a previously registered listener. Calling this method for a
-listener that was never registered is a no-op.
-
-#### Type Parameters
-
-##### K
-
-`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
-
-#### Parameters
-
-##### event
-
-`K`
-
-##### listener
-
-[`Listener`](../type-aliases/Listener.md)\<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]\>
-
-#### Returns
-
-`void`
-
----
-
-### emit()
-
-```ts
-emit<K>(event, payload): void;
-```
-
-Emit the specified event and execute every registered listener. Any
-listener failures are reported via the resolved reporter when running
-outside of production.
-
-#### Type Parameters
-
-##### K
-
-`K` _extends_ keyof [`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)
-
-#### Parameters
-
-##### event
-
-`K`
-
-##### payload
-
-[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]
-
-#### Returns
 
 `void`
