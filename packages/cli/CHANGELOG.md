@@ -244,7 +244,7 @@
     - **CI**: GitHub Actions with optimized caching, all jobs passing
 
     ## Documentation ✓
-    - **VitePress Site**: https://theGeekist.github.io/wp-kernel/
+    - **VitePress Site**: https://wpkernel.dev/
     - **24 Pages**: Getting Started, Core Concepts, Contributing, Runbook, Standards, Testing
     - **Auto-Deploy**: GitHub Actions workflow for gh-pages
     - **Templates**: PR template, contributor license (EUPL-1.2)

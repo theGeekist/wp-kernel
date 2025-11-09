@@ -87,6 +87,6 @@ Deepen the learning surface with refreshed block binding walkthroughs, Interacti
 
 ---
 
-**Get Involved**: [GitHub](https://github.com/wpkernel/wpkernel) · [Issues](https://github.com/wpkernel/wpkernel/issues) · [Contributing](https://theGeekist.github.io/wp-kernel/contributing/)
+**Get Involved**: [GitHub](https://github.com/wpkernel/wpkernel) · [Issues](https://github.com/wpkernel/wpkernel/issues) · [Contributing](https://wpkernel.dev/contributing/)
 
 _Last updated: November 5, 2025_

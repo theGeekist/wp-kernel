@@ -15,7 +15,7 @@ Guide to submitting pull requests to WPKernel.
 
 ## Questions?
 
-- **Documentation**: https://theGeekist.github.io/wp-kernel/
+- **Documentation**: https://wpkernel.dev/
 - **Issues**: https://github.com/wpkernel/wpkernel/issues
 - **Discussions**: https://github.com/wpkernel/wpkernel/discussions
 
@@ -467,7 +467,7 @@ Releases are automated:
 
 ## Questions?
 
-- **Documentation**: https://theGeekist.github.io/wp-kernel/
+- **Documentation**: https://wpkernel.dev/
 - **Issues**: https://github.com/wpkernel/wpkernel/issues
 - **Discussions**: https://github.com/wpkernel/wpkernel/discussions
 

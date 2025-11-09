@@ -569,7 +569,7 @@ All packages:
 
 #### Phase 7: Documentation ✓
 
-- **VitePress documentation site** (https://theGeekist.github.io/wp-kernel/)
+- **VitePress documentation site** (https://wpkernel.dev/)
 - 24 comprehensive documentation pages (5,746+ lines)
 - Complete site structure:
     - Home: Framework overview with hero, features, quick example
@@ -633,7 +633,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 
 - Complete documentation site with 24 pages (5,746+ lines)
 - Auto-deploy workflow to GitHub Pages
-- URL: https://theGeekist.github.io/wp-kernel/
+- URL: https://wpkernel.dev/
 - Navigation, search, sidebar fully configured
 - Getting Started guide with prerequisites and tutorial
 - Core Concepts guide (Resources, Actions, Events, Bindings, Interactivity, Jobs)
