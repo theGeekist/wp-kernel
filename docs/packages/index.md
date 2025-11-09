@@ -4,7 +4,7 @@ title: Packages
 hero:
     name: WPKernel Packages
     text: 'Explore every package that powers the WPKernel ecosystem.'
-    tagline: 'Each module serves a focused purpose — from scaffolding and code generation to UI, testing, and runtime orchestration.'
+    tagline: 'Each module serves a focused purpose:  from scaffolding and code generation to UI, testing, and runtime orchestration.'
     actions:
         - theme: brand
           text: Get Started →
@@ -20,7 +20,7 @@ features:
       details: 'Runtime primitives and resource helpers that form the backbone of WPKernel.'
       link: './core.md'
     - title: '@wpkernel/create-wpk'
-      details: 'Bootstrapper for new WPKernel projects — quickly scaffold plugin folders and configs.'
+      details: 'Bootstrapper for new WPKernel projects,  quickly scaffold plugin folders and configs.'
       link: './create-wpk.md'
     - title: '@wpkernel/pipeline'
       details: 'Pipeline engine for builders, adapters, and code generation extensions.'

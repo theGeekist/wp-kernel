@@ -1,12 +1,14 @@
 # Philosophy & Architecture
 
-WPKernel is built on a few core principles designed to bring consistency, predictability, and modern development practices to the WordPress ecosystem. This guide explains the "why" behind the framework, starting with its most important concept: being **config-first**.
+WPKernel is built on a few core principles designed to bring consistency & predictability through modern development practices to the WordPress ecosystem. This guide explains the "why" behind the framework, starting with its most important concept: being **config-first**.
 
 ## Why Config-First?
 
 WordPress has always celebrated diversity. There are dozens of ways to register a route, enqueue a script, or render a settings page, and they all work. That openness is part of its strength.
 
-But freedom without guidance can become painfully confusing. When every plugin does the same thing a slightly different way, consistency vanishes, and maintenance becomes a patchwork of styles and conventions. Developers spend more time rediscovering what “works with WordPress” than focusing on what their plugin is actually for.
+But freedom without guidance can become painfully confusing. When every plugin does the same thing a slightly different way, consistency vanishes, and maintenance becomes a nightmarish task.
+
+WordPress Developers spend more time rediscovering what “works with WordPress” than focusing on what their plugin is actually for.
 
 WPKernel doesn’t try to replace that diversity. It gives it a **shape**.
 
@@ -23,7 +25,7 @@ This approach has two key effects:
 
 ### Freedom Through Definition
 
-Being config-first doesn’t mean being locked in. WPKernel’s design deliberately exposes **runtime primitives**—the low-level building blocks that mirror what the generator produces.
+Being config-first doesn’t mean being locked in. WPKernel’s design deliberately exposes **runtime primitives**, the low-level building blocks that mirror what the generator produces.
 
 If you need to go beyond the config layer, you can import these primitives directly and compose your own controllers, policies, or interactivity logic. The generated code uses the same primitives under the hood, so hand-written modules and generated ones coexist seamlessly.
 
