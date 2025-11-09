@@ -130,9 +130,7 @@ function finalizeBootstrapRun(
 		context.reporter.info('  3. wpk apply          # Apply changes safely');
 		context.reporter.info('  4. wpk doctor         # Validate everything');
 		context.reporter.info('');
-		context.reporter.info(
-			'📖 Docs: https://theGeekist.github.io/wp-kernel/'
-		);
+		context.reporter.info('📖 Docs: https://wpkernel.dev/');
 		context.reporter.info('');
 		context.reporter.info('Happy coding! 🚀');
 		context.reporter.info('');

@@ -2,7 +2,7 @@
 
 > A Rails-like, opinionated framework for building modern WordPress products. Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
 
-**[Read the documentation](https://theGeekist.github.io/wp-kernel/)** to get started and understand the philosophy.
+**[Read the documentation](https://wpkernel.dev/)** to get started and understand the philosophy.
 
 **Using wp-env (Docker)?** Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin) - Login: `admin` / `password`
 
@@ -15,7 +15,7 @@ The JavaScript is the source of truth and PHP is a thin contract.
 [![CI Status](https://github.com/wpkernel/wpkernel/workflows/CI/badge.svg)](https://github.com/wpkernel/wpkernel/actions)
 [![License](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](LICENSE)
 [![Node Version](https://img.shields.io/badge/node-20.x%20LTS+-brightgreen.svg)](.nvmrc)
-[![Documentation](https://img.shields.io/badge/docs-VitePress-42b883.svg)](https://theGeekist.github.io/wp-kernel/)
+[![Documentation](https://img.shields.io/badge/docs-VitePress-42b883.svg)](https://wpkernel.dev/)
 
 ---
 
@@ -147,7 +147,7 @@ createRoot(document.getElementById('app')!).render(
 
 > ℹ️ Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts` to stay aligned with the framework's canonical contract.
 
-**See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WPKernel plugin.
+**See the [Getting Started Guide](https://wpkernel.dev/getting-started/)** for creating your first WPKernel plugin.
 
 ---
 
@@ -270,7 +270,7 @@ Both patterns work identically - pick what you prefer. Submodule imports provide
 
 ## 🛠️ Contributor Commands
 
-> **Note**: These commands are for contributing to WPKernel itself. If you're building a plugin with WPKernel, see the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/).
+> **Note**: These commands are for contributing to WPKernel itself. If you're building a plugin with WPKernel, see the [Getting Started Guide](https://wpkernel.dev/getting-started/).
 
 ```bash
 # Build & Watch
@@ -303,14 +303,14 @@ Shared testing helpers live under `@wpkernel/test-utils/wp` (WordPress globals) 
 
 ## 📚 Documentation
 
-**📖 [Official Documentation](https://theGeekist.github.io/wp-kernel/)** - Complete guide with 24 pages
+**📖 [Official Documentation](https://wpkernel.dev/)** - Complete guide with 24 pages
 
 ### Quick Links
 
-- **[Getting Started](https://theGeekist.github.io/wp-kernel/getting-started/)** - Installation and quick start tutorial
-- **[Core Concepts](https://theGeekist.github.io/wp-kernel/guide/)** - Resources, Actions, Events, Bindings, Interactivity, Jobs
-- **[API Reference](https://theGeekist.github.io/wp-kernel/api/)** - Type definitions and interfaces
-- **[Contributing Guide](https://theGeekist.github.io/wp-kernel/contributing/)** - Development workflow and standards
+- **[Getting Started](https://wpkernel.dev/getting-started/)** - Installation and quick start tutorial
+- **[Core Concepts](https://wpkernel.dev/guide/)** - Resources, Actions, Events, Bindings, Interactivity, Jobs
+- **[API Reference](https://wpkernel.dev/api/)** - Type definitions and interfaces
+- **[Contributing Guide](https://wpkernel.dev/contributing/)** - Development workflow and standards
 - **[Roadmap](https://wpkernel.dev/contributing/roadmap)** - Project progress and upcoming features
 
 ### Developer Resources
@@ -393,7 +393,7 @@ WPKernel is in **active development** progressing toward v1.0. Core primitives (
 
 ## 🤝 Contributing
 
-We welcome contributions! Please read our **[Contributing Guide](https://theGeekist.github.io/wp-kernel/contributing/)** before submitting PRs.
+We welcome contributions! Please read our **[Contributing Guide](https://wpkernel.dev/contributing/)** before submitting PRs.
 
 **Quick contribution flow**:
 
@@ -464,7 +464,7 @@ Built on the shoulders of giants:
 
 ## 🔗 Links
 
-- **[Documentation](https://theGeekist.github.io/wp-kernel/)** - Official docs site
+- **[Documentation](https://wpkernel.dev/)** - Official docs site
 - **[GitHub Repository](https://github.com/wpkernel/wpkernel)** - Source code
 - **[Issues](https://github.com/wpkernel/wpkernel/issues)** - Bug reports and feature requests
 - **[Discussions](https://github.com/wpkernel/wpkernel/discussions)** - Community Q&A

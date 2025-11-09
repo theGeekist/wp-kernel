@@ -1,8 +1,6 @@
 # Dependencies
 node_modules/
 vendor/
-!packages/ui/vendor/
-!packages/ui/vendor/**
 
 # private, symlinked folders are not in source control
 instructions/ 
@@ -107,3 +105,5 @@ artifacts/
 information/
 gutenberg/
 gutenberg
+**/AGENTS.md
+docs/internal/
