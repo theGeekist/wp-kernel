@@ -34,7 +34,7 @@ export interface DerivedResourceBlock {
  * some blocks). The returned manifest is a ready-to-write `block.json` shape
  * tailored to the resource (attributes, title, icon, etc.).
  *
- * @param    options                — Builder input containing the IR and any pre-existing blocks
+ * @param    options                Builder input containing the IR and any pre-existing blocks
  * @param    options.ir
  * @param    options.existingBlocks
  * @returns An array of derived block descriptors and their block.json manifest

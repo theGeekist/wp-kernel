@@ -139,7 +139,7 @@ You define the intent, not the mechanics. The generator then links your screen, 
 
 ## Running and validating
 
-When you run `wpk generate`, you’ll see which artefact groups were affected — PHP controllers, JavaScript runtimes, or UI scaffolds.
+When you run `wpk generate`, you’ll see which artefact groups were affected, PHP controllers, JavaScript runtimes, or UI scaffolds.
 Validation runs automatically to check for missing or mismatched capability keys, ensuring secure and predictable builds.
 
 ```bash
@@ -155,6 +155,6 @@ It builds real plugins that are safe to deploy. Every PHP controller, capability
 ## Summary
 
 `wpk.config.ts` is the declaration that drives everything else.
-Describe your resources clearly and map capabilities consistently. WPKernel will assemble a complete, typed, and enforceable WordPress layer around your declaration — a foundation you can trust and ship with.
+Describe your resources clearly and map capabilities consistently. WPKernel will assemble a complete, typed, and enforceable WordPress layer around your declaration , a foundation you can trust and ship with.
 
 Next: learn the philosophy behind this approach in **[Why config-first?](./philosophy.md#why-config-first)**.
