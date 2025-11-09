@@ -321,7 +321,7 @@ Users were asking how to implement server-side bindings for SEO.
 
 ## How
 
-Added comprehensive guide with examples in `/docs/guide/block-bindings.md`.
+Added comprehensive guide with examples in `/docs/guide`.
 
 ## Testing
 

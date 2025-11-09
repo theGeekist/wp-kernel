@@ -145,7 +145,7 @@ Let's create a simple "hello world" extension that logs a message to the console
 
 ## Practical Example: Custom Storage
 
-Now let's create a more advanced extension that adds a new storage type: a simple JSON file. This will demonstrate how to use builders to generate new files.
+Now let's create a more advanced extension that adds a new storage type: a simple JSON file. This will demonstrate how to define and register a custom builder.
 
 1.  **Define a custom storage type in `wpk.config.ts`:**
 
@@ -180,24 +180,35 @@ Now let's create a more advanced extension that adds a new storage type: a simpl
 
 2.  **Create the custom storage extension:**
 
-    Now, let's create the `my-json-storage-extension.ts` file. This extension will look for resources with `storage.mode === 'json'` and generate a JSON file for them.
+    Now, let's create the `my-json-storage-extension.ts` file. This extension will look for resources with `storage.mode === 'json'` and register a custom builder to handle them.
 
     ```ts
     import { createPipelineExtension } from '@wpkernel/pipeline';
-    import { createBuilder } from '@wpkernel/pipeline/builders';
+    import type { Helper } from '@wpkernel/pipeline/types';
     import fs from 'fs/promises';
 
-    // A simple builder that writes a file
-    const jsonFileBuilder = createBuilder({
+    // Define a custom builder helper
+    const jsonFileBuilder: Helper<any, any, any, any, 'builder'> = {
     	key: 'json-file-builder',
-    	async build({ path, content }) {
+    	kind: 'builder',
+    	mode: 'sync', // or 'async' if the apply function returns a Promise
+    	priority: 10,
+    	dependsOn: [],
+    	optional: false,
+    	apply: async ({ input }) => {
+    		const { path, content } = input;
     		await fs.writeFile(path, content);
+    		return input; // Return the input or a transformed output
     	},
-    });
+    };
 
     export const myJsonStorageExtension = () =>
     	createPipelineExtension({
     		key: 'my-json-storage-extension',
+    		setup(pipeline) {
+    			// Register the custom builder with the pipeline
+    			pipeline.builders.use(jsonFileBuilder);
+    		},
     		hook({ artifact, context }) {
     			const resource = context.resource;
 
@@ -205,9 +216,9 @@ Now let's create a more advanced extension that adds a new storage type: a simpl
     				const path = resource.storage.path;
     				const content = JSON.stringify([], null, 2); // Start with an empty array
 
-    				// Add a build step to the artifact
+    				// Add a build step to the artifact that uses the custom builder
     				artifact.buildSteps.push({
-    					builder: jsonFileBuilder,
+    					builder: 'json-file-builder', // Reference the builder by its key
     					input: { path, content },
     				});
     			}
@@ -250,9 +261,9 @@ export const myAsyncExtension = () =>
 
 ### Using Builders
 
-As we saw in the custom storage example, you can use builders to generate files. WPKernel provides a `createBuilder` function that you can use to create your own custom builders.
+As we saw in the custom storage example, you can define and register your own custom builders. Builders are essentially [`Helper`](/api/@wpkernel/pipeline/type-aliases/Helper) objects with a `kind` of `'builder'`.
 
-Builders are simple functions that receive an `input` object and perform some action. You can add build steps to the `artifact.buildSteps` array in your extension's `hook` function.
+Builders are simple functions that receive an `input` object and perform some action. You register them with `pipeline.builders.use()` in your extension's `setup` function. You can then add build steps to the `artifact.buildSteps` array in your extension's `hook` function, referencing the builder by its `key`.
 
 ## WPKernel's Own Extensions
 

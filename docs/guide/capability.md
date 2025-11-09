@@ -1,6 +1,6 @@
 # Capabilities
 
-Capabilities in WPKernel are a powerful, declarative way to manage user permissions across your entire application. They provide a single source of truth in your `wpk.config.ts` that generates both **unbreakable server-side enforcement** and **convenient client-side checks**.
+Capabilities in WPKernel are a powerful, declarative way to manage user permissions across your entire application. They provide a single source of truth in your `wpk.config.ts` that generates both **server-side enforcement** and **convenient client-side checks**.
 
 This dual nature is what makes the feature so powerful: define a rule once, and WPKernel ensures it's respected on the backend while also making it available to the frontend for building responsive, permission-aware user interfaces.
 
@@ -75,7 +75,7 @@ The `appliesTo` property in the `capabilities` map is crucial for meta capabilit
 
 ## The Programmatic API (`defineCapability`)
 
-For advanced use cases or when defining capabilities outside of a resource context, you can use the `defineCapability` function. This is useful if you have complex, dynamic rules or want to share a capability map across different parts of a non-generated, custom application.
+For advanced use cases or when defining capabilities outside of a resource context, you can use the [`defineCapability`](/api/@wpkernel/core/functions/defineCapability) function. This is useful if you have complex, dynamic rules or want to share a capability map across different parts of a non-generated, custom application.
 
 ```ts
 import { defineCapability } from '@wpkernel/core/capability';
@@ -92,8 +92,9 @@ export const myCustomAcl = defineCapability<MyCustomCapabilities>({
 			return (await adapters.restProbe?.('beta-flag')) ?? false;
 		},
 		'special.tool.access': (ctx, { toolId }) => {
-			// Rule can be synchronous
-			return toolId === 'super-secret-tool' && ctx.user.isAdmin;
+			// Rule can be synchronous, for example checking against a known value.
+			// For user-based checks, you would typically use the `ctx.adapters.wp.canUser` method.
+			return toolId === 'super-secret-tool';
 		},
 	},
 });

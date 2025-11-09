@@ -38,7 +38,7 @@ This "actions-first" approach provides several key benefits:
 
 ## Anatomy of an Action
 
-Actions are defined programmatically using the `defineAction` function. They are the imperative counterpart to the declarative nature of resources in `wpk.config.ts`.
+Actions are defined programmatically using the [`defineAction`](/api/@wpkernel/core/functions/defineAction) function. They are the imperative counterpart to the declarative nature of resources in `wpk.config.ts`.
 
 ### 1. Basic Structure
 
@@ -62,7 +62,7 @@ The first argument to the handler is the `ctx` (context) object, which provides 
 
 ### 2. Calling a Resource
 
-The primary job of most actions is to call a resource's write method. This resource could be one generated from `wpk.config.ts` or one you've defined manually with `defineResource`.
+The primary job of most actions is to call a resource's write method. This resource could be one generated from `wpk.config.ts` or one you've defined manually with [`defineResource`](/api/@wpkernel/core/functions/defineResource).
 
 ```typescript
 import { defineAction } from '@wpkernel/core/actions';
@@ -80,7 +80,7 @@ export const CreatePost = defineAction({
 
 ### 3. Managing Side Effects
 
-The `ctx` object is your toolkit for managing all the side effects related to a write operation.
+The `ctx` object is your toolkit for managing all the side effects related to a write operation. Errors should be reported using the [`WPKernelError`](/api/@wpkernel/core/classes/WPKernelError) class.
 
 ```typescript
 import { defineAction } from '@wpkernel/core/actions';
@@ -125,7 +125,7 @@ By centralizing this logic, you ensure that creating a post is always done the s
 
 ## Using Actions in Custom UIs
 
-The `@wpkernel/ui` package provides the `useAction` hook to make calling actions from your custom React components simple and declarative.
+The `@wpkernel/ui` package provides the [`useAction`](/api/@wpkernel/ui/functions/useAction) hook to make calling actions from your custom React components simple and declarative.
 
 ```tsx
 import { useAction } from '@wpkernel/ui';

@@ -28,7 +28,7 @@ dataviews: {
 2.  **Generated Interactivity Fixture**: The most important step is the generation of an "interactivity fixture". This is a TypeScript file that exports a function, something like `createJobDataViewInteraction`.
 
 3.  **Wiring Everything Together**: This generated function does the heavy lifting:
-    - It imports `createDataViewInteraction` from `@wpkernel/ui/dataviews`.
+    - It imports [`createDataViewInteraction`](/api/@wpkernel/ui/functions/createDataViewInteraction) from `@wpkernel/ui/dataviews`.
     - It passes your resource, your configured actions (like `Job.Publish`), and the DataView store to this function.
     - It returns a complete object of state and actions that the Interactivity API can use.
 
@@ -36,7 +36,7 @@ The result is that the "Publish" button in your generated DataView is automatica
 
 ## Custom Interactivity
 
-While DataViews get interactivity for free, you can define your own interactive components for other use cases, such as custom blocks or widgets. This is where you would use the `defineInteraction` function directly.
+While DataViews get interactivity for free, you can define your own interactive components for other use cases, such as custom blocks or widgets. This is where you would use the [`defineInteraction`](/api/@wpkernel/core/functions/defineInteraction) function directly.
 
 This is useful when you need client-side behavior that doesn't fit the DataView model.
 

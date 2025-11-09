@@ -5,9 +5,9 @@ whether or not a prefetch fires. These helpers exist to warm the cache ahead of
 likely navigation, so when the user finally clicks the link the data is already
 waiting in the store.
 
-> ℹ️ Prefetching hooks read from the `WPKernelUIRuntime`. Attach UI bindings during
-> `configureWPKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
-> with `WPKernelUIProvider` so the runtime is available.
+> ℹ️ Prefetching hooks read from the [`WPKernelUIRuntime`](/packages/ui/src/runtime/dataviews/runtime.ts). Attach UI bindings during
+> [`configureWPKernel`](/api/@wpkernel/core/functions/configureWPKernel)({ ui: { attach: attachUIBindings } })` and wrap your React tree
+with [`WPKernelUIProvider`](/api/@wpkernel/ui/functions/WPKernelUIProvider) so the runtime is available.
 
 ## When to prefetch
 
@@ -25,9 +25,9 @@ caching layers.
 
 - [`usePrefetcher`](/api/@wpkernel/ui/functions/usePrefetcher) - stable wrappers around a resource's
   `prefetchGet` / `prefetchList`.
-- `useHoverPrefetch` - wait for a hover to settle (default 150 ms) before firing.
-- `useVisiblePrefetch` - hook into `IntersectionObserver` or a scroll fallback.
-- `useNextPagePrefetch` - compute the next page query from the current list and
+- [`useHoverPrefetch`](/api/@wpkernel/ui/functions/useHoverPrefetch) - wait for a hover to settle (default 150 ms) before firing.
+- [`useVisiblePrefetch`](/api/@wpkernel/ui/functions/useVisiblePrefetch) - hook into `IntersectionObserver` or a scroll fallback.
+- [`useNextPagePrefetch`](/api/@wpkernel/ui/functions/useNextPagePrefetch) - compute the next page query from the current list and
   run it after the list finishes loading.
 
 All of the helpers delegate to the resource runtime (defined in your `wpk.config.ts` and further explained in the [Resources Guide](../guide/resources.md)), which means dedupe and store registration behave exactly like the imperative prefetch utilities.
@@ -37,7 +37,7 @@ All of the helpers delegate to the resource runtime (defined in your `wpk.config
 ```tsx
 import { useRef } from 'react';
 import { usePrefetcher, useHoverPrefetch } from '@wpkernel/ui';
-import { job } from '@/resources/job';
+import { job } from '@/resources/job'; // your defined resource
 
 export function JobRow({ jobId, title }: { jobId: number; title: string }) {
 	const linkRef = useRef<HTMLAnchorElement>(null);
@@ -86,7 +86,7 @@ export function JobsList({
 
 ## SSR and environments without `IntersectionObserver`
 
-`useVisiblePrefetch` checks for `IntersectionObserver` availability at runtime.
+[`useVisiblePrefetch`](/api/@wpkernel/ui/functions/useVisiblePrefetch) checks for `IntersectionObserver` availability at runtime.
 When it is missing (older browsers, SSR, tests), the hook falls back to a
 capturing `scroll`/`resize` listener and throttles the check with
 `requestAnimationFrame`. You do not need to detect this yourself-simply avoid

@@ -55,7 +55,7 @@ if (!defined('ABSPATH')) {
  */
 function get_wpkernel_controllers(): array
 {
-	return [new \Demo\Plugin\Generated\Rest\BooksController(), new \Demo\Plugin\Generated\Rest\AuthorsController()];
+	return new BooksController();
 }
 /** Register WPKernel REST controllers with WordPress. */
 function register_wpkernel_routes(): void
@@ -199,7 +199,7 @@ function JobsAdminScreenContent() {
 export function JobsAdminScreen() {
 	const runtime = kernel.getUIRuntime?.();
 	if (!runtime) {
-		throw new WPKernelError('DeveloperError', {
+		throw new [`WPKernelError`](/api/@wpkernel/core/classes/WPKernelError.md)('DeveloperError', {
 			message: 'UI runtime not attached.',
 			context: { resourceName },
 		});
@@ -218,7 +218,3 @@ export function JobsAdminScreen() {
 The `wpk generate` command reads your `wpk.config.ts` file and uses a series of "builders" to generate the artifacts. Each builder is responsible for creating a specific type of file (e.g., a PHP controller, a TypeScript type definition).
 
 The builders use the information in your `wpk.config.ts` file to construct an Abstract Syntax Tree (AST) for the code they need to generate. This AST is then printed as a string to the corresponding artifact file. This approach allows WPKernel to generate complex, well-structured code that is easy to read and debug.
-
-```
-
-```

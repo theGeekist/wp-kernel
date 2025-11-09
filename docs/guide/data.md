@@ -1,15 +1,15 @@
 # WordPress Data Integration
 
-WPKernel integrates with `@wordpress/data` through the `configureWPKernel()` bootstrap. The helper installs the registry middleware, forwards to the existing events plugin, and returns a wpk instance you can use immediately so every runtime surface shares the same configuration.
+WPKernel integrates with `@wordpress/data` through the [`configureWPKernel()`](/api/@wpkernel/core/functions/configureWPKernel) bootstrap. The helper installs the registry middleware, forwards to the existing events plugin, and returns a wpk instance you can use immediately so every runtime surface shares the same configuration.
 
 Core primitives like [resources](../guide/resources.md), actions, and cache helpers continue to work without any bootstrap. Stores register themselves and actions can be invoked directly. Calling `configureWPKernel()` layers in observability, WordPress hooks integration, and optional Redux dispatch so the rest of the ecosystem can listen in.
 
 ## `configureWPKernel(config)` - Unified bootstrap
 
-`configureWPKernel()` accepts a small configuration object and returns a `WPKInstance`. The instance exposes shared services such as the namespace, reporter, cache helpers, and `WPKernelEventBus` (`kernel.events`) so you can subscribe to lifecycle updates without touching globals.
+`configureWPKernel()` accepts a small configuration object and returns a `WPKInstance`. The instance exposes shared services such as the namespace, reporter, cache helpers, and `WPKernelEventBus` (`wpk.events`) so you can subscribe to lifecycle updates without touching globals.
 
 ```ts
-import { configureWPKernel } from '@wpkernel/core';
+import { configureWPKernel } from '@wpkernel/core/data';
 
 const wpk = configureWPKernel({
 	namespace: 'acme',
@@ -17,27 +17,27 @@ const wpk = configureWPKernel({
 	ui: { enable: false },
 });
 
-kernel.emit('acme.bootstrap.ready', { timestamp: Date.now() });
+wpk.emit('acme.bootstrap.ready', { timestamp: Date.now() });
 ```
 
 ### What it wires
 
 - **Registry integration** - Installs the existing `wpkEventsPlugin`, bridges action errors into `core/notices`, and forwards lifecycle events to `wp.hooks` when available.
-- **Redux middleware (optional)** - Appends the action middleware that powers `invokeAction()` envelopes. Hooks like `useAction()` rely on this layer.
-- **Reporter resolution** - Reuses a provided reporter or creates one scoped to the detected namespace. Retrieve it any time with `kernel.getReporter()`.
-- **Cache + events helpers** - Call `kernel.invalidate()` to reuse the canonical resource cache helpers and `kernel.emit()` to publish domain events.
+- **Redux middleware (optional)** - Appends the action middleware that powers [`invokeAction()`](/api/@wpkernel/core/functions/invokeAction) envelopes. Hooks like `useAction()` rely on this layer.
+- **Reporter resolution** - Reuses a provided reporter or creates one scoped to the detected namespace. Retrieve it any time with `wpk.getReporter()`.
+- **Cache + events helpers** - Call `wpk.invalidate()` to reuse the canonical resource cache helpers and `wpk.emit()` to publish domain events.
 - **UI plumbing** - Pass `ui: { enable: true }` to opt into UI runtime integration in later phases. The flag defaults to `false` so nothing changes until you enable it.
 
 ### Instance helpers available today
 
 The initial instance surface focuses on read-mostly helpers:
 
-- `kernel.getNamespace()` - Returns the namespace resolved during configuration.
-- `kernel.getReporter()` - Provides access to the shared reporter.
-- `kernel.invalidate(patterns, options?)` - Delegates to the cache helpers using the configured registry.
-- `kernel.emit(eventName, payload)` - Emits custom events through WordPress hooks (and existing bridges).
-- `kernel.ui.isEnabled()` - Reports whether UI integration was requested.
-- `kernel.teardown()` - Removes middleware and listeners that were installed during configuration (useful in tests and hot reloads).
+- `wpk.getNamespace()` - Returns the namespace resolved during configuration.
+- `wpk.getReporter()` - Provides access to the shared reporter.
+- `wpk.invalidate(patterns, options?)` - Delegates to the cache helpers using the configured registry.
+- `wpk.emit(eventName, payload)` - Emits custom events through WordPress hooks (and existing bridges).
+- `wpk.ui.isEnabled()` - Reports whether UI integration was requested.
+- `wpk.teardown()` - Removes middleware and listeners that were installed during configuration (useful in tests and hot reloads).
 
 ## Core functionality without `configureWPKernel()`
 
@@ -61,7 +61,7 @@ You gain additional telemetry, notices, and Redux dispatch once `configureWPKern
 
 ### Redux middleware (only when using `useAction()`)
 
-5. **Redux dispatch** - `invokeAction()` envelopes dispatch through the registry so `useAction()` hooks can provide loading and error states.
+5. **Redux dispatch** - [`invokeAction()`](/api/@wpkernel/core/functions/invokeAction) envelopes dispatch through the registry so `useAction()` hooks can provide loading and error states.
 6. **Type-safe envelopes** - Middleware unwraps the action metadata and ensures dispatch stays strongly typed.
 
 Actions retain their full `ActionContext` (capability enforcement, cache invalidation, reporter access, `ctx.emit()`) whether called directly or dispatched through Redux.
@@ -71,7 +71,7 @@ Actions retain their full `ActionContext` (capability enforcement, cache invalid
 ### Minimal bootstrap (plugin entry point)
 
 ```ts
-import { configureWPKernel, registerWPKernelStore } from '@wpkernel/core';
+import { configureWPKernel, registerWPKernelStore } from '@wpkernel/core/data';
 
 export function bootstrap(registry) {
 	const wpk = configureWPKernel({
@@ -90,7 +90,7 @@ export function bootstrap(registry) {
 		controls: {},
 	});
 
-	return kernel.teardown;
+	return wpk.teardown;
 }
 ```
 
@@ -158,7 +158,8 @@ configureWPKernel({
 ### Custom reporter
 
 ```ts
-import { configureWPKernel, createReporter } from '@wpkernel/core';
+import { configureWPKernel } from '@wpkernel/core/data';
+import { createReporter } from '@wpkernel/core/reporter';
 
 const reporter = createReporter({
 	namespace: 'my-plugin',
@@ -192,10 +193,10 @@ function my_plugin_handle_action_error( $payload ) {
 ## Best practices
 
 - Call `configureWPKernel()` once per registry at bootstrap; retain the teardown for tests and hot module replacement.
-- Register stores via `registerWPKernelStore()` so they inherit kernel-aware behaviour.
+- Register stores via [`registerWPKernelStore()`](/api/@wpkernel/core/functions/registerWPKernelStore) so they inherit kernel-aware behaviour.
 - Throw `WPKernelError` subclasses from actions for structured notice mapping.
-- Provide a production reporter to forward logs to your telemetry system.
-- Use `kernel.emit()` for domain events so they route through existing bridges.
+- Provide a production reporter (created with [`createReporter()`](/api/@wpkernel/core/functions/createReporter)) to forward logs to your telemetry system.
+- Use `wpk.emit()` for domain events so they route through existing bridges.
 
 ## Summary
 
