@@ -16,30 +16,47 @@ const PHP_JSON_AST_AUTOLOAD = path.resolve(
 
 jest.setTimeout(30000);
 
+async function expectSuccessfulInit(
+	workspace: string,
+	pluginName: string
+): Promise<ReturnType<typeof runWpk>> {
+	const result = await runWpk(workspace, ['init', '--name', pluginName]);
+
+	expect(result.code).toBe(0);
+	expect(result.stderr).toBe('');
+
+	return result;
+}
+
+const fromWorkspace = (
+	workspace: string,
+	...segments: readonly string[]
+): string => path.join(workspace, ...segments);
+
 describe('wpk bin integration', () => {
 	it('scaffolds a plugin workspace via init', async () => {
 		await withWorkspace(
 			async (workspace) => {
-				const result = await runWpk(workspace, [
-					'init',
-					'--name',
-					'integration-plugin',
-				]);
+				const result = await expectSuccessfulInit(
+					workspace,
+					'integration-plugin'
+				);
 
-				expect(result.code).toBe(0);
-				expect(result.stderr).toBe('');
 				const scaffoldedMessage =
 					'created plugin scaffold for integration-plugin';
 				expect(result.stdout).toContain(scaffoldedMessage);
 				expect(result.stdout).toContain('created wpk.config.ts');
 
-				const configPath = path.join(workspace, 'wpk.config.ts');
+				const configPath = fromWorkspace(workspace, 'wpk.config.ts');
 				const configSource = await fs.readFile(configPath, 'utf8');
 				expect(configSource).toContain(
 					"namespace: 'integration-plugin'"
 				);
 
-				const packageJsonPath = path.join(workspace, 'package.json');
+				const packageJsonPath = fromWorkspace(
+					workspace,
+					'package.json'
+				);
 				const packageJson = JSON.parse(
 					await fs.readFile(packageJsonPath, 'utf8')
 				);
@@ -55,7 +72,10 @@ describe('wpk bin integration', () => {
 					},
 				});
 
-				const composerJsonPath = path.join(workspace, 'composer.json');
+				const composerJsonPath = fromWorkspace(
+					workspace,
+					'composer.json'
+				);
 				const composerJson = JSON.parse(
 					await fs.readFile(composerJsonPath, 'utf8')
 				);
@@ -66,7 +86,7 @@ describe('wpk bin integration', () => {
 					'IntegrationPlugin\\': 'inc/',
 				});
 
-				const indexPath = path.join(workspace, 'src', 'index.ts');
+				const indexPath = fromWorkspace(workspace, 'src', 'index.ts');
 				const indexSource = await fs.readFile(indexPath, 'utf8');
 				expect(indexSource).toContain('bootstrapKernel');
 			},
@@ -77,26 +97,19 @@ describe('wpk bin integration', () => {
 	it('generates PHP artifacts via generate', async () => {
 		await withWorkspace(
 			async (workspace) => {
-				const initResult = await runWpk(workspace, [
-					'init',
-					'--name',
-					'integration-plugin',
-				]);
-
-				expect(initResult.code).toBe(0);
-				expect(initResult.stderr).toBe('');
+				await expectSuccessfulInit(workspace, 'integration-plugin');
 
 				const generateResult = await runWpk(
 					workspace,
 					['generate', '--verbose'],
 					{
 						env: {
-							WPK_PHP_AUTOLOAD: path.join(
+							WPK_PHP_AUTOLOAD: fromWorkspace(
 								workspace,
 								'missing-autoload.php'
 							),
 							WPK_PHP_AUTOLOAD_PATHS: '',
-							PHP_DRIVER_TRACE_FILE: path.join(
+							PHP_DRIVER_TRACE_FILE: fromWorkspace(
 								workspace,
 								'.wpk',
 								'php-driver.trace.log'
@@ -113,7 +126,7 @@ describe('wpk bin integration', () => {
 					'Run `composer install` in your plugin, or set WPK_PHP_AUTOLOAD.'
 				);
 
-				const tracePath = path.join(
+				const tracePath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'php-driver.trace.log'
@@ -146,7 +159,7 @@ describe('wpk bin integration', () => {
 				}
 
 				await expect(
-					fs.access(path.join(workspace, '.generated'))
+					fs.access(fromWorkspace(workspace, '.generated'))
 				).rejects.toMatchObject({ code: 'ENOENT' });
 			},
 			{ chdir: false }
@@ -156,21 +169,14 @@ describe('wpk bin integration', () => {
 	it('manages the plugin loader through generate and apply', async () => {
 		await withWorkspace(
 			async (workspace) => {
-				const initResult = await runWpk(workspace, [
-					'init',
-					'--name',
-					'loader-plugin',
-				]);
-
-				expect(initResult.code).toBe(0);
-				expect(initResult.stderr).toBe('');
+				await expectSuccessfulInit(workspace, 'loader-plugin');
 
 				const gitInitResult = await runProcess('git', ['init'], {
 					cwd: workspace,
 				});
 				expect(gitInitResult.code).toBe(0);
 
-				const manifestPath = path.join(
+				const manifestPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -186,7 +192,7 @@ describe('wpk bin integration', () => {
 				});
 				expect(generateResult.code).toBe(0);
 
-				const indexPath = path.join(
+				const indexPath = fromWorkspace(
 					workspace,
 					'.generated',
 					'php',
@@ -197,7 +203,7 @@ describe('wpk bin integration', () => {
 					"require_once(dirname(__DIR__, 2) . '/plugin.php');"
 				);
 
-				const planPath = path.join(
+				const planPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -217,7 +223,7 @@ describe('wpk bin integration', () => {
 				const applyResult = await runWpk(workspace, ['apply', '--yes']);
 				expect(applyResult.code).toBe(0);
 
-				const pluginPath = path.join(workspace, 'plugin.php');
+				const pluginPath = fromWorkspace(workspace, 'plugin.php');
 				const pluginLoader = await fs.readFile(pluginPath, 'utf8');
 				expect(pluginLoader).toContain('WPK:BEGIN AUTO');
 
@@ -260,14 +266,7 @@ describe('wpk bin integration', () => {
 	it('links the generated PHP index to the plugin loader at the plugin root', async () => {
 		await withWorkspace(
 			async (workspace) => {
-				const initResult = await runWpk(workspace, [
-					'init',
-					'--name',
-					'integration-plugin',
-				]);
-
-				expect(initResult.code).toBe(0);
-				expect(initResult.stderr).toBe('');
+				await expectSuccessfulInit(workspace, 'integration-plugin');
 
 				const generateResult = await runWpk(
 					workspace,
@@ -275,7 +274,7 @@ describe('wpk bin integration', () => {
 					{
 						env: {
 							WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
-							PHP_DRIVER_TRACE_FILE: path.join(
+							PHP_DRIVER_TRACE_FILE: fromWorkspace(
 								workspace,
 								'.wpk',
 								'php-driver.trace.log'
@@ -289,7 +288,7 @@ describe('wpk bin integration', () => {
 					'Failed to locate apply manifest after generation.'
 				);
 
-				const phpIndexPath = path.join(
+				const phpIndexPath = fromWorkspace(
 					workspace,
 					'.generated',
 					'php',
@@ -310,16 +309,9 @@ describe('wpk bin integration', () => {
 	it('removes generated artifacts and queues shim deletions when resources are removed', async () => {
 		await withWorkspace(
 			async (workspace) => {
-				const initResult = await runWpk(workspace, [
-					'init',
-					'--name',
-					'resource-plugin',
-				]);
+				await expectSuccessfulInit(workspace, 'resource-plugin');
 
-				expect(initResult.code).toBe(0);
-				expect(initResult.stderr).toBe('');
-
-				const configPath = path.join(workspace, 'wpk.config.ts');
+				const configPath = fromWorkspace(workspace, 'wpk.config.ts');
 				const configWithResource = `import type { ResourceConfig, ResourceIdentityConfig, ResourceRoutes, ResourceStorageConfig } from '@wpkernel/core/resource';
 
 type Book = { id: number; title: string };
@@ -359,7 +351,7 @@ export const wpkConfig = {
 
 				await fs.writeFile(configPath, configWithResource, 'utf8');
 
-				const manifestPath = path.join(
+				const manifestPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -379,7 +371,7 @@ export const wpkConfig = {
 				expect(firstGenerate.stderr).toBe('');
 				expect(firstGenerate.code).toBe(0);
 
-				const generatedControllerPath = path.join(
+				const generatedControllerPath = fromWorkspace(
 					workspace,
 					'.generated',
 					'php',
@@ -395,7 +387,7 @@ export const wpkConfig = {
 					fs.access(generatedControllerAstPath)
 				).resolves.toBeUndefined();
 
-				const statePath = path.join(
+				const statePath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -406,7 +398,7 @@ export const wpkConfig = {
 				) as { resources?: Record<string, unknown> };
 				expect(initialState.resources).toHaveProperty('books');
 
-				const baseShimPath = path.join(
+				const baseShimPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -415,7 +407,7 @@ export const wpkConfig = {
 					'Rest',
 					'BooksController.php'
 				);
-				const shimPath = path.join(
+				const shimPath = fromWorkspace(
 					workspace,
 					'inc',
 					'Rest',
@@ -461,7 +453,7 @@ export const wpkConfig = {
 				) as { resources?: Record<string, unknown> };
 				expect(nextState.resources).toEqual({});
 
-				const planPath = path.join(
+				const planPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -490,21 +482,14 @@ export const wpkConfig = {
 	it('applies mixed shim deletion outcomes when overrides exist', async () => {
 		await withWorkspace(
 			async (workspace) => {
-				const initResult = await runWpk(workspace, [
-					'init',
-					'--name',
-					'mixed-plugin',
-				]);
-
-				expect(initResult.code).toBe(0);
-				expect(initResult.stderr).toBe('');
+				await expectSuccessfulInit(workspace, 'mixed-plugin');
 
 				const gitInitResult = await runProcess('git', ['init'], {
 					cwd: workspace,
 				});
 				expect(gitInitResult.code).toBe(0);
 
-				const configPath = path.join(workspace, 'wpk.config.ts');
+				const configPath = fromWorkspace(workspace, 'wpk.config.ts');
 				const configWithResources = `import type {
         ResourceConfig,
         ResourceIdentityConfig,
@@ -571,7 +556,7 @@ export const wpkConfig = {
 
 				await fs.writeFile(configPath, configWithResources, 'utf8');
 
-				const manifestPath = path.join(
+				const manifestPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -607,13 +592,13 @@ export const wpkConfig = {
 				expect(firstGenerate.code).toBe(0);
 				expect(firstGenerate.stderr).toBe('');
 
-				const booksShimPath = path.join(
+				const booksShimPath = fromWorkspace(
 					workspace,
 					'inc',
 					'Rest',
 					'BooksController.php'
 				);
-				const baseBooksShimPath = path.join(
+				const baseBooksShimPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -636,13 +621,13 @@ export const wpkConfig = {
 					'utf8'
 				);
 
-				const authorsShimTargetPath = path.join(
+				const authorsShimTargetPath = fromWorkspace(
 					workspace,
 					'inc',
 					'Rest',
 					'AuthorsController.php'
 				);
-				const baseAuthorsShimPath = path.join(
+				const baseAuthorsShimPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -678,7 +663,7 @@ export const wpkConfig = {
 				expect(secondGenerate.code).toBe(0);
 				expect(secondGenerate.stderr).toBe('');
 
-				const planPath = path.join(
+				const planPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -723,7 +708,7 @@ export const wpkConfig = {
 				expect(applyResult.code).toBe(0);
 				expect(applyResult.stderr).toBe('');
 
-				const authorsShimPath = path.join(
+				const authorsShimPath = fromWorkspace(
 					workspace,
 					'inc',
 					'Rest',
@@ -772,16 +757,9 @@ export const wpkConfig = {
 	it('removes stale generated artifacts when PHP paths change', async () => {
 		await withWorkspace(
 			async (workspace) => {
-				const initResult = await runWpk(workspace, [
-					'init',
-					'--name',
-					'path-plugin',
-				]);
+				await expectSuccessfulInit(workspace, 'path-plugin');
 
-				expect(initResult.code).toBe(0);
-				expect(initResult.stderr).toBe('');
-
-				const configPath = path.join(workspace, 'wpk.config.ts');
+				const configPath = fromWorkspace(workspace, 'wpk.config.ts');
 				const configWithResource = `import type {
         ResourceConfig,
         ResourceIdentityConfig,
@@ -830,7 +808,7 @@ export const wpkConfig = {
 
 				await fs.writeFile(configPath, configWithResource, 'utf8');
 
-				const manifestPath = path.join(
+				const manifestPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -850,7 +828,7 @@ export const wpkConfig = {
 				expect(firstGenerate.code).toBe(0);
 				expect(firstGenerate.stderr).toBe('');
 
-				const legacyControllerPath = path.join(
+				const legacyControllerPath = fromWorkspace(
 					workspace,
 					'.generated',
 					'php',
@@ -866,7 +844,7 @@ export const wpkConfig = {
 					fs.access(legacyControllerAstPath)
 				).resolves.toBeUndefined();
 
-				const statePath = path.join(
+				const statePath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',
@@ -898,7 +876,7 @@ export const wpkConfig = {
 					'.generated/legacy/Rest/BooksController.php.ast.json',
 				];
 				for (const legacyPath of legacyGeneratedPaths) {
-					const absoluteLegacy = path.join(workspace, legacyPath);
+					const absoluteLegacy = fromWorkspace(workspace, legacyPath);
 					await fs.mkdir(path.dirname(absoluteLegacy), {
 						recursive: true,
 					});
@@ -927,14 +905,17 @@ export const wpkConfig = {
 					fallbackContents?: string
 				) => {
 					const fallback = fallbackContents ?? '<?php\n';
-					const baseShimPath = path.join(
+					const baseShimPath = fromWorkspace(
 						workspace,
 						'.wpk',
 						'apply',
 						'base',
 						relativePath
 					);
-					const targetShimPath = path.join(workspace, relativePath);
+					const targetShimPath = fromWorkspace(
+						workspace,
+						relativePath
+					);
 					let contents: string | null = null;
 
 					try {
@@ -1048,7 +1029,7 @@ export const wpkConfig = {
 					(file) => !nextGenerated.includes(file)
 				)) {
 					await expect(
-						fs.access(path.join(workspace, removedPath))
+						fs.access(fromWorkspace(workspace, removedPath))
 					).rejects.toMatchObject({
 						code: 'ENOENT',
 					});
@@ -1056,11 +1037,11 @@ export const wpkConfig = {
 
 				for (const generatedPath of nextGenerated) {
 					await expect(
-						fs.access(path.join(workspace, generatedPath))
+						fs.access(fromWorkspace(workspace, generatedPath))
 					).resolves.toBeUndefined();
 				}
 
-				const planPath = path.join(
+				const planPath = fromWorkspace(
 					workspace,
 					'.wpk',
 					'apply',

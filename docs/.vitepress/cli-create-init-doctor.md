@@ -291,6 +291,10 @@ Trim the worst of the test sprawl in a few high-churn suites now that shared hel
 
 `packages/cli/src/runtime/__tests__/pipeline.test.ts` now runs through a purpose-built harness (`runtime/test-support/pipeline.test-support.ts`) that provisions workspaces, reporters, and default pipeline options in one place. The ordering, extension, and rollback scenarios simply call `withConfiguredPipeline` and inspect the captured steps/results, eliminating dozens of per-test calls to `withWorkspace`, `buildWorkspace`, and `buildEmptyGenerationState`. On the integration side, `packages/cli/tests/__tests__/init.integration.test.ts` consumes a new `withInitWorkflowHarness` helper that seeds disk fixtures and executes `runInitWorkflow` with consistent reporters—dropping the hand-written workspace plumbing while keeping assertions about scaffold summaries and reporter output intact. These reductions trim roughly 150 lines between the two suites and pave the way for the remaining 56e cleanups in the heavier CLI integration files.
 
+##### 56e consolidation update – wpk bin integration helpers
+
+`packages/cli/tests/__tests__/wpk-bin.integration.test.ts` now leans on a shared `expectSuccessfulInit` helper and a `fromWorkspace` path resolver to centralise the boilerplate that previously guarded every `wpk init` call. The helper asserts exit codes and stderr while returning the run payload when stdout needs inspection, and the new resolver collapses repetitive `path.join(workspace, …)` expressions. Together they remove more than forty lines without touching generate/apply coverage, nudging Task 56e’s integration cleanup toward a net SLOC reduction.
+
 ---
 
 #### 56f – Readiness helper shared utilities
