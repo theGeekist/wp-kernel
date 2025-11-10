@@ -16,7 +16,7 @@ function createComposerReadinessHelper(
 
 ### overrides
 
-`Partial`\<[`ComposerHelperDependencies`](../interfaces/ComposerHelperDependencies.md)\> = `{}`
+[`ComposerHelperOverrides`](../interfaces/ComposerHelperOverrides.md) = `{}`
 
 ## Returns
 

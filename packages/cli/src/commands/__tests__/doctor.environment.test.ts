@@ -152,6 +152,53 @@ describe('doctor command default environment checks', () => {
 		expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 		expect(stdout.toString()).toContain('[FAIL] PHP driver');
 	});
+
+	it('warns about composer autoload without installing dependencies', async () => {
+		const { buildDoctorCommand } = await import('../doctor');
+
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
+			config: {},
+			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
+			composerCheck: 'ok',
+			namespace: 'Demo\\Plugin\\',
+		});
+		const workspace = {
+			...createWorkspaceMock(),
+			exists: jest.fn(async (target: string) => {
+				if (target === 'composer.json') {
+					return true;
+				}
+				if (target === path.join('vendor', 'autoload.php')) {
+					return false;
+				}
+				return false;
+			}),
+		};
+		const buildWorkspace = jest.fn().mockReturnValue(workspace);
+		const reporterFactory = jest.fn(() => createReporterMock());
+		const install = jest.fn();
+
+		const DoctorCommand = buildDoctorCommand({
+			loadWPKernelConfig,
+			buildWorkspace,
+			buildReporter: reporterFactory,
+			buildReadinessRegistry: createReadinessBuilder({
+				composer: {
+					install,
+				},
+			}),
+		});
+
+		const command = new DoctorCommand();
+		const { stdout } = assignCommandContext(command);
+
+		const exitCode = await command.execute();
+
+		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
+		expect(stdout.toString()).toContain('[WARN] Composer dependencies');
+		expect(install).not.toHaveBeenCalled();
+	});
 });
 
 function createReporterMock() {
@@ -191,6 +238,7 @@ function createReadinessBuilder(
 		},
 		composer: {
 			install: jest.fn().mockResolvedValue(undefined),
+			installOnPending: false,
 			...(overrides.composer ?? {}),
 		},
 		phpRuntime: overrides.phpRuntime,

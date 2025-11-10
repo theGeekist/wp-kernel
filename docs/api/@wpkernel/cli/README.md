@@ -108,6 +108,7 @@ wpk and UI packages.
 - [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
 - [BuildGenerateCommandOptions](interfaces/BuildGenerateCommandOptions.md)
 - [ComposerHelperDependencies](interfaces/ComposerHelperDependencies.md)
+- [ComposerHelperOverrides](interfaces/ComposerHelperOverrides.md)
 - [ComposerReadinessState](interfaces/ComposerReadinessState.md)
 - [CreateBackupsOptions](interfaces/CreateBackupsOptions.md)
 - [CreateHelperOptions](interfaces/CreateHelperOptions.md)

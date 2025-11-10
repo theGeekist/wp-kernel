@@ -11,6 +11,8 @@ import type { Workspace } from '../workspace';
 import {
 	buildDefaultReadinessRegistry,
 	DEFAULT_READINESS_ORDER,
+	type BuildDefaultReadinessRegistryOptions,
+	type DefaultReadinessHelperOverrides,
 	type DxContext,
 	type ReadinessKey,
 	type ReadinessOutcome,
@@ -63,6 +65,27 @@ export interface BuildDoctorCommandOptions {
 	readonly buildReadinessRegistry?: typeof buildDefaultReadinessRegistry;
 }
 
+const DOCTOR_READINESS_OVERRIDES: DefaultReadinessHelperOverrides = {
+	composer: { installOnPending: false },
+};
+
+const buildDoctorReadinessRegistry: typeof buildDefaultReadinessRegistry = (
+	options?: BuildDefaultReadinessRegistryOptions
+) => {
+	const helperOverrides = {
+		...options?.helperOverrides,
+		composer: {
+			...DOCTOR_READINESS_OVERRIDES.composer,
+			...options?.helperOverrides?.composer,
+		},
+	};
+
+	return buildDefaultReadinessRegistry({
+		...(options ?? {}),
+		helperOverrides,
+	});
+};
+
 function mergeDependencies(
 	options: BuildDoctorCommandOptions
 ): DoctorDependencies {
@@ -71,7 +94,7 @@ function mergeDependencies(
 		buildWorkspace: options.buildWorkspace ?? buildWorkspace,
 		buildReporter: options.buildReporter ?? buildReporter,
 		buildReadinessRegistry:
-			options.buildReadinessRegistry ?? buildDefaultReadinessRegistry,
+			options.buildReadinessRegistry ?? buildDoctorReadinessRegistry,
 	} satisfies DoctorDependencies;
 }
 
