@@ -101,6 +101,28 @@ export function getCliPackageRoot(): string {
 	});
 }
 
+/**
+ * ESM-safe resolver bound to the CLI module URL.
+ * Mirrors `require.resolve(id, { paths })`.
+ */
+export function createModuleResolver(): (
+	id: string,
+	opts?: { paths?: string[] }
+) => string {
+	const req = createRequire(getModuleUrl());
+	return (id: string, opts?: { paths?: string[] }) => req.resolve(id, opts);
+}
+
+/**
+ * Convenience helper to resolve a package.json from optional search paths.
+ * @param pkg
+ * @param paths
+ */
+export function resolvePackageJson(pkg: string, paths?: string[]): string {
+	const resolve = createModuleResolver();
+	return resolve(`${pkg}/package.json`, paths ? { paths } : undefined);
+}
+
 function resolvePackageRootViaRequire(): string | undefined {
 	try {
 		const require = createRequire(getModuleUrl());

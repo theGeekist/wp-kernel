@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createReadinessHelper } from '../helper';
+import { createModuleResolver } from '../../../utils/module-url';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
 import type { DxContext } from '../../context';
 
@@ -8,7 +9,7 @@ const DRIVER_PACKAGE = '@wpkernel/php-driver/package.json';
 const ASSET_RELATIVE_PATH = ['php', 'pretty-print.php'];
 
 export interface PhpDriverDependencies {
-	readonly resolve: typeof require.resolve;
+	readonly resolve: (id: string, opts?: { paths?: string[] }) => string;
 	readonly access: typeof fs.access;
 }
 
@@ -20,7 +21,7 @@ export interface PhpDriverState {
 
 function defaultDependencies(): PhpDriverDependencies {
 	return {
-		resolve: require.resolve,
+		resolve: createModuleResolver(),
 		access: (target) => fs.access(target),
 	} satisfies PhpDriverDependencies;
 }

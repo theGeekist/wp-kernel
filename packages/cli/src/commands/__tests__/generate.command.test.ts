@@ -16,6 +16,7 @@ import type {
 	PipelineRunOptions,
 	PipelineRunResult,
 } from '../../runtime';
+import type { ReadinessPlan, ReadinessRegistry } from '../../dx';
 
 function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 	return {
@@ -139,11 +140,29 @@ function createPipelineStub(
 	return { pipeline, runMock: executor };
 }
 
+function createReadinessRegistryStub() {
+	const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+	const readinessPlanMock = jest.fn(
+		(keys: ReadinessPlan['keys']) =>
+			({
+				keys,
+				run: readinessRun,
+			}) as ReadinessPlan
+	);
+	const readinessRegistry = {
+		plan: readinessPlanMock,
+	} as unknown as ReadinessRegistry;
+	const buildReadinessRegistry = jest.fn(() => readinessRegistry);
+
+	return { buildReadinessRegistry, readinessPlanMock, readinessRun };
+}
+
 describe('GenerateCommand', () => {
 	it('runs the pipeline and writes the summary output', async () => {
 		const workspace = createWorkspaceStub();
 		const { pipeline, runMock } = createPipelineStub(workspace);
 		const reporter = createReporterMock();
+		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
@@ -167,6 +186,7 @@ describe('GenerateCommand', () => {
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
 			validateGeneratedImports,
+			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
 		const command = new GenerateCommand();
@@ -206,12 +226,18 @@ describe('GenerateCommand', () => {
 				]),
 			})
 		);
+		expect(readiness.readinessPlanMock).toHaveBeenCalledWith([
+			'php-driver',
+			'tsx-runtime',
+		]);
+		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 
 	it('rolls back workspace changes during dry-run', async () => {
 		const workspace = createWorkspaceStub();
 		const { pipeline, runMock } = createPipelineStub(workspace);
 		const reporter = createReporterMock();
+		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
@@ -235,6 +261,7 @@ describe('GenerateCommand', () => {
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
 			validateGeneratedImports,
+			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
 		const command = new GenerateCommand();
@@ -268,11 +295,13 @@ describe('GenerateCommand', () => {
 			})
 		);
 		expect(stdout.toString()).toBe('dry-run summary\n');
+		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 
 	it('warns when diagnostics are emitted by the pipeline', async () => {
 		const workspace = createWorkspaceStub();
 		const reporter = createReporterMock();
+		const readiness = createReadinessRegistryStub();
 
 		const { pipeline } = createPipelineStub(workspace, async (options) => {
 			await options.workspace.write(
@@ -314,6 +343,7 @@ describe('GenerateCommand', () => {
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
 			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
+			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
 		const command = new GenerateCommand();
@@ -331,11 +361,13 @@ describe('GenerateCommand', () => {
 				kind: 'core.builder',
 			})
 		);
+		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 
 	it('propagates failures from the pipeline as exit codes', async () => {
 		const workspace = createWorkspaceStub();
 		const reporter = createReporterMock();
+		const readiness = createReadinessRegistryStub();
 
 		const { pipeline } = createPipelineStub(workspace, async () => {
 			throw new WPKernelError('ValidationError', {
@@ -362,6 +394,7 @@ describe('GenerateCommand', () => {
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary: jest.fn().mockReturnValue('summary\n'),
 			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
+			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
 		const command = new GenerateCommand();
@@ -376,6 +409,7 @@ describe('GenerateCommand', () => {
 		expect(workspace.rollback).toHaveBeenCalledWith('generate');
 		expect(reporter.error).toHaveBeenCalled();
 		expect(command.summary).toBeNull();
+		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 
 	it('fails when the apply manifest is missing after generation', async () => {
@@ -384,6 +418,7 @@ describe('GenerateCommand', () => {
 
 		const { pipeline } = createPipelineStub(workspace);
 		const reporter = createReporterMock();
+		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
@@ -407,6 +442,7 @@ describe('GenerateCommand', () => {
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
 			validateGeneratedImports,
+			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
 		const command = new GenerateCommand();
@@ -435,6 +471,7 @@ describe('GenerateCommand', () => {
 			})
 		);
 		expect(validateGeneratedImports).not.toHaveBeenCalled();
+		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 
 	it('removes stale generated artifacts when generated paths change', async () => {
@@ -494,6 +531,7 @@ describe('GenerateCommand', () => {
 		);
 
 		const reporter = createReporterMock();
+		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
@@ -517,6 +555,7 @@ describe('GenerateCommand', () => {
 			buildReporter: jest.fn().mockReturnValue(reporter),
 			renderSummary,
 			validateGeneratedImports,
+			buildReadinessRegistry: readiness.buildReadinessRegistry,
 		} as BuildGenerateCommandOptions);
 
 		const command = new GenerateCommand();
@@ -553,5 +592,6 @@ describe('GenerateCommand', () => {
 			expect.any(Object)
 		);
 		expect(validateGeneratedImports).toHaveBeenCalled();
+		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 });

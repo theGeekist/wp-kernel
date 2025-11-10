@@ -1,6 +1,7 @@
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createReadinessHelper } from '../helper';
+import { createModuleResolver } from '../../../utils/module-url';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
 import type { DxContext } from '../../context';
 import type { Workspace } from '../../../workspace';
@@ -8,7 +9,7 @@ import type { Workspace } from '../../../workspace';
 const execFile = promisify(execFileCallback);
 
 export interface TsxRuntimeDependencies {
-	readonly resolve: typeof require.resolve;
+	readonly resolve: (id: string, opts?: { paths?: string[] }) => string;
 	readonly exec: typeof execFile;
 }
 
@@ -20,7 +21,7 @@ export interface TsxRuntimeState {
 
 function defaultDependencies(): TsxRuntimeDependencies {
 	return {
-		resolve: require.resolve,
+		resolve: createModuleResolver(),
 		exec: execFile,
 	} satisfies TsxRuntimeDependencies;
 }

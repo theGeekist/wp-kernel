@@ -3,6 +3,7 @@ export type { GitHelperDependencies, GitReadinessState } from './git';
 export { createComposerReadinessHelper } from './composer';
 export type {
 	ComposerHelperDependencies,
+	ComposerHelperOverrides,
 	ComposerReadinessState,
 } from './composer';
 export { createPhpRuntimeReadinessHelper } from './phpRuntime';

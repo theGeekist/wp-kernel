@@ -6,6 +6,7 @@ import { appendApplyLog } from './logging';
 import { createBackups } from './backups';
 import { buildBuilderOutput, readManifest } from './io';
 import { ensureGitRepository, resolveWorkspaceRoot } from './workspace';
+import { buildDefaultReadinessRegistry } from '../../dx';
 import type {
 	ApplyCommandDependencies,
 	BuildApplyCommandOptions,
@@ -26,6 +27,7 @@ export function mergeDependencies(
 		ensureGitRepository,
 		createBackups,
 		appendApplyLog,
+		buildReadinessRegistry: buildDefaultReadinessRegistry,
 		...options,
 	} satisfies ApplyCommandDependencies;
 }

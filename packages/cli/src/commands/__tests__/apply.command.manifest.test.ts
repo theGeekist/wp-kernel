@@ -6,8 +6,26 @@ import {
 	TMP_PREFIX,
 	buildLoadedConfig,
 } from '@wpkernel/test-utils/cli/commands/apply.test-support';
+import type { ReadinessPlan, ReadinessRegistry } from '../../dx';
 
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
+
+function createReadinessRegistryStub() {
+	const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+	const readinessPlanMock = jest.fn(
+		(keys: ReadinessPlan['keys']) =>
+			({ keys, run: readinessRun }) as ReadinessPlan
+	);
+	const readinessRegistry = {
+		plan: readinessPlanMock,
+	} as unknown as ReadinessRegistry;
+
+	return {
+		readinessRun,
+		readinessPlanMock,
+		buildReadinessRegistry: jest.fn(() => readinessRegistry),
+	};
+}
 
 describe('ApplyCommand manifest handling', () => {
 	it('reports failure when manifest parsing fails', async () => {
@@ -42,6 +60,7 @@ describe('ApplyCommand manifest handling', () => {
 			});
 			const ensureGitRepository = jest.fn().mockResolvedValue(undefined);
 			const appendApplyLog = jest.fn().mockResolvedValue(undefined);
+			const readiness = createReadinessRegistryStub();
 
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
@@ -49,6 +68,7 @@ describe('ApplyCommand manifest handling', () => {
 				createPatcher,
 				ensureGitRepository,
 				appendApplyLog,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -66,6 +86,7 @@ describe('ApplyCommand manifest handling', () => {
 			expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 			expect(command.summary).toBeNull();
 			expect(command.records).toEqual([]);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 });

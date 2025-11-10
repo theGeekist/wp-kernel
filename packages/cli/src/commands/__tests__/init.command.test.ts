@@ -6,6 +6,7 @@ import {
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildInitCommand } from '../init';
 import type { buildWorkspace } from '../../workspace/filesystem';
+import * as workspaceModule from '../../workspace';
 
 describe('InitCommand (unit)', () => {
 	it('warns when git repository is missing before running workflow', async () => {
@@ -19,12 +20,24 @@ describe('InitCommand (unit)', () => {
 			namespace: 'demo',
 			templateName: 'plugin',
 		});
+		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+		const readinessPlan = jest
+			.fn()
+			.mockImplementation((keys: string[]) => ({
+				keys,
+				run: readinessRun,
+			}));
+		const buildReadinessRegistry = jest.fn().mockReturnValue({
+			register: jest.fn(),
+			plan: readinessPlan,
+		});
 
 		const InitCommand = buildInitCommand({
 			buildWorkspace: (() => workspace) as typeof buildWorkspace,
 			buildReporter: () => reporter,
 			runWorkflow,
 			checkGitRepository: jest.fn().mockResolvedValue(false),
+			buildReadinessRegistry: buildReadinessRegistry as never,
 		});
 
 		const command = new InitCommand();
@@ -39,6 +52,14 @@ describe('InitCommand (unit)', () => {
 			'Git repository not detected. Run `git init` to enable version control before committing generated files.'
 		);
 		expect(runWorkflow).toHaveBeenCalled();
+		expect(readinessPlan).toHaveBeenCalledWith([
+			'workspace-hygiene',
+			'composer',
+			'php-runtime',
+			'php-driver',
+			'tsx-runtime',
+		]);
+		expect(readinessRun).toHaveBeenCalledTimes(1);
 		expect(stdout.toString()).toContain('plugin scaffold');
 	});
 
@@ -46,6 +67,13 @@ describe('InitCommand (unit)', () => {
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
 		const reporter = createReporterMock();
 		const runWorkflow = jest.fn();
+		const buildReadinessRegistry = jest.fn().mockReturnValue({
+			register: jest.fn(),
+			plan: jest.fn().mockImplementation((keys: string[]) => ({
+				keys,
+				run: jest.fn(),
+			})),
+		});
 
 		const InitCommand = buildInitCommand({
 			buildWorkspace: (() => workspace) as typeof buildWorkspace,
@@ -54,6 +82,7 @@ describe('InitCommand (unit)', () => {
 			checkGitRepository: jest
 				.fn()
 				.mockRejectedValue(new Error('fatal: git broken')),
+			buildReadinessRegistry: buildReadinessRegistry as never,
 		});
 
 		const command = new InitCommand();
@@ -70,5 +99,66 @@ describe('InitCommand (unit)', () => {
 		expect(output).toContain(
 			'[wpk] init failed: Unable to verify git repository status for init command.'
 		);
+	});
+
+	it('maps --yes to workspace hygiene overrides', async () => {
+		const ensureGeneratedSpy = jest
+			.spyOn(workspaceModule, 'ensureGeneratedPhpClean')
+			.mockResolvedValue(undefined);
+		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
+		const reporter = createReporterMock();
+		const runWorkflow = jest.fn().mockResolvedValue({
+			manifest: { writes: [], deletes: [] },
+			summaryText: 'summary\n',
+			summaries: [],
+			dependencySource: 'fallback',
+			namespace: 'demo',
+			templateName: 'plugin',
+		});
+		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+		const readinessPlan = jest
+			.fn()
+			.mockImplementation((keys: string[]) => ({
+				keys,
+				run: readinessRun,
+			}));
+		const buildReadinessRegistry = jest.fn().mockReturnValue({
+			register: jest.fn(),
+			plan: readinessPlan,
+		});
+
+		const InitCommand = buildInitCommand({
+			buildWorkspace: (() => workspace) as typeof buildWorkspace,
+			buildReporter: () => reporter,
+			runWorkflow,
+			checkGitRepository: jest.fn().mockResolvedValue(true),
+			buildReadinessRegistry: buildReadinessRegistry as never,
+		});
+
+		const command = new InitCommand();
+		command.yes = true;
+		const { stdout } = assignCommandContext(command, {
+			cwd: workspace.root,
+		});
+
+		const exit = await command.execute();
+
+		expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
+		const registryOptions = buildReadinessRegistry.mock.calls[0]?.[0];
+		expect(
+			registryOptions?.helperOverrides?.workspaceHygiene
+		).toBeDefined();
+		await registryOptions?.helperOverrides?.workspaceHygiene?.ensureClean?.(
+			{
+				workspace,
+				reporter,
+			}
+		);
+		expect(ensureGeneratedSpy).toHaveBeenCalledWith(
+			expect.objectContaining({ yes: true })
+		);
+		expect(stdout.toString()).toContain('summary');
+
+		ensureGeneratedSpy.mockRestore();
 	});
 });

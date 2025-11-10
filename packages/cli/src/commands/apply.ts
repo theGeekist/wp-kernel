@@ -23,6 +23,9 @@ import type {
 } from './apply/types';
 import type { Workspace } from '../workspace';
 import { cleanupWorkspaceTargets } from './apply/cleanup';
+import type { ReadinessKey } from '../dx';
+import { runCommandReadiness } from './readiness';
+import { resolveCommandCwd } from './init/command-runtime';
 
 /**
  * The path to the apply log file within the workspace.
@@ -49,6 +52,11 @@ export type {
 	PatchStatus,
 	PreviewResult,
 } from './apply/types';
+
+const APPLY_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
+	'php-driver',
+	'tsx-runtime',
+];
 
 function withCommandState(
 	command: ApplyCommandInstance,
@@ -105,6 +113,7 @@ export function buildApplyCommand(
 		override async execute(): Promise<WPKExitCode> {
 			let workspace: Workspace | null = null;
 			const flags = resolveFlags(this);
+			const cwd = resolveCommandCwd(this.context);
 			const reporter = dependencies.buildReporter({
 				namespace: buildReporterNamespace(),
 				level: 'info',
@@ -115,6 +124,15 @@ export function buildApplyCommand(
 				const { workspace: activeWorkspace, loaded } =
 					await initialiseWorkspace({ dependencies });
 				workspace = activeWorkspace;
+
+				await runCommandReadiness({
+					buildReadinessRegistry: dependencies.buildReadinessRegistry,
+					reporter: reporter.child('readiness'),
+					workspace: activeWorkspace,
+					workspaceRoot: activeWorkspace.root,
+					cwd,
+					keys: APPLY_READINESS_KEYS,
+				});
 
 				const preview = await previewPatches({
 					dependencies,

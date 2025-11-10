@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { getCliPackageRoot } from './module-url';
+import { getCliPackageRoot } from '../../utils/module-url';
 
 export type DependencyVersionSource =
 	| 'fallback'

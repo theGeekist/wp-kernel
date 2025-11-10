@@ -8,15 +8,18 @@ import {
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { Workspace, FileManifest } from '../workspace';
-import { buildWorkspace } from '../workspace';
+import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { isGitRepository } from './init/git';
 import {
 	createInitCommandRuntime,
 	formatInitWorkflowError,
 	resolveCommandCwd,
+	type InitCommandRuntimeDependencies,
+	type InitCommandRuntimeOptions,
 	type InitCommandRuntimeResult,
 } from './init/command-runtime';
+import { assertReadinessRun, type ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
 export type { InitWorkflowOptions, InitWorkflowResult } from './init/workflow';
@@ -39,6 +42,8 @@ export interface BuildInitCommandOptions {
 	readonly buildReporter?: typeof buildReporter;
 	/** Optional: Custom workflow runner function. */
 	readonly runWorkflow?: typeof runInitWorkflow;
+	/** Optional: Custom readiness registry builder. */
+	readonly buildReadinessRegistry?: InitCommandRuntimeDependencies['buildReadinessRegistry'];
 	/** Optional: Custom git repository checker function. */
 	readonly checkGitRepository?: typeof isGitRepository;
 }
@@ -59,6 +64,8 @@ export type InitCommandInstance = Command & {
 	verbose: boolean;
 	/** Whether to prefer registry versions for dependencies. */
 	preferRegistryVersions: boolean;
+	/** Whether to bypass readiness hygiene failures. */
+	yes: boolean;
 	/** A summary of the initialization process. */
 	summary: string | null;
 	/** The manifest of files created or modified. */
@@ -78,6 +85,7 @@ interface InitDependencies {
 	readonly buildWorkspace: typeof buildWorkspace;
 	readonly buildReporter: typeof buildReporter;
 	readonly runWorkflow: typeof runInitWorkflow;
+	readonly buildReadinessRegistry?: InitCommandRuntimeDependencies['buildReadinessRegistry'];
 	readonly checkGitRepository: typeof isGitRepository;
 }
 
@@ -86,6 +94,7 @@ function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
 		buildWorkspace,
 		buildReporter,
 		runWorkflow: runInitWorkflow,
+		buildReadinessRegistry: undefined,
 		checkGitRepository: isGitRepository,
 		...options,
 	} satisfies InitDependencies;
@@ -135,6 +144,7 @@ export function buildInitCommand(
 			'--prefer-registry-versions',
 			false
 		);
+		yes = Option.Boolean('--yes', false);
 
 		public summary: string | null = null;
 		public manifest: FileManifest | null = null;
@@ -154,6 +164,8 @@ export function buildInitCommand(
 				this.manifest = result.manifest;
 				this.summary = result.summaryText;
 				this.dependencySource = result.dependencySource;
+
+				await this.runReadiness(runtime);
 
 				this.context.stdout.write(result.summaryText);
 
@@ -182,10 +194,12 @@ export function buildInitCommand(
 					buildWorkspace: dependencies.buildWorkspace,
 					buildReporter: dependencies.buildReporter,
 					runWorkflow: dependencies.runWorkflow,
+					buildReadinessRegistry: dependencies.buildReadinessRegistry,
 				},
 				{
 					reporterNamespace: buildReporterNamespace(),
 					workspaceRoot,
+					cwd: workspaceRoot,
 					projectName: this.name,
 					template: this.template,
 					force: this.force,
@@ -196,8 +210,54 @@ export function buildInitCommand(
 							process.env.WPK_PREFER_REGISTRY_VERSIONS,
 						REGISTRY_URL: process.env.REGISTRY_URL,
 					},
+					readiness: this.buildReadinessOptions(),
 				}
 			);
+		}
+
+		private buildReadinessOptions(): InitCommandRuntimeOptions['readiness'] {
+			if (this.yes !== true) {
+				return undefined;
+			}
+
+			return {
+				helperOverrides: {
+					workspaceHygiene: {
+						ensureClean: ({
+							workspace,
+							reporter,
+						}: {
+							workspace: Workspace;
+							reporter: Reporter;
+						}) =>
+							ensureGeneratedPhpClean({
+								workspace,
+								reporter,
+								yes: true,
+							}),
+					},
+				},
+			} satisfies InitCommandRuntimeOptions['readiness'];
+		}
+
+		private resolveReadinessKeys(
+			keys: readonly ReadinessKey[]
+		): ReadonlyArray<ReadinessKey> {
+			return keys.filter((key) => key !== 'git');
+		}
+
+		private async runReadiness(
+			runtime: InitCommandRuntimeResult
+		): Promise<void> {
+			const keys = this.resolveReadinessKeys(
+				runtime.readiness.defaultKeys
+			);
+			if (keys.length === 0) {
+				return;
+			}
+
+			const result = await runtime.readiness.run(keys);
+			assertReadinessRun(result);
 		}
 
 		private async warnWhenGitMissing(
