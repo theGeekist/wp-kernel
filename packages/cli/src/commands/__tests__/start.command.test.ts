@@ -1,140 +1,132 @@
-import { EventEmitter } from 'node:events';
 import path from 'node:path';
-import { PassThrough } from 'node:stream';
 import type { FSWatcher } from 'chokidar';
-import { Command } from 'clipanion';
+import { type Command } from 'clipanion';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext, flushAsync } from '@wpkernel/test-utils/cli';
+import {
+	assignCommandContext,
+	type ReporterMock,
+} from '@wpkernel/test-utils/cli';
 import {
 	buildStartCommand,
 	detectTier,
 	prioritiseQueued,
 	type Trigger,
 } from '../start';
+import {
+	advanceBy,
+	advanceFastDebounce,
+	advanceSlowDebounce,
+	createStartCommandInstance,
+	emitChange,
+	expectEventually,
+	FakeChildProcess,
+	FakeGenerateCommand,
+	FakeWatcher,
+	FAST_DEBOUNCE_MS,
+	fsAccess,
+	fsCp,
+	fsMkdir,
+	getReporterChild,
+	loadWatch,
+	reporterFactory,
+	reporterHarness,
+	setupStartCommandTest,
+	spawnViteProcess,
+	teardownStartCommandTest,
+	watchFactory,
+	withStartCommand,
+} from '../test-support/start.command.test-support';
 
-const fsAccess = jest.fn<Promise<void>, [string]>();
-const fsMkdir = jest.fn<Promise<void>, [string, { recursive: boolean }]>();
-const fsCp = jest.fn<Promise<void>, [string, string, { recursive: boolean }]>();
-
-const loadWatch = jest.fn<Promise<WatchFactory>, []>();
-const watchFactory = jest.fn<FSWatcher, [string[], WatchOptions]>();
-const spawnViteProcess = jest.fn<FakeChildProcess, []>();
-const reporterFactory = jest.fn(createReporterMock);
-
-const flushTimers = () => flushAsync({ runAllTimers: true });
-const pathResolve = path.resolve.bind(path);
+type GenerateConstructor = new () => Command;
 
 describe('buildStartCommand', () => {
-	beforeEach(() => {
-		jest.useFakeTimers();
-		fsAccess.mockResolvedValue(undefined);
-		fsMkdir.mockResolvedValue(undefined);
-		fsCp.mockResolvedValue(undefined);
-		loadWatch.mockResolvedValue(watchFactory);
-		watchFactory.mockImplementation(
-			() => new FakeWatcher() as unknown as FSWatcher
-		);
-		spawnViteProcess.mockImplementation(() => new FakeChildProcess());
-		reporterFactory.mockImplementation(createReporterMock);
-		FakeGenerateCommand.executeMock.mockResolvedValue(
-			WPK_EXIT_CODES.SUCCESS
-		);
-	});
-
-	afterEach(() => {
-		jest.useRealTimers();
-		jest.clearAllMocks();
-	});
+	beforeEach(setupStartCommandTest);
+	afterEach(teardownStartCommandTest);
 
 	it('performs initial generation and responds to fast changes', async () => {
-		const { watcher, stdout, executePromise } = await buildCommand();
+		let watcher: FakeWatcher | undefined;
+		let stdout = '';
 
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+		await withStartCommand(async (context) => {
+			watcher = context.watcher;
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			await emitChange(context.watcher, 'wpk.config.ts');
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
-		jest.advanceTimersByTime(FAST_DEBOUNCE_MS - 1);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			await advanceBy(FAST_DEBOUNCE_MS - 1);
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
-		jest.advanceTimersByTime(1);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+			await advanceBy(1);
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
 
-		await shutdown(executePromise);
+			stdout = context.stdout.toString();
+		});
 
-		expect(watcher.close).toHaveBeenCalledTimes(1);
-		expect(stdout.toString()).toContain('[summary]');
+		expect(watcher?.close).toHaveBeenCalledTimes(1);
+		expect(stdout).toContain('[summary]');
 	});
 
 	it('uses slow debounce for schema changes and overrides fast triggers', async () => {
-		const { watcher, executePromise } = await buildCommand();
+		await withStartCommand(async ({ watcher }) => {
+			await emitChange(watcher, 'wpk.config.ts');
+			await emitChange(
+				watcher,
+				path.join('contracts', 'job.schema.json')
+			);
 
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		watcher.emit(
-			'all',
-			'change',
-			path.join('contracts', 'job.schema.json')
-		);
+			await advanceFastDebounce();
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
-		jest.advanceTimersByTime(FAST_DEBOUNCE_MS);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
-
-		jest.advanceTimersByTime(SLOW_DEBOUNCE_MS);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
-
-		await shutdown(executePromise);
+			await advanceSlowDebounce();
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+		});
 	});
 
 	it('handles watcher errors without crashing', async () => {
-		const { watcher, executePromise } = await buildCommand();
+		await withStartCommand(async ({ watcher }) => {
+			watcher.emit('error', new Error('watcher failure'));
+			await emitChange(watcher, 'wpk.config.ts');
 
-		watcher.emit('error', new Error('watcher failure'));
-		watcher.emit('all', 'change', 'wpk.config.ts');
-
-		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
-
-		await shutdown(executePromise);
+			await advanceFastDebounce(1);
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+		});
 	});
 
 	it('auto-applies PHP artifacts when enabled', async () => {
-		const { command, watcher, executePromise } = await buildCommand({
-			autoApplyPhp: true,
-		});
+		await withStartCommand(
+			async ({ command, watcher }) => {
+				expect(fsMkdir).toHaveBeenCalledTimes(1);
+				await expectEventually(() => {
+					expect(fsCp).toHaveBeenCalledTimes(1);
+				});
 
-		expect(fsMkdir).toHaveBeenCalledTimes(1);
-		await expectEventually(() => {
-			expect(fsCp).toHaveBeenCalledTimes(1);
-		});
+				await emitChange(watcher, 'wpk.config.ts');
+				await advanceFastDebounce(1);
 
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushTimers();
-
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
-		await expectEventually(() => {
-			expect(fsCp).toHaveBeenCalledTimes(2);
-		});
-
-		await shutdown(executePromise);
-		expect(command.autoApplyPhp).toBe(true);
+				expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(
+					2
+				);
+				await expectEventually(() => {
+					expect(fsCp).toHaveBeenCalledTimes(2);
+				});
+				expect(command.autoApplyPhp).toBe(true);
+			},
+			{ autoApplyPhp: true }
+		);
 	});
 
 	it('skips auto-apply when PHP artifacts are missing', async () => {
 		fsAccess.mockRejectedValueOnce(new Error('missing output'));
 
-		const { executePromise } = await buildCommand({
-			autoApplyPhp: true,
-		});
+		await withStartCommand(
+			async () => {
+				// no-op: wait for command lifecycle
+			},
+			{ autoApplyPhp: true }
+		);
 
 		expect(fsCp).not.toHaveBeenCalled();
-		await shutdown(executePromise);
 	});
 
 	it('queues additional changes while a run is in progress', async () => {
@@ -148,49 +140,39 @@ describe('buildStartCommand', () => {
 			)
 			.mockResolvedValue(WPK_EXIT_CODES.SUCCESS);
 
-		const { watcher, executePromise } = await buildCommand();
+		await withStartCommand(async ({ watcher, shutdown }) => {
+			await emitChange(watcher, 'wpk.config.ts');
+			await advanceFastDebounce(1);
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
+			resolveFirst?.();
+			await advanceFastDebounce(1);
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
 
-		resolveFirst?.();
-		await flushTimers();
-		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
-
-		await shutdown(executePromise, ['SIGINT', 'SIGTERM']);
+			await shutdown(['SIGINT', 'SIGTERM']);
+		});
 	});
 
 	it('clears pending timers when shutting down with queued triggers', async () => {
-		const { watcher, executePromise } = await buildCommand();
-
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await flushTimers();
-		await shutdown(executePromise);
+		await withStartCommand(async ({ watcher, shutdown }) => {
+			await emitChange(watcher, 'wpk.config.ts');
+			await shutdown();
+		});
 
 		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 	});
 
 	it('restarts debounce timers when repeated fast events arrive', async () => {
-		const { watcher, executePromise } = await buildCommand();
+		await withStartCommand(async ({ watcher }) => {
+			await emitChange(watcher, 'wpk.config.ts');
+			await emitChange(watcher, 'wpk.config.ts');
 
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await flushTimers();
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await flushTimers();
+			await advanceBy(FAST_DEBOUNCE_MS - 1);
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
-		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS - 1);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
-
-		await jest.advanceTimersByTimeAsync(1);
-		await flushTimers();
-		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
-
-		await shutdown(executePromise);
+			await advanceBy(1);
+			expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(2);
+		});
 	});
 
 	it('retains queued triggers while generation is running', async () => {
@@ -204,69 +186,66 @@ describe('buildStartCommand', () => {
 			)
 			.mockResolvedValueOnce(WPK_EXIT_CODES.SUCCESS);
 
-		const { watcher, executePromise } = await buildCommand();
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
+		await withStartCommand(
+			async ({ watcher, reporterHarness: harness }) => {
+				const reporter = harness.at(0)!;
 
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await flushTimers();
+				await emitChange(watcher, 'wpk.config.ts');
+				await emitChange(watcher, 'wpk.config.ts');
 
-		watcher.emit('all', 'change', 'wpk.config.ts');
-		await flushTimers();
+				expect(reporter.debug).toHaveBeenCalledWith(
+					'Queueing change while generation is running.',
+					expect.objectContaining({
+						event: 'change',
+						file: 'wpk.config.ts',
+						tier: 'fast',
+					})
+				);
 
-		expect(reporter.debug).toHaveBeenCalledWith(
-			'Queueing change while generation is running.',
-			expect.objectContaining({
-				event: 'change',
-				file: 'wpk.config.ts',
-				tier: 'fast',
-			})
+				resolveGeneration?.(WPK_EXIT_CODES.SUCCESS);
+				await advanceFastDebounce();
+			}
 		);
-
-		resolveGeneration?.(WPK_EXIT_CODES.SUCCESS);
-		await flushTimers();
-
-		await shutdown(executePromise);
 	});
 
 	it('reports unexpected errors from the generation cycle', async () => {
 		const failure = new Error('cycle failure');
 		let runCycleSpy: jest.SpyInstance | undefined;
 
-		const { executePromise } = await buildCommand({
-			beforeInstantiate: (StartCommand) => {
-				runCycleSpy = jest
-					.spyOn(
-						StartCommand.prototype as unknown as {
-							runCycle: (typeof StartCommand.prototype)['runCycle'];
-						},
-						'runCycle'
-					)
-					.mockRejectedValueOnce(failure)
-					.mockResolvedValue(undefined);
+		await withStartCommand(
+			async ({ reporterHarness: harness }) => {
+				const reporter = harness.at(0)!;
+				await expectEventually(() => {
+					expect(reporter.error).toHaveBeenCalledWith(
+						'Unexpected error during generation cycle.',
+						expect.objectContaining({
+							message: failure.message,
+						})
+					);
+				});
 			},
-		});
+			{
+				beforeInstantiate: (StartCommand) => {
+					runCycleSpy = jest
+						.spyOn(
+							StartCommand.prototype as unknown as {
+								runCycle: (typeof StartCommand.prototype)['runCycle'];
+							},
+							'runCycle'
+						)
+						.mockRejectedValueOnce(failure)
+						.mockResolvedValue(undefined);
+				},
+			}
+		);
 
-		try {
-			const reporter = reporterFactory.mock.results[0]!
-				.value as ReporterMock;
-
-			await expectEventually(() => {
-				expect(reporter.error).toHaveBeenCalledWith(
-					'Unexpected error during generation cycle.',
-					expect.objectContaining({ message: failure.message })
-				);
-			});
-
-			await shutdown(executePromise);
-		} finally {
-			runCycleSpy?.mockRestore();
-		}
+		runCycleSpy?.mockRestore();
 	});
 
 	it('warns when generation completes with errors', async () => {
 		const command = createStartCommandInstance();
-		const reporter = createReporterMock();
-		const generateReporter = createReporterMock();
+		const reporter = reporterHarness.create();
+		const generateReporter = reporterHarness.create();
 
 		FakeGenerateCommand.executeMock.mockReset();
 		FakeGenerateCommand.executeMock.mockResolvedValue(
@@ -280,8 +259,8 @@ describe('buildStartCommand', () => {
 			command as unknown as {
 				runCycle: (options: {
 					trigger: Trigger;
-					reporter: ReporterMock;
-					generateReporter: ReporterMock;
+					reporter: ReturnType<typeof reporterHarness.create>;
+					generateReporter: ReturnType<typeof reporterHarness.create>;
 				}) => Promise<void>;
 			}
 		).runCycle({
@@ -307,8 +286,8 @@ describe('buildStartCommand', () => {
 
 	it('logs errors when the generation pipeline throws', async () => {
 		const command = createStartCommandInstance();
-		const reporter = createReporterMock();
-		const generateReporter = createReporterMock();
+		const reporter = reporterHarness.create();
+		const generateReporter = reporterHarness.create();
 		const failure = new Error('pipeline failure');
 
 		FakeGenerateCommand.executeMock.mockReset();
@@ -323,8 +302,8 @@ describe('buildStartCommand', () => {
 			command as unknown as {
 				runCycle: (options: {
 					trigger: Trigger;
-					reporter: ReporterMock;
-					generateReporter: ReporterMock;
+					reporter: ReturnType<typeof reporterHarness.create>;
+					generateReporter: ReturnType<typeof reporterHarness.create>;
 				}) => Promise<void>;
 			}
 		).runCycle({
@@ -348,18 +327,18 @@ describe('buildStartCommand', () => {
 	});
 
 	it('logs watcher errors', async () => {
-		const { watcher, executePromise } = await buildCommand();
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
+		let reporter: ReporterMock | undefined;
 
-		const error = new Error('watch failure');
-		watcher.emit('error', error);
-		await flushTimers();
+		await withStartCommand(
+			async ({ watcher, reporterHarness: harness }) => {
+				reporter = harness.at(0)!;
+				watcher.emit('error', new Error('watch failure'));
+			}
+		);
 
-		await shutdown(executePromise);
-
-		expect(reporter.error).toHaveBeenCalledWith(
+		expect(reporter?.error).toHaveBeenCalledWith(
 			'Watcher error.',
-			expect.objectContaining({ message: error.message })
+			expect.objectContaining({ message: 'watch failure' })
 		);
 	});
 
@@ -370,24 +349,24 @@ describe('buildStartCommand', () => {
 			return watcher as unknown as FSWatcher;
 		});
 
-		const { executePromise } = await buildCommand();
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
+		let reporter: ReporterMock | undefined;
+		await withStartCommand(async ({ reporterHarness: harness }) => {
+			reporter = harness.at(0)!;
+		});
 
-		await shutdown(executePromise);
-
-		expect(reporter.warn).toHaveBeenCalledWith(
+		expect(reporter?.warn).toHaveBeenCalledWith(
 			'Failed to close watcher.',
 			expect.objectContaining({ message: 'close failure' })
 		);
 	});
 
 	it('stops the Vite dev server on shutdown', async () => {
-		const { executePromise } = await buildCommand();
-		const child = spawnViteProcess.mock.results[0]!.value;
+		let child: FakeChildProcess | undefined;
+		await withStartCommand(async () => {
+			child = spawnViteProcess.mock.results[0]!.value;
+		});
 
-		await shutdown(executePromise);
-
-		expect(child.kill).toHaveBeenCalledWith('SIGINT');
+		expect(child?.kill).toHaveBeenCalledWith('SIGINT');
 	});
 
 	it('spawns Vite using the default implementation when no override is provided', async () => {
@@ -419,9 +398,9 @@ describe('buildStartCommand', () => {
 		assignCommandContext(command);
 
 		const executePromise = command.execute();
-		await flushTimers();
+		await advanceFastDebounce();
 		process.emit('SIGINT');
-		await flushTimers();
+		await advanceFastDebounce();
 		await executePromise;
 
 		expect(spawnMock).toHaveBeenCalledWith(
@@ -445,12 +424,12 @@ describe('buildStartCommand', () => {
 			return child;
 		});
 
-		const { executePromise } = await buildCommand();
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
-		const viteReporter = getReporterChild(reporter, 'vite');
+		let reporter: ReporterMock | undefined;
+		await withStartCommand(async ({ reporterHarness: harness }) => {
+			reporter = harness.at(0)!;
+		});
 
-		await shutdown(executePromise);
-
+		const viteReporter = getReporterChild(reporter!, 'vite');
 		expect(viteReporter.debug).toHaveBeenCalledWith(
 			'Vite dev server already stopped.'
 		);
@@ -475,15 +454,14 @@ describe('buildStartCommand', () => {
 			return child;
 		});
 
-		const { executePromise } = await buildCommand();
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
-		const viteReporter = getReporterChild(reporter, 'vite');
+		let reporter: ReporterMock | undefined;
+		await withStartCommand(async ({ reporterHarness: harness }) => {
+			reporter = harness.at(0)!;
+			process.emit('SIGINT');
+			await advanceBy(2000);
+		});
 
-		process.emit('SIGINT');
-		await jest.advanceTimersByTimeAsync(2000);
-		await flushTimers();
-		await executePromise;
-
+		const viteReporter = getReporterChild(reporter!, 'vite');
 		expect(viteReporter.warn).toHaveBeenCalledWith(
 			'Vite dev server did not exit, sending SIGTERM.'
 		);
@@ -499,52 +477,27 @@ describe('buildStartCommand', () => {
 			return child;
 		});
 
-		const { executePromise } = await buildCommand();
+		await withStartCommand(async () => {
+			// allow command to run
+		});
+
 		const child = spawnViteProcess.mock.results[0]!.value;
-
-		await shutdown(executePromise);
-
 		expect(child.kill).not.toHaveBeenCalled();
 	});
 
-	it('logs when the Vite dev server is already stopped', async () => {
-		spawnViteProcess.mockImplementationOnce(() => {
-			const child = new FakeChildProcess();
-			child.kill.mockImplementation(() => {
-				queueMicrotask(() => child.emit('exit', 0, null));
-				return false;
-			});
-			return child;
+	it('logs Vite process errors', async () => {
+		let reporter: ReporterMock | undefined;
+		await withStartCommand(async ({ reporterHarness: harness }) => {
+			reporter = harness.at(0)!;
+			const child = spawnViteProcess.mock.results[0]!.value;
+			child.emit('error', new Error('vite crash'));
 		});
 
-		const { executePromise } = await buildCommand();
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
-
-		await shutdown(executePromise);
-
-		const viteReporter = getReporterChild(reporter, 'vite');
-		expect(viteReporter.debug).toHaveBeenCalledWith(
-			'Vite dev server already stopped.'
-		);
-	});
-
-	it('logs Vite process errors', async () => {
-		const { executePromise } = await buildCommand();
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
-		const child = spawnViteProcess.mock.results[0]!.value;
-
-		child.emit('error', new Error('vite crash'));
-		await flushTimers();
-
-		await shutdown(executePromise);
-
-		const viteReporter = getReporterChild(reporter, 'vite');
+		const viteReporter = getReporterChild(reporter!, 'vite');
 		expect(viteReporter.error).toHaveBeenCalledWith(
 			'Vite dev server error.',
 			expect.objectContaining({
-				error: expect.objectContaining({
-					message: 'vite crash',
-				}),
+				error: expect.objectContaining({ message: 'vite crash' }),
 			})
 		);
 	});
@@ -611,29 +564,29 @@ describe('buildStartCommand', () => {
 		const copyError = new Error('copy failure');
 		fsCp.mockRejectedValueOnce(copyError);
 
-		const { executePromise } = await buildCommand({
-			autoApplyPhp: true,
-		});
+		let reporter: ReporterMock | undefined;
+		await withStartCommand(
+			async ({ reporterHarness: harness }) => {
+				reporter = harness.at(0)!;
+			},
+			{ autoApplyPhp: true }
+		);
 
-		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
-		const applyReporter = getReporterChild(reporter, 'apply');
-		const generateReporter = getReporterChild(reporter, 'generate');
+		const applyReporter = getReporterChild(reporter!, 'apply');
+		const generateReporter = getReporterChild(reporter!, 'generate');
 
-		await expectEventually(() => {
-			expect(applyReporter.warn).toHaveBeenCalledWith(
-				'Failed to auto-apply PHP artifacts.',
-				expect.objectContaining({ message: copyError.message })
-			);
-			expect(generateReporter.warn).toHaveBeenCalledWith(
-				'Failed to auto-apply PHP artifacts.',
-				expect.objectContaining({ message: copyError.message })
-			);
-		});
-
-		await shutdown(executePromise);
+		expect(applyReporter.warn).toHaveBeenCalledWith(
+			'Failed to auto-apply PHP artifacts.',
+			expect.objectContaining({ message: copyError.message })
+		);
+		expect(generateReporter.warn).toHaveBeenCalledWith(
+			'Failed to auto-apply PHP artifacts.',
+			expect.objectContaining({ message: copyError.message })
+		);
 	});
 
 	it('formats workspace-relative paths when auto-applying artifacts', async () => {
+		const realResolve = path.resolve.bind(path);
 		const resolveSpy = jest
 			.spyOn(path, 'resolve')
 			.mockImplementation((...segments: string[]) => {
@@ -647,7 +600,7 @@ describe('buildStartCommand', () => {
 					return path.join(process.cwd(), 'inc');
 				}
 
-				return pathResolve(...segments);
+				return realResolve(...segments);
 			});
 
 		const StartCommand = buildStartCommand({
@@ -664,414 +617,184 @@ describe('buildStartCommand', () => {
 		});
 
 		const command = new StartCommand();
-		const reporter = createReporterMock();
-		const generateReporter = createReporterMock();
+		assignCommandContext(command);
+		const reporter = reporterHarness.create();
+		const generateReporter = reporterHarness.create();
 
 		await (
 			command as unknown as {
 				autoApplyPhpArtifacts: (
-					reporter: ReporterMock,
-					generateReporter: ReporterMock
+					reporterMock: ReturnType<typeof reporterHarness.create>,
+					generateReporterMock: ReturnType<
+						typeof reporterHarness.create
+					>
 				) => Promise<void>;
 			}
-		).autoApplyPhpArtifacts(
-			reporter as unknown as ReporterMock,
-			generateReporter as unknown as ReporterMock
-		);
+		).autoApplyPhpArtifacts(reporter, generateReporter);
 
 		expect(reporter.info).toHaveBeenCalledWith(
 			'Applied generated PHP artifacts.',
-			expect.objectContaining({
-				source: '.',
-				target: 'inc',
-			})
+			expect.objectContaining({ source: '.', target: 'inc' })
 		);
 
 		resolveSpy.mockRestore();
 	});
 
-	it('loads chokidar.watch when exported at the top level', async () => {
-		const watchSpy = jest
-			.fn(() => new FakeWatcher() as unknown as FSWatcher)
-			.mockName('top-level-watch');
-
-		jest.resetModules();
-		jest.doMock('chokidar', () => ({ watch: watchSpy }));
-
-		const { buildStartCommand: importBuildStartCommand } = await import(
-			'../start'
-		);
-
-		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
-			adoptCommandEnvironment: jest.fn(),
-			fileSystem: {
-				access: fsAccess,
-				mkdir: fsMkdir,
-				cp: fsCp,
+	describe('chokidar resolution', () => {
+		const scenarios = [
+			{
+				title: 'loads chokidar.watch when exported at the top level',
+				mock: () => ({ watch: jest.fn(() => new FakeWatcher()) }),
 			},
-			spawnViteProcess: () => new FakeChildProcess(),
-		});
-
-		const command = new StartCommand();
-		assignCommandContext(command);
-
-		const executePromise = command.execute();
-		await flushTimers();
-		process.emit('SIGINT');
-		await flushTimers();
-		await executePromise;
-
-		expect(watchSpy).toHaveBeenCalled();
-
-		jest.resetModules();
-	});
-
-	it('loads chokidar from the module default export when it is a function', async () => {
-		const watchSpy = jest
-			.fn(() => new FakeWatcher() as unknown as FSWatcher)
-			.mockName('default-function-watch');
-
-		jest.resetModules();
-		jest.doMock('chokidar', () => ({
-			__esModule: true,
-			default: watchSpy,
-		}));
-
-		const { buildStartCommand: importBuildStartCommand } = await import(
-			'../start'
-		);
-
-		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
-			adoptCommandEnvironment: jest.fn(),
-			fileSystem: {
-				access: fsAccess,
-				mkdir: fsMkdir,
-				cp: fsCp,
+			{
+				title: 'loads chokidar from the module default export when it is a function',
+				mock: () => ({
+					__esModule: true,
+					default: jest.fn(() => new FakeWatcher()),
+				}),
 			},
-			spawnViteProcess: () => new FakeChildProcess(),
-		});
-
-		const command = new StartCommand();
-		assignCommandContext(command);
-
-		const executePromise = command.execute();
-		await flushTimers();
-		process.emit('SIGINT');
-		await flushTimers();
-		await executePromise;
-
-		expect(watchSpy).toHaveBeenCalled();
-
-		jest.resetModules();
-	});
-
-	it('loads chokidar watch from the module default object when available', async () => {
-		const watchSpy = jest
-			.fn(() => new FakeWatcher() as unknown as FSWatcher)
-			.mockName('default-object-watch');
-
-		jest.resetModules();
-		jest.doMock('chokidar', () => ({
-			__esModule: true,
-			default: { watch: watchSpy },
-		}));
-
-		const { buildStartCommand: importBuildStartCommand } = await import(
-			'../start'
-		);
-
-		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
-			adoptCommandEnvironment: jest.fn(),
-			fileSystem: {
-				access: fsAccess,
-				mkdir: fsMkdir,
-				cp: fsCp,
+			{
+				title: 'loads chokidar watch from the module default object when available',
+				mock: () => ({
+					__esModule: true,
+					default: { watch: jest.fn(() => new FakeWatcher()) },
+				}),
 			},
-			spawnViteProcess: () => new FakeChildProcess(),
+		] as const;
+
+		it.each(scenarios)('%s', async ({ mock }) => {
+			jest.resetModules();
+			const mocked = mock();
+			jest.doMock('chokidar', () => mocked);
+
+			const { buildStartCommand: importBuildStartCommand } = await import(
+				'../start'
+			);
+
+			const StartCommand = importBuildStartCommand({
+				buildReporter: () => reporterHarness.create(),
+				buildGenerateCommand: () =>
+					FakeGenerateCommand as unknown as GenerateConstructor,
+				adoptCommandEnvironment: jest.fn(),
+				fileSystem: {
+					access: fsAccess,
+					mkdir: fsMkdir,
+					cp: fsCp,
+				},
+				spawnViteProcess: () => new FakeChildProcess(),
+			});
+
+			const command = new StartCommand();
+			assignCommandContext(command);
+
+			const executePromise = command.execute();
+			await advanceFastDebounce();
+			process.emit('SIGINT');
+			await advanceFastDebounce();
+			await executePromise;
+
+			const watchSpy = (() => {
+				if ('watch' in mocked) {
+					return (mocked as { watch: jest.Mock }).watch;
+				}
+				const value = (mocked as { default: unknown }).default;
+				if (typeof value === 'function') {
+					return value as jest.Mock;
+				}
+				if (value && typeof value === 'object' && 'watch' in value) {
+					return (value as { watch: jest.Mock }).watch;
+				}
+				throw new Error('Expected chokidar watch spy.');
+			})();
+			expect(watchSpy).toHaveBeenCalled();
+
+			jest.resetModules();
 		});
 
-		const command = new StartCommand();
-		assignCommandContext(command);
+		it('throws a developer error when chokidar does not expose a watch function', async () => {
+			jest.resetModules();
+			jest.doMock('chokidar', () => ({}));
 
-		const executePromise = command.execute();
-		await flushTimers();
-		process.emit('SIGINT');
-		await flushTimers();
-		await executePromise;
+			const { buildStartCommand: importBuildStartCommand } = await import(
+				'../start'
+			);
 
-		expect(watchSpy).toHaveBeenCalled();
+			const spawnProcess = jest
+				.fn(() => new FakeChildProcess())
+				.mockName('child-process');
 
-		jest.resetModules();
-	});
+			const StartCommand = importBuildStartCommand({
+				buildReporter: () => reporterHarness.create(),
+				buildGenerateCommand: () =>
+					FakeGenerateCommand as unknown as GenerateConstructor,
+				adoptCommandEnvironment: jest.fn(),
+				fileSystem: {
+					access: fsAccess,
+					mkdir: fsMkdir,
+					cp: fsCp,
+				},
+				spawnViteProcess: spawnProcess,
+			});
 
-	it('throws a developer error when chokidar does not expose a watch function', async () => {
-		jest.resetModules();
-		jest.doMock('chokidar', () => ({}));
+			const command = new StartCommand();
+			assignCommandContext(command);
 
-		const { buildStartCommand: importBuildStartCommand } = await import(
-			'../start'
-		);
+			await expect(command.execute()).rejects.toMatchObject({
+				message:
+					'Unable to resolve chokidar.watch for CLI start command.',
+			});
 
-		const spawnProcess = jest
-			.fn(() => new FakeChildProcess())
-			.mockName('child-process');
+			const spawnedProcess = spawnProcess.mock.results[0]
+				?.value as unknown as FakeChildProcess;
 
-		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
-			adoptCommandEnvironment: jest.fn(),
-			fileSystem: {
-				access: fsAccess,
-				mkdir: fsMkdir,
-				cp: fsCp,
-			},
-			spawnViteProcess: spawnProcess,
+			expect(spawnedProcess.kill).toHaveBeenCalledWith('SIGINT');
+
+			jest.resetModules();
 		});
 
-		const command = new StartCommand();
-		assignCommandContext(command);
+		it('reuses the cached chokidar module between start command invocations', async () => {
+			jest.resetModules();
+			const watchSpy = jest
+				.fn(() => new FakeWatcher())
+				.mockName('cached-watch');
+			jest.doMock('chokidar', () => ({ watch: watchSpy }));
 
-		await expect(command.execute()).rejects.toMatchObject({
-			message: 'Unable to resolve chokidar.watch for CLI start command.',
+			const { buildStartCommand: importBuildStartCommand } = await import(
+				'../start'
+			);
+
+			const StartCommand = importBuildStartCommand({
+				buildReporter: () => reporterHarness.create(),
+				buildGenerateCommand: () =>
+					FakeGenerateCommand as unknown as GenerateConstructor,
+				adoptCommandEnvironment: jest.fn(),
+				fileSystem: {
+					access: fsAccess,
+					mkdir: fsMkdir,
+					cp: fsCp,
+				},
+				spawnViteProcess: () => new FakeChildProcess(),
+			});
+
+			const firstCommand = new StartCommand();
+			assignCommandContext(firstCommand);
+			const firstExecution = firstCommand.execute();
+			await advanceFastDebounce();
+			process.emit('SIGINT');
+			await advanceFastDebounce();
+			await firstExecution;
+
+			const secondCommand = new StartCommand();
+			assignCommandContext(secondCommand);
+			const secondExecution = secondCommand.execute();
+			await advanceFastDebounce();
+			process.emit('SIGINT');
+			await advanceFastDebounce();
+			await secondExecution;
+
+			expect(watchSpy).toHaveBeenCalledTimes(2);
+
+			jest.resetModules();
 		});
-
-		const spawnedProcess = spawnProcess.mock.results[0]
-			?.value as unknown as FakeChildProcess;
-
-		expect(spawnedProcess.kill).toHaveBeenCalledTimes(1);
-		expect(spawnedProcess.kill).toHaveBeenCalledWith('SIGINT');
-
-		jest.resetModules();
-	});
-
-	it('reuses the cached chokidar module between start command invocations', async () => {
-		jest.resetModules();
-		const watchSpy = jest
-			.fn(() => new FakeWatcher() as unknown as FSWatcher)
-			.mockName('cached-watch');
-		jest.doMock('chokidar', () => ({ watch: watchSpy }));
-
-		const { buildStartCommand: importBuildStartCommand } = await import(
-			'../start'
-		);
-
-		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
-			buildGenerateCommand: () =>
-				FakeGenerateCommand as unknown as GenerateConstructor,
-			adoptCommandEnvironment: jest.fn(),
-			fileSystem: {
-				access: fsAccess,
-				mkdir: fsMkdir,
-				cp: fsCp,
-			},
-			spawnViteProcess: () => new FakeChildProcess(),
-		});
-
-		const firstCommand = new StartCommand();
-		assignCommandContext(firstCommand);
-
-		const firstExecution = firstCommand.execute();
-		await flushTimers();
-		process.emit('SIGINT');
-		await flushTimers();
-		await firstExecution;
-
-		const secondCommand = new StartCommand();
-		assignCommandContext(secondCommand);
-
-		const secondExecution = secondCommand.execute();
-		await flushTimers();
-		process.emit('SIGINT');
-		await flushTimers();
-		await secondExecution;
-
-		expect(watchSpy).toHaveBeenCalledTimes(2);
-
-		jest.resetModules();
 	});
 });
-
-function createStartCommandInstance() {
-	const StartCommand = buildStartCommand({
-		loadWatch,
-		spawnViteProcess,
-		buildReporter: reporterFactory,
-		buildGenerateCommand: () =>
-			FakeGenerateCommand as unknown as GenerateConstructor,
-		fileSystem: {
-			access: fsAccess,
-			mkdir: fsMkdir,
-			cp: fsCp,
-		},
-		adoptCommandEnvironment: jest.fn(),
-	});
-
-	const command = new StartCommand();
-	assignCommandContext(command);
-	return command;
-}
-
-async function buildCommand({
-	autoApplyPhp = false,
-	beforeInstantiate,
-}: {
-	autoApplyPhp?: boolean;
-	beforeInstantiate?: (
-		StartCommand: ReturnType<typeof buildStartCommand>
-	) => void;
-} = {}) {
-	const StartCommand = buildStartCommand({
-		loadWatch,
-		spawnViteProcess,
-		buildReporter: reporterFactory,
-		buildGenerateCommand: () =>
-			FakeGenerateCommand as unknown as GenerateConstructor,
-		fileSystem: {
-			access: fsAccess,
-			mkdir: fsMkdir,
-			cp: fsCp,
-		},
-	});
-
-	beforeInstantiate?.(StartCommand);
-
-	const command = new StartCommand();
-	command.autoApplyPhp = autoApplyPhp;
-	const { stdout } = assignCommandContext(command);
-
-	const executePromise = command.execute();
-	await flushTimers();
-
-	const watcher = watchFactory.mock.results[0]
-		?.value as unknown as FakeWatcher;
-	if (!watcher) {
-		throw new Error('Expected watcher to be created');
-	}
-
-	return { command, watcher, stdout, executePromise };
-}
-
-async function shutdown(
-	executePromise: ReturnType<
-		ReturnType<typeof buildStartCommand>['prototype']['execute']
-	>,
-	signals: NodeJS.Signals[] = ['SIGINT']
-): Promise<void> {
-	for (const signal of signals) {
-		process.emit(signal);
-	}
-	await flushTimers();
-	await executePromise;
-}
-
-async function expectEventually(assertion: () => void): Promise<void> {
-	for (let attempt = 0; attempt < 5; attempt += 1) {
-		try {
-			assertion();
-			return;
-		} catch (error) {
-			if (attempt === 4) {
-				throw error;
-			}
-			await flushTimers();
-		}
-	}
-}
-
-function getReporterChild(
-	reporter: ReporterMock,
-	namespace: string
-): ReporterMock {
-	const index = reporter.child.mock.calls.findIndex(
-		([label]) => label === namespace
-	);
-	if (index === -1) {
-		throw new Error(`Reporter child ${namespace} not found`);
-	}
-
-	return reporter.child.mock.results[index]!.value as ReporterMock;
-}
-
-type WatchOptions = {
-	readonly cwd: string;
-	readonly ignoreInitial: boolean;
-	readonly ignored: readonly string[];
-};
-
-type WatchFactory = (
-	patterns: readonly string[],
-	options: WatchOptions
-) => FSWatcher;
-
-type GenerateConstructor = new () => Command;
-
-class FakeGenerateCommand extends Command {
-	static readonly executeMock = jest.fn<Promise<number>, []>();
-
-	dryRun = false;
-	verbose = false;
-
-	override async execute(): Promise<number> {
-		const result = await FakeGenerateCommand.executeMock.call(this);
-		if (result === WPK_EXIT_CODES.SUCCESS) {
-			this.context.stdout.write('[summary]\n');
-		}
-		return result;
-	}
-}
-
-class FakeWatcher extends EventEmitter {
-	close = jest.fn(async () => {
-		this.emit('close');
-	});
-}
-
-class FakeChildProcess extends EventEmitter {
-	stdout = new PassThrough();
-	stderr = new PassThrough();
-	killed = false;
-
-	kill = jest.fn((signal?: NodeJS.Signals) => {
-		if (this.killed) {
-			return false;
-		}
-		this.killed = true;
-		queueMicrotask(() => {
-			this.emit('exit', 0, signal ?? null);
-		});
-		return true;
-	});
-}
-
-function createReporterMock() {
-	const reporter = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn(() => createReporterMock()),
-	} as unknown as ReporterMock;
-	return reporter;
-}
-
-type ReporterMock = {
-	info: jest.Mock;
-	warn: jest.Mock;
-	error: jest.Mock;
-	debug: jest.Mock;
-	child: jest.Mock<ReporterMock, [string]>;
-};
-
-const FAST_DEBOUNCE_MS = 200;
-const SLOW_DEBOUNCE_MS = 600;

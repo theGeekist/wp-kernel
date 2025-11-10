@@ -21,6 +21,13 @@ const AUTOLOAD_CANDIDATES = [
 	path.join(REPO_ROOT, 'packages', 'php-driver', 'vendor', 'autoload.php'),
 ];
 
+const PHP_AUTOLOAD_ENV_KEYS = [
+	'WPK_PHP_AUTOLOAD',
+	'WPK_PHP_AUTOLOAD_PATHS',
+	'PHP_DRIVER_AUTOLOAD',
+	'PHP_DRIVER_AUTOLOAD_PATHS',
+] as const;
+
 function filterExisting(paths: readonly string[]): string[] {
 	return paths.filter((candidate) => {
 		try {
@@ -107,4 +114,45 @@ export function buildPhpIntegrationEnv(
 	}
 
 	return env;
+}
+
+export function sanitizePhpIntegrationEnv(
+	baseEnv: NodeJS.ProcessEnv,
+	overrides?: NodeJS.ProcessEnv
+): NodeJS.ProcessEnv {
+	const sanitized: NodeJS.ProcessEnv = { ...baseEnv };
+
+	for (const key of PHP_AUTOLOAD_ENV_KEYS) {
+		if (key in sanitized) {
+			delete sanitized[key];
+		}
+	}
+
+	if (overrides) {
+		for (const [key, value] of Object.entries(overrides)) {
+			if (value === undefined) {
+				delete sanitized[key];
+			} else {
+				sanitized[key] = value;
+			}
+		}
+	}
+
+	return sanitized;
+}
+
+export function buildCliIntegrationEnv(
+	baseEnv: NodeJS.ProcessEnv = process.env,
+	overrides?: NodeJS.ProcessEnv
+): NodeJS.ProcessEnv {
+	const env = sanitizePhpIntegrationEnv(baseEnv, overrides);
+
+	env.NODE_ENV = 'test';
+	env.FORCE_COLOR = '0';
+
+	if (!('WPK_CLI_FORCE_SOURCE' in env)) {
+		env.WPK_CLI_FORCE_SOURCE = '1';
+	}
+
+	return buildPhpIntegrationEnv(env);
 }

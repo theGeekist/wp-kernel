@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { runWpk } from '../test-support/runWpk';
-import { withWorkspace } from '../workspace.test-support';
+import { withCliIntegration } from '../test-support/cli-integration.test-support';
 
 const PHP_JSON_AST_AUTOLOAD = path.resolve(
 	__dirname,
@@ -17,31 +16,21 @@ jest.setTimeout(300000);
 
 describe('generate + apply integration', () => {
 	it('captures current PHP driver behaviour for generate/apply', async () => {
-		await withWorkspace(
-			async (workspace) => {
-				const initResult = await runWpk(workspace, [
-					'init',
-					'--name',
-					'generate-apply-plugin',
-				]);
+		await withCliIntegration(
+			async ({ run, expectSuccessfulInit, fromWorkspace }) => {
+				const initResult = await expectSuccessfulInit(
+					'generate-apply-plugin'
+				);
 				expect(initResult.code).toBe(0);
 				expect(initResult.stderr).toBe('');
 
-				const traceFile = path.join(
-					workspace,
-					'.wpk',
-					'php-driver.trace.log'
-				);
-				const generateResult = await runWpk(
-					workspace,
-					['generate', '--verbose'],
-					{
-						env: {
-							WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
-							PHP_DRIVER_TRACE_FILE: traceFile,
-						},
-					}
-				);
+				const traceFile = fromWorkspace('.wpk', 'php-driver.trace.log');
+				const generateResult = await run(['generate', '--verbose'], {
+					env: {
+						WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
+						PHP_DRIVER_TRACE_FILE: traceFile,
+					},
+				});
 				expect(generateResult.code).toBe(2);
 				expect(generateResult.stdout).toBe('');
 				expect(generateResult.stderr).toContain(
@@ -66,20 +55,14 @@ describe('generate + apply integration', () => {
 				expect(eventNames).not.toContain('failure');
 
 				await expect(
-					fs.access(
-						path.join(workspace, '.wpk', 'apply', 'manifest.json')
-					)
+					fs.access(fromWorkspace('.wpk', 'apply', 'manifest.json'))
 				).rejects.toMatchObject({ code: 'ENOENT' });
 
-				const applyResult = await runWpk(
-					workspace,
-					['apply', '--yes'],
-					{
-						env: {
-							WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
-						},
-					}
-				);
+				const applyResult = await run(['apply', '--yes'], {
+					env: {
+						WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
+					},
+				});
 
 				expect(applyResult.code).toBe(1);
 				expect(applyResult.stdout).toBe('');
@@ -89,8 +72,7 @@ describe('generate + apply integration', () => {
 				expect(applyResult.stderr).toContain(
 					'Apply requires a git repository.'
 				);
-			},
-			{ chdir: false }
+			}
 		);
 	});
 });

@@ -1,54 +1,27 @@
-import os from 'node:os';
-import path from 'node:path';
-import fs from 'node:fs/promises';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	ResourceConfig,
 	ResourceDataViewsScreenConfig,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
-import { makeWorkspaceMock } from '../../workspace.test-support.js';
+export { withWorkspace } from './builder-harness.test-support.js';
+export {
+	buildReporter,
+	buildOutput,
+	normalise,
+	prefixRelative,
+} from './builder-harness.test-support.js';
+
+export type {
+	BuilderHarnessContext,
+	WorkspaceFactoryOptions,
+} from './builder-harness.test-support.js';
 import type {
-	BuilderOutputLike,
 	BuildIrOptionsLike,
 	IRResourceLike,
 	IRv1Like,
 	WPKConfigV1Like,
-	WorkspaceLike,
 } from '../../types.js';
-
-export interface BuilderHarnessContext<
-	TWorkspace extends WorkspaceLike = WorkspaceLike,
-> {
-	readonly workspace: TWorkspace;
-	readonly root: string;
-}
-
-export interface WorkspaceFactoryOptions<
-	TWorkspace extends WorkspaceLike = WorkspaceLike,
-> {
-	readonly createWorkspace?: (
-		root: string
-	) => Promise<TWorkspace> | TWorkspace;
-}
-
-export async function withWorkspace<
-	TWorkspace extends WorkspaceLike = WorkspaceLike,
->(
-	run: (context: BuilderHarnessContext<TWorkspace>) => Promise<void>,
-	options: WorkspaceFactoryOptions<TWorkspace> = {}
-): Promise<void> {
-	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ts-builder-'));
-	try {
-		const workspace = (await (options.createWorkspace
-			? options.createWorkspace(root)
-			: makeWorkspaceMock({ root }))) as TWorkspace;
-		await run({ workspace, root });
-	} finally {
-		await fs.rm(root, { recursive: true, force: true });
-	}
-}
 
 export interface WPKernelConfigSourceOptions {
 	readonly namespace?: string;
@@ -333,40 +306,6 @@ export function buildBuilderArtifacts(
 	} as BuildIrOptionsLike;
 
 	return { config, ir, options: buildOptions } satisfies BuilderArtifacts;
-}
-
-export function buildReporter(): Reporter {
-	const reporter = {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		child: jest.fn(),
-	} as unknown as Reporter;
-	(reporter.child as unknown as jest.Mock).mockReturnValue(reporter);
-	return reporter;
-}
-
-export function buildOutput(): BuilderOutputLike {
-	const actions: BuilderOutputLike['actions'] = [];
-	const queueWrite = jest.fn(
-		(action: BuilderOutputLike['actions'][number]) => {
-			actions.push(action);
-		}
-	);
-
-	return { actions, queueWrite };
-}
-
-export function normalise(candidate: string): string {
-	return candidate.split(path.sep).join('/');
-}
-
-export function prefixRelative(candidate: string): string {
-	if (candidate.startsWith('.')) {
-		return candidate;
-	}
-	return `./${candidate}`;
 }
 
 function buildScreenBlock(

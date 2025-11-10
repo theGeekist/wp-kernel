@@ -6,6 +6,7 @@ import {
 	readManifest,
 	resolveWorkspaceRoot,
 } from '../apply';
+import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
 import { resolveFlags } from '../apply/flags';
 import type {
 	WPKernelConfigV1,
@@ -181,13 +182,8 @@ describe('apply command helpers', () => {
 			}),
 		});
 
-		const reporter = {
-			info: jest.fn(),
-			warn: jest.fn(),
-			debug: jest.fn(),
-			error: jest.fn(),
-			child: jest.fn().mockReturnThis(),
-		};
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 
 		const result = await cleanupWorkspaceTargets({
 			workspace,

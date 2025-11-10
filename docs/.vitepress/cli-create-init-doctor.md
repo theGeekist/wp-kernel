@@ -171,6 +171,10 @@ Work inside `packages/test-utils` to turn it into the primary home for shared te
 - Behavioural changes to the CLI itself.
 - Forcing coverage thresholds to pass during the refactor.
 
+##### 56a consolidation update – process harnesses
+
+`packages/test-utils/src/integration` now owns the shared process runner (`runProcess`), loader-aware Node flag builder (`buildNodeOptions`), and CLI-aware PHP environment shims (`sanitizePhpIntegrationEnv`, `buildCliIntegrationEnv`). `packages/cli/tests/test-support/runWpk.ts`, `packages/cli/tests/__tests__/wpk-bin.integration.test.ts`, and `packages/cli/tests/__tests__/create-wpk.integration.test.ts` are the first consumers, eliminating their bespoke spawn wrappers while keeping the existing expectations untouched. The next logical seam for Task 56b is to flip the remaining CLI suites (pipeline/start/apply) over to these helpers so the loader/env story stays consistent before we tackle the reporter/workspace refactors in 56c.
+
 ---
 
 #### 56b – Integration process runners onto test-utils
@@ -194,6 +198,10 @@ Move the process/spawn harness duplication in CLI integration tests onto the con
 
 - Changing what the integrations assert (still smoke vs snapshot-heavy at this point).
 - Touching builder or readiness tests.
+
+##### 56b consolidation update – CLI runner surface
+
+`packages/test-utils/src/integration/process.ts` now exposes `runNodeProcess`, letting CLI suites compose Node loader flags, shared env shims, and `runProcess` in a single hop. The shared `runWpk` helper has switched to the new entry point and `packages/cli/tests/__tests__/create-wpk.integration.test.ts` now hydrates its bootstrap binary with `buildCliIntegrationEnv` + `runNodeProcess`, eliminating the bespoke NODE_OPTIONS juggling in favour of the same loader wiring used by `wpk-bin`. Task 56c can build on this by lifting the repeated git/composer bootstrap logic (e.g. `jest-global-setup` and suite-level `git init` calls) into companion helpers so reporter/workspace migrations do not have to replicate shell management.
 
 ---
 
@@ -219,6 +227,10 @@ Lift the repeated workspace + reporter scaffolding used by command and pipeline 
 - Splitting mega-suites or changing test behaviour in a major way (that comes later).
 - Any modifications to builder or patcher tests.
 
+##### 56c consolidation update – workspace and reporter harnesses
+
+`@wpkernel/test-utils/cli` now ships `createCommandReporterHarness`, which wraps the shared reporter mock and factory so suites stop instantiating reporters by hand. Coupled with `createCommandWorkspaceHarness`, every command-facing suite touched so far (`start.command.test.ts`, `generate.command.test.ts`, `create.command.test.ts`, `init.command.test.ts`, `init.runtime.test.ts`, `init.workflow.test.ts`, plus the doctor command/environment suites) now relies on the shared reporters/workspace surfaces, and even `apply.helpers.test.ts` leans on the harness for cleanup logging assertions. Task 56d can extend the harness into the builder and pipeline suites so their bespoke reporter/workspace wiring can finally disappear as well.
+
 ---
 
 #### 56d – Builder test harness alignment
@@ -243,6 +255,10 @@ Apply the `packages/test-utils` workspace/process/reporter helpers to the builde
 - Breaking monolithic builder tests into smaller files (that fits better in a later subtask once the harness is shared).
 - Changing the underlying builder logic.
 
+##### 56d consolidation update – builder harness alignment
+
+`@wpkernel/test-utils` now ships a dedicated builder harness entry point (`builders/tests/builder-harness.test-support.ts`) that exposes shared `withWorkspace`, `buildReporter`, `buildOutput`, and path-normalisation helpers. The patcher, plan, bundler, and PHP builder suites have been migrated to the shared harness—removing their local `mkdtemp` helpers and bespoke reporter/output factories—while the existing TS builder fixtures simply re-export the shared helpers. This trims hundreds of duplicated lines across the builder test family and keeps the suites on consistent workspace/reporter mocks ahead of the heavier suite splits planned for Task 56e.
+
 ---
 
 #### 56e – Suite shaping for high-churn areas
@@ -266,6 +282,22 @@ Trim the worst of the test sprawl in a few high-churn suites now that shared hel
 
 - Exhaustive re-authoring of all large suites.
 - Enforcing a hard line-count policy across the whole tree.
+
+##### 56e consolidation update – start command decoupling
+
+`start.command.test.ts` now leans on a shared harness (`start.command.test-support.ts`) that drives the mocked generate command, watcher lifecycle, and Vite child processes from one place. The suite dropped roughly 250 lines by replacing bespoke shutdown calls, flush helpers, and reporter plumbing with `withStartCommand`, `advanceFastDebounce`, and `emitChange`, while the chokidar module shape assertions collapsed into a single parameterised block. The start command remains covered end-to-end (watch debounce, auto-apply, Vite orchestration), but each concern now lives in tighter helpers that future pipeline refactors can reuse without copying the 1,200-line fixture blob that previously lived at the bottom of the file. Next up, pipeline and integration suites should adopt similar harnesses so their ordering/error tests can shrink without sacrificing coverage.
+
+##### 56e consolidation update – pipeline + init harnesses
+
+`packages/cli/src/runtime/__tests__/pipeline.test.ts` now runs through a purpose-built harness (`runtime/test-support/pipeline.test-support.ts`) that provisions workspaces, reporters, and default pipeline options in one place. The ordering, extension, and rollback scenarios simply call `withConfiguredPipeline` and inspect the captured steps/results, eliminating dozens of per-test calls to `withWorkspace`, `buildWorkspace`, and `buildEmptyGenerationState`. On the integration side, `packages/cli/tests/__tests__/init.integration.test.ts` consumes a new `withInitWorkflowHarness` helper that seeds disk fixtures and executes `runInitWorkflow` with consistent reporters—dropping the hand-written workspace plumbing while keeping assertions about scaffold summaries and reporter output intact. These reductions trim roughly 150 lines between the two suites and pave the way for the remaining 56e cleanups in the heavier CLI integration files.
+
+##### 56e consolidation update – wpk bin integration helpers
+
+`packages/cli/tests/__tests__/wpk-bin.integration.test.ts` now leans on a shared `expectSuccessfulInit` helper and a `fromWorkspace` path resolver to centralise the boilerplate that previously guarded every `wpk init` call. The helper asserts exit codes and stderr while returning the run payload when stdout needs inspection, and the new resolver collapses repetitive `path.join(workspace, …)` expressions. Together they remove more than forty lines without touching generate/apply coverage, nudging Task 56e’s integration cleanup toward a net SLOC reduction.
+
+##### 56e consolidation update – CLI integration harness
+
+`packages/cli/tests/test-support/cli-integration.test-support.ts` now exposes a `withCliIntegration` harness that threads workspace setup, `runWpk`, path resolution, and the `expectSuccessfulInit` assertion through a single entry point. The `wpk-bin` and `generate-apply` integration suites consume the harness, deleting their bespoke init helpers, ad-hoc `withWorkspace({ chdir: false })` wrappers, and inline `path.join(workspace, …)` plumbing while keeping their behavioural assertions intact. This brings the integration tests onto the shared process surface introduced earlier in Task 56, trims redundant scaffolding across the suites, and leaves no orphaned helpers behind for the next cleanup pass.
 
 ---
 

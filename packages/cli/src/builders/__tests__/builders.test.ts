@@ -7,6 +7,10 @@ import type { BuildIrOptions, IRv1 } from '../../ir/publicTypes';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import {
+	buildReporter,
+	buildOutput,
+} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 
 jest.mock('node:child_process', () => {
 	const execFileMock = jest.fn(
@@ -67,16 +71,6 @@ const ir: IRv1 = {
 	},
 };
 
-function buildOutput(): BuilderOutput {
-	const actions: BuilderOutput['actions'] = [];
-	return {
-		actions,
-		queueWrite: (action) => {
-			actions.push(action);
-		},
-	};
-}
-
 const existsMock = jest
 	.fn<ReturnType<Workspace['exists']>, Parameters<Workspace['exists']>>()
 	.mockResolvedValue(true);
@@ -94,13 +88,7 @@ const stubHelpers = [
 ];
 
 describe('builder stubs', () => {
-	const reporter = {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		child: jest.fn().mockReturnThis(),
-	};
+	const reporter = buildReporter();
 
 	const context = {
 		workspace,
@@ -115,7 +103,7 @@ describe('builder stubs', () => {
 
 	it('executes stub builders without errors', async () => {
 		for (const helper of stubHelpers) {
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 			await helper.apply(
 				{
 					context,

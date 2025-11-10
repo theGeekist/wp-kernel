@@ -3,7 +3,8 @@ import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
 import {
 	assignCommandContext,
-	createReporterMock,
+	createCommandWorkspaceHarness,
+	createCommandReporterHarness,
 } from '@wpkernel/test-utils/cli';
 import {
 	buildGenerateCommand,
@@ -54,59 +55,9 @@ function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 }
 
 function createWorkspaceStub() {
-	const root = path.join(process.cwd(), 'workspace');
-	const files = new Map<string, Buffer>();
-
-	const resolvePath = (file: string) =>
-		path.isAbsolute(file) ? file : path.resolve(root, file);
-
-	return {
-		root,
-		cwd: () => root,
-		resolve: (...parts: string[]) => path.resolve(root, ...parts),
-		read: jest.fn(
-			async (file: string) => files.get(resolvePath(file)) ?? null
-		),
-		readText: jest.fn(async (file: string) => {
-			const buffer = files.get(resolvePath(file));
-			return buffer ? buffer.toString('utf8') : null;
-		}),
-		write: jest.fn(async (file: string, data: Buffer | string) => {
-			const buffer = Buffer.isBuffer(data)
-				? Buffer.from(data)
-				: Buffer.from(data, 'utf8');
-			files.set(resolvePath(file), buffer);
-		}),
-		writeJson: jest.fn(
-			async (
-				file: string,
-				value: unknown,
-				options?: { pretty?: boolean }
-			) => {
-				const spacing = options?.pretty ? 2 : undefined;
-				const serialised = JSON.stringify(value, null, spacing);
-				files.set(resolvePath(file), Buffer.from(serialised, 'utf8'));
-			}
-		),
-		exists: jest.fn(async (file: string) => files.has(resolvePath(file))),
-		rm: jest.fn(async () => undefined),
-		glob: jest.fn(async () => [] as string[]),
-		threeWayMerge: jest.fn(async () => 'clean' as const),
-		begin: jest.fn(),
-		commit: jest.fn(async () => ({
-			writes: [] as string[],
-			deletes: [] as string[],
-		})),
-		rollback: jest.fn(async () => ({
-			writes: [] as string[],
-			deletes: [] as string[],
-		})),
-		dryRun: jest.fn(async (fn: () => Promise<unknown>) => ({
-			result: await fn(),
-			manifest: { writes: [] as string[], deletes: [] as string[] },
-		})),
-		tmpDir: jest.fn(async () => path.join(root, '.tmp', 'workspace')),
-	};
+	return createCommandWorkspaceHarness({
+		root: path.join(process.cwd(), 'workspace'),
+	}).workspace;
 }
 
 function createPipelineStub(
@@ -161,7 +112,8 @@ describe('GenerateCommand', () => {
 	it('runs the pipeline and writes the summary output', async () => {
 		const workspace = createWorkspaceStub();
 		const { pipeline, runMock } = createPipelineStub(workspace);
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -236,7 +188,8 @@ describe('GenerateCommand', () => {
 	it('rolls back workspace changes during dry-run', async () => {
 		const workspace = createWorkspaceStub();
 		const { pipeline, runMock } = createPipelineStub(workspace);
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -300,7 +253,8 @@ describe('GenerateCommand', () => {
 
 	it('warns when diagnostics are emitted by the pipeline', async () => {
 		const workspace = createWorkspaceStub();
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const { pipeline } = createPipelineStub(workspace, async (options) => {
@@ -366,7 +320,8 @@ describe('GenerateCommand', () => {
 
 	it('propagates failures from the pipeline as exit codes', async () => {
 		const workspace = createWorkspaceStub();
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const { pipeline } = createPipelineStub(workspace, async () => {
@@ -417,7 +372,8 @@ describe('GenerateCommand', () => {
 		workspace.exists = jest.fn(async () => false);
 
 		const { pipeline } = createPipelineStub(workspace);
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -530,7 +486,8 @@ describe('GenerateCommand', () => {
 			}
 		);
 
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({

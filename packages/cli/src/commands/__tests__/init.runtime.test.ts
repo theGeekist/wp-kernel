@@ -2,7 +2,7 @@ import type { Command } from 'clipanion';
 import type { ReporterOptions } from '@wpkernel/core/reporter';
 import type { InitWorkflowOptions } from '../init/workflow';
 import { WPKernelError } from '@wpkernel/core/error';
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import {
 	createInitCommandRuntime,
@@ -14,7 +14,8 @@ import { getCliPackageRoot } from '../../utils/module-url';
 describe('init command runtime helpers', () => {
 	it('builds runtime that reuses workspace and reporter when running workflow', async () => {
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo' });
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 
 		const buildWorkspace = jest.fn((root: string) => {
 			expect(root).toBe(workspace.root);

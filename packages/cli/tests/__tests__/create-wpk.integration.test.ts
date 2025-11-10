@@ -1,8 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { execFile, spawn } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { withWorkspace } from '../workspace.test-support';
+import {
+	buildCliIntegrationEnv,
+	runNodeProcess,
+	type RunProcessResult,
+} from '@wpkernel/test-utils/integration';
 
 jest.setTimeout(30000);
 
@@ -15,17 +20,6 @@ const CLI_LOADER = path.resolve(
 	'../test-support/wpk-cli-loader.mjs'
 );
 const TSC_BIN: string = require.resolve('typescript/bin/tsc');
-
-interface RunResult {
-	code: number;
-	stdout: string;
-	stderr: string;
-}
-
-interface RunOptions {
-	cwd: string;
-	env?: NodeJS.ProcessEnv;
-}
 
 interface BootstrapRunOptions {
 	env?: NodeJS.ProcessEnv;
@@ -58,64 +52,18 @@ async function ensureBootstrapBinary(): Promise<void> {
 	}
 }
 
-function runProcess(
-	command: string,
-	args: string[],
-	options: RunOptions
-): Promise<RunResult> {
-	return new Promise((resolve, reject) => {
-		const child = spawn(command, args, {
-			cwd: options.cwd,
-			env: options.env,
-			stdio: ['ignore', 'pipe', 'pipe'],
-		});
-
-		let stdout = '';
-		let stderr = '';
-
-		child.stdout?.on('data', (chunk) => {
-			stdout += chunk.toString();
-		});
-
-		child.stderr?.on('data', (chunk) => {
-			stderr += chunk.toString();
-		});
-
-		child.once('error', reject);
-		child.once('close', (code) => {
-			resolve({
-				code: code ?? 0,
-				stdout,
-				stderr,
-			});
-		});
-	});
-}
-
 function runCreateWpk(
 	workspace: string,
 	args: string[],
 	options: BootstrapRunOptions = {}
-): Promise<RunResult> {
-	const env: NodeJS.ProcessEnv = {
-		...process.env,
-		...options.env,
-		NODE_ENV: 'test',
-		FORCE_COLOR: '0',
-	};
+): Promise<RunProcessResult> {
+	const env = buildCliIntegrationEnv(process.env, options.env);
 
-	const existingNodeOptions = env.NODE_OPTIONS ?? '';
-	const segments: string[] = [];
-	if (existingNodeOptions.length > 0) {
-		segments.push(existingNodeOptions);
-	}
-	segments.push('--no-warnings');
-	segments.push(`--loader ${CLI_LOADER}`);
-	env.NODE_OPTIONS = segments.join(' ');
-
-	return runProcess(process.execPath, [BOOTSTRAP_BIN, ...args], {
+	return runNodeProcess(BOOTSTRAP_BIN, args, {
 		cwd: workspace,
 		env,
+		loader: CLI_LOADER,
+		noWarnings: true,
 	});
 }
 

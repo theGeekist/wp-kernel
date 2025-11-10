@@ -1,35 +1,10 @@
-import os from 'node:os';
 import path from 'node:path';
-import fs from 'node:fs/promises';
-
-async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
-	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'plan-import-meta-'));
-	try {
-		return await run(root);
-	} finally {
-		await fs.rm(root, { recursive: true, force: true });
-	}
-}
-
-function buildReporter() {
-	return {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		child: jest.fn().mockReturnThis(),
-	};
-}
-
-function buildOutput() {
-	const actions: Array<{ file: string; contents: string }> = [];
-	return {
-		actions,
-		queueWrite(action: { file: string; contents: string }) {
-			actions.push(action);
-		},
-	};
-}
+import {
+	withWorkspace as baseWithWorkspace,
+	buildReporter,
+	buildOutput,
+} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import type { BuilderOutput } from '../../runtime/types';
 
 describe('createApplyPlanBuilder pretty printer wiring', () => {
 	afterEach(() => {
@@ -61,40 +36,42 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 			'@wpkernel/test-utils/builders/php/resources.test-support'
 		);
 
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporter();
-			const output = buildOutput();
-			const helper = createApplyPlanBuilder();
-			const ir = makePhpIrFixture();
+		await baseWithWorkspace(
+			async ({ workspace, root: workspaceRoot }) => {
+				const reporter = buildReporter();
+				const output = buildOutput<BuilderOutput['actions'][number]>();
+				const helper = createApplyPlanBuilder();
+				const ir = makePhpIrFixture();
 
-			await helper.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate',
-						generationState: buildEmptyGenerationState(),
-					},
-					input: {
-						phase: 'generate',
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								'wpk.config.ts'
-							),
+				await helper.apply(
+					{
+						context: {
+							workspace,
+							reporter,
+							phase: 'generate',
+							generationState: buildEmptyGenerationState(),
 						},
-						ir,
+						input: {
+							phase: 'generate',
+							options: {
+								config: ir.config,
+								namespace: ir.meta.namespace,
+								origin: ir.meta.origin,
+								sourcePath: path.join(
+									workspaceRoot,
+									'wpk.config.ts'
+								),
+							},
+							ir,
+						},
+						output,
+						reporter,
 					},
-					output,
-					reporter,
-				},
-				undefined
-			);
-		});
+					undefined
+				);
+			},
+			{ createWorkspace: (root) => buildWorkspace(root) }
+		);
 
 		expect(prettyPrinterFactory).toHaveBeenCalledWith(
 			expect.objectContaining({

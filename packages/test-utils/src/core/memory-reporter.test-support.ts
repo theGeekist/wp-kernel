@@ -45,16 +45,16 @@ function createReporterForNamespace(
 	};
 
 	return {
-		info(message, context) {
+		info(message: string, context?: unknown) {
 			record('info', message, context);
 		},
-		warn(message, context) {
+		warn(message: string, context?: unknown) {
 			record('warn', message, context);
 		},
-		error(message, context) {
+		error(message: string, context?: unknown) {
 			record('error', message, context);
 		},
-		debug(message, context) {
+		debug(message: string, context?: unknown) {
 			record('debug', message, context);
 		},
 		child(childNamespace: string) {

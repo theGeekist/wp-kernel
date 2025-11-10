@@ -1,21 +1,27 @@
-import os from 'node:os';
 import path from 'node:path';
-import fs from 'node:fs/promises';
 import { buildWorkspace } from '../../workspace';
 import { createPatcher } from '../patcher';
 import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '@wpkernel/wp-json-ast';
+import {
+	withWorkspace as baseWithWorkspace,
+	buildReporter,
+	buildOutput,
+} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 
-async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
-	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'patcher-builder-'));
-	try {
-		return await run(root);
-	} finally {
-		await fs.rm(root, { recursive: true, force: true });
-	}
-}
+type PatcherWorkspaceContext = BuilderHarnessContext<
+	ReturnType<typeof buildWorkspace>
+>;
+
+const withWorkspace = (
+	run: (context: PatcherWorkspaceContext) => Promise<void>
+) =>
+	baseWithWorkspace(run, {
+		createWorkspace: (root) => buildWorkspace(root),
+	});
 
 function buildIr(namespace: string): IRv1 {
 	return {
@@ -53,31 +59,10 @@ function buildIr(namespace: string): IRv1 {
 }
 
 describe('createPatcher', () => {
-	function buildOutput(): BuilderOutput {
-		const actions: BuilderOutput['actions'] = [];
-		return {
-			actions,
-			queueWrite: (action) => {
-				actions.push(action);
-			},
-		};
-	}
-
-	function buildReporter() {
-		return {
-			debug: jest.fn(),
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			child: jest.fn().mockReturnThis(),
-		};
-	}
-
 	it('applies git merge patches and records manifest', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const baseContents = [
 				'<?php',
@@ -224,10 +209,9 @@ describe('createPatcher', () => {
 	});
 
 	it('applies plugin loader updates when the guard is intact', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const baseLoader = [
 				'<?php',
@@ -338,10 +322,9 @@ describe('createPatcher', () => {
 	});
 
 	it('preserves custom loaders when the guard is missing', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const baseLoader = [
 				'<?php',
@@ -459,10 +442,9 @@ describe('createPatcher', () => {
 	});
 
 	it('merges shim updates while preserving user edits', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const baseContents = [
 				'<?php',
@@ -584,10 +566,9 @@ describe('createPatcher', () => {
 	});
 
 	it('records conflicts when merge cannot be resolved automatically', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const base = ['line-one', 'line-two', ''].join('\n');
 			const incoming = ['line-one updated', 'line-two', ''].join('\n');
@@ -689,10 +670,9 @@ describe('createPatcher', () => {
 	});
 
 	it('skips when no plan is present', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const ir = buildIr('Demo');
 			const input = {
@@ -730,10 +710,9 @@ describe('createPatcher', () => {
 	});
 
 	it('skips entries with missing incoming artifacts', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			await workspace.write(
 				path.posix.join('.wpk', 'apply', 'plan.json'),
@@ -829,10 +808,9 @@ describe('createPatcher', () => {
 	});
 
 	it('skips when incoming matches the current target', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const sharedContents = ['<?php', 'echo "noop";', ''].join('\n');
 
@@ -920,10 +898,9 @@ describe('createPatcher', () => {
 	});
 
 	it('applies deletion instructions for stale shims', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			await workspace.write(
 				path.posix.join('.wpk', 'apply', 'plan.json'),
@@ -1013,10 +990,9 @@ describe('createPatcher', () => {
 	});
 
 	it('skips shim deletion when the target differs from the base snapshot', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			await workspace.write(
 				path.posix.join('.wpk', 'apply', 'plan.json'),
@@ -1103,10 +1079,9 @@ describe('createPatcher', () => {
 	});
 
 	it('records planned deletion skips in the manifest', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			await workspace.write(
 				path.posix.join('.wpk', 'apply', 'plan.json'),
@@ -1184,10 +1159,9 @@ describe('createPatcher', () => {
 	});
 
 	it('throws a wpk error when the plan JSON is invalid', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			await workspace.write(
 				path.posix.join('.wpk', 'apply', 'plan.json'),
