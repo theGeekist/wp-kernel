@@ -1,0 +1,43 @@
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { Workspace } from '../workspace';
+
+/**
+ * Runtime flags exposed to DX readiness helpers.
+ *
+ * These flags mirror the environment toggles that the CLI exposes while
+ * running inside the monorepo versus the published npm artifact.
+ */
+export interface DxRuntimeFlags {
+	/** Forces helpers to resolve assets from the source tree. */
+	readonly forceSource: boolean;
+}
+
+/**
+ * Environment metadata shared with readiness helpers.
+ */
+export interface DxEnvironment {
+	/** Directory where the CLI process was invoked. */
+	readonly cwd: string;
+	/** Absolute path to the CLI package root. */
+	readonly projectRoot: string;
+	/**
+	 * Resolved workspace root for the current command. `null` when the
+	 * command operates outside of a project workspace (for example, prior
+	 * to scaffolding).
+	 */
+	readonly workspaceRoot: string | null;
+	/** Feature flags toggled by the current runtime. */
+	readonly flags: DxRuntimeFlags;
+}
+
+/**
+ * Context object threaded through DX readiness helpers.
+ */
+export interface DxContext {
+	/** Reporter used to emit DX readiness diagnostics. */
+	readonly reporter: Reporter;
+	/** Current workspace instance if the command resolved one. */
+	readonly workspace: Workspace | null;
+	/** Environment metadata describing cwd, workspace root, and flags. */
+	readonly environment: DxEnvironment;
+}
