@@ -1,0 +1,441 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://wpkernel.org/schemas/wpk-config.schema.json",
+	"title": "WPKernel Config",
+	"description": "JSON Schema for WPKernel CLI configuration (wpk.config.ts) version 1.",
+	"type": "object",
+	"required": ["version", "namespace", "schemas", "resources"],
+	"additionalProperties": false,
+	"properties": {
+		"version": {
+			"const": 1,
+			"description": "Configuration schema version. Must be set to 1."
+		},
+		"namespace": {
+			"type": "string",
+			"pattern": "^[a-z][a-z0-9-]{2,49}$",
+			"description": "Project namespace used for generated namespaces, store keys, and capability prefixes."
+		},
+		"schemas": {
+			"type": "object",
+			"description": "Registry of external schema descriptors keyed by identifier.",
+			"additionalProperties": { "$ref": "#/$defs/schemaConfig" }
+		},
+		"resources": {
+			"type": "object",
+			"description": "Registry of resource descriptors keyed by identifier.",
+			"additionalProperties": { "$ref": "#/$defs/resourceConfig" }
+		},
+		"adapters": {
+			"type": "object",
+			"description": "Optional adapter factories that customise code generation.",
+			"additionalProperties": true,
+			"properties": {
+				"php": {
+					"$ref": "#/$defs/function",
+					"description": "Factory returning PHP adapter overrides."
+				},
+				"extensions": {
+					"type": "array",
+					"description": "Adapter extension factories executed during generation.",
+					"items": { "$ref": "#/$defs/function" }
+				}
+			}
+		}
+	},
+	"$defs": {
+		"function": {
+			"typeof": "function",
+			"description": "Executable factory or callback."
+		},
+		"nonEmptyString": {
+			"type": "string",
+			"minLength": 1
+		},
+		"schemaConfig": {
+			"type": "object",
+			"required": ["path", "generated"],
+			"additionalProperties": true,
+			"properties": {
+				"path": {
+					"type": "string",
+					"minLength": 1
+				},
+				"generated": {
+					"type": "object",
+					"required": ["types"],
+					"additionalProperties": true,
+					"properties": {
+						"types": {
+							"type": "string",
+							"minLength": 1
+						}
+					}
+				},
+				"description": {
+					"type": "string",
+					"minLength": 1
+				}
+			}
+		},
+		"resourceRoute": {
+			"type": "object",
+			"required": ["path", "method"],
+			"additionalProperties": true,
+			"properties": {
+				"path": {
+					"type": "string",
+					"minLength": 1
+				},
+				"method": {
+					"enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+				},
+				"capability": {
+					"type": "string",
+					"minLength": 1
+				}
+			}
+		},
+		"resourceRoutes": {
+			"type": "object",
+			"minProperties": 1,
+			"properties": {
+				"list": { "$ref": "#/$defs/resourceRoute" },
+				"get": { "$ref": "#/$defs/resourceRoute" },
+				"create": { "$ref": "#/$defs/resourceRoute" },
+				"update": { "$ref": "#/$defs/resourceRoute" },
+				"remove": { "$ref": "#/$defs/resourceRoute" }
+			},
+			"additionalProperties": { "$ref": "#/$defs/resourceRoute" }
+		},
+		"resourceIdentityNumber": {
+			"type": "object",
+			"required": ["type"],
+			"additionalProperties": true,
+			"properties": {
+				"type": { "const": "number" },
+				"param": { "enum": ["id"] }
+			}
+		},
+		"resourceIdentityString": {
+			"type": "object",
+			"required": ["type"],
+			"additionalProperties": true,
+			"properties": {
+				"type": { "const": "string" },
+				"param": { "enum": ["id", "slug", "uuid"] }
+			}
+		},
+		"resourceIdentity": {
+			"oneOf": [
+				{ "$ref": "#/$defs/resourceIdentityNumber" },
+				{ "$ref": "#/$defs/resourceIdentityString" }
+			]
+		},
+		"resourceStorageTransient": {
+			"type": "object",
+			"required": ["mode"],
+			"additionalProperties": true,
+			"properties": {
+				"mode": { "const": "transient" }
+			}
+		},
+		"resourceStoragePostMeta": {
+			"type": "object",
+			"required": ["type"],
+			"additionalProperties": true,
+			"properties": {
+				"type": {
+					"enum": [
+						"string",
+						"integer",
+						"number",
+						"boolean",
+						"array",
+						"object"
+					]
+				},
+				"single": {
+					"type": "boolean"
+				}
+			}
+		},
+		"resourceStoragePostTaxonomy": {
+			"type": "object",
+			"required": ["taxonomy"],
+			"additionalProperties": true,
+			"properties": {
+				"taxonomy": { "type": "string", "minLength": 1 },
+				"hierarchical": { "type": "boolean" },
+				"register": { "type": "boolean" }
+			}
+		},
+		"resourceStoragePost": {
+			"type": "object",
+			"required": ["mode"],
+			"additionalProperties": true,
+			"properties": {
+				"mode": { "const": "wp-post" },
+				"postType": { "type": "string", "minLength": 1 },
+				"statuses": {
+					"type": "array",
+					"items": { "type": "string", "minLength": 1 }
+				},
+				"supports": {
+					"type": "array",
+					"items": {
+						"enum": ["title", "editor", "excerpt", "custom-fields"]
+					}
+				},
+				"meta": {
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/$defs/resourceStoragePostMeta"
+					}
+				},
+				"taxonomies": {
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/$defs/resourceStoragePostTaxonomy"
+					}
+				}
+			}
+		},
+		"resourceStorageTaxonomy": {
+			"type": "object",
+			"required": ["mode", "taxonomy"],
+			"additionalProperties": true,
+			"properties": {
+				"mode": { "const": "wp-taxonomy" },
+				"taxonomy": { "type": "string", "minLength": 1 },
+				"hierarchical": { "type": "boolean" }
+			}
+		},
+		"resourceStorageOption": {
+			"type": "object",
+			"required": ["mode", "option"],
+			"additionalProperties": true,
+			"properties": {
+				"mode": { "const": "wp-option" },
+				"option": { "type": "string", "minLength": 1 }
+			}
+		},
+		"resourceStorage": {
+			"oneOf": [
+				{ "$ref": "#/$defs/resourceStorageTransient" },
+				{ "$ref": "#/$defs/resourceStoragePost" },
+				{ "$ref": "#/$defs/resourceStorageTaxonomy" },
+				{ "$ref": "#/$defs/resourceStorageOption" }
+			]
+		},
+		"resourceCapabilityDescriptor": {
+			"type": "object",
+			"required": ["capability", "appliesTo"],
+			"additionalProperties": true,
+			"properties": {
+				"capability": { "type": "string", "minLength": 1 },
+				"appliesTo": { "enum": ["resource", "object"] },
+				"binding": { "type": "string", "minLength": 1 }
+			}
+		},
+		"resourceCapabilities": {
+			"type": "object",
+			"additionalProperties": {
+				"oneOf": [
+					{ "type": "string", "minLength": 1 },
+					{ "$ref": "#/$defs/resourceCapabilityDescriptor" }
+				]
+			}
+		},
+		"resourceQueryParamDescriptor": {
+			"type": "object",
+			"required": ["type"],
+			"additionalProperties": false,
+			"properties": {
+				"type": { "enum": ["string", "enum"] },
+				"optional": { "type": "boolean" },
+				"enum": {
+					"type": "array",
+					"items": { "type": "string", "minLength": 1 }
+				},
+				"description": { "type": "string", "minLength": 1 }
+			}
+		},
+		"resourceQueryParams": {
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/$defs/resourceQueryParamDescriptor"
+			}
+		},
+		"resourceCacheKeys": {
+			"type": "object",
+			"additionalProperties": { "$ref": "#/$defs/function" },
+			"properties": {
+				"list": { "$ref": "#/$defs/function" },
+				"get": { "$ref": "#/$defs/function" },
+				"create": { "$ref": "#/$defs/function" },
+				"update": { "$ref": "#/$defs/function" },
+				"remove": { "$ref": "#/$defs/function" }
+			}
+		},
+		"resourceStore": {
+			"type": "object",
+			"additionalProperties": true,
+			"properties": {
+				"getId": { "$ref": "#/$defs/function" },
+				"getQueryKey": { "$ref": "#/$defs/function" },
+				"initialState": {
+					"type": "object",
+					"additionalProperties": true
+				}
+			}
+		},
+		"resourceDataViewsMenu": {
+			"type": "object",
+			"required": ["slug", "title"],
+			"additionalProperties": true,
+			"properties": {
+				"slug": { "$ref": "#/$defs/nonEmptyString" },
+				"title": { "$ref": "#/$defs/nonEmptyString" },
+				"capability": { "type": "string", "minLength": 1 },
+				"parent": { "type": "string", "minLength": 1 },
+				"position": { "type": "number" }
+			}
+		},
+		"resourceDataViewsScreen": {
+			"type": "object",
+			"additionalProperties": true,
+			"properties": {
+				"component": { "type": "string", "minLength": 1 },
+				"route": { "type": "string", "minLength": 1 },
+				"resourceImport": { "type": "string", "minLength": 1 },
+				"resourceSymbol": { "type": "string", "minLength": 1 },
+				"wpkernelImport": { "type": "string", "minLength": 1 },
+				"wpkernelSymbol": { "type": "string", "minLength": 1 },
+				"menu": { "$ref": "#/$defs/resourceDataViewsMenu" }
+			}
+		},
+		"resourceDataViewsSavedView": {
+			"type": "object",
+			"required": ["id", "label", "view"],
+			"additionalProperties": true,
+			"properties": {
+				"id": { "$ref": "#/$defs/nonEmptyString" },
+				"label": { "$ref": "#/$defs/nonEmptyString" },
+				"view": {
+					"type": "object",
+					"additionalProperties": true
+				},
+				"description": { "type": "string", "minLength": 1 },
+				"isDefault": { "type": "boolean" }
+			}
+		},
+		"resourceDataViewsInteractivity": {
+			"type": "object",
+			"additionalProperties": true,
+			"properties": {
+				"feature": {
+					"type": "string",
+					"minLength": 1,
+					"default": "admin-screen"
+				}
+			}
+		},
+		"resourceDataViews": {
+			"type": "object",
+			"additionalProperties": true,
+			"properties": {
+				"fields": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": true
+					}
+				},
+				"defaultView": {
+					"type": "object",
+					"additionalProperties": true
+				},
+				"actions": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": true
+					}
+				},
+				"mapQuery": { "$ref": "#/$defs/function" },
+				"search": { "type": "boolean" },
+				"searchLabel": { "type": "string", "minLength": 1 },
+				"getItemId": { "$ref": "#/$defs/function" },
+				"empty": {},
+				"perPageSizes": {
+					"type": "array",
+					"items": { "type": "number" }
+				},
+				"defaultLayouts": {
+					"type": "object",
+					"additionalProperties": {
+						"anyOf": [
+							{ "type": "object", "additionalProperties": true },
+							{ "type": "null" }
+						]
+					}
+				},
+				"views": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/resourceDataViewsSavedView" }
+				},
+				"preferencesKey": { "$ref": "#/$defs/nonEmptyString" },
+				"interactivity": {
+					"$ref": "#/$defs/resourceDataViewsInteractivity"
+				},
+				"screen": { "$ref": "#/$defs/resourceDataViewsScreen" }
+			}
+		},
+		"resourceAdminUI": {
+			"type": "object",
+			"additionalProperties": true,
+			"properties": {
+				"view": { "type": "string", "minLength": 1 },
+				"dataviews": { "$ref": "#/$defs/resourceDataViews" }
+			}
+		},
+		"resourceUI": {
+			"type": "object",
+			"additionalProperties": true,
+			"properties": {
+				"admin": { "$ref": "#/$defs/resourceAdminUI" }
+			}
+		},
+		"resourceConfig": {
+			"type": "object",
+			"required": ["name", "routes"],
+			"additionalProperties": true,
+			"properties": {
+				"name": { "type": "string", "minLength": 1 },
+				"namespace": { "type": "string", "minLength": 1 },
+				"routes": { "$ref": "#/$defs/resourceRoutes" },
+				"identity": { "$ref": "#/$defs/resourceIdentity" },
+				"storage": { "$ref": "#/$defs/resourceStorage" },
+				"cacheKeys": { "$ref": "#/$defs/resourceCacheKeys" },
+				"queryParams": { "$ref": "#/$defs/resourceQueryParams" },
+				"store": { "$ref": "#/$defs/resourceStore" },
+				"schema": {
+					"anyOf": [
+						{ "type": "string", "minLength": 1 },
+						{ "type": "object", "additionalProperties": true },
+						{ "$ref": "#/$defs/function" }
+					]
+				},
+				"reporter": {
+					"anyOf": [
+						{ "type": "object", "additionalProperties": true },
+						{ "$ref": "#/$defs/function" }
+					]
+				},
+				"ui": { "$ref": "#/$defs/resourceUI" },
+				"capabilities": { "$ref": "#/$defs/resourceCapabilities" }
+			}
+		}
+	}
+}
