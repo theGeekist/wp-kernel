@@ -171,6 +171,10 @@ Work inside `packages/test-utils` to turn it into the primary home for shared te
 - Behavioural changes to the CLI itself.
 - Forcing coverage thresholds to pass during the refactor.
 
+##### 56a consolidation update – process harnesses
+
+`packages/test-utils/src/integration` now owns the shared process runner (`runProcess`), loader-aware Node flag builder (`buildNodeOptions`), and CLI-aware PHP environment shims (`sanitizePhpIntegrationEnv`, `buildCliIntegrationEnv`). `packages/cli/tests/test-support/runWpk.ts`, `packages/cli/tests/__tests__/wpk-bin.integration.test.ts`, and `packages/cli/tests/__tests__/create-wpk.integration.test.ts` are the first consumers, eliminating their bespoke spawn wrappers while keeping the existing expectations untouched. The next logical seam for Task 56b is to flip the remaining CLI suites (pipeline/start/apply) over to these helpers so the loader/env story stays consistent before we tackle the reporter/workspace refactors in 56c.
+
 ---
 
 #### 56b – Integration process runners onto test-utils
@@ -194,6 +198,10 @@ Move the process/spawn harness duplication in CLI integration tests onto the con
 
 - Changing what the integrations assert (still smoke vs snapshot-heavy at this point).
 - Touching builder or readiness tests.
+
+##### 56b consolidation update – CLI runner surface
+
+`packages/test-utils/src/integration/process.ts` now exposes `runNodeProcess`, letting CLI suites compose Node loader flags, shared env shims, and `runProcess` in a single hop. The shared `runWpk` helper has switched to the new entry point and `packages/cli/tests/__tests__/create-wpk.integration.test.ts` now hydrates its bootstrap binary with `buildCliIntegrationEnv` + `runNodeProcess`, eliminating the bespoke NODE_OPTIONS juggling in favour of the same loader wiring used by `wpk-bin`. Task 56c can build on this by lifting the repeated git/composer bootstrap logic (e.g. `jest-global-setup` and suite-level `git init` calls) into companion helpers so reporter/workspace migrations do not have to replicate shell management.
 
 ---
 

@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
 import { runWpk } from '../test-support/runWpk';
 import { withWorkspace } from '../workspace.test-support';
+import { runProcess } from '@wpkernel/test-utils/integration';
 
 const PHP_JSON_AST_AUTOLOAD = path.resolve(
 	__dirname,
@@ -15,51 +15,6 @@ const PHP_JSON_AST_AUTOLOAD = path.resolve(
 );
 
 jest.setTimeout(30000);
-
-type RunResult = {
-	code: number;
-	stdout: string;
-	stderr: string;
-};
-
-type RunOptions = {
-	cwd: string;
-	env?: NodeJS.ProcessEnv;
-};
-
-function runProcess(
-	command: string,
-	args: string[],
-	options: RunOptions
-): Promise<RunResult> {
-	return new Promise((resolve, reject) => {
-		const child = spawn(command, args, {
-			cwd: options.cwd,
-			env: options.env,
-			stdio: ['ignore', 'pipe', 'pipe'],
-		});
-
-		let stdout = '';
-		let stderr = '';
-
-		child.stdout?.on('data', (chunk) => {
-			stdout += chunk.toString();
-		});
-
-		child.stderr?.on('data', (chunk) => {
-			stderr += chunk.toString();
-		});
-
-		child.once('error', reject);
-		child.once('close', (code) => {
-			resolve({
-				code: code ?? 0,
-				stdout,
-				stderr,
-			});
-		});
-	});
-}
 
 describe('wpk bin integration', () => {
 	it('scaffolds a plugin workspace via init', async () => {
