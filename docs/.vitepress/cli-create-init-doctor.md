@@ -8,13 +8,13 @@ Phase 9 runs in the 0.12.x band and keeps the `@wpkernel/pipeline` contract unto
 
 ## Task ledger
 
-| Task | Scope               | Status      | Notes                                                                                         |
-| ---- | ------------------- | ----------- | --------------------------------------------------------------------------------------------- |
-| 53   | Discovery & mapping | ✅ Complete | Consolidated command/runtime surfaces and readiness unit inventory.                           |
-| 54   | DXIRv1 foundation   | ✅ Complete | DX context + readiness registry landed with helpers for git, composer, PHP, tsx, and hygiene. |
-| 55   | Command integration | ⬜ Planned  | Route create/init/doctor/generate/apply through DXIRv1 without regressing workflows.          |
-| 56   | Reporter & logging  | ⬜ Planned  | Align DX events with existing LogLayer transports and error surfaces.                         |
-| 57   | Validation sweep    | ⬜ Planned  | Exercise the packed CLI (`pnpm pack`) in a temp workspace to confirm readiness idempotency.   |
+| Task | Scope               | Status         | Notes                                                                                         |
+| ---- | ------------------- | -------------- | --------------------------------------------------------------------------------------------- |
+| 53   | Discovery & mapping | ✅ Complete    | Consolidated command/runtime surfaces and readiness unit inventory.                           |
+| 54   | DXIRv1 foundation   | ✅ Complete    | DX context + readiness registry landed with helpers for git, composer, PHP, tsx, and hygiene. |
+| 55   | Command integration | 🚧 In progress | Route create/init/doctor/generate/apply through DXIRv1 without regressing workflows.          |
+| 56   | Reporter & logging  | ⬜ Planned     | Align DX events with existing LogLayer transports and error surfaces.                         |
+| 57   | Validation sweep    | ⬜ Planned     | Exercise the packed CLI (`pnpm pack`) in a temp workspace to confirm readiness idempotency.   |
 
 ## Discovery baseline (Task 53)
 
@@ -78,11 +78,14 @@ All downstream integration and validation tasks must exercise the packed CLI (`p
 
 ## Task 55 – Command integration
 
-- Inject DXIRv1 into `create` and `init` by extending `createInitCommandRuntime` so readiness detection runs before workspace workflows. Preserve existing CLI options (`--skip-install`, `--yes`) by mapping them onto helper configuration.
-- Register the default readiness helpers (`packages/cli/src/dx/readiness/helpers`) with a shared registry instance and plumb helper options from command arguments.
-- Wrap `doctor` checks with the readiness helpers to guarantee console summaries and exit codes remain unchanged while delegating work to DXIRv1.
-- Add an integration seam inside `generate`/`apply` to invoke readiness units on demand when missing prerequisites (php-driver assets, tsx runtime) are detected.
-- Refresh unit/integration tests to cover the new orchestration flow, including scenarios where DXIRv1 exits early or retries installers; reuse the new helper tests as fixtures.
+### Subtask ledger
+
+| Subtask | Scope                                                                                                                                                                                                                                                                                                           | Status      | Notes                                                                                                                                                                        |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 55a     | Extend `createInitCommandRuntime` to build a DX context and readiness registry before invoking the init workflow. Touches `packages/cli/src/commands/init/command-runtime.ts` and `packages/cli/src/dx/readiness/*` to expose a `runReadiness` seam for commands.                                               | ✅ Complete | Registry builder + DX context now surface `readiness.run`/`plan` with default helper order for downstream commands.                                                          |
+| 55b     | Route `create`/`init` through the readiness plan, mapping flags such as `--skip-install`/`--yes` onto helper configuration. Update command orchestration in `packages/cli/src/commands/create.ts` and `packages/cli/src/commands/init.ts`, adding regression tests under `packages/cli/src/commands/__tests__`. | ✅ Complete | Commands now execute readiness plans after scaffolding, honouring skip/install flags and surfacing hygiene overrides while keeping existing summaries and exit codes intact. |
+| 55c     | Wrap `doctor` health checks with readiness helpers so reporter output stays consistent while leveraging the shared registry. Work centers on `packages/cli/src/commands/doctor.ts` with coverage in `packages/cli/src/commands/__tests__/doctor*.test.ts`.                                                      | ✅ Complete | Doctor now funnels composer, workspace, and PHP diagnostics through the readiness registry while preserving config/composer mapping summaries.                               |
+| 55d     | Add targeted readiness entry points for `generate`/`apply` flows, triggering php-driver and tsx helpers on demand. Update command modules in `packages/cli/src/commands/generate.ts` and `packages/cli/src/commands/apply.ts`, plus integration fixtures in `packages/cli/tests`.                               | ⬜ Planned  | Keeps codegen workflows resilient when prerequisites are missing mid-run.                                                                                                    |
 
 ## Task 56 – Reporter & logging alignment
 

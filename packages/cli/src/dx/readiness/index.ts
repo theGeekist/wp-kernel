@@ -14,3 +14,13 @@ export type {
 	ReadinessConfirmationStatus,
 } from './types';
 export * from './helpers';
+export {
+	buildDefaultReadinessRegistry,
+	registerDefaultReadinessHelpers,
+	DEFAULT_READINESS_ORDER,
+} from './configure';
+export type {
+	DefaultReadinessHelperOverrides,
+	BuildDefaultReadinessRegistryOptions,
+} from './configure';
+export { assertReadinessRun } from './assertions';

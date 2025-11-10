@@ -9,6 +9,7 @@ import {
 	formatInitWorkflowError,
 	resolveCommandCwd,
 } from '../init/command-runtime';
+import { getCliPackageRoot } from '../init/module-url';
 
 describe('init command runtime helpers', () => {
 	it('builds runtime that reuses workspace and reporter when running workflow', async () => {
@@ -44,6 +45,7 @@ describe('init command runtime helpers', () => {
 				reporterNamespace: 'wpk.cli.test',
 				reporterEnabled: true,
 				workspaceRoot: workspace.root,
+				cwd: workspace.root,
 				projectName: 'demo',
 				template: 'plugin',
 				force: true,
@@ -83,6 +85,18 @@ describe('init command runtime helpers', () => {
 				REGISTRY_URL: 'https://registry.test',
 			},
 		});
+
+		expect(runtime.readiness.registry).toBeDefined();
+		expect(runtime.readiness.context.workspace).toBe(workspace);
+		expect(runtime.readiness.context.environment.cwd).toBe(workspace.root);
+		expect(runtime.readiness.context.environment.workspaceRoot).toBe(
+			workspace.root
+		);
+		expect(runtime.readiness.context.environment.projectRoot).toBe(
+			getCliPackageRoot()
+		);
+		expect(runtime.readiness.defaultKeys.length).toBeGreaterThan(0);
+		expect(() => runtime.readiness.plan([])).not.toThrow();
 	});
 
 	it('formats wpk errors consistently for init workflow consumers', () => {

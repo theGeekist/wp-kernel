@@ -8,6 +8,17 @@ import type { Command } from 'clipanion';
 import type { Workspace } from '../../workspace';
 import type { InitWorkflowOptions, InitWorkflowResult } from './workflow';
 import { parseStringOption } from './utils';
+import {
+	type BuildDefaultReadinessRegistryOptions,
+	type ReadinessRegistry,
+	type ReadinessKey,
+	type ReadinessPlan,
+	type ReadinessRunResult,
+	type DxContext,
+	DEFAULT_READINESS_ORDER,
+	buildDefaultReadinessRegistry,
+} from '../../dx';
+import { getCliPackageRoot } from './module-url';
 
 export interface InitCommandRuntimeDependencies {
 	readonly buildWorkspace: (root: string) => Workspace;
@@ -15,6 +26,9 @@ export interface InitCommandRuntimeDependencies {
 	readonly runWorkflow: (
 		options: InitWorkflowOptions
 	) => Promise<InitWorkflowResult>;
+	readonly buildReadinessRegistry?: (
+		options?: BuildDefaultReadinessRegistryOptions
+	) => ReadinessRegistry;
 }
 
 export interface InitCommandRuntimeOptions {
@@ -22,12 +36,14 @@ export interface InitCommandRuntimeOptions {
 	readonly reporterLevel?: ReporterLevel;
 	readonly reporterEnabled?: boolean;
 	readonly workspaceRoot: string;
+	readonly cwd?: string;
 	readonly projectName?: string | null;
 	readonly template?: string | null;
 	readonly force?: boolean;
 	readonly verbose?: boolean;
 	readonly preferRegistryVersions?: boolean;
 	readonly env?: InitWorkflowOptions['env'];
+	readonly readiness?: BuildDefaultReadinessRegistryOptions;
 }
 
 export interface InitCommandRuntimeResult {
@@ -41,13 +57,27 @@ export interface InitCommandRuntimeResult {
 		readonly verbose: boolean;
 		readonly preferRegistryVersions: boolean;
 	};
+	readonly readiness: InitCommandReadinessRuntime;
 	runWorkflow: () => Promise<InitWorkflowResult>;
+}
+
+export interface InitCommandReadinessRuntime {
+	readonly registry: ReadinessRegistry;
+	readonly context: DxContext;
+	readonly defaultKeys: ReadonlyArray<ReadinessKey>;
+	readonly plan: (keys: readonly ReadinessKey[]) => ReadinessPlan;
+	readonly run: (
+		keys: readonly ReadinessKey[]
+	) => Promise<ReadinessRunResult>;
 }
 
 export function createInitCommandRuntime(
 	dependencies: InitCommandRuntimeDependencies,
 	options: InitCommandRuntimeOptions
 ): InitCommandRuntimeResult {
+	const buildReadinessRegistry =
+		dependencies.buildReadinessRegistry ?? buildDefaultReadinessRegistry;
+
 	const reporter = dependencies.buildReporter({
 		namespace: options.reporterNamespace,
 		level: options.reporterLevel ?? 'info',
@@ -58,6 +88,7 @@ export function createInitCommandRuntime(
 	});
 
 	const workspace = dependencies.buildWorkspace(options.workspaceRoot);
+	const cwd = resolveCwd(options);
 
 	const projectName = parseStringOption(options.projectName);
 	const template = parseStringOption(options.template);
@@ -80,6 +111,28 @@ export function createInitCommandRuntime(
 		},
 	};
 
+	const readinessRegistry = buildReadinessRegistry(options.readiness);
+	const readinessContext: DxContext = {
+		reporter,
+		workspace,
+		environment: {
+			cwd,
+			projectRoot: getCliPackageRoot(),
+			workspaceRoot: options.workspaceRoot,
+			flags: {
+				forceSource: process.env.WPK_CLI_FORCE_SOURCE === '1',
+			},
+		},
+	};
+
+	const readinessRuntime: InitCommandReadinessRuntime = {
+		registry: readinessRegistry,
+		context: readinessContext,
+		defaultKeys: [...DEFAULT_READINESS_ORDER],
+		plan: (keys) => readinessRegistry.plan(keys),
+		run: (keys) => readinessRegistry.plan(keys).run(readinessContext),
+	};
+
 	return {
 		workspace,
 		reporter,
@@ -91,8 +144,17 @@ export function createInitCommandRuntime(
 			verbose,
 			preferRegistryVersions,
 		},
+		readiness: readinessRuntime,
 		runWorkflow: () => dependencies.runWorkflow(workflowOptions),
 	};
+}
+
+function resolveCwd(options: InitCommandRuntimeOptions): string {
+	if (typeof options.cwd === 'string' && options.cwd.length > 0) {
+		return options.cwd;
+	}
+
+	return options.workspaceRoot;
 }
 
 export function formatInitWorkflowError(

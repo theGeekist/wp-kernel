@@ -28,6 +28,14 @@ describe('command factories', () => {
 			const checkGit = jest.fn().mockResolvedValue(false);
 			const buildWorkspaceMock = jest.fn().mockReturnValue(workspace);
 			const buildReporterMock = jest.fn().mockReturnValue(reporter);
+			const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+			const buildReadinessRegistry = jest.fn().mockReturnValue({
+				register: jest.fn(),
+				plan: jest.fn().mockImplementation((keys: string[]) => ({
+					keys,
+					run: readinessRun,
+				})),
+			});
 
 			const { buildInitCommand } = await import('../init');
 			const Init = buildInitCommand({
@@ -35,6 +43,7 @@ describe('command factories', () => {
 				buildReporter: buildReporterMock,
 				runWorkflow: workflow,
 				checkGitRepository: checkGit,
+				buildReadinessRegistry: buildReadinessRegistry as never,
 			});
 
 			const command = new Init();
@@ -48,6 +57,8 @@ describe('command factories', () => {
 			expect(buildWorkspaceMock).toHaveBeenCalledTimes(1);
 			expect(buildReporterMock).toHaveBeenCalledTimes(1);
 			expect(checkGit).toHaveBeenCalledWith(workspace.root);
+			expect(buildReadinessRegistry).toHaveBeenCalledTimes(1);
+			expect(readinessRun).toHaveBeenCalledTimes(1);
 			expect(workflow).toHaveBeenCalledWith(
 				expect.objectContaining({
 					workspace,

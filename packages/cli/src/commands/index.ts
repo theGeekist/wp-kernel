@@ -54,5 +54,4 @@ export type {
 	BuildDoctorCommandOptions,
 	DoctorCheckResult,
 	DoctorStatus,
-	CheckPhpEnvironmentOptions,
 } from './doctor';

@@ -1,6 +1,4 @@
 import path from 'node:path';
-import { execFile as execFileCallback } from 'node:child_process';
-import { promisify } from 'node:util';
 import { Command } from 'clipanion';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -8,10 +6,18 @@ import { WPK_NAMESPACE, WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { serialiseError } from './internal/serialiseError';
 import { loadWPKernelConfig } from '../config';
 import type { LoadedWPKernelConfig } from '../config/types';
-import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
+import { buildWorkspace } from '../workspace';
 import type { Workspace } from '../workspace';
-
-const execFile = promisify(execFileCallback);
+import {
+	buildDefaultReadinessRegistry,
+	DEFAULT_READINESS_ORDER,
+	type DxContext,
+	type ReadinessKey,
+	type ReadinessOutcome,
+	type ReadinessOutcomeStatus,
+} from '../dx';
+import { getCliPackageRoot } from './init/module-url';
+import { resolveCommandCwd } from './init/command-runtime';
 
 /**
  * Status of a doctor check.
@@ -34,25 +40,11 @@ export interface DoctorCheckResult {
 	readonly message: string;
 }
 
-/**
- * Options for checking PHP environment.
- *
- * @category Commands
- * @public
- */
-export interface CheckPhpEnvironmentOptions {
-	readonly reporter: Reporter;
-	readonly workspaceRoot?: string | null;
-}
-
 interface DoctorDependencies {
 	readonly loadWPKernelConfig: typeof loadWPKernelConfig;
 	readonly buildWorkspace: typeof buildWorkspace;
-	readonly ensureGeneratedPhpClean: typeof ensureGeneratedPhpClean;
 	readonly buildReporter: typeof buildReporter;
-	readonly checkPhpEnvironment: (
-		options: CheckPhpEnvironmentOptions
-	) => Promise<DoctorCheckResult[]>;
+	readonly buildReadinessRegistry: typeof buildDefaultReadinessRegistry;
 }
 
 /**
@@ -65,14 +57,10 @@ export interface BuildDoctorCommandOptions {
 	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;
 	/** Optional: Custom workspace builder function. */
 	readonly buildWorkspace?: typeof buildWorkspace;
-	/** Optional: Custom function to ensure the generated PHP directory is clean. */
-	readonly ensureGeneratedPhpClean?: typeof ensureGeneratedPhpClean;
 	/** Optional: Custom reporter builder function. */
 	readonly buildReporter?: typeof buildReporter;
-	/** Optional: Custom function to check the PHP environment. */
-	readonly checkPhpEnvironment?: (
-		options: CheckPhpEnvironmentOptions
-	) => Promise<DoctorCheckResult[]>;
+	/** Optional: Custom readiness registry builder. */
+	readonly buildReadinessRegistry?: typeof buildDefaultReadinessRegistry;
 }
 
 function mergeDependencies(
@@ -81,12 +69,95 @@ function mergeDependencies(
 	return {
 		loadWPKernelConfig: options.loadWPKernelConfig ?? loadWPKernelConfig,
 		buildWorkspace: options.buildWorkspace ?? buildWorkspace,
-		ensureGeneratedPhpClean:
-			options.ensureGeneratedPhpClean ?? ensureGeneratedPhpClean,
 		buildReporter: options.buildReporter ?? buildReporter,
-		checkPhpEnvironment:
-			options.checkPhpEnvironment ?? defaultCheckPhpEnvironment,
+		buildReadinessRegistry:
+			options.buildReadinessRegistry ?? buildDefaultReadinessRegistry,
 	} satisfies DoctorDependencies;
+}
+
+const DOCTOR_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
+	'workspace-hygiene',
+	'composer',
+	'php-runtime',
+	'php-driver',
+];
+
+const READINESS_LABELS: Record<ReadinessKey, string> = {
+	'workspace-hygiene': 'Workspace hygiene',
+	composer: 'Composer dependencies',
+	'php-runtime': 'PHP runtime',
+	'php-driver': 'PHP driver',
+	git: 'Git repository',
+	'tsx-runtime': 'TSX runtime',
+};
+
+const DEFAULT_STATUS_MAPPING: Record<ReadinessOutcomeStatus, DoctorStatus> = {
+	ready: 'pass',
+	updated: 'pass',
+	pending: 'warn',
+	blocked: 'warn',
+	failed: 'fail',
+};
+
+const STATUS_OVERRIDES: Partial<
+	Record<ReadinessKey, Partial<Record<ReadinessOutcomeStatus, DoctorStatus>>>
+> = {
+	'php-driver': {
+		pending: 'fail',
+		blocked: 'fail',
+	},
+};
+
+function mapReadinessStatus(
+	key: ReadinessKey,
+	status: ReadinessOutcomeStatus
+): DoctorStatus {
+	const override = STATUS_OVERRIDES[key]?.[status];
+	if (override) {
+		return override;
+	}
+
+	return DEFAULT_STATUS_MAPPING[status] ?? 'warn';
+}
+
+function mapReadinessOutcome(outcome: ReadinessOutcome): DoctorCheckResult {
+	const label = READINESS_LABELS[outcome.key] ?? `Readiness: ${outcome.key}`;
+	const message =
+		outcome.confirmation?.message ??
+		outcome.detection?.message ??
+		'Readiness helper produced no message.';
+
+	return {
+		key: `readiness:${outcome.key}`,
+		label,
+		status: mapReadinessStatus(outcome.key, outcome.status),
+		message,
+	} satisfies DoctorCheckResult;
+}
+
+function buildReadinessContext({
+	reporter,
+	workspace,
+	workspaceRoot,
+	cwd,
+}: {
+	reporter: Reporter;
+	workspace: Workspace | null;
+	workspaceRoot: string | null;
+	cwd: string;
+}): DxContext {
+	return {
+		reporter,
+		workspace,
+		environment: {
+			cwd,
+			projectRoot: getCliPackageRoot(),
+			workspaceRoot,
+			flags: {
+				forceSource: process.env.WPK_CLI_FORCE_SOURCE === '1',
+			},
+		},
+	} satisfies DxContext;
 }
 
 function buildReporterNamespace(): string {
@@ -124,6 +195,7 @@ export function buildDoctorCommand(
 			});
 
 			const results: DoctorCheckResult[] = [];
+			const cwd = resolveCommandCwd(this.context);
 
 			const configResult = await this.checkWPKernelConfig({
 				reporter,
@@ -131,7 +203,7 @@ export function buildDoctorCommand(
 			});
 			results.push(configResult.result);
 
-			const { loadedConfig, workspace } = configResult;
+			const { loadedConfig, workspace, workspaceRoot } = configResult;
 
 			if (loadedConfig) {
 				results.push(
@@ -140,21 +212,16 @@ export function buildDoctorCommand(
 						reporter.child('composer')
 					)
 				);
-
-				results.push(
-					await this.checkWorkspaceHygiene({
-						deps: dependencies,
-						workspace,
-						reporter: reporter.child('workspace'),
-					})
-				);
 			}
 
-			const phpResults = await dependencies.checkPhpEnvironment({
-				reporter: reporter.child('php'),
-				workspaceRoot: workspace?.root,
+			const readinessResults = await this.runReadiness({
+				deps: dependencies,
+				reporter: reporter.child('readiness'),
+				workspace,
+				workspaceRoot,
+				cwd,
 			});
-			results.push(...phpResults);
+			results.push(...readinessResults);
 
 			this.context.stdout.write(renderDoctorSummary(results));
 
@@ -177,6 +244,7 @@ export function buildDoctorCommand(
 			result: DoctorCheckResult;
 			loadedConfig: LoadedWPKernelConfig | null;
 			workspace: Workspace | null;
+			workspaceRoot: string | null;
 		}> {
 			try {
 				const loaded = await deps.loadWPKernelConfig();
@@ -198,6 +266,7 @@ export function buildDoctorCommand(
 					},
 					loadedConfig: loaded,
 					workspace,
+					workspaceRoot,
 				};
 			} catch (error) {
 				reporter.error('Failed to load wpk config.', {
@@ -214,6 +283,7 @@ export function buildDoctorCommand(
 					},
 					loadedConfig: null,
 					workspace: null,
+					workspaceRoot: null,
 				};
 			}
 		}
@@ -242,49 +312,44 @@ export function buildDoctorCommand(
 			} satisfies DoctorCheckResult;
 		}
 
-		private async checkWorkspaceHygiene({
+		private async runReadiness({
 			deps,
-			workspace,
 			reporter,
+			workspace,
+			workspaceRoot,
+			cwd,
 		}: {
 			deps: DoctorDependencies;
-			workspace: Workspace | null;
 			reporter: Reporter;
-		}): Promise<DoctorCheckResult> {
-			if (!workspace) {
-				return {
-					key: 'workspace',
-					label: 'Workspace hygiene',
-					status: 'warn',
-					message: 'Workspace not resolved; skipping hygiene check.',
-				} satisfies DoctorCheckResult;
+			workspace: Workspace | null;
+			workspaceRoot: string | null;
+			cwd: string;
+		}): Promise<DoctorCheckResult[]> {
+			const keys = this.resolveReadinessKeys();
+			if (keys.length === 0) {
+				return [];
 			}
 
-			try {
-				await deps.ensureGeneratedPhpClean({
-					workspace,
-					reporter,
-					yes: false,
-				});
-				reporter.info('Generated PHP directory is clean.');
-				return {
-					key: 'workspace',
-					label: 'Workspace hygiene',
-					status: 'pass',
-					message: 'Generated PHP directory has no pending changes.',
-				} satisfies DoctorCheckResult;
-			} catch (error) {
-				reporter.warn('Workspace hygiene check failed.', {
-					error: serialiseError(error),
-				});
-				return {
-					key: 'workspace',
-					label: 'Workspace hygiene',
-					status: 'warn',
-					message:
-						'Review generated PHP changes or reset .generated/php/.',
-				} satisfies DoctorCheckResult;
+			const registry = deps.buildReadinessRegistry();
+			const plan = registry.plan(keys);
+			const context = buildReadinessContext({
+				reporter,
+				workspace,
+				workspaceRoot,
+				cwd,
+			});
+			const result = await plan.run(context);
+
+			if (result.error) {
+				throw result.error;
 			}
+
+			return result.outcomes.map(mapReadinessOutcome);
+		}
+
+		private resolveReadinessKeys(): ReadonlyArray<ReadinessKey> {
+			const allowed = new Set(DOCTOR_READINESS_KEYS);
+			return DEFAULT_READINESS_ORDER.filter((key) => allowed.has(key));
 		}
 	}
 
@@ -332,55 +397,4 @@ function toRelative(absolute: string): string {
 	}
 
 	return relative.split(path.sep).join('/');
-}
-
-async function defaultCheckPhpEnvironment({
-	reporter,
-}: CheckPhpEnvironmentOptions): Promise<DoctorCheckResult[]> {
-	const results: DoctorCheckResult[] = [];
-
-	try {
-		await import('@wpkernel/php-driver');
-		reporter.info('`@wpkernel/php-driver` resolved.');
-		results.push({
-			key: 'php-driver',
-			label: 'PHP driver',
-			status: 'pass',
-			message: '@wpkernel/php-driver is available.',
-		});
-	} catch (error) {
-		reporter.error('Unable to resolve `@wpkernel/php-driver`.', {
-			error: serialiseError(error),
-		});
-		results.push({
-			key: 'php-driver',
-			label: 'PHP driver',
-			status: 'fail',
-			message: 'Install @wpkernel/php-driver in your workspace.',
-		});
-		return results;
-	}
-
-	try {
-		await execFile('php', ['--version']);
-		reporter.info('PHP binary detected.');
-		results.push({
-			key: 'php-runtime',
-			label: 'PHP runtime',
-			status: 'pass',
-			message: 'PHP binary available on PATH.',
-		});
-	} catch (error) {
-		reporter.warn('PHP binary not detected.', {
-			error: serialiseError(error),
-		});
-		results.push({
-			key: 'php-runtime',
-			label: 'PHP runtime',
-			status: 'warn',
-			message: 'Install PHP 8.1+ so apply workflows can run locally.',
-		});
-	}
-
-	return results;
 }

@@ -1,26 +1,18 @@
 import path from 'node:path';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-
-const execFileMock = jest.fn();
+import {
+	buildDefaultReadinessRegistry,
+	type DefaultReadinessHelperOverrides,
+} from '../../dx';
 
 describe('doctor command default environment checks', () => {
 	beforeEach(() => {
 		jest.resetModules();
 		jest.clearAllMocks();
-		execFileMock.mockImplementation((...args: unknown[]) => {
-			const callback = args[args.length - 1] as (
-				error: Error | null,
-				stdout?: string
-			) => void;
-			callback(null, 'PHP 8.1.0');
-		});
 	});
 
 	it('passes when PHP driver and runtime are available', async () => {
-		mockPhpDriverSuccess();
-		mockChildProcess();
-
 		const { buildDoctorCommand } = await import('../doctor');
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -28,19 +20,35 @@ describe('doctor command default environment checks', () => {
 			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
-			namespace: 'Demo\\\\Plugin\\\\',
+			namespace: 'Demo\\Plugin\\',
 		});
-		const buildWorkspace = jest
-			.fn()
-			.mockReturnValue({ root: process.cwd() });
-		const ensureGeneratedPhpClean = jest.fn().mockResolvedValue(undefined);
+		const workspace = createWorkspaceMock();
+		const buildWorkspace = jest.fn().mockReturnValue(workspace);
 		const reporterFactory = jest.fn(() => createReporterMock());
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
+			buildReadinessRegistry: createReadinessBuilder({
+				phpRuntime: {
+					exec: async () => ({
+						stdout: 'PHP 8.1.0',
+						stderr: '',
+					}),
+				},
+				phpDriver: {
+					resolve: () =>
+						path.join(
+							process.cwd(),
+							'node_modules',
+							'@wpkernel',
+							'php-driver',
+							'package.json'
+						),
+					access: async () => undefined,
+				},
+			}),
 		});
 
 		const command = new DoctorCommand();
@@ -51,19 +59,9 @@ describe('doctor command default environment checks', () => {
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 		expect(stdout.toString()).toContain('[PASS] PHP driver');
 		expect(stdout.toString()).toContain('[PASS] PHP runtime');
-		expect(execFileMock).toHaveBeenCalled();
 	});
 
 	it('warns when the PHP runtime is missing', async () => {
-		mockPhpDriverSuccess();
-		mockChildProcess();
-		execFileMock.mockImplementationOnce((...args: unknown[]) => {
-			const callback = args[args.length - 1] as (
-				error: Error | null
-			) => void;
-			callback(new Error('not found'));
-		});
-
 		const { buildDoctorCommand } = await import('../doctor');
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -71,19 +69,34 @@ describe('doctor command default environment checks', () => {
 			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
-			namespace: 'Demo\\\\Plugin\\\\',
+			namespace: 'Demo\\Plugin\\',
 		});
-		const buildWorkspace = jest
-			.fn()
-			.mockReturnValue({ root: process.cwd() });
-		const ensureGeneratedPhpClean = jest.fn().mockResolvedValue(undefined);
+		const workspace = createWorkspaceMock();
+		const buildWorkspace = jest.fn().mockReturnValue(workspace);
 		const reporterFactory = jest.fn(() => createReporterMock());
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
+			buildReadinessRegistry: createReadinessBuilder({
+				phpRuntime: {
+					exec: async () => {
+						throw new Error('not found');
+					},
+				},
+				phpDriver: {
+					resolve: () =>
+						path.join(
+							process.cwd(),
+							'node_modules',
+							'@wpkernel',
+							'php-driver',
+							'package.json'
+						),
+					access: async () => undefined,
+				},
+			}),
 		});
 
 		const command = new DoctorCommand();
@@ -96,9 +109,6 @@ describe('doctor command default environment checks', () => {
 	});
 
 	it('fails when the PHP driver cannot be resolved', async () => {
-		mockPhpDriverFailure();
-		mockChildProcess();
-
 		const { buildDoctorCommand } = await import('../doctor');
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -106,19 +116,32 @@ describe('doctor command default environment checks', () => {
 			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
-			namespace: 'Demo\\\\Plugin\\\\',
+			namespace: 'Demo\\Plugin\\',
 		});
-		const buildWorkspace = jest
-			.fn()
-			.mockReturnValue({ root: process.cwd() });
-		const ensureGeneratedPhpClean = jest.fn().mockResolvedValue(undefined);
+		const workspace = createWorkspaceMock();
+		const buildWorkspace = jest.fn().mockReturnValue(workspace);
 		const reporterFactory = jest.fn(() => createReporterMock());
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
+			buildReadinessRegistry: createReadinessBuilder({
+				phpRuntime: {
+					exec: async () => ({
+						stdout: 'PHP 8.1.0',
+						stderr: '',
+					}),
+				},
+				phpDriver: {
+					resolve: () => {
+						throw new Error('module not found');
+					},
+					access: async () => {
+						throw new Error('missing asset');
+					},
+				},
+			}),
 		});
 
 		const command = new DoctorCommand();
@@ -131,26 +154,6 @@ describe('doctor command default environment checks', () => {
 	});
 });
 
-function mockPhpDriverSuccess() {
-	jest.doMock('@wpkernel/php-driver', () => ({}), { virtual: true });
-}
-
-function mockPhpDriverFailure() {
-	jest.doMock(
-		'@wpkernel/php-driver',
-		() => {
-			throw new Error('module not found');
-		},
-		{ virtual: true }
-	);
-}
-
-function mockChildProcess() {
-	jest.doMock('node:child_process', () => ({
-		execFile: (...args: unknown[]) => execFileMock(...args),
-	}));
-}
-
 function createReporterMock() {
 	return {
 		info: jest.fn(),
@@ -159,4 +162,45 @@ function createReporterMock() {
 		debug: jest.fn(),
 		child: jest.fn(() => createReporterMock()),
 	};
+}
+
+function createWorkspaceMock() {
+	const vendorAutoload = path.join('vendor', 'autoload.php');
+	return {
+		root: process.cwd(),
+		exists: jest.fn(async (target: string) => {
+			if (target === 'composer.json') {
+				return true;
+			}
+			if (target === vendorAutoload) {
+				return true;
+			}
+			return false;
+		}),
+		rm: jest.fn().mockResolvedValue(undefined),
+	};
+}
+
+function createReadinessBuilder(
+	overrides: DefaultReadinessHelperOverrides = {}
+) {
+	const helperOverrides: DefaultReadinessHelperOverrides = {
+		workspaceHygiene: {
+			ensureClean: jest.fn().mockResolvedValue(undefined),
+			...(overrides.workspaceHygiene ?? {}),
+		},
+		composer: {
+			install: jest.fn().mockResolvedValue(undefined),
+			...(overrides.composer ?? {}),
+		},
+		phpRuntime: overrides.phpRuntime,
+		phpDriver: overrides.phpDriver,
+		git: overrides.git,
+		tsxRuntime: overrides.tsxRuntime,
+	};
+
+	return () =>
+		buildDefaultReadinessRegistry({
+			helperOverrides,
+		});
 }

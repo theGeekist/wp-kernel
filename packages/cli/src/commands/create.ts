@@ -9,19 +9,22 @@ import {
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { Workspace, FileManifest } from '../workspace';
-import { buildWorkspace, ensureCleanDirectory } from '../workspace';
-import { runInitWorkflow } from './init/workflow';
-import { initialiseGitRepository, isGitRepository } from './init/git';
 import {
-	installNodeDependencies,
-	installComposerDependencies,
-} from './init/installers';
+	buildWorkspace,
+	ensureCleanDirectory,
+	ensureGeneratedPhpClean,
+} from '../workspace';
+import { runInitWorkflow } from './init/workflow';
+import { installNodeDependencies } from './init/installers';
 import {
 	createInitCommandRuntime,
 	formatInitWorkflowError,
 	resolveCommandCwd,
+	type InitCommandRuntimeOptions,
+	type InitCommandRuntimeDependencies,
 	type InitCommandRuntimeResult,
 } from './init/command-runtime';
+import { assertReadinessRun, type ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
 export type { InstallerDependencies } from './init/installers';
@@ -42,16 +45,12 @@ export interface BuildCreateCommandOptions {
 	readonly buildReporter?: typeof buildReporter;
 	/** Optional: Custom workflow runner function. */
 	readonly runWorkflow?: typeof runInitWorkflow;
-	/** Optional: Custom git repository checker function. */
-	readonly checkGitRepository?: typeof isGitRepository;
-	/** Optional: Custom git repository initializer function. */
-	readonly initGitRepository?: typeof initialiseGitRepository;
+	/** Optional: Custom readiness registry builder. */
+	readonly buildReadinessRegistry?: InitCommandRuntimeDependencies['buildReadinessRegistry'];
 	/** Optional: Custom clean directory enforcer function. */
 	readonly ensureCleanDirectory?: typeof ensureCleanDirectory;
 	/** Optional: Custom Node.js dependency installer function. */
 	readonly installNodeDependencies?: typeof installNodeDependencies;
-	/** Optional: Custom Composer dependency installer function. */
-	readonly installComposerDependencies?: typeof installComposerDependencies;
 }
 
 /**
@@ -74,6 +73,8 @@ export type CreateCommandInstance = Command & {
 	preferRegistryVersions: boolean;
 	/** Whether to skip dependency installation. */
 	skipInstall: boolean;
+	/** Whether to bypass readiness hygiene failures. */
+	yes: boolean;
 	/** A summary of the creation process. */
 	summary: string | null;
 	/** The manifest of files created or modified. */
@@ -93,11 +94,9 @@ interface CreateDependencies {
 	readonly buildWorkspace: typeof buildWorkspace;
 	readonly buildReporter: typeof buildReporter;
 	readonly runWorkflow: typeof runInitWorkflow;
-	readonly checkGitRepository: typeof isGitRepository;
-	readonly initGitRepository: typeof initialiseGitRepository;
+	readonly buildReadinessRegistry?: InitCommandRuntimeDependencies['buildReadinessRegistry'];
 	readonly ensureCleanDirectory: typeof ensureCleanDirectory;
 	readonly installNodeDependencies: typeof installNodeDependencies;
-	readonly installComposerDependencies: typeof installComposerDependencies;
 }
 
 function mergeDependencies(
@@ -107,11 +106,9 @@ function mergeDependencies(
 		buildWorkspace,
 		buildReporter,
 		runWorkflow: runInitWorkflow,
-		checkGitRepository: isGitRepository,
-		initGitRepository: initialiseGitRepository,
+		buildReadinessRegistry: undefined,
 		ensureCleanDirectory,
 		installNodeDependencies,
-		installComposerDependencies,
 		...options,
 	} satisfies CreateDependencies;
 }
@@ -172,6 +169,7 @@ export function buildCreateCommand(
 			false
 		);
 		skipInstall = Option.Boolean('--skip-install', false);
+		yes = Option.Boolean('--yes', false);
 
 		public summary: string | null = null;
 		public manifest: FileManifest | null = null;
@@ -186,7 +184,7 @@ export function buildCreateCommand(
 						: undefined;
 				const targetRoot = resolveTargetDirectory(base, targetValue);
 
-				const runtime = this.createRuntime(targetRoot);
+				const runtime = this.createRuntime(targetRoot, base);
 
 				await dependencies.ensureCleanDirectory({
 					workspace: runtime.workspace,
@@ -202,10 +200,7 @@ export function buildCreateCommand(
 				this.manifest = result.manifest;
 				this.dependencySource = result.dependencySource;
 
-				await this.ensureGitRepository(
-					runtime.workspace,
-					runtime.reporter
-				);
+				await this.runReadiness(runtime);
 				await this.installDependencies(
 					runtime.workspace,
 					runtime.reporter
@@ -229,16 +224,21 @@ export function buildCreateCommand(
 			}
 		}
 
-		private createRuntime(targetRoot: string): InitCommandRuntimeResult {
+		private createRuntime(
+			targetRoot: string,
+			cwd: string
+		): InitCommandRuntimeResult {
 			return createInitCommandRuntime(
 				{
 					buildWorkspace: dependencies.buildWorkspace,
 					buildReporter: dependencies.buildReporter,
 					runWorkflow: dependencies.runWorkflow,
+					buildReadinessRegistry: dependencies.buildReadinessRegistry,
 				},
 				{
 					reporterNamespace: buildReporterNamespace(),
 					workspaceRoot: targetRoot,
+					cwd,
 					projectName: this.name,
 					template: this.template,
 					force: this.force,
@@ -249,23 +249,9 @@ export function buildCreateCommand(
 							process.env.WPK_PREFER_REGISTRY_VERSIONS,
 						REGISTRY_URL: process.env.REGISTRY_URL,
 					},
+					readiness: this.buildReadinessOptions(),
 				}
 			);
-		}
-
-		private async ensureGitRepository(
-			workspace: Workspace,
-			reporter: Reporter
-		): Promise<void> {
-			const hasGit = await dependencies.checkGitRepository(
-				workspace.root
-			);
-			if (hasGit) {
-				return;
-			}
-
-			reporter.info('Initialising git repository.');
-			await dependencies.initGitRepository(workspace.root);
 		}
 
 		private async installDependencies(
@@ -281,9 +267,59 @@ export function buildCreateCommand(
 
 			reporter.info('Installing npm dependencies...');
 			await dependencies.installNodeDependencies(workspace.root);
+		}
 
-			reporter.info('Installing composer dependencies...');
-			await dependencies.installComposerDependencies(workspace.root);
+		private buildReadinessOptions(): InitCommandRuntimeOptions['readiness'] {
+			if (this.yes !== true) {
+				return undefined;
+			}
+
+			return {
+				helperOverrides: {
+					workspaceHygiene: {
+						ensureClean: ({
+							workspace,
+							reporter,
+						}: {
+							workspace: Workspace;
+							reporter: Reporter;
+						}) =>
+							ensureGeneratedPhpClean({
+								workspace,
+								reporter,
+								yes: true,
+							}),
+					},
+				},
+			} satisfies InitCommandRuntimeOptions['readiness'];
+		}
+
+		private resolveReadinessKeys(
+			keys: readonly ReadinessKey[]
+		): ReadonlyArray<ReadinessKey> {
+			if (this.skipInstall === true) {
+				const skipped = new Set<ReadinessKey>([
+					'composer',
+					'tsx-runtime',
+				]);
+				return keys.filter((key) => !skipped.has(key));
+			}
+
+			return [...keys];
+		}
+
+		private async runReadiness(
+			runtime: InitCommandRuntimeResult
+		): Promise<void> {
+			const keys = this.resolveReadinessKeys(
+				runtime.readiness.defaultKeys
+			);
+			if (keys.length === 0) {
+				return;
+			}
+
+			const result = await runtime.readiness.run(keys);
+			assertReadinessRun(result);
 		}
 	}
 

@@ -1,31 +1,71 @@
 import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { buildDoctorCommand } from '../doctor';
+import { buildDoctorCommand, renderDoctorSummary } from '../doctor';
+import type {
+	ReadinessKey,
+	ReadinessOutcome,
+	ReadinessOutcomeStatus,
+	ReadinessPlan,
+	ReadinessRegistry,
+	ReadinessDetection,
+	ReadinessConfirmation,
+} from '../../dx';
+
+const DOCTOR_READINESS_KEYS: ReadinessKey[] = [
+	'workspace-hygiene',
+	'composer',
+	'php-runtime',
+	'php-driver',
+];
 
 describe('buildDoctorCommand', () => {
-	const reporterFactory = jest.fn(createReporterMock);
-	const loadWPKernelConfig = jest.fn();
-	const buildWorkspace = jest.fn();
-	const ensureGeneratedPhpClean = jest.fn();
-	const checkPhpEnvironment = jest.fn();
+	let reporterFactory: jest.Mock;
+	let loadWPKernelConfig: jest.Mock;
+	let buildWorkspace: jest.Mock;
+	let buildReadinessRegistry: jest.Mock;
+	let readinessPlanRun: jest.Mock;
+	let readinessPlan: ReadinessPlan;
+	let readinessRegistry: ReadinessRegistry;
+	let readinessRegistryPlan: jest.Mock;
 
 	beforeEach(() => {
-		reporterFactory.mockImplementation(createReporterMock);
-		ensureGeneratedPhpClean.mockResolvedValue(undefined);
-		checkPhpEnvironment.mockResolvedValue([
-			buildCheck('php-driver', 'PHP driver', 'pass', 'Driver ok'),
-			buildCheck('php-runtime', 'PHP runtime', 'pass', 'Runtime ok'),
-		]);
+		reporterFactory = jest.fn(createReporterMock);
+		loadWPKernelConfig = jest.fn();
+		buildWorkspace = jest.fn();
+		readinessPlanRun = jest.fn();
+
+		readinessPlan = {
+			keys: DOCTOR_READINESS_KEYS,
+			run: (context) => readinessPlanRun(context),
+		} as ReadinessPlan;
+		readinessRegistryPlan = jest.fn(() => readinessPlan);
+		readinessRegistry = {
+			plan: readinessRegistryPlan,
+			register: jest.fn(),
+		} as unknown as ReadinessRegistry;
+		buildReadinessRegistry = jest.fn(() => readinessRegistry);
+
 		const configPath = path.join(process.cwd(), 'wpk.config.ts');
 		loadWPKernelConfig.mockResolvedValue({
 			config: {},
 			sourcePath: configPath,
 			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
-			namespace: 'Demo\\\\Plugin\\\\',
+			namespace: 'Demo\\Plugin\\',
 		});
 		buildWorkspace.mockReturnValue({ root: process.cwd() });
+
+		setReadinessOutcomes([
+			createReadinessOutcome(
+				'workspace-hygiene',
+				'ready',
+				'Workspace clean.'
+			),
+			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
+			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
+			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
+		]);
 	});
 
 	afterEach(() => {
@@ -36,9 +76,8 @@ describe('buildDoctorCommand', () => {
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
-			checkPhpEnvironment,
+			buildReadinessRegistry,
 		});
 
 		const command = new DoctorCommand();
@@ -49,9 +88,18 @@ describe('buildDoctorCommand', () => {
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 		expect(stdout.toString()).toContain('[PASS] Kernel config');
 		expect(stdout.toString()).toContain('[PASS] Composer autoload');
-		expect(stdout.toString()).toContain('[PASS] PHP driver');
-		expect(ensureGeneratedPhpClean).toHaveBeenCalledTimes(1);
-		expect(checkPhpEnvironment).toHaveBeenCalledTimes(1);
+		expect(stdout.toString()).toContain(
+			'[PASS] Workspace hygiene: Workspace clean.'
+		);
+		expect(stdout.toString()).toContain(
+			'[PASS] Composer dependencies: Composer ready.'
+		);
+		expect(stdout.toString()).toContain('[PASS] PHP runtime: Runtime ok.');
+		expect(stdout.toString()).toContain('[PASS] PHP driver: Driver ok.');
+		expect(readinessRegistryPlan).toHaveBeenCalledWith(
+			DOCTOR_READINESS_KEYS
+		);
+		expect(readinessPlanRun).toHaveBeenCalledTimes(1);
 	});
 
 	it('returns failure when wpk config fails to load', async () => {
@@ -60,9 +108,8 @@ describe('buildDoctorCommand', () => {
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
-			checkPhpEnvironment,
+			buildReadinessRegistry,
 		});
 
 		const command = new DoctorCommand();
@@ -73,43 +120,65 @@ describe('buildDoctorCommand', () => {
 		expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 		expect(stdout.toString()).toContain('[FAIL] Kernel config');
 		expect(buildWorkspace).not.toHaveBeenCalled();
-		expect(ensureGeneratedPhpClean).not.toHaveBeenCalled();
-		expect(checkPhpEnvironment).toHaveBeenCalledTimes(1);
+		expect(readinessPlanRun).toHaveBeenCalledTimes(1);
 	});
 
-	it('returns failure when PHP environment check fails', async () => {
-		checkPhpEnvironment.mockResolvedValue([
-			buildCheck('php-driver', 'PHP driver', 'fail', 'Missing driver'),
+	it('returns failure when PHP driver readiness fails', async () => {
+		setReadinessOutcomes([
+			createReadinessOutcome(
+				'workspace-hygiene',
+				'ready',
+				'Workspace clean.'
+			),
+			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
+			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
+			createReadinessOutcome(
+				'php-driver',
+				'pending',
+				'Missing driver',
+				'pending',
+				'pending'
+			),
 		]);
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
-			checkPhpEnvironment,
+			buildReadinessRegistry,
 		});
 
 		const command = new DoctorCommand();
-		assignCommandContext(command);
+		const { stdout } = assignCommandContext(command);
 
 		const exitCode = await command.execute();
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
-		expect(checkPhpEnvironment).toHaveBeenCalledTimes(1);
+		expect(stdout.toString()).toContain(
+			'[FAIL] PHP driver: Missing driver'
+		);
+		expect(readinessPlanRun).toHaveBeenCalledTimes(1);
 	});
 
-	it('continues execution when workspace hygiene check warns', async () => {
-		ensureGeneratedPhpClean.mockRejectedValueOnce(
-			new Error('dirty workspace')
-		);
+	it('continues execution when workspace hygiene readiness blocks', async () => {
+		setReadinessOutcomes([
+			createReadinessOutcome(
+				'workspace-hygiene',
+				'blocked',
+				'Workspace unresolved.',
+				'blocked',
+				null
+			),
+			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
+			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
+			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
+		]);
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
-			checkPhpEnvironment,
+			buildReadinessRegistry,
 		});
 
 		const command = new DoctorCommand();
@@ -118,7 +187,9 @@ describe('buildDoctorCommand', () => {
 		const exitCode = await command.execute();
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(stdout.toString()).toContain('[WARN] Workspace hygiene');
+		expect(stdout.toString()).toContain(
+			'[WARN] Workspace hygiene: Workspace unresolved.'
+		);
 	});
 
 	it('warns when composer autoload mapping is missing', async () => {
@@ -128,15 +199,14 @@ describe('buildDoctorCommand', () => {
 			sourcePath: configPath,
 			configOrigin: 'wpk.config.ts',
 			composerCheck: 'mismatch',
-			namespace: 'Demo\\\\Plugin\\\\',
+			namespace: 'Demo\\Plugin\\',
 		});
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
-			checkPhpEnvironment,
+			buildReadinessRegistry,
 		});
 
 		const command = new DoctorCommand();
@@ -150,42 +220,24 @@ describe('buildDoctorCommand', () => {
 
 	it('warns when workspace cannot be resolved', async () => {
 		buildWorkspace.mockReturnValueOnce(null as unknown as { root: string });
-
-		const DoctorCommand = buildDoctorCommand({
-			loadWPKernelConfig,
-			buildWorkspace,
-			ensureGeneratedPhpClean,
-			buildReporter: reporterFactory,
-			checkPhpEnvironment,
-		});
-
-		const command = new DoctorCommand();
-		const { stdout } = assignCommandContext(command);
-
-		const exitCode = await command.execute();
-
-		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(stdout.toString()).toContain('[WARN] Workspace hygiene');
-		expect(ensureGeneratedPhpClean).not.toHaveBeenCalled();
-	});
-
-	it('prints unknown status labels for unexpected checks', async () => {
-		checkPhpEnvironment.mockResolvedValue([
-			buildCheck('php-driver', 'PHP driver', 'pass', 'Driver ok'),
-			{
-				key: 'mystery',
-				label: 'Mystery check',
-				status: 'mystery',
-				message: '???',
-			} as unknown as ReturnType<typeof buildCheck>,
+		setReadinessOutcomes([
+			createReadinessOutcome(
+				'workspace-hygiene',
+				'blocked',
+				'Workspace unresolved.',
+				'blocked',
+				null
+			),
+			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
+			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
+			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
 		]);
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
-			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
-			checkPhpEnvironment,
+			buildReadinessRegistry,
 		});
 
 		const command = new DoctorCommand();
@@ -194,44 +246,80 @@ describe('buildDoctorCommand', () => {
 		const exitCode = await command.execute();
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(stdout.toString()).toContain('[UNKNOWN] Mystery check');
+		expect(stdout.toString()).toContain(
+			'[WARN] Workspace hygiene: Workspace unresolved.'
+		);
 	});
+
+	function setReadinessOutcomes(outcomes: ReadinessOutcome[]) {
+		readinessPlanRun.mockResolvedValue({ outcomes });
+	}
+
+	function createReporterMock() {
+		return {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child: jest.fn(() => createReporterMock()),
+		};
+	}
 });
 
 describe('renderDoctorSummary', () => {
 	it('returns fallback when no checks executed', () => {
-		const { renderDoctorSummary } = jest.requireActual('../doctor') as {
-			renderDoctorSummary: (
-				results: ReadonlyArray<{
-					readonly key: string;
-					readonly label: string;
-					readonly status: string;
-					readonly message: string;
-				}>
-			) => string;
-		};
-
 		expect(renderDoctorSummary([])).toBe(
 			'Health checks:\n- No checks executed.\n'
 		);
 	});
+
+	it('formats unknown statuses with fallback label', () => {
+		const summary = renderDoctorSummary([
+			{
+				key: 'mystery',
+				label: 'Mystery check',
+				status: 'mystery',
+				message: '???',
+			} as unknown as {
+				key: string;
+				label: string;
+				status: 'pass';
+				message: string;
+			},
+		]);
+
+		expect(summary).toContain('[UNKNOWN] Mystery check: ???');
+	});
 });
 
-function buildCheck(
-	key: string,
-	label: string,
-	status: 'pass' | 'warn' | 'fail',
-	message: string
-) {
-	return { key, label, status, message };
-}
-
-function createReporterMock() {
-	return {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn(() => createReporterMock()),
+function createReadinessOutcome(
+	key: ReadinessKey,
+	status: ReadinessOutcomeStatus,
+	message: string,
+	detectionStatus: ReadinessDetection<unknown>['status'] = 'ready',
+	confirmationStatus:
+		| ReadinessConfirmation<unknown>['status']
+		| null = 'ready'
+): ReadinessOutcome {
+	const state = {} as Record<string, never>;
+	const detection: ReadinessDetection<unknown> = {
+		status: detectionStatus,
+		state,
+		message,
 	};
+	const confirmation =
+		confirmationStatus === null
+			? undefined
+			: ({
+					status: confirmationStatus,
+					state,
+					message,
+				} as ReadinessConfirmation<unknown>);
+
+	return {
+		key,
+		status,
+		detection,
+		confirmation,
+	} as ReadinessOutcome;
 }
