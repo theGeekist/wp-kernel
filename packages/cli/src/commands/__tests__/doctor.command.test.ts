@@ -1,6 +1,9 @@
 import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext } from '@wpkernel/test-utils/cli';
+import {
+	assignCommandContext,
+	createReporterFactory,
+} from '@wpkernel/test-utils/cli';
 import { buildDoctorCommand, renderDoctorSummary } from '../doctor';
 import type {
 	ReadinessKey,
@@ -30,7 +33,7 @@ describe('buildDoctorCommand', () => {
 	let readinessRegistryPlan: jest.Mock;
 
 	beforeEach(() => {
-		reporterFactory = jest.fn(createReporterMock);
+		reporterFactory = createReporterFactory();
 		loadWPKernelConfig = jest.fn();
 		buildWorkspace = jest.fn();
 		readinessPlanRun = jest.fn();
@@ -253,16 +256,6 @@ describe('buildDoctorCommand', () => {
 
 	function setReadinessOutcomes(outcomes: ReadinessOutcome[]) {
 		readinessPlanRun.mockResolvedValue({ outcomes });
-	}
-
-	function createReporterMock() {
-		return {
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			debug: jest.fn(),
-			child: jest.fn(() => createReporterMock()),
-		};
 	}
 });
 

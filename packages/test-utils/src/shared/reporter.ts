@@ -24,6 +24,11 @@ export type ReporterMock = Reporter & {
 };
 
 /**
+ * Jest mock type for reporter factory helpers.
+ */
+export type ReporterFactoryMock = jest.Mock<ReporterMock, []>;
+
+/**
  * Options for creating a `ReporterMock`.
  *
  * @category CLI Helpers
@@ -83,4 +88,15 @@ export function createReporterMock({
 	}
 
 	return reporter;
+}
+
+/**
+ * Creates a jest mock factory that returns `ReporterMock` instances.
+ * @param options
+ */
+export function createReporterFactory(
+	options?: ReporterMockOptions
+): ReporterFactoryMock {
+	const factory = jest.fn(() => createReporterMock(options));
+	return factory as ReporterFactoryMock;
 }

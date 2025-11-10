@@ -4,7 +4,13 @@ import { PassThrough } from 'node:stream';
 import type { FSWatcher } from 'chokidar';
 import { Command } from 'clipanion';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext, flushAsync } from '@wpkernel/test-utils/cli';
+import {
+	assignCommandContext,
+	createReporterFactory,
+	createReporterMock,
+	flushAsync,
+	type ReporterMock,
+} from '@wpkernel/test-utils/cli';
 import {
 	buildStartCommand,
 	detectTier,
@@ -19,7 +25,7 @@ const fsCp = jest.fn<Promise<void>, [string, string, { recursive: boolean }]>();
 const loadWatch = jest.fn<Promise<WatchFactory>, []>();
 const watchFactory = jest.fn<FSWatcher, [string[], WatchOptions]>();
 const spawnViteProcess = jest.fn<FakeChildProcess, []>();
-const reporterFactory = jest.fn(createReporterMock);
+const reporterFactory = createReporterFactory();
 
 const flushTimers = () => flushAsync({ runAllTimers: true });
 const pathResolve = path.resolve.bind(path);
@@ -1053,25 +1059,6 @@ class FakeChildProcess extends EventEmitter {
 		return true;
 	});
 }
-
-function createReporterMock() {
-	const reporter = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn(() => createReporterMock()),
-	} as unknown as ReporterMock;
-	return reporter;
-}
-
-type ReporterMock = {
-	info: jest.Mock;
-	warn: jest.Mock;
-	error: jest.Mock;
-	debug: jest.Mock;
-	child: jest.Mock<ReporterMock, [string]>;
-};
 
 const FAST_DEBOUNCE_MS = 200;
 const SLOW_DEBOUNCE_MS = 600;

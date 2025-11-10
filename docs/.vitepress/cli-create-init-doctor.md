@@ -227,6 +227,10 @@ Lift the repeated workspace + reporter scaffolding used by command and pipeline 
 - Splitting mega-suites or changing test behaviour in a major way (that comes later).
 - Any modifications to builder or patcher tests.
 
+##### 56c consolidation update – workspace and reporter harnesses
+
+`@wpkernel/test-utils/cli` now ships a `createReporterFactory` alongside the existing reporter mock so command suites no longer roll bespoke factory stubs. The new `createCommandWorkspaceHarness` pairs a jest-friendly in-memory workspace with convenience accessors, letting the generate/start/doctor suites compose workspace state without hand-written maps. `start.command.test.ts`, `doctor.command.test.ts`, and `doctor.environment.test.ts` moved to the shared reporter factory, while `generate.command.test.ts` now sources its workspace from the harness, eliminating the local map/JSON plumbing before we tackle broader suite splits.
+
 ---
 
 #### 56d – Builder test harness alignment

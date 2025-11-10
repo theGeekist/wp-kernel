@@ -1,5 +1,9 @@
 import path from 'node:path';
-import { assignCommandContext } from '@wpkernel/test-utils/cli';
+import {
+	assignCommandContext,
+	createCommandWorkspaceHarness,
+	createReporterFactory,
+} from '@wpkernel/test-utils/cli';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	buildDefaultReadinessRegistry,
@@ -22,9 +26,15 @@ describe('doctor command default environment checks', () => {
 			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
-		const workspace = createWorkspaceMock();
+		const { workspace } = createCommandWorkspaceHarness({
+			root: process.cwd(),
+			files: {
+				'composer.json': '{}',
+				'vendor/autoload.php': '',
+			},
+		});
 		const buildWorkspace = jest.fn().mockReturnValue(workspace);
-		const reporterFactory = jest.fn(() => createReporterMock());
+		const reporterFactory = createReporterFactory();
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
@@ -71,9 +81,15 @@ describe('doctor command default environment checks', () => {
 			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
-		const workspace = createWorkspaceMock();
+		const { workspace } = createCommandWorkspaceHarness({
+			root: process.cwd(),
+			files: {
+				'composer.json': '{}',
+				'vendor/autoload.php': '',
+			},
+		});
 		const buildWorkspace = jest.fn().mockReturnValue(workspace);
-		const reporterFactory = jest.fn(() => createReporterMock());
+		const reporterFactory = createReporterFactory();
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
@@ -118,9 +134,15 @@ describe('doctor command default environment checks', () => {
 			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
-		const workspace = createWorkspaceMock();
+		const { workspace } = createCommandWorkspaceHarness({
+			root: process.cwd(),
+			files: {
+				'composer.json': '{}',
+				'vendor/autoload.php': '',
+			},
+		});
 		const buildWorkspace = jest.fn().mockReturnValue(workspace);
-		const reporterFactory = jest.fn(() => createReporterMock());
+		const reporterFactory = createReporterFactory();
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
@@ -163,20 +185,14 @@ describe('doctor command default environment checks', () => {
 			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
-		const workspace = {
-			...createWorkspaceMock(),
-			exists: jest.fn(async (target: string) => {
-				if (target === 'composer.json') {
-					return true;
-				}
-				if (target === path.join('vendor', 'autoload.php')) {
-					return false;
-				}
-				return false;
-			}),
-		};
+		const { workspace } = createCommandWorkspaceHarness({
+			root: process.cwd(),
+			files: {
+				'composer.json': '{}',
+			},
+		});
 		const buildWorkspace = jest.fn().mockReturnValue(workspace);
-		const reporterFactory = jest.fn(() => createReporterMock());
+		const reporterFactory = createReporterFactory();
 		const install = jest.fn();
 
 		const DoctorCommand = buildDoctorCommand({
@@ -200,33 +216,6 @@ describe('doctor command default environment checks', () => {
 		expect(install).not.toHaveBeenCalled();
 	});
 });
-
-function createReporterMock() {
-	return {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn(() => createReporterMock()),
-	};
-}
-
-function createWorkspaceMock() {
-	const vendorAutoload = path.join('vendor', 'autoload.php');
-	return {
-		root: process.cwd(),
-		exists: jest.fn(async (target: string) => {
-			if (target === 'composer.json') {
-				return true;
-			}
-			if (target === vendorAutoload) {
-				return true;
-			}
-			return false;
-		}),
-		rm: jest.fn().mockResolvedValue(undefined),
-	};
-}
 
 function createReadinessBuilder(
 	overrides: DefaultReadinessHelperOverrides = {}
