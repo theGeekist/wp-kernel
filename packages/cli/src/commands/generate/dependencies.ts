@@ -13,6 +13,7 @@ import type {
 	GenerateDependencies,
 	GenerateLoadedConfig,
 } from './types';
+import { buildDefaultReadinessRegistry } from '../../dx';
 
 export function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.generate`;
@@ -35,6 +36,7 @@ export function buildGenerateDependencies(
 		buildReporter,
 		renderSummary,
 		validateGeneratedImports,
+		buildReadinessRegistry: buildDefaultReadinessRegistry,
 		...options,
 	} satisfies GenerateDependencies;
 }

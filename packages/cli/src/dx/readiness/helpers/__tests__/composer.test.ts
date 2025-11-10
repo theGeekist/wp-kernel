@@ -125,4 +125,47 @@ describe('createComposerReadinessHelper', () => {
 
 		expect(rm).toHaveBeenCalledWith('vendor', { recursive: true });
 	});
+
+	it('does not expose execute when installOnPending is false', async () => {
+		const exists = jest.fn().mockImplementation((file: string) => {
+			if (file === 'composer.json') {
+				return Promise.resolve(true);
+			}
+			if (file === 'vendor/autoload.php') {
+				return Promise.resolve(false);
+			}
+			return Promise.resolve(false);
+		});
+		const workspace: Workspace = {
+			root: '/tmp/project',
+			exists,
+			rm: jest.fn(),
+			resolve: jest.fn(),
+			read: jest.fn(),
+			readText: jest.fn(),
+			write: jest.fn(),
+			writeJson: jest.fn(),
+			glob: jest.fn(),
+			threeWayMerge: jest.fn(),
+			begin: jest.fn(),
+			commit: jest.fn(),
+			rollback: jest.fn(),
+			dryRun: jest.fn(),
+			tmpDir: jest.fn(),
+			cwd: () => '/tmp/project',
+		} as unknown as Workspace;
+
+		const helper = createComposerReadinessHelper({
+			install: jest.fn(),
+			installOnPending: false,
+		});
+
+		const context = buildContext(workspace);
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('pending');
+		expect(helper.execute).toBeUndefined();
+
+		const confirmation = await helper.confirm(context, detection.state);
+		expect(confirmation.status).toBe('pending');
+	});
 });

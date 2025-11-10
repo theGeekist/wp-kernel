@@ -10,6 +10,7 @@ import {
 	buildLoadedConfig,
 	readApplyLogEntries,
 } from '@wpkernel/test-utils/cli/commands/apply.test-support';
+import type { ReadinessPlan, ReadinessRegistry } from '../../dx';
 
 const withWorkspace = buildWorkspaceRunner({
 	prefix: TMP_PREFIX,
@@ -17,6 +18,23 @@ const withWorkspace = buildWorkspaceRunner({
 		await fs.mkdir(path.join(workspace, '.git'), { recursive: true });
 	},
 });
+
+function createReadinessRegistryStub() {
+	const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+	const readinessPlanMock = jest.fn(
+		(keys: ReadinessPlan['keys']) =>
+			({ keys, run: readinessRun }) as ReadinessPlan
+	);
+	const readinessRegistry = {
+		plan: readinessPlanMock,
+	} as unknown as ReadinessRegistry;
+
+	return {
+		readinessRun,
+		readinessPlanMock,
+		buildReadinessRegistry: jest.fn(() => readinessRegistry),
+	};
+}
 
 describe('ApplyCommand error handling', () => {
 	it('maps validation wpk errors to validation exit code', async () => {
@@ -32,10 +50,12 @@ describe('ApplyCommand error handling', () => {
 			const createPatcher = jest.fn().mockReturnValue({
 				apply: applyMock,
 			});
+			const readiness = createReadinessRegistryStub();
 
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
 				createPatcher,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -54,6 +74,7 @@ describe('ApplyCommand error handling', () => {
 					exitCode: WPK_EXIT_CODES.VALIDATION_ERROR,
 				})
 			);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 });

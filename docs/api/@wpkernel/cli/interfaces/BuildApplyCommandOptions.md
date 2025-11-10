@@ -222,3 +222,28 @@ readonly optional resolveWorkspaceRoot: (loaded) => string;
 ##### Returns
 
 `string`
+
+---
+
+#### buildReadinessRegistry()?
+
+```ts
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
+```
+
+Overrides the readiness registry used by `wpk apply` to check PHP driver and
+tsx dependencies before patching the workspace.
+
+##### Parameters
+
+###### options
+
+`BuildDefaultReadinessRegistryOptions` = `{}`
+
+Helper override configuration.
+
+##### Returns
+
+[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
+
+Registry instance orchestrating command readiness helpers.

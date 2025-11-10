@@ -12,6 +12,11 @@ export interface ComposerHelperDependencies {
 	readonly install: typeof installComposerDependencies;
 }
 
+export interface ComposerHelperOverrides
+	extends Partial<ComposerHelperDependencies> {
+	readonly installOnPending?: boolean;
+}
+
 export interface ComposerReadinessState {
 	readonly workspace: Workspace | null;
 	readonly workspaceRoot: string;
@@ -35,98 +40,112 @@ function resolveWorkspaceRoot(context: DxContext): string {
 }
 
 export function createComposerReadinessHelper(
-	overrides: Partial<ComposerHelperDependencies> = {}
+	overrides: ComposerHelperOverrides = {}
 ) {
-	const dependencies = { ...defaultDependencies(), ...overrides };
+	const { installOnPending = true, ...dependencyOverrides } = overrides;
+	const dependencies = {
+		...defaultDependencies(),
+		...dependencyOverrides,
+	} satisfies ComposerHelperDependencies;
 
-	return createReadinessHelper<ComposerReadinessState>({
-		key: 'composer',
-		async detect(
-			context
-		): Promise<ReadinessDetection<ComposerReadinessState>> {
-			const workspace = context.workspace;
-			const workspaceRoot = resolveWorkspaceRoot(context);
-			const vendorDirectory = path.join(workspaceRoot, 'vendor');
+	async function detect(
+		context: DxContext
+	): Promise<ReadinessDetection<ComposerReadinessState>> {
+		const workspace = context.workspace;
+		const workspaceRoot = resolveWorkspaceRoot(context);
+		const vendorDirectory = path.join(workspaceRoot, 'vendor');
 
-			if (!workspace) {
-				return {
-					status: 'blocked',
-					state: {
-						workspace: null,
-						workspaceRoot,
-						vendorDirectory,
-						vendorPreviouslyExisted: false,
-					},
-					message:
-						'Workspace not resolved; composer install unavailable.',
-				};
-			}
-
-			const hasComposerManifest = await workspace.exists('composer.json');
-			if (!hasComposerManifest) {
-				return {
-					status: 'blocked',
-					state: {
-						workspace,
-						workspaceRoot,
-						vendorDirectory,
-						vendorPreviouslyExisted: false,
-					},
-					message:
-						'composer.json missing. Run composer init or add manifest.',
-				};
-			}
-
-			const hasAutoload = await workspace.exists(
-				path.join('vendor', 'autoload.php')
-			);
+		if (!workspace) {
 			return {
-				status: hasAutoload ? 'ready' : 'pending',
+				status: 'blocked',
+				state: {
+					workspace: null,
+					workspaceRoot,
+					vendorDirectory,
+					vendorPreviouslyExisted: false,
+				},
+				message:
+					'Workspace not resolved; composer install unavailable.',
+			};
+		}
+
+		const hasComposerManifest = await workspace.exists('composer.json');
+		if (!hasComposerManifest) {
+			return {
+				status: 'blocked',
 				state: {
 					workspace,
 					workspaceRoot,
 					vendorDirectory,
-					vendorPreviouslyExisted: hasAutoload,
+					vendorPreviouslyExisted: false,
 				},
-				message: hasAutoload
-					? 'Composer autoload detected.'
-					: 'Install composer dependencies.',
+				message:
+					'composer.json missing. Run composer init or add manifest.',
 			};
-		},
-		async execute(_context, state) {
-			if (!state.workspace) {
-				return { state };
-			}
+		}
 
-			await dependencies.install(state.workspace.root);
+		const hasAutoload = await workspace.exists(
+			path.join('vendor', 'autoload.php')
+		);
+		return {
+			status: hasAutoload ? 'ready' : 'pending',
+			state: {
+				workspace,
+				workspaceRoot,
+				vendorDirectory,
+				vendorPreviouslyExisted: hasAutoload,
+			},
+			message: hasAutoload
+				? 'Composer autoload detected.'
+				: 'Install composer dependencies.',
+		};
+	}
 
-			return {
-				state,
-				cleanup: state.vendorPreviouslyExisted
-					? undefined
-					: () =>
-							state.workspace?.rm('vendor', {
-								recursive: true,
-							}),
-			};
-		},
-		async confirm(
-			_context,
-			state
-		): Promise<ReadinessConfirmation<ComposerReadinessState>> {
-			const hasAutoload = state.workspace
-				? await state.workspace.exists(
-						path.join('vendor', 'autoload.php')
-					)
-				: false;
+	async function confirm(
+		_context: DxContext,
+		state: ComposerReadinessState
+	): Promise<ReadinessConfirmation<ComposerReadinessState>> {
+		const hasAutoload = state.workspace
+			? await state.workspace.exists(path.join('vendor', 'autoload.php'))
+			: false;
 
-			return {
-				status: hasAutoload ? 'ready' : 'pending',
-				state,
-				message: hasAutoload
-					? 'Composer autoload ready.'
-					: 'Composer autoload missing after install.',
-			};
-		},
+		return {
+			status: hasAutoload ? 'ready' : 'pending',
+			state,
+			message: hasAutoload
+				? 'Composer autoload ready.'
+				: 'Composer autoload missing.',
+		};
+	}
+
+	if (installOnPending) {
+		return createReadinessHelper<ComposerReadinessState>({
+			key: 'composer',
+			detect,
+			async execute(_context: DxContext, state: ComposerReadinessState) {
+				if (!state.workspace) {
+					return { state };
+				}
+
+				await dependencies.install(state.workspace.root);
+
+				return {
+					state,
+					cleanup: state.vendorPreviouslyExisted
+						? undefined
+						: () =>
+								state.workspace?.rm('vendor', {
+									recursive: true,
+								}),
+				};
+			},
+			confirm,
+		});
+	}
+
+	return createReadinessHelper<ComposerReadinessState>({
+		key: 'composer',
+		detect,
+		confirm,
 	});
 }
