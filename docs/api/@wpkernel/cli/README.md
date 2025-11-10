@@ -10,6 +10,10 @@ This module re-exports the public surface of the CLI package so
 documentation generators can build consistent API pages alongside the
 wpk and UI packages.
 
+## Classes
+
+- [ReadinessRegistry](classes/ReadinessRegistry.md)
+
 ## Interfaces
 
 ### Commands
@@ -103,8 +107,13 @@ wpk and UI packages.
 - [ApplyLogEntry](interfaces/ApplyLogEntry.md)
 - [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
 - [BuildGenerateCommandOptions](interfaces/BuildGenerateCommandOptions.md)
+- [ComposerHelperDependencies](interfaces/ComposerHelperDependencies.md)
+- [ComposerReadinessState](interfaces/ComposerReadinessState.md)
 - [CreateBackupsOptions](interfaces/CreateBackupsOptions.md)
 - [CreateHelperOptions](interfaces/CreateHelperOptions.md)
+- [DxContext](interfaces/DxContext.md)
+- [DxEnvironment](interfaces/DxEnvironment.md)
+- [DxRuntimeFlags](interfaces/DxRuntimeFlags.md)
 - [FileWriteRecord](interfaces/FileWriteRecord.md)
 - [FileWriterSummary](interfaces/FileWriterSummary.md)
 - [GenerationManifest](interfaces/GenerationManifest.md)
@@ -113,6 +122,8 @@ wpk and UI packages.
 - [GenerationManifestResourceEntry](interfaces/GenerationManifestResourceEntry.md)
 - [GenerationSummary](interfaces/GenerationSummary.md)
 - [GitDependencies](interfaces/GitDependencies.md)
+- [GitHelperDependencies](interfaces/GitHelperDependencies.md)
+- [GitReadinessState](interfaces/GitReadinessState.md)
 - [Helper](interfaces/Helper.md)
 - [HelperApplyOptions](interfaces/HelperApplyOptions.md)
 - [HelperDescriptor](interfaces/HelperDescriptor.md)
@@ -126,6 +137,21 @@ wpk and UI packages.
 - [PatchManifestSummary](interfaces/PatchManifestSummary.md)
 - [PatchRecord](interfaces/PatchRecord.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
+- [PhpDriverDependencies](interfaces/PhpDriverDependencies.md)
+- [PhpDriverState](interfaces/PhpDriverState.md)
+- [PhpRuntimeDependencies](interfaces/PhpRuntimeDependencies.md)
+- [PhpRuntimeState](interfaces/PhpRuntimeState.md)
+- [ReadinessConfirmation](interfaces/ReadinessConfirmation.md)
+- [ReadinessDetection](interfaces/ReadinessDetection.md)
+- [ReadinessHelper](interfaces/ReadinessHelper.md)
+- [ReadinessOutcome](interfaces/ReadinessOutcome.md)
+- [ReadinessPlan](interfaces/ReadinessPlan.md)
+- [ReadinessRunResult](interfaces/ReadinessRunResult.md)
+- [ReadinessStepResult](interfaces/ReadinessStepResult.md)
+- [TsxRuntimeDependencies](interfaces/TsxRuntimeDependencies.md)
+- [TsxRuntimeState](interfaces/TsxRuntimeState.md)
+- [WorkspaceHygieneDependencies](interfaces/WorkspaceHygieneDependencies.md)
+- [WorkspaceHygieneState](interfaces/WorkspaceHygieneState.md)
 
 ## Type Aliases
 
@@ -191,6 +217,10 @@ wpk and UI packages.
 - [IrFragment](type-aliases/IrFragment.md)
 - [PatchStatus](type-aliases/PatchStatus.md)
 - [PipelinePhase](type-aliases/PipelinePhase.md)
+- [ReadinessConfirmationStatus](type-aliases/ReadinessConfirmationStatus.md)
+- [ReadinessKey](type-aliases/ReadinessKey.md)
+- [ReadinessOutcomeStatus](type-aliases/ReadinessOutcomeStatus.md)
+- [ReadinessStatus](type-aliases/ReadinessStatus.md)
 - [ScaffoldStatus](type-aliases/ScaffoldStatus.md)
 
 ## Variables
@@ -266,7 +296,15 @@ wpk and UI packages.
 
 ### Other
 
+- [createComposerReadinessHelper](functions/createComposerReadinessHelper.md)
+- [createGitReadinessHelper](functions/createGitReadinessHelper.md)
 - [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
+- [createPhpDriverReadinessHelper](functions/createPhpDriverReadinessHelper.md)
+- [createPhpRuntimeReadinessHelper](functions/createPhpRuntimeReadinessHelper.md)
+- [createReadinessHelper](functions/createReadinessHelper.md)
+- [createReadinessRegistry](functions/createReadinessRegistry.md)
 - [createTsCapabilityBuilder](functions/createTsCapabilityBuilder.md)
 - [createTsIndexBuilder](functions/createTsIndexBuilder.md)
+- [createTsxRuntimeReadinessHelper](functions/createTsxRuntimeReadinessHelper.md)
+- [createWorkspaceHygieneReadinessHelper](functions/createWorkspaceHygieneReadinessHelper.md)
 - [toWorkspaceRelative](functions/toWorkspaceRelative.md)

@@ -7,8 +7,7 @@
 # Function: createIr()
 
 ```ts
-function createIr(options, environment): Promise & lt;
-IRv1 & gt;
+function createIr(options, environment): Promise<IRv1>;
 ```
 
 Creates an Intermediate Representation (IR) from the given build options.

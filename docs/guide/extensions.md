@@ -261,7 +261,7 @@ export const myAsyncExtension = () =>
 
 ### Using Builders
 
-As we saw in the custom storage example, you can define and register your own custom builders. Builders are essentially [`Helper`](/api/@wpkernel/pipeline/type-aliases/Helper) objects with a `kind` of `'builder'`.
+As we saw in the custom storage example, you can define and register your own custom builders. Builders are essentially [`Helper`](/api/@wpkernel/pipeline/type-aliases/HelperKind) objects with a `kind` of `'builder'`.
 
 Builders are simple functions that receive an `input` object and perform some action. You register them with `pipeline.builders.use()` in your extension's `setup` function. You can then add build steps to the `artifact.buildSteps` array in your extension's `hook` function, referencing the builder by its `key`.
 
