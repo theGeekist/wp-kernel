@@ -229,7 +229,7 @@ Lift the repeated workspace + reporter scaffolding used by command and pipeline 
 
 ##### 56c consolidation update – workspace and reporter harnesses
 
-`@wpkernel/test-utils/cli` now ships a `createReporterFactory` alongside the existing reporter mock so command suites no longer roll bespoke factory stubs. The new `createCommandWorkspaceHarness` pairs a jest-friendly in-memory workspace with convenience accessors, letting the generate/start/doctor suites compose workspace state without hand-written maps. `start.command.test.ts`, `doctor.command.test.ts`, and `doctor.environment.test.ts` moved to the shared reporter factory, while `generate.command.test.ts` now sources its workspace from the harness, eliminating the local map/JSON plumbing before we tackle broader suite splits.
+`@wpkernel/test-utils/cli` now ships `createCommandReporterHarness`, which wraps the shared reporter mock and factory so suites stop instantiating reporters by hand. Coupled with `createCommandWorkspaceHarness`, every command-facing suite touched so far (`start.command.test.ts`, `generate.command.test.ts`, `create.command.test.ts`, `init.command.test.ts`, `init.runtime.test.ts`, `init.workflow.test.ts`, plus the doctor command/environment suites) now relies on the shared reporters/workspace surfaces, and even `apply.helpers.test.ts` leans on the harness for cleanup logging assertions. Task 56d can extend the harness into the builder and pipeline suites so their bespoke reporter/workspace wiring can finally disappear as well.
 
 ---
 

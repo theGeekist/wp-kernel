@@ -2,7 +2,7 @@ import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	assignCommandContext,
-	createReporterMock,
+	createCommandReporterHarness,
 } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildCreateCommand } from '../create';
@@ -183,7 +183,8 @@ describe('CreateCommand', () => {
 			typeof registryOptions?.helperOverrides?.workspaceHygiene
 				?.ensureClean
 		).toBe('function');
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		await registryOptions?.helperOverrides?.workspaceHygiene?.ensureClean?.(
 			{
 				workspace,

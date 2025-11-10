@@ -4,7 +4,7 @@ import { WPKernelError } from '@wpkernel/core/error';
 import {
 	assignCommandContext,
 	createCommandWorkspaceHarness,
-	createReporterMock,
+	createCommandReporterHarness,
 } from '@wpkernel/test-utils/cli';
 import {
 	buildGenerateCommand,
@@ -112,7 +112,8 @@ describe('GenerateCommand', () => {
 	it('runs the pipeline and writes the summary output', async () => {
 		const workspace = createWorkspaceStub();
 		const { pipeline, runMock } = createPipelineStub(workspace);
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -187,7 +188,8 @@ describe('GenerateCommand', () => {
 	it('rolls back workspace changes during dry-run', async () => {
 		const workspace = createWorkspaceStub();
 		const { pipeline, runMock } = createPipelineStub(workspace);
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -251,7 +253,8 @@ describe('GenerateCommand', () => {
 
 	it('warns when diagnostics are emitted by the pipeline', async () => {
 		const workspace = createWorkspaceStub();
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const { pipeline } = createPipelineStub(workspace, async (options) => {
@@ -317,7 +320,8 @@ describe('GenerateCommand', () => {
 
 	it('propagates failures from the pipeline as exit codes', async () => {
 		const workspace = createWorkspaceStub();
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const { pipeline } = createPipelineStub(workspace, async () => {
@@ -368,7 +372,8 @@ describe('GenerateCommand', () => {
 		workspace.exists = jest.fn(async () => false);
 
 		const { pipeline } = createPipelineStub(workspace);
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -481,7 +486,8 @@ describe('GenerateCommand', () => {
 			}
 		);
 
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const readiness = createReadinessRegistryStub();
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({

@@ -1,4 +1,4 @@
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { runInitWorkflow } from '../init/workflow';
 import type { InitWorkflowOptions } from '../init/workflow';
@@ -98,7 +98,8 @@ describe('runInitWorkflow', () => {
 	it('logs dependency resolution details when verbose and env requests registry versions', async () => {
 		const commit = jest.fn(async () => ({ writes: [], deletes: [] }));
 		const workspace = createWorkspace({ commit });
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 
 		const options: InitWorkflowOptions = {
 			workspace,
@@ -136,7 +137,8 @@ describe('runInitWorkflow', () => {
 	it('rolls back workspace changes when the workflow throws', async () => {
 		const rollback = jest.fn(async () => ({ writes: [], deletes: [] }));
 		const workspace = createWorkspace({ rollback });
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 
 		writeScaffoldFilesMock.mockRejectedValueOnce(
 			new Error('scaffold failed')

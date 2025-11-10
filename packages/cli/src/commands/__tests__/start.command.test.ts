@@ -6,8 +6,7 @@ import { Command } from 'clipanion';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	assignCommandContext,
-	createReporterFactory,
-	createReporterMock,
+	createCommandReporterHarness,
 	flushAsync,
 	type ReporterMock,
 } from '@wpkernel/test-utils/cli';
@@ -25,7 +24,8 @@ const fsCp = jest.fn<Promise<void>, [string, string, { recursive: boolean }]>();
 const loadWatch = jest.fn<Promise<WatchFactory>, []>();
 const watchFactory = jest.fn<FSWatcher, [string[], WatchOptions]>();
 const spawnViteProcess = jest.fn<FakeChildProcess, []>();
-const reporterFactory = createReporterFactory();
+const reporterHarness = createCommandReporterHarness();
+const reporterFactory = reporterHarness.factory;
 
 const flushTimers = () => flushAsync({ runAllTimers: true });
 const pathResolve = path.resolve.bind(path);
@@ -41,7 +41,7 @@ describe('buildStartCommand', () => {
 			() => new FakeWatcher() as unknown as FSWatcher
 		);
 		spawnViteProcess.mockImplementation(() => new FakeChildProcess());
-		reporterFactory.mockImplementation(createReporterMock);
+		reporterHarness.reset();
 		FakeGenerateCommand.executeMock.mockResolvedValue(
 			WPK_EXIT_CODES.SUCCESS
 		);
@@ -271,8 +271,8 @@ describe('buildStartCommand', () => {
 
 	it('warns when generation completes with errors', async () => {
 		const command = createStartCommandInstance();
-		const reporter = createReporterMock();
-		const generateReporter = createReporterMock();
+		const reporter = reporterHarness.create();
+		const generateReporter = reporterHarness.create();
 
 		FakeGenerateCommand.executeMock.mockReset();
 		FakeGenerateCommand.executeMock.mockResolvedValue(
@@ -313,8 +313,8 @@ describe('buildStartCommand', () => {
 
 	it('logs errors when the generation pipeline throws', async () => {
 		const command = createStartCommandInstance();
-		const reporter = createReporterMock();
-		const generateReporter = createReporterMock();
+		const reporter = reporterHarness.create();
+		const generateReporter = reporterHarness.create();
 		const failure = new Error('pipeline failure');
 
 		FakeGenerateCommand.executeMock.mockReset();
@@ -670,8 +670,8 @@ describe('buildStartCommand', () => {
 		});
 
 		const command = new StartCommand();
-		const reporter = createReporterMock();
-		const generateReporter = createReporterMock();
+		const reporter = reporterHarness.create();
+		const generateReporter = reporterHarness.create();
 
 		await (
 			command as unknown as {
@@ -709,7 +709,7 @@ describe('buildStartCommand', () => {
 		);
 
 		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
+			buildReporter: () => reporterHarness.create(),
 			buildGenerateCommand: () =>
 				FakeGenerateCommand as unknown as GenerateConstructor,
 			adoptCommandEnvironment: jest.fn(),
@@ -751,7 +751,7 @@ describe('buildStartCommand', () => {
 		);
 
 		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
+			buildReporter: () => reporterHarness.create(),
 			buildGenerateCommand: () =>
 				FakeGenerateCommand as unknown as GenerateConstructor,
 			adoptCommandEnvironment: jest.fn(),
@@ -793,7 +793,7 @@ describe('buildStartCommand', () => {
 		);
 
 		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
+			buildReporter: () => reporterHarness.create(),
 			buildGenerateCommand: () =>
 				FakeGenerateCommand as unknown as GenerateConstructor,
 			adoptCommandEnvironment: jest.fn(),
@@ -832,7 +832,7 @@ describe('buildStartCommand', () => {
 			.mockName('child-process');
 
 		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
+			buildReporter: () => reporterHarness.create(),
 			buildGenerateCommand: () =>
 				FakeGenerateCommand as unknown as GenerateConstructor,
 			adoptCommandEnvironment: jest.fn(),
@@ -872,7 +872,7 @@ describe('buildStartCommand', () => {
 		);
 
 		const StartCommand = importBuildStartCommand({
-			buildReporter: () => createReporterMock(),
+			buildReporter: () => reporterHarness.create(),
 			buildGenerateCommand: () =>
 				FakeGenerateCommand as unknown as GenerateConstructor,
 			adoptCommandEnvironment: jest.fn(),

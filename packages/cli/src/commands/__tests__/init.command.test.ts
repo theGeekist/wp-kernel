@@ -1,7 +1,7 @@
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	assignCommandContext,
-	createReporterMock,
+	createCommandReporterHarness,
 } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildInitCommand } from '../init';
@@ -11,7 +11,8 @@ import * as workspaceModule from '../../workspace';
 describe('InitCommand (unit)', () => {
 	it('warns when git repository is missing before running workflow', async () => {
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const runWorkflow = jest.fn().mockResolvedValue({
 			manifest: { writes: [], deletes: [] },
 			summaryText: '[wpk] init created plugin scaffold for demo\n',
@@ -65,7 +66,8 @@ describe('InitCommand (unit)', () => {
 
 	it('wraps unexpected git detection failures in a developer error', async () => {
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const runWorkflow = jest.fn();
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
@@ -106,7 +108,8 @@ describe('InitCommand (unit)', () => {
 			.spyOn(workspaceModule, 'ensureGeneratedPhpClean')
 			.mockResolvedValue(undefined);
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
-		const reporter = createReporterMock();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
 		const runWorkflow = jest.fn().mockResolvedValue({
 			manifest: { writes: [], deletes: [] },
 			summaryText: 'summary\n',
