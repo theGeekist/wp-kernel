@@ -283,6 +283,10 @@ Trim the worst of the test sprawl in a few high-churn suites now that shared hel
 - Exhaustive re-authoring of all large suites.
 - Enforcing a hard line-count policy across the whole tree.
 
+##### 56e consolidation update – start command decoupling
+
+`start.command.test.ts` now leans on a shared harness (`start.command.test-support.ts`) that drives the mocked generate command, watcher lifecycle, and Vite child processes from one place. The suite dropped roughly 250 lines by replacing bespoke shutdown calls, flush helpers, and reporter plumbing with `withStartCommand`, `advanceFastDebounce`, and `emitChange`, while the chokidar module shape assertions collapsed into a single parameterised block. The start command remains covered end-to-end (watch debounce, auto-apply, Vite orchestration), but each concern now lives in tighter helpers that future pipeline refactors can reuse without copying the 1,200-line fixture blob that previously lived at the bottom of the file. Next up, pipeline and integration suites should adopt similar harnesses so their ordering/error tests can shrink without sacrificing coverage.
+
 ---
 
 #### 56f – Readiness helper shared utilities
