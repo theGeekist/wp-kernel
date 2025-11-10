@@ -1,20 +1,10 @@
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
-import type { Reporter } from '@wpkernel/core/reporter';
 import { createPhpBuilder } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
-
-function buildReporter(): Reporter {
-	return {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		child: jest.fn().mockReturnThis(),
-	};
-}
+import { buildReporter } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 
 function buildWorkspace(): Workspace {
 	return makeWorkspaceMock({

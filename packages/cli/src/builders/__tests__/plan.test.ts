@@ -1,6 +1,4 @@
-import os from 'node:os';
 import path from 'node:path';
-import fs from 'node:fs/promises';
 import { buildWorkspace } from '../../workspace';
 import { createApplyPlanBuilder } from '../plan';
 import type { BuilderOutput } from '../../runtime/types';
@@ -12,35 +10,21 @@ import {
 } from '@wpkernel/test-utils/builders/php/resources.test-support';
 import * as phpDriver from '@wpkernel/php-driver';
 import type { PhpProgram } from '@wpkernel/php-json-ast';
+import {
+	withWorkspace as baseWithWorkspace,
+	buildReporter,
+	buildOutput,
+} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 
-async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
-	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'plan-builder-'));
-	try {
-		return await run(root);
-	} finally {
-		await fs.rm(root, { recursive: true, force: true });
-	}
-}
+type PlanWorkspaceContext = BuilderHarnessContext<
+	ReturnType<typeof buildWorkspace>
+>;
 
-function buildReporter() {
-	return {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		child: jest.fn().mockReturnThis(),
-	};
-}
-
-function buildOutput(): BuilderOutput {
-	const actions: BuilderOutput['actions'] = [];
-	return {
-		actions,
-		queueWrite(action) {
-			actions.push(action);
-		},
-	};
-}
+const withWorkspace = (run: (context: PlanWorkspaceContext) => Promise<void>) =>
+	baseWithWorkspace(run, {
+		createWorkspace: (root) => buildWorkspace(root),
+	});
 
 function expectNodeOfType<T extends { nodeType: string }>(
 	node: T | null | undefined,
@@ -53,10 +37,9 @@ function expectNodeOfType<T extends { nodeType: string }>(
 
 describe('createApplyPlanBuilder', () => {
 	it('emits shim instructions for resources', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const ir = makePhpIrFixture({
 				resources: [
@@ -299,10 +282,9 @@ describe('createApplyPlanBuilder', () => {
 	});
 
 	it('falls back to require guards when no autoload root is defined', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const ir = makePhpIrFixture({
 				resources: [
@@ -451,10 +433,9 @@ describe('createApplyPlanBuilder', () => {
 	});
 
 	it('skips plugin loader instructions when an author-owned loader is detected', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const ir = makePhpIrFixture({
 				resources: [
@@ -551,10 +532,9 @@ describe('createApplyPlanBuilder', () => {
 	});
 
 	it('emits deletion instructions for removed shims', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const ir = makePhpIrFixture({ resources: [] });
 			const helper = createApplyPlanBuilder();
@@ -633,10 +613,9 @@ describe('createApplyPlanBuilder', () => {
 	});
 
 	it('emits deletion instructions when shim paths change between runs', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const baseIr = makePhpIrFixture({
 				resources: [
@@ -727,10 +706,9 @@ describe('createApplyPlanBuilder', () => {
 	});
 
 	it('skips deletion instructions when shims diverge from the base snapshot', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const ir = makePhpIrFixture({ resources: [] });
 
@@ -814,10 +792,9 @@ describe('createApplyPlanBuilder', () => {
 	});
 
 	it('skips plugin loader emission when the IR artifact is missing', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
-			const output = buildOutput();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
 
 			const helper = createApplyPlanBuilder();
 			await helper.apply(

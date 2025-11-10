@@ -1,5 +1,4 @@
 import path from 'node:path';
-import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRv1 } from '../../ir/publicTypes';
 import {
 	createPhpBuilder,
@@ -15,6 +14,7 @@ import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { buildReporter } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 
 jest.mock('@wpkernel/php-driver', () => ({
 	buildPhpPrettyPrinter: jest.fn(() => ({
@@ -28,16 +28,6 @@ jest.mock('@wpkernel/php-driver', () => ({
 const buildPhpPrettyPrinterMock = buildPhpPrettyPrinter as jest.MockedFunction<
 	typeof buildPhpPrettyPrinter
 >;
-
-function buildReporter(): Reporter {
-	return {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		child: jest.fn().mockReturnThis(),
-	};
-}
 
 function buildWorkspace(): Workspace {
 	return makeWorkspaceMock({

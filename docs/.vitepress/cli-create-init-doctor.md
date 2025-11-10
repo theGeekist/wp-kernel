@@ -255,6 +255,10 @@ Apply the `packages/test-utils` workspace/process/reporter helpers to the builde
 - Breaking monolithic builder tests into smaller files (that fits better in a later subtask once the harness is shared).
 - Changing the underlying builder logic.
 
+##### 56d consolidation update – builder harness alignment
+
+`@wpkernel/test-utils` now ships a dedicated builder harness entry point (`builders/tests/builder-harness.test-support.ts`) that exposes shared `withWorkspace`, `buildReporter`, `buildOutput`, and path-normalisation helpers. The patcher, plan, bundler, and PHP builder suites have been migrated to the shared harness—removing their local `mkdtemp` helpers and bespoke reporter/output factories—while the existing TS builder fixtures simply re-export the shared helpers. This trims hundreds of duplicated lines across the builder test family and keeps the suites on consistent workspace/reporter mocks ahead of the heavier suite splits planned for Task 56e.
+
 ---
 
 #### 56e – Suite shaping for high-churn areas

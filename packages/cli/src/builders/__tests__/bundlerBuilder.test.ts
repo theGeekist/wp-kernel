@@ -1,4 +1,3 @@
-import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
@@ -19,20 +18,20 @@ import {
 	toWordPressGlobal,
 	toWordPressHandle,
 } from '../bundler';
+import { withWorkspace as baseWithWorkspace } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 
 describe('createBundler', () => {
-	async function withWorkspace<T>(
-		run: (root: string) => Promise<T>
-	): Promise<T> {
-		const root = await fs.mkdtemp(
-			path.join(os.tmpdir(), 'bundler-builder-')
-		);
-		try {
-			return await run(root);
-		} finally {
-			await fs.rm(root, { recursive: true, force: true });
-		}
-	}
+	type BundlerWorkspaceContext = BuilderHarnessContext<
+		ReturnType<typeof buildWorkspace>
+	>;
+
+	const withWorkspace = (
+		run: (context: BundlerWorkspaceContext) => Promise<void>
+	) =>
+		baseWithWorkspace(run, {
+			createWorkspace: (root) => buildWorkspace(root),
+		});
 
 	function buildBuilderInput({
 		namespace,
@@ -101,8 +100,7 @@ describe('createBundler', () => {
 	}
 
 	it('writes rollup driver configuration and asset metadata', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -229,8 +227,7 @@ describe('createBundler', () => {
 	});
 
 	it('includes UI handle metadata when dataview resources exist', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -320,8 +317,7 @@ describe('createBundler', () => {
 	});
 
 	it('rolls back workspace writes when package.json cannot be parsed', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			await workspace.write('package.json', '{ invalid json');
 
 			const builder = createBundler();
@@ -386,8 +382,7 @@ describe('createBundler', () => {
 	});
 
 	it('skips generation outside the generate phase', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = buildWorkspace(workspaceRoot);
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const builder = createBundler();
 			const reporter = buildNoopReporter();
 			const output: BuilderOutput = {
