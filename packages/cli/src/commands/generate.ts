@@ -26,6 +26,9 @@ import {
 	readGenerationState,
 	writeGenerationState,
 } from '../apply/manifest';
+import type { ReadinessKey } from '../dx';
+import { runCommandReadiness } from './readiness';
+import { resolveCommandCwd } from './init/command-runtime';
 
 // Re-export types from sub-modules for TypeDoc
 export type { GenerationSummary } from './run-generate/types';
@@ -45,6 +48,11 @@ export type CommandConstructor = new () => Command & {
 };
 
 const TRANSACTION_LABEL = 'generate';
+
+const GENERATE_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
+	'php-driver',
+	'tsx-runtime',
+];
 
 function buildFailure(exitCode: WPKExitCode): GenerateResult {
 	return {
@@ -110,7 +118,7 @@ async function removeStaleGeneratedArtifacts({
 async function runGenerateWorkflow(
 	options: GenerateExecutionOptions
 ): Promise<GenerateResult> {
-	const { dependencies, reporter, dryRun, verbose } = options;
+	const { dependencies, reporter, dryRun, verbose, cwd } = options;
 
 	try {
 		const loaded = await dependencies.loadWPKernelConfig();
@@ -118,6 +126,15 @@ async function runGenerateWorkflow(
 		const baseWorkspace = dependencies.buildWorkspace(workspaceRoot);
 		const tracked = createTrackedWorkspace(baseWorkspace, { dryRun });
 		const pipeline = dependencies.createPipeline();
+
+		await runCommandReadiness({
+			buildReadinessRegistry: dependencies.buildReadinessRegistry,
+			reporter: reporter.child('readiness'),
+			workspace: tracked.workspace,
+			workspaceRoot,
+			cwd,
+			keys: GENERATE_READINESS_KEYS,
+		});
 
 		dependencies.registerFragments(pipeline);
 		dependencies.registerBuilders(pipeline);
@@ -255,6 +272,7 @@ function buildCommandConstructor(
 		public summary: GenerationSummary | null = null;
 
 		override async execute(): Promise<WPKExitCode> {
+			const cwd = resolveCommandCwd(this.context);
 			const reporter = dependencies.buildReporter({
 				namespace: buildReporterNamespace(),
 				level: this.verbose ? 'debug' : 'info',
@@ -268,6 +286,7 @@ function buildCommandConstructor(
 				reporter,
 				dryRun: this.dryRun,
 				verbose: this.verbose,
+				cwd,
 			});
 
 			if (result.output) {

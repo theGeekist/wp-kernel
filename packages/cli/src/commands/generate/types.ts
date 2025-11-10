@@ -23,6 +23,10 @@ import type {
 	registerCoreFragments,
 } from '../../ir/createIr';
 import type { buildAdapterExtensionsExtension } from '../../runtime/adapterExtensions';
+import type {
+	BuildDefaultReadinessRegistryOptions,
+	ReadinessRegistry,
+} from '../../dx';
 
 export interface BuildGenerateCommandOptions {
 	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;
@@ -34,6 +38,9 @@ export interface BuildGenerateCommandOptions {
 	readonly buildReporter?: typeof buildReporter;
 	readonly renderSummary?: typeof renderSummary;
 	readonly validateGeneratedImports?: typeof validateGeneratedImports;
+	readonly buildReadinessRegistry?: (
+		options?: BuildDefaultReadinessRegistryOptions
+	) => ReadinessRegistry;
 }
 
 export interface GenerateDependencies {
@@ -46,6 +53,9 @@ export interface GenerateDependencies {
 	readonly buildReporter: typeof buildReporter;
 	readonly renderSummary: typeof renderSummary;
 	readonly validateGeneratedImports: typeof validateGeneratedImports;
+	readonly buildReadinessRegistry: (
+		options?: BuildDefaultReadinessRegistryOptions
+	) => ReadinessRegistry;
 }
 
 export interface SummaryBuilderOptions {
@@ -90,6 +100,7 @@ export interface GenerateExecutionOptions {
 	readonly reporter: GenerateReporter;
 	readonly dryRun: boolean;
 	readonly verbose: boolean;
+	readonly cwd: string;
 }
 
 export interface SummaryRecordFactoryOptions {

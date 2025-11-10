@@ -11,6 +11,7 @@ import {
 	toFsPath,
 	readApplyLogEntries,
 } from '@wpkernel/test-utils/cli/commands/apply.test-support';
+import type { ReadinessPlan, ReadinessRegistry } from '../../dx';
 
 const withWorkspace = buildWorkspaceRunner({
 	prefix: TMP_PREFIX,
@@ -18,6 +19,23 @@ const withWorkspace = buildWorkspaceRunner({
 		await fs.mkdir(path.join(workspace, '.git'), { recursive: true });
 	},
 });
+
+function createReadinessRegistryStub() {
+	const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+	const readinessPlanMock = jest.fn(
+		(keys: ReadinessPlan['keys']) =>
+			({ keys, run: readinessRun }) as ReadinessPlan
+	);
+	const readinessRegistry = {
+		plan: readinessPlanMock,
+	} as unknown as ReadinessRegistry;
+
+	return {
+		readinessRun,
+		readinessPlanMock,
+		buildReadinessRegistry: jest.fn(() => readinessRegistry),
+	};
+}
 
 describe('ApplyCommand integration', () => {
 	it('applies git patches and reports summary', async () => {
@@ -42,8 +60,10 @@ describe('ApplyCommand integration', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
+			const readiness = createReadinessRegistryStub();
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -81,6 +101,7 @@ describe('ApplyCommand integration', () => {
 			const targetPath = toFsPath(workspace, target);
 			const contents = await fs.readFile(targetPath, 'utf8');
 			expect(contents).toBe(incomingContents);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -108,8 +129,10 @@ describe('ApplyCommand integration', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
+			const readiness = createReadinessRegistryStub();
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -122,6 +145,7 @@ describe('ApplyCommand integration', () => {
 			const backupPath = `${toFsPath(workspace, target)}.bak`;
 			const backupContents = await fs.readFile(backupPath, 'utf8');
 			expect(backupContents).toBe(baseContents);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 	it('accepts git repositories located in ancestor directories', async () => {
@@ -151,8 +175,10 @@ describe('ApplyCommand integration', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(projectWorkspace));
+			const readiness = createReadinessRegistryStub();
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -168,6 +194,7 @@ describe('ApplyCommand integration', () => {
 				conflicts: 0,
 				skipped: 0,
 			});
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -193,8 +220,10 @@ describe('ApplyCommand integration', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
+			const readiness = createReadinessRegistryStub();
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -217,6 +246,7 @@ describe('ApplyCommand integration', () => {
 					summary: { applied: 1, conflicts: 0, skipped: 0 },
 				})
 			);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -225,8 +255,10 @@ describe('ApplyCommand integration', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
+			const readiness = createReadinessRegistryStub();
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -255,6 +287,7 @@ describe('ApplyCommand integration', () => {
 					summary: { applied: 0, conflicts: 0, skipped: 0 },
 				})
 			);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -275,8 +308,10 @@ describe('ApplyCommand integration', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
+			const readiness = createReadinessRegistryStub();
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -304,6 +339,7 @@ describe('ApplyCommand integration', () => {
 					summary: { applied: 0, conflicts: 1, skipped: 0 },
 				})
 			);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -324,8 +360,10 @@ describe('ApplyCommand integration', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
+			const readiness = createReadinessRegistryStub();
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
+				buildReadinessRegistry: readiness.buildReadinessRegistry,
 			});
 			const command = new ApplyCommand();
 			command.yes = true;
@@ -355,6 +393,7 @@ describe('ApplyCommand integration', () => {
 					},
 				})
 			);
+			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 		});
 	});
 });

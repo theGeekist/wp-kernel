@@ -5,6 +5,10 @@ import type { BuilderOutput } from '../../runtime/types';
 import type { LoadedWPKernelConfig } from '../../config/types';
 import type { FileManifest, Workspace } from '../../workspace';
 import type { createPatcher } from '../../builders';
+import type {
+	BuildDefaultReadinessRegistryOptions,
+	ReadinessRegistry,
+} from '../../dx';
 
 /**
  * Summary of the patch manifest.
@@ -184,6 +188,9 @@ export interface BuildApplyCommandOptions {
 		workspace: Workspace,
 		entry: ApplyLogEntry
 	) => Promise<void>;
+	readonly buildReadinessRegistry?: (
+		options?: BuildDefaultReadinessRegistryOptions
+	) => ReadinessRegistry;
 }
 
 export type ApplyCommandDependencies = Required<BuildApplyCommandOptions>;
