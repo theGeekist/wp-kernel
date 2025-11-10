@@ -295,6 +295,10 @@ Trim the worst of the test sprawl in a few high-churn suites now that shared hel
 
 `packages/cli/tests/__tests__/wpk-bin.integration.test.ts` now leans on a shared `expectSuccessfulInit` helper and a `fromWorkspace` path resolver to centralise the boilerplate that previously guarded every `wpk init` call. The helper asserts exit codes and stderr while returning the run payload when stdout needs inspection, and the new resolver collapses repetitive `path.join(workspace, …)` expressions. Together they remove more than forty lines without touching generate/apply coverage, nudging Task 56e’s integration cleanup toward a net SLOC reduction.
 
+##### 56e consolidation update – CLI integration harness
+
+`packages/cli/tests/test-support/cli-integration.test-support.ts` now exposes a `withCliIntegration` harness that threads workspace setup, `runWpk`, path resolution, and the `expectSuccessfulInit` assertion through a single entry point. The `wpk-bin` and `generate-apply` integration suites consume the harness, deleting their bespoke init helpers, ad-hoc `withWorkspace({ chdir: false })` wrappers, and inline `path.join(workspace, …)` plumbing while keeping their behavioural assertions intact. This brings the integration tests onto the shared process surface introduced earlier in Task 56, trims redundant scaffolding across the suites, and leaves no orphaned helpers behind for the next cleanup pass.
+
 ---
 
 #### 56f – Readiness helper shared utilities
