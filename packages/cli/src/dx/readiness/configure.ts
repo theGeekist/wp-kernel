@@ -7,7 +7,7 @@ import {
 	createPhpRuntimeReadinessHelper,
 	createTsxRuntimeReadinessHelper,
 	createWorkspaceHygieneReadinessHelper,
-	type ComposerHelperDependencies,
+	type ComposerHelperOverrides,
 	type GitHelperDependencies,
 	type PhpDriverDependencies,
 	type PhpRuntimeDependencies,
@@ -17,7 +17,7 @@ import {
 
 export interface DefaultReadinessHelperOverrides {
 	readonly git?: Partial<GitHelperDependencies>;
-	readonly composer?: Partial<ComposerHelperDependencies>;
+	readonly composer?: ComposerHelperOverrides;
 	readonly phpRuntime?: Partial<PhpRuntimeDependencies>;
 	readonly phpDriver?: Partial<PhpDriverDependencies>;
 	readonly tsxRuntime?: Partial<TsxRuntimeDependencies>;
