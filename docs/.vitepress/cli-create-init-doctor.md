@@ -287,6 +287,10 @@ Trim the worst of the test sprawl in a few high-churn suites now that shared hel
 
 `start.command.test.ts` now leans on a shared harness (`start.command.test-support.ts`) that drives the mocked generate command, watcher lifecycle, and Vite child processes from one place. The suite dropped roughly 250 lines by replacing bespoke shutdown calls, flush helpers, and reporter plumbing with `withStartCommand`, `advanceFastDebounce`, and `emitChange`, while the chokidar module shape assertions collapsed into a single parameterised block. The start command remains covered end-to-end (watch debounce, auto-apply, Vite orchestration), but each concern now lives in tighter helpers that future pipeline refactors can reuse without copying the 1,200-line fixture blob that previously lived at the bottom of the file. Next up, pipeline and integration suites should adopt similar harnesses so their ordering/error tests can shrink without sacrificing coverage.
 
+##### 56e consolidation update – pipeline + init harnesses
+
+`packages/cli/src/runtime/__tests__/pipeline.test.ts` now runs through a purpose-built harness (`runtime/test-support/pipeline.test-support.ts`) that provisions workspaces, reporters, and default pipeline options in one place. The ordering, extension, and rollback scenarios simply call `withConfiguredPipeline` and inspect the captured steps/results, eliminating dozens of per-test calls to `withWorkspace`, `buildWorkspace`, and `buildEmptyGenerationState`. On the integration side, `packages/cli/tests/__tests__/init.integration.test.ts` consumes a new `withInitWorkflowHarness` helper that seeds disk fixtures and executes `runInitWorkflow` with consistent reporters—dropping the hand-written workspace plumbing while keeping assertions about scaffold summaries and reporter output intact. These reductions trim roughly 150 lines between the two suites and pave the way for the remaining 56e cleanups in the heavier CLI integration files.
+
 ---
 
 #### 56f – Readiness helper shared utilities

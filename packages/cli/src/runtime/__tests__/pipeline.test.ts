@@ -1,13 +1,8 @@
-import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import type { IRCapabilityMap } from '../../ir/publicTypes';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../createHelper';
 import { createPipeline } from '../createPipeline';
 import type { WPKernelConfigV1 } from '../../config/types';
-import { FIXTURE_CONFIG_PATH } from '../../ir/shared/test-helpers';
-import { buildWorkspace } from '../../workspace';
-import { withWorkspace } from '../../../tests/workspace.test-support';
-import { buildEmptyGenerationState } from '../../apply/manifest';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -20,6 +15,7 @@ import {
 	buildFragmentHelper,
 	buildPipelineExtension,
 } from '@wpkernel/test-utils/runtime/pipeline.fixtures.test-support';
+import { withPipelineHarness } from '../test-support/pipeline.test-support';
 
 function buildCapabilityMap(): IRCapabilityMap {
 	return {
@@ -40,13 +36,14 @@ describe('createPipeline', () => {
 		resources: {},
 	};
 
-	const runWithWorkspace = (
-		run: (workspaceRoot: string) => Promise<void>
-	): Promise<void> => withWorkspace(run, { chdir: false });
+	const withConfiguredPipeline = (
+		run: Parameters<typeof withPipelineHarness>[0],
+		options?: Omit<Parameters<typeof withPipelineHarness>[1], 'config'>
+	): ReturnType<typeof withPipelineHarness> =>
+		withPipelineHarness(run, { config, ...(options ?? {}) });
 
 	it('orders helpers by dependency metadata and executes builders', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const runOrder: string[] = [];
 
 			const metaHelper = createHelper({
@@ -122,18 +119,7 @@ describe('createPipeline', () => {
 			pipeline.ir.use(validationHelper);
 			pipeline.builders.use(builderHelper);
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-			const { steps, ir } = await pipeline.run({
-				phase: 'generate',
-				config,
-				namespace: 'test-namespace',
-				origin: 'typescript',
-				sourcePath: FIXTURE_CONFIG_PATH,
-				workspace,
-				reporter,
-				generationState: buildEmptyGenerationState(),
-			});
+			const { steps, ir } = await run();
 
 			expect(ir.meta.namespace).toBe('test-namespace');
 			expect(runOrder).toEqual([
@@ -204,9 +190,7 @@ describe('createPipeline', () => {
 	});
 
 	it('detects dependency cycles when ordering helpers', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
-
+		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			pipeline.ir.use(
 				createHelper({
 					key: 'ir.first',
@@ -229,34 +213,14 @@ describe('createPipeline', () => {
 				})
 			);
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
 			await expect(async () => {
-				const result = pipeline.run({
-					phase: 'generate',
-					config,
-					namespace: 'cycle',
-					origin: 'typescript',
-					sourcePath: FIXTURE_CONFIG_PATH,
-					workspace,
-					reporter,
-					generationState: buildEmptyGenerationState(),
-				});
-
-				if (
-					result &&
-					typeof (result as PromiseLike<unknown>).then === 'function'
-				) {
-					await result;
-				}
+				await run({ namespace: 'cycle' });
 			}).rejects.toThrow(WPKernelError);
 		});
 	});
 
 	it('supports top-level helper registration and extensions', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const executionOrder: string[] = [];
 
 			const metaHelper = createHelper({
@@ -322,18 +286,7 @@ describe('createPipeline', () => {
 			expect(register).toHaveBeenCalledWith(pipeline);
 			expect(extensionResult).toBeUndefined();
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-			const { steps } = await pipeline.run({
-				phase: 'generate',
-				config,
-				namespace: 'ext',
-				origin: 'typescript',
-				sourcePath: FIXTURE_CONFIG_PATH,
-				workspace,
-				reporter,
-				generationState: buildEmptyGenerationState(),
-			});
+			const { steps } = await run({ namespace: 'ext' });
 
 			expect(executionOrder.slice(0, 2)).toEqual(['meta', 'capability']);
 			expect(new Set(executionOrder.slice(2))).toEqual(
@@ -346,8 +299,7 @@ describe('createPipeline', () => {
 	});
 
 	it('awaits asynchronous extension registration before execution', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const commit = jest.fn(async () => undefined);
 			const rollback = jest.fn(async () => undefined);
 			const hookSpy = jest.fn();
@@ -428,19 +380,7 @@ describe('createPipeline', () => {
 				})
 			);
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
-			await pipeline.run({
-				phase: 'generate',
-				config,
-				namespace: 'async',
-				origin: 'typescript',
-				sourcePath: FIXTURE_CONFIG_PATH,
-				workspace,
-				reporter,
-				generationState: buildEmptyGenerationState(),
-			});
+			await run({ namespace: 'async' });
 
 			expect(hookSpy).toHaveBeenCalledWith('async');
 			expect(commit).toHaveBeenCalledTimes(1);
@@ -449,8 +389,7 @@ describe('createPipeline', () => {
 	});
 
 	it('applies extension IR updates and records builder writes', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run, reporter }) => {
 			const commit = jest.fn(async () => undefined);
 			const recordedActions: string[] = [];
 
@@ -537,19 +476,7 @@ describe('createPipeline', () => {
 				})
 			);
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
-			const result = await pipeline.run({
-				phase: 'generate',
-				config,
-				namespace: 'update',
-				origin: 'typescript',
-				sourcePath: FIXTURE_CONFIG_PATH,
-				workspace,
-				reporter,
-				generationState: buildEmptyGenerationState(),
-			});
+			const result = await run({ namespace: 'update' });
 
 			expect(result.ir.meta.namespace).toBe('updated');
 			expect(commit).toHaveBeenCalledTimes(1);
@@ -559,8 +486,7 @@ describe('createPipeline', () => {
 	});
 
 	it('orders builder helpers by priority, key, and registration order', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const builderOrder: string[] = [];
 
 			pipeline.ir.use(
@@ -696,18 +622,7 @@ describe('createPipeline', () => {
 			pipeline.builders.use(duplicateSecond);
 			pipeline.builders.use(builderAlpha);
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-			const { steps } = await pipeline.run({
-				phase: 'generate',
-				config,
-				namespace: 'priority',
-				origin: 'typescript',
-				sourcePath: FIXTURE_CONFIG_PATH,
-				workspace,
-				reporter,
-				generationState: buildEmptyGenerationState(),
-			});
+			const { steps } = await run({ namespace: 'priority' });
 
 			expect(builderOrder).toEqual([
 				'high',
@@ -731,8 +646,7 @@ describe('createPipeline', () => {
 	});
 
 	it('commits extension hooks after successful execution', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const commit = jest.fn();
 			const rollback = jest.fn();
 
@@ -806,19 +720,7 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
-			await pipeline.run({
-				phase: 'generate',
-				config,
-				namespace: 'commit',
-				origin: 'typescript',
-				sourcePath: FIXTURE_CONFIG_PATH,
-				workspace,
-				reporter,
-				generationState: buildEmptyGenerationState(),
-			});
+			await run({ namespace: 'commit' });
 
 			expect(commit).toHaveBeenCalledTimes(1);
 			expect(rollback).not.toHaveBeenCalled();
@@ -826,8 +728,7 @@ describe('createPipeline', () => {
 	});
 
 	it('rolls back executed extension hooks when a later hook throws', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run, reporter }) => {
 			const commit = jest.fn();
 			const rollback = jest.fn();
 
@@ -900,20 +801,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
 			await expect(
-				pipeline.run({
-					phase: 'generate',
-					config,
-					namespace: 'extension-failure',
-					origin: 'typescript',
-					sourcePath: FIXTURE_CONFIG_PATH,
-					workspace,
-					reporter,
-					generationState: buildEmptyGenerationState(),
-				})
+				run({ namespace: 'extension-failure' })
 			).rejects.toThrow('extension failure');
 
 			expect(commit).not.toHaveBeenCalled();
@@ -923,8 +812,7 @@ describe('createPipeline', () => {
 	});
 
 	it('rolls back extension hooks when builders fail', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run, reporter }) => {
 			const commit = jest.fn();
 			const rollback = jest.fn();
 
@@ -998,21 +886,9 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
-			await expect(
-				pipeline.run({
-					phase: 'generate',
-					config,
-					namespace: 'rollback',
-					origin: 'typescript',
-					sourcePath: FIXTURE_CONFIG_PATH,
-					workspace,
-					reporter,
-					generationState: buildEmptyGenerationState(),
-				})
-			).rejects.toThrow('builder failure');
+			await expect(run({ namespace: 'rollback' })).rejects.toThrow(
+				'builder failure'
+			);
 
 			expect(commit).not.toHaveBeenCalled();
 			expect(rollback).toHaveBeenCalledTimes(1);
@@ -1021,8 +897,7 @@ describe('createPipeline', () => {
 	});
 
 	it('skips rollback when extension does not provide a rollback handler', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run, reporter }) => {
 			const commit = jest.fn();
 
 			pipeline.ir.use(
@@ -1094,20 +969,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
 			await expect(
-				pipeline.run({
-					phase: 'generate',
-					config,
-					namespace: 'rollback-missing',
-					origin: 'typescript',
-					sourcePath: FIXTURE_CONFIG_PATH,
-					workspace,
-					reporter,
-					generationState: buildEmptyGenerationState(),
-				})
+				run({ namespace: 'rollback-missing' })
 			).rejects.toThrow('builder failure');
 
 			expect(commit).not.toHaveBeenCalled();
@@ -1116,8 +979,7 @@ describe('createPipeline', () => {
 	});
 
 	it('warns when extension rollback fails', async () => {
-		await runWithWorkspace(async (workspaceRoot) => {
-			const pipeline = createPipeline();
+		await withConfiguredPipeline(async ({ pipeline, run, reporter }) => {
 			const commit = jest.fn();
 			const rollback = jest
 				.fn()
@@ -1192,20 +1054,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = buildWorkspace(workspaceRoot);
-			const reporter = buildReporterMock();
-
 			await expect(
-				pipeline.run({
-					phase: 'generate',
-					config,
-					namespace: 'rollback-warning',
-					origin: 'typescript',
-					sourcePath: FIXTURE_CONFIG_PATH,
-					workspace,
-					reporter,
-					generationState: buildEmptyGenerationState(),
-				})
+				run({ namespace: 'rollback-warning' })
 			).rejects.toThrow('builder failure');
 
 			expect(commit).not.toHaveBeenCalled();

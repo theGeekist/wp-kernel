@@ -1,44 +1,30 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { createReporterMock } from '@wpkernel/test-utils/cli';
-import { withWorkspace } from '../workspace.test-support';
-import { buildWorkspace } from '../../src/workspace';
-import { runInitWorkflow } from '../../src/commands/init/workflow';
+import { withInitWorkflowHarness } from '../test-support/init-workflow.test-support';
 
 describe('runInitWorkflow integration', () => {
 	it('seeds WPK-managed assets in a clean workspace', async () => {
-		await withWorkspace(
-			async (workspaceRoot) => {
-				const workspace = buildWorkspace(workspaceRoot);
-				const reporter = createReporterMock();
+		await withInitWorkflowHarness(async ({ workspaceRoot, run }) => {
+			const result = await run();
 
-				const result = await runInitWorkflow({
-					workspace,
-					reporter,
-					verbose: false,
-					force: false,
-				});
+			const summariesByPath = new Map(
+				result.summaries.map((entry) => [entry.path, entry.status])
+			);
+			expect(summariesByPath.get('wpk.config.ts')).toBe('created');
+			expect(summariesByPath.get('tsconfig.json')).toBe('created');
+			expect(summariesByPath.get('composer.json')).toBe('created');
 
-				const summariesByPath = new Map(
-					result.summaries.map((entry) => [entry.path, entry.status])
-				);
-				expect(summariesByPath.get('wpk.config.ts')).toBe('created');
-				expect(summariesByPath.get('tsconfig.json')).toBe('created');
-				expect(summariesByPath.get('composer.json')).toBe('created');
-
-				const wpkConfig = await fs.readFile(
-					path.join(workspaceRoot, 'wpk.config.ts'),
-					'utf8'
-				);
-				expect(wpkConfig).toContain('namespace:');
-			},
-			{ chdir: false }
-		);
+			const wpkConfig = await fs.readFile(
+				path.join(workspaceRoot, 'wpk.config.ts'),
+				'utf8'
+			);
+			expect(wpkConfig).toContain('namespace:');
+		});
 	});
 
 	it('skips author-owned files when adopting an existing plugin', async () => {
-		await withWorkspace(
-			async (workspaceRoot) => {
+		await withInitWorkflowHarness(
+			async ({ workspaceRoot, run, reporter }) => {
 				const composerPath = path.join(workspaceRoot, 'composer.json');
 				const composerTemplate = JSON.stringify(
 					{
@@ -51,42 +37,7 @@ describe('runInitWorkflow integration', () => {
 					2
 				);
 
-				await fs.mkdir(path.join(workspaceRoot, 'src'), {
-					recursive: true,
-				});
-				await fs.writeFile(
-					composerPath,
-					`${composerTemplate}\n`,
-					'utf8'
-				);
-				await fs.writeFile(
-					path.join(workspaceRoot, 'src', 'index.ts'),
-					"console.log('existing front-end');\n",
-					'utf8'
-				);
-				await fs.mkdir(path.join(workspaceRoot, 'inc'), {
-					recursive: true,
-				});
-				await fs.writeFile(
-					path.join(workspaceRoot, 'inc', '.gitkeep'),
-					'',
-					'utf8'
-				);
-				await fs.writeFile(
-					path.join(workspaceRoot, 'existing-plugin.php'),
-					`<?php\n/*\nPlugin Name: Existing Plugin\n*/\n`,
-					'utf8'
-				);
-
-				const workspace = buildWorkspace(workspaceRoot);
-				const reporter = createReporterMock();
-
-				const result = await runInitWorkflow({
-					workspace,
-					reporter,
-					verbose: false,
-					force: false,
-				});
+				const result = await run();
 
 				const statuses = new Map(
 					result.summaries.map((entry) => [entry.path, entry.status])
@@ -110,39 +61,62 @@ describe('runInitWorkflow integration', () => {
 					)
 				);
 			},
-			{ chdir: false }
+			{
+				workspace: {
+					setup: async (workspaceRoot) => {
+						const composerPath = path.join(
+							workspaceRoot,
+							'composer.json'
+						);
+						const composerTemplate = JSON.stringify(
+							{
+								name: 'existing/plugin',
+								autoload: {
+									'psr-4': {
+										'Existing\\': 'inc/',
+									},
+								},
+							},
+							null,
+							2
+						);
+
+						await fs.mkdir(path.join(workspaceRoot, 'src'), {
+							recursive: true,
+						});
+						await fs.writeFile(
+							composerPath,
+							`${composerTemplate}\n`,
+							'utf8'
+						);
+						await fs.writeFile(
+							path.join(workspaceRoot, 'src', 'index.ts'),
+							"console.log('existing front-end');\n",
+							'utf8'
+						);
+						await fs.mkdir(path.join(workspaceRoot, 'inc'), {
+							recursive: true,
+						});
+						await fs.writeFile(
+							path.join(workspaceRoot, 'inc', '.gitkeep'),
+							'',
+							'utf8'
+						);
+						await fs.writeFile(
+							path.join(workspaceRoot, 'existing-plugin.php'),
+							`<?php\n/*\nPlugin Name: Existing Plugin\n*/\n`,
+							'utf8'
+						);
+					},
+				},
+			}
 		);
 	});
 
 	it('overwrites author files when force is provided', async () => {
-		await withWorkspace(
-			async (workspaceRoot) => {
-				await fs.mkdir(path.join(workspaceRoot, 'inc'), {
-					recursive: true,
-				});
-				await fs.mkdir(path.join(workspaceRoot, 'src'), {
-					recursive: true,
-				});
-				await fs.writeFile(
-					path.join(workspaceRoot, 'composer.json'),
-					JSON.stringify({ name: 'existing/plugin' }, null, 2),
-					'utf8'
-				);
-				await fs.writeFile(
-					path.join(workspaceRoot, 'src', 'index.ts'),
-					"console.log('existing front-end');\n",
-					'utf8'
-				);
-
-				const workspace = buildWorkspace(workspaceRoot);
-				const reporter = createReporterMock();
-
-				const result = await runInitWorkflow({
-					workspace,
-					reporter,
-					verbose: false,
-					force: true,
-				});
+		await withInitWorkflowHarness(
+			async ({ workspaceRoot, run }) => {
+				const result = await run({ force: true });
 
 				const statuses = new Map(
 					result.summaries.map((entry) => [entry.path, entry.status])
@@ -158,7 +132,32 @@ describe('runInitWorkflow integration', () => {
 				expect(composerContents).not.toContain('existing/plugin');
 				expect(composerContents).toContain('"psr-4"');
 			},
-			{ chdir: false }
+			{
+				workspace: {
+					setup: async (workspaceRoot) => {
+						await fs.mkdir(path.join(workspaceRoot, 'inc'), {
+							recursive: true,
+						});
+						await fs.mkdir(path.join(workspaceRoot, 'src'), {
+							recursive: true,
+						});
+						await fs.writeFile(
+							path.join(workspaceRoot, 'composer.json'),
+							JSON.stringify(
+								{ name: 'existing/plugin' },
+								null,
+								2
+							),
+							'utf8'
+						);
+						await fs.writeFile(
+							path.join(workspaceRoot, 'src', 'index.ts'),
+							"console.log('existing front-end');\n",
+							'utf8'
+						);
+					},
+				},
+			}
 		);
 	});
 });
