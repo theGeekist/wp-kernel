@@ -16,7 +16,7 @@ import {
 	type ReadinessOutcome,
 	type ReadinessOutcomeStatus,
 } from '../dx';
-import { getCliPackageRoot } from './init/module-url';
+import { getCliPackageRoot } from '../utils/module-url';
 import { resolveCommandCwd } from './init/command-runtime';
 
 /**

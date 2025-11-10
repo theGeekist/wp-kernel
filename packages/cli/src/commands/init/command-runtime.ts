@@ -18,7 +18,7 @@ import {
 	DEFAULT_READINESS_ORDER,
 	buildDefaultReadinessRegistry,
 } from '../../dx';
-import { getCliPackageRoot } from './module-url';
+import { getCliPackageRoot } from '../../utils/module-url';
 
 export interface InitCommandRuntimeDependencies {
 	readonly buildWorkspace: (root: string) => Workspace;

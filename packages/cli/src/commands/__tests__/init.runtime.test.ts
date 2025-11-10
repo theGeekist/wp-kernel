@@ -9,7 +9,7 @@ import {
 	formatInitWorkflowError,
 	resolveCommandCwd,
 } from '../init/command-runtime';
-import { getCliPackageRoot } from '../init/module-url';
+import { getCliPackageRoot } from '../../utils/module-url';
 
 describe('init command runtime helpers', () => {
 	it('builds runtime that reuses workspace and reporter when running workflow', async () => {
