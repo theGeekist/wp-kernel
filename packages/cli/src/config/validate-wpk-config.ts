@@ -23,7 +23,11 @@
  */
 
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { ResourceConfig } from '@wpkernel/core/resource';
+import type {
+	ResourceConfig,
+	ResourceConfigInput,
+} from '@wpkernel/core/resource';
+import { assignResourceNames } from '@wpkernel/core/resource';
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
 import { WPKernelError } from '@wpkernel/core/error';
 import * as t from 'typanion';
@@ -305,7 +309,7 @@ const resourceUIValidator = t.isObject(
 
 const resourceConfigValidator = t.isObject(
 	{
-		name: t.isString(),
+		name: t.isOptional(nonEmptyStringValidator),
 		routes: resourceRoutesValidator,
 		identity: resourceIdentityValidator,
 		storage: resourceStorageValidator,
@@ -429,18 +433,22 @@ export function validateWPKernelConfig(
 		);
 	}
 
+	const normalizedResources = assignResourceNames(
+		candidate.resources as Record<
+			string,
+			ResourceConfigInput<unknown, unknown>
+		>
+	);
+
 	for (const [resourceName, resource] of Object.entries(
-		candidate.resources
+		normalizedResources
 	)) {
-		runResourceChecks(
-			resourceName,
-			resource as ResourceConfig,
-			validationReporter
-		);
+		runResourceChecks(resourceName, resource, validationReporter);
 	}
 
 	const config: WPKernelConfigV1 = {
 		...candidate,
+		resources: normalizedResources,
 		version,
 		namespace: sanitizedNamespace,
 	} as WPKernelConfigV1;

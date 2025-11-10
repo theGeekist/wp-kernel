@@ -77,6 +77,7 @@ export type {
 
 // Resource system
 export { defineResource } from './resource/define.js';
+export { assignResourceNames } from './resource/registry.js';
 export {
 	interpolatePath,
 	extractPathParams,
@@ -123,6 +124,10 @@ export type {
 	ResourceStore,
 	ResourceListStatus,
 } from './resource/types';
+export type {
+	ResourceConfigInput,
+	ResourceRegistryInput,
+} from './resource/registry';
 export type {
 	PathParams,
 	CacheKeyPattern,

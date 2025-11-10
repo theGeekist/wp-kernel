@@ -35,22 +35,7 @@ describe('loadWPKernelConfig', () => {
 	it('loads a wpk config and validates composer autoload', async () => {
 		await withWorkspace(
 			{
-				'wpk.config.js': `module.exports = {
-  version: 1,
-  namespace: 'valid-namespace',
-  schemas: {},
-  resources: {
-    thing: {
-      name: 'thing',
-      identity: { type: 'number' },
-      routes: {
-        list: { path: '/valid/v1/things', method: 'GET' },
-        get: { path: '/valid/v1/things/:id', method: 'GET' }
-      }
-    }
-  }
-};
-`,
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 				'composer.json': createComposerJson('inc/'),
 			},
 			async (workspaceRoot) => {
@@ -70,6 +55,35 @@ describe('loadWPKernelConfig', () => {
 				);
 				expect(result.composerCheck).toBe('ok');
 				expect(result.config.version).toBe(1);
+				expect(result.config.resources.thing.name).toBe('thing');
+			}
+		);
+	});
+
+	it('derives resource names from registry keys when omitted', async () => {
+		await withWorkspace(
+			{
+				'wpk.config.js': `module.exports = {
+  version: 1,
+  namespace: 'valid-namespace',
+  schemas: {},
+  resources: {
+    thing: {
+      identity: { type: 'number' },
+      routes: {
+        list: { path: '/valid/v1/things', method: 'GET' },
+        get: { path: '/valid/v1/things/:id', method: 'GET' }
+      }
+    }
+  }
+};
+`,
+				'composer.json': createComposerJson('inc/'),
+			},
+			async () => {
+				const result = await loadWPKernelConfig();
+
+				expect(result.config.resources.thing.name).toBe('thing');
 			}
 		);
 	});
@@ -412,7 +426,6 @@ describe('loadWPKernelConfig', () => {
 				schemas: {},
 				resources: {
 					thing: {
-						name: 'thing',
 						identity: { type: 'number' },
 						routes: {
 							list: {

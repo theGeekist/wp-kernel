@@ -409,10 +409,14 @@
 		},
 		"resourceConfig": {
 			"type": "object",
-			"required": ["name", "routes"],
+			"required": ["routes"],
 			"additionalProperties": true,
 			"properties": {
-				"name": { "type": "string", "minLength": 1 },
+				"name": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional override for the resource slug. Defaults to the registry key when omitted."
+				},
 				"namespace": { "type": "string", "minLength": 1 },
 				"routes": { "$ref": "#/$defs/resourceRoutes" },
 				"identity": { "$ref": "#/$defs/resourceIdentity" },

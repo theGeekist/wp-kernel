@@ -56,6 +56,27 @@ describe('wpk-config json schema', () => {
 		expect(result).toBe(true);
 	});
 
+	it('accepts resources without explicit names', () => {
+		const validate = createValidator();
+		const config = {
+			version: 1,
+			namespace: 'example-slug',
+			schemas: {},
+			resources: {
+				job: {
+					routes: {
+						list: {
+							path: '/example/v1/jobs',
+							method: 'GET',
+						},
+					},
+				},
+			},
+		};
+
+		expect(validate(config)).toBe(true);
+	});
+
 	it('rejects configs missing required top-level fields', () => {
 		const validate = createValidator();
 		const invalidConfig = { version: 1, schemas: {}, resources: {} };

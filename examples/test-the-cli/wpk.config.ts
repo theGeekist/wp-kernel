@@ -1,9 +1,9 @@
-import type {
-	ResourceConfig,
-	ResourceIdentityConfig,
-	ResourceRoutes,
-	ResourceStorageConfig,
-} from '@wpkernel/core/resource';
+import {
+	type ResourceConfigInput,
+	type ResourceIdentityConfig,
+	type ResourceRoutes,
+	type ResourceStorageConfig,
+} from '@wpkernel/core';
 
 type ExampleItem = {
 	id: number;
@@ -34,22 +34,23 @@ const routes: ResourceRoutes = {
 	},
 };
 
-const exampleResource: ResourceConfig<ExampleItem, ExampleQuery> = {
-	name: 'example-item',
+const exampleResource: ResourceConfigInput<ExampleItem, ExampleQuery> = {
 	identity,
 	storage,
 	routes,
 	schema: 'auto',
 };
 
+const exampleResources = {
+	example: exampleResource,
+} satisfies Record<'example', ResourceConfigInput<ExampleItem, ExampleQuery>>;
+
 /** @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules */
 export const wpkConfig = {
 	version: 1,
 	namespace: 'wp-kernel-cli-sample',
 	schemas: {},
-	resources: {
-		example: exampleResource,
-	},
+	resources: exampleResources,
 };
 
 export type TestCliWPKernelConfig = typeof wpkConfig;

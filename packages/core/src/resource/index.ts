@@ -14,6 +14,7 @@
  * @category Resource
  */
 export { defineResource } from './define';
+export { assignResourceNames } from './registry';
 
 export {
 	/**
@@ -112,3 +113,4 @@ export type {
 	ResourceDataViewsMenuConfig,
 	ResourceDataViewsSavedViewConfig,
 } from './types';
+export type { ResourceConfigInput, ResourceRegistryInput } from './registry';

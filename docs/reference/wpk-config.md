@@ -38,22 +38,42 @@ Empty registries are perfectly valid but _builders_ only generate assets when th
 ### 2. A resource with real routes and WP Capability checks
 
 ```ts
-resources: {
-  job: {
-    name: 'job',
-    routes: {
-      list:   { path: '/acme/v1/jobs',     method: 'GET',  capability: 'job.list'  },
-      get:    { path: '/acme/v1/jobs/:id', method: 'GET',  capability: 'job.get'   },
-      create: { path: '/acme/v1/jobs',     method: 'POST', capability: 'job.create'},
-    },
-    capabilities: {
-      'job.list':  'read',
-      'job.get':   'read',
-      'job.create': { capability: 'edit_posts', appliesTo: 'resource' },
-    },
-  },
-},
+const resources = {
+	job: {
+		routes: {
+			list: {
+				path: '/acme/v1/jobs',
+				method: 'GET',
+				capability: 'job.list',
+			},
+			get: {
+				path: '/acme/v1/jobs/:id',
+				method: 'GET',
+				capability: 'job.get',
+			},
+			create: {
+				path: '/acme/v1/jobs',
+				method: 'POST',
+				capability: 'job.create',
+			},
+		},
+		capabilities: {
+			'job.list': 'read',
+			'job.get': 'read',
+			'job.create': { capability: 'edit_posts', appliesTo: 'resource' },
+		},
+	},
+};
+
+export const wpkConfig = {
+	version: 1,
+	namespace: 'acme-demo',
+	schemas: {},
+	resources,
+};
 ```
+
+The CLI copies each registry key into `resource.name`, so you only set the slug once. If you need to reuse the fully normalised objects in TypeScript (for example to satisfy `ResourceConfig`), call `assignResourceNames()` from `@wpkernel/core/resource` to populate the field ahead of time.
 
 **What builders do**
 The route planner records `list`, `get` and `create`. PHP builders then generate `REST`ful controllers with permission callbacks and JS builder emits a typed API client with `fetchList`, `fetch` and `create`.
@@ -118,7 +138,7 @@ artifacts.
 
 | Path                           | Accepted values & defaults                                        | CLI & pipeline consumers                                     | Generated files                                                   | WordPress artifacts                                                  | Runtime usage                                               |                                                   |
 | ------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------- |
-| `resources.<key>.name`         | Required string (singular, lower-case recommended).               | Normalised into IR resource objects.                         | Appears in generated filenames and symbol names.                  | Used for REST route namespaces and PHP class names.                  | Forms store keys, capability unions, reporter labels.       |
+| `resources.<key>.name`         | Optional string override (defaults to the registry key).          | Normalised into IR resource objects.                         | Appears in generated filenames and symbol names.                  | Used for REST route namespaces and PHP class names.                  | Forms store keys, capability unions, reporter labels.       |
 | `resources.<key>.namespace`    | Optional string override. Defaults to the root `namespace`.       | Applied when assembling IR metadata.                         | Updates generated paths and module specifiers.                    | Changes PHP namespace roots for controllers.                         | Sets the store namespace (`namespace/resource`).            |
 | `resources.<key>.schema`       | `'auto'`, schema key, JSON Schema object/promise, or `undefined`. | Resolved to a schema key when building the IR.               | Schema JSON embedded into controller metadata.                    | REST arguments gain validation and identity metadata.                | Schema key stored on `ResourceObject.schemaKey`.            |
 | `resources.<key>.reporter`     | Optional custom reporter instance.                                | Forwarded to runtime builders only.                          | -                                                                 | -                                                                    | Overrides the reporter used by the resource client/store.   |

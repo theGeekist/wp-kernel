@@ -1,13 +1,15 @@
-import type {
-	CacheKeys,
-	ResourceConfig,
-	ResourceIdentityConfig,
-	ResourceRoutes,
-	ResourceStorageConfig,
-	ResourceQueryParams,
-	ResourceQueryParamDescriptor,
-	ResourceDataViewsUIConfig,
-} from '@wpkernel/core/resource';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import {
+	assignResourceNames,
+	type CacheKeys,
+	type ResourceConfigInput,
+	type ResourceIdentityConfig,
+	type ResourceRoutes,
+	type ResourceStorageConfig,
+	type ResourceQueryParams,
+	type ResourceQueryParamDescriptor,
+	type ResourceDataViewsUIConfig,
+} from '@wpkernel/core';
 import type { Form } from '@wordpress/dataviews';
 import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
 import type { JobResource } from './.generated/types/job';
@@ -330,8 +332,7 @@ export const jobDataViewsConfig: ResourceDataViewConfig<Job, JobListParams> &
 	},
 };
 
-const jobResource: ResourceConfig<Job, JobListParams> = {
-	name: 'job',
+const jobResource: ResourceConfigInput<Job, JobListParams> = {
 	identity,
 	storage,
 	routes,
@@ -345,9 +346,18 @@ const jobResource: ResourceConfig<Job, JobListParams> = {
 	},
 };
 
-type ShowcaseResources = {
-	job: ResourceConfig<Job, JobListParams> & { schema: string | 'auto' };
+type ShowcaseResourceEntry = ResourceConfigInput<Job, JobListParams> & {
+	schema: 'auto' | string;
 };
+
+const showcaseResources = assignResourceNames({
+	job: {
+		...jobResource,
+		schema: 'auto' as const,
+	},
+} as Record<'job', ShowcaseResourceEntry>);
+
+type ShowcaseResources = typeof showcaseResources;
 
 type ShowcaseWPKernelConfigShape = {
 	version: 1;
@@ -361,12 +371,7 @@ export const wpkConfig = {
 	version: 1,
 	namespace: 'wp-kernel-showcase',
 	schemas: {},
-	resources: {
-		job: {
-			...jobResource,
-			schema: 'auto',
-		},
-	},
+	resources: showcaseResources,
 } satisfies ShowcaseWPKernelConfigShape;
 
 export type ShowcaseWPKernelConfig = typeof wpkConfig;
