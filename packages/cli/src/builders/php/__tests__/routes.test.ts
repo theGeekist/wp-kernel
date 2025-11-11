@@ -13,7 +13,7 @@ import {
 	createPhpWpPostRoutesHelper,
 	getWpPostRouteHelperState,
 	readWpPostRouteBundle,
-} from '../routes';
+} from '../controller.wpPostRoutes';
 
 describe('createPhpWpPostRoutesHelper', () => {
 	function buildReporter(): Reporter {

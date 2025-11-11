@@ -1,20 +1,28 @@
 import path from 'node:path';
-import { createPhpBlocksHelper } from '../blocks';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
+import { createPhpBlocksHelper } from '../block.artifacts';
+import {
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+	DEFAULT_DOC_HEADER,
+} from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../../ir/publicTypes';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
-	buildBuilderArtifacts,
 	buildReporter,
-	buildOutput,
 	normalise,
 	type BuilderHarnessContext,
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
+import {
+	createBuilderInput,
+	createBuilderOutput,
+	createMinimalIr,
+	createPipelineContext,
+} from '../test-support/php-builder.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
-import { DEFAULT_DOC_HEADER } from '@wpkernel/wp-json-ast';
 import * as BlockModule from '@wpkernel/wp-json-ast';
+import { withBlocks } from '../test-support/fixtures.test-support';
 
 jest.mock('@wpkernel/wp-json-ast', () => {
 	const actual = jest.requireActual<typeof BlockModule>(
@@ -29,7 +37,9 @@ jest.mock('@wpkernel/wp-json-ast', () => {
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
 ) =>
-	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
+	baseWithWorkspace(run, {
+		createWorkspace: (root: string) => buildWorkspace(root),
+	});
 
 describe('createPhpBlocksHelper', () => {
 	it('emits manifest, registrar, and render stub for SSR blocks', async () => {
@@ -54,35 +64,23 @@ describe('createPhpBlocksHelper', () => {
 				)
 			);
 
-			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-
-			const irWithBlocks: IRv1 = {
-				...ir,
-				blocks: [
-					{
-						key: 'demo/example',
-						directory: blockDir,
-						hasRender: true,
-						manifestSource: manifestPath,
-					},
-				],
-			};
+			const irWithBlocks = withBlocks(createMinimalIr(), [
+				{
+					key: 'demo/example',
+					directory: blockDir,
+					manifestSource: manifestPath,
+				},
+			]);
 
 			const reporter = buildReporter();
-			const context = { workspace, phase: 'generate' as const, reporter };
+			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
-			const output = buildOutput();
+			const output = createBuilderOutput();
 
 			await createPhpBlocksHelper().apply(
 				{
 					context,
-					input: {
-						phase: 'generate',
-						options,
-						ir: irWithBlocks,
-					},
+					input: createBuilderInputFor(irWithBlocks),
 					output,
 					reporter,
 				},
@@ -144,7 +142,7 @@ describe('createPhpBlocksHelper', () => {
 	});
 
 	it('reports manifest validation errors surfaced by wp-json-ast', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
+		await withWorkspace(async ({ workspace }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
 
@@ -165,25 +163,18 @@ describe('createPhpBlocksHelper', () => {
 				)
 			);
 
-			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const irWithBlocks: IRv1 = {
-				...ir,
-				blocks: [
-					{
-						key: 'demo/example',
-						directory: blockDir,
-						hasRender: true,
-						manifestSource: manifestPath,
-					},
-				],
-			};
+			const irWithBlocks = withBlocks(createMinimalIr(), [
+				{
+					key: 'demo/example',
+					directory: blockDir,
+					manifestSource: manifestPath,
+				},
+			]);
 
 			const reporter = buildReporter();
-			const context = { workspace, phase: 'generate' as const, reporter };
+			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
-			const output = buildOutput();
+			const output = createBuilderOutput();
 
 			const actualBlockModule = jest.requireActual<typeof BlockModule>(
 				'@wpkernel/wp-json-ast'
@@ -229,11 +220,7 @@ describe('createPhpBlocksHelper', () => {
 				await createPhpBlocksHelper().apply(
 					{
 						context,
-						input: {
-							phase: 'generate',
-							options,
-							ir: irWithBlocks,
-						},
+						input: createBuilderInputFor(irWithBlocks),
 						output,
 						reporter,
 					},
@@ -257,27 +244,19 @@ describe('createPhpBlocksHelper', () => {
 	});
 
 	it('skips when SSR blocks are absent', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
+		await withWorkspace(async ({ workspace }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
 
-			const { options, ir } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-
 			const reporter = buildReporter();
-			const context = { workspace, phase: 'generate' as const, reporter };
+			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
-			const output = buildOutput();
+			const output = createBuilderOutput();
 
 			await createPhpBlocksHelper().apply(
 				{
 					context,
-					input: {
-						phase: 'generate',
-						options,
-						ir: { ...ir, blocks: [] },
-					},
+					input: createBuilderInputFor(createMinimalIr()),
 					output,
 					reporter,
 				},
@@ -293,7 +272,7 @@ describe('createPhpBlocksHelper', () => {
 	});
 
 	it('skips manifest emission when entries are missing', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
+		await withWorkspace(async ({ workspace }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
 
@@ -301,34 +280,23 @@ describe('createPhpBlocksHelper', () => {
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(manifestPath, '{ invalid json');
 
-			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const irWithBlocks: IRv1 = {
-				...ir,
-				blocks: [
-					{
-						key: 'demo/broken',
-						directory: blockDir,
-						hasRender: true,
-						manifestSource: manifestPath,
-					},
-				],
-			};
+			const irWithBlocks = withBlocks(createMinimalIr(), [
+				{
+					key: 'demo/broken',
+					directory: blockDir,
+					manifestSource: manifestPath,
+				},
+			]);
 
 			const reporter = buildReporter();
-			const context = { workspace, phase: 'generate' as const, reporter };
+			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
-			const output = buildOutput();
+			const output = createBuilderOutput();
 
 			await createPhpBlocksHelper().apply(
 				{
 					context,
-					input: {
-						phase: 'generate',
-						options,
-						ir: irWithBlocks,
-					},
+					input: createBuilderInputFor(irWithBlocks),
 					output,
 					reporter,
 				},
@@ -347,7 +315,7 @@ describe('createPhpBlocksHelper', () => {
 	});
 
 	it('rolls back render stub writes when workspace write fails', async () => {
-		await withWorkspace(async ({ workspace, root }) => {
+		await withWorkspace(async ({ workspace }) => {
 			const configSource = buildWPKernelConfigSource();
 			await workspace.write('wpk.config.ts', configSource);
 
@@ -368,25 +336,18 @@ describe('createPhpBlocksHelper', () => {
 				)
 			);
 
-			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			});
-			const irWithBlocks: IRv1 = {
-				...ir,
-				blocks: [
-					{
-						key: 'demo/failing',
-						directory: blockDir,
-						hasRender: true,
-						manifestSource: manifestPath,
-					},
-				],
-			};
+			const irWithBlocks = withBlocks(createMinimalIr(), [
+				{
+					key: 'demo/failing',
+					directory: blockDir,
+					manifestSource: manifestPath,
+				},
+			]);
 
 			const reporter = buildReporter();
-			const context = { workspace, phase: 'generate' as const, reporter };
+			const context = createPipelineContext({ workspace, reporter });
 			resetPhpBuilderChannel(context);
-			const output = buildOutput();
+			const output = createBuilderOutput();
 
 			const rollbackSpy = jest.spyOn(workspace, 'rollback');
 			const originalWrite = workspace.write.bind(workspace);
@@ -407,11 +368,7 @@ describe('createPhpBlocksHelper', () => {
 				createPhpBlocksHelper().apply(
 					{
 						context,
-						input: {
-							phase: 'generate',
-							options,
-							ir: irWithBlocks,
-						},
+						input: createBuilderInputFor(irWithBlocks),
 						output,
 						reporter,
 					},
@@ -430,3 +387,15 @@ describe('createPhpBlocksHelper', () => {
 		});
 	});
 });
+
+function createBuilderInputFor(ir: IRv1) {
+	return createBuilderInput({
+		ir,
+		options: {
+			config: ir.config,
+			namespace: ir.meta.namespace,
+			origin: ir.meta.origin ?? 'tests',
+			sourcePath: ir.meta.sourcePath ?? 'tests.config.ts',
+		},
+	});
+}

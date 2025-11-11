@@ -15,6 +15,10 @@ import type { Workspace } from '../../workspace/types';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildReporter } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import {
+	createMinimalIr,
+	createPipelineContext,
+} from '../php/test-support/php-builder.test-support';
 
 jest.mock('@wpkernel/php-driver', () => ({
 	buildPhpPrettyPrinter: jest.fn(() => ({
@@ -55,41 +59,12 @@ function buildWorkspace(): Workspace {
 	});
 }
 
-const ir: IRv1 = {
+const ir = createMinimalIr({
 	meta: {
-		version: 1,
-		namespace: 'demo-plugin',
-		sanitizedNamespace: 'DemoPlugin',
 		origin: 'wpk.config.ts',
 		sourcePath: 'wpk.config.ts',
 	},
-	config: {
-		version: 1,
-		namespace: 'demo-plugin',
-		schemas: {},
-		resources: {},
-	} as IRv1['config'],
-	schemas: [],
-	resources: [],
-	capabilities: [],
-	capabilityMap: {
-		sourcePath: undefined,
-		definitions: [],
-		fallback: {
-			capability: 'manage_options',
-			appliesTo: 'resource',
-		},
-		missing: [],
-		unused: [],
-		warnings: [],
-	},
-	blocks: [],
-	php: {
-		namespace: 'Demo\\Plugin',
-		autoload: 'inc/',
-		outputDir: '.generated/php',
-	},
-};
+});
 
 function setupPrettyPrinterMock() {
 	const prettyPrint = jest.fn(async ({ program }) => ({
@@ -108,11 +83,7 @@ describe('createPhpBuilder', () => {
 	it('queues helper programs in the channel before writing', async () => {
 		const workspace = buildWorkspace();
 		const reporter = buildReporter();
-		const context = {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-		};
+		const context = createPipelineContext({ workspace, reporter });
 		const queueWrite = jest.fn();
 		const output: BuilderOutput = {
 			actions: [],
@@ -222,11 +193,7 @@ describe('createPhpBuilder', () => {
 	it('reports capability map warnings when fallbacks are required', async () => {
 		const workspace = buildWorkspace();
 		const reporter = buildReporter();
-		const context = {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-		};
+		const context = createPipelineContext({ workspace, reporter });
 
 		const helper = createPhpCapabilityHelper();
 		const queueWrite = jest.fn();
@@ -282,7 +249,8 @@ describe('createPhpBuilder', () => {
 			'Capability falling back to default capability.',
 			expect.objectContaining({
 				capability: 'manage_todo',
-				capabilities: ['manage_options'],
+				capabilities: ['manage_demoplugin'],
+				fallbackCapability: 'manage_demoplugin',
 				scope: 'resource',
 			})
 		);
@@ -300,11 +268,11 @@ describe('createPhpBuilder', () => {
 
 		await builder.apply(
 			{
-				context: {
+				context: createPipelineContext({
 					workspace,
 					reporter,
 					phase: 'init',
-				},
+				}),
 				input: {
 					phase: 'init',
 					options: {
@@ -342,11 +310,7 @@ describe('createPhpBuilder', () => {
 
 		await builder.apply(
 			{
-				context: {
-					workspace,
-					reporter,
-					phase: 'generate',
-				},
+				context: createPipelineContext({ workspace, reporter }),
 				input: {
 					phase: 'generate',
 					options: {

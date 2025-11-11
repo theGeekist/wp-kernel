@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { createPhpBuilder } from '../builder';
+import { createPhpBuilder } from '../pipeline.builder';
 import type { BuilderOutput } from '../../../runtime/types';
 import { buildWorkspace } from '../../../workspace';
 import { withWorkspace } from '@wpkernel/test-utils/integration';

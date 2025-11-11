@@ -1,6 +1,10 @@
-import { createPhpCapabilityHelper } from '../capability';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { DEFAULT_DOC_HEADER, resetPhpAstChannel } from '@wpkernel/wp-json-ast';
+import { createPhpCapabilityHelper } from '../entry.capabilities';
+import {
+	DEFAULT_DOC_HEADER,
+	resetPhpAstChannel,
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '@wpkernel/wp-json-ast';
 import type { IRCapabilityDefinition } from '../../../ir/publicTypes';
 import {
 	createBuilderInput,
@@ -8,7 +12,8 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 	createReporter,
-} from '../../../../tests/test-support/php-builder.test-support';
+} from '../test-support/php-builder.test-support';
+import { makeCapabilityDefinition } from '../test-support/fixtures.test-support';
 
 describe('createPhpCapabilityHelper', () => {
 	it('skips generation when the IR artifact is missing', async () => {
@@ -35,19 +40,17 @@ describe('createPhpCapabilityHelper', () => {
 
 	it('builds a capability helper that returns definition metadata', async () => {
 		const definitions: IRCapabilityDefinition[] = [
-			{
+			makeCapabilityDefinition({
 				key: 'resource.read',
 				capability: 'read_posts',
 				appliesTo: 'resource',
-				source: 'map',
-			},
-			{
+			}),
+			makeCapabilityDefinition({
 				key: 'resource.update',
 				capability: 'edit_post',
 				appliesTo: 'object',
 				binding: 'post',
-				source: 'map',
-			},
+			}),
 		];
 
 		const context = createPipelineContext();

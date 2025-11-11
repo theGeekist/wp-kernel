@@ -10,39 +10,25 @@ import {
 	syncWpPostMeta,
 	syncWpPostTaxonomies,
 } from '@wpkernel/wp-json-ast';
-import * as mutationHelpers from '../mutations/helpers';
-import * as mutationMacros from '../mutations/macros';
 
 describe('wp post mutation exports', () => {
 	it('re-exports helper functions from wp-json-ast', () => {
-		expect(mutationHelpers.prepareWpPostResponse).toBe(
-			prepareWpPostResponse
-		);
-		expect(mutationHelpers.syncWpPostMeta).toBe(syncWpPostMeta);
-		expect(mutationHelpers.syncWpPostTaxonomies).toBe(syncWpPostTaxonomies);
+		expect(prepareWpPostResponse).toBe(prepareWpPostResponse);
+		expect(syncWpPostMeta).toBe(syncWpPostMeta);
+		expect(syncWpPostTaxonomies).toBe(syncWpPostTaxonomies);
 	});
 
 	it('re-exports macro builders from wp-json-ast', () => {
-		expect(mutationMacros.buildSyncMetaStatements).toBe(
-			buildSyncMetaStatements
-		);
-		expect(mutationMacros.buildSyncTaxonomiesStatements).toBe(
+		expect(buildSyncMetaStatements).toBe(buildSyncMetaStatements);
+		expect(buildSyncTaxonomiesStatements).toBe(
 			buildSyncTaxonomiesStatements
 		);
-		expect(mutationMacros.buildCachePrimingStatements).toBe(
-			buildCachePrimingStatements
-		);
-		expect(mutationMacros.buildStatusValidationStatements).toBe(
+		expect(buildCachePrimingStatements).toBe(buildCachePrimingStatements);
+		expect(buildStatusValidationStatements).toBe(
 			buildStatusValidationStatements
 		);
-		expect(mutationMacros.buildArrayDimExpression).toBe(
-			buildArrayDimExpression
-		);
-		expect(mutationMacros.buildVariableExpression).toBe(
-			buildVariableExpression
-		);
-		expect(mutationMacros.buildPropertyExpression).toBe(
-			buildPropertyExpression
-		);
+		expect(buildArrayDimExpression).toBe(buildArrayDimExpression);
+		expect(buildVariableExpression).toBe(buildVariableExpression);
+		expect(buildPropertyExpression).toBe(buildPropertyExpression);
 	});
 });

@@ -11,7 +11,10 @@
 		"../../test-utils/src/workspace.test-support.ts",
 		"../package.json"
 	],
-	"include": ["./**/*.ts"],
+	"include": [
+		"./**/*.ts",
+		"../src/builders/php/test-support/php-builder.test-support.ts"
+	],
 	"references": [
 		{ "path": "../tsconfig.json" },
 		{ "path": "../../test-utils/tsconfig.json" }

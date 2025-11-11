@@ -1,4 +1,4 @@
-import { resourceAccessors } from '../accessors';
+import { resourceAccessors } from '../storage.accessors';
 
 describe('resource accessors registry', () => {
 	it('exposes registered storage descriptors', () => {

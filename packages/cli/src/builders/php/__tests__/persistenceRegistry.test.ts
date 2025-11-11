@@ -1,13 +1,18 @@
-import { createPhpPersistenceRegistryHelper } from '../persistenceRegistry';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { DEFAULT_DOC_HEADER, resetPhpAstChannel } from '@wpkernel/wp-json-ast';
+import { createPhpPersistenceRegistryHelper } from '../entry.registry';
+import {
+	DEFAULT_DOC_HEADER,
+	resetPhpAstChannel,
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '@wpkernel/wp-json-ast';
 import type { IRResource } from '../../../ir/publicTypes';
 import {
 	createBuilderInput,
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
-} from '../../../../tests/test-support/php-builder.test-support';
+} from '../test-support/php-builder.test-support';
+import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
 
 describe('createPhpPersistenceRegistryHelper', () => {
 	it('skips generation when the IR is unavailable', async () => {
@@ -38,14 +43,21 @@ describe('createPhpPersistenceRegistryHelper', () => {
 		resetPhpAstChannel(context);
 
 		const resources: IRResource[] = [
-			makeResource('books', {
+			makeResource({
+				name: 'books',
 				storage: { mode: 'wp-post', postType: 'book' },
 				identity: { type: 'number', param: 'id' },
+				routes: [makeRoute({ path: '/kernel/v1/books' })],
 			}),
-			makeResource('drafts', {
+			makeResource({
+				name: 'drafts',
 				storage: { mode: 'wp-option', option: 'draft_option' },
+				routes: [makeRoute({ path: '/kernel/v1/drafts' })],
 			}),
-			makeResource('ignored'),
+			makeResource({
+				name: 'ignored',
+				routes: [makeRoute({ path: '/kernel/v1/ignored' })],
+			}),
 		];
 
 		const helper = createPhpPersistenceRegistryHelper();
@@ -106,29 +118,3 @@ describe('createPhpPersistenceRegistryHelper', () => {
 		);
 	});
 });
-
-function makeResource(
-	name: string,
-	overrides?: Partial<Pick<IRResource, 'storage' | 'identity'>>
-): IRResource {
-	return {
-		...overrides,
-		name,
-		schemaKey: `${name}.schema`,
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: `/kernel/v1/${name}`,
-				transport: 'local',
-				hash: `${name}-get`,
-			},
-		],
-		cacheKeys: {
-			list: { segments: [], source: 'default' },
-			get: { segments: [], source: 'default' },
-		},
-		hash: `${name}-hash`,
-		warnings: [],
-	} as IRResource;
-}

@@ -1,13 +1,18 @@
-import { createPhpIndexFileHelper } from '../indexFile';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { DEFAULT_DOC_HEADER, resetPhpAstChannel } from '@wpkernel/wp-json-ast';
+import { createPhpIndexFileHelper } from '../entry.index';
+import {
+	DEFAULT_DOC_HEADER,
+	resetPhpAstChannel,
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '@wpkernel/wp-json-ast';
 import type { IRResource } from '../../../ir/publicTypes';
 import {
 	createBuilderInput,
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
-} from '../../../../tests/test-support/php-builder.test-support';
+} from '../test-support/php-builder.test-support';
+import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
 
 describe('createPhpIndexFileHelper', () => {
 	it('skips generation when no IR is present', async () => {
@@ -39,8 +44,22 @@ describe('createPhpIndexFileHelper', () => {
 
 		const helper = createPhpIndexFileHelper();
 		const resources: IRResource[] = [
-			makeResource('books'),
-			makeResource('authors'),
+			makeResource({
+				name: 'books',
+				routes: [
+					makeRoute({
+						path: '/kernel/v1/books',
+					}),
+				],
+			}),
+			makeResource({
+				name: 'authors',
+				routes: [
+					makeRoute({
+						path: '/kernel/v1/authors',
+					}),
+				],
+			}),
 		];
 
 		const ir = createMinimalIr({
@@ -100,25 +119,3 @@ describe('createPhpIndexFileHelper', () => {
 		);
 	});
 });
-
-function makeResource(name: string): IRResource {
-	return {
-		name,
-		schemaKey: `${name}.schema`,
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: `/kernel/v1/${name}`,
-				transport: 'local',
-				hash: `${name}-get`,
-			},
-		],
-		cacheKeys: {
-			list: { segments: [], source: 'default' },
-			get: { segments: [], source: 'default' },
-		},
-		hash: `${name}-hash`,
-		warnings: [],
-	};
-}

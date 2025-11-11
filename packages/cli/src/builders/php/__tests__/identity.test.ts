@@ -1,5 +1,6 @@
+import { resolveIdentityConfig } from '@wpkernel/wp-json-ast';
 import type { IRResource } from '../../../ir/publicTypes';
-import { resolveIdentityConfig } from '../identity';
+import { makeResource } from '../test-support/fixtures.test-support';
 
 describe('resolveIdentityConfig', () => {
 	it('defaults to numeric id when identity is missing', () => {
@@ -35,17 +36,10 @@ describe('resolveIdentityConfig', () => {
 });
 
 function buildResource(overrides: Partial<IRResource> = {}): IRResource {
-	return {
+	return makeResource({
 		name: 'books',
 		schemaKey: 'book',
-		schemaProvenance: 'manual',
 		routes: [],
-		cacheKeys: {
-			list: { segments: [], source: 'default' },
-			get: { segments: [], source: 'default' },
-		},
-		hash: 'hash',
-		warnings: [],
 		...overrides,
-	};
+	});
 }

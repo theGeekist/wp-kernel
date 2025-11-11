@@ -4,13 +4,19 @@ import {
 	collectCanonicalBasePaths,
 	buildResourceControllerRouteMetadata,
 	WP_POST_MUTATION_CONTRACT,
+	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
-import type { IRResource } from '../../../ir/publicTypes';
-import type { ResolvedIdentity } from '../identity';
+import type { IRResource, IRv1, IRWarning } from '../../../ir/publicTypes';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import {
+	createBuilderInput,
+	createBuilderOutput,
+	createMinimalIr,
+	createPipelineContext,
+} from '../test-support/php-builder.test-support';
 import * as phpDriver from '@wpkernel/php-driver';
 import type {
 	PhpProgram,
@@ -18,7 +24,6 @@ import type {
 	PhpStmtUse,
 } from '@wpkernel/php-json-ast';
 import {
-	makePhpIrFixture,
 	makeWpPostResource,
 	makeWpPostRoutes,
 	makeWpTaxonomyResource,
@@ -36,6 +41,7 @@ import {
 	getPhpBuilderChannel,
 } from '../index';
 import { makeCapabilityProtectedResource } from '../test-support/capabilityProtectedResource.test-support';
+import { makeHash } from '../test-support/fixtures.test-support';
 
 function buildReporter(): Reporter {
 	return {
@@ -103,40 +109,13 @@ function hasUseImport(
 
 describe('createPhpResourceControllerHelper', () => {
 	it('queues resource controllers with resolved identity and route kinds', async () => {
-		const reporter = buildReporter();
-		const workspace = buildWorkspace();
-		const context = {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-			generationState: buildEmptyGenerationState(),
-		};
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
-
 		const ir = buildIr();
-
-		const applyOptions = {
-			context,
-			input: {
-				phase: 'generate' as const,
-				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
-					origin: ir.meta.origin,
-					sourcePath: ir.meta.sourcePath,
-				},
-				ir,
-			},
-			output,
-			reporter,
-		};
+		const applyOptions = buildApplyOptions(ir);
+		const { reporter } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
 
-		const channel = getPhpBuilderChannel(context);
+		const channel = getPhpBuilderChannel(applyOptions.context);
 		const entry = channel
 			.pending()
 			.find(
@@ -221,38 +200,12 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 
 	it('imports the generated capability namespace for protected routes', async () => {
-		const reporter = buildReporter();
-		const workspace = buildWorkspace();
-		const context = {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-			generationState: buildEmptyGenerationState(),
-		};
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
-
-		const ir = makePhpIrFixture({
+		const ir = createMinimalIr({
 			resources: [makeCapabilityProtectedResource()],
+			php: { namespace: 'Demo\\Plugin' },
 		});
-
-		const applyOptions = {
-			context,
-			input: {
-				phase: 'generate' as const,
-				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
-					origin: ir.meta.origin,
-					sourcePath: ir.meta.sourcePath,
-				},
-				ir,
-			},
-			output,
-			reporter,
-		};
+		const applyOptions = buildApplyOptions(ir);
+		const { context } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
 
@@ -374,38 +327,9 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 
 	it('queues wp-option controllers with autoload helpers', async () => {
-		const reporter = buildReporter();
-		const workspace = buildWorkspace();
-		const context = {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-			generationState: buildEmptyGenerationState(),
-		};
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
-
-		const ir = makePhpIrFixture({
-			resources: [makeWpOptionResource()],
-		});
-
-		const applyOptions = {
-			context,
-			input: {
-				phase: 'generate' as const,
-				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
-					origin: ir.meta.origin,
-					sourcePath: ir.meta.sourcePath,
-				},
-				ir,
-			},
-			output,
-			reporter,
-		};
+		const ir = createMinimalIr({ resources: [makeWpOptionResource()] });
+		const applyOptions = buildApplyOptions(ir);
+		const { context, output } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
 
@@ -479,38 +403,9 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 
 	it('queues transient controllers with TTL helpers and cache metadata', async () => {
-		const reporter = buildReporter();
-		const workspace = buildWorkspace();
-		const context = {
-			workspace,
-			reporter,
-			phase: 'generate' as const,
-			generationState: buildEmptyGenerationState(),
-		};
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
-
-		const ir = makePhpIrFixture({
-			resources: [makeTransientResource()],
-		});
-
-		const applyOptions = {
-			context,
-			input: {
-				phase: 'generate' as const,
-				options: {
-					config: ir.config,
-					namespace: ir.meta.namespace,
-					origin: ir.meta.origin,
-					sourcePath: ir.meta.sourcePath,
-				},
-				ir,
-			},
-			output,
-			reporter,
-		};
+		const ir = createMinimalIr({ resources: [makeTransientResource()] });
+		const applyOptions = buildApplyOptions(ir);
+		const { context, output } = applyOptions;
 
 		await runResourceControllerPipeline(applyOptions);
 
@@ -752,8 +647,18 @@ describe('buildResourceControllerRouteMetadata', () => {
 	});
 });
 
-function buildIr() {
-	return makePhpIrFixture();
+function buildIr(): IRv1 {
+	const ir = createMinimalIr();
+	const resources = [
+		hydrateResource(makeWpPostResource()),
+		hydrateResource(makeWpTaxonomyResource()),
+		hydrateResource(makeWpOptionResource()),
+		hydrateResource(makeTransientResource()),
+	];
+	return {
+		...ir,
+		resources,
+	};
 }
 
 function buildCacheKeyPlan(resource: Pick<IRResource, 'cacheKeys'>) {
@@ -781,4 +686,98 @@ function getRoute(
 		throw new Error('Expected route to be defined.');
 	}
 	return route;
+}
+
+type AnyResourceLike =
+	| ReturnType<typeof makeWpPostResource>
+	| ReturnType<typeof makeWpTaxonomyResource>
+	| ReturnType<typeof makeWpOptionResource>
+	| ReturnType<typeof makeTransientResource>;
+
+function hydrateResource(resourceLike: AnyResourceLike): IRResource {
+	return {
+		id: resourceLike.name,
+		name: resourceLike.name,
+		schemaKey: resourceLike.schemaKey,
+		schemaProvenance: resourceLike.schemaProvenance,
+		routes: resourceLike.routes.map(hydrateRoute),
+		cacheKeys: {
+			list: hydrateCacheKey(resourceLike.cacheKeys.list),
+			get: hydrateCacheKey(resourceLike.cacheKeys.get),
+			...(resourceLike.cacheKeys.create
+				? { create: hydrateCacheKey(resourceLike.cacheKeys.create) }
+				: {}),
+			...(resourceLike.cacheKeys.update
+				? { update: hydrateCacheKey(resourceLike.cacheKeys.update) }
+				: {}),
+			...(resourceLike.cacheKeys.remove
+				? { remove: hydrateCacheKey(resourceLike.cacheKeys.remove) }
+				: {}),
+		},
+		identity: resourceLike.identity,
+		storage: resourceLike.storage,
+		queryParams: resourceLike.queryParams,
+		ui: resourceLike.ui,
+		hash: makeHash(resourceLike.hash ?? `resource:${resourceLike.name}`),
+		warnings: (resourceLike.warnings ?? []).map(hydrateWarning),
+	};
+}
+
+type AnyRouteLike = AnyResourceLike['routes'][number];
+
+function hydrateRoute(routeLike: AnyRouteLike) {
+	return {
+		method: routeLike.method,
+		path: routeLike.path,
+		capability: routeLike.capability,
+		transport: routeLike.transport,
+		hash: makeHash(
+			routeLike.hash ?? `${routeLike.method}:${routeLike.path}`
+		),
+	};
+}
+
+type AnyCacheKeyLike = AnyResourceLike['cacheKeys']['list'];
+
+function hydrateCacheKey(cacheKeyLike: AnyCacheKeyLike) {
+	return {
+		segments: [...cacheKeyLike.segments],
+		source: cacheKeyLike.source,
+	};
+}
+
+type AnyWarningLike = AnyResourceLike['warnings'][number];
+
+function hydrateWarning(warningLike: AnyWarningLike): IRWarning {
+	return {
+		code: warningLike.code,
+		message: warningLike.message,
+		context: warningLike.context,
+		hint: warningLike.hint,
+	};
+}
+
+function buildApplyOptions(
+	ir: IRv1,
+	overrides?: { workspace?: Workspace; reporter?: Reporter }
+) {
+	const reporter = overrides?.reporter ?? buildReporter();
+	const workspace = overrides?.workspace ?? buildWorkspace();
+	const context = createPipelineContext({ workspace, reporter });
+	const output = createBuilderOutput();
+
+	return {
+		context,
+		input: createBuilderInput({
+			ir,
+			options: {
+				config: ir.config,
+				namespace: ir.meta.namespace,
+				origin: ir.meta.origin,
+				sourcePath: ir.meta.sourcePath,
+			},
+		}),
+		output,
+		reporter,
+	};
 }

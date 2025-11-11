@@ -1,12 +1,16 @@
-import { createPhpBaseControllerHelper } from '../baseController';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { DEFAULT_DOC_HEADER, resetPhpAstChannel } from '@wpkernel/wp-json-ast';
+import { createPhpBaseControllerHelper } from '../controller.base';
+import {
+	DEFAULT_DOC_HEADER,
+	resetPhpAstChannel,
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '@wpkernel/wp-json-ast';
 import {
 	createBuilderInput,
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
-} from '../../../../tests/test-support/php-builder.test-support';
+} from '../test-support/php-builder.test-support';
 
 describe('createPhpBaseControllerHelper', () => {
 	it('skips generation when the IR artifact is not available', async () => {

@@ -1,16 +1,24 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type {
+	PipelineContext,
 	BuilderInput,
 	BuilderOutput,
-	PipelineContext,
 } from '../../../runtime/types';
-import { createPhpProgramWriterHelper } from '../writer';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { buildStmtNop } from '@wpkernel/php-json-ast';
+import { createPhpProgramWriterHelper } from '../pipeline.writer';
+import {
+	buildStmtNop,
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '@wpkernel/php-json-ast';
 import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import {
+	createBuilderInput,
+	createBuilderOutput,
+	createPipelineContext,
+} from '../test-support/php-builder.test-support';
 
 jest.mock('@wpkernel/php-driver', () => ({
 	buildPhpPrettyPrinter: jest.fn(() => ({
@@ -42,24 +50,14 @@ function buildPipelineContext(): PipelineContext {
 		writeJson: jest.fn(async () => undefined),
 	});
 
-	return {
+	return createPipelineContext({
 		workspace,
 		reporter: buildReporter(),
-		phase: 'generate',
-	};
+	});
 }
 
 function buildBuilderInput(): BuilderInput {
-	return {
-		phase: 'generate',
-		options: {
-			config: {} as never,
-			namespace: 'demo-plugin',
-			origin: 'wpk.config.ts',
-			sourcePath: 'wpk.config.ts',
-		},
-		ir: null,
-	};
+	return createBuilderInput();
 }
 
 describe('createPhpProgramWriterHelper', () => {
@@ -68,12 +66,17 @@ describe('createPhpProgramWriterHelper', () => {
 	});
 
 	it('writes queued programs using the pretty printer', async () => {
-		const context = buildPipelineContext();
-		const input = buildBuilderInput();
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
+		const workspace = makeWorkspaceMock({
+			root: '/workspace',
+			cwd: () => '/workspace',
+			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
+			write: jest.fn(async () => undefined),
+			writeJson: jest.fn(async () => undefined),
+		});
+		const reporter = buildReporter();
+		const context = createPipelineContext({ workspace, reporter });
+		const input = createBuilderInput();
+		const output = createBuilderOutput();
 
 		resetPhpBuilderChannel(context);
 		resetPhpAstChannel(context);
@@ -137,12 +140,17 @@ describe('createPhpProgramWriterHelper', () => {
 	});
 
 	it('threads driver configuration overrides to the pretty printer', async () => {
-		const context = buildPipelineContext();
-		const input = buildBuilderInput();
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
+		const workspace = makeWorkspaceMock({
+			root: '/workspace',
+			cwd: () => '/workspace',
+			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
+			write: jest.fn(async () => undefined),
+			writeJson: jest.fn(async () => undefined),
+		});
+		const reporter = buildReporter();
+		const context = createPipelineContext({ workspace, reporter });
+		const input = createBuilderInput();
+		const output = createBuilderOutput();
 
 		resetPhpBuilderChannel(context);
 		resetPhpAstChannel(context);
