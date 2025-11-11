@@ -68,8 +68,8 @@ const DEFAULT_MANIFEST: readonly ReleasePackManifestEntry[] = [
 		packageDir: path.join('packages', 'php-driver'),
 		expectedArtifacts: [
 			path.join('dist', 'index.js'),
-			path.join('dist', 'prettyPrinter', 'index.js'),
-			path.join('dist', 'installer', 'index.js'),
+			path.join('dist', 'installer.js'),
+			path.join('dist', 'prettyPrinter', 'createPhpPrettyPrinter.js'),
 		],
 	},
 	{
@@ -260,17 +260,37 @@ async function detectCliPhpDriverBundle(
 	}
 
 	const entryPoint = resolvePhpDriverEntry(definition);
-
 	if (!entryPoint) {
 		return '@wpkernel/php-driver (exports missing)';
 	}
 
-	return resolveMissingArtefact(
-		repoRoot,
-		entry.packageDir,
+	const bundleTargets = [
 		path.join('dist', 'packages', 'php-driver', entryPoint),
-		dependencies.access
-	);
+		path.join('dist', 'packages', 'php-driver', 'dist', 'installer.js'),
+		path.join(
+			'dist',
+			'packages',
+			'php-driver',
+			'dist',
+			'prettyPrinter',
+			'createPhpPrettyPrinter.js'
+		),
+	] as const;
+
+	for (const artefact of bundleTargets) {
+		const missing = await resolveMissingArtefact(
+			repoRoot,
+			entry.packageDir,
+			artefact,
+			dependencies.access
+		);
+
+		if (missing) {
+			return missing;
+		}
+	}
+
+	return null;
 }
 
 async function runBuild(

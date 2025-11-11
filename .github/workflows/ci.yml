@@ -226,6 +226,50 @@ jobs:
                   name: unit-tests
                   fail_ci_if_error: false
 
+    release-pack:
+        name: Release Pack Readiness
+        runs-on: ubuntu-latest
+        needs: [setup, build]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: 'pnpm'
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      examples/*/node_modules
+                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
+
+            - name: Restore build outputs
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      examples/*/build
+                      examples/*/dist
+                      packages/php-json-ast/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
+                  fail-on-cache-miss: true
+
+            - name: Verify release pack readiness idempotency
+              run: pnpm --filter @wpkernel/cli exec tsx scripts/check-release-pack-ci.ts
+
     # E2E Tests (disabled)
     # e2e-test:
     #   name: E2E Tests
@@ -287,14 +331,15 @@ jobs:
     all-checks:
         name: All Checks Passed
         runs-on: ubuntu-latest
-        needs: [lint, build, unit-test]
+        needs: [lint, build, unit-test, release-pack]
         if: always()
         steps:
             - name: Check status
               run: |
                   if [[ "${{ needs.lint.result }}" != "success" ]] || \
                      [[ "${{ needs.build.result }}" != "success" ]] || \
-                     [[ "${{ needs.unit-test.result }}" != "success" ]]; then
+                     [[ "${{ needs.unit-test.result }}" != "success" ]] || \
+                     [[ "${{ needs.release-pack.result }}" != "success" ]]; then
                     echo "❌ One or more checks failed"
                     exit 1
                   fi
