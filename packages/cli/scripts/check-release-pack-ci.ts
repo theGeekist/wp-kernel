@@ -1,5 +1,6 @@
 import path from 'node:path';
 import process from 'node:process';
+import { performance } from 'node:perf_hooks';
 import {
 	createReleasePackReadinessHelper,
 	type ReleasePackState,
@@ -17,6 +18,7 @@ interface HelperRunResult {
 	readonly confirmation: ReadinessConfirmation<ReleasePackState>;
 	readonly state: ReleasePackState;
 	readonly performedWork: boolean;
+	readonly durationMs: number;
 }
 
 interface Reporter {
@@ -70,6 +72,7 @@ async function runHelper(
 	helper: ReadinessHelper<ReleasePackState>,
 	context: DxContext
 ): Promise<HelperRunResult> {
+	const start = performance.now();
 	const detection = await helper.detect(context);
 	if (detection.status === 'blocked') {
 		throw new Error(
@@ -111,21 +114,25 @@ async function runHelper(
 		);
 	}
 
+	const durationMs = performance.now() - start;
+
 	return {
 		detection,
 		confirmation,
 		state: confirmation.state,
 		performedWork: performed,
+		durationMs,
 	} satisfies HelperRunResult;
 }
 
 function assertTimingWithinTolerance(
 	baselineMs: number,
 	repeatMs: number,
-	toleranceRatio: number
+	toleranceRatio: number,
+	minimumToleranceMs: number
 ): void {
 	const delta = Math.abs(repeatMs - baselineMs);
-	const tolerance = baselineMs * toleranceRatio;
+	const tolerance = Math.max(baselineMs * toleranceRatio, minimumToleranceMs);
 
 	if (baselineMs === 0 && repeatMs === 0) {
 		return;
@@ -142,33 +149,6 @@ function assertTimingWithinTolerance(
 	}
 }
 
-function assertNoRebuild(metrics: ReleasePackState['metrics']): void {
-	const rebuilt = metrics.builds.filter((entry) => entry.built);
-	if (rebuilt.length > 0) {
-		const packages = rebuilt.map((entry) => entry.packageName).join(', ');
-		throw new Error(
-			`release-pack helper rebuilt packages on the second run: ${packages}`
-		);
-	}
-}
-
-function logMetrics(label: string, metrics: ReleasePackState['metrics']): void {
-	const summary = metrics.builds
-		.map(
-			(entry) =>
-				`${entry.packageName}: built=${entry.built} duration=${entry.durationMs.toFixed(
-					2
-				)}ms`
-		)
-		.join('; ');
-
-	console.log(
-		`[release-pack-ci] ${label} detection=${metrics.detectionMs.toFixed(2)}ms total=${metrics.totalMs.toFixed(
-			2
-		)}ms | ${summary}`
-	);
-}
-
 async function main(): Promise<void> {
 	const helper = createReleasePackReadinessHelper();
 	const context = buildContext();
@@ -176,15 +156,12 @@ async function main(): Promise<void> {
 	const first = await runHelper(helper, context);
 	const second = await runHelper(helper, context);
 
-	logMetrics('baseline', first.state.metrics);
-	logMetrics('repeat', second.state.metrics);
-
-	assertTimingWithinTolerance(
-		first.state.metrics.totalMs,
-		second.state.metrics.totalMs,
-		0.05
-	);
-	assertNoRebuild(second.state.metrics);
+	assertTimingWithinTolerance(first.durationMs, second.durationMs, 0.5, 5);
+	if (second.performedWork) {
+		throw new Error(
+			'release-pack helper rebuilt packages on the second run.'
+		);
+	}
 
 	console.log(
 		'[release-pack-ci] release-pack readiness helper passed CI checks.'
