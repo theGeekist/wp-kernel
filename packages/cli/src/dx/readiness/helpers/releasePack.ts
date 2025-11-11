@@ -265,6 +265,7 @@ async function detectCliPhpDriverBundle(
 	}
 
 	const bundleTargets = [
+		path.join('dist', 'packages', 'php-driver', entryPoint),
 		path.join('dist', 'packages', 'php-driver', 'dist', 'installer.js'),
 		path.join(
 			'dist',

@@ -1,4 +1,5 @@
 import { resolve as resolvePath } from 'node:path';
+import { cp, mkdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { PluginOption } from 'vite';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -13,6 +14,15 @@ interface DriverInstallerHelper {
 }
 
 type PhpDriverInstallerFactory = () => DriverInstallerHelper;
+
+async function copyPhpDriverDist(outDir: string): Promise<void> {
+	const source = resolvePath(CLI_ROOT, '..', 'php-driver', 'dist');
+	const target = resolvePath(outDir, 'packages', 'php-driver', 'dist');
+
+	await rm(target, { recursive: true, force: true }).catch(() => undefined);
+	await mkdir(target, { recursive: true });
+	await cp(source, target, { recursive: true });
+}
 
 function resolveCliRoot(): string {
 	if (typeof __dirname === 'string') {
@@ -117,10 +127,16 @@ function createConsoleReporter(): Reporter {
 
 function phpDriverInstallerPlugin(): PluginOption {
 	let hasRun = false;
+	let resolvedOutDir = resolvePath(CLI_ROOT, 'dist');
 
 	return {
 		name: 'wpkernel-cli-php-driver-installer',
 		apply: 'build',
+		configResolved(config) {
+			const root = config.root ?? CLI_ROOT;
+			const dir = config.build?.outDir ?? 'dist';
+			resolvedOutDir = resolvePath(root, dir);
+		},
 		async buildStart() {
 			if (hasRun) {
 				return;
@@ -146,6 +162,9 @@ function phpDriverInstallerPlugin(): PluginOption {
 				},
 				undefined
 			);
+		},
+		async writeBundle() {
+			await copyPhpDriverDist(resolvedOutDir);
 		},
 	};
 }
