@@ -228,6 +228,15 @@ function createReadinessBuilder(
 		composer: {
 			install: jest.fn().mockResolvedValue(undefined),
 			installOnPending: false,
+			showPhpParserMetadata: jest.fn().mockResolvedValue({
+				stdout: JSON.stringify({
+					name: 'nikic/php-parser',
+					autoload: {
+						files: ['lib/PhpParser/bootstrap.php'],
+					},
+				}),
+				stderr: '',
+			}),
 			...(overrides.composer ?? {}),
 		},
 		phpRuntime: overrides.phpRuntime,
