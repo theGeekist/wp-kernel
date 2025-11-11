@@ -41,7 +41,7 @@ Custom adapters extend the pipeline through `createPipelineExtension()` in the C
 
 ## Testing
 
-Use `withWorkspace()` from `@wpkernel/test-utils/integration` to spin isolated plugin projects in tests. Pair it with `runWpk()` in `packages/cli/tests/test-support/runWpk.ts` to execute commands, capture exit codes, and assert stderr for failure scenarios such as missing Git repositories.
+Use `withWorkspace()` from `@wpkernel/test-utils/integration` to spin isolated plugin projects in tests. Execute CLI commands with `runNodeProcess()` (or your preferred child-process helper) against the published `bin/wpk` entry so suites exercise the same readiness gates developers see locally.
 
 ## Cross-links
 

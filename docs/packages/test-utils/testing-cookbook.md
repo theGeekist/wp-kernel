@@ -36,4 +36,4 @@ Run `pnpm --filter @wpkernel/test-utils test` after modifying harness code. The 
 
 ## Cross-links
 
-Pair this cookbook with the UI plugin and framework guides to understand how harnesses wrap generated controllers. The CLI plugin guide demonstrates how integration helpers drive `runWpk()` workflows, while the e2e-utils guide explains how Playwright fixtures build on the same workspace primitives.
+Pair this cookbook with the UI plugin and framework guides to understand how harnesses wrap generated controllers. The CLI plugin guide demonstrates how workspace helpers pair with `runNodeProcess()` to exercise the packaged `wpk` binary, while the e2e-utils guide explains how Playwright fixtures build on the same workspace primitives.
