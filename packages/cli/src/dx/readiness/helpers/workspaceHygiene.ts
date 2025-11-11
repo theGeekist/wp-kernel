@@ -6,6 +6,7 @@ import {
 	type EnsureGeneratedPhpCleanOptions,
 	type Workspace,
 } from '../../../workspace';
+import { resolveWorkspaceRoot } from './shared';
 
 export interface WorkspaceHygieneDependencies {
 	readonly ensureClean: typeof ensureGeneratedPhpClean;
@@ -21,14 +22,6 @@ function defaultDependencies(): WorkspaceHygieneDependencies {
 		ensureClean: (options: EnsureGeneratedPhpCleanOptions) =>
 			ensureGeneratedPhpClean(options),
 	} satisfies WorkspaceHygieneDependencies;
-}
-
-function resolveWorkspaceRoot(context: DxContext): string {
-	return (
-		context.environment.workspaceRoot ??
-		context.workspace?.root ??
-		context.environment.cwd
-	);
 }
 
 async function verifyClean(

@@ -1,6 +1,6 @@
 import { createReadinessHelper } from '../helper';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
-import type { DxContext } from '../../context';
+import { resolveWorkspaceRoot } from './shared';
 import {
 	initialiseGitRepository,
 	isGitRepository,
@@ -14,14 +14,6 @@ export interface GitHelperDependencies {
 
 export interface GitReadinessState {
 	readonly root: string;
-}
-
-function resolveWorkspaceRoot(context: DxContext): string {
-	return (
-		context.environment.workspaceRoot ??
-		context.workspace?.root ??
-		context.environment.cwd
-	);
 }
 
 function defaultDependencies(): GitHelperDependencies {

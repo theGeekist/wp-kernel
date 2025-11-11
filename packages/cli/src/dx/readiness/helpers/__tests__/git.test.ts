@@ -1,33 +1,14 @@
-import { createReporter } from '@wpkernel/core/reporter';
 import { createGitReadinessHelper } from '../git';
-import type { DxContext } from '../../../context';
-
-function buildContext(overrides: Partial<DxContext> = {}): DxContext {
-	const reporter = createReporter({
-		namespace: 'wpk.test.dx.git',
-		level: 'debug',
-		enabled: false,
-	});
-
-	return {
-		reporter,
-		workspace: null,
-		environment: {
-			cwd: '/tmp/project',
-			projectRoot: '/repo/packages/cli',
-			workspaceRoot: '/tmp/project',
-			flags: { forceSource: false },
-		},
-		...overrides,
-	} satisfies DxContext;
-}
+import { createReadinessTestContext } from '../test-support';
 
 describe('createGitReadinessHelper', () => {
 	it('detects an existing git repository', async () => {
 		const detectRepository = jest.fn().mockResolvedValue(true);
 		const helper = createGitReadinessHelper({ detectRepository });
 
-		const detection = await helper.detect(buildContext());
+		const detection = await helper.detect(
+			createReadinessTestContext({ workspace: null })
+		);
 
 		expect(detectRepository).toHaveBeenCalledWith('/tmp/project');
 		expect(detection.status).toBe('ready');
@@ -44,7 +25,7 @@ describe('createGitReadinessHelper', () => {
 			initRepository,
 		});
 
-		const context = buildContext();
+		const context = createReadinessTestContext({ workspace: null });
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('pending');
 

@@ -323,6 +323,11 @@ Reduce boilerplate in DX readiness helpers using shared utilities, now that test
 - Broad refactoring of the readiness registry or DX context beyond what’s needed to share utilities.
 - Large changes to helper configuration surfaces.
 
+##### 56f consolidation update – readiness helper fixtures
+
+- Defaulted the readiness test context factory and introduced a shared `createWorkspaceDouble` so helper suites no longer hand-roll reporters/workspaces, cutting ~80 lines while keeping assertions intact.
+- Streamlined helper specs to rely on the shared defaults (no explicit namespaces/cwd wiring), matching the runtime behaviour surfaced in Task 55 without adding new production code.
+
 ---
 
 #### 56g – Command runtime consolidation
@@ -345,6 +350,12 @@ Address the duplication between `create` and `init` by introducing a shared scaf
 **Out of scope**
 
 - Changing command flags, summaries, or public types beyond what is necessary to share the runtime.
+
+##### 56g consolidation update – shared init/create scaffold
+
+- Dropped the heavyweight scaffold class in favour of a lean `InitCommandBase` plus a `runInitCommand` helper that handle shared Clipanion options, readiness orchestration, and summary wiring without adding a new inheritance layer.
+- Reworked `create.ts` and `init.ts` to call the shared helper directly—each command now supplies only its bespoke hooks (target resolution, skip-install filtering, git warnings) while deleting the 230-line `runtime-scaffold.ts` module for a net code reduction.
+- Centralised the success/error handling inside `InitCommandBase.executeInitCommand`, letting both commands drop their bespoke try/catch wrappers and yielding another ~130-line trim while keeping the readiness hook seams intact.
 
 ---
 
