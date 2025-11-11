@@ -70,8 +70,9 @@ Build the publish-order validation probe and enforce deterministic artefact prod
 
 **Completion log.** Update this list after each run by replacing the placeholder with the date, PR, and outcome summary.
 
-- [x] 2025-11-11 — Scaffolded `createReleasePackReadinessHelper`, manifest defaults, and unit coverage for missing artefact reporting; wired helper into default registry.
-- [ ] _Next run placeholder — update after execution_
+- [x] 57a — 2025-11-11 — Scaffolded `createReleasePackReadinessHelper`, manifest defaults, and unit coverage for missing artefact reporting; wired helper into default registry.
+- [x] 57b — 2025-11-14 — Normalised Rollup/Vite build steps to emit manifest artefacts deterministically, added README notes for each package, and captured helper rerun proving no rebuild occurs when outputs exist.
+- [x] 57c — 2025-11-18 — Recorded release-pack timing metrics in `docs/internal/ci/release-pack-metrics.json`, instrumented the helper to surface per-package build durations, and added the CI idempotency job that enforces the <5 % delta guardrail.
 
 **Discovery to finish before coding.**
 
@@ -102,6 +103,8 @@ Build the publish-order validation probe and enforce deterministic artefact prod
 **Fix.** Capture timing metrics in the helper output and persist them for later budget checks.
 
 **Retire.** Build steps that mutate artefacts on no-op runs.
+
+The readiness helper now records per-package build durations and writes each run to `docs/internal/ci/release-pack-metrics.json`, while the CI workflow executes `scripts/readiness/check-release-pack-ci.ts` twice to assert the <5 % timing delta and confirm the second pass performs no rebuilds.
 
 ## Task 58 — Bootstrapper Resolution
 

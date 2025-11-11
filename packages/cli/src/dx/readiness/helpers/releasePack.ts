@@ -1,7 +1,13 @@
 import path from 'node:path';
-import { access as accessFs, readFile as readFileFs } from 'node:fs/promises';
+import {
+	access as accessFs,
+	readFile as readFileFs,
+	mkdir as mkdirFs,
+	writeFile as writeFileFs,
+} from 'node:fs/promises';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
+import { performance } from 'node:perf_hooks';
 import { EnvironmentalError, WPKernelError } from '@wpkernel/core/error';
 import { createReadinessHelper } from '../helper';
 import type {
@@ -16,6 +22,10 @@ const execFile = promisify(execFileCallback);
 type Access = typeof accessFs;
 type ExecFile = typeof execFile;
 type ReadFile = typeof readFileFs;
+type Mkdir = typeof mkdirFs;
+type WriteFile = typeof writeFileFs;
+type Now = () => number;
+type CreateDate = () => Date;
 
 export interface ReleasePackManifestEntry {
 	readonly packageName: string;
@@ -28,17 +38,57 @@ export interface ReleasePackDependencies {
 	readonly access: Access;
 	readonly exec: ExecFile;
 	readonly readFile: ReadFile;
+	readonly mkdir: Mkdir;
+	readonly writeFile: WriteFile;
+	readonly now: Now;
+	readonly createDate: CreateDate;
 }
 
 export interface ReleasePackHelperOptions {
 	readonly manifest?: readonly ReleasePackManifestEntry[];
 	readonly dependencies?: Partial<ReleasePackDependencies>;
+	readonly metricsPath?: string;
 }
 
 export interface ReleasePackState {
 	readonly repoRoot: string;
 	readonly manifest: readonly ReleasePackManifestEntry[];
+	readonly metrics: ReleasePackMetrics;
+	readonly metricsPath: string;
 }
+
+export interface ReleasePackBuildMetric {
+	readonly packageName: string;
+	readonly built: boolean;
+	readonly durationMs: number;
+}
+
+export interface ReleasePackMetrics {
+	readonly recordedAt: string;
+	readonly completedAt?: string;
+	readonly detectionMs: number;
+	readonly totalMs: number;
+	readonly builds: readonly ReleasePackBuildMetric[];
+}
+
+interface ReleasePackMetricsEntry {
+	readonly recordedAt: string;
+	readonly completedAt: string;
+	readonly detectionMs: number;
+	readonly totalMs: number;
+	readonly builds: readonly ReleasePackBuildMetric[];
+}
+
+interface ReleasePackMetricsLedger {
+	readonly runs: ReleasePackMetricsEntry[];
+}
+
+const DEFAULT_METRICS_PATH = path.join(
+	'docs',
+	'internal',
+	'ci',
+	'release-pack-metrics.json'
+);
 
 interface MissingArtefact {
 	readonly entry: ReleasePackManifestEntry;
@@ -92,7 +142,139 @@ function defaultDependencies(): ReleasePackDependencies {
 		access: accessFs,
 		exec: execFile,
 		readFile: readFileFs,
+		mkdir: mkdirFs,
+		writeFile: writeFileFs,
+		now: () => performance.now(),
+		createDate: () => new Date(),
 	} satisfies ReleasePackDependencies;
+}
+
+function resolveMetricsPath(repoRoot: string, metricsPath?: string): string {
+	if (!metricsPath) {
+		return path.join(repoRoot, DEFAULT_METRICS_PATH);
+	}
+
+	return path.isAbsolute(metricsPath)
+		? metricsPath
+		: path.join(repoRoot, metricsPath);
+}
+
+function initialiseMetrics(
+	manifest: readonly ReleasePackManifestEntry[],
+	detectionMs: number,
+	recordedAt: string
+): ReleasePackMetrics {
+	return {
+		recordedAt,
+		detectionMs,
+		totalMs: detectionMs,
+		builds: manifest.map(
+			(entry) =>
+				({
+					packageName: entry.packageName,
+					built: false,
+					durationMs: 0,
+				}) satisfies ReleasePackBuildMetric
+		),
+	} satisfies ReleasePackMetrics;
+}
+
+function updateMetricsWithBuild(
+	state: ReleasePackState,
+	packageName: string,
+	durationMs: number
+): ReleasePackState {
+	const builds = state.metrics.builds.map((build) =>
+		build.packageName === packageName
+			? ({
+					packageName: build.packageName,
+					built: true,
+					durationMs,
+				} satisfies ReleasePackBuildMetric)
+			: build
+	);
+
+	return {
+		...state,
+		metrics: {
+			...state.metrics,
+			totalMs: state.metrics.totalMs + durationMs,
+			builds,
+		},
+	} satisfies ReleasePackState;
+}
+
+async function loadMetricsLedger(
+	metricsPath: string,
+	dependencies: ReleasePackDependencies
+): Promise<ReleasePackMetricsLedger> {
+	try {
+		await dependencies.access(metricsPath);
+	} catch (error) {
+		if (noEntry(error)) {
+			return { runs: [] } satisfies ReleasePackMetricsLedger;
+		}
+
+		throw error;
+	}
+
+	try {
+		const raw = await dependencies.readFile(metricsPath, 'utf8');
+		const parsed = JSON.parse(raw.toString()) as ReleasePackMetricsLedger;
+		if (!parsed || !Array.isArray(parsed.runs)) {
+			throw new WPKernelError('DeveloperError', {
+				message: 'Release pack metrics file is invalid.',
+				context: { metricsPath },
+			});
+		}
+
+		return { runs: [...parsed.runs] } satisfies ReleasePackMetricsLedger;
+	} catch (error) {
+		if (error instanceof WPKernelError) {
+			throw error;
+		}
+
+		throw new WPKernelError('DeveloperError', {
+			message: 'Unable to parse release pack metrics file.',
+			context: { metricsPath },
+			data: error instanceof Error ? { originalError: error } : undefined,
+		});
+	}
+}
+
+async function persistMetrics(
+	state: ReleasePackState,
+	dependencies: ReleasePackDependencies
+): Promise<void> {
+	const completedAt = state.metrics.completedAt ?? state.metrics.recordedAt;
+	const entry: ReleasePackMetricsEntry = {
+		recordedAt: state.metrics.recordedAt,
+		completedAt,
+		detectionMs: state.metrics.detectionMs,
+		totalMs: state.metrics.totalMs,
+		builds: state.metrics.builds,
+	} satisfies ReleasePackMetricsEntry;
+
+	const ledger = await loadMetricsLedger(state.metricsPath, dependencies);
+	const nextLedger: ReleasePackMetricsLedger = {
+		runs: [...ledger.runs, entry],
+	} satisfies ReleasePackMetricsLedger;
+
+	const directory = path.dirname(state.metricsPath);
+	await dependencies.mkdir(directory, { recursive: true });
+
+	try {
+		await dependencies.writeFile(
+			state.metricsPath,
+			`${JSON.stringify(nextLedger, null, 2)}\n`
+		);
+	} catch (error) {
+		throw new WPKernelError('DeveloperError', {
+			message: 'Failed to persist release pack metrics.',
+			context: { metricsPath: state.metricsPath },
+			data: error instanceof Error ? { originalError: error } : undefined,
+		});
+	}
 }
 
 function noEntry(error: unknown): boolean {
@@ -297,7 +479,7 @@ async function ensureEntryArtefacts(
 	state: ReleasePackState,
 	entry: ReleasePackManifestEntry,
 	dependencies: ReleasePackDependencies
-): Promise<void> {
+): Promise<ReleasePackState> {
 	const missingBefore = await detectMissingArtefacts(
 		state.repoRoot,
 		[entry],
@@ -305,7 +487,7 @@ async function ensureEntryArtefacts(
 	);
 
 	if (missingBefore.length === 0) {
-		return;
+		return state;
 	}
 
 	const buildArgs = entry.buildArgs ?? [
@@ -313,7 +495,9 @@ async function ensureEntryArtefacts(
 		entry.packageName,
 		'build',
 	];
+	const buildStart = dependencies.now();
 	await runBuild(entry, state.repoRoot, buildArgs, dependencies);
+	const buildDuration = Math.max(0, dependencies.now() - buildStart);
 
 	const missingAfter = await detectMissingArtefacts(
 		state.repoRoot,
@@ -322,7 +506,7 @@ async function ensureEntryArtefacts(
 	);
 
 	if (missingAfter.length === 0) {
-		return;
+		return updateMetricsWithBuild(state, entry.packageName, buildDuration);
 	}
 
 	const artefacts = missingAfter[0]?.artefacts ?? [];
@@ -361,12 +545,14 @@ export function createReleasePackReadinessHelper(
 		...defaultDependencies(),
 		...options.dependencies,
 	} satisfies ReleasePackDependencies;
+	const metricsOverride = options.metricsPath;
 
 	return createReadinessHelper<ReleasePackState>({
 		key: 'release-pack',
 		async detect(
 			context: DxContext
 		): Promise<ReadinessDetection<ReleasePackState>> {
+			const detectionStart = dependencies.now();
 			const repoRoot = await resolveRepoRoot(
 				context.environment.projectRoot,
 				dependencies.access
@@ -378,10 +564,26 @@ export function createReleasePackReadinessHelper(
 			);
 			const status: ReadinessStatus =
 				missing.length === 0 ? 'ready' : 'pending';
+			const detectionMs = Math.max(
+				0,
+				dependencies.now() - detectionStart
+			);
+			const recordedAt = dependencies.createDate().toISOString();
+			const metricsPath = resolveMetricsPath(repoRoot, metricsOverride);
+			const metrics = initialiseMetrics(
+				manifest,
+				detectionMs,
+				recordedAt
+			);
 
 			return {
 				status,
-				state: { repoRoot, manifest },
+				state: {
+					repoRoot,
+					manifest,
+					metrics,
+					metricsPath,
+				},
 				message: buildStatusMessage(status, missing),
 			};
 		},
@@ -389,11 +591,17 @@ export function createReleasePackReadinessHelper(
 			_context: DxContext,
 			state: ReleasePackState
 		): Promise<{ state: ReleasePackState }> {
+			let currentState = state;
+
 			for (const entry of state.manifest) {
-				await ensureEntryArtefacts(state, entry, dependencies);
+				currentState = await ensureEntryArtefacts(
+					currentState,
+					entry,
+					dependencies
+				);
 			}
 
-			return { state };
+			return { state: currentState };
 		},
 		async confirm(
 			_context: DxContext,
@@ -405,10 +613,20 @@ export function createReleasePackReadinessHelper(
 				dependencies
 			);
 			const status = missing.length === 0 ? 'ready' : 'pending';
+			const completedAt = dependencies.createDate().toISOString();
+			const nextState: ReleasePackState = {
+				...state,
+				metrics: {
+					...state.metrics,
+					completedAt,
+				},
+			} satisfies ReleasePackState;
+
+			await persistMetrics(nextState, dependencies);
 
 			return {
 				status,
-				state,
+				state: nextState,
 				message: buildStatusMessage(status, missing),
 			};
 		},
