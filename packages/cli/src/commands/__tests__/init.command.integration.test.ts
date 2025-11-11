@@ -103,6 +103,10 @@ describe('InitCommand', () => {
 					apply: 'wpk apply',
 				},
 			});
+			expect(packageJson.devDependencies).toMatchObject({
+				'@wpkernel/cli': expect.any(String),
+				tsx: expect.any(String),
+			});
 
 			const composerJson = JSON.parse(
 				await fs.readFile(path.join(workspace, 'composer.json'), 'utf8')

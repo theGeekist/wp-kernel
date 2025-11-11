@@ -17,6 +17,8 @@ import {
 	type ReleasePackHelperOptions,
 	type TsxRuntimeDependencies,
 	type WorkspaceHygieneDependencies,
+	createQuickstartReadinessHelper,
+	type QuickstartHelperOptions,
 } from './helpers';
 
 export interface DefaultReadinessHelperOverrides {
@@ -28,6 +30,7 @@ export interface DefaultReadinessHelperOverrides {
 	readonly workspaceHygiene?: Partial<WorkspaceHygieneDependencies>;
 	readonly releasePack?: ReleasePackHelperOptions;
 	readonly bootstrapperResolution?: BootstrapperResolutionHelperOptions;
+	readonly quickstart?: QuickstartHelperOptions;
 }
 
 export interface BuildDefaultReadinessRegistryOptions {
@@ -43,6 +46,7 @@ export const DEFAULT_READINESS_ORDER: ReadonlyArray<ReadinessKey> = [
 	'tsx-runtime',
 	'release-pack',
 	'bootstrapper-resolution',
+	'quickstart',
 ];
 
 export function registerDefaultReadinessHelpers(
@@ -63,6 +67,7 @@ export function registerDefaultReadinessHelpers(
 			overrides.bootstrapperResolution
 		)
 	);
+	registry.register(createQuickstartReadinessHelper(overrides.quickstart));
 }
 
 export function buildDefaultReadinessRegistry(
