@@ -13,6 +13,8 @@ import {
 	createConcurrentTask,
 	CommandError,
 	colors,
+	findMissingTypeArtifacts,
+	collectWorkspaceDependencies,
 } from './precommit-utils.mjs';
 
 async function readRootPackageJson() {
@@ -67,8 +69,9 @@ async function main() {
 	/* 2) figure out affected workspaces (for TYPECHECK ONLY)                  */
 	/* ---------------------------------------------------------------------- */
 	let filters = [];
+	let graph = null;
 	if (hasNonDocChanges) {
-		const graph = await loadWorkspaceGraph();
+		graph = await loadWorkspaceGraph();
 
 		if (repoWide) {
 			// rule 3: repo-wide → everybody
@@ -78,6 +81,38 @@ async function main() {
 			const { filters: f } = resolveAffectedFromFiles(nonDocs, graph);
 			filters = f;
 		}
+	}
+
+	if (hasNonDocChanges) {
+		const baseNames = repoWide && graph ? graph.workspaces.map((ws) => ws.name) : filters;
+		const namesToCheck = graph
+			? collectWorkspaceDependencies(baseNames, graph)
+			: [];
+		tasks.push({
+			title: 'Check package builds',
+			enabled: (namesToCheck?.length ?? 0) > 0,
+			skipMessage: 'No workspaces selected for typechecking.',
+			async run() {
+				if (!graph) {
+					return { summaryLines: [] };
+				}
+				const missing = await findMissingTypeArtifacts(namesToCheck, graph);
+				if (missing.length > 0) {
+					const details = missing
+						.map(
+							(entry) =>
+								`${entry.workspace} → missing ${entry.artifact}`,
+						)
+						.join('\n');
+					throw new Error(
+						`Build artifacts required for typechecks are missing:\n${details}\nRun \u0060pnpm --filter <workspace>... build\u0060 (or \u0060pnpm build:packages\u0060) before committing.`,
+					);
+				}
+				return {
+					summaryLines: [`Checked ${namesToCheck.length} workspaces`],
+				};
+			},
+		});
 	}
 
 	/* ---------------------------------------------------------------------- */
