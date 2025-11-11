@@ -1,5 +1,4 @@
 import { WPKernelError } from '@wpkernel/core/error';
-import { serializeWPKernelError } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { DxContext } from '../context';
 import type {
@@ -12,144 +11,21 @@ import type {
 	ReadinessPlan,
 	ReadinessRunResult,
 } from './types';
+import {
+	logPhaseStart,
+	logPhaseSuccess,
+	logPhaseFailure,
+	logDetectionResult,
+	logConfirmationResult,
+	logOutcome,
+	serialiseUnknown,
+	type ReadinessPhase,
+} from './registry.logging';
 
 interface ExecutedHelper<State> {
 	readonly helper: ReadinessHelper<State>;
 	readonly state: State;
 	readonly cleanups: readonly (() => Promise<void> | void)[];
-}
-
-const PHASE_LABELS = {
-	detect: 'Detect',
-	prepare: 'Prepare',
-	execute: 'Execute',
-	confirm: 'Confirm',
-} as const;
-
-type ReadinessPhase = keyof typeof PHASE_LABELS;
-
-function formatPhaseMessage(phase: ReadinessPhase, suffix: string): string {
-	return `${PHASE_LABELS[phase]} phase ${suffix}.`;
-}
-
-function buildPhaseContext(
-	status: string | undefined,
-	message: string | undefined
-): Record<string, unknown> | undefined {
-	const context: Record<string, unknown> = {};
-
-	if (status) {
-		context.status = status;
-	}
-
-	if (message) {
-		context.message = message;
-	}
-
-	return Object.keys(context).length > 0 ? context : undefined;
-}
-
-function phaseReporter(reporter: Reporter, phase: ReadinessPhase): Reporter {
-	return reporter.child(phase);
-}
-
-function logPhaseStart(reporter: Reporter, phase: ReadinessPhase): void {
-	phaseReporter(reporter, phase).info(formatPhaseMessage(phase, 'started'));
-}
-
-function logPhaseSuccess(reporter: Reporter, phase: ReadinessPhase): void {
-	phaseReporter(reporter, phase).info(formatPhaseMessage(phase, 'completed'));
-}
-
-function logPhaseFailure(
-	reporter: Reporter,
-	phase: ReadinessPhase,
-	error: unknown
-): void {
-	phaseReporter(reporter, phase).error(formatPhaseMessage(phase, 'failed'), {
-		error: serialiseUnknown(error),
-	});
-}
-
-function logDetectionResult(
-	reporter: Reporter,
-	detection: ReadinessDetection<unknown>
-): void {
-	const context = buildPhaseContext(detection.status, detection.message);
-	const target = phaseReporter(reporter, 'detect');
-
-	switch (detection.status) {
-		case 'ready':
-			target.info('Detect phase reported ready.', context);
-			break;
-		case 'pending':
-			target.warn('Detect phase reported pending readiness.', context);
-			break;
-		case 'blocked':
-			target.error('Detect phase blocked readiness.', context);
-			break;
-	}
-}
-
-function logConfirmationResult(
-	reporter: Reporter,
-	confirmation: ReadinessConfirmation<unknown>
-): void {
-	const context = buildPhaseContext(
-		confirmation.status,
-		confirmation.message
-	);
-	const target = phaseReporter(reporter, 'confirm');
-
-	if (confirmation.status === 'ready') {
-		target.info('Confirm phase reported ready.', context);
-		return;
-	}
-
-	target.warn('Confirm phase reported pending readiness.', context);
-}
-
-function logOutcome(
-	reporter: Reporter,
-	status: ReadinessOutcomeStatus,
-	detection: ReadinessDetection<unknown> | undefined,
-	confirmation: ReadinessConfirmation<unknown> | undefined
-): void {
-	const message = confirmation?.message ?? detection?.message;
-	const context = buildPhaseContext(status, message);
-
-	switch (status) {
-		case 'ready':
-		case 'updated':
-			reporter.info('Readiness helper completed.', context);
-			break;
-		case 'pending':
-			reporter.warn('Readiness helper pending follow-up.', context);
-			break;
-		case 'blocked':
-			reporter.error('Readiness helper blocked.', context);
-			break;
-		case 'failed':
-			reporter.error('Readiness helper failed.', context);
-			break;
-	}
-}
-
-function serialiseUnknown(error: unknown) {
-	if (WPKernelError.isWPKernelError(error)) {
-		return serializeWPKernelError(error);
-	}
-
-	if (error instanceof Error) {
-		return serializeWPKernelError(WPKernelError.wrap(error));
-	}
-
-	return serializeWPKernelError(
-		new WPKernelError('UnknownError', {
-			message: 'Unexpected error during readiness orchestration.',
-			data: { value: error },
-		})
-	);
 }
 
 async function runCleanup(

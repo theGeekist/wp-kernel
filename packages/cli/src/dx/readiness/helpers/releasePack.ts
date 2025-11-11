@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { access as accessFs } from 'node:fs/promises';
+import { access as accessFs, readFile as readFileFs } from 'node:fs/promises';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { EnvironmentalError, WPKernelError } from '@wpkernel/core/error';
@@ -15,6 +15,7 @@ const execFile = promisify(execFileCallback);
 
 type Access = typeof accessFs;
 type ExecFile = typeof execFile;
+type ReadFile = typeof readFileFs;
 
 export interface ReleasePackManifestEntry {
 	readonly packageName: string;
@@ -26,6 +27,7 @@ export interface ReleasePackManifestEntry {
 export interface ReleasePackDependencies {
 	readonly access: Access;
 	readonly exec: ExecFile;
+	readonly readFile: ReadFile;
 }
 
 export interface ReleasePackHelperOptions {
@@ -76,7 +78,6 @@ const DEFAULT_MANIFEST: readonly ReleasePackManifestEntry[] = [
 		expectedArtifacts: [
 			path.join('dist', 'index.js'),
 			path.join('dist', 'index.d.ts'),
-			path.join('dist', 'packages', 'php-driver', 'dist', 'index.js'),
 		],
 	},
 	{
@@ -90,6 +91,7 @@ function defaultDependencies(): ReleasePackDependencies {
 	return {
 		access: accessFs,
 		exec: execFile,
+		readFile: readFileFs,
 	} satisfies ReleasePackDependencies;
 }
 
@@ -132,7 +134,7 @@ async function resolveRepoRoot(start: string, access: Access): Promise<string> {
 async function detectMissingArtefacts(
 	repoRoot: string,
 	manifest: readonly ReleasePackManifestEntry[],
-	access: Access
+	dependencies: ReleasePackDependencies
 ): Promise<MissingArtefact[]> {
 	const missing: MissingArtefact[] = [];
 
@@ -144,11 +146,23 @@ async function detectMissingArtefacts(
 				repoRoot,
 				entry.packageDir,
 				artefact,
-				access
+				dependencies.access
 			);
 
 			if (missingPath) {
 				absent.push(missingPath);
+			}
+		}
+
+		if (entry.packageName === '@wpkernel/cli') {
+			const cliBundleArtefact = await detectCliPhpDriverBundle(
+				repoRoot,
+				entry,
+				dependencies
+			);
+
+			if (cliBundleArtefact) {
+				absent.push(cliBundleArtefact);
 			}
 		}
 
@@ -180,6 +194,85 @@ async function resolveMissingArtefact(
 	}
 }
 
+type PhpDriverRootExport =
+	| string
+	| {
+			readonly import?: string;
+			readonly default?: string;
+	  };
+
+interface PhpDriverPackageDefinition {
+	readonly exports?: Record<string, PhpDriverRootExport>;
+	readonly main?: string;
+	readonly module?: string;
+}
+
+function normaliseEntryPath(entry: string): string {
+	return entry.replace(/^\.\//, '').replace(/^\.\//, '');
+}
+
+function resolvePhpDriverEntry(
+	definition: PhpDriverPackageDefinition
+): string | null {
+	const candidates: Array<string | undefined> = [];
+	const rootExport = definition.exports?.['.'];
+
+	if (typeof rootExport === 'string') {
+		candidates.push(rootExport);
+	} else if (rootExport && typeof rootExport === 'object') {
+		candidates.push(rootExport.import, rootExport.default);
+	}
+
+	candidates.push(definition.module, definition.main);
+
+	for (const candidate of candidates) {
+		if (typeof candidate === 'string' && candidate.length > 0) {
+			return normaliseEntryPath(candidate);
+		}
+	}
+
+	return null;
+}
+
+async function detectCliPhpDriverBundle(
+	repoRoot: string,
+	entry: ReleasePackManifestEntry,
+	dependencies: ReleasePackDependencies
+): Promise<string | null> {
+	const packageJsonPath = path.join(
+		repoRoot,
+		'packages',
+		'php-driver',
+		'package.json'
+	);
+	let definition: PhpDriverPackageDefinition;
+
+	try {
+		const raw = await dependencies.readFile(packageJsonPath, 'utf8');
+		definition = JSON.parse(raw) as PhpDriverPackageDefinition;
+	} catch (error) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'Unable to load php-driver package definition for release-pack readiness.',
+			context: { packageJsonPath },
+			data: error instanceof Error ? { originalError: error } : undefined,
+		});
+	}
+
+	const entryPoint = resolvePhpDriverEntry(definition);
+
+	if (!entryPoint) {
+		return '@wpkernel/php-driver (exports missing)';
+	}
+
+	return resolveMissingArtefact(
+		repoRoot,
+		entry.packageDir,
+		path.join('dist', 'packages', 'php-driver', entryPoint),
+		dependencies.access
+	);
+}
+
 async function runBuild(
 	entry: ReleasePackManifestEntry,
 	repoRoot: string,
@@ -208,7 +301,7 @@ async function ensureEntryArtefacts(
 	const missingBefore = await detectMissingArtefacts(
 		state.repoRoot,
 		[entry],
-		dependencies.access
+		dependencies
 	);
 
 	if (missingBefore.length === 0) {
@@ -225,7 +318,7 @@ async function ensureEntryArtefacts(
 	const missingAfter = await detectMissingArtefacts(
 		state.repoRoot,
 		[entry],
-		dependencies.access
+		dependencies
 	);
 
 	if (missingAfter.length === 0) {
@@ -281,7 +374,7 @@ export function createReleasePackReadinessHelper(
 			const missing = await detectMissingArtefacts(
 				repoRoot,
 				manifest,
-				dependencies.access
+				dependencies
 			);
 			const status: ReadinessStatus =
 				missing.length === 0 ? 'ready' : 'pending';
@@ -309,7 +402,7 @@ export function createReleasePackReadinessHelper(
 			const missing = await detectMissingArtefacts(
 				state.repoRoot,
 				state.manifest,
-				dependencies.access
+				dependencies
 			);
 			const status = missing.length === 0 ? 'ready' : 'pending';
 

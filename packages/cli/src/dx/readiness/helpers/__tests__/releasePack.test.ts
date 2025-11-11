@@ -1,13 +1,10 @@
 import path from 'node:path';
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createReleasePackReadinessHelper } from '../releasePack';
-import { createReadinessTestContext } from '../test-support';
-
-function makeNoEntry(target: string): NodeJS.ErrnoException {
-	const error = new Error(`ENOENT: ${target}`) as NodeJS.ErrnoException;
-	error.code = 'ENOENT';
-	return error;
-}
+import {
+	createReadinessTestContext,
+	makeNoEntry,
+} from '../../test/test-support';
 
 const repoRoot = '/repo';
 const projectRoot = path.join(repoRoot, 'packages', 'cli');
@@ -33,6 +30,22 @@ describe('createReleasePackReadinessHelper', () => {
 				return undefined;
 			}
 
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'index.js'
+				)
+			) {
+				return undefined;
+			}
+
 			throw makeNoEntry(target);
 		});
 
@@ -40,6 +53,28 @@ describe('createReleasePackReadinessHelper', () => {
 			manifest,
 			dependencies: {
 				access,
+				readFile: jest.fn(async (target: string) => {
+					if (
+						target ===
+						path.join(
+							repoRoot,
+							'packages',
+							'php-driver',
+							'package.json'
+						)
+					) {
+						return JSON.stringify({
+							exports: {
+								'.': {
+									import: './dist/index.js',
+									default: './dist/index.js',
+								},
+							},
+						});
+					}
+
+					throw new Error(`Unexpected read: ${target}`);
+				}),
 				exec: jest.fn().mockResolvedValue(undefined),
 			},
 		});
@@ -80,6 +115,22 @@ describe('createReleasePackReadinessHelper', () => {
 				throw makeNoEntry(target);
 			}
 
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'index.js'
+				)
+			) {
+				return undefined;
+			}
+
 			throw makeNoEntry(target);
 		});
 
@@ -89,7 +140,32 @@ describe('createReleasePackReadinessHelper', () => {
 
 		const helper = createReleasePackReadinessHelper({
 			manifest,
-			dependencies: { access, exec },
+			dependencies: {
+				access,
+				exec,
+				readFile: jest.fn(async (target: string) => {
+					if (
+						target ===
+						path.join(
+							repoRoot,
+							'packages',
+							'php-driver',
+							'package.json'
+						)
+					) {
+						return JSON.stringify({
+							exports: {
+								'.': {
+									import: './dist/index.js',
+									default: './dist/index.js',
+								},
+							},
+						});
+					}
+
+					throw new Error(`Unexpected read: ${target}`);
+				}),
+			},
 		});
 
 		const context = createReadinessTestContext({
@@ -129,6 +205,22 @@ describe('createReleasePackReadinessHelper', () => {
 				throw makeNoEntry(target);
 			}
 
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'index.js'
+				)
+			) {
+				return undefined;
+			}
+
 			throw makeNoEntry(target);
 		});
 
@@ -137,6 +229,28 @@ describe('createReleasePackReadinessHelper', () => {
 			dependencies: {
 				access,
 				exec: jest.fn().mockResolvedValue(undefined),
+				readFile: jest.fn(async (target: string) => {
+					if (
+						target ===
+						path.join(
+							repoRoot,
+							'packages',
+							'php-driver',
+							'package.json'
+						)
+					) {
+						return JSON.stringify({
+							exports: {
+								'.': {
+									import: './dist/index.js',
+									default: './dist/index.js',
+								},
+							},
+						});
+					}
+
+					throw new Error(`Unexpected read: ${target}`);
+				}),
 			},
 		});
 
@@ -158,5 +272,83 @@ describe('createReleasePackReadinessHelper', () => {
 		await expect(run as Promise<unknown>).rejects.toMatchObject({
 			reason: 'build.missingArtifact',
 		});
+	});
+
+	it('skips rebuilding when artefacts already exist', async () => {
+		const access = jest.fn(async (target: string) => {
+			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
+			) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'index.js'
+				)
+			) {
+				return undefined;
+			}
+
+			throw makeNoEntry(target);
+		});
+
+		const exec = jest.fn();
+
+		const helper = createReleasePackReadinessHelper({
+			manifest,
+			dependencies: {
+				access,
+				exec,
+				readFile: jest.fn(async (target: string) => {
+					if (
+						target ===
+						path.join(
+							repoRoot,
+							'packages',
+							'php-driver',
+							'package.json'
+						)
+					) {
+						return JSON.stringify({
+							exports: {
+								'.': {
+									import: './dist/index.js',
+									default: './dist/index.js',
+								},
+							},
+						});
+					}
+
+					throw new Error(`Unexpected read: ${target}`);
+				}),
+			},
+		});
+
+		const context = createReadinessTestContext({
+			projectRoot,
+			workspaceRoot: null,
+			workspace: null,
+			cwd: projectRoot,
+		});
+
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('ready');
+
+		await helper.execute?.(context, detection.state);
+		expect(exec).not.toHaveBeenCalled();
 	});
 });

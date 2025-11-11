@@ -2,7 +2,7 @@ import { createComposerReadinessHelper } from '../composer';
 import {
 	createReadinessTestContext,
 	createWorkspaceDouble,
-} from '../test-support';
+} from '../../test/test-support';
 
 describe('createComposerReadinessHelper', () => {
 	it('blocks detection when workspace is unavailable', async () => {

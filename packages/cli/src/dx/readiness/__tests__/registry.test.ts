@@ -1,5 +1,4 @@
 import { createReporter } from '@wpkernel/core/reporter';
-import type { Reporter } from '@wpkernel/core/reporter';
 import { WPKernelError } from '@wpkernel/core/error';
 import {
 	createReadinessHelper,
@@ -8,64 +7,9 @@ import {
 	type ReadinessDetection,
 	type ReadinessConfirmation,
 } from '..';
+import { createRecordingReporter } from '../test/test-support';
 
 describe('ReadinessRegistry', () => {
-	interface RecordedEntry {
-		readonly namespace: string;
-		readonly level: 'info' | 'warn' | 'error' | 'debug';
-		readonly message: string;
-		readonly context?: unknown;
-	}
-
-	function createRecordingReporter(): {
-		readonly reporter: Reporter;
-		readonly records: RecordedEntry[];
-	} {
-		const records: RecordedEntry[] = [];
-
-		function build(namespace: string[]): Reporter {
-			return {
-				info(message, context) {
-					records.push({
-						namespace: namespace.join('.'),
-						level: 'info',
-						message,
-						context,
-					});
-				},
-				warn(message, context) {
-					records.push({
-						namespace: namespace.join('.'),
-						level: 'warn',
-						message,
-						context,
-					});
-				},
-				error(message, context) {
-					records.push({
-						namespace: namespace.join('.'),
-						level: 'error',
-						message,
-						context,
-					});
-				},
-				debug(message, context) {
-					records.push({
-						namespace: namespace.join('.'),
-						level: 'debug',
-						message,
-						context,
-					});
-				},
-				child(childNamespace) {
-					return build([...namespace, childNamespace]);
-				},
-			} satisfies Reporter;
-		}
-
-		return { reporter: build([]), records };
-	}
-
 	function buildContext(overrides: Partial<DxContext> = {}): DxContext {
 		const reporter = createReporter({
 			namespace: 'wpk.test.dx',

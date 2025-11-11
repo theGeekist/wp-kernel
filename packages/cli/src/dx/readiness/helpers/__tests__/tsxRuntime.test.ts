@@ -2,7 +2,7 @@ import { createTsxRuntimeReadinessHelper } from '../tsxRuntime';
 import {
 	createReadinessTestContext,
 	createWorkspaceDouble,
-} from '../test-support';
+} from '../../test/test-support';
 
 describe('createTsxRuntimeReadinessHelper', () => {
 	it('detects existing tsx runtime', async () => {

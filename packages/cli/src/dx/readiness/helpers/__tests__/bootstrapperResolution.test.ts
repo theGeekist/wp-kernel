@@ -1,13 +1,10 @@
 import path from 'node:path';
 import { type EnvironmentalError } from '@wpkernel/core/error';
 import { createBootstrapperResolutionReadinessHelper } from '../bootstrapperResolution';
-import { createReadinessTestContext } from '../test-support';
-
-function makeNoEntry(target: string): NodeJS.ErrnoException {
-	const error = new Error(`ENOENT: ${target}`) as NodeJS.ErrnoException;
-	error.code = 'ENOENT';
-	return error;
-}
+import {
+	createReadinessTestContext,
+	makeNoEntry,
+} from '../../test/test-support';
 
 const repoRoot = '/repo';
 const projectRoot = path.join(repoRoot, 'packages', 'cli');
