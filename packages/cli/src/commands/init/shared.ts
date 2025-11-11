@@ -1,4 +1,6 @@
 import { Command, Option } from 'clipanion';
+import { WPK_EXIT_CODES, type WPKExitCode } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { Workspace } from '../../workspace';
 import {
@@ -7,6 +9,7 @@ import {
 	type InitCommandRuntimeDependencies,
 	type InitCommandRuntimeOptions,
 	type InitCommandRuntimeResult,
+	formatInitWorkflowError,
 } from './command-runtime';
 import { assertReadinessRun, type ReadinessKey } from '../../dx';
 import type { InitWorkflowResult } from './workflow';
@@ -48,6 +51,37 @@ export abstract class InitCommandBase
 	summary: string | null = null;
 	manifest: InitWorkflowResult['manifest'] | null = null;
 	dependencySource: string | null = null;
+
+	protected async executeInitCommand(
+		options: InitCommandExecuteOptions
+	): Promise<WPKExitCode> {
+		try {
+			const { workflow } = await runInitCommand({
+				...options,
+				command: this,
+			});
+
+			this.summary = workflow.summaryText;
+			this.manifest = workflow.manifest;
+			this.dependencySource = workflow.dependencySource;
+
+			this.context.stdout.write(workflow.summaryText);
+			return WPK_EXIT_CODES.SUCCESS;
+		} catch (error) {
+			this.summary = null;
+			this.manifest = null;
+			this.dependencySource = null;
+
+			if (WPKernelError.isWPKernelError(error)) {
+				this.context.stderr.write(
+					formatInitWorkflowError(options.commandName, error)
+				);
+				return WPK_EXIT_CODES.VALIDATION_ERROR;
+			}
+
+			throw error;
+		}
+	}
 }
 
 export interface InitCommandContext {
@@ -61,35 +95,32 @@ export type EnsureGeneratedPhpCleanFn = (options: {
 	readonly yes: boolean;
 }) => Promise<void>;
 
-export interface InitCommandHooks {
-	readonly resolveWorkspaceRoot?: (
-		cwd: string,
-		command: InitCommandState
-	) => string;
-	readonly buildReadinessOptions?: (
+export type InitCommandHooks = Partial<{
+	resolveWorkspaceRoot: (cwd: string, command: InitCommandState) => string;
+	buildReadinessOptions: (
 		command: InitCommandState
 	) => InitCommandRuntimeOptions['readiness'];
-	readonly filterReadinessKeys?: (
+	filterReadinessKeys: (
 		keys: readonly ReadinessKey[],
 		command: InitCommandState
 	) => ReadonlyArray<ReadinessKey>;
-	readonly prepare?: (
+	prepare: (
 		runtime: InitCommandRuntimeResult,
 		context: InitCommandContext,
 		command: InitCommandState
 	) => Promise<void>;
-	readonly afterWorkflow?: (
+	afterWorkflow: (
 		result: InitWorkflowResult,
 		runtime: InitCommandRuntimeResult,
 		context: InitCommandContext,
 		command: InitCommandState
 	) => Promise<void>;
-	readonly afterReadiness?: (
+	afterReadiness: (
 		runtime: InitCommandRuntimeResult,
 		context: InitCommandContext,
 		command: InitCommandState
 	) => Promise<void>;
-}
+}>;
 
 export interface RunInitCommandOptions {
 	readonly command: InitCommandBase;
@@ -104,6 +135,13 @@ export interface RunInitCommandResult {
 	readonly workflow: InitWorkflowResult;
 	readonly context: InitCommandContext;
 }
+
+export type InitCommandExecuteOptions = Omit<
+	RunInitCommandOptions,
+	'command'
+> & {
+	readonly commandName: 'create' | 'init';
+};
 
 export async function runInitCommand({
 	command,

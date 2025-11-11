@@ -1,11 +1,6 @@
 import path from 'node:path';
 import { Command, Option } from 'clipanion';
-import { WPKernelError } from '@wpkernel/core/error';
-import {
-	WPK_NAMESPACE,
-	WPK_EXIT_CODES,
-	type WPKExitCode,
-} from '@wpkernel/core/contracts';
+import { WPK_NAMESPACE, type WPKExitCode } from '@wpkernel/core/contracts';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import {
 	buildWorkspace,
@@ -14,14 +9,11 @@ import {
 } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { installNodeDependencies } from './init/installers';
-import {
-	formatInitWorkflowError,
-	type InitCommandRuntimeDependencies,
-} from './init/command-runtime';
+import { type InitCommandRuntimeDependencies } from './init/command-runtime';
 import {
 	InitCommandBase,
-	runInitCommand,
 	type InitCommandContext,
+	type InitCommandHooks,
 } from './init/shared';
 import type { ReadinessKey } from '../dx';
 
@@ -146,88 +138,58 @@ export function buildCreateCommand(
 		skipInstall = Option.Boolean('--skip-install', false);
 
 		override async execute(): Promise<WPKExitCode> {
-			try {
-				const { workflow } = await runInitCommand({
-					command: this,
-					reporterNamespace: buildReporterNamespace(),
-					dependencies: dependencies.runtime,
-					ensureGeneratedPhpClean:
-						dependencies.ensureGeneratedPhpClean,
-					hooks: {
-						resolveWorkspaceRoot: (cwd: string) =>
-							resolveTargetDirectory(
-								cwd,
-								typeof this.target === 'string' &&
-									this.target.length > 0
-									? this.target
-									: '.'
-							),
-						filterReadinessKeys: (
-							keys: readonly ReadinessKey[]
-						) => {
-							if (this.skipInstall !== true) {
-								return keys;
-							}
-
-							const skipped = new Set<ReadinessKey>([
-								'composer',
-								'tsx-runtime',
-							]);
-
-							return keys.filter((key) => !skipped.has(key));
-						},
-						prepare: async (
-							runtime,
-							context: InitCommandContext
-						) => {
-							await dependencies.ensureCleanDirectory({
-								workspace: runtime.workspace,
-								directory: context.workspaceRoot,
-								force: this.force === true,
-								create: true,
-								reporter: runtime.reporter,
-							});
-						},
-						afterReadiness: async (runtime) => {
-							if (this.skipInstall === true) {
-								runtime.reporter.warn(
-									'Skipping dependency installation (--skip-install provided).'
-								);
-								return;
-							}
-
-							runtime.reporter.info(
-								'Installing npm dependencies...'
-							);
-							await dependencies.installNodeDependencies(
-								runtime.workspace.root
-							);
-						},
-					},
-				});
-
-				this.summary = workflow.summaryText;
-				this.manifest = workflow.manifest;
-				this.dependencySource = workflow.dependencySource;
-
-				this.context.stdout.write(workflow.summaryText);
-				return WPK_EXIT_CODES.SUCCESS;
-			} catch (error) {
-				this.summary = null;
-				this.manifest = null;
-				this.dependencySource = null;
-
-				if (WPKernelError.isWPKernelError(error)) {
-					this.context.stderr.write(
-						formatInitWorkflowError('create', error)
-					);
-					return WPK_EXIT_CODES.VALIDATION_ERROR;
-				}
-
-				throw error;
-			}
+			return this.executeInitCommand({
+				commandName: 'create',
+				reporterNamespace: buildReporterNamespace(),
+				dependencies: dependencies.runtime,
+				ensureGeneratedPhpClean: dependencies.ensureGeneratedPhpClean,
+				hooks: buildCreateCommandHooks(this, dependencies),
+			});
 		}
 	}
 
 	return CreateCommand as CreateCommandConstructor;
+}
+
+function buildCreateCommandHooks(
+	command: CreateCommandInstance,
+	dependencies: CreateDependencies
+): InitCommandHooks {
+	return {
+		resolveWorkspaceRoot: (cwd: string) =>
+			resolveTargetDirectory(
+				cwd,
+				typeof command.target === 'string' && command.target.length > 0
+					? command.target
+					: '.'
+			),
+		filterReadinessKeys: (keys: readonly ReadinessKey[]) => {
+			if (command.skipInstall !== true) {
+				return keys;
+			}
+
+			const skipped = new Set<ReadinessKey>(['composer', 'tsx-runtime']);
+			return keys.filter((key) => !skipped.has(key));
+		},
+		prepare: async (runtime, context: InitCommandContext) => {
+			await dependencies.ensureCleanDirectory({
+				workspace: runtime.workspace,
+				directory: context.workspaceRoot,
+				force: command.force === true,
+				create: true,
+				reporter: runtime.reporter,
+			});
+		},
+		afterReadiness: async (runtime) => {
+			if (command.skipInstall === true) {
+				runtime.reporter.warn(
+					'Skipping dependency installation (--skip-install provided).'
+				);
+				return;
+			}
+
+			runtime.reporter.info('Installing npm dependencies...');
+			await dependencies.installNodeDependencies(runtime.workspace.root);
+		},
+	} satisfies InitCommandHooks;
 }

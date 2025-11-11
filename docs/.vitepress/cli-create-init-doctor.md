@@ -355,6 +355,7 @@ Address the duplication between `create` and `init` by introducing a shared scaf
 
 - Dropped the heavyweight scaffold class in favour of a lean `InitCommandBase` plus a `runInitCommand` helper that handle shared Clipanion options, readiness orchestration, and summary wiring without adding a new inheritance layer.
 - Reworked `create.ts` and `init.ts` to call the shared helper directly—each command now supplies only its bespoke hooks (target resolution, skip-install filtering, git warnings) while deleting the 230-line `runtime-scaffold.ts` module for a net code reduction.
+- Centralised the success/error handling inside `InitCommandBase.executeInitCommand`, letting both commands drop their bespoke try/catch wrappers and yielding another ~130-line trim while keeping the readiness hook seams intact.
 
 ---
 

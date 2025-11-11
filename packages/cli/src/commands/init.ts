@@ -1,20 +1,15 @@
 import { Command } from 'clipanion';
 import { WPKernelError } from '@wpkernel/core/error';
-import {
-	WPK_NAMESPACE,
-	WPK_EXIT_CODES,
-	type WPKExitCode,
-} from '@wpkernel/core/contracts';
+import { WPK_NAMESPACE, type WPKExitCode } from '@wpkernel/core/contracts';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { isGitRepository } from './init/git';
 import {
-	formatInitWorkflowError,
 	type InitCommandRuntimeDependencies,
 	type InitCommandRuntimeResult,
 } from './init/command-runtime';
-import { InitCommandBase, runInitCommand } from './init/shared';
+import { InitCommandBase } from './init/shared';
 import type { ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
@@ -113,45 +108,22 @@ export function buildInitCommand(
 		});
 
 		override async execute(): Promise<WPKExitCode> {
-			try {
-				const { workflow } = await runInitCommand({
-					command: this,
-					reporterNamespace: buildReporterNamespace(),
-					dependencies: dependencies.runtime,
-					ensureGeneratedPhpClean:
-						dependencies.ensureGeneratedPhpClean,
-					hooks: {
-						filterReadinessKeys: (keys: readonly ReadinessKey[]) =>
-							keys.filter((key) => key !== 'git'),
-						prepare: async (runtime) => {
-							await this.warnWhenGitMissing(
-								runtime.workspace,
-								runtime.reporter
-							);
-						},
+			return this.executeInitCommand({
+				commandName: 'init',
+				reporterNamespace: buildReporterNamespace(),
+				dependencies: dependencies.runtime,
+				ensureGeneratedPhpClean: dependencies.ensureGeneratedPhpClean,
+				hooks: {
+					filterReadinessKeys: (keys: readonly ReadinessKey[]) =>
+						keys.filter((key) => key !== 'git'),
+					prepare: async (runtime) => {
+						await this.warnWhenGitMissing(
+							runtime.workspace,
+							runtime.reporter
+						);
 					},
-				});
-
-				this.summary = workflow.summaryText;
-				this.manifest = workflow.manifest;
-				this.dependencySource = workflow.dependencySource;
-
-				this.context.stdout.write(workflow.summaryText);
-				return WPK_EXIT_CODES.SUCCESS;
-			} catch (error) {
-				this.summary = null;
-				this.manifest = null;
-				this.dependencySource = null;
-
-				if (WPKernelError.isWPKernelError(error)) {
-					this.context.stderr.write(
-						formatInitWorkflowError('init', error)
-					);
-					return WPK_EXIT_CODES.VALIDATION_ERROR;
-				}
-
-				throw error;
-			}
+				},
+			});
 		}
 
 		private async warnWhenGitMissing(
