@@ -103,6 +103,6 @@ The registry emits a consistent sequence: phase start messages at `info`, phase 
 
 ## Task 57 – Validation sweep
 
-- Execute the deterministic playbook captured in [`critical-create-generate-failure.md`](./critical-create-generate-failure.md#task-57--deterministic-validation-plan). The six subtasks there cover build gating, bootstrapper execution, scaffold dependency injection, composer healing, manifest validation, and packed CLI smoke tests.
-- Use the readiness registry to host any new helpers (`cli-runtime`, enhanced composer checks, manifest verifiers) so commands inherit them automatically once Task 57 lands.
-- Re-run the workflow in the same temp workspace to assert idempotency (detect should short-circuit; confirm should report clean state) and record timing baselines for installation and generate/apply runs.
+- Execute the Deterministic DXIRv1 validation plan in [`critical-create-generate-failure.md`](./critical-create-generate-failure.md#task-57--deterministic-validation-plan). Subtasks 57a–57n span build gating, bootstrapper resolution, quickstart fidelity, TSX/CLI runtime shims, PHP printer integrity, composer independence, manifest emission, workspace hygiene, timing budgets, packed end-to-end parity, package-manager coverage, runtime matrix sweeps, peer-range enforcement, and docs fidelity.
+- Land every probe beside the readiness helper it exercises (`packages/cli/src/dx/readiness/helpers/*`) and extend the registry tests under `packages/cli/src/dx/readiness/__tests__/registry.test.ts` to capture the new error codes and timing metrics.
+- Re-run the quickstart, packed, and matrix probes in the same temp workspace after each fix to prove idempotency (detect short-circuits, confirm reports a clean state) and record timing baselines for installers, composer healing, generate, and apply.

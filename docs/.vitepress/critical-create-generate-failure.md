@@ -66,12 +66,119 @@ Even after composer succeeds, the generate flow still fails because the generate
 
 ## Task 57 – Deterministic validation plan
 
-1. **Gate the build chain with a release smoke test.** Extend the DX readiness suite with a `createPackagedCliBuild` helper that executes the same `pnpm --filter` build sequence we ran manually (`@wpkernel/pipeline` → `@wpkernel/core` → `@wpkernel/php-driver` → `@wpkernel/cli` → `@wpkernel/create-wpk`). Capture the `ERR_MODULE_NOT_FOUND` and TypeScript diagnostics that appear when any dist artefact is missing, and fail the helper until all five packages compile. Wire this helper into a CI job that runs `pnpm pack` and uploads the tarballs for downstream checks so the missing `.js` extensions and uncompiled deps are caught before publish. 【90df11†L1-L18】【21c693†L1-L18】【c3c284†L1-L32】【9e4991†L1-L80】【07492e†L1-L287】
-2. **Add a bootstrapper execution probe.** Create an integration test under `packages/create-wpk/tests` that shells out to the compiled `dist/index.js` in a temp directory. Assert that it exits cleanly without needing `WPK_CLI_FORCE_SOURCE=1` and emits the same readiness events we observe in source mode. Fail the test if Node reports the php-driver module is missing, reproducing the crash we hit in `/tmp`. 【4940cc†L1-L19】
-3. **Ensure scaffolds install the CLI and tsx automatically.** Update the create/init readiness plan to inject a `cli-runtime` helper that edits the generated `package.json` before installers run, adding `@wpkernel/cli` and `tsx` devDependencies plus the appropriate lockfile updates. Extend the readiness registry tests to verify that a subsequent `pnpm install` drops a `wpk` binary into `node_modules/.bin` and that the helper logs the elapsed installation time (targeting the observed 8.1 s baseline). 【f68c56†L1-L26】【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】
-4. **Harden composer readiness for the PHP printer.** Expand `packages/cli/src/dx/readiness/helpers/composer.ts` so it checks for `nikic/php-parser` inside `vendor/composer/installed.json`, installs it when absent, and records the outcome in the reporter log. Cover the helper with an integration test that boots a scaffold lacking vendor files, confirming that the CLI no longer aborts with the php-parser error we reproduced. 【de93ab†L1-L29】【c07f32†L1-L2】【5f1634†L1-L12】
-5. **Verify patch manifest emission during generate.** Add a regression harness to `packages/cli/tests/workspace.test-support.ts` that runs `wpk generate` inside a fixture workspace and asserts that `.wpk/apply/manifest.json` exists with at least one planned action. Extend the readiness registry to surface a fatal diagnostic when the manifest is missing so the command never reaches `wpk apply` with an empty plan, and confirm the `createPatcher` builder logs that it wrote the manifest before the generate command finaliser runs its post-commit check. 【F:packages/cli/src/builders/patcher.ts†L586-L635】【F:packages/cli/src/commands/generate.ts†L65-L91】【55d118†L1-L4】【e163da†L1-L8】
-6. **Exercise the packed CLI end-to-end.** Introduce a CI pipeline step that installs the freshly packed tarball into a temp project, runs `pnpm install`, and executes `npx wpk generate`/`npx wpk apply`. Record the elapsed install and command durations so we can enforce upper bounds going forward, and ensure the job fails when npm cannot resolve the unpublished peer ranges we observed locally. 【a6f825†L1-L11】
+_Surface the failure → fix it → retire the brittle pathway. Each probe must land beside the readiness helpers it exercises so DXIRv1 remains executable documentation, not tribal knowledge._
+
+### 57a — ReleasePack Chain
+
+**Probe (behaviour).** Add a `releasePackChain` helper under `packages/cli/src/dx/readiness/helpers/release-pack.ts` that replays the publish order (`@wpkernel/pipeline` → `@wpkernel/core` → `@wpkernel/php-driver` → `@wpkernel/cli` → `@wpkernel/create-wpk`) using the existing build entry points in each package (`package.json#scripts.build`). The helper should shell out with the same executor as `packages/cli/src/dx/readiness/helpers/installers.ts` so reporter timing captures align. When any artefact is missing—missing `.js` extensions, uncompiled reporters, absent dist bundles—emit `EnvironmentalError(build.missingArtifact)` with the first failing workspace in `data.subject`, plus the captured stdout/stderr for context. 【90df11†L1-L18】【21c693†L1-L18】【c3c284†L1-L32】【9e4991†L1-L80】
+
+**Fix (behaviour).** Normalize build preconditions across the chain by reusing the typed outputs emitted from `packages/pipeline/tsconfig.build.json` and `packages/core/tsconfig.build.json`. Close any intra-package graph gaps before running the build (for example, confirm `packages/php-driver/dist/index.js` exists before the CLI compiles). When the helper reruns on a clean workspace, confirm phase timings change by <5% to prove idempotency.
+
+**Retire (brittle).** Delete bespoke build order scripts in `packages/create-wpk` that implicitly relied on the source tree. The readiness helper must be the single orchestrator.
+
+### 57b — Bootstrapper Resolution
+
+**Probe.** Author `packages/create-wpk/tests/bootstrapper-resolution.test.ts` that executes the compiled bootstrapper (`dist/index.js`) inside `tests/fixtures/tmp-workspace`. Mirror the temp-dir harness already used in `packages/cli/tests/workspace.test-support.ts` so we can capture the reporter transcript. The probe fails with `EnvironmentalError(bootstrapper.resolve)` when Node attempts to reach back into `packages/cli/src` or when bundled dependencies (`@wpkernel/php-driver`) are missing. 【4940cc†L1-L19】
+
+**Fix.** Ensure the bootstrapper bundles the php-driver assets published under `packages/cli/src/packages/php-driver` and resolves runtime helpers via relative `.js` paths so it never depends on the source tree. Update `packages/create-wpk/package.json#files` if needed.
+
+**Retire.** Remove `WPK_CLI_FORCE_SOURCE` as a requirement for the create path—source-mode should stay a developer escape hatch, not the release path.
+
+### 57c — Quickstart Fidelity
+
+**Probe.** Extend the readiness registry with a `quickstartFidelity` helper that replays the documented `wpk <command>` loop using the scaffolder output created during Task 55 fixtures (`packages/cli/tests/__fixtures__/workspace`). Capture install timing via `reporter.child('install')` and assert a `wpk` binary exists in `node_modules/.bin` immediately after create/init. Failures emit `EnvironmentalError(cli.binary.missing)` or `EnvironmentalError(tsx.missing)` tagged with the command that failed. 【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】
+
+**Fix.** Enhance `packages/cli/src/dx/readiness/helpers/cli-runtime.ts` (new) to inject `@wpkernel/cli` and `tsx` into the scaffold’s `package.json`, mutate the matching lockfile via the installer helper, and update the command tests under `packages/cli/src/commands/__tests__/create.test.ts` to assert `wpk generate` works without manual edits.
+
+**Retire.** Remove guidance suggesting `pnpm wpk` or `npm wpk`. Public docs should continue to show direct `wpk` usage once the binary exists.
+
+### 57d — TSX Runtime Presence
+
+**Probe.** Hoist the current implicit expectation inside `packages/cli/src/config/load-wpk-config.ts` into a readiness helper (`packages/cli/src/dx/readiness/helpers/tsx-runtime.ts`). The helper should call `import.meta.resolve('tsx')` using the same resolver as `loadConfigModule`, logging the path and version. Failures emit `EnvironmentalError(tsx.missing)` with the missing module ID. 【F:packages/cli/src/config/load-wpk-config.ts†L21-L114】
+
+**Fix.** Ensure the helper is wired ahead of generate/apply so it can install TSX (or drop a local shim) deterministically, then confirm through `packages/cli/src/commands/__tests__/generate.test.ts` that retries are idempotent.
+
+**Retire.** Delete comments or documentation that assume developers preinstall TSX.
+
+### 57e — PHP Printer Path Integrity
+
+**Probe.** Create a readiness assertion in `packages/cli/src/dx/readiness/helpers/php-driver.ts` that resolves the PHP printer entry point through `require.resolve('@wpkernel/php-driver/php/pretty-print.php')`. If the resolved path falls under `@wpkernel/cli/dist`, raise `EnvironmentalError(php.printerPath.mismatch)` with both the resolved path and the expected package root. 【F:packages/cli/src/dx/readiness/helpers/php-driver.ts†L20-L162】
+
+**Fix.** Relocate the PHP assets into `@wpkernel/php-driver`’s published fileset and update the CLI builder (`packages/cli/src/builders/plan.ts`) to consume the new location. Add fixture coverage in `packages/cli/src/commands/__tests__/generate.apply.test.ts`.
+
+**Retire.** Stop referencing `dist/packages/php-driver/php/pretty-print.php` from the CLI bundle.
+
+### 57f — Composer Independence
+
+**Probe.** Extend the composer helper (`packages/cli/src/dx/readiness/helpers/composer.ts`) with a `printerAutoload` check that runs `composer show nikic/php-parser --format=json` inside the scaffold. When the command fails, emit `EnvironmentalError(php.autoload.required)` so the readiness report explains the missing autoload. 【de93ab†L1-L29】【c07f32†L1-L2】【5f1634†L1-L12】
+
+**Fix.** Choose one strategy—bundle a PHAR in `packages/php-driver`, generate a CLI-scoped composer vendor tree under `.wpk/vendor`, or ship an autoload stub—and document the decision in `docs/.vitepress/cli-create-init-doctor.md` once implemented. Integration tests in `packages/cli/src/commands/__tests__/generate.test.ts` should verify generation succeeds without touching the plugin’s `vendor` directory.
+
+**Retire.** Any reliance on the plugin workspace’s composer.json to supply php-parser.
+
+### 57g — Generate → Apply Manifest Emission
+
+**Probe.** Add a regression suite in `packages/cli/tests/workspace.test-support.ts` that runs `generate` against a clean fixture and asserts `.wpk/apply/manifest.json` exists even when the plan contains no actions. If missing, throw `EnvironmentalError(apply.manifest.missing)` with the working directory path. 【F:packages/cli/src/builders/patcher.ts†L586-L635】【F:packages/cli/src/commands/generate.ts†L65-L91】
+
+**Fix.** Update `packages/cli/src/builders/patcher.ts` so `createPatcher` writes the manifest immediately after committing the plan. Extend Jest coverage in `packages/cli/src/commands/__tests__/generate.test.ts` to assert the manifest content matches the plan actions.
+
+**Retire.** Remove assumptions that `wpk apply` will create the first manifest.
+
+### 57h — Workspace Hygiene Policy
+
+**Probe.** Introduce a shared helper in `packages/cli/src/dx/readiness/helpers/workspace-hygiene.ts` that fails fast when `git status --porcelain` returns changes. The helper should accept a `--allow-dirty` flag wired through command options and emit `EnvironmentalError(workspace.dirty)` with the summarized diff when dirty workspaces are disallowed. 【F:packages/cli/src/workspace/utilities.ts†L12-L146】
+
+**Fix.** Route create/init/generate/apply through the helper and update their reporters so “checked” vs “changed” outcomes align with the helper’s `performedWork` flag. Cover the flow in `packages/cli/src/commands/__tests__/workspace-hygiene.test.ts`.
+
+**Retire.** Ad-hoc cleanliness checks scattered across commands.
+
+### 57i — Timing Budgets
+
+**Probe.** Build timing capture into the installer and composer helpers (`packages/cli/src/dx/readiness/helpers/installers.ts`, `composer.ts`). Record start/stop timestamps, emit them through `reporter.child('metrics')`, and fail with `EnvironmentalError(budget.exceeded)` when durations exceed configurable ceilings stored in `packages/cli/src/dx/readiness/budgets.ts`. 【eb6460†L1-L26】
+
+**Fix.** Allow CI to override budgets via environment variables while keeping local defaults tied to the observed 8.1 s install baseline. Add snapshot coverage in `packages/cli/src/dx/readiness/__tests__/registry.test.ts` for the timing metadata.
+
+**Retire.** Silent timing drift in installers.
+
+### 57j — Packed End-to-End
+
+**Probe.** Create a CI workflow (`.github/workflows/cli-packed-e2e.yml`) that packs the CLI, installs it into a fresh workspace, and runs `npx wpk generate && npx wpk apply` with readiness logging enabled. The workflow should reuse the workspace harness in `packages/cli/tests/workspace.test-support.ts` so logs stay comparable. Fail the job when any previous probe emits an `EnvironmentalError` post-pack. 【a6f825†L1-L11】
+
+**Fix.** Treat this workflow as the release gate. The packed CLI must match source behaviour byte-for-byte before publish.
+
+**Retire.** Divergences between source mode and tarball installs.
+
+### 57k — Package-Manager Parity
+
+**Probe.** Extend the quickstart helper to execute `npm`, `pnpm`, and `yarn` (Berry with `nodeLinker: node-modules`) in sequence, using the package-manager detection logic in `packages/cli/src/dx/readiness/helpers/installers.ts`. All runs must surface identical reporter transcripts. 【F:packages/cli/src/commands/init/installers.ts†L9-L210】
+
+**Fix.** Normalize binary discovery so `wpk` resolves through each package manager’s exec path. Update docs when divergence is intentional.
+
+**Retire.** PM-specific fallbacks or error messages.
+
+### 57l — Runtime Matrix (Node×PHP)
+
+**Probe.** Run the packed CLI across the minimum supported Node versions (per `package.json#engines`) and PHP 8.1/8.2 inside CI using the Docker harness under `test-harness/docker`. Record reporter output and fail when platform-specific differences appear.
+
+**Fix.** Add shims/polyfills only when required by the contracts in `@wpkernel/core/contracts`.
+
+**Retire.** “Latest-only” assumptions in readiness helpers.
+
+### 57m — Peer-Range Gate
+
+**Probe.** Install the packed tarball into an empty project with `devDependencies: {}` using `pnpm add <tarball> --ignore-scripts`. Fail with `EnvironmentalError(peers.unpublished)` whenever the solver requests versions that are not published (e.g., `0.12.1-beta.2`). 【a6f825†L1-L11】
+
+**Fix.** Align peer and dependency ranges in `packages/*/package.json` with released versions or mark optional peers accordingly.
+
+**Retire.** Peer ranges pointing at unreleased packages.
+
+### 57n — Docs Fidelity
+
+**Probe.** Parse the public CLI docs under `docs/packages/cli.md` and `docs/get-started/*.md` for command snippets, then execute them verbatim inside the fixture workspace. Failures emit `EnvironmentalError(docs.drift)` with the path to the stale snippet.
+
+**Fix.** Either update the documentation or adjust scaffolds until the commands succeed as written. Capture the decision in both the docs and this worklog.
+
+**Retire.** Divergence between public docs and the shipped behaviour.
 
 ## Additional notes
 
