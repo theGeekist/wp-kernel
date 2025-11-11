@@ -167,13 +167,15 @@ Guarantee the CLI detects and installs `tsx` deterministically with idempotent r
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-02-16 — Added the `createTsxRuntimeReadinessHelper` to resolve `tsx` via the CLI module loader paths, install the package with `npm install --save-dev tsx` when absent, and register cleanup so temporary installs are removed after readiness completes.【F:packages/cli/src/dx/readiness/helpers/tsxRuntime.ts†L23-L126】【F:packages/cli/src/dx/readiness/helpers/**tests**/tsxRuntime.test.ts†L7-L48】
 
-**Probe.** Extend `packages/cli/src/dx/readiness/helpers/tsx.ts` to resolve `tsx` exactly as the CLI loader does, surfacing `EnvironmentalError(tsx.missing)` with module-not-found diagnostics when absent.
+**Probe.** Extend `packages/cli/src/dx/readiness/helpers/tsxRuntime.ts` to resolve `tsx` exactly as the CLI loader does, surfacing `EnvironmentalError(tsx.missing)` with module-not-found diagnostics when absent.
 
 **Fix.** Implement deterministic installation or bundling of `tsx`, recording whether work was performed. Document rerun behaviour (short-circuit) in this file once complete.
 
 **Retire.** Implicit devDependency assumptions.
+
+Reruns now short-circuit because the helper reports `ready` when `tsx` is already discoverable, skipping installation while the confirmation step revalidates the resolved module path before exiting.【F:packages/cli/src/dx/readiness/helpers/tsxRuntime.ts†L70-L125】
 
 ## Task 61 — PHP Printer Path Integrity
 
