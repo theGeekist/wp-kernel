@@ -1,7 +1,12 @@
 import path from 'node:path';
 import { Command, Option } from 'clipanion';
+import { WPKernelError } from '@wpkernel/core/error';
+import {
+	WPK_NAMESPACE,
+	WPK_EXIT_CODES,
+	type WPKExitCode,
+} from '@wpkernel/core/contracts';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
-import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import {
 	buildWorkspace,
 	ensureCleanDirectory,
@@ -9,16 +14,15 @@ import {
 } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { installNodeDependencies } from './init/installers';
-import type {
-	InitCommandRuntimeDependencies,
-	InitCommandRuntimeResult,
+import {
+	formatInitWorkflowError,
+	type InitCommandRuntimeDependencies,
 } from './init/command-runtime';
 import {
-	createInitCommandScaffold,
-	type InitCommandScaffoldContext,
-	type InitCommandScaffoldDependencies,
-	type InitCommandScaffoldInstance,
-} from './init/runtime-scaffold';
+	InitCommandBase,
+	runInitCommand,
+	type InitCommandContext,
+} from './init/shared';
 import type { ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
@@ -53,7 +57,7 @@ export interface BuildCreateCommandOptions {
  *
  * @category Commands
  */
-export type CreateCommandInstance = InitCommandScaffoldInstance & {
+export type CreateCommandInstance = InitCommandBase & {
 	/** The target directory for the new project. */
 	target?: string;
 	/** Whether to skip dependency installation. */
@@ -68,7 +72,8 @@ export type CreateCommandInstance = InitCommandScaffoldInstance & {
 export type CreateCommandConstructor = new () => CreateCommandInstance;
 
 interface CreateDependencies {
-	readonly scaffold: InitCommandScaffoldDependencies;
+	readonly runtime: InitCommandRuntimeDependencies;
+	readonly ensureGeneratedPhpClean: typeof ensureGeneratedPhpClean;
 	readonly ensureCleanDirectory: typeof ensureCleanDirectory;
 	readonly installNodeDependencies: typeof installNodeDependencies;
 }
@@ -88,13 +93,13 @@ function mergeDependencies(
 	} = options;
 
 	return {
-		scaffold: {
+		runtime: {
 			buildWorkspace: buildWorkspaceOverride,
 			buildReporter: buildReporterOverride,
 			runWorkflow: runWorkflowOverride,
 			buildReadinessRegistry,
-			ensureGeneratedPhpClean,
 		},
+		ensureGeneratedPhpClean,
 		ensureCleanDirectory: ensureCleanDirectoryOverride,
 		installNodeDependencies: installNodeDependenciesOverride,
 	} satisfies CreateDependencies;
@@ -121,13 +126,7 @@ export function buildCreateCommand(
 ): CreateCommandConstructor {
 	const dependencies = mergeDependencies(options);
 
-	const BaseCommand = createInitCommandScaffold({
-		commandName: 'create',
-		reporterNamespace: buildReporterNamespace(),
-		dependencies: dependencies.scaffold,
-	});
-
-	class CreateCommand extends BaseCommand {
+	class CreateCommand extends InitCommandBase {
 		static override paths = [['create']];
 
 		static override usage = Command.Usage({
@@ -145,54 +144,88 @@ export function buildCreateCommand(
 
 		target = Option.String({ name: 'directory', required: false });
 		skipInstall = Option.Boolean('--skip-install', false);
-		protected override resolveWorkspaceRoot(cwd: string): string {
-			const targetValue =
-				typeof this.target === 'string' && this.target.length > 0
-					? this.target
-					: '.';
-			return resolveTargetDirectory(cwd, targetValue);
-		}
 
-		protected override filterReadinessKeys(
-			keys: readonly ReadinessKey[]
-		): ReadonlyArray<ReadinessKey> {
-			if (this.skipInstall === true) {
-				const skipped = new Set<ReadinessKey>([
-					'composer',
-					'tsx-runtime',
-				]);
-				return keys.filter((key) => !skipped.has(key));
+		override async execute(): Promise<WPKExitCode> {
+			try {
+				const { workflow } = await runInitCommand({
+					command: this,
+					reporterNamespace: buildReporterNamespace(),
+					dependencies: dependencies.runtime,
+					ensureGeneratedPhpClean:
+						dependencies.ensureGeneratedPhpClean,
+					hooks: {
+						resolveWorkspaceRoot: (cwd: string) =>
+							resolveTargetDirectory(
+								cwd,
+								typeof this.target === 'string' &&
+									this.target.length > 0
+									? this.target
+									: '.'
+							),
+						filterReadinessKeys: (
+							keys: readonly ReadinessKey[]
+						) => {
+							if (this.skipInstall !== true) {
+								return keys;
+							}
+
+							const skipped = new Set<ReadinessKey>([
+								'composer',
+								'tsx-runtime',
+							]);
+
+							return keys.filter((key) => !skipped.has(key));
+						},
+						prepare: async (
+							runtime,
+							context: InitCommandContext
+						) => {
+							await dependencies.ensureCleanDirectory({
+								workspace: runtime.workspace,
+								directory: context.workspaceRoot,
+								force: this.force === true,
+								create: true,
+								reporter: runtime.reporter,
+							});
+						},
+						afterReadiness: async (runtime) => {
+							if (this.skipInstall === true) {
+								runtime.reporter.warn(
+									'Skipping dependency installation (--skip-install provided).'
+								);
+								return;
+							}
+
+							runtime.reporter.info(
+								'Installing npm dependencies...'
+							);
+							await dependencies.installNodeDependencies(
+								runtime.workspace.root
+							);
+						},
+					},
+				});
+
+				this.summary = workflow.summaryText;
+				this.manifest = workflow.manifest;
+				this.dependencySource = workflow.dependencySource;
+
+				this.context.stdout.write(workflow.summaryText);
+				return WPK_EXIT_CODES.SUCCESS;
+			} catch (error) {
+				this.summary = null;
+				this.manifest = null;
+				this.dependencySource = null;
+
+				if (WPKernelError.isWPKernelError(error)) {
+					this.context.stderr.write(
+						formatInitWorkflowError('create', error)
+					);
+					return WPK_EXIT_CODES.VALIDATION_ERROR;
+				}
+
+				throw error;
 			}
-
-			return keys;
-		}
-
-		protected override async prepare(
-			runtime: InitCommandRuntimeResult,
-			context: InitCommandScaffoldContext
-		): Promise<void> {
-			await dependencies.ensureCleanDirectory({
-				workspace: runtime.workspace,
-				directory: context.workspaceRoot,
-				force: this.force === true,
-				create: true,
-				reporter: runtime.reporter,
-			});
-		}
-
-		protected override async afterReadiness(
-			runtime: InitCommandRuntimeResult,
-			_context: InitCommandScaffoldContext
-		): Promise<void> {
-			if (this.skipInstall === true) {
-				runtime.reporter.warn(
-					'Skipping dependency installation (--skip-install provided).'
-				);
-				return;
-			}
-
-			runtime.reporter.info('Installing npm dependencies...');
-			await dependencies.installNodeDependencies(runtime.workspace.root);
 		}
 	}
 

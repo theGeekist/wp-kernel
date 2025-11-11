@@ -353,8 +353,8 @@ Address the duplication between `create` and `init` by introducing a shared scaf
 
 ##### 56g consolidation update – shared init/create scaffold
 
-- Wrapped `createInitCommandRuntime` in a reusable scaffold that owns Clipanion option wiring, readiness overrides, and workflow execution, exposing hooks for command-specific behaviour such as target resolution, git warnings, and post-readiness installers.
-- Rebuilt the `create` and `init` commands on top of the scaffold so their modules now delegate to focused overrides (target directory hygiene, skip-install filtering, git status warnings) instead of duplicating runtime construction and readiness plumbing.
+- Dropped the heavyweight scaffold class in favour of a lean `InitCommandBase` plus a `runInitCommand` helper that handle shared Clipanion options, readiness orchestration, and summary wiring without adding a new inheritance layer.
+- Reworked `create.ts` and `init.ts` to call the shared helper directly—each command now supplies only its bespoke hooks (target resolution, skip-install filtering, git warnings) while deleting the 230-line `runtime-scaffold.ts` module for a net code reduction.
 
 ---
 
