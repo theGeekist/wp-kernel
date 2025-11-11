@@ -70,7 +70,8 @@ Build the publish-order validation probe and enforce deterministic artefact prod
 
 **Completion log.** Update this list after each run by replacing the placeholder with the date, PR, and outcome summary.
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-11-11 — Scaffolded `createReleasePackReadinessHelper`, manifest defaults, and unit coverage for missing artefact reporting (pending PR).
+- [ ] _Next run placeholder — update after execution_
 
 **Discovery to finish before coding.**
 
@@ -82,7 +83,7 @@ Build the publish-order validation probe and enforce deterministic artefact prod
 
 **Probe.** Scaffold the `releasePackChain` helper to read the publish-order manifest, create an isolated workspace, and iterate builds in order, failing with `EnvironmentalError(build.missingArtifact)` when required outputs are absent.【90df11†L1-L18】【21c693†L1-L18】【c3c284†L1-L32】
 
-**Fix.** Persist manifest expectations (artefact paths, extension requirements) and wire the helper into the readiness registry. Add unit coverage for manifest parsing and workspace setup.
+**Fix.** Persist manifest expectations (artefact paths, extension requirements) and wire the helper into the readiness registry. Add unit coverage for manifest parsing and workspace setup. The helper now lives in `packages/cli/src/dx/readiness/helpers/releasePack.ts` with coverage in `packages/cli/src/dx/readiness/helpers/__tests__/releasePack.test.ts`.
 
 **Retire.** Hidden assumptions about build order or relying on monorepo source imports.
 

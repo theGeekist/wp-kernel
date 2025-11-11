@@ -18,6 +18,7 @@ export type ErrorCode =
 	| 'NotImplementedError' // Feature not yet implemented
 	| 'DeveloperError' // Invalid API usage
 	| 'DeprecatedError' // Deprecated API usage
+	| 'EnvironmentalError' // Environment or readiness precondition failures
 	| 'UnknownError'; // Catch-all for unexpected errors
 
 /**

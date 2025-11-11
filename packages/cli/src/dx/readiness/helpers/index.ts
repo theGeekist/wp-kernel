@@ -17,3 +17,10 @@ export type {
 } from './workspaceHygiene';
 export { createTsxRuntimeReadinessHelper } from './tsxRuntime';
 export type { TsxRuntimeDependencies, TsxRuntimeState } from './tsxRuntime';
+export { createReleasePackReadinessHelper } from './releasePack';
+export type {
+	ReleasePackHelperOptions,
+	ReleasePackManifestEntry,
+	ReleasePackState,
+	ReleasePackDependencies,
+} from './releasePack';
