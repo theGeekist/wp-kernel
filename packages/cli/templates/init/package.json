@@ -8,5 +8,9 @@
 		"build": "wpk build",
 		"generate": "wpk generate",
 		"apply": "wpk apply"
+	},
+	"devDependencies": {
+		"@wpkernel/cli": "^0.12.1-beta.2",
+		"tsx": "^4.20.6"
 	}
 }

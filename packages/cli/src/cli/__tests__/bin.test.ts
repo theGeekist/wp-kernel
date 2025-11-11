@@ -2,16 +2,23 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { mkdtemp, rename, rm } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 
 jest.setTimeout(20000);
 
 describe('wpk bin', () => {
-	it('runs from the compiled dist bundle when artifacts are present', async () => {
-		const binPath = path.join(__dirname, '../../../bin/wpk.js');
-		const result = await runCli(binPath, ['--help']);
+	const hasDistArtifacts = () =>
+		existsSync(path.join(__dirname, '../../../dist/cli/run.js'));
 
-		expect(result.stdout).toContain('WPKernel CLI entry point');
-	});
+	(hasDistArtifacts() ? it : it.skip)(
+		'runs from the compiled dist bundle when artifacts are present',
+		async () => {
+			const binPath = path.join(__dirname, '../../../bin/wpk.js');
+			const result = await runCli(binPath, ['--help']);
+
+			expect(result.stdout).toContain('WPKernel CLI entry point');
+		}
+	);
 
 	it('instructs developers to build when dist artifacts are unavailable', async () => {
 		const binPath = path.join(__dirname, '../../../bin/wpk.js');

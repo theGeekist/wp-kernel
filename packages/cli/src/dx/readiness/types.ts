@@ -11,7 +11,8 @@ export type ReadinessKey =
 	| 'bootstrapper-resolution'
 	| 'release-pack'
 	| 'tsx-runtime'
-	| 'workspace-hygiene';
+	| 'workspace-hygiene'
+	| 'quickstart';
 
 /**
  * Status emitted during the detect/prepare/execute phases.

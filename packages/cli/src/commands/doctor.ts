@@ -114,6 +114,7 @@ const READINESS_LABELS: Record<ReadinessKey, string> = {
 	'bootstrapper-resolution': 'Bootstrapper resolution',
 	git: 'Git repository',
 	'tsx-runtime': 'TSX runtime',
+	quickstart: 'Quickstart scaffold',
 };
 
 const DEFAULT_STATUS_MAPPING: Record<ReadinessOutcomeStatus, DoctorStatus> = {

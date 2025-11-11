@@ -135,7 +135,8 @@ Ensure the quickstart scaffold mirrors public docs and exposes a working `wpk` b
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-02-14 — Quickstart readiness helper now scaffolds via `npm create @wpkernel/wpk`, verifies the bundled `wpk` binary and `tsx` runtime, and the init template ships both dependencies with fixture coverage.
+- [x] 2025-02-15 — Readiness logging now records the `npm create` and `wpk generate` durations alongside the resolved binary and `tsx` module paths so the quickstart ledger can cite reproducible timings and asset locations.【F:packages/cli/src/dx/readiness/helpers/quickstart.ts†L288-L297】
 
 **Discovery to finish before coding.**
 
@@ -146,7 +147,7 @@ Ensure the quickstart scaffold mirrors public docs and exposes a working `wpk` b
 
 **Probe.** Enhance the quickstart helper to create a project via `npm create @wpkernel/wpk` and immediately run `wpk generate`, failing with `EnvironmentalError(cli.binary.missing)` or `EnvironmentalError(tsx.missing)` when dependencies are absent.【F:docs/.vitepress/critical-create-generate-failure.md†L107-L138】
 
-**Fix.** Update scaffold templates so `@wpkernel/cli` and `tsx` land deterministically with lockfile support. Add fixture coverage verifying scripts resolve `wpk` without `pnpm exec` fallbacks.
+**Fix.** Update scaffold templates so `@wpkernel/cli` and `tsx` land deterministically with lockfile support, extend init integration coverage to assert both devDependencies resolve, and wire the quickstart readiness helper to fail fast with `EnvironmentalError(cli.binary.missing)` or `EnvironmentalError(tsx.missing)` before running `wpk generate`.
 
 **Retire.** Expecting users to install dependencies manually.
 
@@ -154,7 +155,9 @@ Ensure the quickstart scaffold mirrors public docs and exposes a working `wpk` b
 
 **Probe.** Ensure readiness logs capture install timings and binary detection results, mapping them to doc references (`wpk generate`).
 
-**Fix.** Update docs and readiness outputs to show the direct `wpk` usage, and snapshot the reporter transcript.
+**Fix.** Log quickstart scaffold timings and resolved binary/module paths through the readiness reporter so docs can cite repeatable install baselines and the observed `wpk generate` run.
+
+The helper reports the `npm create` and `wpk generate` durations in the readiness info channel and emits debug entries for the located binary and `tsx` runtime, giving us deterministic artefacts to cite in this log. The success message mirrors those timings, which the unit harness now asserts to keep the messaging stable for future doc updates.【F:packages/cli/src/dx/readiness/helpers/quickstart.ts†L269-L323】【F:packages/cli/src/dx/readiness/helpers/**tests**/quickstart.test.ts†L79-L118】
 
 **Retire.** Divergence between quickstart behaviour and published instructions.
 

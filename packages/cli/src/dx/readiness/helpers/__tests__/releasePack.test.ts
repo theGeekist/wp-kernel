@@ -97,7 +97,7 @@ describe('createReleasePackReadinessHelper', () => {
 		);
 	});
 
-	it('builds missing artefacts and confirms readiness', async () => {
+	it('throws when artefacts remain missing after rebuild', async () => {
 		let built = false;
 		const access = jest.fn(async (target: string) => {
 			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
@@ -274,6 +274,226 @@ describe('createReleasePackReadinessHelper', () => {
 		});
 	});
 
+	it('rebuilds missing artefacts and confirms readiness', async () => {
+		let built = false;
+		const access = jest.fn(async (target: string) => {
+			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
+			) {
+				if (built) {
+					return undefined;
+				}
+
+				throw makeNoEntry(target);
+			}
+
+			if (
+				target ===
+				path.join(repoRoot, 'packages', 'cli', 'dist', 'index.js')
+			) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'index.js'
+				)
+			) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'installer.js'
+				)
+			) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'prettyPrinter',
+					'createPhpPrettyPrinter.js'
+				)
+			) {
+				return undefined;
+			}
+
+			throw makeNoEntry(target);
+		});
+
+		const exec = jest.fn(async () => {
+			built = true;
+		});
+
+		const helper = createReleasePackReadinessHelper({
+			manifest: [
+				manifest[0],
+				{
+					packageName: '@wpkernel/cli',
+					packageDir: path.join('packages', 'cli'),
+					expectedArtifacts: [path.join('dist', 'index.js')],
+				},
+			],
+			dependencies: {
+				access,
+				exec,
+				readFile: jest.fn(async (target: string) => {
+					if (
+						target ===
+						path.join(
+							repoRoot,
+							'packages',
+							'php-driver',
+							'package.json'
+						)
+					) {
+						return JSON.stringify({
+							exports: {
+								'.': {
+									import: './dist/index.js',
+								},
+							},
+						});
+					}
+
+					throw new Error(`Unexpected read: ${target}`);
+				}),
+			},
+		});
+
+		const context = createReadinessTestContext({
+			projectRoot,
+			workspaceRoot: null,
+			workspace: null,
+			cwd: projectRoot,
+		});
+
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('pending');
+
+		await helper.execute?.(context, detection.state);
+
+		const confirmation = await helper.confirm(context, detection.state);
+		expect(confirmation.status).toBe('ready');
+		expect(exec).toHaveBeenCalledWith(
+			'pnpm',
+			['--filter', '@wpkernel/example', 'build'],
+			{
+				cwd: repoRoot,
+			}
+		);
+	});
+
+	it('surfaces build failures when rebuilding artefacts', async () => {
+		const access = jest.fn(async (target: string) => {
+			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(repoRoot, 'packages', 'example', 'dist', 'index.js')
+			) {
+				throw makeNoEntry(target);
+			}
+
+			if (
+				target ===
+				path.join(
+					repoRoot,
+					'packages',
+					'cli',
+					'dist',
+					'packages',
+					'php-driver',
+					'dist',
+					'index.js'
+				)
+			) {
+				return undefined;
+			}
+
+			throw makeNoEntry(target);
+		});
+
+		const helper = createReleasePackReadinessHelper({
+			manifest,
+			dependencies: {
+				access,
+				exec: jest.fn(async () => {
+					throw new Error('build failed');
+				}),
+				readFile: jest.fn(async (target: string) => {
+					if (
+						target ===
+						path.join(
+							repoRoot,
+							'packages',
+							'php-driver',
+							'package.json'
+						)
+					) {
+						return JSON.stringify({
+							exports: {
+								'.': {
+									import: './dist/index.js',
+								},
+							},
+						});
+					}
+
+					throw new Error(`Unexpected read: ${target}`);
+				}),
+			},
+		});
+
+		const context = createReadinessTestContext({
+			projectRoot,
+			workspaceRoot: null,
+			workspace: null,
+			cwd: projectRoot,
+		});
+
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('pending');
+
+		await expect(
+			helper.execute?.(context, detection.state)
+		).rejects.toMatchObject({
+			reason: 'build.failed',
+		});
+	});
+
 	it('skips rebuilding when artefacts already exist', async () => {
 		const access = jest.fn(async (target: string) => {
 			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
@@ -350,5 +570,121 @@ describe('createReleasePackReadinessHelper', () => {
 
 		await helper.execute?.(context, detection.state);
 		expect(exec).not.toHaveBeenCalled();
+	});
+
+	it('reports missing php-driver bundle exports for the CLI package', async () => {
+		const access = jest.fn(async (target: string) => {
+			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(repoRoot, 'packages', 'cli', 'dist', 'index.js')
+			) {
+				return undefined;
+			}
+
+			throw makeNoEntry(target);
+		});
+
+		const helper = createReleasePackReadinessHelper({
+			manifest: [
+				{
+					packageName: '@wpkernel/cli',
+					packageDir: path.join('packages', 'cli'),
+					expectedArtifacts: [path.join('dist', 'index.js')],
+				},
+			],
+			dependencies: {
+				access,
+				exec: jest.fn(),
+				readFile: jest.fn(
+					async () => '{"name":"@wpkernel/php-driver"}'
+				),
+			},
+		});
+
+		const context = createReadinessTestContext({
+			projectRoot,
+			workspaceRoot: null,
+			workspace: null,
+			cwd: projectRoot,
+		});
+
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('pending');
+		expect(detection.message).toContain(
+			'@wpkernel/php-driver (exports missing)'
+		);
+	});
+
+	it('throws when php-driver package definition cannot be read', async () => {
+		const access = jest.fn(async (target: string) => {
+			if (target === path.join(repoRoot, 'pnpm-workspace.yaml')) {
+				return undefined;
+			}
+
+			if (
+				target ===
+				path.join(repoRoot, 'packages', 'cli', 'dist', 'index.js')
+			) {
+				return undefined;
+			}
+
+			throw makeNoEntry(target);
+		});
+
+		const helper = createReleasePackReadinessHelper({
+			manifest: [
+				{
+					packageName: '@wpkernel/cli',
+					packageDir: path.join('packages', 'cli'),
+					expectedArtifacts: [path.join('dist', 'index.js')],
+				},
+			],
+			dependencies: {
+				access,
+				exec: jest.fn(),
+				readFile: jest.fn(async () => {
+					throw new Error('boom');
+				}),
+			},
+		});
+
+		const context = createReadinessTestContext({
+			projectRoot,
+			workspaceRoot: null,
+			workspace: null,
+			cwd: projectRoot,
+		});
+
+		await expect(helper.detect(context)).rejects.toMatchObject({
+			code: 'DeveloperError',
+		});
+	});
+
+	it('fails when the repository root cannot be resolved', async () => {
+		const helper = createReleasePackReadinessHelper({
+			manifest,
+			dependencies: {
+				access: jest.fn(async () => {
+					throw makeNoEntry('missing');
+				}),
+				exec: jest.fn(),
+				readFile: jest.fn(async () => '{"exports":{}}'),
+			},
+		});
+
+		const context = createReadinessTestContext({
+			projectRoot,
+			workspaceRoot: null,
+			workspace: null,
+			cwd: projectRoot,
+		});
+
+		await expect(helper.detect(context)).rejects.toMatchObject({
+			code: 'DeveloperError',
+		});
 	});
 });
