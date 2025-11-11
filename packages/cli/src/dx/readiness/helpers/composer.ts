@@ -1,7 +1,9 @@
+import fs from 'node:fs/promises';
 import { execFile as execFileCallback } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { EnvironmentalError } from '@wpkernel/core/error';
+import { getCliPackageRoot } from '../../../utils/module-url';
 import { createReadinessHelper } from '../helper';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
 import type { DxContext } from '../../context';
@@ -42,6 +44,8 @@ export interface ComposerHelperDependencies {
 	readonly showPhpParserMetadata: (
 		cwd: string
 	) => Promise<ComposerShowResult>;
+	readonly resolveCliComposerRoot: () => string | null;
+	readonly pathExists: (candidate: string) => Promise<boolean>;
 }
 
 export interface ComposerHelperOverrides
@@ -49,11 +53,15 @@ export interface ComposerHelperOverrides
 	readonly installOnPending?: boolean;
 }
 
+type AutoloadSource = 'workspace' | 'cli' | null;
+
 export interface ComposerReadinessState {
 	readonly workspace: Workspace | null;
 	readonly workspaceRoot: string;
 	readonly vendorDirectory: string;
 	readonly vendorPreviouslyExisted: boolean;
+	readonly resolvedAutoloadPath: string | null;
+	readonly resolvedAutoloadSource: AutoloadSource;
 }
 
 function defaultDependencies(): ComposerHelperDependencies {
@@ -69,6 +77,30 @@ function defaultDependencies(): ComposerHelperDependencies {
 					encoding: 'utf8',
 				}
 			),
+		resolveCliComposerRoot: () => {
+			try {
+				return getCliPackageRoot();
+			} catch (_error) {
+				return null;
+			}
+		},
+		pathExists: async (candidate: string) => {
+			try {
+				await fs.access(candidate);
+				return true;
+			} catch (error) {
+				if (
+					error &&
+					typeof error === 'object' &&
+					'code' in (error as { code?: string }) &&
+					(error as { code?: string }).code === 'ENOENT'
+				) {
+					return false;
+				}
+
+				throw error;
+			}
+		},
 	} satisfies ComposerHelperDependencies;
 }
 
@@ -217,6 +249,7 @@ export function createComposerReadinessHelper(
 		const workspace = context.workspace;
 		const workspaceRoot = resolveWorkspaceRoot(context);
 		const vendorDirectory = path.join(workspaceRoot, 'vendor');
+		const autoloadRelativePath = path.join('vendor', 'autoload.php');
 
 		if (!workspace) {
 			return {
@@ -226,6 +259,8 @@ export function createComposerReadinessHelper(
 					workspaceRoot,
 					vendorDirectory,
 					vendorPreviouslyExisted: false,
+					resolvedAutoloadPath: null,
+					resolvedAutoloadSource: null,
 				},
 				message:
 					'Workspace not resolved; composer install unavailable.',
@@ -233,7 +268,15 @@ export function createComposerReadinessHelper(
 		}
 
 		const hasComposerManifest = await workspace.exists('composer.json');
-		if (!hasComposerManifest) {
+		const cliComposerRoot = dependencies.resolveCliComposerRoot();
+		const cliAutoloadPath = cliComposerRoot
+			? path.join(cliComposerRoot, autoloadRelativePath)
+			: null;
+		const hasCliAutoload = cliAutoloadPath
+			? await dependencies.pathExists(cliAutoloadPath)
+			: false;
+
+		if (!hasComposerManifest && !hasCliAutoload) {
 			return {
 				status: 'blocked',
 				state: {
@@ -241,29 +284,60 @@ export function createComposerReadinessHelper(
 					workspaceRoot,
 					vendorDirectory,
 					vendorPreviouslyExisted: false,
+					resolvedAutoloadPath: null,
+					resolvedAutoloadSource: null,
 				},
 				message:
 					'composer.json missing. Run composer init or add manifest.',
 			};
 		}
 
-		const autoloadPath = path.join('vendor', 'autoload.php');
-		const hasAutoload = await workspace.exists(autoloadPath);
+		const hasAutoload = await workspace.exists(autoloadRelativePath);
 
 		if (hasAutoload) {
 			await ensurePhpParserMetadata(workspaceRoot, dependencies);
+			return {
+				status: 'ready',
+				state: {
+					workspace,
+					workspaceRoot,
+					vendorDirectory,
+					vendorPreviouslyExisted: hasAutoload,
+					resolvedAutoloadPath:
+						workspace.resolve(autoloadRelativePath),
+					resolvedAutoloadSource: 'workspace',
+				},
+				message: 'Composer autoload detected.',
+			};
 		}
+
+		if (hasCliAutoload && cliComposerRoot && cliAutoloadPath) {
+			await ensurePhpParserMetadata(cliComposerRoot, dependencies);
+			return {
+				status: 'ready',
+				state: {
+					workspace,
+					workspaceRoot,
+					vendorDirectory,
+					vendorPreviouslyExisted: false,
+					resolvedAutoloadPath: cliAutoloadPath,
+					resolvedAutoloadSource: 'cli',
+				},
+				message: 'CLI composer autoload detected.',
+			};
+		}
+
 		return {
-			status: hasAutoload ? 'ready' : 'pending',
+			status: 'pending',
 			state: {
 				workspace,
 				workspaceRoot,
 				vendorDirectory,
-				vendorPreviouslyExisted: hasAutoload,
+				vendorPreviouslyExisted: false,
+				resolvedAutoloadPath: null,
+				resolvedAutoloadSource: null,
 			},
-			message: hasAutoload
-				? 'Composer autoload detected.'
-				: 'Install composer dependencies.',
+			message: 'Install composer dependencies.',
 		};
 	}
 
@@ -271,16 +345,33 @@ export function createComposerReadinessHelper(
 		_context: DxContext,
 		state: ComposerReadinessState
 	): Promise<ReadinessConfirmation<ComposerReadinessState>> {
-		const hasAutoload = state.workspace
+		if (state.resolvedAutoloadSource === 'cli') {
+			const autoloadPath = state.resolvedAutoloadPath;
+			const exists = autoloadPath
+				? await dependencies.pathExists(autoloadPath)
+				: false;
+			const message = exists
+				? 'CLI composer autoload ready.'
+				: 'CLI composer autoload missing.';
+
+			return {
+				status: exists ? 'ready' : 'pending',
+				state,
+				message,
+			};
+		}
+
+		const exists = state.workspace
 			? await state.workspace.exists(path.join('vendor', 'autoload.php'))
 			: false;
+		const message = exists
+			? 'Composer autoload ready.'
+			: 'Composer autoload missing.';
 
 		return {
-			status: hasAutoload ? 'ready' : 'pending',
+			status: exists ? 'ready' : 'pending',
 			state,
-			message: hasAutoload
-				? 'Composer autoload ready.'
-				: 'Composer autoload missing.',
+			message,
 		};
 	}
 

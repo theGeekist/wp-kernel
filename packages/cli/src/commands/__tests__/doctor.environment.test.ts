@@ -237,6 +237,12 @@ function createReadinessBuilder(
 				}),
 				stderr: '',
 			}),
+			resolveCliComposerRoot: jest
+				.fn<() => string | null>()
+				.mockReturnValue(null),
+			pathExists: jest
+				.fn<() => Promise<boolean>>()
+				.mockResolvedValue(false),
 			...(overrides.composer ?? {}),
 		},
 		phpRuntime: overrides.phpRuntime,
