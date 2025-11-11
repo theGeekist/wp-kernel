@@ -1,14 +1,20 @@
-import { createPhpPluginLoaderHelper } from '../pluginLoader';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { AUTO_GUARD_BEGIN, resetPhpAstChannel } from '@wpkernel/wp-json-ast';
+import { createPhpPluginLoaderHelper } from '../entry.plugin';
+import {
+	AUTO_GUARD_BEGIN,
+	resetPhpAstChannel,
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '@wpkernel/wp-json-ast';
 import {
 	createBuilderInput,
 	createBuilderOutput,
 	createMinimalIr,
 	createPipelineContext,
-} from '../../../../tests/test-support/php-builder.test-support';
-import type { IRResource } from '../../../ir/publicTypes';
+} from '../test-support/php-builder.test-support';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
+import type { ResourceConfig, ResourceRoutes } from '@wpkernel/core/resource';
+import { buildDataViewsConfig } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {
@@ -49,7 +55,16 @@ describe('createPhpPluginLoaderHelper', () => {
 				autoload: 'inc/',
 				outputDir: '.generated/php',
 			},
-			resources: [makeResource('books'), makeResource('authors')],
+			resources: [
+				makeResource({
+					name: 'books',
+					routes: [makeRoute({ path: '/kernel/v1/books' })],
+				}),
+				makeResource({
+					name: 'authors',
+					routes: [makeRoute({ path: '/kernel/v1/authors' })],
+				}),
+			],
 		});
 
 		await helper.apply(
@@ -79,10 +94,21 @@ describe('createPhpPluginLoaderHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpPluginLoaderHelper();
-		const dataviewsConfig = {
+		const dataviewsConfig = buildDataViewsConfig({
 			preferencesKey: 'books/admin',
-			screen: { menu: { slug: 'books', title: 'Books' } },
-		} as unknown;
+			screen: {
+				menu: { slug: 'books', title: 'Books' },
+			},
+		});
+		const dataviewsResourceConfig: ResourceConfig = {
+			name: 'books',
+			routes: {} as ResourceRoutes,
+			ui: {
+				admin: {
+					dataviews: dataviewsConfig,
+				},
+			},
+		};
 		const ir = createMinimalIr({
 			meta: {
 				sanitizedNamespace: 'demo-plugin',
@@ -90,24 +116,16 @@ describe('createPhpPluginLoaderHelper', () => {
 				namespace: 'demo-plugin',
 			},
 			config: {
-				version: 1,
-				namespace: 'demo-plugin',
 				resources: {
-					books: {
-						name: 'books',
-						schema: 'manual',
-						routes: {},
-						cacheKeys: {},
-						ui: {
-							admin: {
-								dataviews: dataviewsConfig,
-							},
-						},
-					} as unknown,
+					books: dataviewsResourceConfig,
 				},
-				schemas: {},
 			},
-			resources: [makeResource('books')],
+			resources: [
+				makeResource({
+					name: 'books',
+					routes: [makeRoute({ path: '/kernel/v1/books' })],
+				}),
+			],
 		});
 
 		await helper.apply(
@@ -144,7 +162,12 @@ describe('createPhpPluginLoaderHelper', () => {
 				autoload: 'src/php/',
 				outputDir: '.generated/php',
 			},
-			resources: [makeResource('jobs')],
+			resources: [
+				makeResource({
+					name: 'jobs',
+					routes: [makeRoute({ path: '/kernel/v1/jobs' })],
+				}),
+			],
 		});
 
 		await helper.apply(
@@ -229,25 +252,3 @@ describe('createPhpPluginLoaderHelper', () => {
 		expect(entry).toBeDefined();
 	});
 });
-
-function makeResource(name: string): IRResource {
-	return {
-		name,
-		schemaKey: `${name}.schema`,
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: `/kernel/v1/${name}`,
-				transport: 'local',
-				hash: `${name}-get`,
-			},
-		],
-		cacheKeys: {
-			list: { segments: [], source: 'default' },
-			get: { segments: [], source: 'default' },
-		},
-		hash: `${name}-hash`,
-		warnings: [],
-	} as IRResource;
-}

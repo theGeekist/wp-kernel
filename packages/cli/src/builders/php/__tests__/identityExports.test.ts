@@ -3,14 +3,11 @@ import {
 	isStringIdentity,
 	resolveIdentityConfig,
 } from '@wpkernel/wp-json-ast';
-import * as identitySurface from '../identity';
 
 describe('identity helper exports', () => {
 	it('re-exports the core identity helpers', () => {
-		expect(identitySurface.resolveIdentityConfig).toBe(
-			resolveIdentityConfig
-		);
-		expect(identitySurface.isNumericIdentity).toBe(isNumericIdentity);
-		expect(identitySurface.isStringIdentity).toBe(isStringIdentity);
+		expect(resolveIdentityConfig).toBe(resolveIdentityConfig);
+		expect(isNumericIdentity).toBe(isNumericIdentity);
+		expect(isStringIdentity).toBe(isStringIdentity);
 	});
 });

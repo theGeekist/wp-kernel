@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createJsBlocksBuilder } from '../blocks';
+import { createJsBlocksBuilder } from '../block.artifacts';
 import type { IRResource, IRSchema, IRv1 } from '../../../ir/publicTypes';
 import {
 	withWorkspace as baseWithWorkspace,

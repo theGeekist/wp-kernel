@@ -10,6 +10,19 @@ import type {
 	BuilderOutput,
 } from '../runtime/types';
 import type { Workspace } from '../workspace/types';
+import {
+	type PatchPlan,
+	type PatchInstruction,
+	type PatchManifest,
+	type PatchRecord,
+	type ProcessInstructionOptions,
+	type PatchDeletionResult,
+	type PatchPlanDeletionSkip,
+	type ProcessDeleteInstructionOptions,
+	type ProcessPlanInstructionsOptions,
+	type RecordPlanSkippedDeletionsOptions,
+	type ReportDeletionSummaryOptions,
+} from './types';
 
 const execFileAsync = promisify(execFile);
 
@@ -26,54 +39,6 @@ function normaliseRelativePath(file: string): string {
 	}
 
 	return normalised.replace(/^\.\//, '').replace(/^\/+/, '');
-}
-
-type PatchInstruction =
-	| {
-			readonly action?: 'write';
-			readonly file: string;
-			readonly base: string;
-			readonly incoming: string;
-			readonly description?: string;
-	  }
-	| {
-			readonly action: 'delete';
-			readonly file: string;
-			readonly description?: string;
-	  };
-
-interface PatchPlan {
-	readonly instructions: readonly PatchInstruction[];
-	readonly skippedDeletions: readonly PatchPlanDeletionSkip[];
-}
-
-type PatchStatus = 'applied' | 'conflict' | 'skipped';
-
-interface PatchRecord {
-	readonly file: string;
-	readonly status: PatchStatus;
-	readonly description?: string;
-	readonly details?: Record<string, unknown>;
-}
-
-interface PatchManifest {
-	readonly summary: {
-		applied: number;
-		conflicts: number;
-		skipped: number;
-	};
-	readonly records: PatchRecord[];
-	actions: string[];
-}
-
-interface ProcessInstructionOptions {
-	readonly workspace: Workspace;
-	readonly instruction: PatchInstruction;
-	readonly manifest: PatchManifest;
-	readonly output: BuilderOutput;
-	readonly reporter: BuilderApplyOptions['reporter'];
-	readonly deletedFiles: string[];
-	readonly skippedDeletions: PatchDeletionResult[];
 }
 
 async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
@@ -138,17 +103,6 @@ function normaliseInstruction(value: unknown): PatchInstruction | null {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
-
-interface PatchPlanDeletionSkip {
-	readonly file: string;
-	readonly description?: string;
-	readonly reason?: string;
-}
-
-interface PatchDeletionResult {
-	readonly file: string;
-	readonly reason: string;
 }
 
 function normaliseSkippedDeletions(
@@ -315,92 +269,11 @@ function recordResult(manifest: PatchManifest, record: PatchRecord): void {
 	}
 }
 
-/**
- * Creates a builder helper for applying patches to the workspace.
- *
- * This helper reads a patch plan, applies file modifications (writes, merges, deletions)
- * based on the plan, and records the outcome in a patch manifest.
- * It uses `git merge-file` for intelligent three-way merges to handle conflicts.
- *
- * @category AST Builders
- * @returns A `BuilderHelper` instance for applying patches.
- */
-export function createPatcher(): BuilderHelper {
-	return createHelper({
-		key: 'builder.apply.patch.core',
-		kind: 'builder',
-		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
-			if (input.phase !== 'apply') {
-				reporter.debug('createPatcher: skipping phase.', {
-					phase: input.phase,
-				});
-				return;
-			}
-
-			const plan = await readPlan(context.workspace);
-
-			if (!hasPlanInstructions(plan)) {
-				reporter.debug('createPatcher: no patch instructions found.');
-				return;
-			}
-
-			const manifest = buildEmptyManifest();
-			const deletedFiles: string[] = [];
-			const skippedDeletions: PatchDeletionResult[] = [];
-
-			recordPlanSkippedDeletions({ manifest, plan, reporter });
-
-			await processPlanInstructions({
-				plan,
-				workspace: context.workspace,
-				manifest,
-				output,
-				reporter,
-				deletedFiles,
-				skippedDeletions,
-			});
-
-			const actionFiles = [
-				...output.actions.map((action) => action.file),
-				...deletedFiles,
-				PATCH_MANIFEST_PATH,
-			];
-			manifest.actions = Array.from(new Set(actionFiles));
-
-			await context.workspace.writeJson(PATCH_MANIFEST_PATH, manifest, {
-				pretty: true,
-			});
-			await queueWorkspaceFile(
-				context.workspace,
-				output,
-				PATCH_MANIFEST_PATH
-			);
-
-			reportDeletionSummary({
-				plan,
-				reporter,
-				deletedFiles,
-				skippedDeletions,
-			});
-
-			reporter.info('createPatcher: completed patch application.', {
-				summary: manifest.summary,
-			});
-		},
-	});
-}
-
 function hasPlanInstructions(plan: PatchPlan | null): plan is PatchPlan {
 	return Boolean(
 		plan &&
 			(plan.instructions.length > 0 || plan.skippedDeletions.length > 0)
 	);
-}
-
-interface RecordPlanSkippedDeletionsOptions {
-	readonly manifest: PatchManifest;
-	readonly plan: PatchPlan;
-	readonly reporter: BuilderApplyOptions['reporter'];
 }
 
 function recordPlanSkippedDeletions({
@@ -434,16 +307,6 @@ function recordPlanSkippedDeletions({
 	);
 }
 
-interface ProcessPlanInstructionsOptions {
-	readonly plan: PatchPlan;
-	readonly workspace: Workspace;
-	readonly manifest: PatchManifest;
-	readonly output: BuilderOutput;
-	readonly reporter: BuilderApplyOptions['reporter'];
-	readonly deletedFiles: string[];
-	readonly skippedDeletions: PatchDeletionResult[];
-}
-
 async function processPlanInstructions({
 	plan,
 	workspace,
@@ -464,13 +327,6 @@ async function processPlanInstructions({
 			skippedDeletions,
 		});
 	}
-}
-
-interface ReportDeletionSummaryOptions {
-	readonly plan: PatchPlan;
-	readonly reporter: BuilderApplyOptions['reporter'];
-	readonly deletedFiles: readonly string[];
-	readonly skippedDeletions: readonly PatchDeletionResult[];
 }
 
 function reportDeletionSummary({
@@ -610,15 +466,6 @@ async function processInstruction({
 	reporter.debug('createPatcher: patch applied.', { file });
 }
 
-interface ProcessDeleteInstructionOptions {
-	readonly workspace: Workspace;
-	readonly instruction: Extract<PatchInstruction, { action: 'delete' }>;
-	readonly manifest: PatchManifest;
-	readonly reporter: BuilderApplyOptions['reporter'];
-	readonly deletedFiles: string[];
-	readonly skippedDeletions: PatchDeletionResult[];
-}
-
 async function processDeleteInstruction({
 	workspace,
 	instruction,
@@ -711,5 +558,80 @@ async function processDeleteInstruction({
 	});
 	reporter.debug('createPatcher: removed file via deletion instruction.', {
 		file,
+	});
+}
+
+/**
+ * Creates a builder helper for applying patches to the workspace.
+ *
+ * This helper reads a patch plan, applies file modifications (writes, merges, deletions)
+ * based on the plan, and records the outcome in a patch manifest.
+ * It uses `git merge-file` for intelligent three-way merges to handle conflicts.
+ *
+ * @category AST Builders
+ * @returns A `BuilderHelper` instance for applying patches.
+ */
+export function createPatcher(): BuilderHelper {
+	return createHelper({
+		key: 'builder.apply.patch.core',
+		kind: 'builder',
+		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
+			if (input.phase !== 'apply') {
+				reporter.debug('createPatcher: skipping phase.', {
+					phase: input.phase,
+				});
+				return;
+			}
+
+			const plan = await readPlan(context.workspace);
+
+			if (!hasPlanInstructions(plan)) {
+				reporter.debug('createPatcher: no patch instructions found.');
+				return;
+			}
+
+			const manifest = buildEmptyManifest();
+			const deletedFiles: string[] = [];
+			const skippedDeletions: PatchDeletionResult[] = [];
+
+			recordPlanSkippedDeletions({ manifest, plan, reporter });
+
+			await processPlanInstructions({
+				plan,
+				workspace: context.workspace,
+				manifest,
+				output,
+				reporter,
+				deletedFiles,
+				skippedDeletions,
+			});
+
+			const actionFiles = [
+				...output.actions.map((action) => action.file),
+				...deletedFiles,
+				PATCH_MANIFEST_PATH,
+			];
+			manifest.actions = Array.from(new Set(actionFiles));
+
+			await context.workspace.writeJson(PATCH_MANIFEST_PATH, manifest, {
+				pretty: true,
+			});
+			await queueWorkspaceFile(
+				context.workspace,
+				output,
+				PATCH_MANIFEST_PATH
+			);
+
+			reportDeletionSummary({
+				plan,
+				reporter,
+				deletedFiles,
+				skippedDeletions,
+			});
+
+			reporter.info('createPatcher: completed patch application.', {
+				summary: manifest.summary,
+			});
+		},
 	});
 }

@@ -41,45 +41,18 @@ import {
 	type GenerationManifestDiff,
 	diffGenerationState,
 } from '../apply/manifest';
+import {
+	type PlanFile,
+	type PlanInstruction,
+	type PlanDeletionSkip,
+	type BuildShimOptions,
+} from './types';
 
 const PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PLAN_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
 const PLAN_INCOMING_ROOT = path.posix.join('.wpk', 'apply', 'incoming');
 
 const PLAN_PRETTY_PRINT_SCRIPT_PATH = resolvePrettyPrintScriptPath();
-
-type PlanInstruction =
-	| {
-			readonly action: 'write';
-			readonly file: string;
-			readonly base: string;
-			readonly incoming: string;
-			readonly description: string;
-	  }
-	| {
-			readonly action: 'delete';
-			readonly file: string;
-			readonly description: string;
-	  };
-
-interface PlanDeletionSkip {
-	readonly file: string;
-	readonly description: string;
-	readonly reason: 'missing-base' | 'missing-target' | 'modified-target';
-}
-
-interface PlanFile {
-	readonly instructions: readonly PlanInstruction[];
-	readonly skippedDeletions: readonly PlanDeletionSkip[];
-}
-
-interface BuildShimOptions {
-	readonly ir: IRv1;
-	readonly resource: IRResource;
-	readonly className: string;
-	readonly generatedClassFqn: string;
-	readonly requirePath: string;
-}
 
 /**
  * Creates a builder helper for generating an apply plan.

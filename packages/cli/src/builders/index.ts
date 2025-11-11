@@ -1,12 +1,14 @@
 export { createBundler } from './bundler';
 export { createPhpBuilder } from './php';
-export type {
-	CreatePhpBuilderOptions,
-	PhpDriverConfigurationOptions,
-} from './php';
-export { createTsBuilder } from './ts';
-export { createTsCapabilityBuilder } from './ts/capability-builder';
-export { createTsIndexBuilder } from './ts/index-builder';
+export type { CreatePhpBuilderOptions } from './php';
+export type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
+export {
+	createTsBuilder,
+	createTsCapabilityBuilder,
+	createTsIndexBuilder,
+	createJsBlocksBuilder,
+	buildTsFormatter,
+} from './ts';
 export type {
 	CreateTsBuilderOptions,
 	TsBuilderCreator,
@@ -15,8 +17,7 @@ export type {
 	TsBuilderAfterEmitOptions,
 	TsBuilderEmitOptions,
 	ResourceDescriptor,
-} from './ts';
-export { createJsBlocksBuilder } from './ts/blocks';
+} from './types';
 export { createPatcher } from './patcher';
 export { createApplyPlanBuilder } from './plan';
 export { createPhpDriverInstaller } from '@wpkernel/php-driver';

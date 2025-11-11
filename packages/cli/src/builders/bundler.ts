@@ -8,6 +8,13 @@ import type {
 	PipelineContext,
 } from '../runtime/types';
 import type { Workspace } from '../workspace/types';
+import {
+	type PackageJsonLike,
+	type RollupDriverArtifacts,
+	type AssetManifestUIEntry,
+	type RollupDriverConfig,
+	type AssetManifest,
+} from './types';
 
 const BUNDLER_TRANSACTION_LABEL = 'builder.generate.bundler.core';
 const BUNDLER_CONFIG_PATH = path.posix.join('.wpk', 'bundler', 'config.json');
@@ -43,54 +50,16 @@ const REACT_EXTERNALS = [
 	'react/jsx-dev-runtime',
 ];
 
-interface PackageJsonLike {
-	readonly name?: string;
-	readonly version?: string;
-	readonly peerDependencies?: Record<string, string>;
-	readonly dependencies?: Record<string, string>;
-}
-
-interface RollupDriverConfig {
-	readonly driver: 'rollup';
-	readonly input: Record<string, string>;
-	readonly outputDir: string;
-	readonly format: 'esm';
-	readonly external: readonly string[];
-	readonly globals: Record<string, string>;
-	readonly alias: readonly {
-		readonly find: string;
-		readonly replacement: string;
-	}[];
-	readonly sourcemap: {
-		readonly development: boolean;
-		readonly production: boolean;
-	};
-	readonly optimizeDeps: { readonly exclude: readonly string[] };
-	readonly assetManifest: { readonly path: string };
-}
-
-interface AssetManifestUIEntry {
-	readonly handle: string;
-	readonly asset: string;
-	readonly script: string;
-}
-
-interface AssetManifest {
-	readonly entry: string;
-	readonly dependencies: readonly string[];
-	readonly version: string;
-	readonly ui?: AssetManifestUIEntry;
-}
-
-interface RollupDriverArtifacts {
-	readonly config: RollupDriverConfig;
-	readonly assetManifest: AssetManifest;
-}
-
 function sortUnique(values: Iterable<string>): string[] {
 	return Array.from(new Set(values)).sort();
 }
 
+/**
+ * Converts a dependency slug into the matching `wp.foo` global name.
+ *
+ * @param    slug
+ * @category AST Builders
+ */
 export function toWordPressGlobal(slug: string): string {
 	const segments = slug.split('-');
 	const formatted = segments
@@ -146,6 +115,13 @@ export function buildExternalList(pkg: PackageJsonLike | null): string[] {
 	]);
 }
 
+/**
+ * Maps external module IDs to the globals Rollup should reference.
+ *
+ * @category AST Builders
+ * @param    externals - The list of externalized package names.
+ * @returns Record of module ID → global expression.
+ */
 export function buildGlobalsMap(
 	externals: readonly string[]
 ): Record<string, string> {
