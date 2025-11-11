@@ -1,16 +1,55 @@
 import path from 'node:path';
+import os from 'node:os';
 import { spawn } from 'node:child_process';
+import { mkdtemp, rename, rm } from 'node:fs/promises';
 
 jest.setTimeout(20000);
 
 describe('wpk bin', () => {
-	it('falls back to TypeScript sources when dist artifacts are unavailable', async () => {
+	it('runs from the compiled dist bundle when artifacts are present', async () => {
 		const binPath = path.join(__dirname, '../../../bin/wpk.js');
-		const result = await runCli(binPath, ['--help'], {
-			WPK_CLI_FORCE_SOURCE: '1',
-		});
+		const result = await runCli(binPath, ['--help']);
 
 		expect(result.stdout).toContain('WPKernel CLI entry point');
+	});
+
+	it('instructs developers to build when dist artifacts are unavailable', async () => {
+		const binPath = path.join(__dirname, '../../../bin/wpk.js');
+		const distDir = path.join(__dirname, '../../../dist');
+		const tmpRoot = await mkdtemp(path.join(os.tmpdir(), 'wpk-cli-dist-'));
+		const backupDist = path.join(tmpRoot, 'dist-backup');
+
+		let restored = false;
+
+		try {
+			await rename(distDir, backupDist);
+			restored = true;
+		} catch (error) {
+			if (
+				!(
+					error &&
+					typeof error === 'object' &&
+					'code' in error &&
+					error.code === 'ENOENT'
+				)
+			) {
+				throw error;
+			}
+		}
+
+		try {
+			await expect(runCli(binPath, ['--help'])).rejects.toThrow(
+				/missing compiled CLI artifacts/i
+			);
+		} finally {
+			if (restored) {
+				await rename(backupDist, distDir);
+			}
+
+			await rm(tmpRoot, { recursive: true, force: true }).catch(
+				() => undefined
+			);
+		}
 	});
 });
 

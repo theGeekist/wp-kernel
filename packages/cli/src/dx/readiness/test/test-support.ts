@@ -98,7 +98,6 @@ export function createReadinessTestContext({
 			cwd,
 			projectRoot,
 			workspaceRoot,
-			flags: { forceSource: false },
 		},
 	} satisfies DxContext;
 }

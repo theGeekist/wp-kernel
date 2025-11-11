@@ -20,16 +20,6 @@ Directory where the CLI process was invoked.
 
 ---
 
-### flags
-
-```ts
-readonly flags: DxRuntimeFlags;
-```
-
-Feature flags toggled by the current runtime.
-
----
-
 ### projectRoot
 
 ```ts

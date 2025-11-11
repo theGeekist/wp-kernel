@@ -150,8 +150,8 @@ export function buildCliIntegrationEnv(
 	env.NODE_ENV = 'test';
 	env.FORCE_COLOR = '0';
 
-	if (!('WPK_CLI_FORCE_SOURCE' in env)) {
-		env.WPK_CLI_FORCE_SOURCE = '1';
+	if ('WPK_CLI_FORCE_SOURCE' in env) {
+		delete env.WPK_CLI_FORCE_SOURCE;
 	}
 
 	return buildPhpIntegrationEnv(env);

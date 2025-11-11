@@ -24,7 +24,6 @@ describe('ReadinessRegistry', () => {
 				cwd: process.cwd(),
 				projectRoot: process.cwd(),
 				workspaceRoot: null,
-				flags: { forceSource: false },
 			},
 			...overrides,
 		} satisfies DxContext;

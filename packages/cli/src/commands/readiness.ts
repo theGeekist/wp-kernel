@@ -38,9 +38,6 @@ function buildContext(
 			cwd,
 			projectRoot: getCliPackageRoot(),
 			workspaceRoot,
-			flags: {
-				forceSource: process.env.WPK_CLI_FORCE_SOURCE === '1',
-			},
 		},
 	} satisfies DxContext;
 }

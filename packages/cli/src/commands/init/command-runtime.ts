@@ -119,9 +119,6 @@ export function createInitCommandRuntime(
 			cwd,
 			projectRoot: getCliPackageRoot(),
 			workspaceRoot: options.workspaceRoot,
-			flags: {
-				forceSource: process.env.WPK_CLI_FORCE_SOURCE === '1',
-			},
 		},
 	};
 

@@ -24,7 +24,7 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "vite build && tsc --project tsconfig.json",
+		"build": "vite build && tsc --project tsconfig.json --noEmit",
 		"clean": "rm -rf dist dist-tests *.tsbuildinfo",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",

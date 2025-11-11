@@ -132,16 +132,11 @@ async function runBootstrapper(
 
 	const command = process.execPath;
 	const args = [bootstrapperPath, '--', '--help'];
-	const env = {
-		...process.env,
-		WPK_CLI_FORCE_SOURCE: '0',
-	} satisfies NodeJS.ProcessEnv;
-
 	try {
 		const startedAt = performance.now();
 		const { stdout, stderr } = await dependencies.exec(command, args, {
 			cwd: tmpDir,
-			env,
+			env: process.env,
 		});
 		const durationMs = Math.round(performance.now() - startedAt);
 

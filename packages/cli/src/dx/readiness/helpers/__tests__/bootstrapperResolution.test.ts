@@ -123,9 +123,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 			[bootstrapperPath, '--', '--help'],
 			expect.objectContaining({
 				cwd: '/tmp/wpk-bootstrapper-123',
-				env: expect.objectContaining({
-					WPK_CLI_FORCE_SOURCE: '0',
-				}),
+				env: process.env,
 			})
 		);
 

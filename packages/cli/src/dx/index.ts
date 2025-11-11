@@ -1,2 +1,2 @@
-export type { DxContext, DxEnvironment, DxRuntimeFlags } from './context';
+export type { DxContext, DxEnvironment } from './context';
 export * from './readiness';

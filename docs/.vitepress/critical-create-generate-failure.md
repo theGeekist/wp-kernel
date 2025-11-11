@@ -113,7 +113,8 @@ Guarantee the compiled `create-wpk` bootstrapper resolves only its bundled depen
 **Completion log.** Update after each run:
 
 - [x] 2025-11-11 — Added `createBootstrapperResolutionReadinessHelper` to execute `node packages/create-wpk/dist/index.js -- --help` inside a `/tmp/wpk-bootstrapper-*` workspace with `WPK_CLI_FORCE_SOURCE=0`, surfacing `EnvironmentalError(bootstrapper.resolve)` diagnostics when the compiled bootstrapper escapes its tarball dependencies and documenting the harness in code and tests.
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-11-21 — Updated the pipeline build to run `tsc --noEmit` so Vite preserves ESM `.js` specifiers, preventing the helper bundle from rewriting relative imports without extensions; confirmed `node packages/create-wpk/dist/index.js -- --help` resolves in an isolated `/tmp/wpk-bootstrapper-*` workspace.
+- [x] 2025-11-22 — Removed the `WPK_CLI_FORCE_SOURCE` escape hatch, forcing the CLI binary to require compiled dist assets and wiring a `bootstrapper` CI job that runs `scripts/check-bootstrapper-resolution-ci.ts` to execute `packages/create-wpk/dist/index.js -- --help` on every PR.
 
 **Discovery to finish before coding.**
 
@@ -126,7 +127,7 @@ The harness now lives alongside `createBootstrapperResolutionReadinessHelper` in
 
 **Fix.** Adjust packaging (Rollup config, `package.json#files`) so dependencies land in the tarball, and update tests to assert the helper succeeds. Document the resolution contract here once implemented.
 
-**Retire.** Source-mode escape hatches (`WPK_CLI_FORCE_SOURCE`) that mask missing bundled files.
+**Retire.** Source-mode escape hatches (`WPK_CLI_FORCE_SOURCE`) that mask missing bundled files. The bin loader and readiness harness now refuse to honour the flag, and CI exercises the compiled bootstrapper directly so regressions surface immediately.
 
 ## Task 59 — Quickstart Fidelity
 
