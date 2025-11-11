@@ -199,6 +199,8 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 `createPhpPrinterPathReadinessHelper` now aligns runtime and module resolution by probing canonical paths, raising `EnvironmentalError(php.printerPath.mismatch)` when they diverge. Unit coverage exercises missing runtime assets, resolver failures, and mismatched canonical paths to keep the readiness signal deterministic.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
 
+`createPhpPrinterPathReadinessHelper` now aligns runtime and module resolution by probing canonical paths, raising `EnvironmentalError(php.printerPath.mismatch)` when they diverge. Unit coverage exercises missing runtime assets, resolver failures, and mismatched canonical paths to keep the readiness signal deterministic.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
+
 **Retire.** Hard-coded dist paths to non-existent assets.
 
 ### 61b — Tarball audit & docs
