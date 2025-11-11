@@ -183,7 +183,8 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-02-15 — Added the `php-printer-path` readiness helper to compare runtime and module resolutions with canonical `realpath` probes and unit coverage for missing asset and mismatch diagnostics.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
+- [x] 2025-02-15 — Packed tarball audit now runs `pnpm --filter @wpkernel/php-driver pack --json` plus `tar -tf` to assert the bundle ships `php/pretty-print.php` alongside compiled dist artefacts, with README guidance documenting the expected layout.【F:packages/cli/src/dx/readiness/helpers/**tests**/phpDriverTarball.test.ts†L1-L88】【F:packages/php-driver/README.md†L5-L17】
 
 **Discovery to finish before coding.**
 
@@ -196,6 +197,8 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 **Fix.** Update package exports and bundler configs so the helper passes in both environments. Cover with source and packed install tests.
 
+`createPhpPrinterPathReadinessHelper` now aligns runtime and module resolution by probing canonical paths, raising `EnvironmentalError(php.printerPath.mismatch)` when they diverge. Unit coverage exercises missing runtime assets, resolver failures, and mismatched canonical paths to keep the readiness signal deterministic.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
+
 **Retire.** Hard-coded dist paths to non-existent assets.
 
 ### 61b — Tarball audit & docs
@@ -203,6 +206,8 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 **Probe.** Expand the helper coverage to inspect the packed tarball contents directly (e.g., via `tar -tf`) ensuring PHP assets are present.
 
 **Fix.** Document the expected asset layout here and in the php-driver README. Record audit steps for future releases.
+
+An integration test packs `@wpkernel/php-driver` into a temp workspace, parses the JSON pack manifest, and shells into `tar -tf` to confirm `package/php/pretty-print.php` ships with `package/dist/index.js`, while the php-driver README captures the canonical layout for release reviews.【F:packages/cli/src/dx/readiness/helpers/**tests**/phpDriverTarball.test.ts†L1-L88】【F:packages/php-driver/README.md†L5-L17】
 
 **Retire.** Unverified asset lists.
 

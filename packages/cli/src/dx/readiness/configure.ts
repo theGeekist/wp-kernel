@@ -4,6 +4,7 @@ import {
 	createComposerReadinessHelper,
 	createGitReadinessHelper,
 	createPhpDriverReadinessHelper,
+	createPhpPrinterPathReadinessHelper,
 	createPhpRuntimeReadinessHelper,
 	createBootstrapperResolutionReadinessHelper,
 	createReleasePackReadinessHelper,
@@ -12,6 +13,7 @@ import {
 	type ComposerHelperOverrides,
 	type GitHelperDependencies,
 	type PhpDriverDependencies,
+	type PhpPrinterPathDependencies,
 	type PhpRuntimeDependencies,
 	type BootstrapperResolutionHelperOptions,
 	type ReleasePackHelperOptions,
@@ -26,6 +28,7 @@ export interface DefaultReadinessHelperOverrides {
 	readonly composer?: ComposerHelperOverrides;
 	readonly phpRuntime?: Partial<PhpRuntimeDependencies>;
 	readonly phpDriver?: Partial<PhpDriverDependencies>;
+	readonly phpPrinterPath?: Partial<PhpPrinterPathDependencies>;
 	readonly tsxRuntime?: Partial<TsxRuntimeDependencies>;
 	readonly workspaceHygiene?: Partial<WorkspaceHygieneDependencies>;
 	readonly releasePack?: ReleasePackHelperOptions;
@@ -43,6 +46,7 @@ export const DEFAULT_READINESS_ORDER: ReadonlyArray<ReadinessKey> = [
 	'composer',
 	'php-runtime',
 	'php-driver',
+	'php-printer-path',
 	'tsx-runtime',
 	'release-pack',
 	'bootstrapper-resolution',
@@ -60,6 +64,9 @@ export function registerDefaultReadinessHelpers(
 	registry.register(createComposerReadinessHelper(overrides.composer));
 	registry.register(createPhpRuntimeReadinessHelper(overrides.phpRuntime));
 	registry.register(createPhpDriverReadinessHelper(overrides.phpDriver));
+	registry.register(
+		createPhpPrinterPathReadinessHelper(overrides.phpPrinterPath)
+	);
 	registry.register(createTsxRuntimeReadinessHelper(overrides.tsxRuntime));
 	registry.register(createReleasePackReadinessHelper(overrides.releasePack));
 	registry.register(

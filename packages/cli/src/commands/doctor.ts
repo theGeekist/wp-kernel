@@ -103,6 +103,7 @@ const DOCTOR_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
 	'composer',
 	'php-runtime',
 	'php-driver',
+	'php-printer-path',
 ];
 
 const READINESS_LABELS: Record<ReadinessKey, string> = {
@@ -110,6 +111,7 @@ const READINESS_LABELS: Record<ReadinessKey, string> = {
 	composer: 'Composer dependencies',
 	'php-runtime': 'PHP runtime',
 	'php-driver': 'PHP driver',
+	'php-printer-path': 'PHP printer path',
 	'release-pack': 'Release pack chain',
 	'bootstrapper-resolution': 'Bootstrapper resolution',
 	git: 'Git repository',
