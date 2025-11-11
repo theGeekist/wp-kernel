@@ -72,8 +72,6 @@ function main(): void {
 
 	runCommand('pnpm', ['build'], repoRoot);
 	runCommand('pnpm', ['docs:build'], repoRoot);
-	runCommand('pnpm', ['release:verify'], repoRoot);
-
 	printDiffSummary(repoRoot);
 	console.log(
 		'\nReview the diff above to confirm only generated artifacts and release metadata changed.'
