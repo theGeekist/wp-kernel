@@ -2,17 +2,6 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import type { Workspace } from '../workspace';
 
 /**
- * Runtime flags exposed to DX readiness helpers.
- *
- * These flags mirror the environment toggles that the CLI exposes while
- * running inside the monorepo versus the published npm artifact.
- */
-export interface DxRuntimeFlags {
-	/** Forces helpers to resolve assets from the source tree. */
-	readonly forceSource: boolean;
-}
-
-/**
  * Environment metadata shared with readiness helpers.
  */
 export interface DxEnvironment {
@@ -26,8 +15,6 @@ export interface DxEnvironment {
 	 * to scaffolding).
 	 */
 	readonly workspaceRoot: string | null;
-	/** Feature flags toggled by the current runtime. */
-	readonly flags: DxRuntimeFlags;
 }
 
 /**

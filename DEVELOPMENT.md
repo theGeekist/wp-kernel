@@ -95,18 +95,19 @@ pnpm e2e --project chromium
 
 ## 🔧 Core Scripts Cheat Sheet
 
-| Task             | Script                                                                  | VS Code Task                     | Purpose                                                                   |
-| ---------------- | ----------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------- |
-| **Setup**        | `pnpm install`                                                          | Tasks: Install                   | Install all dependencies                                                  |
-| **Build**        | `pnpm build`                                                            | Tasks: Build All                 | One-shot production build                                                 |
-| **Dev mode**     | `pnpm dev`                                                              | Tasks: Dev: Watch All            | Rebuild packages on changes                                               |
-| **WordPress**    | `pnpm wp:fresh`                                                         | Tasks: WordPress: Fresh Start    | Start WP + seed test data                                                 |
-| **Unit tests**   | `pnpm test`                                                             | Tasks: Test: Unit Tests          | Jest tests (no WordPress)                                                 |
-| **E2E tests**    | `pnpm e2e`                                                              | Tasks: Test: E2E Tests           | Playwright (headless) - **run from root only**                            |
-| **E2E debug**    | `pnpm e2e:ui`                                                           | Tasks: Test: E2E Tests (UI)      | Playwright with UI - **run from root only**                               |
-| **Format**       | `pnpm format`                                                           | Tasks: Format                    | Prettier code formatting                                                  |
-| **Type check**   | `pnpm typecheck`                                                        | Tasks: TypeCheck: All            | TypeScript validation                                                     |
-| **Release gate** | `pnpm --filter @wpkernel/cli exec tsx scripts/check-release-pack-ci.ts` | Workflow: Release Pack Readiness | Deterministic publish-order + artefact verification (same helper CI runs) |
+| Task                  | Script                                                                             | VS Code Task                      | Purpose                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------- |
+| **Setup**             | `pnpm install`                                                                     | Tasks: Install                    | Install all dependencies                                                  |
+| **Build**             | `pnpm build`                                                                       | Tasks: Build All                  | One-shot production build                                                 |
+| **Dev mode**          | `pnpm dev`                                                                         | Tasks: Dev: Watch All             | Rebuild packages on changes                                               |
+| **WordPress**         | `pnpm wp:fresh`                                                                    | Tasks: WordPress: Fresh Start     | Start WP + seed test data                                                 |
+| **Unit tests**        | `pnpm test`                                                                        | Tasks: Test: Unit Tests           | Jest tests (no WordPress)                                                 |
+| **E2E tests**         | `pnpm e2e`                                                                         | Tasks: Test: E2E Tests            | Playwright (headless) - **run from root only**                            |
+| **E2E debug**         | `pnpm e2e:ui`                                                                      | Tasks: Test: E2E Tests (UI)       | Playwright with UI - **run from root only**                               |
+| **Format**            | `pnpm format`                                                                      | Tasks: Format                     | Prettier code formatting                                                  |
+| **Type check**        | `pnpm typecheck`                                                                   | Tasks: TypeCheck: All             | TypeScript validation                                                     |
+| **Release gate**      | `pnpm --filter @wpkernel/cli exec tsx scripts/check-release-pack-ci.ts`            | Workflow: Release Pack Readiness  | Deterministic publish-order + artefact verification (same helper CI runs) |
+| **Bootstrapper gate** | `pnpm --filter @wpkernel/cli exec tsx scripts/check-bootstrapper-resolution-ci.ts` | Workflow: Bootstrapper Resolution | Executes the compiled create-wpk bootstrapper in an isolated workspace    |
 
 > **💡 Pro Tip**: Use VS Code tasks (`Cmd+Shift+P` → "Run Task") - they're pre-configured and more reliable than remembering scripts!
 
