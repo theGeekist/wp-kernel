@@ -1,27 +1,7 @@
-import { createReporter } from '@wpkernel/core/reporter';
 import { createPhpDriverReadinessHelper } from '../phpDriver';
-import type { DxContext } from '../../../context';
+import { createReadinessTestContext } from '../test-support';
 
 describe('createPhpDriverReadinessHelper', () => {
-	function buildContext(): DxContext {
-		const reporter = createReporter({
-			namespace: 'wpk.test.dx.driver',
-			level: 'debug',
-			enabled: false,
-		});
-
-		return {
-			reporter,
-			workspace: null,
-			environment: {
-				cwd: '/tmp/project',
-				projectRoot: '/repo/packages/cli',
-				workspaceRoot: '/tmp/project',
-				flags: { forceSource: false },
-			},
-		} satisfies DxContext;
-	}
-
 	it('reports ready when assets exist', async () => {
 		const resolve = jest
 			.fn()
@@ -31,12 +11,14 @@ describe('createPhpDriverReadinessHelper', () => {
 		const access = jest.fn().mockResolvedValue(undefined);
 		const helper = createPhpDriverReadinessHelper({ resolve, access });
 
-		const detection = await helper.detect(buildContext());
+		const detection = await helper.detect(
+			createReadinessTestContext({ workspace: null })
+		);
 		expect(detection.status).toBe('ready');
 		expect(resolve).toHaveBeenCalled();
 
 		const confirmation = await helper.confirm(
-			buildContext(),
+			createReadinessTestContext({ workspace: null }),
 			detection.state
 		);
 		expect(confirmation.status).toBe('ready');
@@ -51,7 +33,9 @@ describe('createPhpDriverReadinessHelper', () => {
 			access: jest.fn(),
 		});
 
-		const detection = await helper.detect(buildContext());
+		const detection = await helper.detect(
+			createReadinessTestContext({ workspace: null })
+		);
 		expect(detection.status).toBe('pending');
 	});
 });

@@ -323,6 +323,11 @@ Reduce boilerplate in DX readiness helpers using shared utilities, now that test
 - Broad refactoring of the readiness registry or DX context beyond what’s needed to share utilities.
 - Large changes to helper configuration surfaces.
 
+##### 56f consolidation update – readiness helper fixtures
+
+- Defaulted the readiness test context factory and introduced a shared `createWorkspaceDouble` so helper suites no longer hand-roll reporters/workspaces, cutting ~80 lines while keeping assertions intact.
+- Streamlined helper specs to rely on the shared defaults (no explicit namespaces/cwd wiring), matching the runtime behaviour surfaced in Task 55 without adding new production code.
+
 ---
 
 #### 56g – Command runtime consolidation
@@ -345,6 +350,11 @@ Address the duplication between `create` and `init` by introducing a shared scaf
 **Out of scope**
 
 - Changing command flags, summaries, or public types beyond what is necessary to share the runtime.
+
+##### 56g consolidation update – shared init/create scaffold
+
+- Wrapped `createInitCommandRuntime` in a reusable scaffold that owns Clipanion option wiring, readiness overrides, and workflow execution, exposing hooks for command-specific behaviour such as target resolution, git warnings, and post-readiness installers.
+- Rebuilt the `create` and `init` commands on top of the scaffold so their modules now delegate to focused overrides (target directory hygiene, skip-install filtering, git status warnings) instead of duplicating runtime construction and readiness plumbing.
 
 ---
 

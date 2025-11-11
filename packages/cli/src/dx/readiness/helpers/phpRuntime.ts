@@ -2,7 +2,7 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createReadinessHelper } from '../helper';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
-import type { DxContext } from '../../context';
+import { resolveWorkspaceRoot } from './shared';
 
 const execFile = promisify(execFileCallback);
 
@@ -17,14 +17,6 @@ export interface PhpRuntimeState {
 
 function defaultDependencies(): PhpRuntimeDependencies {
 	return { exec: execFile } satisfies PhpRuntimeDependencies;
-}
-
-function resolveWorkspaceRoot(context: DxContext): string {
-	return (
-		context.environment.workspaceRoot ??
-		context.workspace?.root ??
-		context.environment.cwd
-	);
 }
 
 async function detectPhp(

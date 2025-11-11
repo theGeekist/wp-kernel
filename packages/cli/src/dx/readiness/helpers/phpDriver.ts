@@ -4,6 +4,7 @@ import { createReadinessHelper } from '../helper';
 import { createModuleResolver } from '../../../utils/module-url';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
 import type { DxContext } from '../../context';
+import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
 
 const DRIVER_PACKAGE = '@wpkernel/php-driver/package.json';
 const ASSET_RELATIVE_PATH = ['php', 'pretty-print.php'];
@@ -24,26 +25,6 @@ function defaultDependencies(): PhpDriverDependencies {
 		resolve: createModuleResolver(),
 		access: (target) => fs.access(target),
 	} satisfies PhpDriverDependencies;
-}
-
-function resolveWorkspaceRoot(context: DxContext): string {
-	return (
-		context.environment.workspaceRoot ??
-		context.workspace?.root ??
-		context.environment.cwd
-	);
-}
-
-function buildResolvePaths(context: DxContext): string[] {
-	const paths = new Set<string>();
-	if (context.environment.workspaceRoot) {
-		paths.add(context.environment.workspaceRoot);
-	}
-	if (context.workspace) {
-		paths.add(context.workspace.root);
-	}
-	paths.add(context.environment.projectRoot);
-	return Array.from(paths);
 }
 
 async function resolveDriverRoot(

@@ -5,6 +5,7 @@ import { createModuleResolver } from '../../../utils/module-url';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
 import type { DxContext } from '../../context';
 import type { Workspace } from '../../../workspace';
+import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
 
 const execFile = promisify(execFileCallback);
 
@@ -26,33 +27,17 @@ function defaultDependencies(): TsxRuntimeDependencies {
 	} satisfies TsxRuntimeDependencies;
 }
 
-function resolveWorkspaceRoot(context: DxContext): string {
-	return (
-		context.environment.workspaceRoot ??
-		context.workspace?.root ??
-		context.environment.cwd
-	);
-}
-
-function buildResolvePaths(context: DxContext): string[] {
-	const paths = new Set<string>();
-	if (context.workspace) {
-		paths.add(context.workspace.root);
-	}
-	if (context.environment.workspaceRoot) {
-		paths.add(context.environment.workspaceRoot);
-	}
-	paths.add(context.environment.projectRoot);
-	return Array.from(paths);
-}
-
 async function resolveTsx(
 	dependencies: TsxRuntimeDependencies,
 	context: DxContext
 ): Promise<string | null> {
 	try {
 		return dependencies.resolve('tsx', {
-			paths: buildResolvePaths(context),
+			paths: buildResolvePaths(context, [
+				'workspace',
+				'environmentWorkspace',
+				'project',
+			]),
 		});
 	} catch {
 		return null;

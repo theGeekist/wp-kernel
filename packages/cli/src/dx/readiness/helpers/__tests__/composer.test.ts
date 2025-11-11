@@ -1,31 +1,15 @@
-import { createReporter } from '@wpkernel/core/reporter';
 import { createComposerReadinessHelper } from '../composer';
-import type { DxContext } from '../../../context';
-import type { Workspace } from '../../../../workspace';
+import {
+	createReadinessTestContext,
+	createWorkspaceDouble,
+} from '../test-support';
 
 describe('createComposerReadinessHelper', () => {
-	function buildContext(workspace: Workspace | null): DxContext {
-		const reporter = createReporter({
-			namespace: 'wpk.test.dx.composer',
-			level: 'debug',
-			enabled: false,
-		});
-
-		return {
-			reporter,
-			workspace,
-			environment: {
-				cwd: '/tmp/project',
-				projectRoot: '/repo/packages/cli',
-				workspaceRoot: workspace ? workspace.root : null,
-				flags: { forceSource: false },
-			},
-		} satisfies DxContext;
-	}
-
 	it('blocks detection when workspace is unavailable', async () => {
 		const helper = createComposerReadinessHelper({ install: jest.fn() });
-		const detection = await helper.detect(buildContext(null));
+		const detection = await helper.detect(
+			createReadinessTestContext({ workspace: null })
+		);
 		expect(detection.status).toBe('blocked');
 	});
 
@@ -40,29 +24,11 @@ describe('createComposerReadinessHelper', () => {
 			return Promise.resolve(false);
 		});
 		const rm = jest.fn();
-		const workspace: Workspace = {
-			root: '/tmp/project',
-			exists,
-			rm,
-			resolve: (...parts: string[]) =>
-				['/tmp/project', ...parts].join('/'),
-			read: jest.fn(),
-			readText: jest.fn(),
-			write: jest.fn(),
-			writeJson: jest.fn(),
-			glob: jest.fn(),
-			threeWayMerge: jest.fn(),
-			begin: jest.fn(),
-			commit: jest.fn(),
-			rollback: jest.fn(),
-			dryRun: jest.fn(),
-			tmpDir: jest.fn(),
-			cwd: () => '/tmp/project',
-		} as unknown as Workspace;
+		const workspace = createWorkspaceDouble({ exists, rm });
 		const install = jest.fn().mockResolvedValue(undefined);
 		const helper = createComposerReadinessHelper({ install });
 
-		const context = buildContext(workspace);
+		const context = createReadinessTestContext({ workspace });
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('pending');
 
@@ -96,29 +62,11 @@ describe('createComposerReadinessHelper', () => {
 			return Promise.resolve(false);
 		});
 		const rm = jest.fn().mockResolvedValue(undefined);
-		const workspace: Workspace = {
-			root: '/tmp/project',
-			exists,
-			rm,
-			resolve: (...parts: string[]) =>
-				['/tmp/project', ...parts].join('/'),
-			read: jest.fn(),
-			readText: jest.fn(),
-			write: jest.fn(),
-			writeJson: jest.fn(),
-			glob: jest.fn(),
-			threeWayMerge: jest.fn(),
-			begin: jest.fn(),
-			commit: jest.fn(),
-			rollback: jest.fn(),
-			dryRun: jest.fn(),
-			tmpDir: jest.fn(),
-			cwd: () => '/tmp/project',
-		} as unknown as Workspace;
+		const workspace = createWorkspaceDouble({ exists, rm });
 		const install = jest.fn().mockResolvedValue(undefined);
 		const helper = createComposerReadinessHelper({ install });
 
-		const context = buildContext(workspace);
+		const context = createReadinessTestContext({ workspace });
 		const detection = await helper.detect(context);
 		const result = await helper.execute?.(context, detection.state);
 		await result?.cleanup?.();
@@ -136,31 +84,14 @@ describe('createComposerReadinessHelper', () => {
 			}
 			return Promise.resolve(false);
 		});
-		const workspace: Workspace = {
-			root: '/tmp/project',
-			exists,
-			rm: jest.fn(),
-			resolve: jest.fn(),
-			read: jest.fn(),
-			readText: jest.fn(),
-			write: jest.fn(),
-			writeJson: jest.fn(),
-			glob: jest.fn(),
-			threeWayMerge: jest.fn(),
-			begin: jest.fn(),
-			commit: jest.fn(),
-			rollback: jest.fn(),
-			dryRun: jest.fn(),
-			tmpDir: jest.fn(),
-			cwd: () => '/tmp/project',
-		} as unknown as Workspace;
+		const workspace = createWorkspaceDouble({ exists });
 
 		const helper = createComposerReadinessHelper({
 			install: jest.fn(),
 			installOnPending: false,
 		});
 
-		const context = buildContext(workspace);
+		const context = createReadinessTestContext({ workspace });
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('pending');
 		expect(helper.execute).toBeUndefined();

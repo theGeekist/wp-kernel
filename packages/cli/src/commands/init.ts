@@ -1,25 +1,21 @@
-import { Command, Option } from 'clipanion';
+import { Command } from 'clipanion';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import { WPKernelError } from '@wpkernel/core/error';
-import {
-	WPK_NAMESPACE,
-	WPK_EXIT_CODES,
-	type WPKExitCode,
-} from '@wpkernel/core/contracts';
-import type { Reporter } from '@wpkernel/core/reporter';
-import type { Workspace, FileManifest } from '../workspace';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { isGitRepository } from './init/git';
-import {
-	createInitCommandRuntime,
-	formatInitWorkflowError,
-	resolveCommandCwd,
-	type InitCommandRuntimeDependencies,
-	type InitCommandRuntimeOptions,
-	type InitCommandRuntimeResult,
+import type {
+	InitCommandRuntimeDependencies,
+	InitCommandRuntimeResult,
 } from './init/command-runtime';
-import { assertReadinessRun, type ReadinessKey } from '../dx';
+import {
+	createInitCommandScaffold,
+	type InitCommandScaffoldContext,
+	type InitCommandScaffoldDependencies,
+	type InitCommandScaffoldInstance,
+} from './init/runtime-scaffold';
+import type { ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
 export type { InitWorkflowOptions, InitWorkflowResult } from './init/workflow';
@@ -53,26 +49,7 @@ export interface BuildInitCommandOptions {
  *
  * @category Commands
  */
-export type InitCommandInstance = Command & {
-	/** The name of the project. */
-	name?: string;
-	/** The template to use for scaffolding. */
-	template?: string;
-	/** Whether to force overwrite existing files. */
-	force: boolean;
-	/** Whether to enable verbose logging. */
-	verbose: boolean;
-	/** Whether to prefer registry versions for dependencies. */
-	preferRegistryVersions: boolean;
-	/** Whether to bypass readiness hygiene failures. */
-	yes: boolean;
-	/** A summary of the initialization process. */
-	summary: string | null;
-	/** The manifest of files created or modified. */
-	manifest: FileManifest | null;
-	/** The source of dependencies used. */
-	dependencySource: string | null;
-};
+export type InitCommandInstance = InitCommandScaffoldInstance;
 
 /**
  * The constructor type for the `init` command.
@@ -82,21 +59,28 @@ export type InitCommandInstance = Command & {
 export type InitCommandConstructor = new () => InitCommandInstance;
 
 interface InitDependencies {
-	readonly buildWorkspace: typeof buildWorkspace;
-	readonly buildReporter: typeof buildReporter;
-	readonly runWorkflow: typeof runInitWorkflow;
-	readonly buildReadinessRegistry?: InitCommandRuntimeDependencies['buildReadinessRegistry'];
+	readonly scaffold: InitCommandScaffoldDependencies;
 	readonly checkGitRepository: typeof isGitRepository;
 }
 
 function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
+	const {
+		buildWorkspace: buildWorkspaceOverride = buildWorkspace,
+		buildReporter: buildReporterOverride = buildReporter,
+		runWorkflow: runWorkflowOverride = runInitWorkflow,
+		buildReadinessRegistry,
+		checkGitRepository: checkGitRepositoryOverride = isGitRepository,
+	} = options;
+
 	return {
-		buildWorkspace,
-		buildReporter,
-		runWorkflow: runInitWorkflow,
-		buildReadinessRegistry: undefined,
-		checkGitRepository: isGitRepository,
-		...options,
+		scaffold: {
+			buildWorkspace: buildWorkspaceOverride,
+			buildReporter: buildReporterOverride,
+			runWorkflow: runWorkflowOverride,
+			buildReadinessRegistry,
+			ensureGeneratedPhpClean,
+		},
+		checkGitRepository: checkGitRepositoryOverride,
 	} satisfies InitDependencies;
 }
 
@@ -115,7 +99,13 @@ export function buildInitCommand(
 ): InitCommandConstructor {
 	const dependencies = mergeDependencies(options);
 
-	class InitCommand extends Command {
+	const BaseCommand = createInitCommandScaffold({
+		commandName: 'init',
+		reporterNamespace: buildReporterNamespace(),
+		dependencies: dependencies.scaffold,
+	});
+
+	class InitCommand extends BaseCommand {
 		static override paths = [['init']];
 
 		static override usage = Command.Usage({
@@ -127,142 +117,22 @@ export function buildInitCommand(
 			],
 		});
 
-		name = Option.String('--name', {
-			description: 'Project slug used for namespace/package defaults',
-			required: false,
-		});
-
-		template = Option.String('--template', {
-			description:
-				'Reserved for future templates (plugin/theme/headless)',
-			required: false,
-		});
-
-		force = Option.Boolean('--force', false);
-		verbose = Option.Boolean('--verbose', false);
-		preferRegistryVersions = Option.Boolean(
-			'--prefer-registry-versions',
-			false
-		);
-		yes = Option.Boolean('--yes', false);
-
-		public summary: string | null = null;
-		public manifest: FileManifest | null = null;
-		public dependencySource: string | null = null;
-
-		override async execute(): Promise<WPKExitCode> {
-			try {
-				const runtime = this.createRuntime();
-
-				await this.warnWhenGitMissing(
-					runtime.workspace,
-					runtime.reporter
-				);
-
-				const result = await runtime.runWorkflow();
-
-				this.manifest = result.manifest;
-				this.summary = result.summaryText;
-				this.dependencySource = result.dependencySource;
-
-				await this.runReadiness(runtime);
-
-				this.context.stdout.write(result.summaryText);
-
-				return WPK_EXIT_CODES.SUCCESS;
-			} catch (error) {
-				this.summary = null;
-				this.manifest = null;
-				this.dependencySource = null;
-
-				if (WPKernelError.isWPKernelError(error)) {
-					this.context.stderr.write(
-						formatInitWorkflowError('init', error)
-					);
-					return WPK_EXIT_CODES.VALIDATION_ERROR;
-				}
-
-				throw error;
-			}
-		}
-
-		private createRuntime(): InitCommandRuntimeResult {
-			const workspaceRoot = resolveCommandCwd(this.context);
-
-			return createInitCommandRuntime(
-				{
-					buildWorkspace: dependencies.buildWorkspace,
-					buildReporter: dependencies.buildReporter,
-					runWorkflow: dependencies.runWorkflow,
-					buildReadinessRegistry: dependencies.buildReadinessRegistry,
-				},
-				{
-					reporterNamespace: buildReporterNamespace(),
-					workspaceRoot,
-					cwd: workspaceRoot,
-					projectName: this.name,
-					template: this.template,
-					force: this.force,
-					verbose: this.verbose,
-					preferRegistryVersions: this.preferRegistryVersions,
-					env: {
-						WPK_PREFER_REGISTRY_VERSIONS:
-							process.env.WPK_PREFER_REGISTRY_VERSIONS,
-						REGISTRY_URL: process.env.REGISTRY_URL,
-					},
-					readiness: this.buildReadinessOptions(),
-				}
-			);
-		}
-
-		private buildReadinessOptions(): InitCommandRuntimeOptions['readiness'] {
-			if (this.yes !== true) {
-				return undefined;
-			}
-
-			return {
-				helperOverrides: {
-					workspaceHygiene: {
-						ensureClean: ({
-							workspace,
-							reporter,
-						}: {
-							workspace: Workspace;
-							reporter: Reporter;
-						}) =>
-							ensureGeneratedPhpClean({
-								workspace,
-								reporter,
-								yes: true,
-							}),
-					},
-				},
-			} satisfies InitCommandRuntimeOptions['readiness'];
-		}
-
-		private resolveReadinessKeys(
+		protected override filterReadinessKeys(
 			keys: readonly ReadinessKey[]
 		): ReadonlyArray<ReadinessKey> {
 			return keys.filter((key) => key !== 'git');
 		}
 
-		private async runReadiness(
-			runtime: InitCommandRuntimeResult
+		protected override async prepare(
+			runtime: InitCommandRuntimeResult,
+			_context: InitCommandScaffoldContext
 		): Promise<void> {
-			const keys = this.resolveReadinessKeys(
-				runtime.readiness.defaultKeys
-			);
-			if (keys.length === 0) {
-				return;
-			}
-
-			const result = await runtime.readiness.run(keys);
-			assertReadinessRun(result);
+			await this.warnWhenGitMissing(runtime.workspace, runtime.reporter);
 		}
 
 		private async warnWhenGitMissing(
-			workspace: Workspace,
-			reporter: Reporter
+			workspace: InitCommandRuntimeResult['workspace'],
+			reporter: InitCommandRuntimeResult['reporter']
 		): Promise<void> {
 			try {
 				const hasGit = await dependencies.checkGitRepository(

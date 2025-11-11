@@ -2,6 +2,7 @@ import path from 'node:path';
 import { createReadinessHelper } from '../helper';
 import type { ReadinessDetection, ReadinessConfirmation } from '../types';
 import type { DxContext } from '../../context';
+import { resolveWorkspaceRoot } from './shared';
 import {
 	installComposerDependencies,
 	type InstallerDependencies,
@@ -29,14 +30,6 @@ function defaultDependencies(): ComposerHelperDependencies {
 		install: (cwd: string, deps?: InstallerDependencies) =>
 			installComposerDependencies(cwd, deps),
 	} satisfies ComposerHelperDependencies;
-}
-
-function resolveWorkspaceRoot(context: DxContext): string {
-	return (
-		context.environment.workspaceRoot ??
-		context.workspace?.root ??
-		context.environment.cwd
-	);
 }
 
 export function createComposerReadinessHelper(
