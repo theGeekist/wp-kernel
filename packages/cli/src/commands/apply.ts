@@ -54,6 +54,7 @@ export type {
 } from './apply/types';
 
 const APPLY_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
+	'composer',
 	'php-driver',
 	'tsx-runtime',
 ];

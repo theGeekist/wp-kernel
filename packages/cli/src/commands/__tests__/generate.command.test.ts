@@ -179,6 +179,7 @@ describe('GenerateCommand', () => {
 			})
 		);
 		expect(readiness.readinessPlanMock).toHaveBeenCalledWith([
+			'composer',
 			'php-driver',
 			'tsx-runtime',
 		]);

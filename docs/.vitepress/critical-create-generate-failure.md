@@ -217,7 +217,7 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] Bundled the CLI’s composer vendor tree, wired the `composer` readiness helper into generate/apply, and verified CLI-owned autoload paths satisfy PHP printer readiness when workspace vendors are absent.
 
 **Discovery to finish before coding.**
 
@@ -236,7 +236,7 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Probe.** Depending on the chosen strategy, add tests confirming generation succeeds with no plugin `vendor` directory.
 
-**Fix.** Implement the selected approach, document the decision here and in `cli-create-init-doctor.md`, and ensure readiness reruns are idempotent.
+**Fix.** Implement the selected approach, document the decision here and in `cli-create-init-doctor.md`, ensure readiness reruns are idempotent, and add coverage that the CLI’s bundled autoload satisfies PHP printer checks while missing vendor trees surface `EnvironmentalError(php.autoload.required)`.
 
 **Retire.** Dependence on plugin composer installs.
 
