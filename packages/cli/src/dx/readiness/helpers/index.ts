@@ -24,3 +24,9 @@ export type {
 	ReleasePackState,
 	ReleasePackDependencies,
 } from './releasePack';
+export { createBootstrapperResolutionReadinessHelper } from './bootstrapperResolution';
+export type {
+	BootstrapperResolutionHelperOptions,
+	BootstrapperResolutionState,
+	BootstrapperResolutionDependencies,
+} from './bootstrapperResolution';

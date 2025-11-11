@@ -109,12 +109,15 @@ Guarantee the compiled `create-wpk` bootstrapper resolves only its bundled depen
 
 **Completion log.** Update after each run:
 
+- [x] 2025-11-11 — Added `createBootstrapperResolutionReadinessHelper` to execute `node packages/create-wpk/dist/index.js -- --help` inside a `/tmp/wpk-bootstrapper-*` workspace with `WPK_CLI_FORCE_SOURCE=0`, surfacing `EnvironmentalError(bootstrapper.resolve)` diagnostics when the compiled bootstrapper escapes its tarball dependencies and documenting the harness in code and tests.
 - [ ] _Run log placeholder — update after execution_
 
 **Discovery to finish before coding.**
 
 - Define the `/tmp` harness (fixture path, environment variables, network stubbing) for executing `packages/create-wpk/dist/index.js` without monorepo fallbacks.
 - Inventory the runtime dependencies the bootstrapper should ship (php-driver entrypoints, readiness helpers, config loaders) and how they’re resolved in the packed artefacts.
+
+The harness now lives alongside `createBootstrapperResolutionReadinessHelper` in `packages/cli/src/dx/readiness/helpers/bootstrapperResolution.ts`, spawning `node packages/create-wpk/dist/index.js -- --help` from an isolated temp workspace so reruns remain deterministic. After each execution, append the outcome above the placeholder entry to keep this ledger current.
 
 **Probe.** Implement a readiness helper that shells into the compiled bootstrapper within the isolated workspace and fails with `EnvironmentalError(bootstrapper.resolve)` when module resolution escapes the tarball.【4940cc†L1-L19】
 

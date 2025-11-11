@@ -5,6 +5,7 @@ import {
 	createGitReadinessHelper,
 	createPhpDriverReadinessHelper,
 	createPhpRuntimeReadinessHelper,
+	createBootstrapperResolutionReadinessHelper,
 	createReleasePackReadinessHelper,
 	createTsxRuntimeReadinessHelper,
 	createWorkspaceHygieneReadinessHelper,
@@ -12,6 +13,7 @@ import {
 	type GitHelperDependencies,
 	type PhpDriverDependencies,
 	type PhpRuntimeDependencies,
+	type BootstrapperResolutionHelperOptions,
 	type ReleasePackHelperOptions,
 	type TsxRuntimeDependencies,
 	type WorkspaceHygieneDependencies,
@@ -25,6 +27,7 @@ export interface DefaultReadinessHelperOverrides {
 	readonly tsxRuntime?: Partial<TsxRuntimeDependencies>;
 	readonly workspaceHygiene?: Partial<WorkspaceHygieneDependencies>;
 	readonly releasePack?: ReleasePackHelperOptions;
+	readonly bootstrapperResolution?: BootstrapperResolutionHelperOptions;
 }
 
 export interface BuildDefaultReadinessRegistryOptions {
@@ -39,6 +42,7 @@ export const DEFAULT_READINESS_ORDER: ReadonlyArray<ReadinessKey> = [
 	'php-driver',
 	'tsx-runtime',
 	'release-pack',
+	'bootstrapper-resolution',
 ];
 
 export function registerDefaultReadinessHelpers(
@@ -54,6 +58,11 @@ export function registerDefaultReadinessHelpers(
 	registry.register(createPhpDriverReadinessHelper(overrides.phpDriver));
 	registry.register(createTsxRuntimeReadinessHelper(overrides.tsxRuntime));
 	registry.register(createReleasePackReadinessHelper(overrides.releasePack));
+	registry.register(
+		createBootstrapperResolutionReadinessHelper(
+			overrides.bootstrapperResolution
+		)
+	);
 }
 
 export function buildDefaultReadinessRegistry(

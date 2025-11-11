@@ -8,6 +8,7 @@ export type ReadinessKey =
 	| 'git'
 	| 'php-driver'
 	| 'php-runtime'
+	| 'bootstrapper-resolution'
 	| 'release-pack'
 	| 'tsx-runtime'
 	| 'workspace-hygiene';

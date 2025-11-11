@@ -111,6 +111,7 @@ const READINESS_LABELS: Record<ReadinessKey, string> = {
 	'php-runtime': 'PHP runtime',
 	'php-driver': 'PHP driver',
 	'release-pack': 'Release pack chain',
+	'bootstrapper-resolution': 'Bootstrapper resolution',
 	git: 'Git repository',
 	'tsx-runtime': 'TSX runtime',
 };

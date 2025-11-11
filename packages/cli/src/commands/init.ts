@@ -116,7 +116,10 @@ export function buildInitCommand(
 				hooks: {
 					filterReadinessKeys: (keys: readonly ReadinessKey[]) =>
 						keys.filter(
-							(key) => key !== 'git' && key !== 'release-pack'
+							(key) =>
+								key !== 'git' &&
+								key !== 'release-pack' &&
+								key !== 'bootstrapper-resolution'
 						),
 					prepare: async (runtime) => {
 						await this.warnWhenGitMissing(

@@ -54,7 +54,12 @@ export {
 export type { ActionLifecyclePhase, WPKExitCode } from './contracts/index.js';
 
 // Error classes
-export { WPKernelError, TransportError, ServerError } from './error/index.js';
+export {
+	WPKernelError,
+	TransportError,
+	ServerError,
+	EnvironmentalError,
+} from './error/index.js';
 export type {
 	ErrorCode,
 	ErrorContext,
