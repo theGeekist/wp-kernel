@@ -70,7 +70,7 @@ Build the publish-order validation probe and enforce deterministic artefact prod
 
 **Completion log.** Update this list after each run by replacing the placeholder with the date, PR, and outcome summary.
 
-- [x] 2025-11-11 — Scaffolded `createReleasePackReadinessHelper`, manifest defaults, and unit coverage for missing artefact reporting (pending PR).
+- [x] 2025-11-11 — Scaffolded `createReleasePackReadinessHelper`, manifest defaults, and unit coverage for missing artefact reporting; wired helper into default registry.
 - [ ] _Next run placeholder — update after execution_
 
 **Discovery to finish before coding.**

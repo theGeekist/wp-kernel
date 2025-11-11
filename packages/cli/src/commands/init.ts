@@ -115,7 +115,9 @@ export function buildInitCommand(
 				ensureGeneratedPhpClean: dependencies.ensureGeneratedPhpClean,
 				hooks: {
 					filterReadinessKeys: (keys: readonly ReadinessKey[]) =>
-						keys.filter((key) => key !== 'git'),
+						keys.filter(
+							(key) => key !== 'git' && key !== 'release-pack'
+						),
 					prepare: async (runtime) => {
 						await this.warnWhenGitMissing(
 							runtime.workspace,
