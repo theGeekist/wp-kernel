@@ -4,11 +4,16 @@
 - The generated project does **not** install or expose the CLI binary. Immediately after scaffolding, `wpk --help`, `npm wpk generate`, and `pnpm wpk generate` all fail because the command is missing.
 - The `package.json` produced by the generator lacks both `@wpkernel/cli` and `tsx`, so none of the `wpk ...` npm scripts can run out of the box.
 
-## Observations while reproducing `pnpm wpk generate`
+## Observations while reproducing `wpk generate`
 
-1. Manually installing the CLI (`npm install --save-dev @wpkernel/cli`) finally places the `wpk` binary under `node_modules/.bin` and surfaces the CLI entry point.
-2. Running `pnpm wpk generate` afterwards immediately crashes because the CLI runtime expects a lazy dependency on `tsx`, which the scaffold never installs. Installing `tsx` manually unblocks that step.
-3. A second crash follows: the CLI looks for `node_modules/@wpkernel/cli/dist/packages/php-driver/php/pretty-print.php`, but the published bundle does not contain that `php` directory. The actual script lives under `@wpkernel/php-driver/php/pretty-print.php`, so the process aborts even though composer assets (and `vendor/autoload.php`) exist.
+1. The scaffolded project follows the public docs and exposes a `"generate": "wpk generate"` npm script, but running `wpk generate` directly fails immediately because the binary is missing. We then tried `npm wpk generate` per npm’s guidance and `pnpm wpk generate` to simulate `pnpm exec`, and all three invocations collapsed because no `wpk` command was installed.【F:docs/.vitepress/critical-create-generate-failure.md†L122-L130】
+2. Manually installing the CLI (`npm install --save-dev @wpkernel/cli`) finally places the `wpk` binary under `node_modules/.bin` and surfaces the CLI entry point.【F:docs/.vitepress/critical-create-generate-failure.md†L131-L135】
+3. Running `pnpm wpk generate` afterwards immediately crashes because the CLI runtime expects a lazy dependency on `tsx`, which the scaffold never installs. Installing `tsx` manually unblocks that step.【F:docs/.vitepress/critical-create-generate-failure.md†L129-L135】
+4. A second crash follows: the CLI looks for `node_modules/@wpkernel/cli/dist/packages/php-driver/php/pretty-print.php`, but the published bundle does not contain that `php` directory. The actual script lives under `@wpkernel/php-driver/php/pretty-print.php`, so the process aborts even though composer assets (and `vendor/autoload.php`) exist.【F:docs/.vitepress/critical-create-generate-failure.md†L136-L138】
+
+### Canonical CLI workflow
+
+The quickstart and homepage both frame the intended developer loop as “edit `wpk.config.ts`, run `wpk generate`, then `wpk apply`.” After the initial `wpk create` or `wpk init`, developers iterate on `wpk generate` as many times as needed, and only invoke `wpk apply` when they are ready to materialise the staged plan into their working copy via the transactional patcher. 【F:docs/index.md†L9-L127】【F:docs/packages/cli.md†L26-L33】
 
 ## Manual regression check (local workspace build)
 
@@ -42,7 +47,7 @@ Running `composer require nikic/php-parser` inside the scaffold resolves the mis
 
 ### Generate manifest failure
 
-Even after composer succeeds, the generate flow still fails because the apply pipeline never emits `.wpk/apply/manifest.json`. The CLI exits with `Failed to locate apply manifest after generation`, and inspecting `.wpk/apply` confirms that only `plan.json` and `state.json` exist. No manifest means `wpk apply` cannot replay the plan, so readiness must gate this before release. 【e50464†L1-L1】【55d118†L1-L4】【e163da†L1-L8】
+Even after composer succeeds, the generate flow still fails because the generate transaction never writes `.wpk/apply/manifest.json`. The command finaliser checks for that manifest immediately after committing the workspace and aborts with `Failed to locate apply manifest after generation` when it is missing. Inspecting `.wpk/apply` confirms that only `plan.json` and `state.json` exist, which means the patch manifest the `createPatcher` builder should have recorded during the generate apply phase was never produced. Without that manifest `wpk apply` has nothing to replay, so readiness must gate this earlier in the generate flow instead of assuming the later `wpk apply` command will recover. 【F:packages/cli/src/commands/generate.ts†L70-L103】【F:packages/cli/src/builders/patcher.ts†L590-L642】【e50464†L1-L1】【55d118†L1-L4】【e163da†L1-L8】
 
 ### Assessment
 
@@ -65,7 +70,7 @@ Even after composer succeeds, the generate flow still fails because the apply pi
 2. **Add a bootstrapper execution probe.** Create an integration test under `packages/create-wpk/tests` that shells out to the compiled `dist/index.js` in a temp directory. Assert that it exits cleanly without needing `WPK_CLI_FORCE_SOURCE=1` and emits the same readiness events we observe in source mode. Fail the test if Node reports the php-driver module is missing, reproducing the crash we hit in `/tmp`. 【4940cc†L1-L19】
 3. **Ensure scaffolds install the CLI and tsx automatically.** Update the create/init readiness plan to inject a `cli-runtime` helper that edits the generated `package.json` before installers run, adding `@wpkernel/cli` and `tsx` devDependencies plus the appropriate lockfile updates. Extend the readiness registry tests to verify that a subsequent `pnpm install` drops a `wpk` binary into `node_modules/.bin` and that the helper logs the elapsed installation time (targeting the observed 8.1 s baseline). 【f68c56†L1-L26】【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】
 4. **Harden composer readiness for the PHP printer.** Expand `packages/cli/src/dx/readiness/helpers/composer.ts` so it checks for `nikic/php-parser` inside `vendor/composer/installed.json`, installs it when absent, and records the outcome in the reporter log. Cover the helper with an integration test that boots a scaffold lacking vendor files, confirming that the CLI no longer aborts with the php-parser error we reproduced. 【de93ab†L1-L29】【c07f32†L1-L2】【5f1634†L1-L12】
-5. **Verify apply manifest emission.** Add a regression harness to `packages/cli/tests/workspace.test-support.ts` that runs `wpk generate` inside a fixture workspace and asserts that `.wpk/apply/manifest.json` exists with at least one planned action. Extend the readiness registry to surface a fatal diagnostic when the manifest is missing so the command never reaches `wpk apply` with an empty plan. 【55d118†L1-L4】【e163da†L1-L8】
+5. **Verify patch manifest emission during generate.** Add a regression harness to `packages/cli/tests/workspace.test-support.ts` that runs `wpk generate` inside a fixture workspace and asserts that `.wpk/apply/manifest.json` exists with at least one planned action. Extend the readiness registry to surface a fatal diagnostic when the manifest is missing so the command never reaches `wpk apply` with an empty plan, and confirm the `createPatcher` builder logs that it wrote the manifest before the generate command finaliser runs its post-commit check. 【F:packages/cli/src/builders/patcher.ts†L586-L635】【F:packages/cli/src/commands/generate.ts†L65-L91】【55d118†L1-L4】【e163da†L1-L8】
 6. **Exercise the packed CLI end-to-end.** Introduce a CI pipeline step that installs the freshly packed tarball into a temp project, runs `pnpm install`, and executes `npx wpk generate`/`npx wpk apply`. Record the elapsed install and command durations so we can enforce upper bounds going forward, and ensure the job fails when npm cannot resolve the unpublished peer ranges we observed locally. 【a6f825†L1-L11】
 
 ## Additional notes
