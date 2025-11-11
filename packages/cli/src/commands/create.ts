@@ -164,12 +164,17 @@ function buildCreateCommandHooks(
 					: '.'
 			),
 		filterReadinessKeys: (keys: readonly ReadinessKey[]) => {
+			const filtered = keys.filter(
+				(key) =>
+					key !== 'release-pack' && key !== 'bootstrapper-resolution'
+			);
+
 			if (command.skipInstall !== true) {
-				return keys;
+				return filtered;
 			}
 
 			const skipped = new Set<ReadinessKey>(['composer', 'tsx-runtime']);
-			return keys.filter((key) => !skipped.has(key));
+			return filtered.filter((key) => !skipped.has(key));
 		},
 		prepare: async (runtime, context: InitCommandContext) => {
 			await dependencies.ensureCleanDirectory({

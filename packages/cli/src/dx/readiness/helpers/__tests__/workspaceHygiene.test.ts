@@ -2,7 +2,7 @@ import { createWorkspaceHygieneReadinessHelper } from '../workspaceHygiene';
 import {
 	createReadinessTestContext,
 	createWorkspaceDouble,
-} from '../test-support';
+} from '../../test/test-support';
 
 describe('createWorkspaceHygieneReadinessHelper', () => {
 	it('blocks detection without workspace', async () => {

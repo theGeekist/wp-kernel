@@ -1,5 +1,5 @@
 import { WPKernelError } from '@wpkernel/core/error';
-import { serializeWPKernelError } from '@wpkernel/core/contracts';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type { DxContext } from '../context';
 import type {
 	ReadinessConfirmation,
@@ -11,28 +11,21 @@ import type {
 	ReadinessPlan,
 	ReadinessRunResult,
 } from './types';
+import {
+	logPhaseStart,
+	logPhaseSuccess,
+	logPhaseFailure,
+	logDetectionResult,
+	logConfirmationResult,
+	logOutcome,
+	serialiseUnknown,
+	type ReadinessPhase,
+} from './registry.logging';
 
 interface ExecutedHelper<State> {
 	readonly helper: ReadinessHelper<State>;
 	readonly state: State;
 	readonly cleanups: readonly (() => Promise<void> | void)[];
-}
-
-function serialiseUnknown(error: unknown) {
-	if (WPKernelError.isWPKernelError(error)) {
-		return serializeWPKernelError(error);
-	}
-
-	if (error instanceof Error) {
-		return serializeWPKernelError(WPKernelError.wrap(error));
-	}
-
-	return serializeWPKernelError(
-		new WPKernelError('UnknownError', {
-			message: 'Unexpected error during readiness orchestration.',
-			data: { value: error },
-		})
-	);
 }
 
 async function runCleanup(
@@ -154,12 +147,18 @@ export class ReadinessRegistry {
 			let confirmation: ReadinessConfirmation<unknown> | undefined;
 			let state: unknown;
 			let performed = false;
+			let currentPhase: ReadinessPhase | null = null;
+			const helperReporter = context.reporter.child(helper.key);
 
 			try {
+				currentPhase = 'detect';
+				logPhaseStart(helperReporter, currentPhase);
 				detection = await helper.detect(context);
+				logDetectionResult(helperReporter, detection);
 				state = detection.state;
 
 				if (detection.status === 'blocked') {
+					logOutcome(helperReporter, 'blocked', detection, undefined);
 					outcomes.push({
 						key: helper.key,
 						status: 'blocked',
@@ -173,18 +172,26 @@ export class ReadinessRegistry {
 						helper,
 						context,
 						state,
-						lifecycleCleanups
+						lifecycleCleanups,
+						helperReporter,
+						(phase) => {
+							currentPhase = phase;
+						}
 					);
 					state = pendingResult.state;
 					performed = pendingResult.performedWork;
 				}
 
+				currentPhase = 'confirm';
+				logPhaseStart(helperReporter, currentPhase);
 				confirmation = await helper.confirm(context, state);
+				logConfirmationResult(helperReporter, confirmation);
 				const status = outcomeStatus(
 					detection,
 					confirmation,
 					performed
 				);
+				logOutcome(helperReporter, status, detection, confirmation);
 
 				outcomes.push({
 					key: helper.key,
@@ -199,6 +206,12 @@ export class ReadinessRegistry {
 					cleanups: lifecycleCleanups,
 				});
 			} catch (error) {
+				const failedPhase = currentPhase ?? 'detect';
+				logPhaseFailure(helperReporter, failedPhase, error);
+				helperReporter.error('Readiness helper failed.', {
+					error: serialiseUnknown(error),
+				});
+				logOutcome(helperReporter, 'failed', detection, confirmation);
 				const currentCleanupErrors =
 					await runCleanup(lifecycleCleanups);
 				const rollbackErrors = await this.#runRollback(
@@ -257,27 +270,35 @@ export class ReadinessRegistry {
 		helper: ReadinessHelper<unknown>,
 		context: DxContext,
 		initialState: unknown,
-		cleanups: (() => Promise<void> | void)[]
+		cleanups: (() => Promise<void> | void)[],
+		reporter: Reporter,
+		setPhase: (phase: ReadinessPhase) => void
 	): Promise<{ state: unknown; performedWork: boolean }> {
 		let currentState = initialState;
 		let performed = false;
 
 		if (helper.prepare) {
+			setPhase('prepare');
+			logPhaseStart(reporter, 'prepare');
 			const prepareResult = await helper.prepare(context, currentState);
 			currentState = prepareResult.state;
 			if (prepareResult.cleanup) {
 				cleanups.push(prepareResult.cleanup);
 			}
 			performed = true;
+			logPhaseSuccess(reporter, 'prepare');
 		}
 
 		if (helper.execute) {
+			setPhase('execute');
+			logPhaseStart(reporter, 'execute');
 			const executeResult = await helper.execute(context, currentState);
 			currentState = executeResult.state;
 			if (executeResult.cleanup) {
 				cleanups.push(executeResult.cleanup);
 			}
 			performed = true;
+			logPhaseSuccess(reporter, 'execute');
 		}
 
 		return { state: currentState, performedWork: performed };

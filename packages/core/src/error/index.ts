@@ -16,6 +16,7 @@
  * @category Errors
  */
 export { WPKernelError } from './WPKernelError';
+export { EnvironmentalError } from './EnvironmentalError';
 /**
  * Error class for issues related to HTTP transport operations.
  *

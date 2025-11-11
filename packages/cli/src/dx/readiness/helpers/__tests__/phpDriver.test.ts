@@ -1,5 +1,5 @@
 import { createPhpDriverReadinessHelper } from '../phpDriver';
-import { createReadinessTestContext } from '../test-support';
+import { createReadinessTestContext } from '../../test/test-support';
 
 describe('createPhpDriverReadinessHelper', () => {
 	it('reports ready when assets exist', async () => {

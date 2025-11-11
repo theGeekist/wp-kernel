@@ -130,6 +130,7 @@ export class WPKernelError extends Error {
 			NotImplementedError: 'Feature not yet implemented',
 			DeveloperError: 'Invalid API usage',
 			DeprecatedError: 'API is deprecated',
+			EnvironmentalError: 'Environment requirements not satisfied',
 			UnknownError: 'An unknown error occurred',
 		};
 
