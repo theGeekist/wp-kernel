@@ -97,8 +97,12 @@ All downstream integration and validation tasks must exercise the packed CLI (`p
 - Provide concise status updates (start, success, warning, failure) per readiness unit without dumping raw diagnostic objects. Reuse existing formatting helpers where available.
 - Document the new reporter channels/events in this file so future tasks can reference the canonical surface.
 
+Readiness orchestration now scopes every helper beneath the command reporter’s `readiness` child. Each helper receives its own namespace (`readiness.<helper-key>`), and phase reporters cascade from there (`detect`, `prepare`, `execute`, `confirm`).
+
+The registry emits a consistent sequence: phase start messages at `info`, phase outcomes mapped to `info`/`warn`/`error` based on readiness status, and a final helper summary log once confirmation completes. Blocked helpers short‑circuit after detection and surface an error log alongside the aggregated outcome, while failures annotate the phase channel before cleanup/rollback begins. Commands should continue to pass `reporter.child('readiness')` into DX helpers so transports and hooks inherit this structure.
+
 ## Task 57 – Validation sweep
 
-- Use `pnpm pack` to build the CLI tarball, install it into a temporary directory, and run `npx @wpkernel/wpk` end-to-end to confirm readiness orchestration before `generate` executes.
-- Re-run the workflow in the same temp workspace to assert idempotency (detect should short-circuit; confirm should report clean state).
-- Capture any residual gaps (missing helpers, installer edge cases, packaging issues) in the documentation along with recommended follow-up tasks or IRv1 extensions.
+- Execute the deterministic playbook captured in [`critical-create-generate-failure.md`](./critical-create-generate-failure.md#task-57--deterministic-validation-plan). The six subtasks there cover build gating, bootstrapper execution, scaffold dependency injection, composer healing, manifest validation, and packed CLI smoke tests.
+- Use the readiness registry to host any new helpers (`cli-runtime`, enhanced composer checks, manifest verifiers) so commands inherit them automatically once Task 57 lands.
+- Re-run the workflow in the same temp workspace to assert idempotency (detect should short-circuit; confirm should report clean state) and record timing baselines for installation and generate/apply runs.

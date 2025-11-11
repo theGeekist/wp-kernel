@@ -1,4 +1,5 @@
 import { createReporter } from '@wpkernel/core/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { WPKernelError } from '@wpkernel/core/error';
 import {
 	createReadinessHelper,
@@ -9,6 +10,62 @@ import {
 } from '..';
 
 describe('ReadinessRegistry', () => {
+	interface RecordedEntry {
+		readonly namespace: string;
+		readonly level: 'info' | 'warn' | 'error' | 'debug';
+		readonly message: string;
+		readonly context?: unknown;
+	}
+
+	function createRecordingReporter(): {
+		readonly reporter: Reporter;
+		readonly records: RecordedEntry[];
+	} {
+		const records: RecordedEntry[] = [];
+
+		function build(namespace: string[]): Reporter {
+			return {
+				info(message, context) {
+					records.push({
+						namespace: namespace.join('.'),
+						level: 'info',
+						message,
+						context,
+					});
+				},
+				warn(message, context) {
+					records.push({
+						namespace: namespace.join('.'),
+						level: 'warn',
+						message,
+						context,
+					});
+				},
+				error(message, context) {
+					records.push({
+						namespace: namespace.join('.'),
+						level: 'error',
+						message,
+						context,
+					});
+				},
+				debug(message, context) {
+					records.push({
+						namespace: namespace.join('.'),
+						level: 'debug',
+						message,
+						context,
+					});
+				},
+				child(childNamespace) {
+					return build([...namespace, childNamespace]);
+				},
+			} satisfies Reporter;
+		}
+
+		return { reporter: build([]), records };
+	}
+
 	function buildContext(overrides: Partial<DxContext> = {}): DxContext {
 		const reporter = createReporter({
 			namespace: 'wpk.test.dx',
@@ -162,5 +219,258 @@ describe('ReadinessRegistry', () => {
 			key: 'git',
 			status: 'failed',
 		});
+	});
+
+	it('emits reporter events for each readiness phase', async () => {
+		const registry = createReadinessRegistry();
+		const records = createRecordingReporter();
+		const detectionState: { steps: string[] } = { steps: [] };
+
+		registry.register(
+			createReadinessHelper({
+				key: 'composer',
+				async detect() {
+					return {
+						status: 'pending',
+						message: 'Composer dependencies missing.',
+						state: detectionState,
+					} satisfies ReadinessDetection<typeof detectionState>;
+				},
+				async prepare(_context, state) {
+					state.steps.push('prepare');
+					return { state };
+				},
+				async execute(_context, state) {
+					state.steps.push('execute');
+					return { state };
+				},
+				async confirm() {
+					return {
+						status: 'ready',
+						message: 'Composer ready.',
+						state: detectionState,
+					} satisfies ReadinessConfirmation<typeof detectionState>;
+				},
+			})
+		);
+
+		const plan = registry.plan(['composer']);
+		const result = await plan.run(
+			buildContext({ reporter: records.reporter })
+		);
+
+		expect(result.error).toBeUndefined();
+		expect(records.records).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					namespace: 'composer.detect',
+					level: 'info',
+					message: 'Detect phase started.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer.detect',
+					level: 'warn',
+					message: 'Detect phase reported pending readiness.',
+					context: expect.objectContaining({
+						status: 'pending',
+						message: 'Composer dependencies missing.',
+					}),
+				}),
+				expect.objectContaining({
+					namespace: 'composer.prepare',
+					level: 'info',
+					message: 'Prepare phase started.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer.prepare',
+					level: 'info',
+					message: 'Prepare phase completed.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer.execute',
+					level: 'info',
+					message: 'Execute phase started.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer.execute',
+					level: 'info',
+					message: 'Execute phase completed.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer.confirm',
+					level: 'info',
+					message: 'Confirm phase started.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer.confirm',
+					level: 'info',
+					message: 'Confirm phase reported ready.',
+					context: expect.objectContaining({
+						status: 'ready',
+						message: 'Composer ready.',
+					}),
+				}),
+				expect.objectContaining({
+					namespace: 'composer',
+					level: 'info',
+					message: 'Readiness helper completed.',
+					context: expect.objectContaining({ status: 'updated' }),
+				}),
+			])
+		);
+	});
+
+	it('logs ready helpers without pending phases', async () => {
+		const registry = createReadinessRegistry();
+		const records = createRecordingReporter();
+
+		registry.register(
+			createReadinessHelper({
+				key: 'git',
+				async detect() {
+					return {
+						status: 'ready',
+						message: 'Git repository clean.',
+						state: null,
+					} satisfies ReadinessDetection<null>;
+				},
+				async confirm() {
+					return {
+						status: 'ready',
+						message: 'Git ready.',
+						state: null,
+					} satisfies ReadinessConfirmation<null>;
+				},
+			})
+		);
+
+		const plan = registry.plan(['git']);
+		await plan.run(buildContext({ reporter: records.reporter }));
+
+		expect(records.records).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					namespace: 'git.detect',
+					level: 'info',
+					message: 'Detect phase started.',
+				}),
+				expect.objectContaining({
+					namespace: 'git.detect',
+					level: 'info',
+					message: 'Detect phase reported ready.',
+				}),
+				expect.objectContaining({
+					namespace: 'git.confirm',
+					level: 'info',
+					message: 'Confirm phase reported ready.',
+				}),
+				expect.objectContaining({
+					namespace: 'git',
+					level: 'info',
+					message: 'Readiness helper completed.',
+					context: expect.objectContaining({ status: 'ready' }),
+				}),
+			])
+		);
+	});
+
+	it('logs blocked helpers and skips confirmation', async () => {
+		const registry = createReadinessRegistry();
+		const records = createRecordingReporter();
+
+		registry.register(
+			createReadinessHelper({
+				key: 'composer',
+				async detect() {
+					return {
+						status: 'blocked',
+						message: 'Composer missing.',
+						state: null,
+					} satisfies ReadinessDetection<null>;
+				},
+				async confirm() {
+					return {
+						status: 'pending',
+						state: null,
+					} satisfies ReadinessConfirmation<null>;
+				},
+			})
+		);
+
+		const plan = registry.plan(['composer']);
+		await plan.run(buildContext({ reporter: records.reporter }));
+
+		expect(records.records).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					namespace: 'composer.detect',
+					level: 'info',
+					message: 'Detect phase started.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer.detect',
+					level: 'error',
+					message: 'Detect phase blocked readiness.',
+				}),
+				expect.objectContaining({
+					namespace: 'composer',
+					level: 'error',
+					message: 'Readiness helper blocked.',
+					context: expect.objectContaining({ status: 'blocked' }),
+				}),
+			])
+		);
+
+		expect(
+			records.records.some((entry) =>
+				entry.namespace.startsWith('composer.confirm')
+			)
+		).toBe(false);
+	});
+
+	it('warns when confirmation reports pending readiness', async () => {
+		const registry = createReadinessRegistry();
+		const records = createRecordingReporter();
+
+		registry.register(
+			createReadinessHelper({
+				key: 'workspace-hygiene',
+				async detect() {
+					return {
+						status: 'ready',
+						state: null,
+					} satisfies ReadinessDetection<null>;
+				},
+				async confirm() {
+					return {
+						status: 'pending',
+						message: 'Workspace requires review.',
+						state: null,
+					} satisfies ReadinessConfirmation<null>;
+				},
+			})
+		);
+
+		const plan = registry.plan(['workspace-hygiene']);
+		await plan.run(buildContext({ reporter: records.reporter }));
+
+		expect(records.records).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					namespace: 'workspace-hygiene.confirm',
+					level: 'warn',
+					message: 'Confirm phase reported pending readiness.',
+				}),
+				expect.objectContaining({
+					namespace: 'workspace-hygiene',
+					level: 'warn',
+					message: 'Readiness helper pending follow-up.',
+					context: expect.objectContaining({
+						status: 'pending',
+						message: 'Workspace requires review.',
+					}),
+				}),
+			])
+		);
 	});
 });

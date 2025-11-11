@@ -10,6 +10,40 @@
 2. Running `pnpm wpk generate` afterwards immediately crashes because the CLI runtime expects a lazy dependency on `tsx`, which the scaffold never installs. Installing `tsx` manually unblocks that step.
 3. A second crash follows: the CLI looks for `node_modules/@wpkernel/cli/dist/packages/php-driver/php/pretty-print.php`, but the published bundle does not contain that `php` directory. The actual script lives under `@wpkernel/php-driver/php/pretty-print.php`, so the process aborts even though composer assets (and `vendor/autoload.php`) exist.
 
+## Manual regression check (local workspace build)
+
+### Workspace build attempt
+
+Running the package builds in release order immediately surfaces the missing module graph that doomed the earlier bootstrapper. `pnpm --filter @wpkernel/create-wpk build` fails until the core dist is produced, and the core build itself aborts until `@wpkernel/pipeline` ships compiled helpers. Even after backfilling the pipeline and php-driver bundles, `pnpm --filter @wpkernel/cli build` collapses with 182 TypeScript errors because the CLI references generated reporter/context types that the php-json-ast and wp-json-ast packages have not emitted yet. The log shows vite attempting to bundle the CLI before those artefacts exist and bailing on `@wpkernel/php-driver` exports. 【90df11†L1-L18】【21c693†L1-L18】【c3c284†L1-L32】【9e4991†L1-L80】
+
+### Compiled bootstrapper smoke test
+
+With the partial builds in place, invoking the compiled bootstrapper (`node packages/create-wpk/dist/index.js my-plugin`) from a clean `/tmp` workspace immediately crashes. Node cannot resolve the bundled php-driver import because the CLI dist still expects `node_modules/@wpkernel/php-driver/dist/index.js`, so the process exits before any readiness helper runs. 【4940cc†L1-L19】
+
+### Source-mode scaffolding (skip install)
+
+After forcing source mode (`WPK_CLI_FORCE_SOURCE=1`) and rebuilding the php/json AST packages, the bootstrapper finally scaffolds a plugin. The readiness log captures the hygiene, git, PHP runtime, and php-driver helpers marching through detect → confirm while we deliberately skip dependency installation to keep timing measurements clean. 【24a1ea†L1-L16】【c641b0†L1-L1】【f68c56†L1-L26】
+
+### Baseline installation timing and binary gap
+
+Executing `pnpm install` inside the scaffolded plugin takes 8.1 s on this container once `skip-install` is lifted, which gives us a repeatable baseline for readiness timing gates. Even after the install completes, `node_modules/.bin` still lacks a `wpk` entry and `pnpm wpk generate` fails immediately, confirming that the generated workspace omits both `@wpkernel/cli` and its `tsx` peer dependency. 【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】
+
+### Tarball installation attempt
+
+Packing the CLI (`pnpm pack --filter @wpkernel/cli`) produces a tarball, but installing it into the scaffold (`pnpm add -D wpkernel-cli-0.12.1-beta.2.tgz`) is blocked because npm cannot satisfy the unpublished peer ranges—the resolver insists on fetching `@wpkernel/php-driver@0.12.1-beta.2`, which does not exist. This mirrors the original npm failure mode and proves we can reproduce it deterministically before release. 【07492e†L1-L287】【a6f825†L1-L11】
+
+### Running CLI from source (pre-composer)
+
+Manually wiring the CLI binary via `WPK_CLI_FORCE_SOURCE=1 node packages/cli/bin/wpk.js generate` gets us into the runtime, but the PHP printer aborts because the scaffold’s composer manifest never pulled in `nikic/php-parser`. The readiness helper logs show the php-driver probe running, the installer attempting to backfill composer dependencies, and the fatal error explaining that autoload metadata is missing. 【b9a035†L1-L1】【de93ab†L1-L29】
+
+### Composer dependency backfill
+
+Running `composer require nikic/php-parser` inside the scaffold resolves the missing autoload, confirming that the CLI can only generate after composer writes the vendor tree. This manual step is the regression we need DX readiness to detect and heal automatically. 【c07f32†L1-L2】【5f1634†L1-L12】
+
+### Generate manifest failure
+
+Even after composer succeeds, the generate flow still fails because the apply pipeline never emits `.wpk/apply/manifest.json`. The CLI exits with `Failed to locate apply manifest after generation`, and inspecting `.wpk/apply` confirms that only `plan.json` and `state.json` exist. No manifest means `wpk apply` cannot replay the plan, so readiness must gate this before release. 【e50464†L1-L1】【55d118†L1-L4】【e163da†L1-L8】
+
 ### Assessment
 
 - The proposal to stand up a DX-specific orchestration layer on top of `@wpkernel/pipeline` is technically viable. The pipeline runtime is already reused outside the CLI (for example, the core resource pipeline wires its own context, helper kinds, and run result without touching generation code), so creating another configuration that produces “environment readiness” artefacts is consistent with current patterns.
@@ -24,6 +58,15 @@
 - Dependency fulfilment still relies on the synchronous npm/composer installers. A deterministic helper needs to account for their side effects (including stderr capturing for actionable diagnostics) so that retries and rollbacks behave well.
 - Reporter/log output must remain compatible with the LogLayer transports already configured in the CLI utilities. When you emit DX events, thread them through the same reporter API so structured logs and spinner output stay aligned.
 - Adding the new living document under `.vitepress` will require nav/index updates per the docs contribution guide; bake that into the plan so we don’t strand the page without navigation links.
+
+## Task 57 – Deterministic validation plan
+
+1. **Gate the build chain with a release smoke test.** Extend the DX readiness suite with a `createPackagedCliBuild` helper that executes the same `pnpm --filter` build sequence we ran manually (`@wpkernel/pipeline` → `@wpkernel/core` → `@wpkernel/php-driver` → `@wpkernel/cli` → `@wpkernel/create-wpk`). Capture the `ERR_MODULE_NOT_FOUND` and TypeScript diagnostics that appear when any dist artefact is missing, and fail the helper until all five packages compile. Wire this helper into a CI job that runs `pnpm pack` and uploads the tarballs for downstream checks so the missing `.js` extensions and uncompiled deps are caught before publish. 【90df11†L1-L18】【21c693†L1-L18】【c3c284†L1-L32】【9e4991†L1-L80】【07492e†L1-L287】
+2. **Add a bootstrapper execution probe.** Create an integration test under `packages/create-wpk/tests` that shells out to the compiled `dist/index.js` in a temp directory. Assert that it exits cleanly without needing `WPK_CLI_FORCE_SOURCE=1` and emits the same readiness events we observe in source mode. Fail the test if Node reports the php-driver module is missing, reproducing the crash we hit in `/tmp`. 【4940cc†L1-L19】
+3. **Ensure scaffolds install the CLI and tsx automatically.** Update the create/init readiness plan to inject a `cli-runtime` helper that edits the generated `package.json` before installers run, adding `@wpkernel/cli` and `tsx` devDependencies plus the appropriate lockfile updates. Extend the readiness registry tests to verify that a subsequent `pnpm install` drops a `wpk` binary into `node_modules/.bin` and that the helper logs the elapsed installation time (targeting the observed 8.1 s baseline). 【f68c56†L1-L26】【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】
+4. **Harden composer readiness for the PHP printer.** Expand `packages/cli/src/dx/readiness/helpers/composer.ts` so it checks for `nikic/php-parser` inside `vendor/composer/installed.json`, installs it when absent, and records the outcome in the reporter log. Cover the helper with an integration test that boots a scaffold lacking vendor files, confirming that the CLI no longer aborts with the php-parser error we reproduced. 【de93ab†L1-L29】【c07f32†L1-L2】【5f1634†L1-L12】
+5. **Verify apply manifest emission.** Add a regression harness to `packages/cli/tests/workspace.test-support.ts` that runs `wpk generate` inside a fixture workspace and asserts that `.wpk/apply/manifest.json` exists with at least one planned action. Extend the readiness registry to surface a fatal diagnostic when the manifest is missing so the command never reaches `wpk apply` with an empty plan. 【55d118†L1-L4】【e163da†L1-L8】
+6. **Exercise the packed CLI end-to-end.** Introduce a CI pipeline step that installs the freshly packed tarball into a temp project, runs `pnpm install`, and executes `npx wpk generate`/`npx wpk apply`. Record the elapsed install and command durations so we can enforce upper bounds going forward, and ensure the job fails when npm cannot resolve the unpublished peer ranges we observed locally. 【a6f825†L1-L11】
 
 ## Additional notes
 
