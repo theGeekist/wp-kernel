@@ -10,6 +10,11 @@ export { createPhpRuntimeReadinessHelper } from './phpRuntime';
 export type { PhpRuntimeDependencies, PhpRuntimeState } from './phpRuntime';
 export { createPhpDriverReadinessHelper } from './phpDriver';
 export type { PhpDriverDependencies, PhpDriverState } from './phpDriver';
+export { createPhpPrinterPathReadinessHelper } from './phpPrinterPath';
+export type {
+	PhpPrinterPathDependencies,
+	PhpPrinterPathState,
+} from './phpPrinterPath';
 export { createWorkspaceHygieneReadinessHelper } from './workspaceHygiene';
 export type {
 	WorkspaceHygieneDependencies,
