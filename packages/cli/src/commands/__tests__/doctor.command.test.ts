@@ -20,6 +20,7 @@ const DOCTOR_READINESS_KEYS: ReadinessKey[] = [
 	'composer',
 	'php-runtime',
 	'php-driver',
+	'php-printer-path',
 ];
 
 describe('buildDoctorCommand', () => {
@@ -68,6 +69,11 @@ describe('buildDoctorCommand', () => {
 			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
 			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
 			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
+			createReadinessOutcome(
+				'php-printer-path',
+				'ready',
+				'Printer path ok.'
+			),
 		]);
 	});
 
@@ -99,6 +105,9 @@ describe('buildDoctorCommand', () => {
 		);
 		expect(stdout.toString()).toContain('[PASS] PHP runtime: Runtime ok.');
 		expect(stdout.toString()).toContain('[PASS] PHP driver: Driver ok.');
+		expect(stdout.toString()).toContain(
+			'[PASS] PHP printer path: Printer path ok.'
+		);
 		expect(readinessRegistryPlan).toHaveBeenCalledWith(
 			DOCTOR_READINESS_KEYS
 		);
@@ -142,6 +151,11 @@ describe('buildDoctorCommand', () => {
 				'pending',
 				'pending'
 			),
+			createReadinessOutcome(
+				'php-printer-path',
+				'ready',
+				'Printer path ok.'
+			),
 		]);
 
 		const DoctorCommand = buildDoctorCommand({
@@ -175,6 +189,11 @@ describe('buildDoctorCommand', () => {
 			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
 			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
 			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
+			createReadinessOutcome(
+				'php-printer-path',
+				'ready',
+				'Printer path ok.'
+			),
 		]);
 
 		const DoctorCommand = buildDoctorCommand({
@@ -234,6 +253,11 @@ describe('buildDoctorCommand', () => {
 			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
 			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
 			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
+			createReadinessOutcome(
+				'php-printer-path',
+				'ready',
+				'Printer path ok.'
+			),
 		]);
 
 		const DoctorCommand = buildDoctorCommand({
