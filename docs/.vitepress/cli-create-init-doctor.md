@@ -12,13 +12,13 @@ Phase 9 runs in the 0.12.x band and keeps the `@wpkernel/pipeline` contract unto
 
 ## Task ledger
 
-| Task | Scope               | Status      | Notes                                                                                         |
-| ---- | ------------------- | ----------- | --------------------------------------------------------------------------------------------- |
-| 53   | Discovery & mapping | ✅ Complete | Consolidated command/runtime surfaces and readiness unit inventory.                           |
-| 54   | DXIRv1 foundation   | ✅ Complete | DX context + readiness registry landed with helpers for git, composer, PHP, tsx, and hygiene. |
-| 55   | Command integration | ✅ Complete | Route create/init/doctor/generate/apply through DXIRv1 without regressing workflows.          |
-| 56   | Reporter & logging  | ⬜ Planned  | Align DX events with existing LogLayer transports and error surfaces.                         |
-| 57   | Validation sweep    | ⬜ Planned  | Exercise the packed CLI (`pnpm pack`) in a temp workspace to confirm readiness idempotency.   |
+| Task | Scope               | Status      | Notes                                                                                               |
+| ---- | ------------------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| 53   | Discovery & mapping | ✅ Complete | Consolidated command/runtime surfaces and readiness unit inventory.                                 |
+| 54   | DXIRv1 foundation   | ✅ Complete | DX context + readiness registry landed with helpers for git, composer, PHP, tsx, and hygiene.       |
+| 55   | Command integration | ✅ Complete | Route create/init/doctor/generate/apply through DXIRv1 without regressing workflows.                |
+| 56   | Reporter & logging  | ⬜ Planned  | Align DX events with existing LogLayer transports and error surfaces.                               |
+| 57   | ReleasePack Chain   | ⬜ Planned  | Launch the publish-order build probe; follow-on validation tasks live in the worklog (Tasks 57–70). |
 
 ## Discovery baseline (Task 53)
 
@@ -101,8 +101,7 @@ Readiness orchestration now scopes every helper beneath the command reporter’s
 
 The registry emits a consistent sequence: phase start messages at `info`, phase outcomes mapped to `info`/`warn`/`error` based on readiness status, and a final helper summary log once confirmation completes. Blocked helpers short‑circuit after detection and surface an error log alongside the aggregated outcome, while failures annotate the phase channel before cleanup/rollback begins. Commands should continue to pass `reporter.child('readiness')` into DX helpers so transports and hooks inherit this structure.
 
-## Task 57 – Validation sweep
+## Task 57 – ReleasePack Chain (planned)
 
-- Execute the Deterministic DXIRv1 validation plan in [`critical-create-generate-failure.md`](./critical-create-generate-failure.md#task-57--deterministic-validation-plan). Subtasks 57a–57n span build gating, bootstrapper resolution, quickstart fidelity, TSX/CLI runtime shims, PHP printer integrity, composer independence, manifest emission, workspace hygiene, timing budgets, packed end-to-end parity, package-manager coverage, runtime matrix sweeps, peer-range enforcement, and docs fidelity.
-- Land every probe beside the readiness helper it exercises (`packages/cli/src/dx/readiness/helpers/*`) and extend the registry tests under `packages/cli/src/dx/readiness/__tests__/registry.test.ts` to capture the new error codes and timing metrics.
-- Re-run the quickstart, packed, and matrix probes in the same temp workspace after each fix to prove idempotency (detect short-circuits, confirm reports a clean state) and record timing baselines for installers, composer healing, generate, and apply.
+- Follow the worklog guidance under [Task 57 — ReleasePack Chain](./critical-create-generate-failure.md#task-57--releasepack-chain) to bootstrap the publish-order probe and update the completion log after each run.
+- Tasks 58–70 in the worklog expand this validation track to cover the bootstrapper, quickstart scaffolds, runtime shims, packaging integrity, matrix sweeps, peer ranges, and docs parity—treat each completion log as the canonical status ledger for Phase 9.
