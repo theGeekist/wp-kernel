@@ -1,6 +1,6 @@
 import os from 'node:os';
 import path from 'node:path';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { access, mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -28,8 +28,28 @@ describe('php-driver tarball audit', () => {
 		const packDestination = await mkdtemp(
 			path.join(os.tmpdir(), 'wpk-php-driver-pack-')
 		);
+		const distDir = path.join(
+			PROJECT_ROOT,
+			'packages',
+			'php-driver',
+			'dist'
+		);
+		const distEntry = path.join(distDir, 'index.js');
+		let createdDist = false;
 
 		try {
+			await access(distEntry).catch(
+				async (error: NodeJS.ErrnoException) => {
+					if (error?.code !== 'ENOENT') {
+						throw error;
+					}
+
+					await mkdir(distDir, { recursive: true });
+					await writeFile(distEntry, 'export {};\n', 'utf8');
+					createdDist = true;
+				}
+			);
+
 			const { stdout } = await execFileAsync(
 				'pnpm',
 				[
@@ -73,6 +93,9 @@ describe('php-driver tarball audit', () => {
 			expect(tarEntries).toContain('package/php/pretty-print.php');
 			expect(tarEntries).toContain('package/dist/index.js');
 		} finally {
+			if (createdDist) {
+				await rm(distDir, { recursive: true, force: true });
+			}
 			await rm(packDestination, { recursive: true, force: true });
 		}
 	});
