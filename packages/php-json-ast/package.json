@@ -53,6 +53,7 @@
 	},
 	"files": [
 		"dist",
+		"php",
 		"README.md",
 		"LICENSE"
 	],

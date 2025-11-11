@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 export interface ResolvePhpCodemodIngestionScriptOptions {
@@ -22,14 +23,19 @@ export interface PhpCodemodIngestionResult {
 	readonly stderr: string;
 }
 
+const DEFAULT_IMPORT_META_URL = resolveImportMetaUrl();
+
 export function resolvePhpCodemodIngestionScriptPath(
 	options: ResolvePhpCodemodIngestionScriptOptions = {}
 ): string {
 	const candidates: (string | null)[] = [];
+	const importMetaUrl = options.importMetaUrl ?? DEFAULT_IMPORT_META_URL;
 
-	if (options.importMetaUrl) {
-		candidates.push(resolveFromImportMeta(options.importMetaUrl));
+	if (importMetaUrl) {
+		candidates.push(resolveFromImportMeta(importMetaUrl));
 	}
+
+	candidates.push(resolveFromPackageRoot(importMetaUrl));
 
 	if (typeof __dirname === 'string') {
 		candidates.push(
@@ -37,13 +43,16 @@ export function resolvePhpCodemodIngestionScriptPath(
 		);
 	}
 
+	candidates.push(resolveFromPackageRoot(undefined));
+	candidates.push(resolveFromProcessCwd());
+
 	for (const candidate of candidates) {
 		if (candidate) {
 			return candidate;
 		}
 	}
 
-	return resolveFromProcessCwd();
+	return path.resolve(process.cwd(), 'php', 'ingest-program.php');
 }
 
 export async function runPhpCodemodIngestion(
@@ -137,6 +146,27 @@ function resolveFromImportMeta(
 	}
 }
 
+function resolveFromPackageRoot(
+	importMetaUrl: string | undefined
+): string | null {
+	try {
+		const modulePath = resolveModuleFilePath(importMetaUrl);
+		const require = createRequire(
+			modulePath ?? path.join(process.cwd(), 'index.js')
+		);
+		const packageJsonPath = require.resolve(
+			'@wpkernel/php-json-ast/package.json'
+		);
+		return path.resolve(
+			path.dirname(packageJsonPath),
+			'php',
+			'ingest-program.php'
+		);
+	} catch {
+		return null;
+	}
+}
+
 function resolveFromProcessCwd(): string {
 	return path.resolve(process.cwd(), 'php', 'ingest-program.php');
 }
@@ -162,4 +192,33 @@ function waitForChild(child: ReturnType<typeof spawn>): Promise<number | null> {
 		child.once('error', (error) => settleReject(error));
 		child.once('close', (code) => settleResolve(code));
 	});
+}
+
+function resolveImportMetaUrl(): string | undefined {
+	try {
+		// eslint-disable-next-line no-eval -- evaluated lazily to avoid syntax errors when transpiled to CJS
+		return (0, eval)(
+			'import.meta && import.meta.url ? import.meta.url : undefined'
+		);
+	} catch {
+		return undefined;
+	}
+}
+
+function resolveModuleFilePath(
+	importMetaUrl: string | undefined
+): string | null {
+	if (importMetaUrl) {
+		try {
+			return fileURLToPath(importMetaUrl);
+		} catch {
+			// fall through to other strategies
+		}
+	}
+
+	if (typeof __filename === 'string') {
+		return __filename;
+	}
+
+	return null;
 }

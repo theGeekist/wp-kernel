@@ -10,6 +10,11 @@ export { createPhpRuntimeReadinessHelper } from './phpRuntime';
 export type { PhpRuntimeDependencies, PhpRuntimeState } from './phpRuntime';
 export { createPhpDriverReadinessHelper } from './phpDriver';
 export type { PhpDriverDependencies, PhpDriverState } from './phpDriver';
+export { createPhpCodemodIngestionReadinessHelper } from './phpCodemodIngestion';
+export type {
+	PhpCodemodIngestionDependencies,
+	PhpCodemodIngestionState,
+} from './phpCodemodIngestion';
 export { createPhpPrinterPathReadinessHelper } from './phpPrinterPath';
 export type {
 	PhpPrinterPathDependencies,
