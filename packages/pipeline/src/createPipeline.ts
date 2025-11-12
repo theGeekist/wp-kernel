@@ -599,7 +599,8 @@ export function createPipeline<
 		maybePending: MaybePromise<T>
 	): MaybePromise<T> => {
 		if (maybePending && isPromiseLike(maybePending)) {
-			const pending = Promise.resolve(maybePending).then(() => {});
+			const pending = Promise.resolve(maybePending).then(() => undefined);
+			pending.catch(() => {});
 			pendingExtensionRegistrations.push(pending);
 		}
 
