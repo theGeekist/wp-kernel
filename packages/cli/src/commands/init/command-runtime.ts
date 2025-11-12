@@ -72,16 +72,20 @@ export interface InitCommandReadinessRuntime {
 	) => Promise<ReadinessRunResult>;
 }
 
-function helperIncludesScope(
-	helper: ReadinessHelperDescriptor,
-	scope: string
+const INIT_COMMAND_DEFAULT_SCOPES: ReadonlySet<string> = new Set([
+	'init',
+	'create',
+]);
+
+function helperMatchesInitCommandDefaultScopes(
+	helper: ReadinessHelperDescriptor
 ): boolean {
 	const scopes = helper.metadata.scopes;
 	if (!scopes || scopes.length === 0) {
 		return true;
 	}
 
-	return scopes.includes(scope);
+	return scopes.some((scope) => INIT_COMMAND_DEFAULT_SCOPES.has(scope));
 }
 
 export function createInitCommandRuntime(
@@ -137,7 +141,7 @@ export function createInitCommandRuntime(
 
 	const helperDescriptors = readinessRegistry.describe();
 	const defaultKeys = helperDescriptors
-		.filter((helper) => helperIncludesScope(helper, 'init'))
+		.filter(helperMatchesInitCommandDefaultScopes)
 		.map((helper) => helper.key);
 
 	const readinessRuntime: InitCommandReadinessRuntime = {

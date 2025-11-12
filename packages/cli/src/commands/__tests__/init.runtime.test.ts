@@ -1,6 +1,7 @@
 import type { Command } from 'clipanion';
 import type { ReporterOptions } from '@wpkernel/core/reporter';
 import type { InitWorkflowOptions } from '../init/workflow';
+import type { ReadinessRegistry } from '../../dx';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
@@ -98,6 +99,60 @@ describe('init command runtime helpers', () => {
 		);
 		expect(runtime.readiness.defaultKeys.length).toBeGreaterThan(0);
 		expect(() => runtime.readiness.plan([])).not.toThrow();
+	});
+
+	it('includes helpers scoped only to create when deriving default readiness keys', () => {
+		const workspace = makeWorkspaceMock({ root: '/tmp/create-only' });
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
+
+		const buildWorkspace = jest.fn(() => workspace);
+		const buildReporter = jest.fn(() => reporter);
+		const runWorkflow = jest.fn();
+
+		const describe = jest.fn(() => [
+			{
+				key: 'init-only',
+				metadata: { label: 'Init helper', scopes: ['init'] },
+			},
+			{
+				key: 'create-only',
+				metadata: { label: 'Create helper', scopes: ['create'] },
+			},
+			{
+				key: 'generate-only',
+				metadata: { label: 'Generate helper', scopes: ['generate'] },
+			},
+			{
+				key: 'global-helper',
+				metadata: { label: 'Global helper' },
+			},
+		]);
+
+		const plan = jest.fn((keys: readonly string[]) => ({
+			keys: [...keys],
+			run: jest.fn(async () => ({ outcomes: [] })),
+		}));
+
+		const runtime = createInitCommandRuntime(
+			{
+				buildWorkspace,
+				buildReporter,
+				runWorkflow,
+				buildReadinessRegistry: () =>
+					({ describe, plan }) as unknown as ReadinessRegistry,
+			},
+			{
+				reporterNamespace: 'wpk.cli.test',
+				workspaceRoot: workspace.root,
+			}
+		);
+
+		expect(runtime.readiness.defaultKeys).toEqual([
+			'init-only',
+			'create-only',
+			'global-helper',
+		]);
 	});
 
 	it('formats wpk errors consistently for init workflow consumers', () => {
