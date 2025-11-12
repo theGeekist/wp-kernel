@@ -195,7 +195,9 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 **Probe.** Add a readiness helper that resolves `pretty-print.php` via the runtime path logic, failing with `EnvironmentalError(php.printerPath.mismatch)` when the path differs between source and tarball.【F:packages/cli/src/runtime/php.ts†L12-L139】
 
-**Fix.** Update package exports and bundler configs so the helper passes in both environments. Cover with source and packed install tests.
+**Fix.** Update package exports and bundler configs so the helper passes in both environments. Cover with source and packed install tests. The CLI now includes a `php-codemod-ingestion` readiness helper that resolves `@wpkernel/php-json-ast/php/ingest-program.php` via the same ingestion runner used at runtime, failing fast when the tarball omits the script or points at mismatched paths.
+
+`createPhpPrinterPathReadinessHelper` now aligns runtime and module resolution by probing canonical paths, raising `EnvironmentalError(php.printerPath.mismatch)` when they diverge. Unit coverage exercises missing runtime assets, resolver failures, and mismatched canonical paths to keep the readiness signal deterministic.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
 
 `createPhpPrinterPathReadinessHelper` now aligns runtime and module resolution by probing canonical paths, raising `EnvironmentalError(php.printerPath.mismatch)` when they diverge. Unit coverage exercises missing runtime assets, resolver failures, and mismatched canonical paths to keep the readiness signal deterministic.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
 

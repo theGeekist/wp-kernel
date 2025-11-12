@@ -8,6 +8,7 @@ export * from './context';
 export * from './builderChannel';
 export * from './driver/programIngestion';
 export * from './driver/codemods';
+export * from './driver/ingestionRunner';
 export * from './codemods/baselinePack';
 export * from './codemods/types';
 export * from './driver/programIngestionUtils';

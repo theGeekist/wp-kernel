@@ -74,6 +74,7 @@ describe('CreateCommand', () => {
 			'composer',
 			'php-runtime',
 			'php-driver',
+			'php-codemod-ingestion',
 			'php-printer-path',
 			'tsx-runtime',
 		]);
@@ -127,6 +128,7 @@ describe('CreateCommand', () => {
 			'git',
 			'php-runtime',
 			'php-driver',
+			'php-codemod-ingestion',
 			'php-printer-path',
 		]);
 		expect(readinessRun).toHaveBeenCalledTimes(1);

@@ -7,6 +7,7 @@ export type ReadinessKey =
 	| 'composer'
 	| 'git'
 	| 'php-driver'
+	| 'php-codemod-ingestion'
 	| 'php-printer-path'
 	| 'php-runtime'
 	| 'bootstrapper-resolution'
