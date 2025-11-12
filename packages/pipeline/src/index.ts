@@ -68,3 +68,7 @@ export type {
 	RollbackErrorArgs,
 } from './extensions';
 export { createRollbackErrorMetadata } from './extensions';
+
+// Blueprint exports for official extensions
+export { OFFICIAL_EXTENSION_BLUEPRINTS } from './extensions/official';
+export type { OfficialExtensionBlueprint } from './extensions/official';

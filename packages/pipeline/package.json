@@ -18,6 +18,11 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
+		"./extensions": {
+			"types": "./dist/extensions/index.d.ts",
+			"import": "./dist/extensions/index.js",
+			"default": "./dist/extensions/index.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
