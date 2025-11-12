@@ -3,7 +3,9 @@ import type { ReadinessKey } from './types';
 import {
 	createComposerReadinessHelper,
 	createGitReadinessHelper,
+	createPhpCodemodIngestionReadinessHelper,
 	createPhpDriverReadinessHelper,
+	createPhpPrinterPathReadinessHelper,
 	createPhpRuntimeReadinessHelper,
 	createBootstrapperResolutionReadinessHelper,
 	createReleasePackReadinessHelper,
@@ -11,12 +13,16 @@ import {
 	createWorkspaceHygieneReadinessHelper,
 	type ComposerHelperOverrides,
 	type GitHelperDependencies,
+	type PhpCodemodIngestionDependencies,
 	type PhpDriverDependencies,
+	type PhpPrinterPathDependencies,
 	type PhpRuntimeDependencies,
 	type BootstrapperResolutionHelperOptions,
 	type ReleasePackHelperOptions,
 	type TsxRuntimeDependencies,
 	type WorkspaceHygieneDependencies,
+	createQuickstartReadinessHelper,
+	type QuickstartHelperOptions,
 } from './helpers';
 
 export interface DefaultReadinessHelperOverrides {
@@ -24,10 +30,13 @@ export interface DefaultReadinessHelperOverrides {
 	readonly composer?: ComposerHelperOverrides;
 	readonly phpRuntime?: Partial<PhpRuntimeDependencies>;
 	readonly phpDriver?: Partial<PhpDriverDependencies>;
+	readonly phpCodemodIngestion?: Partial<PhpCodemodIngestionDependencies>;
+	readonly phpPrinterPath?: Partial<PhpPrinterPathDependencies>;
 	readonly tsxRuntime?: Partial<TsxRuntimeDependencies>;
 	readonly workspaceHygiene?: Partial<WorkspaceHygieneDependencies>;
 	readonly releasePack?: ReleasePackHelperOptions;
 	readonly bootstrapperResolution?: BootstrapperResolutionHelperOptions;
+	readonly quickstart?: QuickstartHelperOptions;
 }
 
 export interface BuildDefaultReadinessRegistryOptions {
@@ -40,9 +49,12 @@ export const DEFAULT_READINESS_ORDER: ReadonlyArray<ReadinessKey> = [
 	'composer',
 	'php-runtime',
 	'php-driver',
+	'php-codemod-ingestion',
+	'php-printer-path',
 	'tsx-runtime',
 	'release-pack',
 	'bootstrapper-resolution',
+	'quickstart',
 ];
 
 export function registerDefaultReadinessHelpers(
@@ -56,6 +68,12 @@ export function registerDefaultReadinessHelpers(
 	registry.register(createComposerReadinessHelper(overrides.composer));
 	registry.register(createPhpRuntimeReadinessHelper(overrides.phpRuntime));
 	registry.register(createPhpDriverReadinessHelper(overrides.phpDriver));
+	registry.register(
+		createPhpCodemodIngestionReadinessHelper(overrides.phpCodemodIngestion)
+	);
+	registry.register(
+		createPhpPrinterPathReadinessHelper(overrides.phpPrinterPath)
+	);
 	registry.register(createTsxRuntimeReadinessHelper(overrides.tsxRuntime));
 	registry.register(createReleasePackReadinessHelper(overrides.releasePack));
 	registry.register(
@@ -63,6 +81,7 @@ export function registerDefaultReadinessHelpers(
 			overrides.bootstrapperResolution
 		)
 	);
+	registry.register(createQuickstartReadinessHelper(overrides.quickstart));
 }
 
 export function buildDefaultReadinessRegistry(

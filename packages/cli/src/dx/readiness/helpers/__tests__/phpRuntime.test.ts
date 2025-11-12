@@ -24,5 +24,24 @@ describe('createPhpRuntimeReadinessHelper', () => {
 			createReadinessTestContext({ workspace: null })
 		);
 		expect(detection.status).toBe('blocked');
+		expect(detection.message).toBe('PHP binary not available on PATH.');
+
+		const confirmation = await helper.confirm(
+			createReadinessTestContext({ workspace: null }),
+			detection.state
+		);
+		expect(confirmation.status).toBe('pending');
+		expect(confirmation.message).toBe('PHP binary still missing.');
+	});
+
+	it('handles unknown version output gracefully', async () => {
+		const helper = createPhpRuntimeReadinessHelper({
+			exec: jest.fn().mockResolvedValue({ stdout: '' }),
+		});
+		const context = createReadinessTestContext({ workspace: null });
+		const detection = await helper.detect(context);
+
+		expect(detection.message).toBe('PHP detected (unknown).');
+		expect(detection.state.version).toBe('unknown');
 	});
 });

@@ -135,7 +135,8 @@ Ensure the quickstart scaffold mirrors public docs and exposes a working `wpk` b
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-02-14 — Quickstart readiness helper now scaffolds via `npm create @wpkernel/wpk`, verifies the bundled `wpk` binary and `tsx` runtime, and the init template ships both dependencies with fixture coverage.
+- [x] 2025-02-15 — Readiness logging now records the `npm create` and `wpk generate` durations alongside the resolved binary and `tsx` module paths so the quickstart ledger can cite reproducible timings and asset locations.【F:packages/cli/src/dx/readiness/helpers/quickstart.ts†L288-L297】
 
 **Discovery to finish before coding.**
 
@@ -146,7 +147,7 @@ Ensure the quickstart scaffold mirrors public docs and exposes a working `wpk` b
 
 **Probe.** Enhance the quickstart helper to create a project via `npm create @wpkernel/wpk` and immediately run `wpk generate`, failing with `EnvironmentalError(cli.binary.missing)` or `EnvironmentalError(tsx.missing)` when dependencies are absent.【F:docs/.vitepress/critical-create-generate-failure.md†L107-L138】
 
-**Fix.** Update scaffold templates so `@wpkernel/cli` and `tsx` land deterministically with lockfile support. Add fixture coverage verifying scripts resolve `wpk` without `pnpm exec` fallbacks.
+**Fix.** Update scaffold templates so `@wpkernel/cli` and `tsx` land deterministically with lockfile support, extend init integration coverage to assert both devDependencies resolve, and wire the quickstart readiness helper to fail fast with `EnvironmentalError(cli.binary.missing)` or `EnvironmentalError(tsx.missing)` before running `wpk generate`.
 
 **Retire.** Expecting users to install dependencies manually.
 
@@ -154,7 +155,9 @@ Ensure the quickstart scaffold mirrors public docs and exposes a working `wpk` b
 
 **Probe.** Ensure readiness logs capture install timings and binary detection results, mapping them to doc references (`wpk generate`).
 
-**Fix.** Update docs and readiness outputs to show the direct `wpk` usage, and snapshot the reporter transcript.
+**Fix.** Log quickstart scaffold timings and resolved binary/module paths through the readiness reporter so docs can cite repeatable install baselines and the observed `wpk generate` run.
+
+The helper reports the `npm create` and `wpk generate` durations in the readiness info channel and emits debug entries for the located binary and `tsx` runtime, giving us deterministic artefacts to cite in this log. The success message mirrors those timings, which the unit harness now asserts to keep the messaging stable for future doc updates.【F:packages/cli/src/dx/readiness/helpers/quickstart.ts†L269-L323】【F:packages/cli/src/dx/readiness/helpers/**tests**/quickstart.test.ts†L79-L118】
 
 **Retire.** Divergence between quickstart behaviour and published instructions.
 
@@ -164,13 +167,15 @@ Guarantee the CLI detects and installs `tsx` deterministically with idempotent r
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-02-16 — Added the `createTsxRuntimeReadinessHelper` to resolve `tsx` via the CLI module loader paths, install the package with `npm install --save-dev tsx` when absent, and register cleanup so temporary installs are removed after readiness completes.【F:packages/cli/src/dx/readiness/helpers/tsxRuntime.ts†L23-L126】【F:packages/cli/src/dx/readiness/helpers/**tests**/tsxRuntime.test.ts†L7-L48】
 
-**Probe.** Extend `packages/cli/src/dx/readiness/helpers/tsx.ts` to resolve `tsx` exactly as the CLI loader does, surfacing `EnvironmentalError(tsx.missing)` with module-not-found diagnostics when absent.
+**Probe.** Extend `packages/cli/src/dx/readiness/helpers/tsxRuntime.ts` to resolve `tsx` exactly as the CLI loader does, surfacing `EnvironmentalError(tsx.missing)` with module-not-found diagnostics when absent.
 
 **Fix.** Implement deterministic installation or bundling of `tsx`, recording whether work was performed. Document rerun behaviour (short-circuit) in this file once complete.
 
 **Retire.** Implicit devDependency assumptions.
+
+Reruns now short-circuit because the helper reports `ready` when `tsx` is already discoverable, skipping installation while the confirmation step revalidates the resolved module path before exiting.【F:packages/cli/src/dx/readiness/helpers/tsxRuntime.ts†L70-L125】
 
 ## Task 61 — PHP Printer Path Integrity
 
@@ -178,7 +183,8 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-02-15 — Added the `php-printer-path` readiness helper to compare runtime and module resolutions with canonical `realpath` probes and unit coverage for missing asset and mismatch diagnostics.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
+- [x] 2025-02-15 — Packed tarball audit now runs `pnpm --filter @wpkernel/php-driver pack --json` plus `tar -tf` to assert the bundle ships `php/pretty-print.php` alongside compiled dist artefacts, with README guidance documenting the expected layout.【F:packages/cli/src/dx/readiness/helpers/**tests**/phpDriverTarball.test.ts†L1-L88】【F:packages/php-driver/README.md†L5-L17】
 
 **Discovery to finish before coding.**
 
@@ -189,7 +195,11 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 **Probe.** Add a readiness helper that resolves `pretty-print.php` via the runtime path logic, failing with `EnvironmentalError(php.printerPath.mismatch)` when the path differs between source and tarball.【F:packages/cli/src/runtime/php.ts†L12-L139】
 
-**Fix.** Update package exports and bundler configs so the helper passes in both environments. Cover with source and packed install tests.
+**Fix.** Update package exports and bundler configs so the helper passes in both environments. Cover with source and packed install tests. The CLI now includes a `php-codemod-ingestion` readiness helper that resolves `@wpkernel/php-json-ast/php/ingest-program.php` via the same ingestion runner used at runtime, failing fast when the tarball omits the script or points at mismatched paths.
+
+`createPhpPrinterPathReadinessHelper` now aligns runtime and module resolution by probing canonical paths, raising `EnvironmentalError(php.printerPath.mismatch)` when they diverge. Unit coverage exercises missing runtime assets, resolver failures, and mismatched canonical paths to keep the readiness signal deterministic.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
+
+`createPhpPrinterPathReadinessHelper` now aligns runtime and module resolution by probing canonical paths, raising `EnvironmentalError(php.printerPath.mismatch)` when they diverge. Unit coverage exercises missing runtime assets, resolver failures, and mismatched canonical paths to keep the readiness signal deterministic.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
 
 **Retire.** Hard-coded dist paths to non-existent assets.
 
@@ -199,6 +209,8 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 **Fix.** Document the expected asset layout here and in the php-driver README. Record audit steps for future releases.
 
+An integration test packs `@wpkernel/php-driver` into a temp workspace, parses the JSON pack manifest, and shells into `tar -tf` to confirm `package/php/pretty-print.php` ships with `package/dist/index.js`, while the php-driver README captures the canonical layout for release reviews.【F:packages/cli/src/dx/readiness/helpers/**tests**/phpDriverTarball.test.ts†L1-L88】【F:packages/php-driver/README.md†L5-L17】
+
 **Retire.** Unverified asset lists.
 
 ## Task 62 — Composer Independence
@@ -207,7 +219,7 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] Bundled the CLI’s composer vendor tree, wired the `composer` readiness helper into generate/apply, and verified CLI-owned autoload paths satisfy PHP printer readiness when workspace vendors are absent.
 
 **Discovery to finish before coding.**
 
@@ -226,7 +238,7 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Probe.** Depending on the chosen strategy, add tests confirming generation succeeds with no plugin `vendor` directory.
 
-**Fix.** Implement the selected approach, document the decision here and in `cli-create-init-doctor.md`, and ensure readiness reruns are idempotent.
+**Fix.** Implement the selected approach, document the decision here and in `cli-create-init-doctor.md`, ensure readiness reruns are idempotent, and add coverage that the CLI’s bundled autoload satisfies PHP printer checks while missing vendor trees surface `EnvironmentalError(php.autoload.required)`.
 
 **Retire.** Dependence on plugin composer installs.
 

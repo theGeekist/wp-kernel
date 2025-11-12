@@ -78,6 +78,7 @@ cache invalidation and capability checks stay consistent.
 - The CLI threads PHP codemod configuration into `@wpkernel/php-json-ast` helpers; consult the
   [codemod plan](../../docs/internal/php-json-ast-codemod-plan.md) before enabling visitor stacks
   or diagnostics in new pipelines.
+- `adapters.php` may return a `codemods` manifest (`files`, optional `configurationPath`, diagnostics/driver overrides); the builder calls `createPhpCodemodIngestionHelper` to run `runPhpCodemodIngestion`, emit `.codemod.*` artefacts, and requeue the transformed programs before writing.
 
 ## Validation & test utilities
 

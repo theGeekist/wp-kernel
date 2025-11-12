@@ -93,9 +93,9 @@ being promoted to standalone packages. The directory ships a README that documen
 guidelines and an [`official.ts`](./src/extensions/official.ts) catalogue describing the
 blueprints for:
 
-- a live runner extension inspired by listr2’s interactive renderer;
+- a live runner extension that streams reporter events to interactive renderers;
 - a deterministic concurrency scheduler;
-- an optional listr2 compatibility bridge.
+- additional integration blueprints for telemetry and runtime adapters.
 
 Consumers can import the catalogue through `@wpkernel/pipeline/extensions` to understand the
 contracts and helper annotations each extension expects while we finalise their

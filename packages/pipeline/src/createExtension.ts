@@ -3,6 +3,8 @@ import type {
 	MaybePromise,
 	PipelineExtension,
 	PipelineExtensionHook,
+	PipelineExtensionHookRegistration,
+	PipelineExtensionLifecycle,
 } from './types.js';
 
 interface CreatePipelineExtensionBaseOptions {
@@ -17,11 +19,11 @@ interface CreatePipelineExtensionWithRegister<
 > extends CreatePipelineExtensionBaseOptions {
 	readonly register: (
 		pipeline: TPipeline
-	) => MaybePromise<void | PipelineExtensionHook<
-		TContext,
-		TOptions,
-		TArtifact
-	>>;
+	) => MaybePromise<
+		| void
+		| PipelineExtensionHook<TContext, TOptions, TArtifact>
+		| PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>
+	>;
 }
 
 interface CreatePipelineExtensionWithSetup<
@@ -31,7 +33,10 @@ interface CreatePipelineExtensionWithSetup<
 	TArtifact,
 > extends CreatePipelineExtensionBaseOptions {
 	readonly setup?: (pipeline: TPipeline) => MaybePromise<void>;
-	readonly hook?: PipelineExtensionHook<TContext, TOptions, TArtifact>;
+	readonly hook?:
+		| PipelineExtensionHook<TContext, TOptions, TArtifact>
+		| PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>;
+	readonly lifecycle?: PipelineExtensionLifecycle;
 }
 
 export type CreatePipelineExtensionOptions<
@@ -222,18 +227,48 @@ export function createPipelineExtension<
 		} satisfies PipelineExtension<TPipeline, TContext, TOptions, TArtifact>;
 	}
 
-	const { key, setup, hook } = options;
+	const { key, setup, hook, lifecycle } = options;
 
 	return {
 		key,
 		register(pipeline) {
+			const resolveHook = () => {
+				if (!hook) {
+					return undefined;
+				}
+
+				if (typeof hook === 'function') {
+					if (!lifecycle) {
+						return hook;
+					}
+
+					return {
+						lifecycle,
+						hook,
+					} satisfies PipelineExtensionHookRegistration<
+						TContext,
+						TOptions,
+						TArtifact
+					>;
+				}
+
+				return {
+					lifecycle: hook.lifecycle ?? lifecycle,
+					hook: hook.hook,
+				} satisfies PipelineExtensionHookRegistration<
+					TContext,
+					TOptions,
+					TArtifact
+				>;
+			};
+
 			const setupResult = setup?.(pipeline);
 
 			if (setupResult && isPromiseLike(setupResult)) {
-				return setupResult.then(() => hook);
+				return setupResult.then(resolveHook);
 			}
 
-			return hook;
+			return resolveHook();
 		},
 	} satisfies PipelineExtension<TPipeline, TContext, TOptions, TArtifact>;
 }

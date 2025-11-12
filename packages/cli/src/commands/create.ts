@@ -166,7 +166,9 @@ function buildCreateCommandHooks(
 		filterReadinessKeys: (keys: readonly ReadinessKey[]) => {
 			const filtered = keys.filter(
 				(key) =>
-					key !== 'release-pack' && key !== 'bootstrapper-resolution'
+					key !== 'release-pack' &&
+					key !== 'bootstrapper-resolution' &&
+					key !== 'quickstart'
 			);
 
 			if (command.skipInstall !== true) {

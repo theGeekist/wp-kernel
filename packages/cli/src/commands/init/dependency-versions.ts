@@ -53,6 +53,7 @@ const FALLBACK_DEV_TOOL_VERSIONS: Record<string, string> = {
 	'@kucrut/vite-for-wp': '^0.12.0',
 	'rollup-plugin-external-globals': '^0.13.0',
 	'vite-plugin-external': '^6.2.2',
+	tsx: '^4.20.6',
 };
 
 interface ResolveDependencyOptions {
@@ -154,10 +155,7 @@ async function loadwpkernelDevDependencies(
 ): Promise<Record<string, string>> {
 	const entries: Array<[string, string]> = [];
 
-	const cliVersion = await resolveWorkspacePackageVersion(
-		workspace,
-		'@wpkernel/cli'
-	);
+	const cliVersion = await resolveCliDevDependencyVersion(workspace);
 	if (cliVersion) {
 		entries.push(['@wpkernel/cli', cliVersion]);
 	}
@@ -171,6 +169,43 @@ async function loadwpkernelDevDependencies(
 	}
 
 	return Object.fromEntries(entries);
+}
+
+async function resolveCliDevDependencyVersion(
+	workspace: string
+): Promise<string | undefined> {
+	const workspaceVersion = await resolveWorkspacePackageVersion(
+		workspace,
+		'@wpkernel/cli'
+	);
+	if (workspaceVersion) {
+		return workspaceVersion;
+	}
+
+	return loadCliPackageVersion();
+}
+
+async function loadCliPackageVersion(): Promise<string | undefined> {
+	try {
+		const cliRoot = getCliPackageRoot();
+		const manifestPath = path.join(cliRoot, 'package.json');
+		const raw = await fs.readFile(manifestPath, 'utf8');
+		const manifest = JSON.parse(raw) as { version?: string };
+		const version = manifest.version;
+		return typeof version === 'string' && version.length > 0
+			? version
+			: undefined;
+	} catch (error) {
+		if (isENOENT(error)) {
+			return undefined;
+		}
+
+		if (isModuleNotFound(error, '@wpkernel/cli/package.json')) {
+			return undefined;
+		}
+
+		throw error;
+	}
 }
 
 async function loadBundledManifestPeers(): Promise<Record<string, string>> {

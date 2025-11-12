@@ -58,6 +58,8 @@ describe('InitCommand (unit)', () => {
 			'composer',
 			'php-runtime',
 			'php-driver',
+			'php-codemod-ingestion',
+			'php-printer-path',
 			'tsx-runtime',
 		]);
 		expect(readinessRun).toHaveBeenCalledTimes(1);

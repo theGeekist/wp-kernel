@@ -125,11 +125,12 @@ export function createPipeline(): Pipeline {
 				steps,
 			} satisfies PipelineRunResult;
 		},
-		createExtensionHookOptions({ context, options, artifact }) {
+		createExtensionHookOptions({ context, options, artifact, lifecycle }) {
 			return {
 				context,
 				options,
 				artifact,
+				lifecycle,
 			} satisfies PipelineExtensionHookOptions;
 		},
 		onExtensionRollbackError({ error, extensionKeys, context }) {

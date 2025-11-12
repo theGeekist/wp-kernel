@@ -4,6 +4,7 @@ import type {
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
 	PipelineExtensionRollbackErrorMetadata,
+	PipelineExtensionLifecycle,
 } from './types';
 import {
 	isPromiseLike,
@@ -19,6 +20,7 @@ import {
  */
 export interface ExtensionHookEntry<TContext, TOptions, TArtifact> {
 	readonly key: string;
+	readonly lifecycle: PipelineExtensionLifecycle;
 	readonly hook: PipelineExtensionHook<TContext, TOptions, TArtifact>;
 }
 
@@ -85,6 +87,7 @@ export function createRollbackErrorMetadata(
  * If any hook throws, automatically rolls back all previously executed hooks in reverse order.
  *
  * @param hooks           - The extension hooks to run
+ * @param lifecycle
  * @param options         - Context, options, and initial artifact
  * @param onRollbackError - Callback invoked if a rollback itself fails
  * @returns The final artifact and all hook execution results
@@ -93,6 +96,7 @@ export function createRollbackErrorMetadata(
  */
 export function runExtensionHooks<TContext, TOptions, TArtifact>(
 	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
+	lifecycle: PipelineExtensionLifecycle,
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>,
 	onRollbackError: (args: RollbackErrorArgs) => void
 ): MaybePromise<{
@@ -101,12 +105,19 @@ export function runExtensionHooks<TContext, TOptions, TArtifact>(
 }> {
 	let artifact = options.artifact;
 	const results: ExtensionHookExecution<TContext, TOptions, TArtifact>[] = [];
+	const lifecycleHooks = hooks.filter(
+		(entry) => entry.lifecycle === lifecycle
+	);
+	const baseOptions = {
+		context: options.context,
+		options: options.options,
+		lifecycle,
+	} as const;
 
 	const process = () =>
-		processSequentially(hooks, (entry) => {
+		processSequentially(lifecycleHooks, (entry) => {
 			const hookResult = entry.hook({
-				context: options.context,
-				options: options.options,
+				...baseOptions,
 				artifact,
 			});
 
@@ -145,7 +156,7 @@ export function runExtensionHooks<TContext, TOptions, TArtifact>(
 
 	const processed = maybeTry(process, (error) =>
 		maybeThen(
-			rollbackExtensionResults(results, hooks, onRollbackError),
+			rollbackExtensionResults(results, lifecycleHooks, onRollbackError),
 			() => {
 				throw error;
 			}
@@ -227,3 +238,11 @@ export function rollbackExtensionResults<TContext, TOptions, TArtifact>(
 		'forward'
 	);
 }
+
+export { OFFICIAL_EXTENSION_BLUEPRINTS } from './extensions/official.js';
+export type {
+	OfficialExtensionBlueprint,
+	ExtensionBlueprint,
+	ExtensionBehaviour,
+	ExtensionFactorySignature,
+} from './extensions/official.js';

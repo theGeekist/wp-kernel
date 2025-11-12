@@ -119,7 +119,8 @@ export function buildInitCommand(
 							(key) =>
 								key !== 'git' &&
 								key !== 'release-pack' &&
-								key !== 'bootstrapper-resolution'
+								key !== 'bootstrapper-resolution' &&
+								key !== 'quickstart'
 						),
 					prepare: async (runtime) => {
 						await this.warnWhenGitMissing(

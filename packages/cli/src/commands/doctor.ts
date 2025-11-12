@@ -103,6 +103,7 @@ const DOCTOR_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
 	'composer',
 	'php-runtime',
 	'php-driver',
+	'php-printer-path',
 ];
 
 const READINESS_LABELS: Record<ReadinessKey, string> = {
@@ -110,10 +111,13 @@ const READINESS_LABELS: Record<ReadinessKey, string> = {
 	composer: 'Composer dependencies',
 	'php-runtime': 'PHP runtime',
 	'php-driver': 'PHP driver',
+	'php-codemod-ingestion': 'PHP codemod ingestion',
+	'php-printer-path': 'PHP printer path',
 	'release-pack': 'Release pack chain',
 	'bootstrapper-resolution': 'Bootstrapper resolution',
 	git: 'Git repository',
 	'tsx-runtime': 'TSX runtime',
+	quickstart: 'Quickstart scaffold',
 };
 
 const DEFAULT_STATUS_MAPPING: Record<ReadinessOutcomeStatus, DoctorStatus> = {

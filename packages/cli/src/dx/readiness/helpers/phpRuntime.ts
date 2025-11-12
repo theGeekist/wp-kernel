@@ -31,7 +31,8 @@ async function detectPhp(
 		const { stdout } = await dependencies.exec('php', ['--version'], {
 			cwd: workspaceRoot,
 		});
-		const version = stdout.toString().split('\n')[0] ?? 'unknown';
+		const firstLine = stdout.toString().split('\n')[0]?.trim() ?? '';
+		const version = firstLine.length > 0 ? firstLine : 'unknown';
 		return { status: 'ready', version };
 	} catch (error) {
 		return { status: 'blocked', version: null, error };

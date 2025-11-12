@@ -19,24 +19,6 @@ export interface ExtensionFactorySignature<TOptions = unknown> {
 }
 
 /**
- * Behavioural contract borrowed or inspired from listr2.
- */
-export interface Listr2Carryover {
-	/**
-	 * Name of the listr2 primitive we are modelling.
-	 */
-	readonly feature: string;
-	/**
-	 * Linkable reference into the listr2 source tree for provenance.
-	 */
-	readonly sourceModule: string;
-	/**
-	 * Summary of what we are extracting.
-	 */
-	readonly notes: string;
-}
-
-/**
  * Individual behaviour exposed by an extension blueprint.
  */
 export interface ExtensionBehaviour {
@@ -44,7 +26,7 @@ export interface ExtensionBehaviour {
 	readonly description: string;
 	readonly helperAnnotations?: readonly string[];
 	readonly reporterEvents?: readonly string[];
-	readonly listr2?: readonly Listr2Carryover[];
+	readonly integrations?: readonly string[];
 }
 
 /**
@@ -97,13 +79,9 @@ export const OFFICIAL_EXTENSION_BLUEPRINTS: readonly ExtensionBlueprint[] = [
 					'pipeline:helper:succeeded',
 					'pipeline:helper:failed',
 				],
-				listr2: [
-					{
-						feature: 'DefaultRenderer',
-						sourceModule:
-							'packages/core/src/renderer/default.renderer.ts',
-						notes: 'Borrow structured frame updates (task title, state, log lines) to inform our reporter payloads.',
-					},
+				integrations: [
+					'Terminal renderers that consume structured pipeline reporter events.',
+					'Remote observability tools that aggregate helper lifecycle data.',
 				],
 			},
 			{
@@ -114,12 +92,8 @@ export const OFFICIAL_EXTENSION_BLUEPRINTS: readonly ExtensionBlueprint[] = [
 					'helper.meta.retryPolicy',
 					'helper.meta.prompt',
 				],
-				listr2: [
-					{
-						feature: 'retryable task wrapper',
-						sourceModule: 'packages/core/src/lib/task.ts',
-						notes: "Mirror listr2's exponential backoff handling and failure messaging while keeping deterministic ordering.",
-					},
+				integrations: [
+					'Prompt adapters that negotiate stdin/stdout access for interactive CLIs.',
 				],
 			},
 			{
@@ -164,12 +138,8 @@ export const OFFICIAL_EXTENSION_BLUEPRINTS: readonly ExtensionBlueprint[] = [
 				description:
 					'Implements a ready-queue executor that only schedules helpers whose dependencies have settled.',
 				helperAnnotations: ['helper.meta.concurrencyGroup'],
-				listr2: [
-					{
-						feature: 'Task concurrency scheduler',
-						sourceModule: 'packages/core/src/lib/task-wrapper.ts',
-						notes: 'Reference the worker pool contract while adapting it to DAG-based dependency tracking.',
-					},
+				integrations: [
+					'Workload schedulers that expose capacity metrics or enforce rate limits.',
 				],
 			},
 			{
@@ -191,47 +161,6 @@ export const OFFICIAL_EXTENSION_BLUEPRINTS: readonly ExtensionBlueprint[] = [
 			'Full extension keys are constructed with the pipeline namespace constant from @wpkernel/core/contracts.',
 			'Prototype with read-only metrics before enabling true parallel execution.',
 			'Guarantee stable helper ordering for equal-priority tasks to aid reproducibility.',
-		],
-	},
-	{
-		id: 'listr2-bridge',
-		status: 'planned',
-		summary:
-			'Optional adapter that reuses listr2 renderers when the dependency is available at runtime.',
-		factory: {
-			name: 'createListr2BridgeExtension',
-			slug: 'listr2-bridge',
-			options: {
-				renderer: 'ListrRenderer | undefined',
-			},
-		},
-		behaviours: [
-			{
-				name: 'Renderer compatibility',
-				description:
-					'Translate pipeline reporter events into the listr2 renderer API without requiring callers to author listr2 tasks.',
-				listr2: [
-					{
-						feature: 'ListrTaskEventManager',
-						sourceModule: 'packages/core/src/lib/event-manager.ts',
-						notes: 'Map pipeline helper lifecycle events to listr2 task states and log levels.',
-					},
-				],
-			},
-			{
-				name: 'Lazy dependency detection',
-				description:
-					'Resolve the listr2 package at runtime and fall back gracefully when it is absent.',
-			},
-		],
-		pipelineTouchPoints: [
-			'Decorates reporter callbacks with listr2-compatible payloads.',
-			'Does not mutate helper descriptors or pipeline options.',
-		],
-		rolloutNotes: [
-			'Full extension keys are constructed with the pipeline namespace constant from @wpkernel/core/contracts.',
-			'Bridge remains an optional extension to avoid bundling listr2 as a hard dependency.',
-			'Acts as a migration path for teams currently using listr2 directly.',
 		],
 	},
 ];
