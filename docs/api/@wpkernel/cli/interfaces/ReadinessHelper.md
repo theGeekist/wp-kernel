@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -60,6 +60,14 @@ readonly detect: (context) => Promise<ReadinessDetection<State>>;
 
 ```ts
 readonly key: ReadinessKey;
+```
+
+---
+
+### metadata
+
+```ts
+readonly metadata: ReadinessHelperMetadata;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.1-beta.2**](../README.md)
+[**@wpkernel/core v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -16,6 +16,7 @@ type ErrorCode =
 	| 'NotImplementedError'
 	| 'DeveloperError'
 	| 'DeprecatedError'
+	| 'EnvironmentalError'
 	| 'UnknownError';
 ```
 

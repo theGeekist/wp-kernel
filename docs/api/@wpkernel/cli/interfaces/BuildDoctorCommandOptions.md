@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -50,38 +50,27 @@ const reporter = createReporterCLI({ level: 'debug' });
 reporter.info('Starting build process');
 ```
 
-### Workspace
+### Other
 
-#### ensureGeneratedPhpClean()?
+#### buildReadinessRegistry()?
 
 ```ts
-readonly optional ensureGeneratedPhpClean: (options) => Promise<void>;
+readonly optional buildReadinessRegistry: (options) => ReadinessRegistry;
 ```
 
-Optional: Custom function to ensure the generated PHP directory is clean.
-
-Ensures that the generated PHP directory is clean (i.e., no uncommitted changes).
-
-This function checks the Git status of the specified directory. If uncommitted
-changes are found, it throws a `WPKernelError` unless the `yes` option is true.
+Optional: Custom readiness registry builder.
 
 ##### Parameters
 
 ###### options
 
-[`EnsureGeneratedPhpCleanOptions`](EnsureGeneratedPhpCleanOptions.md)
-
-Options for the cleanliness check.
+[`BuildDefaultReadinessRegistryOptions`](BuildDefaultReadinessRegistryOptions.md) = `{}`
 
 ##### Returns
 
-`Promise`\<`void`\>
+[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
 
-##### Throws
-
-`WPKernelError` if uncommitted changes are found and `yes` is false.
-
-### Other
+---
 
 #### buildWorkspace()?
 
@@ -100,26 +89,6 @@ Optional: Custom workspace builder function.
 ##### Returns
 
 [`Workspace`](Workspace.md)
-
----
-
-#### checkPhpEnvironment()?
-
-```ts
-readonly optional checkPhpEnvironment: (options) => Promise<DoctorCheckResult[]>;
-```
-
-Optional: Custom function to check the PHP environment.
-
-##### Parameters
-
-###### options
-
-[`CheckPhpEnvironmentOptions`](CheckPhpEnvironmentOptions.md)
-
-##### Returns
-
-`Promise`\<[`DoctorCheckResult`](DoctorCheckResult.md)[]\>
 
 ---
 

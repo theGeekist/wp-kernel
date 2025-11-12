@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -327,6 +327,10 @@ readonly optional createExtensionHookOptions: (options) => PipelineExtensionHook
 ###### context
 
 `TContext`
+
+###### lifecycle
+
+[`PipelineExtensionLifecycle`](../type-aliases/PipelineExtensionLifecycle.md)
 
 ###### options
 

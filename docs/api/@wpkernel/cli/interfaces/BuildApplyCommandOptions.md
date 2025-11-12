@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -88,6 +88,24 @@ readonly optional buildBuilderOutput: () => BuilderOutput;
 ##### Returns
 
 `BuilderOutput`
+
+---
+
+#### buildReadinessRegistry()?
+
+```ts
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
+```
+
+##### Parameters
+
+###### options?
+
+[`BuildDefaultReadinessRegistryOptions`](BuildDefaultReadinessRegistryOptions.md)
+
+##### Returns
+
+[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
 
 ---
 
@@ -222,28 +240,3 @@ readonly optional resolveWorkspaceRoot: (loaded) => string;
 ##### Returns
 
 `string`
-
----
-
-#### buildReadinessRegistry()?
-
-```ts
-readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
-```
-
-Overrides the readiness registry used by `wpk apply` to check PHP driver and
-tsx dependencies before patching the workspace.
-
-##### Parameters
-
-###### options
-
-`BuildDefaultReadinessRegistryOptions` = `{}`
-
-Helper override configuration.
-
-##### Returns
-
-[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
-
-Registry instance orchestrating command readiness helpers.

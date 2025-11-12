@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.3**](../README.md)
 
 ---
 

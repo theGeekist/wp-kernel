@@ -1,10 +1,16 @@
-**@wpkernel/pipeline v0.12.1-beta.2**
+**@wpkernel/pipeline v0.12.1-beta.3**
 
 ---
 
-# @wpkernel/pipeline v0.12.1-beta.2
+# @wpkernel/pipeline v0.12.1-beta.3
 
 ## Interfaces
+
+### Pipeline
+
+- [OfficialExtensionBlueprint](interfaces/OfficialExtensionBlueprint.md)
+
+### Other
 
 - [ConflictDiagnostic](interfaces/ConflictDiagnostic.md)
 - [CreateHelperOptions](interfaces/CreateHelperOptions.md)
@@ -19,6 +25,7 @@
 - [PipelineExecutionMetadata](interfaces/PipelineExecutionMetadata.md)
 - [PipelineExtension](interfaces/PipelineExtension.md)
 - [PipelineExtensionHookOptions](interfaces/PipelineExtensionHookOptions.md)
+- [PipelineExtensionHookRegistration](interfaces/PipelineExtensionHookRegistration.md)
 - [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 - [PipelineExtensionRollbackErrorMetadata](interfaces/PipelineExtensionRollbackErrorMetadata.md)
 - [PipelineReporter](interfaces/PipelineReporter.md)
@@ -36,6 +43,14 @@
 - [MaybePromise](type-aliases/MaybePromise.md)
 - [PipelineDiagnostic](type-aliases/PipelineDiagnostic.md)
 - [PipelineExtensionHook](type-aliases/PipelineExtensionHook.md)
+- [PipelineExtensionLifecycle](type-aliases/PipelineExtensionLifecycle.md)
+- [PipelineExtensionRegisterOutput](type-aliases/PipelineExtensionRegisterOutput.md)
+
+## Variables
+
+### Pipeline
+
+- [OFFICIAL_EXTENSION_BLUEPRINTS](variables/OFFICIAL_EXTENSION_BLUEPRINTS.md)
 
 ## Functions
 

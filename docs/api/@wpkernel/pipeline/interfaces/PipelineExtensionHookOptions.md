@@ -1,12 +1,10 @@
-[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.3**](../README.md)
 
 ---
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionHookOptions
 
 # Interface: PipelineExtensionHookOptions\<TContext, TOptions, TArtifact\>
-
-Options passed to pipeline extension hooks.
 
 ## Type Parameters
 
@@ -36,6 +34,14 @@ readonly artifact: TArtifact;
 
 ```ts
 readonly context: TContext;
+```
+
+---
+
+### lifecycle
+
+```ts
+readonly lifecycle: PipelineExtensionLifecycle;
 ```
 
 ---

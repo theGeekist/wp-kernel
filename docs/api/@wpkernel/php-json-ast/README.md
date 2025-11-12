@@ -1,8 +1,8 @@
-**@wpkernel/php-json-ast v0.12.1-beta.2**
+**@wpkernel/php-json-ast v0.12.1-beta.3**
 
 ---
 
-# @wpkernel/php-json-ast v0.12.1-beta.2
+# @wpkernel/php-json-ast v0.12.1-beta.3
 
 ## Interfaces
 
@@ -133,6 +133,7 @@
 - [PhpBuilderFactoryUseIntent](interfaces/PhpBuilderFactoryUseIntent.md)
 - [PhpCodemodConfiguration](interfaces/PhpCodemodConfiguration.md)
 - [PhpCodemodDiagnosticsConfiguration](interfaces/PhpCodemodDiagnosticsConfiguration.md)
+- [PhpCodemodIngestionResult](interfaces/PhpCodemodIngestionResult.md)
 - [PhpCodemodStackConfiguration](interfaces/PhpCodemodStackConfiguration.md)
 - [PhpCodemodVisitorConfiguration](interfaces/PhpCodemodVisitorConfiguration.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
@@ -151,6 +152,8 @@
 - [PhpStatementEntry](interfaces/PhpStatementEntry.md)
 - [PipelineContext](interfaces/PipelineContext.md)
 - [ProgramUse](interfaces/ProgramUse.md)
+- [ResolvePhpCodemodIngestionScriptOptions](interfaces/ResolvePhpCodemodIngestionScriptOptions.md)
+- [RunPhpCodemodIngestionOptions](interfaces/RunPhpCodemodIngestionOptions.md)
 - [Workspace](interfaces/Workspace.md)
 - [WorkspaceWriteOptions](interfaces/WorkspaceWriteOptions.md)
 
@@ -312,6 +315,8 @@
 - [resetPhpAstChannel](functions/resetPhpAstChannel.md)
 - [resetPhpBuilderChannel](functions/resetPhpBuilderChannel.md)
 - [resetPhpProgramBuilderContext](functions/resetPhpProgramBuilderContext.md)
+- [resolvePhpCodemodIngestionScriptPath](functions/resolvePhpCodemodIngestionScriptPath.md)
+- [runPhpCodemodIngestion](functions/runPhpCodemodIngestion.md)
 - [serialiseAst](functions/serialiseAst.md)
 - [serialisePhpBuilderFactoryIntent](functions/serialisePhpBuilderFactoryIntent.md)
 - [serialisePhpCodemodConfiguration](functions/serialisePhpCodemodConfiguration.md)

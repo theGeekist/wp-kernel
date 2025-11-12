@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -7,6 +7,22 @@
 # Interface: TsxRuntimeState
 
 ## Properties
+
+### installedDuringRun
+
+```ts
+readonly installedDuringRun: boolean;
+```
+
+---
+
+### missingError
+
+```ts
+readonly missingError: WPKernelError | null;
+```
+
+---
 
 ### resolvedPath
 

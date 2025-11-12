@@ -1,8 +1,8 @@
-**@wpkernel/e2e-utils v0.12.1-beta.2**
+**@wpkernel/e2e-utils v0.12.1-beta.3**
 
 ---
 
-# @wpkernel/e2e-utils v0.12.1-beta.2
+# @wpkernel/e2e-utils v0.12.1-beta.3
 
 ## Interfaces
 

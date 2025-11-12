@@ -1,8 +1,8 @@
-**@wpkernel/test-utils v0.12.1-beta.2**
+**@wpkernel/test-utils v0.12.1-beta.3**
 
 ---
 
-# @wpkernel/test-utils v0.12.1-beta.2
+# @wpkernel/test-utils v0.12.1-beta.3
 
 ## Classes
 
@@ -58,9 +58,16 @@
 
 ### Other
 
+- [BuildNodeOptionsConfig](interfaces/BuildNodeOptionsConfig.md)
+- [CommandReporterHarness](interfaces/CommandReporterHarness.md)
+- [CommandWorkspaceHarness](interfaces/CommandWorkspaceHarness.md)
+- [CommandWorkspaceHarnessOptions](interfaces/CommandWorkspaceHarnessOptions.md)
 - [LoadedWPKConfigV1Like](interfaces/LoadedWPKConfigV1Like.md)
 - [ResourceConfigLike](interfaces/ResourceConfigLike.md)
 - [ResourceRegistryLike](interfaces/ResourceRegistryLike.md)
+- [RunNodeProcessOptions](interfaces/RunNodeProcessOptions.md)
+- [RunProcessOptions](interfaces/RunProcessOptions.md)
+- [RunProcessResult](interfaces/RunProcessResult.md)
 - [SchemaConfigLike](interfaces/SchemaConfigLike.md)
 - [SchemaRegistryLike](interfaces/SchemaRegistryLike.md)
 - [WordPressPackage](interfaces/WordPressPackage.md)
@@ -84,6 +91,7 @@
 
 ### Other
 
+- [ReporterFactoryMock](type-aliases/ReporterFactoryMock.md)
 - [WordPressData](type-aliases/WordPressData.md)
 
 ## Variables
@@ -136,9 +144,17 @@
 
 ### Other
 
+- [buildCliIntegrationEnv](functions/buildCliIntegrationEnv.md)
+- [buildNodeOptions](functions/buildNodeOptions.md)
 - [clearNamespaceState](functions/clearNamespaceState.md)
+- [createCommandReporterHarness](functions/createCommandReporterHarness.md)
+- [createCommandWorkspaceHarness](functions/createCommandWorkspaceHarness.md)
 - [createMockWpPackage](functions/createMockWpPackage.md)
+- [createReporterFactory](functions/createReporterFactory.md)
 - [ensureWpData](functions/ensureWpData.md)
+- [runNodeProcess](functions/runNodeProcess.md)
+- [runProcess](functions/runProcess.md)
+- [sanitizePhpIntegrationEnv](functions/sanitizePhpIntegrationEnv.md)
 - [setKernelPackage](functions/setKernelPackage.md)
 - [setProcessEnv](functions/setProcessEnv.md)
 - [setWpPluginData](functions/setWpPluginData.md)

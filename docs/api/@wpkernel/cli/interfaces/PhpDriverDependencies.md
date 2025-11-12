@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -64,8 +64,24 @@ v10.0.0
 
 ---
 
-### resolve
+### resolve()
 
 ```ts
-readonly resolve: RequireResolve;
+readonly resolve: (id, opts?) => string;
 ```
+
+#### Parameters
+
+##### id
+
+`string`
+
+##### opts?
+
+###### paths?
+
+`string`[]
+
+#### Returns
+
+`string`

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -9,6 +9,10 @@
 ```ts
 function createTsCapabilityBuilder(): BuilderHelper;
 ```
+
+Creates the TypeScript capability-module builder helper.
+
+Emits `.generated/js/capabilities.(ts|d.ts)` files that mirror the IR capability map.
 
 ## Returns
 

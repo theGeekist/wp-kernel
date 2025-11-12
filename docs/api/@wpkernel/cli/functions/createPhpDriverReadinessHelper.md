@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -7,9 +7,8 @@
 # Function: createPhpDriverReadinessHelper()
 
 ```ts
-function createPhpDriverReadinessHelper(
-	overrides
-): ReadinessHelper<PhpDriverState>;
+function createPhpDriverReadinessHelper(overrides): ReadinessHelper & lt;
+PhpDriverState & gt;
 ```
 
 ## Parameters
