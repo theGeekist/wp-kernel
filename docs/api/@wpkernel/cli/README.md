@@ -61,7 +61,6 @@ wpk and UI packages.
 
 - [ConfirmPromptOptions](interfaces/ConfirmPromptOptions.md)
 - [EnsureCleanDirectoryOptions](interfaces/EnsureCleanDirectoryOptions.md)
-- [EnsureGeneratedPhpCleanOptions](interfaces/EnsureGeneratedPhpCleanOptions.md)
 - [FileManifest](interfaces/FileManifest.md)
 - [MergeMarkers](interfaces/MergeMarkers.md)
 - [MergeOptions](interfaces/MergeOptions.md)
@@ -291,7 +290,6 @@ wpk and UI packages.
 
 - [buildWorkspace](functions/buildWorkspace.md)
 - [ensureCleanDirectory](functions/ensureCleanDirectory.md)
-- [ensureGeneratedPhpClean](functions/ensureGeneratedPhpClean.md)
 - [promptConfirm](functions/promptConfirm.md)
 
 ### IR

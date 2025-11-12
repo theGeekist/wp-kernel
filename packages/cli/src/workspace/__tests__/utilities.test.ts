@@ -8,7 +8,7 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import { buildWorkspace } from '../filesystem';
 import {
-	ensureGeneratedPhpClean,
+	readWorkspaceGitStatus,
 	ensureCleanDirectory,
 	promptConfirm,
 	toWorkspaceRelative,
@@ -22,97 +22,47 @@ async function buildWorkspaceRoot(prefix: string): Promise<string> {
 }
 
 describe('workspace utilities', () => {
-	describe('ensureGeneratedPhpClean', () => {
-		it('skips git checks when --yes is provided', async () => {
-			const root = await buildWorkspaceRoot('next-util-git-yes-');
-			const workspace = buildWorkspace(root);
-			const reporter = buildReporterMock();
-
-			await ensureGeneratedPhpClean({
-				workspace,
-				reporter,
-				yes: true,
-			});
-
-			expect(reporter.warn).toHaveBeenCalledWith(
-				'Skipping generated PHP cleanliness check (--yes provided).'
-			);
-			expect(reporter.debug).not.toHaveBeenCalled();
-		});
-
-		it('skips when directory is missing', async () => {
-			const root = await buildWorkspaceRoot('next-util-git-missing-');
-			const workspace = buildWorkspace(root);
-			const reporter = buildReporterMock();
-
-			await ensureGeneratedPhpClean({
-				workspace,
-				reporter,
-				yes: false,
-			});
-
-			expect(reporter.warn).not.toHaveBeenCalled();
-			expect(reporter.debug).not.toHaveBeenCalled();
-		});
-
-		it('does not throw in non-git workspaces', async () => {
+	describe('readWorkspaceGitStatus', () => {
+		it('returns null when repository is missing', async () => {
 			const root = await buildWorkspaceRoot('next-util-git-none-');
-			const generated = path.join(root, '.generated', 'php');
-			await fs.mkdir(generated, { recursive: true });
 			const workspace = buildWorkspace(root);
-			const reporter = buildReporterMock();
 
-			await ensureGeneratedPhpClean({
-				workspace,
-				reporter,
-				yes: false,
-			});
+			const status = await readWorkspaceGitStatus(workspace);
 
-			expect(reporter.debug).toHaveBeenCalledWith(
-				'Skipping generated PHP cleanliness check (not a git repository).'
-			);
+			expect(status).toBeNull();
 		});
 
-		it('throws when generated PHP contains uncommitted changes', async () => {
-			const root = await buildWorkspaceRoot('next-util-git-dirty-');
-			await execFile('git', ['init'], { cwd: root });
-			const generated = path.join(root, '.generated', 'php');
-			await fs.mkdir(generated, { recursive: true });
-			await fs.writeFile(
-				path.join(generated, 'example.php'),
-				'<?php echo 1;\n'
-			);
-
-			const workspace = buildWorkspace(root);
-			const reporter = buildReporterMock();
-
-			await expect(
-				ensureGeneratedPhpClean({
-					workspace,
-					reporter,
-					yes: false,
-				})
-			).rejects.toMatchObject({
-				code: 'ValidationError',
-			});
-		});
-
-		it('passes when git workspace is clean', async () => {
+		it('reports an empty snapshot for clean repositories', async () => {
 			const root = await buildWorkspaceRoot('next-util-git-clean-');
 			await execFile('git', ['init'], { cwd: root });
-			const generated = path.join(root, '.generated', 'php');
-			await fs.mkdir(generated, { recursive: true });
-
 			const workspace = buildWorkspace(root);
-			const reporter = buildReporterMock();
 
-			await expect(
-				ensureGeneratedPhpClean({
-					workspace,
-					reporter,
-					yes: false,
-				})
-			).resolves.toBeUndefined();
+			const status = await readWorkspaceGitStatus(workspace);
+
+			expect(status).toEqual([]);
+		});
+
+		it('captures untracked files as dirty entries', async () => {
+			const root = await buildWorkspaceRoot('next-util-git-dirty-');
+			await execFile('git', ['init'], { cwd: root });
+			const workspace = buildWorkspace(root);
+
+			const relativeFile = path.join('src', 'example.ts');
+			await fs.mkdir(path.join(root, 'src'), { recursive: true });
+			await fs.writeFile(
+				path.join(root, relativeFile),
+				'export const value = 1;\n'
+			);
+
+			const status = await readWorkspaceGitStatus(workspace);
+
+			expect(status).not.toBeNull();
+			expect(status).toHaveLength(1);
+			expect(status?.[0]).toMatchObject({
+				code: '??',
+			});
+			expect(status?.[0]?.path).toBe('src/');
+			expect(status?.[0]?.raw).toContain('src/');
 		});
 	});
 

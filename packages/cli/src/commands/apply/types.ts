@@ -66,6 +66,7 @@ export interface ApplyFlags {
 	readonly backup: boolean;
 	readonly force: boolean;
 	readonly cleanup: readonly string[];
+	readonly allowDirty: boolean;
 }
 
 /**
@@ -77,6 +78,7 @@ export type ApplyCommandInstance = Command & {
 	backup: boolean;
 	force: boolean;
 	cleanup?: string[];
+	allowDirty: boolean;
 	summary: PatchManifestSummary | null;
 	records: PatchRecord[];
 	manifest: PatchManifest | null;

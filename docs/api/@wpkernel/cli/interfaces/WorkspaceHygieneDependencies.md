@@ -10,29 +10,24 @@
 
 ### Workspace
 
-#### ensureClean()
+#### readGitStatus()
 
 ```ts
-readonly ensureClean: (options) => Promise<void>;
+readonly readGitStatus: (workspace) => Promise<WorkspaceGitStatus | null>;
 ```
 
-Ensures that the generated PHP directory is clean (i.e., no uncommitted changes).
-
-This function checks the Git status of the specified directory. If uncommitted
-changes are found, it throws a `WPKernelError` unless the `yes` option is true.
+Reads the git status for the current workspace.
 
 ##### Parameters
 
-###### options
+###### workspace
 
-[`EnsureGeneratedPhpCleanOptions`](EnsureGeneratedPhpCleanOptions.md)
+[`Workspace`](Workspace.md)
 
-Options for the cleanliness check.
+Workspace instance to inspect.
 
 ##### Returns
 
-`Promise`\<`void`\>
-
-##### Throws
-
-`WPKernelError` if uncommitted changes are found and `yes` is false.
+`Promise`\<
+[`WorkspaceGitStatus`](../interfaces/WorkspaceGitStatus.md) \| `null`
+\>

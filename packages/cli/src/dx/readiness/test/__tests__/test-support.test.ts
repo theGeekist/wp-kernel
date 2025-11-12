@@ -56,8 +56,18 @@ describe('readiness test support utilities', () => {
 			cwd: '/tmp/cwd',
 			projectRoot: '/project',
 			workspaceRoot: '/tmp/root',
+			allowDirty: false,
 		});
 		expect(context.reporter.child).toBeDefined();
+	});
+
+	it('honours the allowDirty override', () => {
+		const context = createReadinessTestContext({
+			workspaceRoot: '/tmp/root',
+			allowDirty: true,
+		});
+
+		expect(context.environment.allowDirty).toBe(true);
 	});
 
 	it('constructs workspace doubles with overrides', async () => {

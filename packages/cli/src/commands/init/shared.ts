@@ -1,8 +1,6 @@
 import { Command, Option } from 'clipanion';
 import { WPK_EXIT_CODES, type WPKExitCode } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
-import type { Reporter } from '@wpkernel/core/reporter';
-import type { Workspace } from '../../workspace';
 import {
 	createInitCommandRuntime,
 	resolveCommandCwd,
@@ -25,6 +23,7 @@ export interface InitCommandState {
 	verbose: boolean;
 	preferRegistryVersions: boolean;
 	yes: boolean;
+	allowDirty: boolean;
 	summary: string | null;
 	manifest: InitWorkflowResult['manifest'] | null;
 	dependencySource: string | null;
@@ -51,6 +50,7 @@ export abstract class InitCommandBase
 		false
 	);
 	yes = Option.Boolean('--yes', false);
+	allowDirty = Option.Boolean('--allow-dirty', false);
 
 	summary: string | null = null;
 	manifest: InitWorkflowResult['manifest'] | null = null;
@@ -63,6 +63,7 @@ export abstract class InitCommandBase
 			const { workflow } = await runInitCommand({
 				...options,
 				command: this,
+				allowDirty: this.allowDirty === true,
 			});
 
 			this.summary = workflow.summaryText;
@@ -92,12 +93,6 @@ export interface InitCommandContext {
 	readonly workspaceRoot: string;
 	readonly cwd: string;
 }
-
-export type EnsureGeneratedPhpCleanFn = (options: {
-	readonly workspace: Workspace;
-	readonly reporter: Reporter;
-	readonly yes: boolean;
-}) => Promise<void>;
 
 export type InitCommandHooks = Partial<{
 	resolveWorkspaceRoot: (cwd: string, command: InitCommandState) => string;
@@ -131,8 +126,8 @@ export interface RunInitCommandOptions {
 	readonly command: InitCommandBase;
 	readonly reporterNamespace: string;
 	readonly dependencies: InitCommandRuntimeDependencies;
-	readonly ensureGeneratedPhpClean?: EnsureGeneratedPhpCleanFn;
 	readonly hooks?: InitCommandHooks;
+	readonly allowDirty?: boolean;
 }
 
 export interface RunInitCommandResult {
@@ -152,16 +147,12 @@ export async function runInitCommand({
 	command,
 	reporterNamespace,
 	dependencies,
-	ensureGeneratedPhpClean,
+	allowDirty = false,
 	hooks = {},
 }: RunInitCommandOptions): Promise<RunInitCommandResult> {
 	const cwd = resolveCommandCwd(command.context);
 	const workspaceRoot = resolveWorkspaceRootForCommand(cwd, command, hooks);
-	const readiness = buildReadinessOptionsForCommand(
-		command,
-		ensureGeneratedPhpClean,
-		hooks
-	);
+	const readiness = buildReadinessOptionsForCommand(command, hooks);
 
 	const runtime = createInitCommandRuntime(dependencies, {
 		reporterNamespace,
@@ -173,6 +164,7 @@ export async function runInitCommand({
 		verbose: command.verbose,
 		preferRegistryVersions: command.preferRegistryVersions,
 		readiness,
+		allowDirty,
 	});
 
 	const context: InitCommandContext = { workspaceRoot, cwd };
@@ -200,35 +192,9 @@ function resolveWorkspaceRootForCommand(
 
 function buildReadinessOptionsForCommand(
 	command: InitCommandState,
-	ensureGeneratedPhpClean: EnsureGeneratedPhpCleanFn | undefined,
 	hooks: InitCommandHooks
 ): InitCommandRuntimeOptions['readiness'] | undefined {
-	const readinessFromYes =
-		command.yes === true && ensureGeneratedPhpClean
-			? {
-					helperOverrides: {
-						workspaceHygiene: {
-							ensureClean: async ({
-								workspace,
-								reporter,
-							}: {
-								workspace: Workspace;
-								reporter: Reporter;
-							}) =>
-								ensureGeneratedPhpClean({
-									workspace,
-									reporter,
-									yes: true,
-								}),
-						},
-					},
-				}
-			: undefined;
-
-	return mergeReadinessOptions(
-		readinessFromYes,
-		hooks.buildReadinessOptions?.(command)
-	);
+	return hooks.buildReadinessOptions?.(command);
 }
 
 async function runReadinessPhase(
@@ -249,26 +215,4 @@ async function runReadinessPhase(
 
 	const result = await runtime.readiness.run(keys);
 	assertReadinessRun(result);
-}
-
-function mergeReadinessOptions(
-	primary?: InitCommandRuntimeOptions['readiness'],
-	secondary?: InitCommandRuntimeOptions['readiness']
-): InitCommandRuntimeOptions['readiness'] | undefined {
-	if (!primary) {
-		return secondary;
-	}
-
-	if (!secondary) {
-		return primary;
-	}
-
-	return {
-		...primary,
-		...secondary,
-		helperOverrides: {
-			...(primary.helperOverrides ?? {}),
-			...(secondary.helperOverrides ?? {}),
-		},
-	} satisfies InitCommandRuntimeOptions['readiness'];
 }

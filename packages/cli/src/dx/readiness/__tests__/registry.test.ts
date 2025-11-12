@@ -24,6 +24,7 @@ describe('ReadinessRegistry', () => {
 				cwd: process.cwd(),
 				projectRoot: process.cwd(),
 				workspaceRoot: null,
+				allowDirty: false,
 			},
 			...overrides,
 		} satisfies DxContext;
