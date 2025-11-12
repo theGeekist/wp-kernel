@@ -28,6 +28,7 @@ import type { BuildIrOptions } from '../../ir/publicTypes';
 import type {
 	AdapterContext,
 	PhpCodemodAdapterConfig,
+	PhpCodemodDriverOptions,
 } from '../../config/types';
 import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import { createPhpCodemodIngestionHelper } from './pipeline.codemods';
@@ -214,12 +215,58 @@ function buildCodemodHelperOptions(
 		return null;
 	}
 
+	const mergedDriver = mergeCodemodDriverOptions(codemods.driver, driver);
+
 	return {
 		files,
 		configurationPath: codemods.configurationPath,
 		enableDiagnostics: codemods.diagnostics?.nodeDumps === true,
-		phpBinary: codemods.driver?.binary ?? driver?.binary,
-		scriptPath: codemods.driver?.scriptPath,
-		importMetaUrl: codemods.driver?.importMetaUrl,
+		phpBinary: mergedDriver?.binary,
+		scriptPath: mergedDriver?.scriptPath,
+		importMetaUrl: mergedDriver?.importMetaUrl,
 	} satisfies CreatePhpCodemodIngestionHelperOptions;
+}
+
+const DRIVER_OPTION_KEYS = ['binary', 'scriptPath', 'importMetaUrl'] as const;
+
+function mergeCodemodDriverOptions(
+	adapterDriver: PhpCodemodDriverOptions | undefined,
+	defaultDriver: PhpDriverConfigurationOptions | undefined
+): PhpDriverConfigurationOptions | undefined {
+	if (!adapterDriver && !defaultDriver) {
+		return undefined;
+	}
+
+	const merged: {
+		binary?: string;
+		scriptPath?: string;
+		importMetaUrl?: string;
+	} = {};
+
+	for (const key of DRIVER_OPTION_KEYS) {
+		const value = selectDriverValue(key, adapterDriver, defaultDriver);
+		if (value) {
+			merged[key] = value;
+		}
+	}
+
+	return Object.keys(merged).length > 0 ? merged : undefined;
+}
+
+function selectDriverValue(
+	key: (typeof DRIVER_OPTION_KEYS)[number],
+	adapterDriver: PhpCodemodDriverOptions | undefined,
+	defaultDriver: PhpDriverConfigurationOptions | undefined
+): string | undefined {
+	const preferred = adapterDriver?.[key];
+	if (isNonEmptyString(preferred)) {
+		return preferred;
+	}
+
+	const fallback = defaultDriver?.[key];
+	return isNonEmptyString(fallback) ? fallback : undefined;
+}
+
+function isNonEmptyString(value: unknown): value is string {
+	return typeof value === 'string' && value.length > 0;
 }

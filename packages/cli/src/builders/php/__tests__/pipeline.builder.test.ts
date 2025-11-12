@@ -167,4 +167,55 @@ describe('createPhpBuilder - adapter codemods', () => {
 		expect(createPhpCodemodIngestionHelper).not.toHaveBeenCalled();
 		expect(createPhpProgramWriterHelper).toHaveBeenCalledTimes(1);
 	});
+
+	it('defaults codemod driver overrides to the merged PHP driver options', async () => {
+		const builder = createPhpBuilder({
+			driver: {
+				binary: '/base/php',
+				scriptPath: '/base/codemod.php',
+				importMetaUrl: 'file:///base/dist/index.js',
+			},
+		});
+
+		const ir = createMinimalIr({
+			config: {
+				adapters: {
+					php() {
+						return {
+							codemods: {
+								files: ['plugin.php'],
+								driver: {
+									// no overrides provided
+								},
+							},
+						};
+					},
+				},
+			},
+		});
+
+		const context = createPipelineContext();
+		const input = createBuilderInput({
+			ir,
+			options: {
+				config: ir.config,
+				namespace: ir.config.namespace,
+			},
+		});
+		const output = createBuilderOutput();
+
+		await builder.apply(
+			{ context, input, output, reporter: context.reporter },
+			undefined
+		);
+
+		expect(createPhpCodemodIngestionHelper).toHaveBeenCalledTimes(1);
+		expect(createCodemodHelperImpl).toHaveBeenCalledWith(
+			expect.objectContaining({
+				phpBinary: '/base/php',
+				scriptPath: '/base/codemod.php',
+				importMetaUrl: 'file:///base/dist/index.js',
+			})
+		);
+	});
 });
