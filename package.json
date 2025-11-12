@@ -112,6 +112,7 @@
 		"@wordpress/hooks": "^4.32.0",
 		"@wordpress/i18n": "^6.5.0",
 		"@wordpress/interactivity": "^6.34.0",
+		"@wordpress/jest-console": "^8.32.0",
 		"@wordpress/jest-preset-default": "^12.32.0",
 		"@wordpress/prettier-config": "^4.32.0",
 		"@wordpress/scripts": "^30.25.0",
