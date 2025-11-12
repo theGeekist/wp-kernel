@@ -1,4 +1,4 @@
-import { resolve as resolvePath } from 'node:path';
+import { resolve as resolvePath, dirname } from 'node:path';
 import { cp, mkdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { PluginOption } from 'vite';
@@ -16,12 +16,189 @@ interface DriverInstallerHelper {
 type PhpDriverInstallerFactory = () => DriverInstallerHelper;
 
 async function copyPhpDriverDist(outDir: string): Promise<void> {
-	const source = resolvePath(CLI_ROOT, '..', 'php-driver', 'dist');
-	const target = resolvePath(outDir, 'packages', 'php-driver', 'dist');
+	const driverRoot = resolvePath(CLI_ROOT, '..', 'php-driver');
+	const distSource = resolvePath(driverRoot, 'dist');
+	const distTarget = resolvePath(outDir, 'packages', 'php-driver', 'dist');
 
-	await rm(target, { recursive: true, force: true }).catch(() => undefined);
-	await mkdir(target, { recursive: true });
-	await cp(source, target, { recursive: true });
+	await rm(distTarget, { recursive: true, force: true }).catch(
+		() => undefined
+	);
+	await mkdir(distTarget, { recursive: true });
+	await cp(distSource, distTarget, { recursive: true });
+
+	const phpSource = resolvePath(driverRoot, 'php');
+	await copyDirectoryIfExists(
+		phpSource,
+		resolvePath(outDir, 'packages', 'php-driver', 'php')
+	);
+	await copyDirectoryIfExists(
+		phpSource,
+		resolvePath(outDir, 'packages', 'php-driver', 'dist', 'php')
+	);
+
+	const vendorSource = resolvePath(driverRoot, 'vendor');
+	await copyDirectoryIfExists(
+		vendorSource,
+		resolvePath(outDir, 'packages', 'php-driver', 'vendor')
+	);
+	await copyDirectoryIfExists(
+		vendorSource,
+		resolvePath(outDir, 'packages', 'php-driver', 'dist', 'vendor')
+	);
+
+	const fileEntries = ['composer.json', 'composer.lock', 'package.json'];
+	for (const file of fileEntries) {
+		await copyFileIfExists(
+			resolvePath(driverRoot, file),
+			resolvePath(outDir, 'packages', 'php-driver', file)
+		);
+		await copyFileIfExists(
+			resolvePath(driverRoot, file),
+			resolvePath(outDir, 'packages', 'php-driver', 'dist', file)
+		);
+	}
+}
+
+async function copyPhpJsonAstAssets(outDir: string): Promise<void> {
+	const packageRoot = resolvePath(CLI_ROOT, '..', 'php-json-ast');
+
+	await copyPhpJsonAstNodeModulesAssets(
+		resolvePath(outDir, 'node_modules', '@wpkernel', 'php-json-ast'),
+		packageRoot
+	);
+
+	await copyPhpJsonAstPackageAssets(
+		resolvePath(outDir, 'packages', 'php-json-ast'),
+		packageRoot
+	);
+}
+
+async function copyPhpJsonAstNodeModulesAssets(
+	targetRoot: string,
+	packageRoot: string
+): Promise<void> {
+	await rm(targetRoot, { recursive: true, force: true }).catch(
+		() => undefined
+	);
+	await mkdir(targetRoot, { recursive: true });
+
+	const fileEntries = ['package.json', 'composer.json', 'composer.lock'];
+	const directoryEntries = ['php', 'vendor'];
+
+	for (const file of fileEntries) {
+		await copyEntry(packageRoot, targetRoot, file, { recursive: false });
+	}
+
+	for (const directory of directoryEntries) {
+		await copyEntry(packageRoot, targetRoot, directory, {
+			recursive: true,
+		});
+	}
+}
+
+async function copyPhpJsonAstPackageAssets(
+	targetRoot: string,
+	packageRoot: string
+): Promise<void> {
+	await mkdir(targetRoot, { recursive: true });
+
+	const fileEntries = ['composer.json', 'composer.lock', 'package.json'];
+	const directoryEntries = ['php', 'vendor'];
+
+	for (const file of fileEntries) {
+		const destination = resolvePath(targetRoot, file);
+		await rm(destination, { recursive: true, force: true }).catch(
+			() => undefined
+		);
+		await copyEntry(packageRoot, targetRoot, file, { recursive: false });
+	}
+
+	for (const directory of directoryEntries) {
+		await copyPhpJsonAstDirectory(
+			packageRoot,
+			resolvePath(targetRoot, directory),
+			directory
+		);
+		await copyPhpJsonAstDirectory(
+			packageRoot,
+			resolvePath(targetRoot, 'dist', directory),
+			directory
+		);
+	}
+}
+
+async function copyPhpJsonAstDirectory(
+	packageRoot: string,
+	targetDirectory: string,
+	entry: string
+): Promise<void> {
+	await rm(targetDirectory, { recursive: true, force: true }).catch(
+		() => undefined
+	);
+	const source = resolvePath(packageRoot, entry);
+	await mkdir(dirname(targetDirectory), { recursive: true });
+	await cp(source, targetDirectory, { recursive: true });
+}
+
+async function copyDirectoryIfExists(
+	source: string,
+	target: string
+): Promise<void> {
+	try {
+		await rm(target, { recursive: true, force: true }).catch(
+			() => undefined
+		);
+		await mkdir(dirname(target), { recursive: true });
+		await cp(source, target, { recursive: true });
+	} catch (error) {
+		if (isNoEntryError(error)) {
+			return;
+		}
+
+		throw error;
+	}
+}
+
+async function copyFileIfExists(source: string, target: string): Promise<void> {
+	try {
+		await mkdir(dirname(target), { recursive: true });
+		await cp(source, target, { recursive: false });
+	} catch (error) {
+		if (isNoEntryError(error)) {
+			return;
+		}
+
+		throw error;
+	}
+}
+
+async function copyEntry(
+	root: string,
+	targetRoot: string,
+	entry: string,
+	options: { recursive: boolean }
+): Promise<void> {
+	const source = resolvePath(root, entry);
+	const destination = resolvePath(targetRoot, entry);
+
+	try {
+		await mkdir(dirname(destination), { recursive: true });
+		await cp(source, destination, { recursive: options.recursive });
+	} catch (error) {
+		if (isNoEntryError(error)) {
+			return;
+		}
+
+		throw error;
+	}
+}
+
+function isNoEntryError(error: unknown): error is { code?: string } {
+	return (
+		Boolean(error && typeof error === 'object') &&
+		'code' in (error as { code?: string }) &&
+		(error as { code?: string }).code === 'ENOENT'
+	);
 }
 
 function resolveCliRoot(): string {
@@ -52,8 +229,12 @@ async function loadPhpDriverInstaller(): Promise<PhpDriverInstallerFactory> {
 	return cachedPhpDriverInstaller;
 }
 
+const externalPeerDependencies = Object.keys(pkg.peerDependencies || {}).filter(
+	(dep) => dep !== '@wpkernel/php-json-ast'
+);
+
 const external = [
-	...Object.keys(pkg.peerDependencies || {}),
+	...externalPeerDependencies,
 	'chokidar',
 	'clipanion',
 	'cosmiconfig',
@@ -169,6 +350,23 @@ function phpDriverInstallerPlugin(): PluginOption {
 	};
 }
 
+function phpJsonAstAssetsPlugin(): PluginOption {
+	let resolvedOutDir = resolvePath(CLI_ROOT, 'dist');
+
+	return {
+		name: 'wpkernel-cli-php-json-ast-assets',
+		apply: 'build',
+		configResolved(config) {
+			const root = config.root ?? CLI_ROOT;
+			const dir = config.build?.outDir ?? 'dist';
+			resolvedOutDir = resolvePath(root, dir);
+		},
+		async writeBundle() {
+			await copyPhpJsonAstAssets(resolvedOutDir);
+		},
+	};
+}
+
 const config = createWPKLibConfig(
 	'@wpkernel/cli',
 	{
@@ -179,11 +377,16 @@ const config = createWPKLibConfig(
 	}
 );
 
-const existingPlugins = config.plugins ?? [];
+const assetPlugins = [phpDriverInstallerPlugin(), phpJsonAstAssetsPlugin()];
+const existingPlugins = config.plugins;
 
-config.plugins = Array.isArray(existingPlugins)
-	? [...existingPlugins, phpDriverInstallerPlugin()]
-	: [existingPlugins, phpDriverInstallerPlugin()];
+if (Array.isArray(existingPlugins)) {
+	config.plugins = [...existingPlugins, ...assetPlugins];
+} else if (existingPlugins) {
+	config.plugins = [existingPlugins, ...assetPlugins];
+} else {
+	config.plugins = assetPlugins;
+}
 
 const cliSrcRoot = resolvePath(CLI_ROOT, 'src');
 const existingAlias = config.resolve?.alias;

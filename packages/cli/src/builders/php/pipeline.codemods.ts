@@ -5,6 +5,7 @@ import {
 	runPhpCodemodIngestion,
 } from '@wpkernel/php-json-ast';
 import { createHelper } from '../../runtime';
+import { resolveBundledPhpJsonAstIngestionPath } from '../../utils/phpAssets';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -18,6 +19,7 @@ export interface CreatePhpCodemodIngestionHelperOptions {
 	readonly phpBinary?: string;
 	readonly scriptPath?: string;
 	readonly importMetaUrl?: string;
+	readonly autoloadPaths?: readonly string[];
 }
 
 export function createPhpCodemodIngestionHelper(
@@ -66,14 +68,18 @@ export function createPhpCodemodIngestionHelper(
 					)
 				: undefined;
 
+			const scriptPath =
+				options.scriptPath ?? resolveBundledPhpJsonAstIngestionPath();
+
 			const ingestionResult = await runPhpCodemodIngestion({
 				workspaceRoot: context.workspace.root,
 				files: targets,
 				phpBinary: options.phpBinary,
-				scriptPath: options.scriptPath,
+				scriptPath,
 				configurationPath,
 				enableDiagnostics: options.enableDiagnostics,
 				importMetaUrl: options.importMetaUrl,
+				autoloadPaths: options.autoloadPaths,
 			});
 
 			if (ingestionResult.exitCode !== 0) {

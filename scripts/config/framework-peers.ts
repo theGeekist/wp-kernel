@@ -4,6 +4,7 @@ export interface FrameworkPeerSpec {
 	readonly kind: FrameworkPeerKind;
 	readonly peerRange: string;
 	readonly devRange?: string;
+	readonly bundle?: boolean;
 }
 
 export const FRAMEWORK_PEERS = {
@@ -64,6 +65,7 @@ export const FRAMEWORK_PEERS = {
 	'@wpkernel/php-json-ast': {
 		kind: 'internal',
 		peerRange: 'workspace:*',
+		bundle: true,
 	},
 	'@wpkernel/test-utils': {
 		kind: 'internal',

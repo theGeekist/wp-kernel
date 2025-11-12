@@ -33,10 +33,6 @@ describe('command factories', () => {
 					metadata: { label: 'PHP runtime', scopes: ['init'] },
 				},
 				{
-					key: 'php-driver',
-					metadata: { label: 'PHP driver', scopes: ['init'] },
-				},
-				{
 					key: 'php-codemod-ingestion',
 					metadata: {
 						label: 'PHP codemod ingestion',

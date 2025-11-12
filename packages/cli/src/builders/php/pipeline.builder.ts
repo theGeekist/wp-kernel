@@ -33,6 +33,17 @@ import type {
 import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import { createPhpCodemodIngestionHelper } from './pipeline.codemods';
 import type { CreatePhpCodemodIngestionHelperOptions } from './pipeline.codemods';
+import { resolveBundledComposerAutoloadPath } from '../../utils/phpAssets';
+
+const BUNDLED_PHP_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
+const DRIVER_OPTION_KEYS = ['binary', 'scriptPath', 'importMetaUrl'] as const;
+
+type MutableDriverOptions = {
+	binary?: string;
+	scriptPath?: string;
+	importMetaUrl?: string;
+	autoloadPaths?: readonly string[];
+};
 
 /**
  * Creates a builder helper for generating PHP code and artifacts.
@@ -72,9 +83,8 @@ export function createPhpBuilder(
 				buildOptions,
 				adapterContext
 			);
-			const driverOptions = mergeDriverOptions(
-				options.driver,
-				adapterConfig?.driver
+			const driverOptions = ensureBundledAutoloadPaths(
+				mergeDriverOptions(options.driver, adapterConfig?.driver)
 			);
 			const codemodHelperOptions = buildCodemodHelperOptions(
 				adapterConfig?.codemods,
@@ -171,35 +181,51 @@ function mergeDriverOptions(
 		return undefined;
 	}
 
-	type MutableDriverOptions = {
-		binary?: string;
-		scriptPath?: string;
-		importMetaUrl?: string;
-	};
-
 	const merged: MutableDriverOptions = {};
-	const keys: ReadonlyArray<keyof MutableDriverOptions> = [
-		'binary',
-		'scriptPath',
-		'importMetaUrl',
-	];
+	applyDriverOptions(merged, base);
+	applyDriverOptions(merged, override);
 
-	for (const source of [base, override]) {
-		if (!source) {
-			continue;
-		}
-
-		for (const key of keys) {
-			const value = source[key];
-			if (typeof value === 'string' && value.length > 0) {
-				merged[key] = value;
-			}
-		}
+	const autoloadPaths = mergeAutoloadPathEntries(
+		override?.autoloadPaths,
+		base?.autoloadPaths
+	);
+	if (autoloadPaths) {
+		merged.autoloadPaths = autoloadPaths;
 	}
 
-	return Object.keys(merged).length > 0
+	return hasDriverEntries(merged)
 		? (merged as PhpDriverConfigurationOptions)
 		: undefined;
+}
+
+function applyDriverOptions(
+	target: MutableDriverOptions,
+	source:
+		| CreatePhpBuilderOptions['driver']
+		| PhpDriverConfigurationOptions
+		| undefined
+): void {
+	if (!source) {
+		return;
+	}
+
+	for (const key of DRIVER_OPTION_KEYS) {
+		const value = source[key];
+		if (typeof value === 'string' && value.length > 0) {
+			target[key] = value;
+		}
+	}
+}
+
+function hasDriverEntries(target: MutableDriverOptions): boolean {
+	if (target.autoloadPaths && target.autoloadPaths.length > 0) {
+		return true;
+	}
+
+	return DRIVER_OPTION_KEYS.some((key) => {
+		const value = target[key];
+		return typeof value === 'string' && value.length > 0;
+	});
 }
 
 function buildCodemodHelperOptions(
@@ -224,10 +250,9 @@ function buildCodemodHelperOptions(
 		phpBinary: mergedDriver?.binary,
 		scriptPath: mergedDriver?.scriptPath,
 		importMetaUrl: mergedDriver?.importMetaUrl,
+		autoloadPaths: mergedDriver?.autoloadPaths,
 	} satisfies CreatePhpCodemodIngestionHelperOptions;
 }
-
-const DRIVER_OPTION_KEYS = ['binary', 'scriptPath', 'importMetaUrl'] as const;
 
 function mergeCodemodDriverOptions(
 	adapterDriver: PhpCodemodDriverOptions | undefined,
@@ -237,17 +262,21 @@ function mergeCodemodDriverOptions(
 		return undefined;
 	}
 
-	const merged: {
-		binary?: string;
-		scriptPath?: string;
-		importMetaUrl?: string;
-	} = {};
+	const merged: MutableDriverOptions = {};
 
 	for (const key of DRIVER_OPTION_KEYS) {
 		const value = selectDriverValue(key, adapterDriver, defaultDriver);
 		if (value) {
 			merged[key] = value;
 		}
+	}
+
+	const autoloadPaths = mergeAutoloadPathEntries(
+		adapterDriver?.autoloadPaths,
+		defaultDriver?.autoloadPaths
+	);
+	if (autoloadPaths) {
+		merged.autoloadPaths = autoloadPaths;
 	}
 
 	return Object.keys(merged).length > 0 ? merged : undefined;
@@ -269,4 +298,50 @@ function selectDriverValue(
 
 function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.length > 0;
+}
+
+function ensureBundledAutoloadPaths(
+	driver: PhpDriverConfigurationOptions | undefined
+): PhpDriverConfigurationOptions {
+	const autoloadPaths = mergeAutoloadPathEntries(driver?.autoloadPaths, [
+		BUNDLED_PHP_AUTOLOAD_PATH,
+	]) ?? [BUNDLED_PHP_AUTOLOAD_PATH];
+
+	if (!driver) {
+		return { autoloadPaths };
+	}
+
+	return {
+		...driver,
+		autoloadPaths,
+	};
+}
+
+function mergeAutoloadPathEntries(
+	...sources: ReadonlyArray<readonly string[] | undefined>
+): readonly string[] | undefined {
+	const merged: string[] = [];
+
+	for (const source of sources) {
+		if (!Array.isArray(source)) {
+			continue;
+		}
+
+		for (const entry of source) {
+			if (typeof entry !== 'string') {
+				continue;
+			}
+
+			const trimmed = entry.trim();
+			if (trimmed.length === 0) {
+				continue;
+			}
+
+			if (!merged.includes(trimmed)) {
+				merged.push(trimmed);
+			}
+		}
+	}
+
+	return merged.length > 0 ? merged : undefined;
 }

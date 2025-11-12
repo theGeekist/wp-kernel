@@ -6,7 +6,6 @@ import type { DxContext } from '../context';
 export type CoreReadinessKey =
 	| 'composer'
 	| 'git'
-	| 'php-driver'
 	| 'php-codemod-ingestion'
 	| 'php-printer-path'
 	| 'php-runtime'

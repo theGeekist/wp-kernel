@@ -194,7 +194,9 @@ function extractTarballFromStdout(stdout = '') {
 
 	for (const line of lines) {
 		if (line.endsWith('.tgz')) {
-			return path.join(artifactsDir, line);
+			return path.isAbsolute(line)
+				? line
+				: path.join(artifactsDir, line);
 		}
 	}
 
@@ -206,4 +208,3 @@ main().catch((error) => {
 	console.error(error);
 	process.exitCode = 1;
 });
-codex resume 019a7299 - 284c - 7223 - a1a9 - f676e7073eea

@@ -32,6 +32,7 @@ interface CreatePhpPrettyPrinterOptions {
 	readonly phpBinary?: string;
 	readonly scriptPath?: string;
 	readonly importMetaUrl?: string;
+	readonly autoloadPaths?: readonly string[];
 }
 
 export function resolvePrettyPrintScriptPath(
@@ -153,6 +154,17 @@ export function buildPhpPrettyPrinter(
 		resolveDefaultScriptPath({ importMetaUrl: options.importMetaUrl });
 	const phpBinary = options.phpBinary ?? 'php';
 	const defaultMemoryLimit = process.env.PHP_MEMORY_LIMIT ?? '512M';
+	const normalizedAutoloadPaths = normalizeAutoloadPaths(
+		options.autoloadPaths
+	);
+	const phpDriverAutoloadEnvValue = mergeAutoloadEnvValues(
+		process.env.PHP_DRIVER_AUTOLOAD_PATHS,
+		normalizedAutoloadPaths
+	);
+	const wpkAutoloadEnvValue = mergeAutoloadEnvValues(
+		process.env.WPK_PHP_AUTOLOAD_PATHS,
+		normalizedAutoloadPaths
+	);
 
 	async function prettyPrint(
 		payload: PhpPrettyPrintPayload
@@ -161,6 +173,19 @@ export function buildPhpPrettyPrinter(
 
 		const { workspace } = options;
 		const memoryLimit = resolveMemoryLimit(defaultMemoryLimit);
+
+		const env: NodeJS.ProcessEnv = {
+			...process.env,
+			PHP_MEMORY_LIMIT: memoryLimit,
+		};
+
+		if (phpDriverAutoloadEnvValue) {
+			env.PHP_DRIVER_AUTOLOAD_PATHS = phpDriverAutoloadEnvValue;
+		}
+
+		if (wpkAutoloadEnvValue) {
+			env.WPK_PHP_AUTOLOAD_PATHS = wpkAutoloadEnvValue;
+		}
 
 		const child = spawn(
 			phpBinary,
@@ -173,10 +198,7 @@ export function buildPhpPrettyPrinter(
 			],
 			{
 				cwd: workspace.root,
-				env: {
-					...process.env,
-					PHP_MEMORY_LIMIT: memoryLimit,
-				},
+				env,
 			}
 		);
 
@@ -390,4 +412,63 @@ function logBridgeFailure(stdout: string, stderr: string): void {
 	if (stderr.length === 0 && stdout.length === 0) {
 		process.stderr.write(`[${WPK_NAMESPACE}.php-driver][stderr] ""\n`);
 	}
+}
+
+function mergeAutoloadEnvValues(
+	existingValue: string | undefined,
+	additionalPaths: readonly string[]
+): string | null {
+	const segments: string[] = [];
+
+	const pushUnique = (value: string) => {
+		if (!segments.includes(value)) {
+			segments.push(value);
+		}
+	};
+
+	for (const value of splitAutoloadEnv(existingValue)) {
+		pushUnique(value);
+	}
+
+	for (const value of additionalPaths) {
+		pushUnique(value);
+	}
+
+	return segments.length > 0 ? segments.join(path.delimiter) : null;
+}
+
+function splitAutoloadEnv(value: string | undefined): string[] {
+	if (typeof value !== 'string' || value.trim() === '') {
+		return [];
+	}
+
+	return value
+		.split(path.delimiter)
+		.map((segment) => segment.trim())
+		.filter((segment) => segment.length > 0);
+}
+
+function normalizeAutoloadPaths(
+	paths: readonly string[] | undefined
+): string[] {
+	if (!Array.isArray(paths) || paths.length === 0) {
+		return [];
+	}
+
+	const normalized: string[] = [];
+
+	for (const entry of paths) {
+		if (typeof entry !== 'string') {
+			continue;
+		}
+
+		const trimmed = entry.trim();
+		if (trimmed.length === 0) {
+			continue;
+		}
+
+		normalized.push(trimmed);
+	}
+
+	return normalized;
 }

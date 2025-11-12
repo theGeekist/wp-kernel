@@ -140,6 +140,7 @@ export interface PhpCodemodDriverOptions {
 	readonly binary?: string;
 	readonly scriptPath?: string;
 	readonly importMetaUrl?: string;
+	readonly autoloadPaths?: readonly string[];
 }
 
 /**

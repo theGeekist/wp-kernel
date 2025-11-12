@@ -69,8 +69,8 @@ Build the publish-order validation probe and enforce deterministic artefact prod
 **Completion log.** Update this list after each run by replacing the placeholder with the date, PR, and outcome summary.
 
 - [x] 57a — 2025-11-11 — Scaffolded `createReleasePackReadinessHelper`, manifest defaults, and unit coverage for missing artefact reporting; wired helper into default registry.
-- [x] 57b — 2025-11-14 — Normalised Rollup/Vite build steps to emit manifest artefacts deterministically, added README notes for each package, and captured helper rerun proving no rebuild occurs when outputs exist.
-- [x] 57c — 2025-11-18 — Recorded release-pack timing metrics in `docs/internal/ci/release-pack-metrics.json`, instrumented the helper to surface per-package build durations, and added the CI idempotency job that enforces the <5 % delta guardrail.
+- [x] 57b — 2025-11-11 — Normalised Rollup/Vite build steps to emit manifest artefacts deterministically, added README notes for each package, and captured helper rerun proving no rebuild occurs when outputs exist.
+- [x] 57c — 2025-11-11 — Recorded release-pack timing metrics in `docs/internal/ci/release-pack-metrics.json`, instrumented the helper to surface per-package build durations, and added the CI idempotency job that enforces the <5 % delta guardrail.
 
 **Discovery to finish before coding.**
 
@@ -111,8 +111,8 @@ Guarantee the compiled `create-wpk` bootstrapper resolves only its bundled depen
 **Completion log.** Update after each run:
 
 - [x] 2025-11-11 — Added `createBootstrapperResolutionReadinessHelper` to execute `node packages/create-wpk/dist/index.js -- --help` inside a `/tmp/wpk-bootstrapper-*` workspace with `WPK_CLI_FORCE_SOURCE=0`, surfacing `EnvironmentalError(bootstrapper.resolve)` diagnostics when the compiled bootstrapper escapes its tarball dependencies and documenting the harness in code and tests.
-- [x] 2025-11-21 — Updated the pipeline build to run `tsc --noEmit` so Vite preserves ESM `.js` specifiers, preventing the helper bundle from rewriting relative imports without extensions; confirmed `node packages/create-wpk/dist/index.js -- --help` resolves in an isolated `/tmp/wpk-bootstrapper-*` workspace.
-- [x] 2025-11-22 — Removed the `WPK_CLI_FORCE_SOURCE` escape hatch, forcing the CLI binary to require compiled dist assets and wiring a `bootstrapper` CI job that runs `scripts/check-bootstrapper-resolution-ci.ts` to execute `packages/create-wpk/dist/index.js -- --help` on every PR.
+- [x] 2025-11-12 — Updated the pipeline build to run `tsc --noEmit` so Vite preserves ESM `.js` specifiers, preventing the helper bundle from rewriting relative imports without extensions; confirmed `node packages/create-wpk/dist/index.js -- --help` resolves in an isolated `/tmp/wpk-bootstrapper-*` workspace.
+- [x] 2025-11-12 — Removed the `WPK_CLI_FORCE_SOURCE` escape hatch, forcing the CLI binary to require compiled dist assets and wiring a `bootstrapper` CI job that runs `scripts/check-bootstrapper-resolution-ci.ts` to execute `packages/create-wpk/dist/index.js -- --help` on every PR.
 
 **Discovery to finish before coding.**
 
@@ -133,8 +133,8 @@ Ensure the quickstart scaffold mirrors public docs and exposes a working `wpk` b
 
 **Completion log.** Update after each run:
 
-- [x] 2025-02-14 — Quickstart readiness helper now scaffolds via `npm create @wpkernel/wpk`, verifies the bundled `wpk` binary and `tsx` runtime, and the init template ships both dependencies with fixture coverage.
-- [x] 2025-02-15 — Readiness logging now records the `npm create` and `wpk generate` durations alongside the resolved binary and `tsx` module paths so the quickstart ledger can cite reproducible timings and asset locations.【F:packages/cli/src/dx/readiness/helpers/quickstart.ts†L288-L297】
+- [x] 2025-11-12 — Quickstart readiness helper now scaffolds via `npm create @wpkernel/wpk`, verifies the bundled `wpk` binary and `tsx` runtime, and the init template ships both dependencies with fixture coverage.
+- [x] 2025-11-12 — Readiness logging now records the `npm create` and `wpk generate` durations alongside the resolved binary and `tsx` module paths so the quickstart ledger can cite reproducible timings and asset locations.【F:packages/cli/src/dx/readiness/helpers/quickstart.ts†L288-L297】
 
 **Discovery to finish before coding.**
 
@@ -165,7 +165,7 @@ Guarantee the CLI detects and installs `tsx` deterministically with idempotent r
 
 **Completion log.** Update after each run:
 
-- [x] 2025-02-16 — Added the `createTsxRuntimeReadinessHelper` to resolve `tsx` via the CLI module loader paths, install the package with `npm install --save-dev tsx` when absent, and register cleanup so temporary installs are removed after readiness completes.【F:packages/cli/src/dx/readiness/helpers/tsxRuntime.ts†L23-L126】【F:packages/cli/src/dx/readiness/helpers/**tests**/tsxRuntime.test.ts†L7-L48】
+- [x] 2025-11-12 — Added the `createTsxRuntimeReadinessHelper` to resolve `tsx` via the CLI module loader paths, install the package with `npm install --save-dev tsx` when absent, and register cleanup so temporary installs are removed after readiness completes.【F:packages/cli/src/dx/readiness/helpers/tsxRuntime.ts†L23-L126】【F:packages/cli/src/dx/readiness/helpers/**tests**/tsxRuntime.test.ts†L7-L48】
 
 **Probe.** Extend `packages/cli/src/dx/readiness/helpers/tsxRuntime.ts` to resolve `tsx` exactly as the CLI loader does, surfacing `EnvironmentalError(tsx.missing)` with module-not-found diagnostics when absent.
 
@@ -181,8 +181,8 @@ Align PHP asset packaging so runtime resolution matches the bundled tarball cont
 
 **Completion log.** Update after each run:
 
-- [x] 2025-02-15 — Added the `php-printer-path` readiness helper to compare runtime and module resolutions with canonical `realpath` probes and unit coverage for missing asset and mismatch diagnostics.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
-- [x] 2025-02-15 — Packed tarball audit now runs `pnpm --filter @wpkernel/php-driver pack --json` plus `tar -tf` to assert the bundle ships `php/pretty-print.php` alongside compiled dist artefacts, with README guidance documenting the expected layout.【F:packages/cli/src/dx/readiness/helpers/**tests**/phpDriverTarball.test.ts†L1-L88】【F:packages/php-driver/README.md†L5-L17】
+- [x] 2025-11-13 — Added the `php-printer-path` readiness helper to compare runtime and module resolutions with canonical `realpath` probes and unit coverage for missing asset and mismatch diagnostics.【F:packages/cli/src/dx/readiness/helpers/phpPrinterPath.ts†L18-L142】【F:packages/cli/src/dx/readiness/helpers/**tests**/phpPrinterPath.test.ts†L1-L209】
+- [x] 2025-11-13 — Packed tarball audit now runs `pnpm --filter @wpkernel/php-driver pack --json` plus `tar -tf` to assert the bundle ships `php/pretty-print.php` alongside compiled dist artefacts, with README guidance documenting the expected layout.【F:packages/cli/src/dx/readiness/helpers/**tests**/phpDriverTarball.test.ts†L1-L88】【F:packages/php-driver/README.md†L5-L17】
 
 **Discovery to finish before coding.**
 
@@ -217,14 +217,14 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Completion log.** Update after each run:
 
-- [x] Bundled the CLI’s composer vendor tree, wired the `composer` readiness helper into generate/apply, and verified CLI-owned autoload paths satisfy PHP printer readiness when workspace vendors are absent.
+- [x] 2025-11-13 — Bundled the CLI’s composer vendor tree, wired the `composer` readiness helper into init/create/generate/apply/doctor, and verified CLI-owned autoload paths satisfy PHP printer readiness with the new smoke test.
 
 **Discovery to finish before coding.**
 
 - Evaluate the implementation strategies (PHAR bundle, CLI-scoped vendor cache, autoload stub) with pros/cons (size, update cadence, licensing).
 - Determine storage location for CLI-owned assets (e.g., `.wpk/vendor`, embedded PHAR) and how readiness cleans them up.
 
-### 62a — Autoload detection probe
+### 62a — Autoload detection probe (done)
 
 **Probe.** Extend the composer helper to run `composer show nikic/php-parser --format=json`, failing with `EnvironmentalError(php.autoload.required)` when autoload metadata is missing.【de93ab†L1-L29】【c07f32†L1-L2】【5f1634†L1-L12】
 
@@ -232,7 +232,7 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Retire.** Assuming vendor trees exist.
 
-### 62b — Implementation & readiness wiring
+### 62b — Implementation & readiness wiring (done)
 
 **Probe.** Depending on the chosen strategy, add tests confirming generation succeeds with no plugin `vendor` directory.
 
@@ -240,13 +240,15 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Retire.** Dependence on plugin composer installs.
 
+CLI now ships `vendor/autoload.php` inside its tarball, with helper coverage ensuring that path exists before any PHP helper runs. The smoke test under `scripts/test/smoke-create-generate.mjs` exercises this flow by packing the CLI, scaffolding a project in `/tmp`, and running `wpk generate` without ever touching the user’s composer tree. Readiness logs record which bundled autoload path satisfied the check, and doctor/create/init tests now lean on the helper instead of local fallbacks.
+
 ## Task 63 — Generate → Apply Manifest Emission
 
 Guarantee `.wpk/apply/manifest.json` is produced during every generate run.
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-11-13 — `createPatcher` now always emits `.wpk/apply/manifest.json` after processing the generated plan and queues it alongside other artefacts, while `GenerateCommand` fails fast with `WPK_EXIT_CODES.UNEXPECTED_ERROR` when the manifest is missing.【F:packages/cli/src/builders/patcher.ts†L586-L635】【F:packages/cli/src/commands/**tests**/generate.command.test.ts†L389-L452】 Apply/patcher integration tests assert the manifest is parsed every run before launching the workflow.
 
 **Probe.** Add regression coverage ensuring `.wpk/apply/manifest.json` exists even for no-op plans, emitting `EnvironmentalError(apply.manifest.missing)` when absent.【F:packages/cli/src/builders/patcher.ts†L586-L635】【F:packages/cli/src/commands/generate.ts†L65-L91】
 

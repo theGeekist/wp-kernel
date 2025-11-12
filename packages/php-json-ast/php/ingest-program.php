@@ -51,12 +51,12 @@ $cliDiagnostics = $parsedArguments['diagnostics'];
 $nodeDumpsEnabled =
     ($configurationDiagnostics['nodeDumps'] ?? false) || ($cliDiagnostics['nodeDumps'] ?? false);
 
-$autoloadPath = resolveAutoloadPath($workspaceRoot, [
+$autoloadPath = loadAutoloadPathWithPhpParser($workspaceRoot, [
     buildAutoloadPathFromRoot(__DIR__ . '/..'),
     buildAutoloadPathFromRoot(dirname(__DIR__, 2)),
 ]);
 
-require $autoloadPath;
+require_once $autoloadPath;
 require_once __DIR__ . '/Codemods/BaselineNameCanonicaliserVisitor.php';
 require_once __DIR__ . '/Codemods/SortUseStatementsVisitor.php';
 

@@ -249,6 +249,7 @@ describe('createPhpProgramWriterHelper', () => {
 				binary: 'php',
 				scriptPath,
 				importMetaUrl: pathToFileURL(scriptPath).href,
+				autoloadPaths: ['/custom/vendor/autoload.php'],
 			},
 		});
 
@@ -267,6 +268,7 @@ describe('createPhpProgramWriterHelper', () => {
 			phpBinary: 'php',
 			scriptPath,
 			importMetaUrl: pathToFileURL(scriptPath).href,
+			autoloadPaths: ['/custom/vendor/autoload.php'],
 		});
 	});
 

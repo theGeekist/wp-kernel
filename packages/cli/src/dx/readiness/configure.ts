@@ -5,17 +5,15 @@ import {
 	createComposerReadinessHelper,
 	createGitReadinessHelper,
 	createPhpCodemodIngestionReadinessHelper,
-	createPhpDriverReadinessHelper,
 	createPhpPrinterPathReadinessHelper,
 	createPhpRuntimeReadinessHelper,
 	createBootstrapperResolutionReadinessHelper,
 	createReleasePackReadinessHelper,
 	createTsxRuntimeReadinessHelper,
 	createWorkspaceHygieneReadinessHelper,
-	type ComposerHelperOverrides,
+	type ComposerHelperDependencies,
 	type GitHelperDependencies,
 	type PhpCodemodIngestionDependencies,
-	type PhpDriverDependencies,
 	type PhpPrinterPathDependencies,
 	type PhpRuntimeDependencies,
 	type BootstrapperResolutionHelperOptions,
@@ -28,9 +26,8 @@ import {
 
 export interface DefaultReadinessHelperOverrides {
 	readonly git?: Partial<GitHelperDependencies>;
-	readonly composer?: ComposerHelperOverrides;
+	readonly composer?: Partial<ComposerHelperDependencies>;
 	readonly phpRuntime?: Partial<PhpRuntimeDependencies>;
-	readonly phpDriver?: Partial<PhpDriverDependencies>;
 	readonly phpCodemodIngestion?: Partial<PhpCodemodIngestionDependencies>;
 	readonly phpPrinterPath?: Partial<PhpPrinterPathDependencies>;
 	readonly tsxRuntime?: Partial<TsxRuntimeDependencies>;
@@ -96,7 +93,6 @@ function createDefaultReadinessHelpers(
 		createGitReadinessHelper(overrides.git),
 		createComposerReadinessHelper(overrides.composer),
 		createPhpRuntimeReadinessHelper(overrides.phpRuntime),
-		createPhpDriverReadinessHelper(overrides.phpDriver),
 		createPhpCodemodIngestionReadinessHelper(overrides.phpCodemodIngestion),
 		createPhpPrinterPathReadinessHelper(overrides.phpPrinterPath),
 		createTsxRuntimeReadinessHelper(overrides.tsxRuntime),

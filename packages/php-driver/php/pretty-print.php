@@ -27,16 +27,20 @@ $workspaceRoot = $argv[1];
 $targetFile = $argv[2];
 $traceFile = resolveTraceFilePath();
 $autoloadOverride = resolveAutoloadOverride();
-$autoloadPath = resolveAutoloadPath($workspaceRoot, [
-    buildAutoloadPathFromRoot(
-        dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'cli'
-    ),
-    buildAutoloadPathFromRoot(
-        dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'php-json-ast'
-    ),
-    buildAutoloadPathFromRoot(__DIR__ . '/..'),
-    buildAutoloadPathFromRoot(dirname(__DIR__, 2)),
-], $autoloadOverride);
+$autoloadPath = loadPhpParserAutoloadPath(
+    $workspaceRoot,
+    [
+        buildAutoloadPathFromRoot(
+            dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'cli'
+        ),
+        buildAutoloadPathFromRoot(
+            dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'php-json-ast'
+        ),
+        buildAutoloadPathFromRoot(__DIR__ . '/..'),
+        buildAutoloadPathFromRoot(dirname(__DIR__, 2)),
+    ],
+    $autoloadOverride
+);
 
 recordTrace($traceFile, [
     'event' => 'boot',
@@ -44,21 +48,7 @@ recordTrace($traceFile, [
     'autoloadPath' => $autoloadPath,
 ]);
 
-require $autoloadPath;
-
-if (!class_exists(\PhpParser\JsonDecoder::class, true)) {
-    fwrite(
-        STDERR,
-        "nikic/php-parser not found via autoload at {$autoloadPath}. " .
-        'Run `composer install` in your plugin, or set WPK_PHP_AUTOLOAD.' . "\n"
-    );
-    recordTrace($traceFile, [
-        'event' => 'failure',
-        'reason' => 'missing php-parser',
-        'autoloadPath' => $autoloadPath,
-    ]);
-    exit(1);
-}
+require_once $autoloadPath;
 
 recordTrace($traceFile, [
     'event' => 'start',
@@ -348,26 +338,57 @@ function normalizeDeclareSpacing(string $value): string
 /**
  * @param list<string> $additionalCandidates
  */
+function loadPhpParserAutoloadPath(
+    string $workspaceRoot,
+    array $additionalCandidates = [],
+    ?string $override = null
+): string
+{
+    $candidates = buildAutoloadCandidateList(
+        $workspaceRoot,
+        $additionalCandidates,
+        $override
+    );
+    $missingPaths = [];
+
+    foreach ($candidates as $candidate) {
+        if (!is_file($candidate)) {
+            $missingPaths[] = $candidate;
+            continue;
+        }
+
+        require_once $candidate;
+        if (class_exists(\PhpParser\JsonDecoder::class, true)) {
+            return $candidate;
+        }
+
+        $missingPaths[] = $candidate;
+    }
+
+    fwrite(
+        STDERR,
+        "nikic/php-parser not found via any autoload path. Checked:\n"
+    );
+    foreach ($missingPaths as $candidate) {
+        fwrite(STDERR, " - {$candidate}\n");
+    }
+
+    exit(1);
+}
+
+/**
+ * @param list<string> $additionalCandidates
+ */
 function resolveAutoloadPath(
     string $workspaceRoot,
     array $additionalCandidates = [],
     ?string $override = null
 ): string
 {
-    $candidates = array_merge(
-        $override !== null ? [$override] : [],
-        [buildAutoloadPathFromRoot($workspaceRoot)],
-        buildAutoloadCandidatesFromEnv(),
+    $candidates = buildAutoloadCandidateList(
+        $workspaceRoot,
         $additionalCandidates,
-    );
-
-    $candidates = array_values(
-        array_unique(
-            array_filter(
-                $candidates,
-                static fn(string $candidate): bool => $candidate !== ''
-            )
-        )
+        $override
     );
 
     foreach ($candidates as $candidate) {
@@ -382,6 +403,33 @@ function resolveAutoloadPath(
     }
 
     exit(1);
+}
+
+/**
+ * @param list<string> $additionalCandidates
+ * @return list<string>
+ */
+function buildAutoloadCandidateList(
+    string $workspaceRoot,
+    array $additionalCandidates = [],
+    ?string $override = null
+): array
+{
+    $candidates = array_merge(
+        $override !== null ? [$override] : [],
+        [buildAutoloadPathFromRoot($workspaceRoot)],
+        buildAutoloadCandidatesFromEnv(),
+        $additionalCandidates,
+    );
+
+    return array_values(
+        array_unique(
+            array_filter(
+                $candidates,
+                static fn(string $candidate): bool => $candidate !== ''
+            )
+        )
+    );
 }
 
 function resolveAutoloadOverride(): ?string
