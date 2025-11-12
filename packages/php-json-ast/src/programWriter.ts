@@ -18,6 +18,7 @@ export interface PhpDriverConfigurationOptions {
 	readonly binary?: string;
 	readonly scriptPath?: string;
 	readonly importMetaUrl?: string;
+	readonly autoloadPaths?: readonly string[];
 }
 
 export interface CreatePhpProgramWriterHelperOptions {
@@ -70,6 +71,7 @@ export function createPhpProgramWriterHelper<
 				workspace: context.workspace,
 				phpBinary: options.driver?.binary,
 				scriptPath: options.driver?.scriptPath,
+				autoloadPaths: options.driver?.autoloadPaths,
 			};
 
 			if (options.driver?.importMetaUrl) {

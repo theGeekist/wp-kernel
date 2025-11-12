@@ -36,10 +36,6 @@ function createReadinessRegistryStub() {
 			metadata: { label: 'Composer dependencies', scopes: ['apply'] },
 		},
 		{
-			key: 'php-driver',
-			metadata: { label: 'PHP driver', scopes: ['apply'] },
-		},
-		{
 			key: 'tsx-runtime',
 			metadata: { label: 'TSX runtime', scopes: ['apply'] },
 		},

@@ -3,13 +3,10 @@ export type { GitHelperDependencies, GitReadinessState } from './git';
 export { createComposerReadinessHelper } from './composer';
 export type {
 	ComposerHelperDependencies,
-	ComposerHelperOverrides,
 	ComposerReadinessState,
 } from './composer';
 export { createPhpRuntimeReadinessHelper } from './phpRuntime';
 export type { PhpRuntimeDependencies, PhpRuntimeState } from './phpRuntime';
-export { createPhpDriverReadinessHelper } from './phpDriver';
-export type { PhpDriverDependencies, PhpDriverState } from './phpDriver';
 export { createPhpCodemodIngestionReadinessHelper } from './phpCodemodIngestion';
 export type {
 	PhpCodemodIngestionDependencies,

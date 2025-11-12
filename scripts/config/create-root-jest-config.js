@@ -102,5 +102,15 @@ export function createRootJestConfig(options = {}) {
 		config.globalSetup = cliGlobalSetup;
 	}
 
+	const cliDistPath = '<rootDir>/packages/cli/dist';
+	config.modulePathIgnorePatterns = [
+		...(config.modulePathIgnorePatterns ?? []),
+		cliDistPath,
+	];
+	config.watchPathIgnorePatterns = [
+		...(config.watchPathIgnorePatterns ?? []),
+		cliDistPath,
+	];
+
 	return config;
 }

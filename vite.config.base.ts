@@ -4,7 +4,10 @@ import dts from 'vite-plugin-dts';
 // eslint-disable-next-line camelcase
 import { wp_globals } from '@kucrut/vite-for-wp/utils';
 
-import { FRAMEWORK_PEERS } from '@wpkernel/scripts/config/framework-peers';
+import {
+	FRAMEWORK_PEERS,
+	type FrameworkPeerSpec,
+} from '@wpkernel/scripts/config/framework-peers';
 
 // Accept array OR predicate for externals
 type ExternalOpt = Array<string | RegExp> | ((id: string) => boolean);
@@ -40,13 +43,16 @@ export const createWPKLibConfig = (
 	const escapeRegex = (value: string): string =>
 		value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-	const peerExternal: Array<string | RegExp> = Object.entries(
-		FRAMEWORK_PEERS
-	).map(([dependency, spec]) =>
-		spec.kind === 'internal'
-			? new RegExp(`^${escapeRegex(dependency)}(\/.*)?$`)
-			: dependency
-	);
+	const peerExternal: Array<string | RegExp> = Object.entries(FRAMEWORK_PEERS)
+		.filter(([, spec]) => {
+			const peerSpec = spec as FrameworkPeerSpec & { bundle?: boolean };
+			return peerSpec.bundle !== true;
+		})
+		.map(([dependency, spec]) =>
+			spec.kind === 'internal'
+				? new RegExp(`^${escapeRegex(dependency)}(\/.*)?$`)
+				: dependency
+		);
 
 	// Default external capability:
 	// - All WP ids (incl. any @wordpress/*)

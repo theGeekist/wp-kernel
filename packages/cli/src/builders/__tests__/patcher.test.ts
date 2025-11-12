@@ -208,6 +208,109 @@ describe('createPatcher', () => {
 		});
 	});
 
+	it('applies patch instructions during generate phase', async () => {
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const reporter = buildReporter();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								action: 'write',
+								file: 'php/JobController.php',
+								base: '.wpk/apply/base/php/JobController.php',
+								incoming:
+									'.wpk/apply/incoming/php/JobController.php',
+								description: 'Update Job controller shim',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			const baseContents = `<?php
+// ${AUTO_GUARD_BEGIN}
+require_once __DIR__ . '/generated.php';
+// ${AUTO_GUARD_END}
+`;
+			const incomingContents = `<?php
+// ${AUTO_GUARD_BEGIN}
+require_once __DIR__ . '/generated.php';
+// ${AUTO_GUARD_END}
+do_action('demo_loaded');
+`;
+
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'base',
+					'php',
+					'JobController.php'
+				),
+				baseContents
+			);
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'incoming',
+					'php',
+					'JobController.php'
+				),
+				incomingContents
+			);
+			await workspace.write('php/JobController.php', baseContents, {
+				ensureDir: true,
+			});
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'generate' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
+			);
+			const manifestRaw = await workspace.readText(manifestPath);
+			expect(manifestRaw).toBeTruthy();
+			expect(reporter.info).toHaveBeenCalledWith(
+				'createPatcher: completed patch application.',
+				expect.objectContaining({ summary: expect.any(Object) })
+			);
+		});
+	});
+
 	it('applies plugin loader updates when the guard is intact', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();

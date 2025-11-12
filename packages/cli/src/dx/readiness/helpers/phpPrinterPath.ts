@@ -1,180 +1,96 @@
-import path from 'node:path';
 import { access as accessFs, realpath as realpathFs } from 'node:fs/promises';
-import { EnvironmentalError } from '@wpkernel/core/error';
-import { resolvePrettyPrintScriptPath } from '@wpkernel/php-driver';
 import { createReadinessHelper } from '../helper';
 import type {
 	ReadinessConfirmation,
 	ReadinessDetection,
-	ReadinessStatus,
 	ReadinessHelper,
 } from '../types';
 import type { DxContext } from '../../context';
-import { createModuleResolver } from '../../../utils/module-url';
-import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
-
-const PRETTY_PRINT_MODULE_ID = '@wpkernel/php-driver/php/pretty-print.php';
+import { resolveWorkspaceRoot } from './shared';
+import { resolveBundledPhpDriverPrettyPrintPath } from '../../../utils/phpAssets';
 
 export interface PhpPrinterPathDependencies {
-	readonly resolve: (id: string, opts?: { paths?: string[] }) => string;
 	readonly access: typeof accessFs;
 	readonly realpath: typeof realpathFs;
-	readonly resolveRuntimePath: () => string;
 }
 
 export interface PhpPrinterPathState {
 	readonly workspaceRoot: string;
-	readonly runtimePath: string | null;
-	readonly modulePath: string | null;
-	readonly runtimeRealPath: string | null;
-	readonly moduleRealPath: string | null;
+	readonly scriptPath: string;
+	readonly canonicalPath: string | null;
 }
 
 interface PathProbeResult {
-	readonly path: string | null;
+	readonly path: string;
 	readonly exists: boolean;
-	readonly realPath: string | null;
-}
-
-interface ProbeOutcome {
-	readonly runtime: PathProbeResult;
-	readonly module: PathProbeResult;
+	readonly canonicalPath: string | null;
 }
 
 function defaultDependencies(): PhpPrinterPathDependencies {
 	return {
-		resolve: createModuleResolver(),
 		access: accessFs,
 		realpath: realpathFs,
-		resolveRuntimePath: () => resolvePrettyPrintScriptPath(),
 	} satisfies PhpPrinterPathDependencies;
 }
 
-function safeResolveRuntimePath(
+async function probeBundledPrinter(
 	dependencies: PhpPrinterPathDependencies
-): string | null {
-	try {
-		const resolved = dependencies.resolveRuntimePath();
-		if (typeof resolved === 'string' && resolved.length > 0) {
-			return resolved;
-		}
-	} catch (_error) {
-		return null;
-	}
-
-	return null;
-}
-
-async function safeResolveModulePath(
-	dependencies: PhpPrinterPathDependencies,
-	context: DxContext
-): Promise<string | null> {
-	try {
-		return dependencies.resolve(PRETTY_PRINT_MODULE_ID, {
-			paths: buildResolvePaths(context),
-		});
-	} catch (_error) {
-		return null;
-	}
-}
-
-async function probePath(
-	dependencies: PhpPrinterPathDependencies,
-	target: string | null
 ): Promise<PathProbeResult> {
-	if (!target) {
-		return { path: null, exists: false, realPath: null };
+	const scriptPath = resolveBundledPhpDriverPrettyPrintPath();
+
+	try {
+		await dependencies.access(scriptPath);
+	} catch {
+		return { path: scriptPath, exists: false, canonicalPath: null };
 	}
 
 	try {
-		await dependencies.access(target);
-	} catch (_error) {
-		return { path: target, exists: false, realPath: null };
-	}
-
-	try {
-		const canonical = await dependencies.realpath(target);
-		return { path: target, exists: true, realPath: canonical };
-	} catch (_error) {
+		const canonical = await dependencies.realpath(scriptPath);
+		return { path: scriptPath, exists: true, canonicalPath: canonical };
+	} catch {
 		return {
-			path: target,
+			path: scriptPath,
 			exists: true,
-			realPath: path.resolve(target),
+			canonicalPath: null,
 		};
 	}
 }
 
-async function probePaths(
-	dependencies: PhpPrinterPathDependencies,
-	context: DxContext
-): Promise<ProbeOutcome> {
-	const runtimePath = safeResolveRuntimePath(dependencies);
-	const modulePath = await safeResolveModulePath(dependencies, context);
-
-	const [runtime, module] = await Promise.all([
-		probePath(dependencies, runtimePath),
-		probePath(dependencies, modulePath),
-	]);
-
-	return { runtime, module } satisfies ProbeOutcome;
-}
-
 function buildState(
 	workspaceRoot: string,
-	outcome: ProbeOutcome
+	probe: PathProbeResult
 ): PhpPrinterPathState {
 	return {
 		workspaceRoot,
-		runtimePath: outcome.runtime.path,
-		modulePath: outcome.module.path,
-		runtimeRealPath: outcome.runtime.realPath,
-		moduleRealPath: outcome.module.realPath,
-	} satisfies PhpPrinterPathState;
+		scriptPath: probe.path,
+		canonicalPath: probe.canonicalPath,
+	};
 }
 
-function buildPendingMessage(outcome: ProbeOutcome): string {
-	if (!outcome.runtime.exists) {
-		return 'PHP printer runtime path missing.';
-	}
-
-	if (!outcome.module.exists) {
-		return 'PHP printer asset missing from module resolution.';
-	}
-
-	return 'PHP printer path verification pending.';
-}
-
-function determineStatus(outcome: ProbeOutcome): ReadinessStatus {
-	if (!outcome.runtime.exists || !outcome.module.exists) {
+function determineStatus(
+	probe: PathProbeResult
+): 'ready' | 'pending' | 'blocked' {
+	if (!probe.exists) {
 		return 'pending';
 	}
 
-	if (outcome.runtime.realPath === null || outcome.module.realPath === null) {
-		return 'pending';
-	}
-
-	if (outcome.runtime.realPath !== outcome.module.realPath) {
-		throw new EnvironmentalError('php.printerPath.mismatch', {
-			message:
-				'Resolved PHP printer path differs between runtime and module resolution.',
-			data: {
-				runtimePath: outcome.runtime.path,
-				modulePath: outcome.module.path,
-				runtimeRealPath: outcome.runtime.realPath,
-				moduleRealPath: outcome.module.realPath,
-			},
-		});
+	if (probe.canonicalPath === null) {
+		return 'blocked';
 	}
 
 	return 'ready';
 }
 
-function buildConfirmationMessage(status: ReadinessStatus): string {
+function buildMessage(status: 'ready' | 'pending' | 'blocked'): string {
 	if (status === 'ready') {
 		return 'PHP printer path verified.';
 	}
 
-	return 'PHP printer path verification pending.';
+	if (status === 'blocked') {
+		return 'Bundled PHP printer path could not be canonicalised.';
+	}
+
+	return 'PHP printer runtime path missing.';
 }
 
 export function createPhpPrinterPathReadinessHelper(
@@ -187,7 +103,7 @@ export function createPhpPrinterPathReadinessHelper(
 		metadata: {
 			label: 'PHP printer path',
 			description:
-				'Ensures the CLI and runtime resolve the same PHP pretty-print script.',
+				'Ensures the bundled PHP printer script is available before running CLI workflows.',
 			tags: ['php', 'printer'],
 			scopes: ['create', 'init', 'doctor'],
 			order: 70,
@@ -196,36 +112,29 @@ export function createPhpPrinterPathReadinessHelper(
 			context: DxContext
 		): Promise<ReadinessDetection<PhpPrinterPathState>> {
 			const workspaceRoot = resolveWorkspaceRoot(context);
-			const outcome = await probePaths(dependencies, context);
-			const status = determineStatus(outcome);
-
-			if (status !== 'ready') {
-				return {
-					status,
-					state: buildState(workspaceRoot, outcome),
-					message: buildPendingMessage(outcome),
-				} satisfies ReadinessDetection<PhpPrinterPathState>;
-			}
+			const probe = await probeBundledPrinter(dependencies);
+			const status = determineStatus(probe);
 
 			return {
-				status: 'ready',
-				state: buildState(workspaceRoot, outcome),
-				message: 'PHP printer path matches runtime resolver.',
-			} satisfies ReadinessDetection<PhpPrinterPathState>;
+				status,
+				state: buildState(workspaceRoot, probe),
+				message: buildMessage(status),
+			};
 		},
 		async confirm(
 			context: DxContext,
-			_state
+			_state: PhpPrinterPathState
 		): Promise<ReadinessConfirmation<PhpPrinterPathState>> {
 			const workspaceRoot = resolveWorkspaceRoot(context);
-			const outcome = await probePaths(dependencies, context);
-			const status = determineStatus(outcome);
+			const probe = await probeBundledPrinter(dependencies);
+			const status = determineStatus(probe);
+			const confirmationStatus = status === 'ready' ? 'ready' : 'pending';
 
 			return {
-				status: status === 'ready' ? 'ready' : 'pending',
-				state: buildState(workspaceRoot, outcome),
-				message: buildConfirmationMessage(status),
-			} satisfies ReadinessConfirmation<PhpPrinterPathState>;
+				status: confirmationStatus,
+				state: buildState(workspaceRoot, probe),
+				message: buildMessage(status),
+			};
 		},
 	});
 }

@@ -65,10 +65,13 @@ describe('buildPhpPrettyPrinter', () => {
 		exists: async () => false,
 	};
 	const ORIGINAL_PHP_MEMORY_LIMIT = process.env.PHP_MEMORY_LIMIT;
+	const ORIGINAL_PHP_DRIVER_AUTOLOAD_PATHS =
+		process.env.PHP_DRIVER_AUTOLOAD_PATHS;
 
 	beforeEach(() => {
 		spawnMock.mockReset();
 		delete process.env.PHP_MEMORY_LIMIT;
+		delete process.env.PHP_DRIVER_AUTOLOAD_PATHS;
 	});
 
 	afterEach(() => {
@@ -76,6 +79,13 @@ describe('buildPhpPrettyPrinter', () => {
 			delete process.env.PHP_MEMORY_LIMIT;
 		} else {
 			process.env.PHP_MEMORY_LIMIT = ORIGINAL_PHP_MEMORY_LIMIT;
+		}
+
+		if (ORIGINAL_PHP_DRIVER_AUTOLOAD_PATHS === undefined) {
+			delete process.env.PHP_DRIVER_AUTOLOAD_PATHS;
+		} else {
+			process.env.PHP_DRIVER_AUTOLOAD_PATHS =
+				ORIGINAL_PHP_DRIVER_AUTOLOAD_PATHS;
 		}
 	});
 
@@ -333,6 +343,54 @@ describe('buildPhpPrettyPrinter', () => {
 					PHP_MEMORY_LIMIT: '512M',
 				}),
 			})
+		);
+	});
+
+	it('merges provided autoload paths into PHP_DRIVER_AUTOLOAD_PATHS', async () => {
+		const existingAutoload = '/existing/vendor/autoload.php';
+		process.env.PHP_DRIVER_AUTOLOAD_PATHS = existingAutoload;
+
+		spawnMock.mockImplementation(() =>
+			makeMockChildProcess({
+				onEnd: ({ child, stdout }) => {
+					setImmediate(() => {
+						stdout.emit(
+							'data',
+							JSON.stringify({
+								code: '<?php echo 1;\n',
+								ast: ['node'],
+							})
+						);
+						child.emit('close', 0);
+					});
+				},
+			})
+		);
+
+		const prettyPrinter = buildPhpPrettyPrinter({
+			workspace,
+			autoloadPaths: [
+				'/cli/vendor/autoload.php',
+				'/existing/vendor/autoload.php',
+				'', // ignored
+			],
+		});
+
+		await prettyPrinter.prettyPrint({
+			filePath: 'Rest/BaseController.php',
+			program: [
+				{
+					nodeType: 'Stmt_Nop',
+				},
+			] as PhpProgram,
+		});
+
+		expect(spawnMock).toHaveBeenCalled();
+		const env = spawnMock.mock.calls[0]?.[2]?.env as
+			| NodeJS.ProcessEnv
+			| undefined;
+		expect(env?.PHP_DRIVER_AUTOLOAD_PATHS).toBe(
+			[existingAutoload, '/cli/vendor/autoload.php'].join(path.delimiter)
 		);
 	});
 

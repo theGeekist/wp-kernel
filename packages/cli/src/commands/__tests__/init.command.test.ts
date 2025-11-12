@@ -31,10 +31,6 @@ describe('InitCommand (unit)', () => {
 			metadata: { label: 'PHP runtime', scopes: ['init'] },
 		},
 		{
-			key: 'php-driver',
-			metadata: { label: 'PHP driver', scopes: ['init'] },
-		},
-		{
 			key: 'php-codemod-ingestion',
 			metadata: { label: 'PHP codemod ingestion', scopes: ['init'] },
 		},
@@ -101,7 +97,6 @@ describe('InitCommand (unit)', () => {
 			'workspace-hygiene',
 			'composer',
 			'php-runtime',
-			'php-driver',
 			'php-codemod-ingestion',
 			'php-printer-path',
 			'tsx-runtime',

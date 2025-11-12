@@ -16,7 +16,7 @@ describe('doctor command default environment checks', () => {
 		jest.clearAllMocks();
 	});
 
-	it('passes when PHP driver and runtime are available', async () => {
+	it('passes when PHP printer path and runtime are available', async () => {
 		const { buildDoctorCommand } = await import('../doctor');
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -47,16 +47,10 @@ describe('doctor command default environment checks', () => {
 						stderr: '',
 					}),
 				},
-				phpDriver: {
-					resolve: () =>
-						path.join(
-							process.cwd(),
-							'node_modules',
-							'@wpkernel',
-							'php-driver',
-							'package.json'
-						),
+				phpPrinterPath: {
 					access: async () => undefined,
+					realpath: async () =>
+						path.join(process.cwd(), 'packages', 'cli'),
 				},
 			}),
 		});
@@ -67,7 +61,7 @@ describe('doctor command default environment checks', () => {
 		const exitCode = await command.execute();
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(stdout.toString()).toContain('[PASS] PHP driver');
+		expect(stdout.toString()).toContain('[PASS] PHP printer path');
 		expect(stdout.toString()).toContain('[PASS] PHP runtime');
 	});
 
@@ -101,16 +95,10 @@ describe('doctor command default environment checks', () => {
 						throw new Error('not found');
 					},
 				},
-				phpDriver: {
-					resolve: () =>
-						path.join(
-							process.cwd(),
-							'node_modules',
-							'@wpkernel',
-							'php-driver',
-							'package.json'
-						),
+				phpPrinterPath: {
 					access: async () => undefined,
+					realpath: async () =>
+						path.join(process.cwd(), 'packages', 'cli'),
 				},
 			}),
 		});
@@ -124,7 +112,7 @@ describe('doctor command default environment checks', () => {
 		expect(stdout.toString()).toContain('[WARN] PHP runtime');
 	});
 
-	it('fails when the PHP driver cannot be resolved', async () => {
+	it('fails when the PHP printer path cannot be resolved', async () => {
 		const { buildDoctorCommand } = await import('../doctor');
 
 		const loadWPKernelConfig = jest.fn().mockResolvedValue({
@@ -155,11 +143,9 @@ describe('doctor command default environment checks', () => {
 						stderr: '',
 					}),
 				},
-				phpDriver: {
-					resolve: () => {
-						throw new Error('module not found');
-					},
-					access: async () => {
+				phpPrinterPath: {
+					access: async () => undefined,
+					realpath: async () => {
 						throw new Error('missing asset');
 					},
 				},
@@ -172,7 +158,7 @@ describe('doctor command default environment checks', () => {
 		const exitCode = await command.execute();
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
-		expect(stdout.toString()).toContain('[FAIL] PHP driver');
+		expect(stdout.toString()).toContain('[FAIL] PHP printer path');
 	});
 
 	it('warns about composer autoload without installing dependencies', async () => {
@@ -193,17 +179,12 @@ describe('doctor command default environment checks', () => {
 		});
 		const buildWorkspace = jest.fn().mockReturnValue(workspace);
 		const reporterFactory = createReporterFactory();
-		const install = jest.fn();
 
 		const DoctorCommand = buildDoctorCommand({
 			loadWPKernelConfig,
 			buildWorkspace,
 			buildReporter: reporterFactory,
-			buildReadinessRegistry: createReadinessBuilder({
-				composer: {
-					install,
-				},
-			}),
+			buildReadinessRegistry: createReadinessBuilder(),
 		});
 
 		const command = new DoctorCommand();
@@ -212,8 +193,7 @@ describe('doctor command default environment checks', () => {
 		const exitCode = await command.execute();
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(stdout.toString()).toContain('[WARN] Composer dependencies');
-		expect(install).not.toHaveBeenCalled();
+		expect(stdout.toString()).toContain('[WARN] Bundled PHP autoload');
 	});
 });
 
@@ -226,27 +206,12 @@ function createReadinessBuilder(
 			...(overrides.workspaceHygiene ?? {}),
 		},
 		composer: {
-			install: jest.fn().mockResolvedValue(undefined),
-			installOnPending: false,
-			showPhpParserMetadata: jest.fn().mockResolvedValue({
-				stdout: JSON.stringify({
-					name: 'nikic/php-parser',
-					autoload: {
-						files: ['lib/PhpParser/bootstrap.php'],
-					},
-				}),
-				stderr: '',
-			}),
-			resolveCliComposerRoot: jest
-				.fn<() => string | null>()
-				.mockReturnValue(null),
-			pathExists: jest
-				.fn<() => Promise<boolean>>()
-				.mockResolvedValue(false),
+			pathExists: jest.fn().mockResolvedValue(false),
 			...(overrides.composer ?? {}),
 		},
 		phpRuntime: overrides.phpRuntime,
-		phpDriver: overrides.phpDriver,
+		phpPrinterPath: overrides.phpPrinterPath,
+		phpCodemodIngestion: overrides.phpCodemodIngestion,
 		git: overrides.git,
 		tsxRuntime: overrides.tsxRuntime,
 		releasePack: {

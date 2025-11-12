@@ -217,14 +217,14 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Completion log.** Update after each run:
 
-- [x] Bundled the CLI’s composer vendor tree, wired the `composer` readiness helper into generate/apply, and verified CLI-owned autoload paths satisfy PHP printer readiness when workspace vendors are absent.
+- [x] 2025-02-21 — Bundled the CLI’s composer vendor tree, wired the `composer` readiness helper into init/create/generate/apply/doctor, and verified CLI-owned autoload paths satisfy PHP printer readiness with the new smoke test.
 
 **Discovery to finish before coding.**
 
 - Evaluate the implementation strategies (PHAR bundle, CLI-scoped vendor cache, autoload stub) with pros/cons (size, update cadence, licensing).
 - Determine storage location for CLI-owned assets (e.g., `.wpk/vendor`, embedded PHAR) and how readiness cleans them up.
 
-### 62a — Autoload detection probe
+### 62a — Autoload detection probe (done)
 
 **Probe.** Extend the composer helper to run `composer show nikic/php-parser --format=json`, failing with `EnvironmentalError(php.autoload.required)` when autoload metadata is missing.【de93ab†L1-L29】【c07f32†L1-L2】【5f1634†L1-L12】
 
@@ -232,7 +232,7 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Retire.** Assuming vendor trees exist.
 
-### 62b — Implementation & readiness wiring
+### 62b — Implementation & readiness wiring (done)
 
 **Probe.** Depending on the chosen strategy, add tests confirming generation succeeds with no plugin `vendor` directory.
 
@@ -240,13 +240,15 @@ Provide CLI-owned PHP printer assets so generation succeeds without touching the
 
 **Retire.** Dependence on plugin composer installs.
 
+CLI now ships `vendor/autoload.php` inside its tarball, with helper coverage ensuring that path exists before any PHP helper runs. The smoke test under `scripts/test/smoke-create-generate.mjs` exercises this flow by packing the CLI, scaffolding a project in `/tmp`, and running `wpk generate` without ever touching the user’s composer tree. Readiness logs record which bundled autoload path satisfied the check, and doctor/create/init tests now lean on the helper instead of local fallbacks.
+
 ## Task 63 — Generate → Apply Manifest Emission
 
 Guarantee `.wpk/apply/manifest.json` is produced during every generate run.
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] 2025-02-21 — `createPatcher` now always emits `.wpk/apply/manifest.json` after processing the generated plan and queues it alongside other artefacts, while `GenerateCommand` fails fast with `WPK_EXIT_CODES.UNEXPECTED_ERROR` when the manifest is missing.【F:packages/cli/src/builders/patcher.ts†L586-L635】【F:packages/cli/src/commands/**tests**/generate.command.test.ts†L389-L452】 Apply/patcher integration tests assert the manifest is parsed every run before launching the workflow.
 
 **Probe.** Add regression coverage ensuring `.wpk/apply/manifest.json` exists even for no-op plans, emitting `EnvironmentalError(apply.manifest.missing)` when absent.【F:packages/cli/src/builders/patcher.ts†L586-L635】【F:packages/cli/src/commands/generate.ts†L65-L91】
 

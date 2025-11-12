@@ -47,10 +47,6 @@ describe('CreateCommand', () => {
 			metadata: { label: 'PHP runtime', scopes: ['init', 'create'] },
 		},
 		{
-			key: 'php-driver',
-			metadata: { label: 'PHP driver', scopes: ['init', 'create'] },
-		},
-		{
 			key: 'php-codemod-ingestion',
 			metadata: {
 				label: 'PHP codemod ingestion',
@@ -136,7 +132,6 @@ describe('CreateCommand', () => {
 			'git',
 			'composer',
 			'php-runtime',
-			'php-driver',
 			'php-codemod-ingestion',
 			'php-printer-path',
 			'tsx-runtime',
@@ -192,7 +187,6 @@ describe('CreateCommand', () => {
 			'workspace-hygiene',
 			'git',
 			'php-runtime',
-			'php-driver',
 			'php-codemod-ingestion',
 			'php-printer-path',
 		]);
@@ -339,7 +333,6 @@ describe('CreateCommand', () => {
 			'git',
 			'composer',
 			'php-runtime',
-			'php-driver',
 			'php-codemod-ingestion',
 			'php-printer-path',
 			'tsx-runtime',

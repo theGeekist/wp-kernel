@@ -30,5 +30,14 @@ const config = createWPKJestConfig({
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 config.globalSetup = path.resolve(__dirname, 'tests/jest-global-setup.js');
 config.coveragePathIgnorePatterns = config.coveragePathIgnorePatterns ?? [];
+const DIST_PATH = '<rootDir>/packages/cli/dist';
+config.modulePathIgnorePatterns = [
+	...(config.modulePathIgnorePatterns ?? []),
+	DIST_PATH,
+];
+config.watchPathIgnorePatterns = [
+	...(config.watchPathIgnorePatterns ?? []),
+	DIST_PATH,
+];
 
 export default config;

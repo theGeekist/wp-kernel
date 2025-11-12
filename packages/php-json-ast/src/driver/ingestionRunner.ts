@@ -15,6 +15,7 @@ export interface RunPhpCodemodIngestionOptions {
 	readonly configurationPath?: string;
 	readonly enableDiagnostics?: boolean;
 	readonly importMetaUrl?: string;
+	readonly autoloadPaths?: readonly string[];
 }
 
 export interface PhpCodemodIngestionResult {
@@ -84,8 +85,20 @@ export async function runPhpCodemodIngestion(
 	args.push(...files);
 
 	const phpBinary = options.phpBinary ?? 'php';
+	const autoloadEnvValue = mergeAutoloadEnvValues(
+		process.env.PHP_DRIVER_AUTOLOAD_PATHS,
+		normalizeAutoloadPaths(options.autoloadPaths)
+	);
+	const env =
+		autoloadEnvValue === null
+			? process.env
+			: {
+					...process.env,
+					PHP_DRIVER_AUTOLOAD_PATHS: autoloadEnvValue,
+				};
 	const child = spawn(phpBinary, args, {
 		cwd: options.workspaceRoot,
+		env,
 	});
 
 	const stdoutChunks: string[] = [];
@@ -219,6 +232,65 @@ function mapSignalToExitCode(signal: NodeJS.Signals): number {
 		default:
 			return 1;
 	}
+}
+
+function mergeAutoloadEnvValues(
+	existingValue: string | undefined,
+	additionalPaths: readonly string[]
+): string | null {
+	const segments: string[] = [];
+
+	const pushUnique = (value: string) => {
+		if (!segments.includes(value)) {
+			segments.push(value);
+		}
+	};
+
+	for (const value of splitAutoloadEnv(existingValue)) {
+		pushUnique(value);
+	}
+
+	for (const value of additionalPaths) {
+		pushUnique(value);
+	}
+
+	return segments.length > 0 ? segments.join(path.delimiter) : null;
+}
+
+function splitAutoloadEnv(value: string | undefined): string[] {
+	if (typeof value !== 'string' || value.trim() === '') {
+		return [];
+	}
+
+	return value
+		.split(path.delimiter)
+		.map((segment) => segment.trim())
+		.filter((segment) => segment.length > 0);
+}
+
+function normalizeAutoloadPaths(
+	paths: readonly string[] | undefined
+): string[] {
+	if (!Array.isArray(paths) || paths.length === 0) {
+		return [];
+	}
+
+	const normalized: string[] = [];
+
+	for (const entry of paths) {
+		if (typeof entry !== 'string') {
+			continue;
+		}
+
+		const trimmed = entry.trim();
+		if (trimmed.length === 0) {
+			continue;
+		}
+
+		normalized.push(trimmed);
+	}
+
+	return normalized;
 }
 
 function resolveImportMetaUrl(): string | undefined {

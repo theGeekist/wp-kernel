@@ -49,6 +49,9 @@
 			"import": "./dist/modifiers.js",
 			"default": "./dist/modifiers.js"
 		},
+		"./php/ingest-program.php": {
+			"default": "./php/ingest-program.php"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
