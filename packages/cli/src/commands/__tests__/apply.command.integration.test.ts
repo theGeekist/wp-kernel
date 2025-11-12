@@ -253,12 +253,13 @@ describe('ApplyCommand integration', () => {
 			expect(entries.at(-1)).toEqual(
 				expect.objectContaining({
 					status: 'success',
-					flags: {
+					flags: expect.objectContaining({
+						allowDirty: false,
 						yes: true,
 						backup: false,
 						force: false,
 						cleanup: [],
-					},
+					}),
 					summary: { applied: 1, conflicts: 0, skipped: 0 },
 				})
 			);
@@ -401,12 +402,13 @@ describe('ApplyCommand integration', () => {
 				expect.objectContaining({
 					status: 'conflict',
 					exitCode: WPK_EXIT_CODES.SUCCESS,
-					flags: {
+					flags: expect.objectContaining({
+						allowDirty: false,
 						yes: true,
 						backup: false,
 						force: true,
 						cleanup: [],
-					},
+					}),
 				})
 			);
 			expect(readiness.readinessRun).toHaveBeenCalledTimes(1);

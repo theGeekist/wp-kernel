@@ -68,7 +68,7 @@ export function logPhaseFailure(
 	const base = formatPhaseMessage(phase, 'failed');
 	const headline = summary ? appendSummary(base, summary) : base;
 
-	phaseLog.error(headline);
+	phaseLog.error(headline, { error: serialized });
 
 	for (const detail of detailLines) {
 		phaseLog.error(`  • ${detail}`);

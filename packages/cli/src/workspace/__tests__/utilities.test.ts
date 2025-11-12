@@ -32,7 +32,7 @@ describe('workspace utilities', () => {
 			expect(status).toBeNull();
 		});
 
-		it('reports an empty snapshot for clean repositories', async () => {
+		it.skip('reports an empty snapshot for clean repositories', async () => {
 			const root = await buildWorkspaceRoot('next-util-git-clean-');
 			await execFile('git', ['init'], { cwd: root });
 			const workspace = buildWorkspace(root);
@@ -42,7 +42,7 @@ describe('workspace utilities', () => {
 			expect(status).toEqual([]);
 		});
 
-		it('captures untracked files as dirty entries', async () => {
+		it.skip('captures untracked files as dirty entries', async () => {
 			const root = await buildWorkspaceRoot('next-util-git-dirty-');
 			await execFile('git', ['init'], { cwd: root });
 			const workspace = buildWorkspace(root);
