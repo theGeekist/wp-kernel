@@ -20,6 +20,7 @@
 			"@wpkernel/ui": ["./packages/ui/src/index.ts"],
 			"@wpkernel/ui/*": ["./packages/ui/src/*"],
 			"@wpkernel/cli": ["./packages/cli/src/index.ts"],
+			"@wpkernel/cli/utils/reporter.js": ["./types/cli-reporter"],
 			"@wpkernel/cli/commands/*": ["./packages/cli/src/commands/*"],
 			"@wpkernel/cli/src/*": ["./packages/cli/src/*"],
 			"@wpkernel/cli/*": ["./packages/cli/src/*"],

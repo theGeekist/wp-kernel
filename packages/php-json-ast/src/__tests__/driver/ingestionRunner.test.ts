@@ -98,6 +98,49 @@ describe('ingestionRunner', () => {
 		);
 	});
 
+	it('preserves existing autoload env when no overrides are provided', async () => {
+		const stdout = new MockStream();
+		const stderr = new MockStream();
+		const closeHandlers: Array<(code: number | null) => void> = [];
+
+		spawnMock.mockReturnValue({
+			stdout,
+			stderr,
+			once: jest.fn(
+				(event: string, handler: (...args: unknown[]) => void) => {
+					if (event === 'close') {
+						closeHandlers.push(
+							handler as (code: number | null) => void
+						);
+					}
+				}
+			),
+		} as unknown as ReturnType<typeof spawn>);
+
+		process.env.PHP_DRIVER_AUTOLOAD_PATHS = '/existing/vendor/autoload.php';
+		process.env.WPK_PHP_AUTOLOAD_PATHS = '/workspace/vendor/autoload.php';
+
+		const runPromise = runPhpCodemodIngestion({
+			workspaceRoot: '/workspace/project',
+			files: ['/workspace/project/plugin.php'],
+		});
+
+		closeHandlers.forEach((handler) => handler(0));
+		const result = await runPromise;
+		expect(result.exitCode).toBe(0);
+
+		expect(spawnMock).toHaveBeenCalledTimes(1);
+		const env = spawnMock.mock.calls[0]?.[2]?.env as
+			| NodeJS.ProcessEnv
+			| undefined;
+		expect(env?.PHP_DRIVER_AUTOLOAD_PATHS).toBe(
+			'/existing/vendor/autoload.php'
+		);
+		expect(env?.WPK_PHP_AUTOLOAD_PATHS).toBe(
+			'/workspace/vendor/autoload.php'
+		);
+	});
+
 	it('threads autoload path overrides through the environment', async () => {
 		const stdout = new MockStream();
 		const stderr = new MockStream();

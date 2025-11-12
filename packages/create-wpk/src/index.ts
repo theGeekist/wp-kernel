@@ -5,7 +5,8 @@ import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 import process from 'node:process';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
-import { createReporter, type Reporter } from '@wpkernel/core/reporter';
+import { type Reporter } from '@wpkernel/core/reporter';
+import { createReporterCLI } from '@wpkernel/cli/utils/reporter.js';
 
 const BOOTSTRAP_NAMESPACE = `${WPK_NAMESPACE}.cli.bootstrap`;
 
@@ -35,7 +36,7 @@ function extractForwardedFlagNames(
 }
 
 function createBootstrapReporter(): Reporter {
-	return createReporter({
+	return createReporterCLI({
 		namespace: BOOTSTRAP_NAMESPACE,
 		channel: 'console',
 	});

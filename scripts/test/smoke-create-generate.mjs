@@ -53,6 +53,11 @@ async function main() {
 		logStep('Running "pnpm exec wpk generate" inside scaffold');
 		await runPnpm(['exec', 'wpk', 'generate'], { cwd: projectDir });
 
+		logStep('Running "pnpm exec wpk apply --yes" inside scaffold');
+		await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
+			cwd: projectDir,
+		});
+
 		success = true;
 		logSuccess(summary);
 		return summary;
@@ -98,7 +103,10 @@ function logSuccess(summary) {
 		'  pnpm exec wpk doctor -- --plan quickstart\n\n' +
 		'Or regenerate:\n' +
 		`  cd ${summary.projectDir}\n` +
-		'  pnpm exec wpk generate\n'
+		'  pnpm exec wpk generate\n\n' +
+		'Or apply immediately:\n' +
+		`  cd ${summary.projectDir}\n` +
+		'  pnpm exec wpk apply --yes\n'
 	);
 }
 

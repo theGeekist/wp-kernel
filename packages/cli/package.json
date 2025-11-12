@@ -53,6 +53,11 @@
 			"import": "./dist/version.js",
 			"default": "./dist/version.js"
 		},
+		"./utils/reporter.js": {
+			"types": "./dist/utils/reporter.d.ts",
+			"import": "./dist/utils/reporter.js",
+			"default": "./dist/utils/reporter.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
