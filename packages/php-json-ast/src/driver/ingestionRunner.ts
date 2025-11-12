@@ -105,7 +105,7 @@ export async function runPhpCodemodIngestion(
 		});
 	}
 
-	const exitCode = await waitForChild(child);
+	const { exitCode, signal } = await waitForChild(child);
 	const stdout = stdoutChunks.join('');
 	const stderr = stderrChunks.join('');
 
@@ -114,7 +114,7 @@ export async function runPhpCodemodIngestion(
 			.split(/\r?\n/u)
 			.map((line) => line.trim())
 			.filter((line) => line.length > 0),
-		exitCode: exitCode ?? 0,
+		exitCode: normalizeExitCode(exitCode, signal),
 		stderr,
 	};
 }
@@ -171,14 +171,19 @@ function resolveFromProcessCwd(): string {
 	return path.resolve(process.cwd(), 'php', 'ingest-program.php');
 }
 
-function waitForChild(child: ReturnType<typeof spawn>): Promise<number | null> {
+function waitForChild(
+	child: ReturnType<typeof spawn>
+): Promise<{ exitCode: number | null; signal: NodeJS.Signals | null }> {
 	return new Promise((resolve, reject) => {
 		let settled = false;
 
-		const settleResolve = (code: number | null) => {
+		const settleResolve = (
+			code: number | null,
+			signal: NodeJS.Signals | null
+		) => {
 			if (!settled) {
 				settled = true;
-				resolve(code);
+				resolve({ exitCode: code, signal });
 			}
 		};
 
@@ -190,8 +195,30 @@ function waitForChild(child: ReturnType<typeof spawn>): Promise<number | null> {
 		};
 
 		child.once('error', (error) => settleReject(error));
-		child.once('close', (code) => settleResolve(code));
+		child.once('close', (code, signal) => settleResolve(code, signal));
 	});
+}
+
+function normalizeExitCode(
+	exitCode: number | null,
+	signal: NodeJS.Signals | null
+): number {
+	if (typeof exitCode === 'number') {
+		return exitCode;
+	}
+
+	return signal ? mapSignalToExitCode(signal) : 1;
+}
+
+function mapSignalToExitCode(signal: NodeJS.Signals): number {
+	switch (signal) {
+		case 'SIGKILL':
+			return 137;
+		case 'SIGTERM':
+			return 143;
+		default:
+			return 1;
+	}
 }
 
 function resolveImportMetaUrl(): string | undefined {
