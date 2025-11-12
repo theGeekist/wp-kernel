@@ -1,4 +1,4 @@
-import { maybeThen, maybeTry } from './async-utils.js';
+import { isPromiseLike, maybeThen, maybeTry } from './async-utils.js';
 import {
 	type RegisteredHelper,
 	type CreateDependencyGraphOptions,
@@ -335,6 +335,7 @@ export function createPipeline<
 		TRunOptions,
 		TArtifact
 	>[] = [];
+	const pendingExtensionRegistrations: Promise<void>[] = [];
 
 	const fragmentKindValue = fragmentKind as HelperKind;
 	const builderKindValue = builderKind as HelperKind;
@@ -593,6 +594,30 @@ export function createPipeline<
 		result: unknown
 	) =>
 		handleExtensionRegisterResultUtil(extensionKey, result, extensionHooks);
+
+	const trackPendingExtensionRegistration = <T>(
+		maybePending: MaybePromise<T>
+	): MaybePromise<T> => {
+		if (maybePending && isPromiseLike(maybePending)) {
+			const pending = Promise.resolve(maybePending).then(() => {});
+			pendingExtensionRegistrations.push(pending);
+		}
+
+		return maybePending;
+	};
+
+	const waitForPendingExtensionRegistrations = (): MaybePromise<void> => {
+		if (pendingExtensionRegistrations.length === 0) {
+			return;
+		}
+
+		const pending = pendingExtensionRegistrations.splice(
+			0,
+			pendingExtensionRegistrations.length
+		);
+
+		return Promise.all(pending).then(() => undefined);
+	};
 
 	interface PipelineRunContext {
 		readonly runOptions: TRunOptions;
@@ -1067,19 +1092,11 @@ export function createPipeline<
 				>
 			) {
 				const registrationResult = extension.register(pipeline);
+				const handled = maybeThen(registrationResult, (resolved) =>
+					handleExtensionResult(extension.key, resolved)
+				);
 
-				if (
-					registrationResult &&
-					typeof (registrationResult as Promise<unknown>)?.then ===
-						'function'
-				) {
-					return (registrationResult as Promise<unknown>).then(
-						(resolved) =>
-							handleExtensionResult(extension.key, resolved)
-					);
-				}
-
-				return handleExtensionResult(extension.key, registrationResult);
+				return trackPendingExtensionRegistration(handled);
 			},
 		},
 		use(helper) {
@@ -1099,8 +1116,14 @@ export function createPipeline<
 			);
 		},
 		run(runOptions: TRunOptions) {
-			const runContext = createRunContext(runOptions);
-			return executeRun(runContext);
+			const startRun = () => {
+				const runContext = createRunContext(runOptions);
+				return executeRun(runContext);
+			};
+
+			return maybeThen(waitForPendingExtensionRegistrations(), () =>
+				startRun()
+			);
 		},
 	};
 
