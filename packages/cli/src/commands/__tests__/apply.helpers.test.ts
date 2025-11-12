@@ -229,6 +229,7 @@ describe('apply command helpers', () => {
 			yes: true,
 			backup: false,
 			force: true,
+			allowDirty: false,
 			cleanup: ['inc/Rest/JobsController.php'],
 		});
 	});

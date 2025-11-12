@@ -74,6 +74,7 @@ export interface CreateReadinessTestContextOptions {
 	readonly workspaceRoot?: string | null;
 	readonly cwd?: string;
 	readonly projectRoot?: string;
+	readonly allowDirty?: boolean;
 }
 
 export interface WorkspaceDoubleOverrides extends Partial<Workspace> {
@@ -86,6 +87,7 @@ export function createReadinessTestContext({
 	workspaceRoot = workspace ? workspace.root : null,
 	cwd = workspaceRoot ?? '/tmp/project',
 	projectRoot = '/repo/packages/cli',
+	allowDirty = false,
 }: CreateReadinessTestContextOptions = {}): DxContext {
 	return {
 		reporter: createReporter({
@@ -98,6 +100,7 @@ export function createReadinessTestContext({
 			cwd,
 			projectRoot,
 			workspaceRoot,
+			allowDirty,
 		},
 	} satisfies DxContext;
 }

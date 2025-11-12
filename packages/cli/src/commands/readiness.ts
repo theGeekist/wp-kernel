@@ -21,15 +21,22 @@ export interface RunCommandReadinessOptions {
 	readonly cwd: string;
 	readonly keys: ReadonlyArray<ReadinessKey>;
 	readonly scopes?: ReadonlyArray<string>;
+	readonly allowDirty?: boolean;
 }
 
 function buildContext(
 	options: Pick<
 		RunCommandReadinessOptions,
-		'reporter' | 'workspace' | 'workspaceRoot' | 'cwd'
+		'reporter' | 'workspace' | 'workspaceRoot' | 'cwd' | 'allowDirty'
 	>
 ): DxContext {
-	const { reporter, workspace, workspaceRoot, cwd } = options;
+	const {
+		reporter,
+		workspace,
+		workspaceRoot,
+		cwd,
+		allowDirty = false,
+	} = options;
 
 	return {
 		reporter,
@@ -38,6 +45,7 @@ function buildContext(
 			cwd,
 			projectRoot: getCliPackageRoot(),
 			workspaceRoot,
+			allowDirty,
 		},
 	} satisfies DxContext;
 }

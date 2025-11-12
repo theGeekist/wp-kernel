@@ -2,7 +2,7 @@ import { Command } from 'clipanion';
 import { WPKernelError } from '@wpkernel/core/error';
 import { WPK_NAMESPACE, type WPKExitCode } from '@wpkernel/core/contracts';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
-import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
+import { buildWorkspace } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { isGitRepository } from './init/git';
 import {
@@ -55,7 +55,6 @@ export type InitCommandConstructor = new () => InitCommandInstance;
 
 interface InitDependencies {
 	readonly runtime: InitCommandRuntimeDependencies;
-	readonly ensureGeneratedPhpClean: typeof ensureGeneratedPhpClean;
 	readonly checkGitRepository: typeof isGitRepository;
 }
 
@@ -75,7 +74,6 @@ function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
 			runWorkflow: runWorkflowOverride,
 			buildReadinessRegistry,
 		},
-		ensureGeneratedPhpClean,
 		checkGitRepository: checkGitRepositoryOverride,
 	} satisfies InitDependencies;
 }
@@ -112,7 +110,6 @@ export function buildInitCommand(
 				commandName: 'init',
 				reporterNamespace: buildReporterNamespace(),
 				dependencies: dependencies.runtime,
-				ensureGeneratedPhpClean: dependencies.ensureGeneratedPhpClean,
 				hooks: {
 					filterReadinessKeys: (
 						keys: readonly ReadinessKey[],

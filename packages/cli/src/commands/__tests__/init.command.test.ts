@@ -6,13 +6,15 @@ import {
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildInitCommand } from '../init';
 import type { buildWorkspace } from '../../workspace/filesystem';
-import * as workspaceModule from '../../workspace';
 
 describe('InitCommand (unit)', () => {
 	const helperDescriptors = [
 		{
 			key: 'workspace-hygiene',
-			metadata: { label: 'Workspace hygiene', scopes: ['init'] },
+			metadata: {
+				label: 'Workspace hygiene',
+				scopes: ['init', 'create', 'generate', 'apply'],
+			},
 		},
 		{
 			key: 'git',
@@ -61,11 +63,15 @@ describe('InitCommand (unit)', () => {
 			templateName: 'plugin',
 		});
 		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+		let capturedContext: unknown;
 		const readinessPlan = jest
 			.fn()
 			.mockImplementation((keys: string[]) => ({
 				keys,
-				run: readinessRun,
+				run: (context: unknown) => {
+					capturedContext = context;
+					return readinessRun(context);
+				},
 			}));
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
@@ -102,6 +108,10 @@ describe('InitCommand (unit)', () => {
 			'tsx-runtime',
 		]);
 		expect(readinessRun).toHaveBeenCalledTimes(1);
+		expect(
+			(capturedContext as { environment: { allowDirty: boolean } })
+				.environment.allowDirty
+		).toBe(false);
 		expect(stdout.toString()).toContain('plugin scaffold');
 	});
 
@@ -145,10 +155,7 @@ describe('InitCommand (unit)', () => {
 		);
 	});
 
-	it('maps --yes to workspace hygiene overrides', async () => {
-		const ensureGeneratedSpy = jest
-			.spyOn(workspaceModule, 'ensureGeneratedPhpClean')
-			.mockResolvedValue(undefined);
+	it('propagates --allow-dirty to readiness context', async () => {
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
 		const reporters = createCommandReporterHarness();
 		const reporter = reporters.create();
@@ -161,11 +168,15 @@ describe('InitCommand (unit)', () => {
 			templateName: 'plugin',
 		});
 		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+		let capturedContext: unknown;
 		const readinessPlan = jest
 			.fn()
 			.mockImplementation((keys: string[]) => ({
 				keys,
-				run: readinessRun,
+				run: (context: unknown) => {
+					capturedContext = context;
+					return readinessRun(context);
+				},
 			}));
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
@@ -182,7 +193,7 @@ describe('InitCommand (unit)', () => {
 		});
 
 		const command = new InitCommand();
-		command.yes = true;
+		command.allowDirty = true;
 		const { stdout } = assignCommandContext(command, {
 			cwd: workspace.root,
 		});
@@ -190,21 +201,11 @@ describe('InitCommand (unit)', () => {
 		const exit = await command.execute();
 
 		expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-		const registryOptions = buildReadinessRegistry.mock.calls[0]?.[0];
+		expect(readinessRun).toHaveBeenCalledTimes(1);
 		expect(
-			registryOptions?.helperOverrides?.workspaceHygiene
-		).toBeDefined();
-		await registryOptions?.helperOverrides?.workspaceHygiene?.ensureClean?.(
-			{
-				workspace,
-				reporter,
-			}
-		);
-		expect(ensureGeneratedSpy).toHaveBeenCalledWith(
-			expect.objectContaining({ yes: true })
-		);
+			(capturedContext as { environment: { allowDirty: boolean } })
+				.environment.allowDirty
+		).toBe(true);
 		expect(stdout.toString()).toContain('summary');
-
-		ensureGeneratedSpy.mockRestore();
 	});
 });

@@ -87,4 +87,60 @@ describe('runCommandReadiness', () => {
 			])
 		);
 	});
+
+	it('filters helpers by scope and propagates allowDirty', async () => {
+		const workspace = makeWorkspaceMock({ root: '/tmp/workspace' });
+		const recorder = createRecordingReporter();
+
+		const helper = createReadinessHelper({
+			key: 'workspace-hygiene',
+			metadata: { label: 'Workspace hygiene', scopes: ['generate'] },
+			async detect(context) {
+				expect(context.environment.allowDirty).toBe(true);
+				return {
+					status: 'ready',
+					message: 'Workspace clean.',
+					state: {},
+				};
+			},
+			async confirm(_context, state) {
+				return { status: 'ready', message: 'ready', state };
+			},
+		});
+
+		const ignoredHelper = createReadinessHelper({
+			key: 'composer',
+			metadata: { label: 'Composer', scopes: ['apply'] },
+			async detect() {
+				throw new Error('should not run');
+			},
+		});
+
+		const buildRegistry = () => {
+			const registry = createReadinessRegistry();
+			registry.register(helper);
+			registry.register(ignoredHelper);
+			return registry;
+		};
+
+		await runCommandReadiness({
+			buildReadinessRegistry: buildRegistry,
+			reporter: recorder.reporter,
+			workspace,
+			workspaceRoot: workspace.root,
+			cwd: workspace.root,
+			keys: [],
+			scopes: ['generate'],
+			allowDirty: true,
+		});
+
+		expect(recorder.records).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					namespace: 'workspace-hygiene.detect',
+					message: 'Detect phase started.',
+				}),
+			])
+		);
+	});
 });

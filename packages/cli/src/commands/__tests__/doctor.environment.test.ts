@@ -202,7 +202,7 @@ function createReadinessBuilder(
 ) {
 	const helperOverrides: DefaultReadinessHelperOverrides = {
 		workspaceHygiene: {
-			ensureClean: jest.fn().mockResolvedValue(undefined),
+			readGitStatus: jest.fn().mockResolvedValue([]),
 			...(overrides.workspaceHygiene ?? {}),
 		},
 		composer: {

@@ -15,6 +15,11 @@ export interface DxEnvironment {
 	 * to scaffolding).
 	 */
 	readonly workspaceRoot: string | null;
+	/**
+	 * When true, readiness helpers should tolerate dirty workspaces. This
+	 * is controlled by the shared `--allow-dirty` flag.
+	 */
+	readonly allowDirty: boolean;
 }
 
 /**

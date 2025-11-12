@@ -174,6 +174,7 @@ function buildReadinessContext({
 			cwd,
 			projectRoot: getCliPackageRoot(),
 			workspaceRoot,
+			allowDirty: false,
 		},
 	} satisfies DxContext;
 }

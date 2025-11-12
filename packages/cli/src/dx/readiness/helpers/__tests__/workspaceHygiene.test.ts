@@ -1,3 +1,4 @@
+import { EnvironmentalError } from '@wpkernel/core/error';
 import { createWorkspaceHygieneReadinessHelper } from '../workspaceHygiene';
 import {
 	createReadinessTestContext,
@@ -7,7 +8,7 @@ import {
 describe('createWorkspaceHygieneReadinessHelper', () => {
 	it('blocks detection without workspace', async () => {
 		const helper = createWorkspaceHygieneReadinessHelper({
-			ensureClean: jest.fn(),
+			readGitStatus: jest.fn(),
 		});
 		const detection = await helper.detect(
 			createReadinessTestContext({ workspace: null })
@@ -15,28 +16,98 @@ describe('createWorkspaceHygieneReadinessHelper', () => {
 		expect(detection.status).toBe('blocked');
 	});
 
-	it('detects clean workspace', async () => {
-		const ensureClean = jest.fn().mockResolvedValue(undefined);
+	it('skips hygiene when git repository is missing', async () => {
 		const workspace = createWorkspaceDouble();
-		const helper = createWorkspaceHygieneReadinessHelper({ ensureClean });
+		const helper = createWorkspaceHygieneReadinessHelper({
+			readGitStatus: jest.fn().mockResolvedValue(null),
+		});
 
 		const context = createReadinessTestContext({ workspace });
 		const detection = await helper.detect(context);
 		expect(detection.status).toBe('ready');
-		expect(ensureClean).toHaveBeenCalled();
+		expect(detection.message).toContain('Git repository not detected');
 
 		const confirmation = await helper.confirm(context, detection.state);
 		expect(confirmation.status).toBe('ready');
+		expect(confirmation.message).toContain('git repository not detected');
 	});
 
-	it('flags dirty workspace', async () => {
-		const ensureClean = jest.fn().mockRejectedValue(new Error('dirty'));
+	it('confirms clean workspace', async () => {
 		const workspace = createWorkspaceDouble();
-		const helper = createWorkspaceHygieneReadinessHelper({ ensureClean });
+		const helper = createWorkspaceHygieneReadinessHelper({
+			readGitStatus: jest.fn().mockResolvedValue([]),
+		});
 
-		const detection = await helper.detect(
-			createReadinessTestContext({ workspace })
-		);
-		expect(detection.status).toBe('blocked');
+		const context = createReadinessTestContext({ workspace });
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('ready');
+		expect(detection.message).toContain('no pending changes');
+
+		const execution = await helper.execute?.(context, detection.state);
+		expect(execution?.state.gitStatus).toEqual([]);
+
+		const confirmation = await helper.confirm(context, detection.state);
+		expect(confirmation.status).toBe('ready');
+		expect(confirmation.message).toContain('completed');
+	});
+
+	it('throws EnvironmentalError for dirty workspace without allowDirty', async () => {
+		const workspace = createWorkspaceDouble();
+		const helper = createWorkspaceHygieneReadinessHelper({
+			readGitStatus: jest
+				.fn()
+				.mockResolvedValue([
+					{ code: '??', path: 'demo.ts', raw: '?? demo.ts' },
+				]),
+		});
+
+		await expect(
+			helper.detect(createReadinessTestContext({ workspace }))
+		).rejects.toBeInstanceOf(EnvironmentalError);
+	});
+
+	it('allows dirty workspace when allowDirty flag is set', async () => {
+		const workspace = createWorkspaceDouble();
+		const readGitStatus = jest
+			.fn()
+			.mockResolvedValue([
+				{ code: '??', path: 'demo.ts', raw: '?? demo.ts' },
+			]);
+		const helper = createWorkspaceHygieneReadinessHelper({ readGitStatus });
+
+		const context = createReadinessTestContext({
+			workspace,
+			allowDirty: true,
+		});
+		const detection = await helper.detect(context);
+		expect(detection.status).toBe('pending');
+		expect(detection.message).toContain('--allow-dirty');
+
+		const execute = await helper.execute?.(context, detection.state);
+		expect(execute?.state.gitStatus).toHaveLength(1);
+
+		const confirmation = await helper.confirm(context, detection.state);
+		expect(confirmation.status).toBe('ready');
+		expect(confirmation.message).toContain('allowed');
+	});
+
+	it('formats plural dirty workspace messages', async () => {
+		const workspace = createWorkspaceDouble();
+		const entries = [
+			{ code: '??', path: 'first.ts', raw: '?? first.ts' },
+			{ code: 'M ', path: 'second.ts', raw: 'M  second.ts' },
+		];
+		const readGitStatus = jest.fn().mockResolvedValue(entries);
+		const helper = createWorkspaceHygieneReadinessHelper({ readGitStatus });
+
+		const context = createReadinessTestContext({
+			workspace,
+			allowDirty: true,
+		});
+		const detection = await helper.detect(context);
+		expect(detection.message).toContain('pending changes');
+
+		const confirmation = await helper.confirm(context, detection.state);
+		expect(confirmation.message).toContain('pending changes. (allowed).');
 	});
 });

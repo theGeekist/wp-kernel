@@ -106,6 +106,13 @@ function createReadinessRegistryStub() {
 	);
 	const readinessDescriptors = [
 		{
+			key: 'workspace-hygiene',
+			metadata: {
+				label: 'Workspace hygiene',
+				scopes: ['generate'],
+			},
+		},
+		{
 			key: 'composer',
 			metadata: { label: 'Composer dependencies', scopes: ['generate'] },
 		},
@@ -202,6 +209,10 @@ describe('GenerateCommand', () => {
 			readiness.readinessDescriptors.map((descriptor) => descriptor.key)
 		);
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
+		const readinessContext = readiness.readinessRun.mock.calls[0]?.[0] as {
+			environment: { allowDirty: boolean };
+		};
+		expect(readinessContext.environment.allowDirty).toBe(false);
 	});
 
 	it('rolls back workspace changes during dry-run', async () => {
@@ -268,6 +279,10 @@ describe('GenerateCommand', () => {
 		);
 		expect(stdout.toString()).toBe('dry-run summary\n');
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
+		const readinessContext = readiness.readinessRun.mock.calls[0]?.[0] as {
+			environment: { allowDirty: boolean };
+		};
+		expect(readinessContext.environment.allowDirty).toBe(false);
 	});
 
 	it('warns when diagnostics are emitted by the pipeline', async () => {
@@ -335,6 +350,50 @@ describe('GenerateCommand', () => {
 			})
 		);
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
+	});
+
+	it('passes allowDirty through readiness context when flag enabled', async () => {
+		const workspace = createWorkspaceStub();
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
+		const readiness = createReadinessRegistryStub();
+
+		const { pipeline } = createPipelineStub(workspace);
+
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
+			config: { version: 1 },
+			sourcePath: path.join(workspace.root, 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
+			namespace: 'Demo',
+		});
+
+		const GenerateCommand = buildGenerateCommand({
+			loadWPKernelConfig,
+			buildWorkspace: jest.fn().mockReturnValue(workspace),
+			createPipeline: jest.fn().mockReturnValue(pipeline),
+			registerFragments: jest.fn(),
+			registerBuilders: jest.fn(),
+			buildAdapterExtensionsExtension: jest
+				.fn()
+				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
+			buildReporter: jest.fn().mockReturnValue(reporter),
+			renderSummary: jest.fn().mockReturnValue('summary\n'),
+			validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
+			buildReadinessRegistry: readiness.buildReadinessRegistry,
+		} as BuildGenerateCommandOptions);
+
+		const command = new GenerateCommand();
+		assignCommandContext(command, { cwd: workspace.root });
+
+		command.allowDirty = true;
+
+		await command.execute();
+
+		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
+		const readinessContext = readiness.readinessRun.mock.calls[0]?.[0] as {
+			environment: { allowDirty: boolean };
+		};
+		expect(readinessContext.environment.allowDirty).toBe(true);
 	});
 
 	it('propagates failures from the pipeline as exit codes', async () => {
