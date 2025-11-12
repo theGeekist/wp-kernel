@@ -1,7 +1,10 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "./tsconfig.base.json",
-	"files": ["./tests/test-globals.d.ts"],
+	"files": [
+		"./tests/test-globals.d.ts",
+		"./tests/types/register-workspace.d.ts"
+	],
 	"compilerOptions": {
 		"types": ["jest", "node"],
 		"composite": true,

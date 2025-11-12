@@ -13,7 +13,8 @@ import type { DxContext } from '../../context';
 import { createModuleResolver } from '../../../utils/module-url';
 import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
 
-const PRETTY_PRINT_MODULE_ID = '@wpkernel/php-driver/php/pretty-print.php';
+const PHP_DRIVER_PACKAGE_ID = '@wpkernel/php-driver/package.json';
+const PRETTY_PRINT_RELATIVE_PATH = path.join('php', 'pretty-print.php');
 
 export interface PhpPrinterPathDependencies {
 	readonly resolve: (id: string, opts?: { paths?: string[] }) => string;
@@ -70,9 +71,13 @@ async function safeResolveModulePath(
 	context: DxContext
 ): Promise<string | null> {
 	try {
-		return dependencies.resolve(PRETTY_PRINT_MODULE_ID, {
+		const packageJsonPath = dependencies.resolve(PHP_DRIVER_PACKAGE_ID, {
 			paths: buildResolvePaths(context),
 		});
+		return path.resolve(
+			path.dirname(packageJsonPath),
+			PRETTY_PRINT_RELATIVE_PATH
+		);
 	} catch (_error) {
 		return null;
 	}

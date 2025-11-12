@@ -10,7 +10,6 @@
 		"tests/**/*",
 		"../core/tests/**/*",
 		"../../tests/**/*",
-		"../../scripts/register-workspace.ts",
 		"../../packages/test-utils/src/**/*",
 		"../../types/**/*.d.ts"
 	],

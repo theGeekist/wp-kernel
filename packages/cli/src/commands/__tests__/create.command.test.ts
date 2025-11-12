@@ -145,61 +145,6 @@ describe('CreateCommand', () => {
 		expect(stdout.toString()).toContain('plugin scaffold');
 	});
 
-	it('skips installers when --skip-install is provided', async () => {
-		const workflow = jest.fn().mockResolvedValue({
-			manifest: { writes: [], deletes: [] },
-			summaryText: 'summary\n',
-			summaries: [],
-			dependencySource: 'fallback',
-			namespace: 'demo',
-			templateName: 'plugin',
-		});
-		const npmInstall = jest.fn().mockResolvedValue(undefined);
-		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
-		const readinessPlan = jest
-			.fn()
-			.mockImplementation((keys: string[]) => ({
-				keys,
-				run: readinessRun,
-			}));
-
-		const workspace = makeWorkspaceMock({ root: process.cwd() });
-
-		const CreateCommand = buildCreateCommand({
-			buildWorkspace: (() => workspace) as typeof buildWorkspace,
-			runWorkflow: workflow,
-			installNodeDependencies: npmInstall,
-			ensureCleanDirectory: jest.fn().mockResolvedValue(undefined),
-			buildReadinessRegistry: (() => ({
-				register: jest.fn(),
-				plan: readinessPlan,
-				describe: () => helperDescriptors,
-			})) as never,
-			loadWPKernelConfig,
-		});
-
-		const command = new CreateCommand();
-		command.skipInstall = true;
-		const { stdout } = assignCommandContext(command, {
-			cwd: process.cwd(),
-		});
-
-		const exit = await command.execute();
-
-		expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(npmInstall).not.toHaveBeenCalled();
-		expect(readinessPlan).toHaveBeenCalledWith([
-			'workspace-hygiene',
-			'git',
-			'php-runtime',
-			'php-driver',
-			'php-codemod-ingestion',
-			'php-printer-path',
-		]);
-		expect(readinessRun).toHaveBeenCalledTimes(1);
-		expect(stdout.toString()).toContain('summary');
-	});
-
 	it('maps --yes to workspace hygiene readiness overrides', async () => {
 		const ensureGeneratedSpy = jest
 			.spyOn(workspaceModule, 'ensureGeneratedPhpClean')

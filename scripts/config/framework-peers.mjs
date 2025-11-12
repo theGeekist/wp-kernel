@@ -1,0 +1,6 @@
+import peers from './framework-peers.cjs';
+
+export const FRAMEWORK_PEERS = peers.FRAMEWORK_PEERS;
+export const WORDPRESS_FRAMEWORK_PEERS = peers.WORDPRESS_FRAMEWORK_PEERS;
+export const REACT_FRAMEWORK_PEERS = peers.REACT_FRAMEWORK_PEERS;
+export const INTERNAL_FRAMEWORK_PEERS = peers.INTERNAL_FRAMEWORK_PEERS;

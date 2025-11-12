@@ -9,7 +9,6 @@
 		"src/**/*",
 		"tests/**/*",
 		"../../tests/**/*",
-		"../../scripts/register-workspace.ts",
 		"../../packages/test-utils/src/**/*",
 		"src/pipeline/__tests__"
 	],

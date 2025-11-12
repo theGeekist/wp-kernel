@@ -39,8 +39,8 @@ describe('InitCommand', () => {
 			command.name = 'jobs-plugin';
 
 			const exit = await command.execute();
-			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
 			const summary = stdout.toString();
+			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(summary).toContain(
 				'created plugin scaffold for jobs-plugin'
 			);

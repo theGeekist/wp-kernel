@@ -1,12 +1,4 @@
-export type FrameworkPeerKind = 'wordpress' | 'react' | 'internal' | 'tooling';
-
-export interface FrameworkPeerSpec {
-	readonly kind: FrameworkPeerKind;
-	readonly peerRange: string;
-	readonly devRange?: string;
-}
-
-export const FRAMEWORK_PEERS = {
+const FRAMEWORK_PEERS = {
 	'@wordpress/api-fetch': {
 		kind: 'wordpress',
 		peerRange: '>=7.32.0',
@@ -84,23 +76,25 @@ export const FRAMEWORK_PEERS = {
 		peerRange: '>=5.0.0',
 		devRange: '^5.9.3',
 	},
-} satisfies Record<string, FrameworkPeerSpec>;
+};
 
-export type FrameworkPeerMap = typeof FRAMEWORK_PEERS;
-export type FrameworkPeerName = keyof FrameworkPeerMap;
+const FRAMEWORK_PEER_NAMES = Object.keys(FRAMEWORK_PEERS);
 
-const FRAMEWORK_PEER_NAMES = Object.keys(
-	FRAMEWORK_PEERS
-) as FrameworkPeerName[];
-
-export const WORDPRESS_FRAMEWORK_PEERS = FRAMEWORK_PEER_NAMES.filter(
+const WORDPRESS_FRAMEWORK_PEERS = FRAMEWORK_PEER_NAMES.filter(
 	(name) => FRAMEWORK_PEERS[name].kind === 'wordpress'
 );
 
-export const REACT_FRAMEWORK_PEERS = FRAMEWORK_PEER_NAMES.filter(
+const REACT_FRAMEWORK_PEERS = FRAMEWORK_PEER_NAMES.filter(
 	(name) => FRAMEWORK_PEERS[name].kind === 'react'
 );
 
-export const INTERNAL_FRAMEWORK_PEERS = FRAMEWORK_PEER_NAMES.filter(
+const INTERNAL_FRAMEWORK_PEERS = FRAMEWORK_PEER_NAMES.filter(
 	(name) => FRAMEWORK_PEERS[name].kind === 'internal'
 );
+
+module.exports = {
+	FRAMEWORK_PEERS,
+	WORDPRESS_FRAMEWORK_PEERS,
+	REACT_FRAMEWORK_PEERS,
+	INTERNAL_FRAMEWORK_PEERS,
+};

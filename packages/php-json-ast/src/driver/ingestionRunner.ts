@@ -149,22 +149,29 @@ function resolveFromImportMeta(
 function resolveFromPackageRoot(
 	importMetaUrl: string | undefined
 ): string | null {
-	try {
-		const modulePath = resolveModuleFilePath(importMetaUrl);
-		const require = createRequire(
-			modulePath ?? path.join(process.cwd(), 'index.js')
-		);
-		const packageJsonPath = require.resolve(
-			'@wpkernel/php-json-ast/package.json'
-		);
-		return path.resolve(
-			path.dirname(packageJsonPath),
-			'php',
-			'ingest-program.php'
-		);
-	} catch {
-		return null;
+	const modulePath = resolveModuleFilePath(importMetaUrl);
+	const candidateBases = [
+		modulePath,
+		path.join(process.cwd(), 'index.js'),
+	].filter((base): base is string => Boolean(base && base.length > 0));
+
+	for (const base of candidateBases) {
+		try {
+			const req = createRequire(base);
+			const packageJsonPath = req.resolve(
+				'@wpkernel/php-json-ast/package.json'
+			);
+			return path.resolve(
+				path.dirname(packageJsonPath),
+				'php',
+				'ingest-program.php'
+			);
+		} catch {
+			continue;
+		}
 	}
+
+	return null;
 }
 
 function resolveFromProcessCwd(): string {

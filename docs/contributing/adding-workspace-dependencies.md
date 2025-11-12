@@ -4,7 +4,7 @@ Bringing a new package online inside the wp-kernel monorepo, and then teaching i
 
 ## 1. Package manifest
 
-1. Run `pnpm monorepo:create packages/<name>` (or `pnpm exec tsx scripts/register-workspace.ts create packages/<name>`) to scaffold the workspace. The generator emits the minimal `package.json`, TypeScript configs, Jest config, Vite config, smoke unit and integration tests, and source entry points.
+1. Run `pnpm monorepo:create packages/<name>` (or `node scripts/register-workspace.mjs create packages/<name>`) to scaffold the workspace. The generator emits the minimal `package.json`, TypeScript configs, Jest config, Vite config, smoke unit and integration tests, and source entry points.
     - Pass `--deps=@wpkernel/core,@wpkernel/ui` (comma separated) to pre-register internal dependencies. The script updates TypeScript references, adds `peerDependencies` with `workspace:*` versions, and surfaces a warning if you accidentally introduce a cycle (for example, if `ui` already points at your package). Use `pnpm monorepo:update packages/<name> --remove-deps=@wpkernel/ui` (or the `--remove-deps` flag during creation) to prune references and peer dependency entries.
 2. In `package.json`:
     - Point `main`, `module`, and `types` at the `dist/` outputs (`./dist/index.js` / `index.d.ts`).

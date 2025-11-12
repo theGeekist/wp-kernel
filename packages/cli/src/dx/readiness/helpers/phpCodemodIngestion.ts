@@ -13,7 +13,8 @@ import type { DxContext } from '../../context';
 import { createModuleResolver } from '../../../utils/module-url';
 import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
 
-const CODEMOD_MODULE_ID = '@wpkernel/php-json-ast/php/ingest-program.php';
+const CODEMOD_PKG_JSON_ID = '@wpkernel/php-json-ast/package.json';
+const CODEMOD_PHP_RELATIVE_PATH = path.join('php', 'ingest-program.php');
 
 export interface PhpCodemodIngestionDependencies {
 	readonly resolve: (id: string, opts?: { paths?: string[] }) => string;
@@ -68,9 +69,13 @@ async function safeResolveModulePath(
 	context: DxContext
 ): Promise<string | null> {
 	try {
-		return dependencies.resolve(CODEMOD_MODULE_ID, {
+		const packageJsonPath = dependencies.resolve(CODEMOD_PKG_JSON_ID, {
 			paths: buildResolvePaths(context),
 		});
+		return path.resolve(
+			path.dirname(packageJsonPath),
+			CODEMOD_PHP_RELATIVE_PATH
+		);
 	} catch {
 		return null;
 	}

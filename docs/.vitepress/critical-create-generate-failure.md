@@ -23,13 +23,13 @@ Running the package builds in release order immediately surfaces the missing mod
 
 With the partial builds in place, invoking the compiled bootstrapper (`node packages/create-wpk/dist/index.js my-plugin`) from a clean `/tmp` workspace immediately crashes. Node cannot resolve the bundled php-driver import because the CLI dist still expects `node_modules/@wpkernel/php-driver/dist/index.js`, so the process exits before any readiness helper runs. 【4940cc†L1-L19】
 
-### Source-mode scaffolding (skip install)
+### Source-mode scaffolding (install deferred)
 
-After forcing source mode (`WPK_CLI_FORCE_SOURCE=1`) and rebuilding the php/json AST packages, the bootstrapper finally scaffolds a plugin. The readiness log captures the hygiene, git, PHP runtime, and php-driver helpers marching through detect → confirm while we deliberately skip dependency installation to keep timing measurements clean. 【24a1ea†L1-L16】【c641b0†L1-L1】【f68c56†L1-L26】
+After forcing source mode (`WPK_CLI_FORCE_SOURCE=1`) and rebuilding the php/json AST packages, the bootstrapper finally scaffolds a plugin. The readiness log captures the hygiene, git, PHP runtime, and php-driver helpers marching through detect → confirm while we deliberately defer dependency installation to keep timing measurements clean. 【24a1ea†L1-L16】【c641b0†L1-L1】【f68c56†L1-L26】
 
 ### Baseline installation timing and binary gap (pre‑beta.3)
 
-Executing `pnpm install` inside the scaffolded plugin takes 8.1 s on this container once `skip-install` is lifted, which gives us a repeatable baseline for readiness timing gates. In the beta.2 run captured below, `node_modules/.bin` still lacked a `wpk` entry and `pnpm wpk generate` failed immediately because the template omitted both `@wpkernel/cli` and its `tsx` peer dependency. The beta.3 smoke test above confirms that dependency gap is now closed even though readiness still fails. 【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】【5ba723†L1-L4】【59859d†L1-L13】
+Executing `pnpm install` inside the scaffolded plugin takes 8.1 s on this container, which gives us a repeatable baseline for readiness timing gates. In the beta.2 run captured below, `node_modules/.bin` still lacked a `wpk` entry and `pnpm wpk generate` failed immediately because the template omitted both `@wpkernel/cli` and its `tsx` peer dependency. The beta.3 smoke test above confirms that dependency gap is now closed even though readiness still fails. 【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】【5ba723†L1-L4】【59859d†L1-L13】
 
 ### Tarball installation attempt
 

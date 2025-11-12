@@ -4,18 +4,14 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-function assert(condition: unknown, message: string): asserts condition {
+function assert(condition, message) {
 	if (!condition) {
 		console.error(message);
 		process.exit(1);
 	}
 }
 
-function runCommand(
-	command: string,
-	args: readonly string[],
-	cwd: string
-): void {
+function runCommand(command, args, cwd) {
 	const result = spawnSync(command, [...args], {
 		cwd,
 		stdio: 'inherit',
@@ -26,7 +22,7 @@ function runCommand(
 	}
 }
 
-function readGit(commandArgs: readonly string[], cwd: string): string {
+function readGit(commandArgs, cwd) {
 	const result = spawnSync('git', [...commandArgs], {
 		cwd,
 		stdio: ['ignore', 'pipe', 'inherit'],
@@ -40,7 +36,7 @@ function readGit(commandArgs: readonly string[], cwd: string): string {
 	return result.stdout.trim();
 }
 
-function ensureCleanWorkingTree(repoRoot: string): void {
+function ensureCleanWorkingTree(repoRoot) {
 	const status = readGit(['status', '--porcelain'], repoRoot);
 	assert(
 		status.length === 0,
@@ -48,7 +44,7 @@ function ensureCleanWorkingTree(repoRoot: string): void {
 	);
 }
 
-function printDiffSummary(repoRoot: string): void {
+function printDiffSummary(repoRoot) {
 	console.log('\nWorking tree summary:');
 	const shortStatus = readGit(['status', '--short'], repoRoot);
 	if (shortStatus.length === 0) {
@@ -64,7 +60,7 @@ function printDiffSummary(repoRoot: string): void {
 	}
 }
 
-function main(): void {
+function main() {
 	const currentFilePath = fileURLToPath(import.meta.url);
 	const repoRoot = path.resolve(path.dirname(currentFilePath), '..', '..');
 

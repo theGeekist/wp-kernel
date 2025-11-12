@@ -4,7 +4,47 @@ import dts from 'vite-plugin-dts';
 // eslint-disable-next-line camelcase
 import { wp_globals } from '@kucrut/vite-for-wp/utils';
 
-import { FRAMEWORK_PEERS } from '@wpkernel/scripts/config/framework-peers';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+
+function resolveModuleFilename(): string {
+	let moduleUrl: string | undefined;
+
+	try {
+		moduleUrl = Function(
+			'return (typeof import !== "undefined" && import.meta && import.meta.url) ? import.meta.url : undefined;'
+		)();
+	} catch {
+		moduleUrl = undefined;
+	}
+
+	if (typeof moduleUrl === 'string' && moduleUrl.length > 0) {
+		return fileURLToPath(moduleUrl);
+	}
+
+	if (typeof __filename === 'string' && __filename.length > 0) {
+		return __filename;
+	}
+
+	return process.cwd();
+}
+
+const esmRequire =
+	typeof createRequire === 'function'
+		? createRequire(resolveModuleFilename())
+		: require;
+
+const {
+	FRAMEWORK_PEERS,
+}: {
+	FRAMEWORK_PEERS: Record<
+		string,
+		{
+			kind: 'wordpress' | 'react' | 'internal' | 'tooling';
+			peerRange: string;
+		}
+	>;
+} = esmRequire('@wpkernel/scripts/config/framework-peers.cjs');
 
 // Accept array OR predicate for externals
 type ExternalOpt = Array<string | RegExp> | ((id: string) => boolean);

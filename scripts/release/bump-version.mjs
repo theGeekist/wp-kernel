@@ -5,36 +5,27 @@ import process from 'node:process';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-interface PackageJson {
-	readonly name?: string;
-	version?: string;
-}
-
 const SEMVER_PATTERN = /^(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?$/;
 
-function assert(condition: unknown, message: string): asserts condition {
+function assert(condition, message) {
 	if (!condition) {
 		console.error(message);
 		process.exit(1);
 	}
 }
 
-function readJsonFile<T>(filePath: string): T {
+function readJsonFile(filePath) {
 	const contents = fs.readFileSync(filePath, 'utf8');
-	return JSON.parse(contents) as T;
+	return JSON.parse(contents);
 }
 
-function writeJsonFile(filePath: string, data: unknown): void {
+function writeJsonFile(filePath, data) {
 	const contents = `${JSON.stringify(data, null, '\t')}\n`;
 	fs.writeFileSync(filePath, contents);
 }
 
-function updatePackageVersion(
-	filePath: string,
-	currentVersion: string,
-	nextVersion: string
-): boolean {
-	const manifest = readJsonFile<PackageJson>(filePath);
+function updatePackageVersion(filePath, currentVersion, nextVersion) {
+	const manifest = readJsonFile(filePath);
 	if (typeof manifest.version !== 'string') {
 		return false;
 	}
@@ -49,11 +40,7 @@ function updatePackageVersion(
 	return true;
 }
 
-function updateRoadmapVersion(
-	filePath: string,
-	currentVersion: string,
-	nextVersion: string
-): boolean {
+function updateRoadmapVersion(filePath, currentVersion, nextVersion) {
 	const contents = fs.readFileSync(filePath, 'utf8');
 	const currentToken = `**Latest Release**: v${currentVersion}`;
 	if (!contents.includes(currentToken)) {
@@ -65,13 +52,13 @@ function updateRoadmapVersion(
 	return true;
 }
 
-function gatherWorkspacePackageJsonFiles(repoRoot: string): string[] {
+function gatherWorkspacePackageJsonFiles(repoRoot) {
 	const manifestGlobs = [
 		path.join(repoRoot, 'packages'),
 		path.join(repoRoot, 'examples'),
 	];
 
-	const files: string[] = [];
+	const files = [];
 	for (const basePath of manifestGlobs) {
 		if (!fs.existsSync(basePath)) {
 			continue;
@@ -97,7 +84,7 @@ function gatherWorkspacePackageJsonFiles(repoRoot: string): string[] {
 	return files;
 }
 
-function runDocsBuild(repoRoot: string): void {
+function runDocsBuild(repoRoot) {
 	const result = spawnSync('pnpm', ['docs:build'], {
 		cwd: repoRoot,
 		stdio: 'inherit',
@@ -108,11 +95,11 @@ function runDocsBuild(repoRoot: string): void {
 	}
 }
 
-function main(): void {
+function main() {
 	const [, , nextVersion] = process.argv;
 	assert(
 		nextVersion,
-		'Usage: pnpm exec tsx scripts/release/bump-version.ts <new-version>'
+		'Usage: node scripts/release/bump-version.mjs <new-version>'
 	);
 	assert(
 		SEMVER_PATTERN.test(nextVersion),
@@ -122,7 +109,7 @@ function main(): void {
 	const currentFilePath = fileURLToPath(import.meta.url);
 	const repoRoot = path.resolve(path.dirname(currentFilePath), '..', '..');
 	const rootManifestPath = path.join(repoRoot, 'package.json');
-	const rootManifest = readJsonFile<PackageJson>(rootManifestPath);
+	const rootManifest = readJsonFile(rootManifestPath);
 	assert(
 		typeof rootManifest.version === 'string',
 		'Root package.json is missing a version.'

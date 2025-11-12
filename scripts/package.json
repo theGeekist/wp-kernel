@@ -4,6 +4,18 @@
 	"private": true,
 	"type": "module",
 	"exports": {
+		"./config/framework-peers": {
+			"import": "./config/framework-peers.mjs",
+			"require": "./config/framework-peers.cjs"
+		},
+		"./register-workspace": {
+			"import": "./register-workspace.mjs",
+			"require": "./register-workspace.cjs"
+		},
+		"./docs/build-api": "./docs/build-api.mjs",
+		"./release/bump-version": "./release/bump-version.mjs",
+		"./release/prepare-pr": "./release/prepare-pr.mjs",
+		"./pre-commit": "./pre-commit.mjs",
 		"./*": "./*"
 	},
 	"bin": {

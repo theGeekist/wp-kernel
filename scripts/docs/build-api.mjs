@@ -27,15 +27,14 @@ const packages = [
 	'create-wpk',
 ];
 
-type CacheState = {
-	version: number;
-	signature: string;
-};
-
-type RunOptions = {
-	cwd?: string;
-	env?: NodeJS.ProcessEnv;
-};
+function isNoEntryError(error) {
+	return Boolean(
+		error &&
+			typeof error === 'object' &&
+			'code' in error &&
+			error.code === 'ENOENT'
+	);
+}
 
 function resolveBooleanEnv(value: string | undefined): boolean {
 	if (!value) {
@@ -45,11 +44,7 @@ function resolveBooleanEnv(value: string | undefined): boolean {
 	return !['0', 'false', 'no'].includes(value.toLowerCase());
 }
 
-async function runCommand(
-	command: string,
-	args: string[],
-	options: RunOptions = {}
-) {
+async function runCommand(command, args, options = {}) {
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn(command, args, {
 			cwd: options.cwd ?? rootDir,
@@ -77,10 +72,10 @@ async function runCommand(
 	});
 }
 
-async function readCache(): Promise<CacheState | null> {
+async function readCache() {
 	try {
 		const raw = await fs.readFile(cacheFile, 'utf8');
-		const parsed = JSON.parse(raw) as CacheState;
+		const parsed = JSON.parse(raw);
 
 		if (
 			parsed.version !== CACHE_VERSION ||
@@ -90,8 +85,8 @@ async function readCache(): Promise<CacheState | null> {
 		}
 
 		return parsed;
-	} catch (error: unknown) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+	} catch (error) {
+		if (isNoEntryError(error)) {
 			return null;
 		}
 
@@ -99,8 +94,8 @@ async function readCache(): Promise<CacheState | null> {
 	}
 }
 
-async function writeCache(signature: string) {
-	const payload: CacheState = {
+async function writeCache(signature) {
+	const payload = {
 		version: CACHE_VERSION,
 		signature,
 	};
@@ -109,12 +104,12 @@ async function writeCache(signature: string) {
 	await fs.writeFile(cacheFile, JSON.stringify(payload, null, 2), 'utf8');
 }
 
-async function pathExists(target: string) {
+async function pathExists(target) {
 	try {
 		await fs.access(target);
 		return true;
-	} catch (error: unknown) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+	} catch (error) {
+		if (isNoEntryError(error)) {
 			return false;
 		}
 
@@ -122,7 +117,7 @@ async function pathExists(target: string) {
 	}
 }
 
-async function collectSourceFiles(): Promise<string[]> {
+async function collectSourceFiles() {
 	const patterns = packages.map((pkg) =>
 		path.join(
 			rootDir,
@@ -157,21 +152,24 @@ async function collectSourceFiles(): Promise<string[]> {
 	return Array.from(files).sort();
 }
 
-async function computeSignature(): Promise<string> {
+async function computeSignature() {
 	const hash = createHash('sha256');
 	const files = await collectSourceFiles();
 
 	for (const file of files) {
 		hash.update(file);
-		try {
-			const content = await fs.readFile(file);
-			hash.update(content);
-		} catch (error: unknown) {
-			if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-				continue;
-			}
+		const content = await fs
+			.readFile(file)
+			.catch((error) => {
+				if (isNoEntryError(error)) {
+					return null;
+				}
 
-			throw error;
+				throw error;
+			});
+
+		if (content) {
+			hash.update(content);
 		}
 	}
 

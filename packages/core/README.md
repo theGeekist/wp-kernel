@@ -57,7 +57,7 @@ never inline them. The framework currently targets:
 - `@wordpress/hooks` `>=4.32.0`
 
 Run `pnpm lint:peers` before committing to confirm every workspace is aligned
-with the shared capability from `scripts/check-framework-peers.ts`.
+with the shared capability from `scripts/check-framework-peers.mjs`.
 
 ## Testing Helpers
 

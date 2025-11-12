@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createPhpCodemodIngestionReadinessHelper } from '../phpCodemodIngestion';
 import {
@@ -7,18 +8,19 @@ import {
 
 const runtimePath =
 	'/repo/node_modules/@wpkernel/php-json-ast/php/ingest-program.php';
-const modulePath =
-	'/repo/node_modules/@wpkernel/php-json-ast/php/ingest-program.php';
+const modulePackageJsonPath =
+	'/repo/node_modules/@wpkernel/php-json-ast/package.json';
+const moduleResolvedPath = path.resolve(
+	path.dirname(modulePackageJsonPath),
+	'php',
+	'ingest-program.php'
+);
 
 describe('createPhpCodemodIngestionReadinessHelper', () => {
 	it('reports ready when runtime and module paths align', async () => {
-		const resolve = jest.fn(() => modulePath);
+		const resolve = jest.fn(() => modulePackageJsonPath);
 		const access = jest.fn().mockResolvedValue(undefined);
-		const realpath = jest
-			.fn()
-			.mockResolvedValue(
-				'/repo/node_modules/@wpkernel/php-json-ast/php/ingest-program.php'
-			);
+		const realpath = jest.fn().mockResolvedValue(moduleResolvedPath);
 		const helper = createPhpCodemodIngestionReadinessHelper({
 			resolve,
 			access,
@@ -41,7 +43,7 @@ describe('createPhpCodemodIngestionReadinessHelper', () => {
 	});
 
 	it('reports pending when runtime path is missing', async () => {
-		const resolve = jest.fn(() => modulePath);
+		const resolve = jest.fn(() => modulePackageJsonPath);
 		const access = jest.fn().mockImplementation((target: string) => {
 			if (target === runtimePath) {
 				throw makeNoEntry(target);
@@ -49,7 +51,7 @@ describe('createPhpCodemodIngestionReadinessHelper', () => {
 
 			return Promise.resolve();
 		});
-		const realpath = jest.fn().mockResolvedValue(modulePath);
+		const realpath = jest.fn().mockResolvedValue(moduleResolvedPath);
 
 		const helper = createPhpCodemodIngestionReadinessHelper({
 			resolve,
@@ -89,16 +91,20 @@ describe('createPhpCodemodIngestionReadinessHelper', () => {
 	});
 
 	it('throws when runtime and module paths differ', async () => {
-		const mismatchedModulePath =
-			'/repo/node_modules_alt/@wpkernel/php-json-ast/php/ingest-program.php';
-		const resolve = jest.fn(() => mismatchedModulePath);
+		const mismatchedPackageJson =
+			'/repo/node_modules_alt/@wpkernel/php-json-ast/package.json';
+		const resolve = jest.fn(() => mismatchedPackageJson);
 		const access = jest.fn().mockResolvedValue(undefined);
 		const realpath = jest
 			.fn()
 			.mockImplementation((target: string) =>
 				target === runtimePath
 					? runtimePath
-					: `${mismatchedModulePath}.alt`
+					: `${path.resolve(
+							path.dirname(mismatchedPackageJson),
+							'php',
+							'ingest-program.php'
+						)}.alt`
 			);
 
 		const helper = createPhpCodemodIngestionReadinessHelper({

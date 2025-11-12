@@ -45,7 +45,7 @@ Install the matching WordPress and React peers so they are not bundled into your
 - `@wordpress/element` `>=6.32.0`
 - `react` `>=18.0.0`
 
-Run `pnpm lint:peers` (or `pnpm exec tsx scripts/check-framework-peers.ts`) before
+Run `pnpm lint:peers` (or `node scripts/check-framework-peers.mjs`) before
 publishing to confirm every workspace honours the shared peer dependency policy.
 
 ## Quick start

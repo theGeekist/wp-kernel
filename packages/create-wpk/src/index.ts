@@ -47,13 +47,11 @@ function logBootstrapStart(
 	forwardedFlagNames: readonly string[]
 ): void {
 	const hasTarget = positional.length > 0;
-	const hasSkipInstall = forwardedFlagNames.includes('skip-install');
 
 	reporter.debug('Launching wpk create via bootstrapper.', {
 		positionalCount: positional.length,
 		forwardedFlags: forwardedFlagNames,
 		targetProvided: hasTarget,
-		skipInstall: hasSkipInstall,
 	});
 }
 

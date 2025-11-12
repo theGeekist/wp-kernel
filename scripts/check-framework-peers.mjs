@@ -4,16 +4,9 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-import { FRAMEWORK_PEERS } from './config/framework-peers';
+import { FRAMEWORK_PEERS } from './config/framework-peers.mjs';
 
-interface PackageJson {
-	readonly name?: string;
-	readonly dependencies?: Record<string, string>;
-	readonly devDependencies?: Record<string, string>;
-	readonly peerDependencies?: Record<string, string>;
-}
-
-const REQUIRED_PEERS: Record<string, readonly string[]> = {
+const REQUIRED_PEERS = {
 	'@wpkernel/cli': [
 		'@wpkernel/core',
 		'@wpkernel/php-json-ast',
@@ -44,12 +37,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 
-function readJsonFile<T>(filePath: string): T {
+function readJsonFile(filePath) {
 	const raw = fs.readFileSync(filePath, 'utf8');
-	return JSON.parse(raw) as T;
+	return JSON.parse(raw);
 }
 
-function gatherWorkspacePackages(): readonly string[] {
+function gatherWorkspacePackages() {
 	const packagesDir = path.join(REPO_ROOT, 'packages');
 	if (!fs.existsSync(packagesDir)) {
 		return [];
@@ -62,12 +55,16 @@ function gatherWorkspacePackages(): readonly string[] {
 		.filter((filePath) => fs.existsSync(filePath));
 }
 
-function ensureRootDevDependencies(rootPackage: PackageJson): string[] {
-	const errors: string[] = [];
+function ensureRootDevDependencies(rootPackage) {
+	const errors = [];
 	const devDependencies = rootPackage.devDependencies ?? {};
 
 	for (const [dependency, spec] of Object.entries(FRAMEWORK_PEERS)) {
-		if (!('devRange' in spec) || !spec.devRange) {
+		if (!Object.prototype.hasOwnProperty.call(spec, 'devRange')) {
+			continue;
+		}
+
+		if (!spec.devRange) {
 			continue;
 		}
 
@@ -89,10 +86,7 @@ function ensureRootDevDependencies(rootPackage: PackageJson): string[] {
 	return errors;
 }
 
-function collectRequiredPeerErrors(
-	packageName: string,
-	peerDependencies: Record<string, string>
-): string[] {
+function collectRequiredPeerErrors(packageName, peerDependencies) {
 	const requiredPeers = REQUIRED_PEERS[packageName] ?? [];
 
 	return requiredPeers
@@ -103,11 +97,8 @@ function collectRequiredPeerErrors(
 		);
 }
 
-function collectPeerRangeErrors(
-	packageName: string,
-	peerDependencies: Record<string, string>
-): string[] {
-	const errors: string[] = [];
+function collectPeerRangeErrors(packageName, peerDependencies) {
+	const errors = [];
 
 	for (const [dependency, spec] of Object.entries(FRAMEWORK_PEERS)) {
 		const peerRange = peerDependencies[dependency];
@@ -121,11 +112,8 @@ function collectPeerRangeErrors(
 	return errors;
 }
 
-function collectDependencyPlacementErrors(
-	packageName: string,
-	dependencies: Record<string, string>
-): string[] {
-	const errors: string[] = [];
+function collectDependencyPlacementErrors(packageName, dependencies) {
+	const errors = [];
 
 	for (const [dependency, spec] of Object.entries(FRAMEWORK_PEERS)) {
 		const dependencyRange = dependencies[dependency];
@@ -155,11 +143,8 @@ function collectDependencyPlacementErrors(
 	return errors;
 }
 
-function collectDevDependencyErrors(
-	packageName: string,
-	devDependencies: Record<string, string>
-): string[] {
-	const errors: string[] = [];
+function collectDevDependencyErrors(packageName, devDependencies) {
+	const errors = [];
 
 	for (const [dependency, spec] of Object.entries(FRAMEWORK_PEERS)) {
 		const devRange = devDependencies[dependency];
@@ -167,7 +152,12 @@ function collectDevDependencyErrors(
 			continue;
 		}
 
-		if (!('devRange' in spec) || !spec.devRange) {
+		const hasDevRange =
+			Object.prototype.hasOwnProperty.call(spec, 'devRange') &&
+			typeof spec.devRange === 'string' &&
+			spec.devRange.length > 0;
+
+		if (!hasDevRange) {
 			errors.push(
 				`${packageName} declares devDependency "${dependency}" but the shared capability does not define a version. Add a capability entry or remove the devDependency.`
 			);
@@ -184,10 +174,7 @@ function collectDevDependencyErrors(
 	return errors;
 }
 
-function ensurePeerCapability(
-	packageJson: PackageJson,
-	packagePath: string
-): string[] {
+function ensurePeerCapability(packageJson, packagePath) {
 	const packageName = packageJson.name ?? packagePath;
 	const peerDependencies = packageJson.peerDependencies ?? {};
 	const dependencies = packageJson.dependencies ?? {};
@@ -201,17 +188,15 @@ function ensurePeerCapability(
 	];
 }
 
-function main(): void {
-	const errors: string[] = [];
-	const rootPackage = readJsonFile<PackageJson>(
-		path.join(REPO_ROOT, 'package.json')
-	);
+function main() {
+	const errors = [];
+	const rootPackage = readJsonFile(path.join(REPO_ROOT, 'package.json'));
 
 	errors.push(...ensureRootDevDependencies(rootPackage));
 
 	const workspacePackages = gatherWorkspacePackages();
 	for (const packageJsonPath of workspacePackages) {
-		const packageJson = readJsonFile<PackageJson>(packageJsonPath);
+		const packageJson = readJsonFile(packageJsonPath);
 		errors.push(...ensurePeerCapability(packageJson, packageJsonPath));
 	}
 

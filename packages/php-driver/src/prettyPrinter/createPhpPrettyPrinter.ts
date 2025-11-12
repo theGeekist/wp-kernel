@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { WPKernelError } from '@wpkernel/core/error';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
@@ -42,7 +43,8 @@ export function resolvePrettyPrintScriptPath(
 	const packageRoot =
 		resolvePackageRootFromProvidedImportMeta(options.importMetaUrl) ??
 		resolvePackageRootFromDirname() ??
-		resolvePackageRootFromModuleUrl();
+		resolvePackageRootFromModuleUrl() ??
+		resolvePackageRootFromRequireFallback();
 
 	if (packageRoot) {
 		return path.resolve(packageRoot, 'php', 'pretty-print.php');
@@ -84,6 +86,18 @@ function resolvePackageRootFromProvidedImportMeta(
 		}
 
 		return initialParent;
+	} catch {
+		return null;
+	}
+}
+
+function resolvePackageRootFromRequireFallback(): string | null {
+	try {
+		const req = createRequire(path.join(process.cwd(), 'index.js'));
+		const packageJsonPath = req.resolve(
+			'@wpkernel/php-driver/package.json'
+		);
+		return path.dirname(packageJsonPath);
 	} catch {
 		return null;
 	}
