@@ -86,6 +86,21 @@ console.log(result.artifact.result); // "item1, item2"
 - **Typed contracts** – helper descriptors, execution metadata, and diagnostics surfaces are
   fully typed for TypeScript consumers.
 
+## Official extension incubator
+
+The package owns an `src/extensions/` workspace where internal extensions are designed before
+being promoted to standalone packages. The directory ships a README that documents authoring
+guidelines and an [`official.ts`](./src/extensions/official.ts) catalogue describing the
+blueprints for:
+
+- a live runner extension that streams reporter events to interactive renderers;
+- a deterministic concurrency scheduler;
+- additional integration blueprints for telemetry and runtime adapters.
+
+Consumers can import the catalogue through `@wpkernel/pipeline/extensions` to understand the
+contracts and helper annotations each extension expects while we finalise their
+implementations.
+
 ## Consumers
 
 - `@wpkernel/cli` (code generation pipeline, codemod entry points)

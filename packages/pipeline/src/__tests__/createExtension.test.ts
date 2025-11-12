@@ -293,4 +293,45 @@ describe('createPipelineExtension', () => {
 		]);
 		expect(hook).toHaveBeenCalledTimes(1);
 	});
+
+	it('wraps inline hooks with lifecycle metadata', async () => {
+		const extension = createPipelineExtension<
+			TestPipeline,
+			TestContext,
+			TestRunOptions,
+			TestArtifact
+		>({
+			lifecycle: 'before-builders',
+			hook: ({ artifact }) => ({ artifact }),
+		});
+
+		const registration = await extension.register({} as TestPipeline);
+
+		expect(registration).toEqual({
+			lifecycle: 'before-builders',
+			hook: expect.any(Function),
+		});
+	});
+
+	it('prioritises hook-provided lifecycle metadata', async () => {
+		const extension = createPipelineExtension<
+			TestPipeline,
+			TestContext,
+			TestRunOptions,
+			TestArtifact
+		>({
+			lifecycle: 'prepare',
+			hook: {
+				lifecycle: 'after-builders',
+				hook: ({ artifact }) => ({ artifact }),
+			},
+		});
+
+		const registration = await extension.register({} as TestPipeline);
+
+		expect(registration).toEqual({
+			lifecycle: 'after-builders',
+			hook: expect.any(Function),
+		});
+	});
 });
