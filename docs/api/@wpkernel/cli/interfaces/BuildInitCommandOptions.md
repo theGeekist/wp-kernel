@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -51,6 +51,26 @@ reporter.info('Starting build process');
 ```
 
 ### Other
+
+#### buildReadinessRegistry()?
+
+```ts
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
+```
+
+Optional: Custom readiness registry builder.
+
+##### Parameters
+
+###### options?
+
+[`BuildDefaultReadinessRegistryOptions`](BuildDefaultReadinessRegistryOptions.md)
+
+##### Returns
+
+[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
+
+---
 
 #### buildWorkspace()?
 

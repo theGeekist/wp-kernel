@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -83,6 +83,26 @@ Options for ensuring the directory is clean.
 
 ### Other
 
+#### buildReadinessRegistry()?
+
+```ts
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
+```
+
+Optional: Custom readiness registry builder.
+
+##### Parameters
+
+###### options?
+
+[`BuildDefaultReadinessRegistryOptions`](BuildDefaultReadinessRegistryOptions.md)
+
+##### Returns
+
+[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
+
+---
+
 #### buildWorkspace()?
 
 ```ts
@@ -100,78 +120,6 @@ Optional: Custom workspace builder function.
 ##### Returns
 
 [`Workspace`](Workspace.md)
-
----
-
-#### checkGitRepository()?
-
-```ts
-readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolean>;
-```
-
-Optional: Custom git repository checker function.
-
-##### Parameters
-
-###### cwd
-
-`string`
-
-###### \_\_namedParameters
-
-[`GitDependencies`](GitDependencies.md) = `{}`
-
-##### Returns
-
-`Promise`\<`boolean`\>
-
----
-
-#### initGitRepository()?
-
-```ts
-readonly optional initGitRepository: (cwd, __namedParameters) => Promise<void>;
-```
-
-Optional: Custom git repository initializer function.
-
-##### Parameters
-
-###### cwd
-
-`string`
-
-###### \_\_namedParameters
-
-[`GitDependencies`](GitDependencies.md) = `{}`
-
-##### Returns
-
-`Promise`\<`void`\>
-
----
-
-#### installComposerDependencies()?
-
-```ts
-readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise<void>;
-```
-
-Optional: Custom Composer dependency installer function.
-
-##### Parameters
-
-###### cwd
-
-`string`
-
-###### \_\_namedParameters
-
-[`InstallerDependencies`](InstallerDependencies.md) = `{}`
-
-##### Returns
-
-`Promise`\<`void`\>
 
 ---
 
@@ -196,6 +144,20 @@ Optional: Custom Node.js dependency installer function.
 ##### Returns
 
 `Promise`\<`void`\>
+
+---
+
+#### loadWPKernelConfig()?
+
+```ts
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
+```
+
+Optional: Custom kernel config loader.
+
+##### Returns
+
+`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
 
 ---
 

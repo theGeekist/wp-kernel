@@ -1,8 +1,8 @@
-**@wpkernel/cli v0.12.1-beta.2**
+**@wpkernel/cli v0.12.1-beta.3**
 
 ---
 
-# @wpkernel/cli v0.12.1-beta.2
+# @wpkernel/cli v0.12.1-beta.3
 
 Top-level exports for the `@wpkernel/cli` package.
 
@@ -22,7 +22,6 @@ wpk and UI packages.
 - [BuildDoctorCommandOptions](interfaces/BuildDoctorCommandOptions.md)
 - [BuildInitCommandOptions](interfaces/BuildInitCommandOptions.md)
 - [BuildStartCommandOptions](interfaces/BuildStartCommandOptions.md)
-- [CheckPhpEnvironmentOptions](interfaces/CheckPhpEnvironmentOptions.md)
 - [DoctorCheckResult](interfaces/DoctorCheckResult.md)
 - [FileSystem](interfaces/FileSystem.md)
 - [ValidateGeneratedImportsOptions](interfaces/ValidateGeneratedImportsOptions.md)
@@ -105,13 +104,18 @@ wpk and UI packages.
 
 - [ApplyFlags](interfaces/ApplyFlags.md)
 - [ApplyLogEntry](interfaces/ApplyLogEntry.md)
+- [BootstrapperResolutionDependencies](interfaces/BootstrapperResolutionDependencies.md)
+- [BootstrapperResolutionHelperOptions](interfaces/BootstrapperResolutionHelperOptions.md)
+- [BootstrapperResolutionState](interfaces/BootstrapperResolutionState.md)
 - [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
+- [BuildDefaultReadinessRegistryOptions](interfaces/BuildDefaultReadinessRegistryOptions.md)
 - [BuildGenerateCommandOptions](interfaces/BuildGenerateCommandOptions.md)
 - [ComposerHelperDependencies](interfaces/ComposerHelperDependencies.md)
 - [ComposerHelperOverrides](interfaces/ComposerHelperOverrides.md)
 - [ComposerReadinessState](interfaces/ComposerReadinessState.md)
 - [CreateBackupsOptions](interfaces/CreateBackupsOptions.md)
 - [CreateHelperOptions](interfaces/CreateHelperOptions.md)
+- [DefaultReadinessHelperOverrides](interfaces/DefaultReadinessHelperOverrides.md)
 - [DxContext](interfaces/DxContext.md)
 - [DxEnvironment](interfaces/DxEnvironment.md)
 - [FileWriteRecord](interfaces/FileWriteRecord.md)
@@ -136,18 +140,32 @@ wpk and UI packages.
 - [PatchManifest](interfaces/PatchManifest.md)
 - [PatchManifestSummary](interfaces/PatchManifestSummary.md)
 - [PatchRecord](interfaces/PatchRecord.md)
+- [PhpCodemodIngestionDependencies](interfaces/PhpCodemodIngestionDependencies.md)
+- [PhpCodemodIngestionState](interfaces/PhpCodemodIngestionState.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
 - [PhpDriverDependencies](interfaces/PhpDriverDependencies.md)
 - [PhpDriverState](interfaces/PhpDriverState.md)
+- [PhpPrinterPathDependencies](interfaces/PhpPrinterPathDependencies.md)
+- [PhpPrinterPathState](interfaces/PhpPrinterPathState.md)
 - [PhpRuntimeDependencies](interfaces/PhpRuntimeDependencies.md)
 - [PhpRuntimeState](interfaces/PhpRuntimeState.md)
+- [QuickstartDependencies](interfaces/QuickstartDependencies.md)
+- [QuickstartHelperOptions](interfaces/QuickstartHelperOptions.md)
+- [QuickstartRunResult](interfaces/QuickstartRunResult.md)
+- [QuickstartState](interfaces/QuickstartState.md)
 - [ReadinessConfirmation](interfaces/ReadinessConfirmation.md)
 - [ReadinessDetection](interfaces/ReadinessDetection.md)
 - [ReadinessHelper](interfaces/ReadinessHelper.md)
+- [ReadinessHelperDescriptor](interfaces/ReadinessHelperDescriptor.md)
+- [ReadinessHelperFactoryContext](interfaces/ReadinessHelperFactoryContext.md)
 - [ReadinessOutcome](interfaces/ReadinessOutcome.md)
 - [ReadinessPlan](interfaces/ReadinessPlan.md)
 - [ReadinessRunResult](interfaces/ReadinessRunResult.md)
 - [ReadinessStepResult](interfaces/ReadinessStepResult.md)
+- [ReleasePackDependencies](interfaces/ReleasePackDependencies.md)
+- [ReleasePackHelperOptions](interfaces/ReleasePackHelperOptions.md)
+- [ReleasePackManifestEntry](interfaces/ReleasePackManifestEntry.md)
+- [ReleasePackState](interfaces/ReleasePackState.md)
 - [TsxRuntimeDependencies](interfaces/TsxRuntimeDependencies.md)
 - [TsxRuntimeState](interfaces/TsxRuntimeState.md)
 - [WorkspaceHygieneDependencies](interfaces/WorkspaceHygieneDependencies.md)
@@ -218,6 +236,7 @@ wpk and UI packages.
 - [PatchStatus](type-aliases/PatchStatus.md)
 - [PipelinePhase](type-aliases/PipelinePhase.md)
 - [ReadinessConfirmationStatus](type-aliases/ReadinessConfirmationStatus.md)
+- [ReadinessHelperFactory](type-aliases/ReadinessHelperFactory.md)
 - [ReadinessKey](type-aliases/ReadinessKey.md)
 - [ReadinessOutcomeStatus](type-aliases/ReadinessOutcomeStatus.md)
 - [ReadinessStatus](type-aliases/ReadinessStatus.md)
@@ -236,6 +255,7 @@ wpk and UI packages.
 
 ### Other
 
+- [DEFAULT_READINESS_ORDER](variables/DEFAULT_READINESS_ORDER.md)
 - [VERSION](variables/VERSION.md)
 
 ## Functions
@@ -255,6 +275,7 @@ wpk and UI packages.
 
 ### AST Builders
 
+- [buildTsFormatter](functions/buildTsFormatter.md)
 - [createApplyPlanBuilder](functions/createApplyPlanBuilder.md)
 - [createBundler](functions/createBundler.md)
 - [createJsBlocksBuilder](functions/createJsBlocksBuilder.md)
@@ -294,17 +315,29 @@ wpk and UI packages.
 - [createHelper](functions/createHelper.md)
 - [createPipeline](functions/createPipeline.md)
 
-### Other
+### Builders
 
-- [createComposerReadinessHelper](functions/createComposerReadinessHelper.md)
-- [createGitReadinessHelper](functions/createGitReadinessHelper.md)
-- [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
-- [createPhpDriverReadinessHelper](functions/createPhpDriverReadinessHelper.md)
-- [createPhpRuntimeReadinessHelper](functions/createPhpRuntimeReadinessHelper.md)
-- [createReadinessHelper](functions/createReadinessHelper.md)
-- [createReadinessRegistry](functions/createReadinessRegistry.md)
 - [createTsCapabilityBuilder](functions/createTsCapabilityBuilder.md)
 - [createTsIndexBuilder](functions/createTsIndexBuilder.md)
+
+### Other
+
+- [assertReadinessRun](functions/assertReadinessRun.md)
+- [buildDefaultReadinessRegistry](functions/buildDefaultReadinessRegistry.md)
+- [createBootstrapperResolutionReadinessHelper](functions/createBootstrapperResolutionReadinessHelper.md)
+- [createComposerReadinessHelper](functions/createComposerReadinessHelper.md)
+- [createGitReadinessHelper](functions/createGitReadinessHelper.md)
+- [createPhpCodemodIngestionReadinessHelper](functions/createPhpCodemodIngestionReadinessHelper.md)
+- [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
+- [createPhpDriverReadinessHelper](functions/createPhpDriverReadinessHelper.md)
+- [createPhpPrinterPathReadinessHelper](functions/createPhpPrinterPathReadinessHelper.md)
+- [createPhpRuntimeReadinessHelper](functions/createPhpRuntimeReadinessHelper.md)
+- [createQuickstartReadinessHelper](functions/createQuickstartReadinessHelper.md)
+- [createReadinessHelper](functions/createReadinessHelper.md)
+- [createReadinessRegistry](functions/createReadinessRegistry.md)
+- [createReleasePackReadinessHelper](functions/createReleasePackReadinessHelper.md)
 - [createTsxRuntimeReadinessHelper](functions/createTsxRuntimeReadinessHelper.md)
 - [createWorkspaceHygieneReadinessHelper](functions/createWorkspaceHygieneReadinessHelper.md)
+- [registerDefaultReadinessHelpers](functions/registerDefaultReadinessHelpers.md)
+- [registerReadinessHelperFactories](functions/registerReadinessHelperFactories.md)
 - [toWorkspaceRelative](functions/toWorkspaceRelative.md)

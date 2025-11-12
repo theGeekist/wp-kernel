@@ -1,8 +1,8 @@
-**@wpkernel/core v0.12.1-beta.2**
+**@wpkernel/core v0.12.1-beta.3**
 
 ---
 
-# @wpkernel/core v0.12.1-beta.2
+# @wpkernel/core v0.12.1-beta.3
 
 WPKernel - Core Framework Package
 
@@ -33,6 +33,7 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 ### Other
 
+- [EnvironmentalError](classes/EnvironmentalError.md)
 - [ServerError](classes/ServerError.md)
 - [TransportError](classes/TransportError.md)
 - [WPKernelError](classes/WPKernelError.md)

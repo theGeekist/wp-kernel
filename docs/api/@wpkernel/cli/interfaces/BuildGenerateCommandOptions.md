@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -119,6 +119,24 @@ readonly optional buildAdapterExtensionsExtension: () => PipelineExtension;
 
 ---
 
+#### buildReadinessRegistry()?
+
+```ts
+readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
+```
+
+##### Parameters
+
+###### options?
+
+[`BuildDefaultReadinessRegistryOptions`](BuildDefaultReadinessRegistryOptions.md)
+
+##### Returns
+
+[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
+
+---
+
 #### buildWorkspace()?
 
 ```ts
@@ -203,28 +221,3 @@ readonly optional validateGeneratedImports: (__namedParameters) => Promise<void>
 ##### Returns
 
 `Promise`\<`void`\>
-
----
-
-#### buildReadinessRegistry()?
-
-```ts
-readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
-```
-
-Configures the readiness registry used by `wpk generate` to verify PHP driver
-and tsx dependencies before running the pipeline.
-
-##### Parameters
-
-###### options
-
-`BuildDefaultReadinessRegistryOptions` = `{}`
-
-Helper override configuration.
-
-##### Returns
-
-[`ReadinessRegistry`](../classes/ReadinessRegistry.md)
-
-Registry instance used to run command readiness plans.

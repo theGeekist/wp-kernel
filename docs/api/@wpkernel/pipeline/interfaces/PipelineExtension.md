@@ -1,4 +1,4 @@
-[**@wpkernel/pipeline v0.12.1-beta.2**](../README.md)
+[**@wpkernel/pipeline v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -32,7 +32,9 @@ A pipeline extension descriptor.
 
 ```ts
 register: (pipeline) =>
-	MaybePromise<void | PipelineExtensionHook<TContext, TOptions, TArtifact>>;
+	MaybePromise<
+		PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact>
+	>;
 ```
 
 #### Parameters
@@ -43,9 +45,7 @@ register: (pipeline) =>
 
 #### Returns
 
-[`MaybePromise`](../type-aliases/MaybePromise.md)\<
-\| `void`
-\| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\<`TContext`, `TOptions`, `TArtifact`\>\>
+[`MaybePromise`](../type-aliases/MaybePromise.md)\<[`PipelineExtensionRegisterOutput`](../type-aliases/PipelineExtensionRegisterOutput.md)\<`TContext`, `TOptions`, `TArtifact`\>\>
 
 ---
 

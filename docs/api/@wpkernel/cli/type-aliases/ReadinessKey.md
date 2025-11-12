@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -7,13 +7,7 @@
 # Type Alias: ReadinessKey
 
 ```ts
-type ReadinessKey =
-	| 'composer'
-	| 'git'
-	| 'php-driver'
-	| 'php-runtime'
-	| 'tsx-runtime'
-	| 'workspace-hygiene';
+type ReadinessKey = CoreReadinessKey | (string & object);
 ```
 
 Identifier for a readiness unit managed by the DX orchestrator.

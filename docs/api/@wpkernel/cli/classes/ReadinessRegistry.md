@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -19,6 +19,42 @@ new ReadinessRegistry(): ReadinessRegistry;
 `ReadinessRegistry`
 
 ## Methods
+
+### describe()
+
+```ts
+describe(): readonly ReadinessHelperDescriptor[];
+```
+
+#### Returns
+
+readonly [`ReadinessHelperDescriptor`](../interfaces/ReadinessHelperDescriptor.md)[]
+
+---
+
+### keys()
+
+```ts
+keys(): readonly ReadinessKey[];
+```
+
+#### Returns
+
+readonly [`ReadinessKey`](../type-aliases/ReadinessKey.md)[]
+
+---
+
+### list()
+
+```ts
+list(): readonly ReadinessHelper<unknown>[];
+```
+
+#### Returns
+
+readonly [`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<`unknown`\>[]
+
+---
 
 ### plan()
 

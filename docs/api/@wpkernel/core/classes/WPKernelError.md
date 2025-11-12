@@ -1,4 +1,4 @@
-[**@wpkernel/core v0.12.1-beta.2**](../README.md)
+[**@wpkernel/core v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -25,6 +25,7 @@ throw new WPKernelError('CapabilityDenied', {
 
 - [`TransportError`](TransportError.md)
 - [`ServerError`](ServerError.md)
+- [`EnvironmentalError`](EnvironmentalError.md)
 
 ## Constructors
 

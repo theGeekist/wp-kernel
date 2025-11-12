@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.2**](../README.md)
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
 
@@ -46,4 +46,12 @@ version: 1;
 
 ```ts
 optional adapters: AdaptersConfig;
+```
+
+---
+
+### readiness?
+
+```ts
+optional readiness: ReadinessConfig;
 ```
