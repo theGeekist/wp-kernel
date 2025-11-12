@@ -246,10 +246,20 @@ export interface PipelineExecutionMetadata<
  * Options passed to pipeline extension hooks.
  * @public
  */
+export type PipelineExtensionLifecycle =
+	| 'prepare'
+	| 'before-fragments'
+	| 'after-fragments'
+	| 'before-builders'
+	| 'after-builders'
+	| 'finalize'
+	| (string & {});
+
 export interface PipelineExtensionHookOptions<TContext, TOptions, TArtifact> {
 	readonly context: TContext;
 	readonly options: TOptions;
 	readonly artifact: TArtifact;
+	readonly lifecycle: PipelineExtensionLifecycle;
 }
 
 /**
@@ -282,6 +292,20 @@ export type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
 ) => MaybePromise<PipelineExtensionHookResult<TArtifact> | void>;
 
 /**
+ * Hook registration returned by an extension.
+ *
+ * @public
+ */
+export interface PipelineExtensionHookRegistration<
+	TContext,
+	TOptions,
+	TArtifact,
+> {
+	readonly lifecycle?: PipelineExtensionLifecycle;
+	readonly hook: PipelineExtensionHook<TContext, TOptions, TArtifact>;
+}
+
+/**
  * A pipeline extension descriptor.
  * @public
  */
@@ -289,12 +313,15 @@ export interface PipelineExtension<TPipeline, TContext, TOptions, TArtifact> {
 	readonly key?: string;
 	register: (
 		pipeline: TPipeline
-	) => MaybePromise<void | PipelineExtensionHook<
-		TContext,
-		TOptions,
-		TArtifact
-	>>;
+	) => MaybePromise<
+		PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact>
+	>;
 }
+
+export type PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact> =
+	| void
+	| PipelineExtensionHook<TContext, TOptions, TArtifact>
+	| PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>;
 
 /**
  * Options for creating a pipeline.
@@ -410,6 +437,7 @@ export interface CreatePipelineOptions<
 		readonly options: TRunOptions;
 		readonly buildOptions: TBuildOptions;
 		readonly artifact: TArtifact;
+		readonly lifecycle: PipelineExtensionLifecycle;
 	}) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact>;
 	readonly onExtensionRollbackError?: (options: {
 		readonly error: unknown;

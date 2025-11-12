@@ -29,6 +29,7 @@ import type {
 	PipelineReporter,
 	PipelineExtension,
 	PipelineExtensionHookOptions,
+	PipelineExtensionLifecycle,
 	PipelineExtensionRollbackErrorMetadata,
 	HelperExecutionSnapshot,
 	PipelineExecutionMetadata,
@@ -603,7 +604,8 @@ export function createPipeline<
 		readonly pushStep: (entry: RegisteredHelper<unknown>) => void;
 		readonly builderGraphOptions: CreateDependencyGraphOptions<TBuilderHelper>;
 		readonly createHookOptions: (
-			artifact: TArtifact
+			artifact: TArtifact,
+			lifecycle: PipelineExtensionLifecycle
 		) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact>;
 		readonly handleRollbackError: (options: {
 			readonly error: unknown;
@@ -708,6 +710,7 @@ export function createPipeline<
 			options: TRunOptions;
 			buildOptions: TBuildOptions;
 			artifact: TArtifact;
+			lifecycle: PipelineExtensionLifecycle;
 		}) => PipelineExtensionHookOptions<TContext, TRunOptions, TArtifact> =
 			options.createExtensionHookOptions ??
 			((hookOptions: {
@@ -715,6 +718,7 @@ export function createPipeline<
 				options: TRunOptions;
 				buildOptions: TBuildOptions;
 				artifact: TArtifact;
+				lifecycle: PipelineExtensionLifecycle;
 			}): PipelineExtensionHookOptions<
 				TContext,
 				TRunOptions,
@@ -723,14 +727,19 @@ export function createPipeline<
 				context: hookOptions.context,
 				options: hookOptions.options,
 				artifact: hookOptions.artifact,
+				lifecycle: hookOptions.lifecycle,
 			}));
 
-		const createHookOptions = (artifact: TArtifact) =>
+		const createHookOptions = (
+			artifact: TArtifact,
+			lifecycle: PipelineExtensionLifecycle
+		) =>
 			createHookOptionsFn({
 				context,
 				options: runOptions,
 				buildOptions,
 				artifact,
+				lifecycle,
 			});
 
 		const handleRollbackError =
@@ -874,9 +883,12 @@ export function createPipeline<
 				createError
 			).order;
 
+			const extensionLifecycle: PipelineExtensionLifecycle =
+				'after-fragments';
 			const extensionResult = runExtensionHooks(
 				extensionHooks,
-				createHookOptions(artifact),
+				extensionLifecycle,
+				createHookOptions(artifact, extensionLifecycle),
 				({ error, extensionKeys, hookSequence }) =>
 					handleRollbackError({
 						error,
@@ -885,6 +897,10 @@ export function createPipeline<
 						errorMetadata: createRollbackErrorMetadata(error),
 						context,
 					})
+			);
+
+			const lifecycleHooks = extensionHooks.filter(
+				(entry) => entry.lifecycle === extensionLifecycle
 			);
 
 			return maybeThen(extensionResult, (extensionState) => {
@@ -896,7 +912,7 @@ export function createPipeline<
 						maybeThen(
 							rollbackExtensionResults(
 								extensionState.results,
-								extensionHooks,
+								lifecycleHooks,
 								({
 									error: rollbackError,
 									extensionKeys,

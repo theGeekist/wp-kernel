@@ -100,6 +100,7 @@ function buildOptions(
 			generationState,
 		},
 		artifact,
+		lifecycle: 'after-fragments',
 	};
 
 	return {
@@ -113,15 +114,20 @@ function buildOptions(
 			...base.options,
 			...overrides.options,
 		},
+		lifecycle: overrides.lifecycle ?? base.lifecycle,
 	};
 }
 
-function buildHook(config: WPKernelConfigV1): {
+async function buildHook(config: WPKernelConfigV1): Promise<{
 	hook: PipelineExtensionHook;
 	options: PipelineExtensionHookOptions;
-} {
+}> {
 	const extension = buildAdapterExtensionsExtension();
-	const hook = extension.register({} as never) as PipelineExtensionHook;
+	const registration = await extension.register({} as never);
+	const hook =
+		typeof registration === 'function'
+			? registration
+			: (registration?.hook ?? (() => Promise.resolve()));
 	const options = buildOptions({
 		options: {
 			config,
@@ -149,7 +155,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [factory] },
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		const result = await hook({
 			...options,
@@ -170,7 +176,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [] },
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		const result = await hook(options);
 
@@ -188,7 +194,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				extensions: [() => [{ name: ' ', apply: jest.fn() }]],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -213,7 +219,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [factory] },
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		const commit = jest.fn().mockResolvedValue(undefined);
 		const rollback = jest.fn().mockResolvedValue(undefined);
@@ -293,7 +299,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -329,7 +335,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				schemas: {},
 				adapters: { extensions: [factory as never] },
 			} as WPKernelConfigV1;
-			const { hook, options } = buildHook(config);
+			const { hook, options } = await buildHook(config);
 
 			await expect(hook(options)).rejects.toThrow(WPKernelError);
 			expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -350,7 +356,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [skip, empty] },
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		const result = await hook(options);
 
@@ -379,7 +385,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
 			ir: options.artifact,
@@ -415,7 +421,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				extensions: [() => ({ name: 'single', apply })],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = buildHook(config);
+		const { hook, options } = await buildHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
 			ir: options.artifact,

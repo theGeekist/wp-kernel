@@ -4,5 +4,4 @@ export type {
 	ExtensionBlueprint,
 	ExtensionBehaviour,
 	ExtensionFactorySignature,
-	Listr2Carryover,
 } from './official';

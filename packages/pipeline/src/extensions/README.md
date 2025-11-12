@@ -54,7 +54,7 @@ ship. Each blueprint records:
 - the extension slug (appended to the canonical pipeline namespace) and status;
 - supported behaviours and helper annotations;
 - reporter or renderer requirements;
-- listr2 features we are borrowing or reimplementing.
+- downstream integrations the team plans to support.
 
 Downstream consumers should import from `@wpkernel/pipeline/extensions` to experiment with
 these blueprints. Production implementations will live in dedicated packages that honour

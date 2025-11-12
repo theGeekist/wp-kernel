@@ -2,6 +2,8 @@ import type {
 	Helper,
 	HelperKind,
 	PipelineExtensionHook,
+	PipelineExtensionHookRegistration,
+	PipelineExtensionLifecycle,
 	PipelineReporter,
 } from './types';
 import type { RegisteredHelper } from './dependency-graph';
@@ -79,6 +81,7 @@ export function registerHelper<
  * @param key            - Optional unique key for the hook
  * @param hook           - The extension hook function
  * @param extensionHooks - The array of registered extension hooks
+ * @param lifecycle
  * @returns The resolved key used for registration
  *
  * @internal
@@ -86,12 +89,14 @@ export function registerHelper<
 export function registerExtensionHook<TContext, TOptions, TArtifact>(
 	key: string | undefined,
 	hook: PipelineExtensionHook<TContext, TOptions, TArtifact>,
-	extensionHooks: ExtensionHookEntry<TContext, TOptions, TArtifact>[]
+	extensionHooks: ExtensionHookEntry<TContext, TOptions, TArtifact>[],
+	lifecycle: PipelineExtensionLifecycle = 'after-fragments'
 ): string {
 	const resolvedKey =
 		key ?? `pipeline.extension#${extensionHooks.length + 1}`;
 	extensionHooks.push({
 		key: resolvedKey,
+		lifecycle,
 		hook,
 	});
 	return resolvedKey;
@@ -120,6 +125,32 @@ export function handleExtensionRegisterResult<TContext, TOptions, TArtifact>(
 			extensionKey,
 			result as PipelineExtensionHook<TContext, TOptions, TArtifact>,
 			extensionHooks
+		);
+		return undefined;
+	}
+
+	if (
+		result &&
+		typeof result === 'object' &&
+		'hook' in result &&
+		typeof (
+			result as PipelineExtensionHookRegistration<
+				TContext,
+				TOptions,
+				TArtifact
+			>
+		).hook === 'function'
+	) {
+		const registration = result as PipelineExtensionHookRegistration<
+			TContext,
+			TOptions,
+			TArtifact
+		>;
+		registerExtensionHook(
+			extensionKey,
+			registration.hook,
+			extensionHooks,
+			registration.lifecycle
 		);
 		return undefined;
 	}
