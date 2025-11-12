@@ -52,7 +52,7 @@ Standardise git cleanliness checks across commands.
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- Complete Standardised git cleanliness checks across commands.
 
 **Probe.** Create a helper around `git status --porcelain` that fails with `EnvironmentalError(workspace.dirty)` when dirty workspaces are disallowed, respecting a shared `--allow-dirty` flag.【F:packages/cli/src/workspace/utilities.ts†L12-L146】
 
