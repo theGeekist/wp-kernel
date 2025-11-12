@@ -10,7 +10,11 @@ import {
 	buildLoadedConfig,
 	readApplyLogEntries,
 } from '@wpkernel/test-utils/cli/commands/apply.test-support';
-import type { ReadinessPlan, ReadinessRegistry } from '../../dx';
+import type {
+	ReadinessHelperDescriptor,
+	ReadinessPlan,
+	ReadinessRegistry,
+} from '../../dx';
 
 const withWorkspace = buildWorkspaceRunner({
 	prefix: TMP_PREFIX,
@@ -25,14 +29,30 @@ function createReadinessRegistryStub() {
 		(keys: ReadinessPlan['keys']) =>
 			({ keys, run: readinessRun }) as ReadinessPlan
 	);
+	const readinessDescriptors = [
+		{
+			key: 'composer',
+			metadata: { label: 'Composer dependencies', scopes: ['apply'] },
+		},
+		{
+			key: 'php-driver',
+			metadata: { label: 'PHP driver', scopes: ['apply'] },
+		},
+		{
+			key: 'tsx-runtime',
+			metadata: { label: 'TSX runtime', scopes: ['apply'] },
+		},
+	] satisfies ReadinessHelperDescriptor[];
 	const readinessRegistry = {
 		plan: readinessPlanMock,
+		describe: jest.fn(() => readinessDescriptors),
 	} as unknown as ReadinessRegistry;
 
 	return {
 		readinessRun,
 		readinessPlanMock,
 		buildReadinessRegistry: jest.fn(() => readinessRegistry),
+		readinessDescriptors,
 	};
 }
 

@@ -1,7 +1,11 @@
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createReadinessHelper } from '../helper';
-import type { ReadinessDetection, ReadinessConfirmation } from '../types';
+import type {
+	ReadinessDetection,
+	ReadinessConfirmation,
+	ReadinessHelper,
+} from '../types';
 import { resolveWorkspaceRoot } from './shared';
 
 const execFile = promisify(execFileCallback);
@@ -41,11 +45,19 @@ async function detectPhp(
 
 export function createPhpRuntimeReadinessHelper(
 	overrides: Partial<PhpRuntimeDependencies> = {}
-) {
+): ReadinessHelper<PhpRuntimeState> {
 	const dependencies = { ...defaultDependencies(), ...overrides };
 
 	return createReadinessHelper<PhpRuntimeState>({
 		key: 'php-runtime',
+		metadata: {
+			label: 'PHP runtime',
+			description:
+				'Detects the PHP binary and verifies it is available on PATH.',
+			tags: ['php', 'environment'],
+			scopes: ['create', 'init', 'doctor'],
+			order: 40,
+		},
 		async detect(context): Promise<ReadinessDetection<PhpRuntimeState>> {
 			const workspaceRoot = resolveWorkspaceRoot(context);
 			const outcome = await detectPhp(dependencies, workspaceRoot);

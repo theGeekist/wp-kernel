@@ -7,6 +7,7 @@ import type {
 	ReadinessConfirmation,
 	ReadinessDetection,
 	ReadinessStatus,
+	ReadinessHelper,
 } from '../types';
 import type { DxContext } from '../../context';
 import { createModuleResolver } from '../../../utils/module-url';
@@ -178,11 +179,19 @@ function buildConfirmationMessage(status: ReadinessStatus): string {
 
 export function createPhpPrinterPathReadinessHelper(
 	overrides: Partial<PhpPrinterPathDependencies> = {}
-) {
+): ReadinessHelper<PhpPrinterPathState> {
 	const dependencies = { ...defaultDependencies(), ...overrides };
 
 	return createReadinessHelper<PhpPrinterPathState>({
 		key: 'php-printer-path',
+		metadata: {
+			label: 'PHP printer path',
+			description:
+				'Ensures the CLI and runtime resolve the same PHP pretty-print script.',
+			tags: ['php', 'printer'],
+			scopes: ['create', 'init', 'doctor'],
+			order: 70,
+		},
 		async detect(
 			context: DxContext
 		): Promise<ReadinessDetection<PhpPrinterPathState>> {

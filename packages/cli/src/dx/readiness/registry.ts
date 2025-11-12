@@ -5,6 +5,7 @@ import type {
 	ReadinessConfirmation,
 	ReadinessDetection,
 	ReadinessHelper,
+	ReadinessHelperMetadata,
 	ReadinessKey,
 	ReadinessOutcome,
 	ReadinessOutcomeStatus,
@@ -26,6 +27,17 @@ interface ExecutedHelper<State> {
 	readonly helper: ReadinessHelper<State>;
 	readonly state: State;
 	readonly cleanups: readonly (() => Promise<void> | void)[];
+}
+
+interface RegisteredHelper {
+	readonly helper: ReadinessHelper<unknown>;
+	readonly order: number;
+	readonly index: number;
+}
+
+export interface ReadinessHelperDescriptor {
+	readonly key: ReadinessKey;
+	readonly metadata: ReadinessHelperMetadata;
 }
 
 async function runCleanup(
@@ -103,8 +115,16 @@ function outcomeStatus(
 	return 'pending';
 }
 
+function normaliseOrder(value: number | undefined): number {
+	if (typeof value !== 'number' || !Number.isFinite(value)) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	return value;
+}
+
 export class ReadinessRegistry {
-	readonly #helpers = new Map<ReadinessKey, ReadinessHelper<unknown>>();
+	readonly #helpers = new Map<ReadinessKey, RegisteredHelper>();
 
 	register<State>(helper: ReadinessHelper<State>): void {
 		if (this.#helpers.has(helper.key)) {
@@ -113,7 +133,13 @@ export class ReadinessRegistry {
 			});
 		}
 
-		this.#helpers.set(helper.key, helper as ReadinessHelper<unknown>);
+		const entry: RegisteredHelper = {
+			helper: helper as ReadinessHelper<unknown>,
+			order: normaliseOrder(helper.metadata.order),
+			index: this.#helpers.size,
+		};
+
+		this.#helpers.set(helper.key, entry);
 	}
 
 	plan(keys: readonly ReadinessKey[]): ReadinessPlan {
@@ -125,13 +151,38 @@ export class ReadinessRegistry {
 				});
 			}
 
-			return entry;
+			return entry.helper;
 		});
 
 		return {
 			keys: [...keys],
 			run: (context) => this.#runPlan(context, helpers),
 		};
+	}
+
+	list(): ReadonlyArray<ReadinessHelper<unknown>> {
+		return this.#describeInternal().map((entry) => entry.helper);
+	}
+
+	describe(): ReadonlyArray<ReadinessHelperDescriptor> {
+		return this.#describeInternal().map((entry) => ({
+			key: entry.helper.key,
+			metadata: entry.helper.metadata,
+		}));
+	}
+
+	keys(): ReadonlyArray<ReadinessKey> {
+		return this.#describeInternal().map((entry) => entry.helper.key);
+	}
+
+	#describeInternal(): RegisteredHelper[] {
+		return [...this.#helpers.values()].sort((a, b) => {
+			if (a.order === b.order) {
+				return a.index - b.index;
+			}
+
+			return a.order - b.order;
+		});
 	}
 
 	async #runPlan(

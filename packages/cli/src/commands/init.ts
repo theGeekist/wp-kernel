@@ -10,7 +10,7 @@ import {
 	type InitCommandRuntimeResult,
 } from './init/command-runtime';
 import { InitCommandBase } from './init/shared';
-import type { ReadinessKey } from '../dx';
+import type { ReadinessHelperDescriptor, ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
 export type { InitWorkflowOptions, InitWorkflowResult } from './init/workflow';
@@ -114,14 +114,24 @@ export function buildInitCommand(
 				dependencies: dependencies.runtime,
 				ensureGeneratedPhpClean: dependencies.ensureGeneratedPhpClean,
 				hooks: {
-					filterReadinessKeys: (keys: readonly ReadinessKey[]) =>
-						keys.filter(
-							(key) =>
-								key !== 'git' &&
-								key !== 'release-pack' &&
-								key !== 'bootstrapper-resolution' &&
-								key !== 'quickstart'
-						),
+					filterReadinessKeys: (
+						keys: readonly ReadinessKey[],
+						helpers: readonly ReadinessHelperDescriptor[]
+					) => {
+						const allowed = new Set(keys);
+
+						return helpers
+							.filter((helper) => {
+								const scopes = helper.metadata.scopes;
+								if (!scopes || scopes.length === 0) {
+									return true;
+								}
+
+								return scopes.includes('init');
+							})
+							.map((helper) => helper.key)
+							.filter((key) => allowed.has(key));
+					},
 					prepare: async (runtime) => {
 						await this.warnWhenGitMissing(
 							runtime.workspace,

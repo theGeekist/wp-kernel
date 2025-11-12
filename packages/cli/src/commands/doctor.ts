@@ -10,10 +10,10 @@ import { buildWorkspace } from '../workspace';
 import type { Workspace } from '../workspace';
 import {
 	buildDefaultReadinessRegistry,
-	DEFAULT_READINESS_ORDER,
 	type BuildDefaultReadinessRegistryOptions,
 	type DefaultReadinessHelperOverrides,
 	type DxContext,
+	type ReadinessHelperDescriptor,
 	type ReadinessKey,
 	type ReadinessOutcome,
 	type ReadinessOutcomeStatus,
@@ -98,28 +98,6 @@ function mergeDependencies(
 	} satisfies DoctorDependencies;
 }
 
-const DOCTOR_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
-	'workspace-hygiene',
-	'composer',
-	'php-runtime',
-	'php-driver',
-	'php-printer-path',
-];
-
-const READINESS_LABELS: Record<ReadinessKey, string> = {
-	'workspace-hygiene': 'Workspace hygiene',
-	composer: 'Composer dependencies',
-	'php-runtime': 'PHP runtime',
-	'php-driver': 'PHP driver',
-	'php-codemod-ingestion': 'PHP codemod ingestion',
-	'php-printer-path': 'PHP printer path',
-	'release-pack': 'Release pack chain',
-	'bootstrapper-resolution': 'Bootstrapper resolution',
-	git: 'Git repository',
-	'tsx-runtime': 'TSX runtime',
-	quickstart: 'Quickstart scaffold',
-};
-
 const DEFAULT_STATUS_MAPPING: Record<ReadinessOutcomeStatus, DoctorStatus> = {
 	ready: 'pass',
 	updated: 'pass',
@@ -149,8 +127,24 @@ function mapReadinessStatus(
 	return DEFAULT_STATUS_MAPPING[status] ?? 'warn';
 }
 
-function mapReadinessOutcome(outcome: ReadinessOutcome): DoctorCheckResult {
-	const label = READINESS_LABELS[outcome.key] ?? `Readiness: ${outcome.key}`;
+function helperIncludesScope(
+	helper: ReadinessHelperDescriptor,
+	scope: string
+): boolean {
+	const scopes = helper.metadata.scopes;
+	if (!scopes || scopes.length === 0) {
+		return true;
+	}
+
+	return scopes.includes(scope);
+}
+
+function mapReadinessOutcome(
+	outcome: ReadinessOutcome,
+	helpers: Map<ReadinessKey, ReadinessHelperDescriptor>
+): DoctorCheckResult {
+	const helper = helpers.get(outcome.key);
+	const label = helper?.metadata.label ?? `Readiness: ${outcome.key}`;
 	const message =
 		outcome.confirmation?.message ??
 		outcome.detection?.message ??
@@ -246,6 +240,7 @@ export function buildDoctorCommand(
 				workspace,
 				workspaceRoot,
 				cwd,
+				config: loadedConfig?.config ?? null,
 			});
 			results.push(...readinessResults);
 
@@ -344,19 +339,32 @@ export function buildDoctorCommand(
 			workspace,
 			workspaceRoot,
 			cwd,
+			config,
 		}: {
 			deps: DoctorDependencies;
 			reporter: Reporter;
 			workspace: Workspace | null;
 			workspaceRoot: string | null;
 			cwd: string;
+			config: LoadedWPKernelConfig['config'] | null;
 		}): Promise<DoctorCheckResult[]> {
-			const keys = this.resolveReadinessKeys();
+			const registry = deps.buildReadinessRegistry({
+				helperFactories: config?.readiness?.helpers,
+			});
+			const descriptors = registry.describe();
+			const scoped = descriptors.filter((helper) =>
+				helperIncludesScope(helper, 'doctor')
+			);
+			const keys = scoped.map((helper) => helper.key);
 			if (keys.length === 0) {
 				return [];
 			}
 
-			const registry = deps.buildReadinessRegistry();
+			const helperLookup = new Map<
+				ReadinessKey,
+				ReadinessHelperDescriptor
+			>(scoped.map((helper) => [helper.key, helper]));
+
 			const plan = registry.plan(keys);
 			const context = buildReadinessContext({
 				reporter,
@@ -370,12 +378,9 @@ export function buildDoctorCommand(
 				throw result.error;
 			}
 
-			return result.outcomes.map(mapReadinessOutcome);
-		}
-
-		private resolveReadinessKeys(): ReadonlyArray<ReadinessKey> {
-			const allowed = new Set(DOCTOR_READINESS_KEYS);
-			return DEFAULT_READINESS_ORDER.filter((key) => allowed.has(key));
+			return result.outcomes.map((outcome) =>
+				mapReadinessOutcome(outcome, helperLookup)
+			);
 		}
 	}
 

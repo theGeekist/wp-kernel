@@ -14,6 +14,7 @@ import type {
 	ReadinessConfirmation,
 	ReadinessDetection,
 	ReadinessStatus,
+	ReadinessHelper,
 } from '../types';
 import type { DxContext } from '../../context';
 
@@ -170,7 +171,7 @@ async function runBootstrapper(
 
 export function createBootstrapperResolutionReadinessHelper(
 	options: BootstrapperResolutionHelperOptions = {}
-) {
+): ReadinessHelper<BootstrapperResolutionState> {
 	const dependencies = {
 		...defaultDependencies(),
 		...options.dependencies,
@@ -178,6 +179,14 @@ export function createBootstrapperResolutionReadinessHelper(
 
 	return createReadinessHelper<BootstrapperResolutionState>({
 		key: 'bootstrapper-resolution',
+		metadata: {
+			label: 'Bootstrapper resolution',
+			description:
+				'Validates that the packaged bootstrapper can load the CLI entrypoint.',
+			tags: ['packaging', 'bootstrapper'],
+			scopes: ['doctor'],
+			order: 100,
+		},
 		async detect(
 			context: DxContext
 		): Promise<ReadinessDetection<BootstrapperResolutionState>> {

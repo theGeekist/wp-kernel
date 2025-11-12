@@ -1,9 +1,9 @@
 import type { DxContext } from '../context';
 
 /**
- * Identifier for a readiness unit managed by the DX orchestrator.
+ * Identifiers exposed by core readiness helpers shipped with the CLI.
  */
-export type ReadinessKey =
+export type CoreReadinessKey =
 	| 'composer'
 	| 'git'
 	| 'php-driver'
@@ -15,6 +15,33 @@ export type ReadinessKey =
 	| 'tsx-runtime'
 	| 'workspace-hygiene'
 	| 'quickstart';
+
+/**
+ * Identifier for a readiness unit managed by the DX orchestrator.
+ */
+export type ReadinessKey = CoreReadinessKey | (string & {});
+
+/**
+ * Named command scopes used by core readiness helpers.
+ */
+export type ReadinessScope =
+	| 'create'
+	| 'init'
+	| 'generate'
+	| 'apply'
+	| 'doctor'
+	| (string & {});
+
+/**
+ * Descriptive metadata attached to a readiness helper.
+ */
+export interface ReadinessHelperMetadata {
+	readonly label: string;
+	readonly description?: string;
+	readonly tags?: readonly (string & {})[];
+	readonly scopes?: readonly ReadinessScope[];
+	readonly order?: number;
+}
 
 /**
  * Status emitted during the detect/prepare/execute phases.
@@ -78,6 +105,7 @@ export type ReadinessOutcomeStatus =
  */
 export interface ReadinessHelper<State = unknown> {
 	readonly key: ReadinessKey;
+	readonly metadata: ReadinessHelperMetadata;
 	readonly detect: (context: DxContext) => Promise<ReadinessDetection<State>>;
 	readonly prepare?: (
 		context: DxContext,

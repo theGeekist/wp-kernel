@@ -249,6 +249,76 @@ function createReadinessBuilder(
 		phpDriver: overrides.phpDriver,
 		git: overrides.git,
 		tsxRuntime: overrides.tsxRuntime,
+		releasePack: {
+			manifest: overrides.releasePack?.manifest ?? [],
+			dependencies: {
+				access: jest.fn().mockResolvedValue(undefined),
+				exec: jest
+					.fn<
+						(
+							command: string,
+							args: readonly string[],
+							options?: unknown
+						) => Promise<{ stdout: string; stderr: string }>
+					>()
+					.mockResolvedValue({ stdout: '', stderr: '' }),
+				readFile: jest.fn().mockResolvedValue(''),
+				...(overrides.releasePack?.dependencies ?? {}),
+			},
+		},
+		bootstrapperResolution: {
+			dependencies: {
+				access: jest.fn().mockResolvedValue(undefined),
+				mkdtemp: jest
+					.fn<(...args: string[]) => Promise<string>>()
+					.mockResolvedValue(
+						path.join(process.cwd(), 'wpk-bootstrapper-test')
+					),
+				rm: jest.fn().mockResolvedValue(undefined),
+				exec: jest
+					.fn<
+						(
+							command: string,
+							args: readonly string[],
+							options?: unknown
+						) => Promise<{ stdout: string; stderr: string }>
+					>()
+					.mockResolvedValue({ stdout: '', stderr: '' }),
+				...(overrides.bootstrapperResolution?.dependencies ?? {}),
+			},
+		},
+		quickstart: {
+			dependencies: {
+				mkdtemp: jest
+					.fn<(...args: string[]) => Promise<string>>()
+					.mockResolvedValue(
+						path.join(process.cwd(), 'wpk-quickstart-test')
+					),
+				rm: jest.fn().mockResolvedValue(undefined),
+				access: jest.fn().mockResolvedValue(undefined),
+				exec: jest
+					.fn<
+						(
+							command: string,
+							args: readonly string[],
+							options?: unknown
+						) => Promise<{ stdout: string; stderr: string }>
+					>()
+					.mockResolvedValue({ stdout: '', stderr: '' }),
+				resolve: jest
+					.fn<(id: string) => string>()
+					.mockReturnValue(
+						path.join(
+							process.cwd(),
+							'node_modules',
+							'tsx',
+							'dist',
+							'index.js'
+						)
+					),
+				...(overrides.quickstart?.dependencies ?? {}),
+			},
+		},
 	};
 
 	return () =>

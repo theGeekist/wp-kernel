@@ -90,6 +90,15 @@ All downstream integration and validation tasks must exercise the packed CLI (`p
 | 55b     | Route `create`/`init` through the readiness plan, mapping flags such as `--skip-install`/`--yes` onto helper configuration. Update command orchestration in `packages/cli/src/commands/create.ts` and `packages/cli/src/commands/init.ts`, adding regression tests under `packages/cli/src/commands/__tests__`. | ✅ Complete | Commands now execute readiness plans after scaffolding, honouring skip/install flags and surfacing hygiene overrides while keeping existing summaries and exit codes intact.                                                 |
 | 55c     | Wrap `doctor` health checks with readiness helpers so reporter output stays consistent while leveraging the shared registry. Work centers on `packages/cli/src/commands/doctor.ts` with coverage in `packages/cli/src/commands/__tests__/doctor*.test.ts`.                                                      | ✅ Complete | Doctor now funnels composer, workspace, and PHP diagnostics through the readiness registry while preserving config/composer mapping summaries.                                                                               |
 | 55d     | Add targeted readiness entry points for `generate`/`apply` flows, triggering php-driver and tsx helpers on demand. Update command modules in `packages/cli/src/commands/generate.ts` and `packages/cli/src/commands/apply.ts`, plus integration fixtures in `packages/cli/tests`.                               | ✅ Complete | Commands now invoke readiness plans to ensure Composer autoload metadata (falling back to the CLI vendor cache), PHP driver assets, and tsx are available before execution, with integration suites covering the new checks. |
+| 55e     | Restore readiness extensibility by wiring helper metadata and config factories into the registry, covering `packages/cli/src/dx/readiness/*`, command surfaces, and config loaders.                                                                                                                             | ✅ Complete | Registry `describe()` now returns helper metadata for scope-aware filtering while `readiness.helpers` factories join the default order automatically, removing manual allowlists in commands and doctor.                     |
+
+### Readiness metadata and registry extensions
+
+An audit of DXIRv1 highlighted that helper allowlists and labels were hard-coded across commands. The registry now stores helper descriptors with labels, tags, scopes, and ordering so doctor and command readiness can render metadata directly from helpers.
+
+`buildDefaultReadinessRegistry` accepts extension factories via config (`readiness.helpers`), mirroring the pipeline extension flow. Projects can register custom helpers without touching CLI sources, and the registry sorts them alongside core helpers.
+
+Commands consume the new `describe()` output to filter by scope instead of maintaining bespoke key arrays. Any helper that declares a matching scope automatically participates in readiness plans, logs, and status summaries.
 
 ## Task 56 – Reporter & logging alignment
 

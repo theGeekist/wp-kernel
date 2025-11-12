@@ -15,6 +15,48 @@ describe('command factories', () => {
 
 	describe('buildInitCommand', () => {
 		it('injects workspace, reporter, and workflow dependencies', async () => {
+			const helperDescriptors = [
+				{
+					key: 'workspace-hygiene',
+					metadata: { label: 'Workspace hygiene', scopes: ['init'] },
+				},
+				{
+					key: 'composer',
+					metadata: {
+						label: 'Composer',
+						scopes: ['init'],
+						tags: ['requires-install'],
+					},
+				},
+				{
+					key: 'php-runtime',
+					metadata: { label: 'PHP runtime', scopes: ['init'] },
+				},
+				{
+					key: 'php-driver',
+					metadata: { label: 'PHP driver', scopes: ['init'] },
+				},
+				{
+					key: 'php-codemod-ingestion',
+					metadata: {
+						label: 'PHP codemod ingestion',
+						scopes: ['init'],
+					},
+				},
+				{
+					key: 'php-printer-path',
+					metadata: { label: 'PHP printer path', scopes: ['init'] },
+				},
+				{
+					key: 'tsx-runtime',
+					metadata: {
+						label: 'TSX runtime',
+						scopes: ['init'],
+						tags: ['requires-install'],
+					},
+				},
+			];
+
 			const workspace = makeWorkspaceMock();
 			const reporter = { warn: jest.fn(), info: jest.fn() };
 			const workflow = jest.fn().mockResolvedValue({
@@ -35,6 +77,7 @@ describe('command factories', () => {
 					keys,
 					run: readinessRun,
 				})),
+				describe: () => helperDescriptors,
 			});
 
 			const { buildInitCommand } = await import('../init');

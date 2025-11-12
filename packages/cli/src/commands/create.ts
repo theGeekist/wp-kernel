@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { Command, Option } from 'clipanion';
 import { WPK_NAMESPACE, type WPKExitCode } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import {
 	buildWorkspace,
@@ -15,7 +16,13 @@ import {
 	type InitCommandContext,
 	type InitCommandHooks,
 } from './init/shared';
-import type { ReadinessKey } from '../dx';
+import {
+	type ReadinessHelperDescriptor,
+	type ReadinessHelperFactory,
+	type ReadinessKey,
+} from '../dx';
+import { loadWPKernelConfig } from '../config';
+import type { LoadedWPKernelConfig } from '../config/types';
 
 // Re-export types from sub-modules for TypeDoc
 export type { InstallerDependencies } from './init/installers';
@@ -38,6 +45,8 @@ export interface BuildCreateCommandOptions {
 	readonly runWorkflow?: typeof runInitWorkflow;
 	/** Optional: Custom readiness registry builder. */
 	readonly buildReadinessRegistry?: InitCommandRuntimeDependencies['buildReadinessRegistry'];
+	/** Optional: Custom kernel config loader. */
+	readonly loadWPKernelConfig?: () => Promise<LoadedWPKernelConfig>;
 	/** Optional: Custom clean directory enforcer function. */
 	readonly ensureCleanDirectory?: typeof ensureCleanDirectory;
 	/** Optional: Custom Node.js dependency installer function. */
@@ -68,6 +77,7 @@ interface CreateDependencies {
 	readonly ensureGeneratedPhpClean: typeof ensureGeneratedPhpClean;
 	readonly ensureCleanDirectory: typeof ensureCleanDirectory;
 	readonly installNodeDependencies: typeof installNodeDependencies;
+	readonly loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 }
 
 function mergeDependencies(
@@ -78,6 +88,7 @@ function mergeDependencies(
 		buildReporter: buildReporterOverride = buildReporter,
 		runWorkflow: runWorkflowOverride = runInitWorkflow,
 		buildReadinessRegistry,
+		loadWPKernelConfig: loadWPKernelConfigOverride = loadWPKernelConfig,
 		ensureCleanDirectory:
 			ensureCleanDirectoryOverride = ensureCleanDirectory,
 		installNodeDependencies:
@@ -94,6 +105,7 @@ function mergeDependencies(
 		ensureGeneratedPhpClean,
 		ensureCleanDirectory: ensureCleanDirectoryOverride,
 		installNodeDependencies: installNodeDependenciesOverride,
+		loadWPKernelConfig: loadWPKernelConfigOverride,
 	} satisfies CreateDependencies;
 }
 
@@ -138,12 +150,21 @@ export function buildCreateCommand(
 		skipInstall = Option.Boolean('--skip-install', false);
 
 		override async execute(): Promise<WPKExitCode> {
+			const readinessHelperFactories =
+				await resolveProjectReadinessHelperFactories(
+					dependencies.loadWPKernelConfig
+				);
+
 			return this.executeInitCommand({
 				commandName: 'create',
 				reporterNamespace: buildReporterNamespace(),
 				dependencies: dependencies.runtime,
 				ensureGeneratedPhpClean: dependencies.ensureGeneratedPhpClean,
-				hooks: buildCreateCommandHooks(this, dependencies),
+				hooks: buildCreateCommandHooks(
+					this,
+					dependencies,
+					readinessHelperFactories
+				),
 			});
 		}
 	}
@@ -153,9 +174,14 @@ export function buildCreateCommand(
 
 function buildCreateCommandHooks(
 	command: CreateCommandInstance,
-	dependencies: CreateDependencies
+	dependencies: CreateDependencies,
+	helperFactories?: ReadonlyArray<ReadinessHelperFactory>
 ): InitCommandHooks {
 	return {
+		buildReadinessOptions: () =>
+			helperFactories && helperFactories.length > 0
+				? { helperFactories }
+				: undefined,
 		resolveWorkspaceRoot: (cwd: string) =>
 			resolveTargetDirectory(
 				cwd,
@@ -163,20 +189,33 @@ function buildCreateCommandHooks(
 					? command.target
 					: '.'
 			),
-		filterReadinessKeys: (keys: readonly ReadinessKey[]) => {
-			const filtered = keys.filter(
-				(key) =>
-					key !== 'release-pack' &&
-					key !== 'bootstrapper-resolution' &&
-					key !== 'quickstart'
-			);
+		filterReadinessKeys: (
+			keys: readonly ReadinessKey[],
+			helpers: readonly ReadinessHelperDescriptor[]
+		) => {
+			const allowed = new Set(keys);
+			const scoped = helpers.filter((helper) => {
+				const scopes = helper.metadata.scopes;
+				if (!scopes || scopes.length === 0) {
+					return true;
+				}
+
+				return scopes.includes('create');
+			});
+
+			const ordered = scoped
+				.map((helper) => helper.key)
+				.filter((key) => allowed.has(key));
 
 			if (command.skipInstall !== true) {
-				return filtered;
+				return ordered;
 			}
 
-			const skipped = new Set<ReadinessKey>(['composer', 'tsx-runtime']);
-			return filtered.filter((key) => !skipped.has(key));
+			return ordered.filter((key) => {
+				const helper = helpers.find((entry) => entry.key === key);
+				const tags = helper?.metadata.tags ?? [];
+				return !tags.includes('requires-install');
+			});
 		},
 		prepare: async (runtime, context: InitCommandContext) => {
 			await dependencies.ensureCleanDirectory({
@@ -199,4 +238,33 @@ function buildCreateCommandHooks(
 			await dependencies.installNodeDependencies(runtime.workspace.root);
 		},
 	} satisfies InitCommandHooks;
+}
+
+async function resolveProjectReadinessHelperFactories(
+	loadConfig: CreateDependencies['loadWPKernelConfig']
+): Promise<ReadonlyArray<ReadinessHelperFactory> | undefined> {
+	try {
+		const loaded = await loadConfig();
+		return loaded.config.readiness?.helpers;
+	} catch (error) {
+		if (shouldIgnoreMissingConfig(error)) {
+			return undefined;
+		}
+
+		throw error;
+	}
+}
+
+const MISSING_CONFIG_MESSAGE = 'Unable to locate a wpk config';
+
+function shouldIgnoreMissingConfig(error: unknown): boolean {
+	if (!WPKernelError.isWPKernelError(error)) {
+		return false;
+	}
+
+	return (
+		error.code === 'DeveloperError' &&
+		typeof error.message === 'string' &&
+		error.message.includes(MISSING_CONFIG_MESSAGE)
+	);
 }

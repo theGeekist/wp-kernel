@@ -23,7 +23,6 @@ import type {
 } from './apply/types';
 import type { Workspace } from '../workspace';
 import { cleanupWorkspaceTargets } from './apply/cleanup';
-import type { ReadinessKey } from '../dx';
 import { runCommandReadiness } from './readiness';
 import { resolveCommandCwd } from './init/command-runtime';
 
@@ -52,12 +51,6 @@ export type {
 	PatchStatus,
 	PreviewResult,
 } from './apply/types';
-
-const APPLY_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
-	'composer',
-	'php-driver',
-	'tsx-runtime',
-];
 
 function withCommandState(
 	command: ApplyCommandInstance,
@@ -128,11 +121,15 @@ export function buildApplyCommand(
 
 				await runCommandReadiness({
 					buildReadinessRegistry: dependencies.buildReadinessRegistry,
+					registryOptions: {
+						helperFactories: loaded.config.readiness?.helpers,
+					},
 					reporter: reporter.child('readiness'),
 					workspace: activeWorkspace,
 					workspaceRoot: activeWorkspace.root,
 					cwd,
-					keys: APPLY_READINESS_KEYS,
+					keys: [],
+					scopes: ['apply'],
 				});
 
 				const preview = await previewPatches({

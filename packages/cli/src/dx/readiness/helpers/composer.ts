@@ -5,7 +5,11 @@ import { promisify } from 'node:util';
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { getCliPackageRoot } from '../../../utils/module-url';
 import { createReadinessHelper } from '../helper';
-import type { ReadinessDetection, ReadinessConfirmation } from '../types';
+import type {
+	ReadinessDetection,
+	ReadinessConfirmation,
+	ReadinessHelper,
+} from '../types';
 import type { DxContext } from '../../context';
 import { resolveWorkspaceRoot } from './shared';
 import {
@@ -236,12 +240,20 @@ async function ensurePhpParserMetadata(
 
 export function createComposerReadinessHelper(
 	overrides: ComposerHelperOverrides = {}
-) {
+): ReadinessHelper<ComposerReadinessState> {
 	const { installOnPending = true, ...dependencyOverrides } = overrides;
 	const dependencies = {
 		...defaultDependencies(),
 		...dependencyOverrides,
 	} satisfies ComposerHelperDependencies;
+	const metadata = {
+		label: 'Composer dependencies',
+		description:
+			'Ensures composer autoload metadata is available before running scaffold or generation workflows.',
+		tags: ['composer', 'php', 'requires-install'],
+		scopes: ['create', 'init', 'generate', 'apply', 'doctor'],
+		order: 30,
+	} as const;
 
 	async function detect(
 		context: DxContext
@@ -378,6 +390,7 @@ export function createComposerReadinessHelper(
 	if (installOnPending) {
 		return createReadinessHelper<ComposerReadinessState>({
 			key: 'composer',
+			metadata,
 			detect,
 			async execute(_context: DxContext, state: ComposerReadinessState) {
 				if (!state.workspace) {
@@ -402,6 +415,7 @@ export function createComposerReadinessHelper(
 
 	return createReadinessHelper<ComposerReadinessState>({
 		key: 'composer',
+		metadata,
 		detect,
 		confirm,
 	});

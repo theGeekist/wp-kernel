@@ -9,6 +9,49 @@ import type { buildWorkspace } from '../../workspace/filesystem';
 import * as workspaceModule from '../../workspace';
 
 describe('InitCommand (unit)', () => {
+	const helperDescriptors = [
+		{
+			key: 'workspace-hygiene',
+			metadata: { label: 'Workspace hygiene', scopes: ['init'] },
+		},
+		{
+			key: 'git',
+			metadata: { label: 'Git', scopes: ['create'] },
+		},
+		{
+			key: 'composer',
+			metadata: {
+				label: 'Composer',
+				scopes: ['init'],
+				tags: ['requires-install'],
+			},
+		},
+		{
+			key: 'php-runtime',
+			metadata: { label: 'PHP runtime', scopes: ['init'] },
+		},
+		{
+			key: 'php-driver',
+			metadata: { label: 'PHP driver', scopes: ['init'] },
+		},
+		{
+			key: 'php-codemod-ingestion',
+			metadata: { label: 'PHP codemod ingestion', scopes: ['init'] },
+		},
+		{
+			key: 'php-printer-path',
+			metadata: { label: 'PHP printer path', scopes: ['init'] },
+		},
+		{
+			key: 'tsx-runtime',
+			metadata: {
+				label: 'TSX runtime',
+				scopes: ['init'],
+				tags: ['requires-install'],
+			},
+		},
+	];
+
 	it('warns when git repository is missing before running workflow', async () => {
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
 		const reporters = createCommandReporterHarness();
@@ -31,6 +74,7 @@ describe('InitCommand (unit)', () => {
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
 			plan: readinessPlan,
+			describe: () => helperDescriptors,
 		});
 
 		const InitCommand = buildInitCommand({
@@ -77,6 +121,7 @@ describe('InitCommand (unit)', () => {
 				keys,
 				run: jest.fn(),
 			})),
+			describe: () => helperDescriptors,
 		});
 
 		const InitCommand = buildInitCommand({
@@ -130,6 +175,7 @@ describe('InitCommand (unit)', () => {
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
 			plan: readinessPlan,
+			describe: () => helperDescriptors,
 		});
 
 		const InitCommand = buildInitCommand({

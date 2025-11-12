@@ -1,5 +1,6 @@
+import { createReadinessHelper } from './helper';
 import { createReadinessRegistry, type ReadinessRegistry } from './registry';
-import type { ReadinessKey } from './types';
+import type { ReadinessHelper, ReadinessKey } from './types';
 import {
 	createComposerReadinessHelper,
 	createGitReadinessHelper,
@@ -41,47 +42,82 @@ export interface DefaultReadinessHelperOverrides {
 
 export interface BuildDefaultReadinessRegistryOptions {
 	readonly helperOverrides?: DefaultReadinessHelperOverrides;
+	readonly helperFactories?: ReadonlyArray<ReadinessHelperFactory>;
 }
 
-export const DEFAULT_READINESS_ORDER: ReadonlyArray<ReadinessKey> = [
-	'workspace-hygiene',
-	'git',
-	'composer',
-	'php-runtime',
-	'php-driver',
-	'php-codemod-ingestion',
-	'php-printer-path',
-	'tsx-runtime',
-	'release-pack',
-	'bootstrapper-resolution',
-	'quickstart',
-];
+export interface ReadinessHelperFactoryContext {
+	readonly registry: ReadinessRegistry;
+	readonly register: (helper: ReadinessHelper) => void;
+	readonly createHelper: typeof createReadinessHelper;
+}
+
+export type ReadinessHelperFactory = (
+	context: ReadinessHelperFactoryContext
+) => void | ReadinessHelper | ReadonlyArray<ReadinessHelper>;
+
+function invokeReadinessHelperFactory(
+	registry: ReadinessRegistry,
+	factory: ReadinessHelperFactory
+): void {
+	const register = (helper: ReadinessHelper) => {
+		registry.register(helper);
+	};
+
+	const result = factory({
+		registry,
+		register,
+		createHelper: createReadinessHelper,
+	});
+
+	if (!result) {
+		return;
+	}
+
+	const helpers = Array.isArray(result) ? result : [result];
+	for (const helper of helpers) {
+		registry.register(helper);
+	}
+}
+
+export function registerReadinessHelperFactories(
+	registry: ReadinessRegistry,
+	factories: Iterable<ReadinessHelperFactory>
+): void {
+	for (const factory of factories) {
+		invokeReadinessHelperFactory(registry, factory);
+	}
+}
+
+function createDefaultReadinessHelpers(
+	overrides: DefaultReadinessHelperOverrides = {}
+): ReadonlyArray<ReadinessHelper<unknown>> {
+	return [
+		createWorkspaceHygieneReadinessHelper(overrides.workspaceHygiene),
+		createGitReadinessHelper(overrides.git),
+		createComposerReadinessHelper(overrides.composer),
+		createPhpRuntimeReadinessHelper(overrides.phpRuntime),
+		createPhpDriverReadinessHelper(overrides.phpDriver),
+		createPhpCodemodIngestionReadinessHelper(overrides.phpCodemodIngestion),
+		createPhpPrinterPathReadinessHelper(overrides.phpPrinterPath),
+		createTsxRuntimeReadinessHelper(overrides.tsxRuntime),
+		createReleasePackReadinessHelper(overrides.releasePack),
+		createBootstrapperResolutionReadinessHelper(
+			overrides.bootstrapperResolution
+		),
+		createQuickstartReadinessHelper(overrides.quickstart),
+	] as ReadonlyArray<ReadinessHelper<unknown>>;
+}
+
+export const DEFAULT_READINESS_ORDER: ReadonlyArray<ReadinessKey> =
+	Object.freeze(createDefaultReadinessHelpers().map((helper) => helper.key));
 
 export function registerDefaultReadinessHelpers(
 	registry: ReadinessRegistry,
 	overrides: DefaultReadinessHelperOverrides = {}
 ): void {
-	registry.register(
-		createWorkspaceHygieneReadinessHelper(overrides.workspaceHygiene)
-	);
-	registry.register(createGitReadinessHelper(overrides.git));
-	registry.register(createComposerReadinessHelper(overrides.composer));
-	registry.register(createPhpRuntimeReadinessHelper(overrides.phpRuntime));
-	registry.register(createPhpDriverReadinessHelper(overrides.phpDriver));
-	registry.register(
-		createPhpCodemodIngestionReadinessHelper(overrides.phpCodemodIngestion)
-	);
-	registry.register(
-		createPhpPrinterPathReadinessHelper(overrides.phpPrinterPath)
-	);
-	registry.register(createTsxRuntimeReadinessHelper(overrides.tsxRuntime));
-	registry.register(createReleasePackReadinessHelper(overrides.releasePack));
-	registry.register(
-		createBootstrapperResolutionReadinessHelper(
-			overrides.bootstrapperResolution
-		)
-	);
-	registry.register(createQuickstartReadinessHelper(overrides.quickstart));
+	for (const helper of createDefaultReadinessHelpers(overrides)) {
+		registry.register(helper);
+	}
 }
 
 export function buildDefaultReadinessRegistry(
@@ -89,5 +125,8 @@ export function buildDefaultReadinessRegistry(
 ): ReadinessRegistry {
 	const registry = createReadinessRegistry();
 	registerDefaultReadinessHelpers(registry, options.helperOverrides);
+	if (options.helperFactories && options.helperFactories.length > 0) {
+		registerReadinessHelperFactories(registry, options.helperFactories);
+	}
 	return registry;
 }

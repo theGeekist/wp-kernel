@@ -14,6 +14,7 @@ describe('runCommandReadiness', () => {
 			registry.register(
 				createReadinessHelper({
 					key: 'php-driver',
+					metadata: { label: 'PHP driver assets' },
 					async detect() {
 						return {
 							status: 'pending',

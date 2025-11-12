@@ -4,7 +4,6 @@ import type { Workspace } from '../workspace';
 import {
 	assertReadinessRun,
 	buildDefaultReadinessRegistry,
-	DEFAULT_READINESS_ORDER,
 	type BuildDefaultReadinessRegistryOptions,
 	type DxContext,
 	type ReadinessKey,
@@ -21,6 +20,7 @@ export interface RunCommandReadinessOptions {
 	readonly workspaceRoot: string;
 	readonly cwd: string;
 	readonly keys: ReadonlyArray<ReadinessKey>;
+	readonly scopes?: ReadonlyArray<string>;
 }
 
 function buildContext(
@@ -42,24 +42,35 @@ function buildContext(
 	} satisfies DxContext;
 }
 
-function resolveKeys(
-	keys: ReadonlyArray<ReadinessKey>
-): ReadonlyArray<ReadinessKey> {
-	const allowed = new Set(keys);
-	return DEFAULT_READINESS_ORDER.filter((key) => allowed.has(key));
-}
-
 export async function runCommandReadiness(
 	options: RunCommandReadinessOptions
 ): Promise<void> {
-	const orderedKeys = resolveKeys(options.keys);
+	const buildRegistry =
+		options.buildReadinessRegistry ?? buildDefaultReadinessRegistry;
+	const registry = buildRegistry(options.registryOptions);
+	const descriptors = registry.describe();
+	const allowedKeys = options.keys.length > 0 ? new Set(options.keys) : null;
+	const scopeFilter = options.scopes;
+	const orderedKeys = descriptors
+		.filter((helper) => {
+			if (!scopeFilter || scopeFilter.length === 0) {
+				return true;
+			}
+
+			const scopes = helper.metadata.scopes;
+			if (!scopes || scopes.length === 0) {
+				return true;
+			}
+
+			return scopeFilter.some((scope) => scopes.includes(scope));
+		})
+		.map((helper) => helper.key)
+		.filter((key) => (allowedKeys ? allowedKeys.has(key) : true));
+
 	if (orderedKeys.length === 0) {
 		return;
 	}
 
-	const buildRegistry =
-		options.buildReadinessRegistry ?? buildDefaultReadinessRegistry;
-	const registry = buildRegistry(options.registryOptions);
 	const plan = registry.plan(orderedKeys);
 	const context = buildContext(options);
 	const result = await plan.run(context);

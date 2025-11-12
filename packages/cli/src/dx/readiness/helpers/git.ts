@@ -1,5 +1,9 @@
 import { createReadinessHelper } from '../helper';
-import type { ReadinessDetection, ReadinessConfirmation } from '../types';
+import type {
+	ReadinessDetection,
+	ReadinessConfirmation,
+	ReadinessHelper,
+} from '../types';
 import { resolveWorkspaceRoot } from './shared';
 import {
 	initialiseGitRepository,
@@ -27,11 +31,19 @@ function defaultDependencies(): GitHelperDependencies {
 
 export function createGitReadinessHelper(
 	overrides: Partial<GitHelperDependencies> = {}
-) {
+): ReadinessHelper<GitReadinessState> {
 	const dependencies = { ...defaultDependencies(), ...overrides };
 
 	return createReadinessHelper<GitReadinessState>({
 		key: 'git',
+		metadata: {
+			label: 'Git repository',
+			description:
+				'Initialises and validates a git repository before scaffolding new projects.',
+			tags: ['git', 'scaffold'],
+			scopes: ['create', 'init'],
+			order: 20,
+		},
 		async detect(context): Promise<ReadinessDetection<GitReadinessState>> {
 			const root = resolveWorkspaceRoot(context);
 			const isRepo = await dependencies.detectRepository(root);

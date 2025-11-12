@@ -10,7 +10,11 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createReadinessHelper } from '../helper';
-import type { ReadinessConfirmation, ReadinessDetection } from '../types';
+import type {
+	ReadinessConfirmation,
+	ReadinessDetection,
+	ReadinessHelper,
+} from '../types';
 import type { DxContext } from '../../context';
 import { createModuleResolver } from '../../../utils/module-url';
 
@@ -273,7 +277,7 @@ function buildSuccessMessage(run: QuickstartRunResult): string {
 
 export function createQuickstartReadinessHelper(
 	options: QuickstartHelperOptions = {}
-) {
+): ReadinessHelper<QuickstartState> {
 	const dependencies = {
 		...defaultDependencies(),
 		...options.dependencies,
@@ -281,6 +285,14 @@ export function createQuickstartReadinessHelper(
 
 	return createReadinessHelper<QuickstartState>({
 		key: 'quickstart',
+		metadata: {
+			label: 'Quickstart scaffold',
+			description:
+				'Runs the published quickstart flow to ensure bundled assets install correctly.',
+			tags: ['scaffold', 'packaging'],
+			scopes: ['doctor'],
+			order: 110,
+		},
 		async detect(
 			context: DxContext
 		): Promise<ReadinessDetection<QuickstartState>> {

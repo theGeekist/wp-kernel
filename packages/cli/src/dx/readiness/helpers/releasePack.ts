@@ -8,6 +8,7 @@ import type {
 	ReadinessConfirmation,
 	ReadinessDetection,
 	ReadinessStatus,
+	ReadinessHelper,
 } from '../types';
 import type { DxContext } from '../../context';
 
@@ -375,7 +376,7 @@ function buildStatusMessage(
 
 export function createReleasePackReadinessHelper(
 	options: ReleasePackHelperOptions = {}
-) {
+): ReadinessHelper<ReleasePackState> {
 	const manifest = options.manifest ?? DEFAULT_MANIFEST;
 	const dependencies = {
 		...defaultDependencies(),
@@ -384,6 +385,14 @@ export function createReleasePackReadinessHelper(
 
 	return createReadinessHelper<ReleasePackState>({
 		key: 'release-pack',
+		metadata: {
+			label: 'Release pack chain',
+			description:
+				'Confirms release packs are built before packaging the CLI for distribution.',
+			tags: ['packaging'],
+			scopes: ['doctor'],
+			order: 90,
+		},
 		async detect(
 			context: DxContext
 		): Promise<ReadinessDetection<ReleasePackState>> {
