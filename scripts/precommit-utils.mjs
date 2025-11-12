@@ -3,7 +3,7 @@
 
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { readFile } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
@@ -360,6 +360,105 @@ export async function loadWorkspaceGraph(graphPath) {
 	return JSON.parse(raw);
 }
 
+function collectDeclaredTypeArtifacts(manifest) {
+	const paths = new Set();
+	const addPath = (value) => {
+		if (typeof value !== 'string') return;
+		const trimmed = value.trim();
+		if (trimmed.length === 0) return;
+		paths.add(trimmed);
+	};
+
+	if (typeof manifest.types === 'string') {
+		addPath(manifest.types);
+	}
+	if (typeof manifest.typings === 'string') {
+		addPath(manifest.typings);
+	}
+
+	const exportsField = manifest.exports;
+	if (typeof exportsField === 'string') {
+		if (exportsField.endsWith('.d.ts')) {
+			addPath(exportsField);
+		}
+	} else if (exportsField && typeof exportsField === 'object') {
+		const rootExport = exportsField['.'];
+		if (typeof rootExport === 'string') {
+			if (rootExport.endsWith('.d.ts')) {
+				addPath(rootExport);
+			}
+		} else if (rootExport && typeof rootExport === 'object') {
+			if (typeof rootExport.types === 'string') {
+				addPath(rootExport.types);
+			}
+			if (typeof rootExport.typings === 'string') {
+				addPath(rootExport.typings);
+			}
+		}
+	}
+
+	return Array.from(paths);
+}
+
+export async function findMissingTypeArtifacts(workspaceNames, graph) {
+	if (!Array.isArray(workspaceNames) || workspaceNames.length === 0) {
+		return [];
+	}
+
+	const repoRoot = graph?.root ?? process.cwd();
+	const byName = new Map();
+	for (const ws of graph?.workspaces ?? []) {
+		byName.set(ws.name, ws);
+	}
+
+	const missing = [];
+	const seen = new Set();
+
+	for (const name of workspaceNames) {
+		if (seen.has(name)) continue;
+		seen.add(name);
+		const ws = byName.get(name);
+		if (!ws) continue;
+		const pkgJsonPath = ws.packageJsonPath
+			? ws.packageJsonPath
+			: path.resolve(repoRoot, ws.dir, 'package.json');
+		let manifest;
+		try {
+			const raw = await readFile(pkgJsonPath, 'utf8');
+			manifest = JSON.parse(raw);
+		} catch {
+			continue;
+		}
+		const pkgDir = path.dirname(pkgJsonPath);
+		const availableArtifacts = collectDeclaredTypeArtifacts(manifest);
+		if (availableArtifacts.length === 0) {
+			continue;
+		}
+		let missingPath = null;
+		for (const relPath of availableArtifacts) {
+			const resolved = path.resolve(pkgDir, relPath);
+			try {
+				const stats = await stat(resolved);
+				if (!stats.isFile() || stats.size === 0) {
+					missingPath = resolved;
+					break;
+				}
+			} catch {
+				missingPath = resolved;
+				break;
+			}
+		}
+		if (missingPath) {
+			missing.push({
+				workspace: name,
+				artifact: path.relative(repoRoot, missingPath) || missingPath,
+			});
+		}
+	}
+
+	return missing;
+}
+
 /* -------------------------------------------------------------------------- */
 /* repo-wide change detection                                                 */
 /* -------------------------------------------------------------------------- */
@@ -477,6 +576,27 @@ export function resolveAffectedFromFiles(stagedFiles, graph) {
 	const filters = affectedArr.map((a) => a.name);
 
 	return { affected: affectedArr, filters };
+}
+
+export function collectWorkspaceDependencies(workspaceNames, graph) {
+	if (!graph) return [];
+	const byName = new Map();
+	for (const ws of graph.workspaces ?? []) {
+		byName.set(ws.name, ws);
+	}
+	const deps = new Set();
+	const queue = [...(workspaceNames ?? [])];
+	while (queue.length > 0) {
+		const current = queue.shift();
+		const ws = byName.get(current);
+		if (!ws) continue;
+		for (const depName of ws.localDeps ?? []) {
+			if (deps.has(depName)) continue;
+			deps.add(depName);
+			queue.push(depName);
+		}
+	}
+	return Array.from(deps);
 }
 
 /**

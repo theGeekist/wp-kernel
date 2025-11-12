@@ -50,6 +50,7 @@ export type CommandConstructor = new () => Command & {
 const TRANSACTION_LABEL = 'generate';
 
 const GENERATE_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
+	'composer',
 	'php-driver',
 	'tsx-runtime',
 ];

@@ -8,6 +8,10 @@ import { buildWorkspace } from '../../../workspace';
 import { withWorkspace } from '@wpkernel/test-utils/integration';
 import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.test-support';
 import * as phpDriver from '@wpkernel/php-driver';
+import {
+	createBaselineCodemodConfiguration,
+	serialisePhpCodemodConfiguration,
+} from '@wpkernel/php-json-ast';
 function normalisePhpValue(value: unknown): unknown {
 	if (Array.isArray(value)) {
 		return value.map(normalisePhpValue);
@@ -385,6 +389,125 @@ describe('createPhpBuilder integration', () => {
 				'Stmt_Declare',
 				'Stmt_Namespace',
 			]);
+		},
+		INTEGRATION_TIMEOUT_MS
+	);
+
+	it(
+		'ingests codemod targets declared via the PHP adapter configuration',
+		async () => {
+			const ir = makePhpIrFixture();
+			ir.config.adapters = {
+				php() {
+					return {
+						codemods: {
+							files: ['plugin.php'],
+							configurationPath: 'codemods/baseline.json',
+						},
+					};
+				},
+			};
+
+			const builder = createPhpBuilder();
+			const reporter = createReporterStub();
+			const queuedWrites: BuilderOutput['actions'] = [];
+			const output: BuilderOutput = {
+				actions: queuedWrites,
+				queueWrite(action) {
+					queuedWrites.push(action);
+				},
+			};
+
+			await withWorkspace(async (workspacePath) => {
+				const workspace = buildWorkspace(workspacePath);
+				await ensureCliVendorReady();
+				await fs.cp(CLI_VENDOR_ROOT, workspace.resolve('vendor'), {
+					recursive: true,
+				});
+
+				const rootDir = path.resolve(__dirname, '../../../../../..');
+				const beforeFixture = path.join(
+					rootDir,
+					'packages',
+					'php-json-ast',
+					'fixtures',
+					'codemods',
+					'BaselinePack.before.php'
+				);
+				const afterFixture = path.join(
+					rootDir,
+					'packages',
+					'php-json-ast',
+					'fixtures',
+					'codemods',
+					'BaselinePack.after.php'
+				);
+
+				const configuration = createBaselineCodemodConfiguration();
+				const configurationPath = workspace.resolve(
+					'codemods',
+					'baseline.json'
+				);
+				await fs.mkdir(path.dirname(configurationPath), {
+					recursive: true,
+				});
+				await fs.writeFile(
+					configurationPath,
+					serialisePhpCodemodConfiguration(configuration)
+				);
+
+				await fs.copyFile(
+					beforeFixture,
+					workspace.resolve('plugin.php')
+				);
+
+				await builder.apply(
+					{
+						context: {
+							workspace,
+							reporter,
+							phase: 'generate',
+						},
+						input: {
+							phase: 'generate',
+							options: {
+								config: ir.config,
+								namespace: ir.meta.namespace,
+								origin: ir.meta.origin,
+								sourcePath: ir.meta.sourcePath,
+							},
+							ir,
+						},
+						output,
+						reporter,
+					},
+					undefined
+				);
+
+				const generated = await fs.readFile(
+					workspace.resolve('plugin.php'),
+					'utf8'
+				);
+				const expected = await fs.readFile(afterFixture, 'utf8');
+				expect(generated).toBe(expected);
+
+				const codemodSummary = await fs.readFile(
+					workspace.resolve('plugin.php.codemod.summary.txt'),
+					'utf8'
+				);
+				expect(codemodSummary).toContain('baseline');
+
+				const beforeAst = await fs.readFile(
+					workspace.resolve('plugin.php.codemod.before.ast.json'),
+					'utf8'
+				);
+				const afterAst = await fs.readFile(
+					workspace.resolve('plugin.php.codemod.after.ast.json'),
+					'utf8'
+				);
+				expect(beforeAst.trim()).not.toHaveLength(0);
+				expect(afterAst.trim()).not.toHaveLength(0);
+			});
 		},
 		INTEGRATION_TIMEOUT_MS
 	);

@@ -10,6 +10,16 @@ export { createPhpRuntimeReadinessHelper } from './phpRuntime';
 export type { PhpRuntimeDependencies, PhpRuntimeState } from './phpRuntime';
 export { createPhpDriverReadinessHelper } from './phpDriver';
 export type { PhpDriverDependencies, PhpDriverState } from './phpDriver';
+export { createPhpCodemodIngestionReadinessHelper } from './phpCodemodIngestion';
+export type {
+	PhpCodemodIngestionDependencies,
+	PhpCodemodIngestionState,
+} from './phpCodemodIngestion';
+export { createPhpPrinterPathReadinessHelper } from './phpPrinterPath';
+export type {
+	PhpPrinterPathDependencies,
+	PhpPrinterPathState,
+} from './phpPrinterPath';
 export { createWorkspaceHygieneReadinessHelper } from './workspaceHygiene';
 export type {
 	WorkspaceHygieneDependencies,
@@ -30,3 +40,10 @@ export type {
 	BootstrapperResolutionState,
 	BootstrapperResolutionDependencies,
 } from './bootstrapperResolution';
+export { createQuickstartReadinessHelper } from './quickstart';
+export type {
+	QuickstartHelperOptions,
+	QuickstartState,
+	QuickstartRunResult,
+	QuickstartDependencies,
+} from './quickstart';

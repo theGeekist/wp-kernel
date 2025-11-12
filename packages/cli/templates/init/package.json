@@ -1,6 +1,6 @@
 {
 	"name": "__WPK_PACKAGE_NAME__",
-	"version": "0.12.1-beta.2",
+	"version": "0.0.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -8,5 +8,9 @@
 		"build": "wpk build",
 		"generate": "wpk generate",
 		"apply": "wpk apply"
+	},
+	"devDependencies": {
+		"@wpkernel/cli": "latest",
+		"tsx": "latest"
 	}
 }

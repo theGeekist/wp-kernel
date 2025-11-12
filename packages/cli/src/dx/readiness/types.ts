@@ -7,11 +7,14 @@ export type ReadinessKey =
 	| 'composer'
 	| 'git'
 	| 'php-driver'
+	| 'php-codemod-ingestion'
+	| 'php-printer-path'
 	| 'php-runtime'
 	| 'bootstrapper-resolution'
 	| 'release-pack'
 	| 'tsx-runtime'
-	| 'workspace-hygiene';
+	| 'workspace-hygiene'
+	| 'quickstart';
 
 /**
  * Status emitted during the detect/prepare/execute phases.

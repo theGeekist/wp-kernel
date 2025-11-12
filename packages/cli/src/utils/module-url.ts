@@ -33,6 +33,11 @@ export function getModuleUrl(): string {
 }
 
 function resolveImportMetaUrl(): string | undefined {
+	const override = process.env?.WPK_CLI_IMPORT_META_URL;
+	if (typeof override === 'string' && override.length > 0) {
+		return override;
+	}
+
 	try {
 		return Function(
 			'return (function(){ try { return eval("import.meta.url"); } catch (error) { return undefined; } })();'

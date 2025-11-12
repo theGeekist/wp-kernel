@@ -2,7 +2,10 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
 import type { IRv1 } from '../ir/publicTypes';
-import type { PhpAstBuilder } from '@wpkernel/php-json-ast';
+import type {
+	PhpAstBuilder,
+	PhpDriverConfigurationOptions,
+} from '@wpkernel/php-json-ast';
 
 /**
  * Source identifier describing where a wpk config was loaded from.
@@ -102,6 +105,8 @@ export interface PhpAdapterConfig {
 		builder: PhpAstBuilder,
 		context: AdapterContext & { ir: IRv1 }
 	) => void;
+	driver?: PhpDriverConfigurationOptions;
+	codemods?: PhpCodemodAdapterConfig;
 }
 
 /**
@@ -112,6 +117,21 @@ export interface PhpAdapterConfig {
 export type PhpAdapterFactory = (
 	context: AdapterContext
 ) => PhpAdapterConfig | void;
+
+export interface PhpCodemodAdapterConfig {
+	readonly files: readonly string[];
+	readonly configurationPath?: string;
+	readonly diagnostics?: {
+		readonly nodeDumps?: boolean;
+	};
+	readonly driver?: PhpCodemodDriverOptions;
+}
+
+export interface PhpCodemodDriverOptions {
+	readonly binary?: string;
+	readonly scriptPath?: string;
+	readonly importMetaUrl?: string;
+}
 
 /**
  * Execution context provided to adapter extensions.
