@@ -11,7 +11,11 @@ import {
 	type InitCommandRuntimeResult,
 	formatInitWorkflowError,
 } from './command-runtime';
-import { assertReadinessRun, type ReadinessKey } from '../../dx';
+import {
+	assertReadinessRun,
+	type ReadinessHelperDescriptor,
+	type ReadinessKey,
+} from '../../dx';
 import type { InitWorkflowResult } from './workflow';
 
 export interface InitCommandState {
@@ -102,6 +106,7 @@ export type InitCommandHooks = Partial<{
 	) => InitCommandRuntimeOptions['readiness'];
 	filterReadinessKeys: (
 		keys: readonly ReadinessKey[],
+		helpers: readonly ReadinessHelperDescriptor[],
 		command: InitCommandState
 	) => ReadonlyArray<ReadinessKey>;
 	prepare: (
@@ -232,8 +237,11 @@ async function runReadinessPhase(
 	command: InitCommandState
 ): Promise<void> {
 	const keys =
-		hooks.filterReadinessKeys?.(runtime.readiness.defaultKeys, command) ??
-		runtime.readiness.defaultKeys;
+		hooks.filterReadinessKeys?.(
+			runtime.readiness.defaultKeys,
+			runtime.readiness.helpers,
+			command
+		) ?? runtime.readiness.defaultKeys;
 
 	if (keys.length === 0) {
 		return;

@@ -234,6 +234,13 @@ const adaptersValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
+const readinessConfigValidator = t.isObject(
+	{
+		helpers: t.isOptional(t.isArray(functionValidator)),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
 const resourceDataViewsMenuValidator = t.isObject(
 	{
 		slug: t.isString(),
@@ -329,6 +336,7 @@ const wpkConfigValidator = t.isObject(
 		schemas: t.isRecord(schemaConfigValidator),
 		resources: t.isRecord(resourceConfigValidator),
 		adapters: t.isOptional(adaptersValidator),
+		readiness: t.isOptional(readinessConfigValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );

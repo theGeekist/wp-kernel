@@ -2,7 +2,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createReadinessHelper } from '../helper';
 import { createModuleResolver } from '../../../utils/module-url';
-import type { ReadinessDetection, ReadinessConfirmation } from '../types';
+import type {
+	ReadinessDetection,
+	ReadinessConfirmation,
+	ReadinessHelper,
+} from '../types';
 import type { DxContext } from '../../context';
 import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
 
@@ -61,11 +65,19 @@ async function assetExists(
 
 export function createPhpDriverReadinessHelper(
 	overrides: Partial<PhpDriverDependencies> = {}
-) {
+): ReadinessHelper<PhpDriverState> {
 	const dependencies = { ...defaultDependencies(), ...overrides };
 
 	return createReadinessHelper<PhpDriverState>({
 		key: 'php-driver',
+		metadata: {
+			label: 'PHP driver assets',
+			description:
+				'Validates that the bundled PHP driver files are installed before running CLI workflows.',
+			tags: ['php', 'driver'],
+			scopes: ['create', 'init', 'generate', 'apply', 'doctor'],
+			order: 50,
+		},
 		async detect(context): Promise<ReadinessDetection<PhpDriverState>> {
 			const workspaceRoot = resolveWorkspaceRoot(context);
 			const { root, asset } = await resolveDriverRoot(

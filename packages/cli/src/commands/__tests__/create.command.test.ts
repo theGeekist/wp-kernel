@@ -10,6 +10,55 @@ import type { buildWorkspace } from '../../workspace/filesystem';
 import * as workspaceModule from '../../workspace';
 
 describe('CreateCommand', () => {
+	const helperDescriptors = [
+		{
+			key: 'workspace-hygiene',
+			metadata: {
+				label: 'Workspace hygiene',
+				scopes: ['init', 'create'],
+			},
+		},
+		{
+			key: 'git',
+			metadata: { label: 'Git', scopes: ['init', 'create'] },
+		},
+		{
+			key: 'composer',
+			metadata: {
+				label: 'Composer',
+				scopes: ['init', 'create'],
+				tags: ['requires-install'],
+			},
+		},
+		{
+			key: 'php-runtime',
+			metadata: { label: 'PHP runtime', scopes: ['init', 'create'] },
+		},
+		{
+			key: 'php-driver',
+			metadata: { label: 'PHP driver', scopes: ['init', 'create'] },
+		},
+		{
+			key: 'php-codemod-ingestion',
+			metadata: {
+				label: 'PHP codemod ingestion',
+				scopes: ['init', 'create'],
+			},
+		},
+		{
+			key: 'php-printer-path',
+			metadata: { label: 'PHP printer path', scopes: ['init', 'create'] },
+		},
+		{
+			key: 'tsx-runtime',
+			metadata: {
+				label: 'TSX runtime',
+				scopes: ['init', 'create'],
+				tags: ['requires-install'],
+			},
+		},
+	];
+
 	it('runs init workflow, readiness plan, and installs npm dependencies', async () => {
 		const workflow = jest.fn().mockResolvedValue({
 			manifest: { writes: [], deletes: [] },
@@ -31,6 +80,7 @@ describe('CreateCommand', () => {
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
 			plan: readinessPlan,
+			describe: () => helperDescriptors,
 		});
 
 		const workspaceRoot = path.join(process.cwd(), 'demo-workspace');
@@ -110,6 +160,7 @@ describe('CreateCommand', () => {
 			buildReadinessRegistry: (() => ({
 				register: jest.fn(),
 				plan: readinessPlan,
+				describe: () => helperDescriptors,
 			})) as never,
 		});
 
@@ -160,6 +211,7 @@ describe('CreateCommand', () => {
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
 			plan: readinessPlan,
+			describe: () => helperDescriptors,
 		});
 
 		const CreateCommand = buildCreateCommand({

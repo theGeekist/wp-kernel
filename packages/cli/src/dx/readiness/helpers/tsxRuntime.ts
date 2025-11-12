@@ -4,7 +4,11 @@ import { EnvironmentalError, WPKernelError } from '@wpkernel/core/error';
 import { serializeWPKernelError } from '@wpkernel/core/contracts';
 import { createReadinessHelper } from '../helper';
 import { createModuleResolver } from '../../../utils/module-url';
-import type { ReadinessDetection, ReadinessConfirmation } from '../types';
+import type {
+	ReadinessDetection,
+	ReadinessConfirmation,
+	ReadinessHelper,
+} from '../types';
 import type { DxContext } from '../../context';
 import type { Workspace } from '../../../workspace';
 import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
@@ -134,11 +138,19 @@ async function uninstallTsx(
 
 export function createTsxRuntimeReadinessHelper(
 	overrides: Partial<TsxRuntimeDependencies> = {}
-) {
+): ReadinessHelper<TsxRuntimeState> {
 	const dependencies = { ...defaultDependencies(), ...overrides };
 
 	return createReadinessHelper<TsxRuntimeState>({
 		key: 'tsx-runtime',
+		metadata: {
+			label: 'TSX runtime',
+			description:
+				'Ensures the tsx binary is installed so TypeScript helpers can execute on demand.',
+			tags: ['node', 'tsx', 'requires-install'],
+			scopes: ['create', 'init', 'generate', 'apply'],
+			order: 80,
+		},
 		async detect(context): Promise<ReadinessDetection<TsxRuntimeState>> {
 			const workspaceRoot = resolveWorkspaceRoot(context);
 			const { resolvedPath, error } = await resolveTsx(

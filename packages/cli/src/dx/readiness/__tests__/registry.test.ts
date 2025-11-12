@@ -34,6 +34,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'git',
+				metadata: { label: 'Test git helper' },
 				async detect(): Promise<ReadinessDetection<null>> {
 					return { status: 'ready', state: null };
 				},
@@ -47,6 +48,7 @@ describe('ReadinessRegistry', () => {
 			registry.register(
 				createReadinessHelper({
 					key: 'git',
+					metadata: { label: 'Duplicate git helper' },
 					async detect(): Promise<ReadinessDetection<null>> {
 						return { status: 'ready', state: null };
 					},
@@ -63,6 +65,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'git',
+				metadata: { label: 'Ready helper' },
 				async detect(): Promise<ReadinessDetection<null>> {
 					return { status: 'ready', state: null };
 				},
@@ -90,6 +93,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'git',
+				metadata: { label: 'Pending helper' },
 				async detect(): Promise<ReadinessDetection<{ count: number }>> {
 					return { status: 'pending', state: { count: 0 } };
 				},
@@ -127,6 +131,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'git',
+				metadata: { label: 'Failure helper' },
 				async detect(): Promise<ReadinessDetection<{ count: number }>> {
 					return { status: 'pending', state: { count: 0 } };
 				},
@@ -172,6 +177,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'composer',
+				metadata: { label: 'Composer helper' },
 				async detect() {
 					return {
 						status: 'pending',
@@ -270,6 +276,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'git',
+				metadata: { label: 'Ready logging helper' },
 				async detect() {
 					return {
 						status: 'ready',
@@ -324,6 +331,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'composer',
+				metadata: { label: 'Blocked helper' },
 				async detect() {
 					return {
 						status: 'blocked',
@@ -378,6 +386,7 @@ describe('ReadinessRegistry', () => {
 		registry.register(
 			createReadinessHelper({
 				key: 'workspace-hygiene',
+				metadata: { label: 'Workspace hygiene' },
 				async detect() {
 					return {
 						status: 'ready',

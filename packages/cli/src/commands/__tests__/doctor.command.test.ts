@@ -6,7 +6,7 @@ import {
 } from '@wpkernel/test-utils/cli';
 import { buildDoctorCommand, renderDoctorSummary } from '../doctor';
 import type {
-	ReadinessKey,
+	ReadinessHelperDescriptor,
 	ReadinessOutcome,
 	ReadinessOutcomeStatus,
 	ReadinessPlan,
@@ -14,14 +14,6 @@ import type {
 	ReadinessDetection,
 	ReadinessConfirmation,
 } from '../../dx';
-
-const DOCTOR_READINESS_KEYS: ReadinessKey[] = [
-	'workspace-hygiene',
-	'composer',
-	'php-runtime',
-	'php-driver',
-	'php-printer-path',
-];
 
 describe('buildDoctorCommand', () => {
 	let reporterFactory: jest.Mock;
@@ -32,6 +24,7 @@ describe('buildDoctorCommand', () => {
 	let readinessPlan: ReadinessPlan;
 	let readinessRegistry: ReadinessRegistry;
 	let readinessRegistryPlan: jest.Mock;
+	let readinessDescriptors: ReadinessHelperDescriptor[];
 
 	beforeEach(() => {
 		reporterFactory = createReporterFactory();
@@ -39,14 +32,45 @@ describe('buildDoctorCommand', () => {
 		buildWorkspace = jest.fn();
 		readinessPlanRun = jest.fn();
 
+		readinessDescriptors = [
+			{
+				key: 'workspace-hygiene',
+				metadata: { label: 'Workspace hygiene', scopes: ['doctor'] },
+			},
+			{
+				key: 'composer',
+				metadata: {
+					label: 'Composer dependencies',
+					scopes: ['doctor'],
+				},
+			},
+			{
+				key: 'php-runtime',
+				metadata: { label: 'PHP runtime', scopes: ['doctor'] },
+			},
+			{
+				key: 'php-driver',
+				metadata: { label: 'PHP driver', scopes: ['doctor'] },
+			},
+			{
+				key: 'php-printer-path',
+				metadata: { label: 'PHP printer path', scopes: ['doctor'] },
+			},
+		];
+
+		const expectedKeys = readinessDescriptors.map(
+			(descriptor) => descriptor.key
+		);
+
 		readinessPlan = {
-			keys: DOCTOR_READINESS_KEYS,
+			keys: expectedKeys,
 			run: (context) => readinessPlanRun(context),
 		} as ReadinessPlan;
 		readinessRegistryPlan = jest.fn(() => readinessPlan);
 		readinessRegistry = {
 			plan: readinessRegistryPlan,
 			register: jest.fn(),
+			describe: jest.fn(() => readinessDescriptors),
 		} as unknown as ReadinessRegistry;
 		buildReadinessRegistry = jest.fn(() => readinessRegistry);
 
@@ -109,7 +133,7 @@ describe('buildDoctorCommand', () => {
 			'[PASS] PHP printer path: Printer path ok.'
 		);
 		expect(readinessRegistryPlan).toHaveBeenCalledWith(
-			DOCTOR_READINESS_KEYS
+			readinessDescriptors.map((descriptor) => descriptor.key)
 		);
 		expect(readinessPlanRun).toHaveBeenCalledTimes(1);
 	});

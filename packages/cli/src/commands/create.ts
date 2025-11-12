@@ -15,7 +15,7 @@ import {
 	type InitCommandContext,
 	type InitCommandHooks,
 } from './init/shared';
-import type { ReadinessKey } from '../dx';
+import type { ReadinessHelperDescriptor, ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
 export type { InstallerDependencies } from './init/installers';
@@ -163,20 +163,33 @@ function buildCreateCommandHooks(
 					? command.target
 					: '.'
 			),
-		filterReadinessKeys: (keys: readonly ReadinessKey[]) => {
-			const filtered = keys.filter(
-				(key) =>
-					key !== 'release-pack' &&
-					key !== 'bootstrapper-resolution' &&
-					key !== 'quickstart'
-			);
+		filterReadinessKeys: (
+			keys: readonly ReadinessKey[],
+			helpers: readonly ReadinessHelperDescriptor[]
+		) => {
+			const allowed = new Set(keys);
+			const scoped = helpers.filter((helper) => {
+				const scopes = helper.metadata.scopes;
+				if (!scopes || scopes.length === 0) {
+					return true;
+				}
+
+				return scopes.includes('create');
+			});
+
+			const ordered = scoped
+				.map((helper) => helper.key)
+				.filter((key) => allowed.has(key));
 
 			if (command.skipInstall !== true) {
-				return filtered;
+				return ordered;
 			}
 
-			const skipped = new Set<ReadinessKey>(['composer', 'tsx-runtime']);
-			return filtered.filter((key) => !skipped.has(key));
+			return ordered.filter((key) => {
+				const helper = helpers.find((entry) => entry.key === key);
+				const tags = helper?.metadata.tags ?? [];
+				return !tags.includes('requires-install');
+			});
 		},
 		prepare: async (runtime, context: InitCommandContext) => {
 			await dependencies.ensureCleanDirectory({

@@ -26,7 +26,6 @@ import {
 	readGenerationState,
 	writeGenerationState,
 } from '../apply/manifest';
-import type { ReadinessKey } from '../dx';
 import { runCommandReadiness } from './readiness';
 import { resolveCommandCwd } from './init/command-runtime';
 
@@ -48,12 +47,6 @@ export type CommandConstructor = new () => Command & {
 };
 
 const TRANSACTION_LABEL = 'generate';
-
-const GENERATE_READINESS_KEYS: ReadonlyArray<ReadinessKey> = [
-	'composer',
-	'php-driver',
-	'tsx-runtime',
-];
 
 function buildFailure(exitCode: WPKExitCode): GenerateResult {
 	return {
@@ -130,11 +123,15 @@ async function runGenerateWorkflow(
 
 		await runCommandReadiness({
 			buildReadinessRegistry: dependencies.buildReadinessRegistry,
+			registryOptions: {
+				helperFactories: loaded.config.readiness?.helpers,
+			},
 			reporter: reporter.child('readiness'),
 			workspace: tracked.workspace,
 			workspaceRoot,
 			cwd,
-			keys: GENERATE_READINESS_KEYS,
+			keys: [],
+			scopes: ['generate'],
 		});
 
 		dependencies.registerFragments(pipeline);

@@ -6,6 +6,7 @@ import type {
 	PhpAstBuilder,
 	PhpDriverConfigurationOptions,
 } from '@wpkernel/php-json-ast';
+import type { ReadinessHelperFactory } from '../dx';
 
 /**
  * Source identifier describing where a wpk config was loaded from.
@@ -68,6 +69,13 @@ export interface AdaptersConfig {
 }
 
 /**
+ * Optional readiness helper configuration provided by a wpk project.
+ */
+export interface ReadinessConfig {
+	helpers?: ReadonlyArray<ReadinessHelperFactory>;
+}
+
+/**
  * Shape of a v1 wpk configuration object.
  *
  * @category Config
@@ -79,6 +87,7 @@ export interface WPKernelConfigV1 {
 	schemas: SchemaRegistry;
 	resources: ResourceRegistry;
 	adapters?: AdaptersConfig;
+	readiness?: ReadinessConfig;
 }
 
 /**

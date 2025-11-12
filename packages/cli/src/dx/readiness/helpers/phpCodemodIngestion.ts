@@ -7,6 +7,7 @@ import type {
 	ReadinessConfirmation,
 	ReadinessDetection,
 	ReadinessStatus,
+	ReadinessHelper,
 } from '../types';
 import type { DxContext } from '../../context';
 import { createModuleResolver } from '../../../utils/module-url';
@@ -177,11 +178,19 @@ function buildConfirmationMessage(status: ReadinessStatus): string {
 
 export function createPhpCodemodIngestionReadinessHelper(
 	overrides: Partial<PhpCodemodIngestionDependencies> = {}
-) {
+): ReadinessHelper<PhpCodemodIngestionState> {
 	const dependencies = { ...defaultDependencies(), ...overrides };
 
 	return createReadinessHelper<PhpCodemodIngestionState>({
 		key: 'php-codemod-ingestion',
+		metadata: {
+			label: 'PHP codemod ingestion',
+			description:
+				'Verifies the codemod ingestion script resolves consistently before running init workflows.',
+			tags: ['php', 'codemod'],
+			scopes: ['create', 'init'],
+			order: 60,
+		},
 		async detect(
 			context: DxContext
 		): Promise<ReadinessDetection<PhpCodemodIngestionState>> {

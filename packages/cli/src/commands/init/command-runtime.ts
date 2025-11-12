@@ -15,7 +15,7 @@ import {
 	type ReadinessPlan,
 	type ReadinessRunResult,
 	type DxContext,
-	DEFAULT_READINESS_ORDER,
+	type ReadinessHelperDescriptor,
 	buildDefaultReadinessRegistry,
 } from '../../dx';
 import { getCliPackageRoot } from '../../utils/module-url';
@@ -65,10 +65,23 @@ export interface InitCommandReadinessRuntime {
 	readonly registry: ReadinessRegistry;
 	readonly context: DxContext;
 	readonly defaultKeys: ReadonlyArray<ReadinessKey>;
+	readonly helpers: ReadonlyArray<ReadinessHelperDescriptor>;
 	readonly plan: (keys: readonly ReadinessKey[]) => ReadinessPlan;
 	readonly run: (
 		keys: readonly ReadinessKey[]
 	) => Promise<ReadinessRunResult>;
+}
+
+function helperIncludesScope(
+	helper: ReadinessHelperDescriptor,
+	scope: string
+): boolean {
+	const scopes = helper.metadata.scopes;
+	if (!scopes || scopes.length === 0) {
+		return true;
+	}
+
+	return scopes.includes(scope);
 }
 
 export function createInitCommandRuntime(
@@ -122,10 +135,16 @@ export function createInitCommandRuntime(
 		},
 	};
 
+	const helperDescriptors = readinessRegistry.describe();
+	const defaultKeys = helperDescriptors
+		.filter((helper) => helperIncludesScope(helper, 'init'))
+		.map((helper) => helper.key);
+
 	const readinessRuntime: InitCommandReadinessRuntime = {
 		registry: readinessRegistry,
 		context: readinessContext,
-		defaultKeys: [...DEFAULT_READINESS_ORDER],
+		defaultKeys,
+		helpers: helperDescriptors,
 		plan: (keys) => readinessRegistry.plan(keys),
 		run: (keys) => readinessRegistry.plan(keys).run(readinessContext),
 	};

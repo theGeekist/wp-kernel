@@ -17,7 +17,11 @@ import type {
 	PipelineRunOptions,
 	PipelineRunResult,
 } from '../../runtime';
-import type { ReadinessPlan, ReadinessRegistry } from '../../dx';
+import type {
+	ReadinessHelperDescriptor,
+	ReadinessPlan,
+	ReadinessRegistry,
+} from '../../dx';
 
 function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 	return {
@@ -100,12 +104,32 @@ function createReadinessRegistryStub() {
 				run: readinessRun,
 			}) as ReadinessPlan
 	);
+	const readinessDescriptors = [
+		{
+			key: 'composer',
+			metadata: { label: 'Composer dependencies', scopes: ['generate'] },
+		},
+		{
+			key: 'php-driver',
+			metadata: { label: 'PHP driver', scopes: ['generate'] },
+		},
+		{
+			key: 'tsx-runtime',
+			metadata: { label: 'TSX runtime', scopes: ['generate'] },
+		},
+	] satisfies ReadinessHelperDescriptor[];
 	const readinessRegistry = {
 		plan: readinessPlanMock,
+		describe: jest.fn(() => readinessDescriptors),
 	} as unknown as ReadinessRegistry;
 	const buildReadinessRegistry = jest.fn(() => readinessRegistry);
 
-	return { buildReadinessRegistry, readinessPlanMock, readinessRun };
+	return {
+		buildReadinessRegistry,
+		readinessPlanMock,
+		readinessRun,
+		readinessDescriptors,
+	};
 }
 
 describe('GenerateCommand', () => {
@@ -178,11 +202,9 @@ describe('GenerateCommand', () => {
 				]),
 			})
 		);
-		expect(readiness.readinessPlanMock).toHaveBeenCalledWith([
-			'composer',
-			'php-driver',
-			'tsx-runtime',
-		]);
+		expect(readiness.readinessPlanMock).toHaveBeenCalledWith(
+			readiness.readinessDescriptors.map((descriptor) => descriptor.key)
+		);
 		expect(readiness.readinessRun).toHaveBeenCalledTimes(1);
 	});
 

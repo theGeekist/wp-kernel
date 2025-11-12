@@ -1,5 +1,9 @@
 import { createReadinessHelper } from '../helper';
-import type { ReadinessDetection, ReadinessConfirmation } from '../types';
+import type {
+	ReadinessDetection,
+	ReadinessConfirmation,
+	ReadinessHelper,
+} from '../types';
 import type { DxContext } from '../../context';
 import {
 	ensureGeneratedPhpClean,
@@ -34,11 +38,19 @@ async function verifyClean(
 
 export function createWorkspaceHygieneReadinessHelper(
 	overrides: Partial<WorkspaceHygieneDependencies> = {}
-) {
+): ReadinessHelper<WorkspaceHygieneState> {
 	const dependencies = { ...defaultDependencies(), ...overrides };
 
 	return createReadinessHelper<WorkspaceHygieneState>({
 		key: 'workspace-hygiene',
+		metadata: {
+			label: 'Workspace hygiene',
+			description:
+				'Verifies the workspace is clean before scaffolding or running doctor checks.',
+			tags: ['workspace', 'scaffold'],
+			scopes: ['create', 'init', 'doctor'],
+			order: 10,
+		},
 		async detect(
 			context
 		): Promise<ReadinessDetection<WorkspaceHygieneState>> {
