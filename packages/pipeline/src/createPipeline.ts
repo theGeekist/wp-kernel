@@ -599,9 +599,19 @@ export function createPipeline<
 		maybePending: MaybePromise<T>
 	): MaybePromise<T> => {
 		if (maybePending && isPromiseLike(maybePending)) {
+			void Promise.resolve(maybePending).catch(() => {});
 			const pending = Promise.resolve(maybePending).then(() => undefined);
-			pending.catch(() => {});
+			void pending.catch(() => {});
 			pendingExtensionRegistrations.push(pending);
+			pending
+				.finally(() => {
+					const index =
+						pendingExtensionRegistrations.indexOf(pending);
+					if (index !== -1) {
+						pendingExtensionRegistrations.splice(index, 1);
+					}
+				})
+				.catch(() => {});
 		}
 
 		return maybePending;
@@ -612,12 +622,9 @@ export function createPipeline<
 			return;
 		}
 
-		const pending = pendingExtensionRegistrations.splice(
-			0,
-			pendingExtensionRegistrations.length
+		return Promise.all([...pendingExtensionRegistrations]).then(
+			() => undefined
 		);
-
-		return Promise.all(pending).then(() => undefined);
 	};
 
 	interface PipelineRunContext {
@@ -1093,6 +1100,9 @@ export function createPipeline<
 				>
 			) {
 				const registrationResult = extension.register(pipeline);
+				if (registrationResult && isPromiseLike(registrationResult)) {
+					void Promise.resolve(registrationResult).catch(() => {});
+				}
 				const handled = maybeThen(registrationResult, (resolved) =>
 					handleExtensionResult(extension.key, resolved)
 				);

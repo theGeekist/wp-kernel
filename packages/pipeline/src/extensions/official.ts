@@ -2,6 +2,8 @@ import type { PipelineExtension } from '../types';
 
 /**
  * Identifier for a pipeline extension factory.
+ *
+ * @category Pipeline
  */
 export interface ExtensionFactorySignature<TOptions = unknown> {
 	/**
@@ -20,6 +22,8 @@ export interface ExtensionFactorySignature<TOptions = unknown> {
 
 /**
  * Individual behaviour exposed by an extension blueprint.
+ *
+ * @category Pipeline
  */
 export interface ExtensionBehaviour {
 	readonly name: string;
@@ -31,6 +35,8 @@ export interface ExtensionBehaviour {
 
 /**
  * Documentation-first blueprint for an extension incubated in this package.
+ *
+ * @category Pipeline
  */
 export interface ExtensionBlueprint {
 	readonly id: string;
@@ -44,6 +50,8 @@ export interface ExtensionBlueprint {
 
 /**
  * Pipeline extension factory type used throughout the blueprints.
+ *
+ * @category Pipeline
  */
 export type AnyPipelineExtensionFactory = (
 	options?: unknown
@@ -51,6 +59,21 @@ export type AnyPipelineExtensionFactory = (
 
 /**
  * Blueprint catalogue for official extensions that the pipeline team will own.
+ *
+ * @example
+ * ```ts
+ * import { OFFICIAL_EXTENSION_BLUEPRINTS } from '@wpkernel/pipeline/extensions';
+ *
+ * const liveRunner = OFFICIAL_EXTENSION_BLUEPRINTS.find(
+ * 	(entry) => entry.id === 'live-runner'
+ * );
+ *
+ * if (liveRunner?.factory) {
+ * 	console.log(`Factory slug: ${liveRunner.factory.slug}`);
+ * }
+ * ```
+ *
+ * @category Pipeline
  */
 export const OFFICIAL_EXTENSION_BLUEPRINTS: readonly ExtensionBlueprint[] = [
 	{

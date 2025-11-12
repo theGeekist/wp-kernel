@@ -99,6 +99,25 @@ export const myFileWriterExtension = () =>
 	});
 ```
 
+## Official extension blueprints
+
+The pipeline team incubates a catalog of “official” extensions inside `@wpkernel/pipeline`. Each entry describes its lifecycle, behaviours, reporter hooks, and rollout notes before the concrete factory ships. You can inspect these blueprints from any package (CLI, resource pipeline, custom tooling) via `@wpkernel/pipeline/extensions`.
+
+```ts
+import { OFFICIAL_EXTENSION_BLUEPRINTS } from '@wpkernel/pipeline/extensions';
+
+const liveRunner = OFFICIAL_EXTENSION_BLUEPRINTS.find(
+	(entry) => entry.id === 'live-runner'
+);
+
+if (liveRunner?.factory) {
+	console.log(`Factory slug: ${liveRunner.factory.slug}`);
+	// Later, require(createLivePipelineRunExtension) once it graduates.
+}
+```
+
+Blueprints help you plan ahead (e.g., annotate helpers with metadata an extension expects) while keeping the implementation optional. The CLI and resource pipelines both treat these extensions transactionally - the hook still follows the `commit`/`rollback` protocol you defined earlier.
+
 ## Creating Your First Extension
 
 Let's create a simple "hello world" extension that logs a message to the console when the pipeline runs.

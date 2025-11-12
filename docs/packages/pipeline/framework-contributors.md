@@ -36,6 +36,22 @@ Prefer `createPipelineExtension()` over manual registration so setup and hook ph
 
 Expose new helper families through dedicated registration functions that wrap `registerHelper()` with shared defaults. When widening extension payloads, update `PipelineExtensionHookOptions` and the CLI runtime mirror so downstream packages inherit the same shape without hand-written adapters.
 
+## Official extension catalog
+
+The `@wpkernel/pipeline/extensions` entry point publishes `OFFICIAL_EXTENSION_BLUEPRINTS`, a typed manifest of incubating extensions (live runner, concurrency scheduler, etc.). Framework contributors can use the blueprint metadata to align helper annotations and reporter expectations before the factory lands.
+
+```ts
+import { OFFICIAL_EXTENSION_BLUEPRINTS } from '@wpkernel/pipeline/extensions';
+
+for (const blueprint of OFFICIAL_EXTENSION_BLUEPRINTS) {
+	if (blueprint.id === 'live-runner') {
+		console.log(blueprint.pipelineTouchPoints);
+	}
+}
+```
+
+When you add a new official extension, update the blueprint with helper annotations, lifecycle slots, and rollout notes so downstream packages can stage migrations against a stable contract.
+
 ## Testing
 
 Cover helper and extension wiring inside `packages/pipeline/src/__tests__`. Pair happy-path tests with simulated rollback failures to confirm commits are skipped and diagnostics bubble up. Integration suites should snapshot the execution metadata so helper ordering regressions surface quickly.
