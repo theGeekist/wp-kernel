@@ -1,15 +1,13 @@
 ## Observations while reproducing `npm create @wpkernel/wpk`
 
 - The scaffolder completes successfully but still needs ~15 s in this container even with progress bars disabled (`npm_config_progress=false`).
-- The generated project does **not** install or expose the CLI binary. Immediately after scaffolding, `wpk --help`, `npm wpk generate`, and `pnpm wpk generate` all fail because the command is missing.
-- The `package.json` produced by the generator lacks both `@wpkernel/cli` and `tsx`, so none of the `wpk ...` npm scripts can run out of the box.
+- The generator now ships both `@wpkernel/cli` and `tsx`, so installing dependencies exposes a working `wpk` binary in `node_modules/.bin`.【5ba723†L1-L4】
+- The readiness chain still exits non‑zero because the PHP probe shells into the bundled CLI workspace and runs `composer show nikic/php-parser` there, where no composer manifest exists. The scaffolder therefore aborts even though the generated project is otherwise ready to install dependencies.【59859d†L1-L13】
 
 ## Observations while reproducing `wpk generate`
 
-1. The scaffolded project follows the public docs and exposes a `"generate": "wpk generate"` npm script, but running `wpk generate` directly fails immediately because the binary is missing. We then tried `npm wpk generate` per npm’s guidance and `pnpm wpk generate` to simulate `pnpm exec`, and all three invocations collapsed because no `wpk` command was installed.【F:docs/.vitepress/critical-create-generate-failure.md†L122-L130】
-2. Manually installing the CLI (`npm install --save-dev @wpkernel/cli`) finally places the `wpk` binary under `node_modules/.bin` and surfaces the CLI entry point.【F:docs/.vitepress/critical-create-generate-failure.md†L131-L135】
-3. Running `pnpm wpk generate` afterwards immediately crashes because the CLI runtime expects a lazy dependency on `tsx`, which the scaffold never installs. Installing `tsx` manually unblocks that step.【F:docs/.vitepress/critical-create-generate-failure.md†L129-L135】
-4. A second crash follows: the CLI looks for `node_modules/@wpkernel/cli/dist/packages/php-driver/php/pretty-print.php`, but the published bundle does not contain that `php` directory. The actual script lives under `@wpkernel/php-driver/php/pretty-print.php`, so the process aborts even though composer assets (and `vendor/autoload.php`) exist.【F:docs/.vitepress/critical-create-generate-failure.md†L136-L138】
+1. The scaffolded project follows the public docs and exposes a `"generate": "wpk generate"` npm script. After running `npm install`, `wpk --help` and `npm run wpk -- --help` both resolve via the bundled CLI binary, confirming the dependency gap is closed.【5ba723†L1-L4】
+2. `npm run generate` (and direct `npx wpk generate`) still fail, but now because the readiness helper runs `composer show nikic/php-parser` from `node_modules/@wpkernel/cli` instead of the project root. That workspace has no `composer.json`, so composer aborts and the CLI exits with `EnvironmentalError(composer.phpParser.missing)`.【59859d†L1-L13】
 
 ### Canonical CLI workflow
 
@@ -29,9 +27,9 @@ With the partial builds in place, invoking the compiled bootstrapper (`node pack
 
 After forcing source mode (`WPK_CLI_FORCE_SOURCE=1`) and rebuilding the php/json AST packages, the bootstrapper finally scaffolds a plugin. The readiness log captures the hygiene, git, PHP runtime, and php-driver helpers marching through detect → confirm while we deliberately skip dependency installation to keep timing measurements clean. 【24a1ea†L1-L16】【c641b0†L1-L1】【f68c56†L1-L26】
 
-### Baseline installation timing and binary gap
+### Baseline installation timing and binary gap (pre‑beta.3)
 
-Executing `pnpm install` inside the scaffolded plugin takes 8.1 s on this container once `skip-install` is lifted, which gives us a repeatable baseline for readiness timing gates. Even after the install completes, `node_modules/.bin` still lacks a `wpk` entry and `pnpm wpk generate` fails immediately, confirming that the generated workspace omits both `@wpkernel/cli` and its `tsx` peer dependency. 【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】
+Executing `pnpm install` inside the scaffolded plugin takes 8.1 s on this container once `skip-install` is lifted, which gives us a repeatable baseline for readiness timing gates. In the beta.2 run captured below, `node_modules/.bin` still lacked a `wpk` entry and `pnpm wpk generate` failed immediately because the template omitted both `@wpkernel/cli` and its `tsx` peer dependency. The beta.3 smoke test above confirms that dependency gap is now closed even though readiness still fails. 【eb6460†L1-L26】【a462a4†L1-L2】【e4d357†L1-L2】【7d398b†L1-L2】【5ba723†L1-L4】【59859d†L1-L13】
 
 ### Tarball installation attempt
 
