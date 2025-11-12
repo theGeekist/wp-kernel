@@ -4,6 +4,7 @@ import type {
 	HelperApplyOptions,
 	Pipeline,
 	PipelineDiagnostic,
+	PipelineExtensionRollbackErrorMetadata,
 	PipelineReporter,
 	PipelineRunState,
 } from '../types.js';
@@ -45,7 +46,28 @@ function createTestReporter(): TestReporter {
 	return reporter;
 }
 
-function createTestPipeline(): {
+function createTestPipeline(options?: {
+	readonly onDiagnostic?: ({
+		reporter,
+		diagnostic,
+	}: {
+		readonly reporter: TestReporter;
+		readonly diagnostic: TestDiagnostic;
+	}) => void;
+	readonly onExtensionRollbackError?: ({
+		error,
+		extensionKeys,
+		hookSequence,
+		errorMetadata,
+		context,
+	}: {
+		readonly error: unknown;
+		readonly extensionKeys: readonly string[];
+		readonly hookSequence: readonly string[];
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+		readonly context: TestContext;
+	}) => void;
+}): {
 	pipeline: TestPipeline;
 	reporter: TestReporter;
 } {
@@ -109,6 +131,8 @@ function createTestPipeline(): {
 		createRunResult({ artifact, diagnostics, steps }) {
 			return { artifact, diagnostics, steps } satisfies TestRunResult;
 		},
+		onDiagnostic: options?.onDiagnostic,
+		onExtensionRollbackError: options?.onExtensionRollbackError,
 	});
 
 	pipeline.ir.use(
@@ -183,5 +207,128 @@ describe('createPipeline (extensions)', () => {
 		});
 
 		await expect(pipeline.run({})).rejects.toThrow('registration failed');
+	});
+
+	it('reports rollback metadata via the extension coordinator when builders fail', async () => {
+		const rollback = jest.fn(() => {
+			throw new Error('rollback failure');
+		});
+		const onExtensionRollbackError = jest.fn();
+		const { pipeline, reporter } = createTestPipeline({
+			onExtensionRollbackError,
+		});
+
+		pipeline.extensions.use({
+			key: 'test.rollback',
+			register() {
+				return ({ artifact }: { artifact: string[] }) => ({
+					artifact: [...artifact, 'extension'],
+					rollback,
+				});
+			},
+		});
+
+		pipeline.builders.use(
+			createHelper<
+				TestContext,
+				void,
+				string[],
+				TestReporter,
+				typeof pipeline.builderKind
+			>({
+				key: 'builder.failure',
+				kind: pipeline.builderKind,
+				priority: 1,
+				apply() {
+					throw new Error('builder exploded');
+				},
+			})
+		);
+
+		try {
+			await pipeline.run({});
+			throw new Error('expected pipeline.run() to reject');
+		} catch (error) {
+			expect(error).toBeInstanceOf(Error);
+			expect((error as Error).message).toBe('builder exploded');
+		}
+
+		expect(rollback).toHaveBeenCalledTimes(1);
+		expect(onExtensionRollbackError).toHaveBeenCalledTimes(1);
+
+		const event = onExtensionRollbackError.mock.calls[0][0];
+		expect(event.error).toBeInstanceOf(Error);
+		expect((event.error as Error).message).toBe('rollback failure');
+		expect(event.extensionKeys).toEqual(['test.rollback']);
+		expect(event.hookSequence).toEqual(['test.rollback']);
+		expect(event.errorMetadata).toEqual(
+			expect.objectContaining({
+				message: 'rollback failure',
+				name: 'Error',
+			})
+		);
+		expect(event.context.reporter).toBe(reporter);
+	});
+});
+
+describe('createPipeline diagnostics', () => {
+	it('replays stored diagnostics once when a reporter is available', async () => {
+		const onDiagnostic = jest.fn();
+		const { pipeline, reporter } = createTestPipeline({ onDiagnostic });
+
+		pipeline.ir.use(
+			createHelper<
+				TestContext,
+				void,
+				string[],
+				TestReporter,
+				typeof pipeline.fragmentKind
+			>({
+				key: 'fragment.conflict',
+				kind: pipeline.fragmentKind,
+				mode: 'override',
+				apply({ output }) {
+					output.push('first');
+				},
+			})
+		);
+
+		expect(() =>
+			pipeline.ir.use(
+				createHelper<
+					TestContext,
+					void,
+					string[],
+					TestReporter,
+					typeof pipeline.fragmentKind
+				>({
+					key: 'fragment.conflict',
+					kind: pipeline.fragmentKind,
+					mode: 'override',
+					apply({ output }) {
+						output.push('second');
+					},
+				})
+			)
+		).toThrow(
+			'Multiple overrides registered for helper "fragment.conflict".'
+		);
+
+		expect(onDiagnostic).not.toHaveBeenCalled();
+
+		await pipeline.run({});
+
+		expect(onDiagnostic).toHaveBeenCalledTimes(1);
+		expect(onDiagnostic).toHaveBeenCalledWith({
+			reporter,
+			diagnostic: expect.objectContaining({
+				type: 'conflict',
+				key: 'fragment.conflict',
+			}),
+		});
+
+		await pipeline.run({});
+
+		expect(onDiagnostic).toHaveBeenCalledTimes(1);
 	});
 });
