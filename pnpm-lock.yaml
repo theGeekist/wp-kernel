@@ -122,6 +122,9 @@ importers:
       '@wordpress/interactivity':
         specifier: ^6.34.0
         version: 6.34.0
+      '@wordpress/jest-console':
+        specifier: ^8.32.0
+        version: 8.32.0(jest@30.2.0(@types/node@24.7.2)(babel-plugin-macros@3.1.0))
       '@wordpress/jest-preset-default':
         specifier: ^12.32.0
         version: 12.32.0(@babel/core@7.28.4)(jest@30.2.0(@types/node@24.7.2)(babel-plugin-macros@3.1.0))
