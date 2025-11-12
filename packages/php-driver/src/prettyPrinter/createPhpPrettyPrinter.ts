@@ -154,9 +154,16 @@ export function buildPhpPrettyPrinter(
 		resolveDefaultScriptPath({ importMetaUrl: options.importMetaUrl });
 	const phpBinary = options.phpBinary ?? 'php';
 	const defaultMemoryLimit = process.env.PHP_MEMORY_LIMIT ?? '512M';
-	const autoloadEnvValue = mergeAutoloadEnvValues(
+	const normalizedAutoloadPaths = normalizeAutoloadPaths(
+		options.autoloadPaths
+	);
+	const phpDriverAutoloadEnvValue = mergeAutoloadEnvValues(
 		process.env.PHP_DRIVER_AUTOLOAD_PATHS,
-		normalizeAutoloadPaths(options.autoloadPaths)
+		normalizedAutoloadPaths
+	);
+	const wpkAutoloadEnvValue = mergeAutoloadEnvValues(
+		process.env.WPK_PHP_AUTOLOAD_PATHS,
+		normalizedAutoloadPaths
 	);
 
 	async function prettyPrint(
@@ -172,8 +179,12 @@ export function buildPhpPrettyPrinter(
 			PHP_MEMORY_LIMIT: memoryLimit,
 		};
 
-		if (autoloadEnvValue) {
-			env.PHP_DRIVER_AUTOLOAD_PATHS = autoloadEnvValue;
+		if (phpDriverAutoloadEnvValue) {
+			env.PHP_DRIVER_AUTOLOAD_PATHS = phpDriverAutoloadEnvValue;
+		}
+
+		if (wpkAutoloadEnvValue) {
+			env.WPK_PHP_AUTOLOAD_PATHS = wpkAutoloadEnvValue;
 		}
 
 		const child = spawn(

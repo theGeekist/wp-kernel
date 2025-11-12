@@ -85,17 +85,28 @@ export async function runPhpCodemodIngestion(
 	args.push(...files);
 
 	const phpBinary = options.phpBinary ?? 'php';
-	const autoloadEnvValue = mergeAutoloadEnvValues(
-		process.env.PHP_DRIVER_AUTOLOAD_PATHS,
-		normalizeAutoloadPaths(options.autoloadPaths)
+	const normalizedAutoloadPaths = normalizeAutoloadPaths(
+		options.autoloadPaths
 	);
-	const env =
-		autoloadEnvValue === null
-			? process.env
-			: {
-					...process.env,
-					PHP_DRIVER_AUTOLOAD_PATHS: autoloadEnvValue,
-				};
+	const phpDriverAutoloadEnvValue = mergeAutoloadEnvValues(
+		process.env.PHP_DRIVER_AUTOLOAD_PATHS,
+		normalizedAutoloadPaths
+	);
+	const wpkAutoloadEnvValue = mergeAutoloadEnvValues(
+		process.env.WPK_PHP_AUTOLOAD_PATHS,
+		normalizedAutoloadPaths
+	);
+	const env: NodeJS.ProcessEnv = {
+		...process.env,
+	};
+
+	if (phpDriverAutoloadEnvValue) {
+		env.PHP_DRIVER_AUTOLOAD_PATHS = phpDriverAutoloadEnvValue;
+	}
+
+	if (wpkAutoloadEnvValue) {
+		env.WPK_PHP_AUTOLOAD_PATHS = wpkAutoloadEnvValue;
+	}
 	const child = spawn(phpBinary, args, {
 		cwd: options.workspaceRoot,
 		env,
