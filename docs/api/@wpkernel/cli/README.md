@@ -141,8 +141,17 @@ wpk and UI packages.
 - [PhpCodemodIngestionDependencies](interfaces/PhpCodemodIngestionDependencies.md)
 - [PhpCodemodIngestionState](interfaces/PhpCodemodIngestionState.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
+  <<<<<<< HEAD
 - [PhpPrinterPathDependencies](interfaces/PhpPrinterPathDependencies.md)
 - [PhpPrinterPathState](interfaces/PhpPrinterPathState.md)
+  ||||||| 86d024df
+- [PhpDriverDependencies](interfaces/PhpDriverDependencies.md)
+- # [PhpDriverState](interfaces/PhpDriverState.md)
+- [PhpDriverDependencies](interfaces/PhpDriverDependencies.md)
+- [PhpDriverState](interfaces/PhpDriverState.md)
+- [PhpPrinterPathDependencies](interfaces/PhpPrinterPathDependencies.md)
+- [PhpPrinterPathState](interfaces/PhpPrinterPathState.md)
+    > > > > > > > upstream/main
 - [PhpRuntimeDependencies](interfaces/PhpRuntimeDependencies.md)
 - [PhpRuntimeState](interfaces/PhpRuntimeState.md)
 - [QuickstartDependencies](interfaces/QuickstartDependencies.md)
@@ -316,6 +325,7 @@ wpk and UI packages.
 
 - [createTsCapabilityBuilder](functions/createTsCapabilityBuilder.md)
 - [createTsIndexBuilder](functions/createTsIndexBuilder.md)
+  <<<<<<< HEAD
 
 ### Other
 
@@ -332,9 +342,35 @@ wpk and UI packages.
 - [createReadinessHelper](functions/createReadinessHelper.md)
 - [createReadinessRegistry](functions/createReadinessRegistry.md)
 - [createReleasePackReadinessHelper](functions/createReleasePackReadinessHelper.md)
+  ||||||| 86d024df
+  =======
+
+### Other
+
+- [assertReadinessRun](functions/assertReadinessRun.md)
+- [buildDefaultReadinessRegistry](functions/buildDefaultReadinessRegistry.md)
+- [createBootstrapperResolutionReadinessHelper](functions/createBootstrapperResolutionReadinessHelper.md)
+- [createComposerReadinessHelper](functions/createComposerReadinessHelper.md)
+- [createGitReadinessHelper](functions/createGitReadinessHelper.md)
+- [createPhpCodemodIngestionReadinessHelper](functions/createPhpCodemodIngestionReadinessHelper.md)
+- [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
+- [createPhpDriverReadinessHelper](functions/createPhpDriverReadinessHelper.md)
+- [createPhpPrinterPathReadinessHelper](functions/createPhpPrinterPathReadinessHelper.md)
+- [createPhpRuntimeReadinessHelper](functions/createPhpRuntimeReadinessHelper.md)
+- [createQuickstartReadinessHelper](functions/createQuickstartReadinessHelper.md)
+- [createReadinessHelper](functions/createReadinessHelper.md)
+- [createReadinessRegistry](functions/createReadinessRegistry.md)
+- [createReleasePackReadinessHelper](functions/createReleasePackReadinessHelper.md)
+    > > > > > > > upstream/main
 - [createTsxRuntimeReadinessHelper](functions/createTsxRuntimeReadinessHelper.md)
 - [createWorkspaceHygieneReadinessHelper](functions/createWorkspaceHygieneReadinessHelper.md)
+  <<<<<<< HEAD
 - [readWorkspaceGitStatus](functions/readWorkspaceGitStatus.md)
 - [registerDefaultReadinessHelpers](functions/registerDefaultReadinessHelpers.md)
 - [registerReadinessHelperFactories](functions/registerReadinessHelperFactories.md)
+  ||||||| 86d024df
+  =======
+- [registerDefaultReadinessHelpers](functions/registerDefaultReadinessHelpers.md)
+- [registerReadinessHelperFactories](functions/registerReadinessHelperFactories.md)
+    > > > > > > > upstream/main
 - [toWorkspaceRelative](functions/toWorkspaceRelative.md)
