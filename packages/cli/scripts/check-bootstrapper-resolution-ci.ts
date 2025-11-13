@@ -28,6 +28,7 @@ function buildContext(): DxContext {
 		reporter,
 		workspace: null,
 		environment: {
+			allowDirty: false,
 			cwd: process.cwd(),
 			projectRoot: path.resolve('packages/cli'),
 			workspaceRoot: null,
@@ -37,7 +38,7 @@ function buildContext(): DxContext {
 
 function assertReadyStatus(
 	stage: 'detection' | 'confirmation' | 'rerun',
-	status: 'ready' | 'pending',
+	status: 'ready' | 'pending' | 'blocked',
 	message?: string
 ): void {
 	if (status === 'ready') {

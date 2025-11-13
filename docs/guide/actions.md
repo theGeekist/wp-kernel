@@ -2,6 +2,8 @@
 
 Actions are the conductors of your application. They orchestrate write operations, ensuring that every change to your data is consistent, predictable, and extensible. They are the central hub for all side effects, from API calls to cache invalidation.
 
+> _Actions prevent the UI from becoming a second backend._
+
 ## The Actions-First Philosophy
 
 In a WPKernel application, UI components **never** modify data directly by calling a resource's `create` or `update` methods. Instead, they invoke an Action. The Action is responsible for coordinating all the work.

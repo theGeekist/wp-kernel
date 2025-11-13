@@ -1,6 +1,7 @@
 import { Command, Option } from 'clipanion';
 import { WPK_EXIT_CODES, type WPKExitCode } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
+import * as t from 'typanion';
 import {
 	createInitCommandRuntime,
 	resolveCommandCwd,
@@ -14,7 +15,11 @@ import {
 	type ReadinessHelperDescriptor,
 	type ReadinessKey,
 } from '../../dx';
-import type { InitWorkflowResult, InitWorkflowInstallers } from './types';
+import type {
+	InitWorkflowResult,
+	InitWorkflowInstallers,
+	PackageManager,
+} from './types';
 
 export interface InitCommandState {
 	name?: string;
@@ -24,6 +29,7 @@ export interface InitCommandState {
 	preferRegistryVersions: boolean;
 	yes: boolean;
 	allowDirty: boolean;
+	readonly packageManager?: PackageManager;
 	summary: string | null;
 	manifest: InitWorkflowResult['manifest'] | null;
 	dependencySource: string | null;
@@ -51,6 +57,52 @@ export abstract class InitCommandBase
 	);
 	yes = Option.Boolean('--yes', false);
 	allowDirty = Option.Boolean('--allow-dirty', false);
+	private static readonly PACKAGE_MANAGER_VALUES: readonly PackageManager[] =
+		['npm', 'pnpm', 'yarn'];
+
+	private static parsePackageManager(value: string): PackageManager {
+		const normalized = value.toLowerCase() as PackageManager;
+		if (!InitCommandBase.PACKAGE_MANAGER_VALUES.includes(normalized)) {
+			throw new Error(
+				`Unsupported package manager "${value}". Expected one of ${InitCommandBase.PACKAGE_MANAGER_VALUES.join(', ')}.`
+			);
+		}
+
+		return normalized;
+	}
+
+	private static readonly PACKAGE_MANAGER_VALIDATOR = t.makeValidator<
+		unknown,
+		string
+	>({
+		test: (value): value is string => {
+			if (typeof value !== 'string' || value.length === 0) {
+				return false;
+			}
+
+			InitCommandBase.parsePackageManager(value);
+			return true;
+		},
+	});
+
+	private readonly packageManagerValue = Option.String(
+		'--package-manager <manager>',
+		{
+			description:
+				'Package manager used when installing project dependencies (default: npm).',
+			required: false,
+			validator: InitCommandBase.PACKAGE_MANAGER_VALIDATOR,
+		}
+	);
+
+	public get packageManager(): PackageManager | undefined {
+		const value = this.packageManagerValue;
+		if (typeof value !== 'string') {
+			return undefined;
+		}
+
+		return InitCommandBase.parsePackageManager(value);
+	}
 
 	summary: string | null = null;
 	manifest: InitWorkflowResult['manifest'] | null = null;
@@ -64,6 +116,7 @@ export abstract class InitCommandBase
 				...options,
 				command: this,
 				allowDirty: this.allowDirty === true,
+				packageManager: this.packageManager,
 			});
 
 			this.summary = workflow.summaryText;
@@ -130,6 +183,7 @@ export interface RunInitCommandOptions {
 	readonly allowDirty?: boolean;
 	readonly installDependencies?: boolean;
 	readonly installers?: Partial<InitWorkflowInstallers>;
+	readonly packageManager?: PackageManager;
 }
 
 export interface RunInitCommandResult {
@@ -153,6 +207,7 @@ export async function runInitCommand({
 	hooks = {},
 	installDependencies,
 	installers,
+	packageManager,
 }: RunInitCommandOptions): Promise<RunInitCommandResult> {
 	const cwd = resolveCommandCwd(command.context);
 	const workspaceRoot = resolveWorkspaceRootForCommand(cwd, command, hooks);
@@ -171,6 +226,7 @@ export async function runInitCommand({
 		allowDirty,
 		installDependencies,
 		installers,
+		packageManager,
 	});
 
 	const context: InitCommandContext = { workspaceRoot, cwd };

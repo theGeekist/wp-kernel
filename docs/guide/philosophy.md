@@ -10,7 +10,7 @@ But freedom without guidance can become painfully confusing. When every plugin d
 
 WordPress Developers spend more time rediscovering what “works with WordPress” than focusing on what their plugin is actually for.
 
-WPKernel doesn’t try to replace that diversity. It gives it a **shape**.
+WPKernel doesn’t try to replace that. It just gives it a **shape**.
 
 ### The Config-First Approach
 
@@ -83,7 +83,7 @@ graph LR
 
 ### Actions-First
 
-A critical rule on the Golden Path is that UI components **never** call the transport layer directly. They always go through an Action. This ensures consistent event emission, cache invalidation, and handling of side effects.
+A critical rule on the Golden Path is that UI components **never** call the transport layer directly. They always go through an Action. And ensures consistent event emission, cache invalidation, and handling of side effects.
 
 ```mermaid
 graph TD

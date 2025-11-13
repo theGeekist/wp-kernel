@@ -10,6 +10,7 @@ import type {
 	InitWorkflowOptions,
 	InitWorkflowResult,
 	InitWorkflowInstallers,
+	PackageManager,
 } from './types';
 import { parseStringOption } from './utils';
 import {
@@ -47,6 +48,7 @@ export interface InitCommandRuntimeOptions {
 	readonly verbose?: boolean;
 	readonly preferRegistryVersions?: boolean;
 	readonly env?: InitWorkflowOptions['env'];
+	readonly packageManager?: PackageManager;
 	readonly readiness?: BuildDefaultReadinessRegistryOptions;
 	readonly allowDirty?: boolean;
 	readonly installDependencies?: boolean;
@@ -63,6 +65,7 @@ export interface InitCommandRuntimeResult {
 		readonly force: boolean;
 		readonly verbose: boolean;
 		readonly preferRegistryVersions: boolean;
+		readonly packageManager: PackageManager;
 	};
 	readonly readiness: InitCommandReadinessRuntime;
 	runWorkflow: () => Promise<InitWorkflowResult>;
@@ -83,6 +86,12 @@ const INIT_COMMAND_DEFAULT_SCOPES: ReadonlySet<string> = new Set([
 	'init',
 	'create',
 ]);
+
+const PACKAGE_MANAGER_VALUES: readonly PackageManager[] = [
+	'npm',
+	'pnpm',
+	'yarn',
+] as const;
 
 function helperMatchesInitCommandDefaultScopes(
 	helper: ReadinessHelperDescriptor
@@ -119,6 +128,10 @@ export function createInitCommandRuntime(
 	const force = options.force === true;
 	const verbose = options.verbose === true;
 	const preferRegistryVersions = options.preferRegistryVersions === true;
+	const packageManager =
+		resolvePackageManagerOption(
+			options.packageManager ?? options.env?.WPK_PACKAGE_MANAGER
+		) ?? 'npm';
 
 	const workflowOptions: InitWorkflowOptions = {
 		workspace,
@@ -136,7 +149,9 @@ export function createInitCommandRuntime(
 				process.env.WPK_INIT_INSTALL_NODE_MAX_MS,
 			WPK_INIT_INSTALL_COMPOSER_MAX_MS:
 				process.env.WPK_INIT_INSTALL_COMPOSER_MAX_MS,
+			WPK_PACKAGE_MANAGER: process.env.WPK_PACKAGE_MANAGER,
 		},
+		packageManager,
 		installDependencies: options.installDependencies,
 		installers: options.installers,
 	};
@@ -179,6 +194,7 @@ export function createInitCommandRuntime(
 			force,
 			verbose,
 			preferRegistryVersions,
+			packageManager,
 		},
 		readiness: readinessRuntime,
 		runWorkflow: () => dependencies.runWorkflow(workflowOptions),
@@ -223,4 +239,17 @@ export function formatInitWorkflowError(
 export function resolveCommandCwd(context: Command['context']): string {
 	const cwd = (context as { cwd?: () => string }).cwd;
 	return typeof cwd === 'function' ? cwd() : process.cwd();
+}
+
+function resolvePackageManagerOption(
+	value?: string | null
+): PackageManager | undefined {
+	if (!value || typeof value !== 'string') {
+		return undefined;
+	}
+
+	const normalised = value.toLowerCase();
+	return PACKAGE_MANAGER_VALUES.includes(normalised as PackageManager)
+		? (normalised as PackageManager)
+		: undefined;
 }

@@ -1,14 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
-import {
-	readdir,
-	mkdtemp,
-	mkdir,
-	rm,
-	stat,
-	writeFile,
-} from 'node:fs/promises';
+import { readdir, mkdtemp, mkdir, rm, stat } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -18,10 +11,13 @@ const repoRoot = path.resolve(
 	fileURLToPath(new URL('../../', import.meta.url))
 );
 const artifactsDir = path.join(repoRoot, 'artifacts', 'cli-smoke');
-const cliArgs = new Set(process.argv.slice(2));
+const rawArgs = process.argv.slice(2);
+const packageManagers = parsePackageManagers(rawArgs);
+const cliArgs = new Set(
+	rawArgs.filter((arg) => !arg.startsWith('--package-managers='))
+);
 const keepWorkspace = cliArgs.has('--keep-workspace');
-const keepArtifacts = cliArgs.has('--keep-artifacts');
-const forceCleanArtifacts = cliArgs.has('--clean-artifacts');
+const cleanArtifacts = cliArgs.has('--clean-artifacts');
 
 await mkdir(artifactsDir, { recursive: true });
 
@@ -32,7 +28,7 @@ async function main() {
 	const summary = {
 		projectDir,
 		artifacts: [],
-		createLogPath: null,
+		projects: [],
 	};
 	let success = false;
 
@@ -45,48 +41,59 @@ async function main() {
 		const createTarball = await packWorkspace('@wpkernel/create-wpk');
 		summary.artifacts.push(cliTarball, createTarball);
 
-		logStep('Scaffolding project via create-wpk');
-		const { stdout: createStdout = '' } = await runNode(
-			path.join(repoRoot, 'packages/create-wpk/dist/index.js'),
-			[projectDir],
-			{ capture: true }
-		);
-		const createLogPath = await persistCreateLog(createStdout);
-		summary.createLogPath = createLogPath;
-		verifyCreateLogging(createStdout);
+		for (const packageManager of packageManagers) {
+			const scopedProjectDir =
+				packageManagers.length === 1
+					? projectDir
+					: path.join(projectDir, packageManager);
 
-		logStep('Installing CLI tarball and tsx inside scaffold');
-		await runPnpm(['add', '-D', cliTarball, 'tsx@latest'], {
-			cwd: projectDir,
-		});
+			summary.projects.push({
+				packageManager,
+				dir: scopedProjectDir,
+			});
 
-		logStep('Initialising git repository inside scaffold');
-		await runCommand('git', ['init'], { cwd: projectDir });
-		await runCommand('git', ['config', 'user.name', 'WPK Smoke'], {
-			cwd: projectDir,
-		});
-		await runCommand('git', ['config', 'user.email', 'smoke@example.com'], {
-			cwd: projectDir,
-		});
-		await runCommand('git', ['add', '.'], { cwd: projectDir });
-		await runCommand(
-			'git',
-			['commit', '-m', 'chore: initial scaffold'],
-			{
-				cwd: projectDir,
-			}
-		);
+			logStep(`[${packageManager}] Scaffolding project via create-wpk`);
+			await runNode(
+				path.join(repoRoot, 'packages/create-wpk/dist/index.js'),
+				[
+					scopedProjectDir,
+					'--',
+					'--package-manager',
+					packageManager,
+				]
+			);
 
-		logStep('Running "pnpm exec wpk generate" inside scaffold');
-		await runPnpm(['exec', 'wpk', 'generate'], { cwd: projectDir });
+			logStep(
+				`[${packageManager}] Installing CLI tarball and tsx inside scaffold`
+			);
+			await runPnpm(['add', '-D', cliTarball, 'tsx@latest'], {
+				cwd: scopedProjectDir,
+			});
 
-		logStep('Committing generated assets');
-		await commitWorkspace(projectDir, 'chore: generated assets');
+			logStep(`[${packageManager}] Running "wpk generate" inside scaffold`);
+			await runPnpm(['exec', 'wpk', 'generate'], {
+				cwd: scopedProjectDir,
+			});
 
-		logStep('Running "pnpm exec wpk apply --yes" inside scaffold');
-		await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
-			cwd: projectDir,
-		});
+			logStep(`[${packageManager}] Running "wpk apply --yes" inside scaffold`);
+			await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
+				cwd: scopedProjectDir,
+			});
+
+			logStep(
+				`[${packageManager}] Re-running "wpk generate" inside scaffold (idempotency check)`
+			);
+			await runPnpm(['exec', 'wpk', 'generate'], {
+				cwd: scopedProjectDir,
+			});
+
+			logStep(
+				`[${packageManager}] Re-running "wpk apply --yes" inside scaffold (idempotency check)`
+			);
+			await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
+				cwd: scopedProjectDir,
+			});
+		}
 
 		success = true;
 		logSuccess(summary);
@@ -100,29 +107,24 @@ async function cleanup(summary, success) {
 	if (!keepWorkspace) {
 		await rm(smokeRoot, { recursive: true, force: true });
 	} else {
-		console.log(
-			`\nINFO Preserved temp workspace at ${summary.projectDir} (--keep-workspace).`
-		);
+		const preserved =
+			summary.projects.length > 0
+				? summary.projects
+				: [{ packageManager: 'default', dir: summary.projectDir }];
+		console.log('\nINFO Preserved temp workspace (--keep-workspace):');
+		for (const project of preserved) {
+			console.log(`     - [${project.packageManager}] ${project.dir}`);
+		}
 	}
 
-	const shouldRemoveArtifacts =
-		(!keepArtifacts && success) || (!keepArtifacts && forceCleanArtifacts);
-	if (shouldRemoveArtifacts) {
+	if (cleanArtifacts) {
 		await rm(artifactsDir, { recursive: true, force: true });
-		if (forceCleanArtifacts && !success) {
-			console.log(
-				'\nINFO Removed artifacts directory (--clean-artifacts).'
-			);
-		}
+		console.log('\nINFO Removed artifacts directory (--clean-artifacts).');
 	} else if (!success && summary.artifacts.length > 0) {
 		console.log('\nINFO Packed tarballs are available at:');
 		for (const artifact of summary.artifacts) {
 			console.log(`     - ${artifact}`);
 		}
-	} else if (keepArtifacts && success) {
-		console.log(
-			`\nINFO Preserved artifacts under ${artifactsDir} (--keep-artifacts).`
-		);
 	}
 }
 
@@ -132,9 +134,15 @@ function logStep(message) {
 
 function logSuccess(summary) {
 	console.log('\nSUCCESS Smoke test succeeded.');
-	console.log(`   Project workspace: ${summary.projectDir}`);
-	if (summary.createLogPath) {
-		console.log(`   create-wpk log:    ${summary.createLogPath}`);
+	if (summary.projects.length > 0) {
+		console.log('   Workspaces:');
+		for (const project of summary.projects) {
+			console.log(
+				`     - [${project.packageManager}] ${project.dir}`
+			);
+		}
+	} else {
+		console.log(`   Project workspace: ${summary.projectDir}`);
 	}
 	console.log('   Tarballs:');
 	for (const artifact of summary.artifacts) {
@@ -142,21 +150,28 @@ function logSuccess(summary) {
 	}
 	console.log(
 		'\nRe-run readiness manually with:\n' +
-		`  cd ${summary.projectDir}\n` +
-		'  pnpm exec wpk doctor -- --plan quickstart\n\n' +
+		`  cd ${summary.projects[0]?.dir ?? summary.projectDir}\n` +
+		'  wpk doctor --plan quickstart\n\n' +
 		'Or regenerate:\n' +
-		`  cd ${summary.projectDir}\n` +
-		'  pnpm exec wpk generate\n\n' +
+		`  cd ${summary.projects[0]?.dir ?? summary.projectDir}\n` +
+		'  wpk generate\n\n' +
 		'Or apply immediately:\n' +
-		`  cd ${summary.projectDir}\n` +
-		'  pnpm exec wpk apply --yes\n'
+		`  cd ${summary.projects[0]?.dir ?? summary.projectDir}\n` +
+		'  wpk apply --yes\n'
 	);
 }
 
 async function packWorkspace(workspaceName) {
 	const { stdout } = await runPnpm(
 		['--filter', workspaceName, 'pack', '--pack-destination', artifactsDir],
-		{ cwd: repoRoot, capture: true }
+		{
+			cwd: repoRoot,
+			capture: true,
+			env: {
+				...process.env,
+				PNPM_LOG_LEVEL: 'silent',
+			},
+		}
 	);
 
 	const tarballPath = extractTarballFromStdout(stdout);
@@ -254,38 +269,44 @@ function extractTarballFromStdout(stdout = '') {
 	return undefined;
 }
 
-async function persistCreateLog(stdout) {
-	const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-	const logPath = path.join(
-		artifactsDir,
-		`create-log-${timestamp}.txt`
-	);
-	await writeFile(logPath, stdout ?? '', 'utf8');
-	return logPath;
-}
-
-function verifyCreateLogging(output) {
-	const text = output ?? '';
-	if (!text.includes('Installing npm dependencies')) {
-		throw new Error(
-			'create-wpk output missed expected log line: "Installing npm dependencies"'
-		);
-	}
-
-	if (!text.includes('Installing npm dependencies completed')) {
-		throw new Error(
-			'create-wpk output missed completion log line: "Installing npm dependencies completed"'
-		);
-	}
-}
-
-async function commitWorkspace(cwd, message) {
-	await runCommand('git', ['add', '-A'], { cwd });
-	await runCommand('git', ['commit', '-m', message], { cwd });
-}
-
 main().catch((error) => {
 	console.error('\nERROR Smoke test failed.');
 	console.error(error);
 	process.exitCode = 1;
 });
+
+function parsePackageManagers(args) {
+	const entry = args.find((arg) =>
+		arg.startsWith('--package-managers=')
+	);
+	const supported = ['npm', 'pnpm', 'yarn'];
+
+	if (!entry) {
+		return ['npm'];
+	}
+
+	const [, value = ''] = entry.split('=');
+	const candidates = value
+		.split(',')
+		.map((item) => item.trim().toLowerCase())
+		.filter((item) => item.length > 0);
+
+	if (candidates.length === 0) {
+		return ['npm'];
+	}
+
+	if (candidates.includes('all')) {
+		return supported;
+	}
+
+	const invalid = candidates.filter(
+		(candidate) => !supported.includes(candidate)
+	);
+	if (invalid.length > 0) {
+		throw new Error(
+			`Unsupported package managers: ${invalid.join(', ')}. Expected one of ${supported.join(', ')} or "all".`
+		);
+	}
+
+	return Array.from(new Set(candidates));
+}

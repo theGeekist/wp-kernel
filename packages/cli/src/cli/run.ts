@@ -38,6 +38,15 @@ const cli = new Cli({
 	binaryVersion: VERSION,
 });
 
+class VersionCommand extends Command {
+	static override paths = [['--version'], ['-v']];
+
+	override async execute(): Promise<number | void> {
+		this.context.stdout.write(`wpk ${VERSION}\n`);
+		return undefined;
+	}
+}
+
 const GenerateCommand = buildGenerateCommand();
 const InitCommand = buildInitCommand();
 const CreateCommand = buildCreateCommand();
@@ -46,6 +55,7 @@ const StartCommand = buildStartCommand();
 const ApplyCommand = buildApplyCommand();
 
 cli.register(RootCommand);
+cli.register(VersionCommand);
 cli.register(GenerateCommand);
 cli.register(InitCommand);
 cli.register(CreateCommand);

@@ -33,7 +33,8 @@ Empty registries are perfectly valid but _builders_ only generate assets when th
 
 > - In WPKernel, a **_builder_** generates files for use in the project.
 > - You can rename namespace later and generated paths and symbol names will move with it.
->   :::
+
+:::
 
 ### 2. A resource with real routes and WP Capability checks
 
@@ -68,7 +69,8 @@ This is a brief overview. For a deep dive into these concepts, see the canonical
 ::: info Tip
 
 > - If a `capability` is missing, the CLI warns but still applies `manage_options` for that route, so that built assets remain valid with some sane defaults while you finish the map.
->   :::
+
+:::
 
 This only scratches the surface of what WPKernel infers from the config today. In the appendix below, we list the full range of options driven entirely by the config file.
 
@@ -89,11 +91,11 @@ This only scratches the surface of what WPKernel infers from the config today. I
 
 ### Readiness orchestration (`readiness`)
 
-The optional readiness block lets projects register extra DX helpers without touching the CLI source. Supply factories under `readiness.helpers` and they run alongside the built-in checks.
-
-Each factory receives the config adapter context and should return a helper built with `createReadinessHelper`. Helpers describe themselves with labels, tags, scopes, and ordering so commands know where they belong.
-
-Command readiness gates and `wpk doctor` now derive their labels and allowlists from this metadata, which means new helpers surface automatically in plans, logs, and status summaries without additional wiring.
+| Path                  | Accepted values & defaults                                                                 | CLI & pipeline consumers                                                           | Generated files | WordPress artifacts                                                                         | Runtime usage                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `readiness`           | Optional object configuring project-specific DX checks.                                    | Parsed when the CLI assembles the readiness plan.                                  | -               | -                                                                                           | Enables projects to plug custom checks into `wpk doctor` and command readiness gates.      |
+| `readiness.helpers`   | Optional array of factory functions. If omitted/empty, only built-in helpers are executed. | Each factory is resolved once when building the readiness registry.                | -               | -                                                                                           | Contributes helper entries (id, labels, tags, scopes) to the readiness plan.               |
+| `readiness.helpers[]` | `(ctx) => ReadinessHelper` functions exported from `wpk.config.ts` or imported modules.    | Called with the adapter context to produce a helper; errors are reported via logs. | -               | Helpers may perform WordPress-specific checks (REST calls, DB checks) without extra wiring. | Active helpers participate in `wpk doctor`, timing budgets, and command pre-flight checks. |
 
 ## Schema registry (`schemas`)
 

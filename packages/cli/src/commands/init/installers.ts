@@ -1,5 +1,6 @@
 import { spawn as spawnProcess } from 'node:child_process';
 import { WPKernelError } from '@wpkernel/core/error';
+import type { PackageManager } from './types';
 
 export interface InstallerDependencies {
 	readonly spawn?: typeof spawnProcess;
@@ -10,16 +11,39 @@ export interface InstallerResult {
 	stderr: string;
 }
 
+const PACKAGE_MANAGER_COMMANDS: Record<
+	PackageManager,
+	{ command: string; args: readonly string[]; description: string }
+> = {
+	npm: {
+		command: 'npm',
+		args: ['install'],
+		description: 'npm',
+	},
+	pnpm: {
+		command: 'pnpm',
+		args: ['install'],
+		description: 'pnpm',
+	},
+	yarn: {
+		command: 'yarn',
+		args: ['install'],
+		description: 'yarn',
+	},
+};
+
 export async function installNodeDependencies(
 	cwd: string,
+	packageManager: PackageManager,
 	dependencies: InstallerDependencies = {}
 ): Promise<InstallerResult> {
+	const commandDescriptor = PACKAGE_MANAGER_COMMANDS[packageManager];
 	return runInstallerCommand(
 		{
-			command: 'npm',
-			args: ['install'],
+			command: commandDescriptor.command,
+			args: [...commandDescriptor.args],
 			cwd,
-			errorMessage: 'Failed to install npm dependencies.',
+			errorMessage: `Failed to install ${commandDescriptor.description} dependencies.`,
 		},
 		dependencies
 	);

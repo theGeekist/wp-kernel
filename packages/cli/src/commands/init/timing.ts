@@ -13,7 +13,7 @@ export interface MeasureStageOptions {
 }
 
 export interface InstallBudgets {
-	readonly npm: number;
+	readonly node: number;
 	readonly composer: number;
 }
 
@@ -57,7 +57,7 @@ export async function measureStage({
 
 export function resolveInstallBudgets(env?: InitWorkflowEnv): InstallBudgets {
 	return {
-		npm: parseBudget(
+		node: parseBudget(
 			env?.WPK_INIT_INSTALL_NODE_MAX_MS,
 			DEFAULT_NODE_INSTALL_BUDGET_MS
 		),

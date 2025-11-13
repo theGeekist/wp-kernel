@@ -2,42 +2,54 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "https://wpkernel.org/schemas/wpk-config.schema.json",
 	"title": "WPKernel Config",
-	"description": "JSON Schema for WPKernel CLI configuration (wpk.config.ts) version 1.",
+	"description": "Configuration for the WPKernel CLI (wpk.config.ts). This file describes how your WordPress plugin is wired: namespace, shared schemas, resources with REST routes, storage in posts/taxonomies/options/transients, capabilities, and optional admin UI.",
 	"type": "object",
 	"required": ["version", "namespace", "schemas", "resources"],
 	"additionalProperties": false,
 	"properties": {
 		"version": {
 			"const": 1,
-			"description": "Configuration schema version. Must be set to 1."
+			"description": "Configuration schema version. Must be set to 1 for this version of the WPKernel toolchain."
 		},
 		"namespace": {
 			"type": "string",
 			"pattern": "^[a-z][a-z0-9-]{2,49}$",
-			"description": "Project namespace used for generated namespaces, store keys, and capability prefixes."
+			"description": "Short, slug-style identifier for this plugin or feature. Used as a prefix for generated PHP namespaces, JS store keys, and WordPress capability names (for example, \"jobs\", \"catalog\", \"bookings\")."
 		},
 		"schemas": {
 			"type": "object",
-			"description": "Registry of external schema descriptors keyed by identifier.",
+			"description": "Registry of shared schema descriptors, keyed by a short name. These are typically JSON Schema files that define request/response shapes for one or more resources.",
 			"additionalProperties": { "$ref": "#/$defs/schemaConfig" }
 		},
 		"resources": {
 			"type": "object",
-			"description": "Registry of resource descriptors keyed by identifier.",
+			"description": "Registry of resource descriptors keyed by identifier. Each resource represents one WordPress-facing domain object (for example, a job listing, booking, or menu item) and drives REST routes, storage strategy (posts/taxonomies/options/transients), capabilities, and admin UI.",
 			"additionalProperties": { "$ref": "#/$defs/resourceConfig" }
 		},
 		"adapters": {
 			"type": "object",
-			"description": "Optional adapter factories that customise code generation.",
+			"description": "Optional adapter factories that customise the code WPKernel generates. These are advanced hooks for overriding low-level PHP/JS details rather than day-to-day plugin configuration.",
 			"additionalProperties": true,
 			"properties": {
 				"php": {
 					"$ref": "#/$defs/function",
-					"description": "Factory returning PHP adapter overrides."
+					"description": "Factory that returns PHP codegen overrides (for example, changing namespaces or adding extra includes). Most plugins do not need this."
 				},
 				"extensions": {
 					"type": "array",
-					"description": "Adapter extension factories executed during generation.",
+					"description": "Adapter extension factories that run during generation to patch or extend the default adapters. Use this when you want to add custom behaviour without forking WPKernel itself.",
+					"items": { "$ref": "#/$defs/function" }
+				}
+			}
+		},
+		"readiness": {
+			"type": "object",
+			"description": "Optional readiness helper factories that plug into the WPKernel \"doctor\" command. Use this to add custom health checks for your plugin or hosting environment.",
+			"additionalProperties": false,
+			"properties": {
+				"helpers": {
+					"type": "array",
+					"description": "List of factories that WPKernel calls when building the readiness registry. Each factory can register one or more custom health checks.",
 					"items": { "$ref": "#/$defs/function" }
 				}
 			}
@@ -46,11 +58,12 @@
 	"$defs": {
 		"function": {
 			"typeof": "function",
-			"description": "Executable factory or callback."
+			"description": "Executable factory or callback. In practice this is a JavaScript/TypeScript function exported from your wpk.config.ts file."
 		},
 		"nonEmptyString": {
 			"type": "string",
-			"minLength": 1
+			"minLength": 1,
+			"description": "A non-empty string."
 		},
 		"schemaConfig": {
 			"type": "object",
@@ -59,7 +72,8 @@
 			"properties": {
 				"path": {
 					"type": "string",
-					"minLength": 1
+					"minLength": 1,
+					"description": "Relative path (from the plugin root) to the source schema file (for example, a JSON Schema or Zod schema)."
 				},
 				"generated": {
 					"type": "object",
@@ -68,15 +82,19 @@
 					"properties": {
 						"types": {
 							"type": "string",
-							"minLength": 1
+							"minLength": 1,
+							"description": "Relative path where WPKernel should write the generated TypeScript types for this schema."
 						}
-					}
+					},
+					"description": "Configuration for code that WPKernel generates from this schema, typically TypeScript types."
 				},
 				"description": {
 					"type": "string",
-					"minLength": 1
+					"minLength": 1,
+					"description": "Human-readable description of what this schema models (for example, \"Public job listing API payload\")."
 				}
-			}
+			},
+			"description": "Describes a single shared schema file and where its generated types should be written."
 		},
 		"resourceRoute": {
 			"type": "object",
@@ -85,16 +103,20 @@
 			"properties": {
 				"path": {
 					"type": "string",
-					"minLength": 1
+					"minLength": 1,
+					"description": "REST API route path relative to the namespace (for example, \"/jobs\" or \"/jobs/(?P<id>\\\\d+)\")."
 				},
 				"method": {
-					"enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+					"enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+					"description": "HTTP method used for this route, matching how WordPress registers REST endpoints."
 				},
 				"capability": {
 					"type": "string",
-					"minLength": 1
+					"minLength": 1,
+					"description": "WordPress capability string required to call this route (for example, \"jobs_read\" or \"manage_options\"). If omitted, WPKernel falls back to the resource-level capabilities."
 				}
-			}
+			},
+			"description": "Definition for a single REST API endpoint that WPKernel will register via WordPress's REST API."
 		},
 		"resourceRoutes": {
 			"type": "object",
@@ -106,39 +128,59 @@
 				"update": { "$ref": "#/$defs/resourceRoute" },
 				"remove": { "$ref": "#/$defs/resourceRoute" }
 			},
-			"additionalProperties": { "$ref": "#/$defs/resourceRoute" }
+			"additionalProperties": { "$ref": "#/$defs/resourceRoute" },
+			"description": "Named REST routes for the resource. Common operations like list/get/create/update/remove map to typical CRUD endpoints, and you can also define extra routes by name."
 		},
 		"resourceIdentityNumber": {
 			"type": "object",
 			"required": ["type"],
 			"additionalProperties": true,
 			"properties": {
-				"type": { "const": "number" },
-				"param": { "enum": ["id"] }
-			}
+				"type": {
+					"const": "number",
+					"description": "Numeric identity for this resource, usually a WordPress post ID."
+				},
+				"param": {
+					"enum": ["id"],
+					"description": "Name of the route parameter that carries the numeric ID. For WordPress posts this is almost always \"id\"."
+				}
+			},
+			"description": "Identity configuration for resources addressed by numeric IDs (for example, WP posts)."
 		},
 		"resourceIdentityString": {
 			"type": "object",
 			"required": ["type"],
 			"additionalProperties": true,
 			"properties": {
-				"type": { "const": "string" },
-				"param": { "enum": ["id", "slug", "uuid"] }
-			}
+				"type": {
+					"const": "string",
+					"description": "String identity for this resource, such as a slug or UUID."
+				},
+				"param": {
+					"enum": ["id", "slug", "uuid"],
+					"description": "Name of the route parameter used to look up the resource (for example, \"slug\" for custom post types that are addressed by slug)."
+				}
+			},
+			"description": "Identity configuration for resources addressed by string keys (slugs, UUIDs, etc.)."
 		},
 		"resourceIdentity": {
 			"oneOf": [
 				{ "$ref": "#/$defs/resourceIdentityNumber" },
 				{ "$ref": "#/$defs/resourceIdentityString" }
-			]
+			],
+			"description": "How this resource is uniquely identified in REST routes and storage: by numeric ID (post ID) or by a string key (slug/UUID)."
 		},
 		"resourceStorageTransient": {
 			"type": "object",
 			"required": ["mode"],
 			"additionalProperties": true,
 			"properties": {
-				"mode": { "const": "transient" }
-			}
+				"mode": {
+					"const": "transient",
+					"description": "Store data in WordPress transients rather than posts/taxonomies/options. Best for short-lived or cache-like data."
+				}
+			},
+			"description": "Configuration for resources that are stored entirely in WordPress transients."
 		},
 		"resourceStoragePostMeta": {
 			"type": "object",
@@ -153,72 +195,117 @@
 						"boolean",
 						"array",
 						"object"
-					]
+					],
+					"description": "PHP value type stored in post meta for this field."
 				},
 				"single": {
-					"type": "boolean"
+					"type": "boolean",
+					"description": "Whether this meta key stores a single value (true) or multiple values (false), mirroring the $single flag in get_post_meta()."
 				}
-			}
+			},
+			"description": "Shape of a single post meta field used by the resource's storage."
 		},
 		"resourceStoragePostTaxonomy": {
 			"type": "object",
 			"required": ["taxonomy"],
 			"additionalProperties": true,
 			"properties": {
-				"taxonomy": { "type": "string", "minLength": 1 },
-				"hierarchical": { "type": "boolean" },
-				"register": { "type": "boolean" }
-			}
+				"taxonomy": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Taxonomy slug (for example, \"category\", \"post_tag\", or a custom taxonomy)."
+				},
+				"hierarchical": {
+					"type": "boolean",
+					"description": "Whether the taxonomy behaves like categories (true) or tags (false)."
+				},
+				"register": {
+					"type": "boolean",
+					"description": "If true, WPKernel will register this taxonomy for you when generating the plugin."
+				}
+			},
+			"description": "Configuration describing a taxonomy relationship on a post-based resource."
 		},
 		"resourceStoragePost": {
 			"type": "object",
 			"required": ["mode"],
 			"additionalProperties": true,
 			"properties": {
-				"mode": { "const": "wp-post" },
-				"postType": { "type": "string", "minLength": 1 },
+				"mode": {
+					"const": "wp-post",
+					"description": "Indicates that this resource is stored as a WordPress post type."
+				},
+				"postType": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Custom post type slug to use for this resource."
+				},
 				"statuses": {
 					"type": "array",
-					"items": { "type": "string", "minLength": 1 }
+					"items": { "type": "string", "minLength": 1 },
+					"description": "Allowed post statuses for this resource (for example, [\"publish\", \"draft\"])."
 				},
 				"supports": {
 					"type": "array",
 					"items": {
 						"enum": ["title", "editor", "excerpt", "custom-fields"]
-					}
+					},
+					"description": "Core WordPress features to enable for the post type, mirroring the `supports` argument in register_post_type()."
 				},
 				"meta": {
 					"type": "object",
 					"additionalProperties": {
 						"$ref": "#/$defs/resourceStoragePostMeta"
-					}
+					},
+					"description": "Map of meta keys to their storage configuration for this post type."
 				},
 				"taxonomies": {
 					"type": "object",
 					"additionalProperties": {
 						"$ref": "#/$defs/resourceStoragePostTaxonomy"
-					}
+					},
+					"description": "Map of taxonomy slugs to their configuration for this post type."
 				}
-			}
+			},
+			"description": "Configuration for resources modelled as custom post types in WordPress."
 		},
 		"resourceStorageTaxonomy": {
 			"type": "object",
 			"required": ["mode", "taxonomy"],
 			"additionalProperties": true,
 			"properties": {
-				"mode": { "const": "wp-taxonomy" },
-				"taxonomy": { "type": "string", "minLength": 1 },
-				"hierarchical": { "type": "boolean" }
-			}
+				"mode": {
+					"const": "wp-taxonomy",
+					"description": "Indicates that this resource is stored as a WordPress taxonomy term."
+				},
+				"taxonomy": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Taxonomy slug used to store this resource (for example, \"category\" or a custom taxonomy)."
+				},
+				"hierarchical": {
+					"type": "boolean",
+					"description": "Whether the taxonomy is hierarchical (like categories) or flat (like tags)."
+				}
+			},
+			"description": "Configuration for resources stored as taxonomy terms."
 		},
 		"resourceStorageOption": {
 			"type": "object",
 			"required": ["mode", "option"],
 			"additionalProperties": true,
 			"properties": {
-				"mode": { "const": "wp-option" },
-				"option": { "type": "string", "minLength": 1 }
-			}
+				"mode": {
+					"const": "wp-option",
+					"description": "Indicates that this resource is stored in the WordPress options table."
+				},
+				"option": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Option name used to store this resource."
+				}
+			},
+			"description": "Configuration for resources stored in the WordPress options table."
 		},
 		"resourceStorage": {
 			"oneOf": [
@@ -226,17 +313,30 @@
 				{ "$ref": "#/$defs/resourceStoragePost" },
 				{ "$ref": "#/$defs/resourceStorageTaxonomy" },
 				{ "$ref": "#/$defs/resourceStorageOption" }
-			]
+			],
+			"description": "Where WordPress will actually store data for this resource: transients, posts, taxonomies, or options."
 		},
 		"resourceCapabilityDescriptor": {
 			"type": "object",
 			"required": ["capability", "appliesTo"],
 			"additionalProperties": true,
 			"properties": {
-				"capability": { "type": "string", "minLength": 1 },
-				"appliesTo": { "enum": ["resource", "object"] },
-				"binding": { "type": "string", "minLength": 1 }
-			}
+				"capability": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Full WordPress capability name (for example, \"jobs_read\" or \"jobs_edit_own\"). WPKernel will generate helpers that reference this capability."
+				},
+				"appliesTo": {
+					"enum": ["resource", "object"],
+					"description": "Whether this capability is checked at the collection level (\"resource\", for example \"can list jobs\") or per-object (\"object\", for example \"can edit this specific job\")."
+				},
+				"binding": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional key describing how this capability binds to WordPress (for example, a meta capability mapping). This is mainly for advanced capability setups."
+				}
+			},
+			"description": "Detailed capability configuration for a single operation, mapping your resource permissions onto WordPress's capability system."
 		},
 		"resourceCapabilities": {
 			"type": "object",
@@ -245,27 +345,41 @@
 					{ "type": "string", "minLength": 1 },
 					{ "$ref": "#/$defs/resourceCapabilityDescriptor" }
 				]
-			}
+			},
+			"description": "Map of operation keys (for example, \"list\", \"get\", \"create\", \"update\", \"remove\") to the WordPress capabilities required to perform them. Each entry can be a simple capability string or a detailed descriptor."
 		},
 		"resourceQueryParamDescriptor": {
 			"type": "object",
 			"required": ["type"],
 			"additionalProperties": false,
 			"properties": {
-				"type": { "enum": ["string", "enum"] },
-				"optional": { "type": "boolean" },
+				"type": {
+					"enum": ["string", "enum"],
+					"description": "Base type of the query parameter. \"enum\" indicates that the parameter must be one of a fixed set of string values."
+				},
+				"optional": {
+					"type": "boolean",
+					"description": "Whether this query parameter is optional."
+				},
 				"enum": {
 					"type": "array",
-					"items": { "type": "string", "minLength": 1 }
+					"items": { "type": "string", "minLength": 1 },
+					"description": "Allowed values when type is \"enum\"."
 				},
-				"description": { "type": "string", "minLength": 1 }
-			}
+				"description": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Human-readable explanation of how this query parameter is used (for example, \"Filter jobs by status\")."
+				}
+			},
+			"description": "Descriptor for a single query parameter accepted by this resource's REST API routes."
 		},
 		"resourceQueryParams": {
 			"type": "object",
 			"additionalProperties": {
 				"$ref": "#/$defs/resourceQueryParamDescriptor"
-			}
+			},
+			"description": "Map of query parameter names to their descriptors, defining the supported query-string filters for this resource."
 		},
 		"resourceCacheKeys": {
 			"type": "object",
@@ -276,59 +390,129 @@
 				"create": { "$ref": "#/$defs/function" },
 				"update": { "$ref": "#/$defs/function" },
 				"remove": { "$ref": "#/$defs/function" }
-			}
+			},
+			"description": "Optional functions that compute cache keys for the resource's REST calls. Use this to integrate with custom caching layers (for example, a CDN or object cache) while keeping the logic close to the resource definition."
 		},
 		"resourceStore": {
 			"type": "object",
 			"additionalProperties": true,
 			"properties": {
-				"getId": { "$ref": "#/$defs/function" },
-				"getQueryKey": { "$ref": "#/$defs/function" },
+				"getId": {
+					"$ref": "#/$defs/function",
+					"description": "Function that returns the unique ID for a given item in the client-side store."
+				},
+				"getQueryKey": {
+					"$ref": "#/$defs/function",
+					"description": "Function that returns a stable query key for a given list/query, used by client-side caching libraries."
+				},
 				"initialState": {
 					"type": "object",
-					"additionalProperties": true
+					"additionalProperties": true,
+					"description": "Initial client-side state for this resource's store, if you need to seed it with defaults."
 				}
-			}
+			},
+			"description": "Optional configuration for the client-side store used by the generated JS/TS helpers for this resource."
 		},
 		"resourceDataViewsMenu": {
 			"type": "object",
 			"required": ["slug", "title"],
 			"additionalProperties": true,
 			"properties": {
-				"slug": { "$ref": "#/$defs/nonEmptyString" },
-				"title": { "$ref": "#/$defs/nonEmptyString" },
-				"capability": { "type": "string", "minLength": 1 },
-				"parent": { "type": "string", "minLength": 1 },
-				"position": { "type": "number" }
-			}
+				"slug": {
+					"$ref": "#/$defs/nonEmptyString",
+					"description": "Menu slug used when registering the admin page for this resource."
+				},
+				"title": {
+					"$ref": "#/$defs/nonEmptyString",
+					"description": "Menu title shown in the WordPress admin sidebar."
+				},
+				"capability": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Capability required to see this admin menu (for example, \"manage_options\" or a resource-specific capability)."
+				},
+				"parent": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Parent menu slug if this screen should live under an existing menu (for example, \"options-general.php\")."
+				},
+				"position": {
+					"type": "number",
+					"description": "Numeric menu position, following WordPress's admin menu conventions."
+				}
+			},
+			"description": "Configuration for the WordPress admin menu entry that will host this resource's Data Views screen."
 		},
 		"resourceDataViewsScreen": {
 			"type": "object",
 			"additionalProperties": true,
 			"properties": {
-				"component": { "type": "string", "minLength": 1 },
-				"route": { "type": "string", "minLength": 1 },
-				"resourceImport": { "type": "string", "minLength": 1 },
-				"resourceSymbol": { "type": "string", "minLength": 1 },
-				"wpkernelImport": { "type": "string", "minLength": 1 },
-				"wpkernelSymbol": { "type": "string", "minLength": 1 },
-				"menu": { "$ref": "#/$defs/resourceDataViewsMenu" }
-			}
+				"component": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Name of the React component used to render the Data Views screen."
+				},
+				"route": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Admin route or hash route where this screen is mounted."
+				},
+				"resourceImport": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Import path for the generated resource client."
+				},
+				"resourceSymbol": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Named export used for the generated resource client."
+				},
+				"wpkernelImport": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Import path for WPKernel's UI helpers."
+				},
+				"wpkernelSymbol": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Named export used for WPKernel's UI helpers."
+				},
+				"menu": {
+					"$ref": "#/$defs/resourceDataViewsMenu",
+					"description": "Menu configuration for this screen."
+				}
+			},
+			"description": "Low-level wiring details for the admin Data Views screen that WPKernel generates for this resource."
 		},
 		"resourceDataViewsSavedView": {
 			"type": "object",
 			"required": ["id", "label", "view"],
 			"additionalProperties": true,
 			"properties": {
-				"id": { "$ref": "#/$defs/nonEmptyString" },
-				"label": { "$ref": "#/$defs/nonEmptyString" },
+				"id": {
+					"$ref": "#/$defs/nonEmptyString",
+					"description": "Stable identifier for this saved view (for example, \"open-jobs\")."
+				},
+				"label": {
+					"$ref": "#/$defs/nonEmptyString",
+					"description": "Label shown in the UI for this saved view."
+				},
 				"view": {
 					"type": "object",
-					"additionalProperties": true
+					"additionalProperties": true,
+					"description": "Configuration object describing filters/sorts/layout for this saved view. The exact shape is defined by the Data Views integration."
 				},
-				"description": { "type": "string", "minLength": 1 },
-				"isDefault": { "type": "boolean" }
-			}
+				"description": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional longer description shown in tooltips or documentation."
+				},
+				"isDefault": {
+					"type": "boolean",
+					"description": "Whether this saved view should be the default when the screen first loads."
+				}
+			},
+			"description": "Represents a saved view in the resource's Data Views UI (for example, \"Open jobs\" or \"Draft posts\")."
 		},
 		"resourceDataViewsInteractivity": {
 			"type": "object",
@@ -337,9 +521,11 @@
 				"feature": {
 					"type": "string",
 					"minLength": 1,
-					"default": "admin-screen"
+					"default": "admin-screen",
+					"description": "Interactivity feature flag used by the Data Views integration. Defaults to \"admin-screen\"."
 				}
-			}
+			},
+			"description": "Fine-grained switches for Data Views interactivity; most plugins can rely on the defaults."
 		},
 		"resourceDataViews": {
 			"type": "object",
@@ -350,27 +536,50 @@
 					"items": {
 						"type": "object",
 						"additionalProperties": true
-					}
+					},
+					"description": "Field definitions for the Data Views table/list. Each entry describes a column or UI field."
 				},
 				"defaultView": {
 					"type": "object",
-					"additionalProperties": true
+					"additionalProperties": true,
+					"description": "Default Data Views configuration when the screen first loads."
 				},
 				"actions": {
 					"type": "array",
 					"items": {
 						"type": "object",
 						"additionalProperties": true
-					}
+					},
+					"description": "Action definitions (row/bulk actions) available from the Data Views UI."
 				},
-				"mapQuery": { "$ref": "#/$defs/function" },
-				"search": { "type": "boolean" },
-				"searchLabel": { "type": "string", "minLength": 1 },
-				"getItemId": { "$ref": "#/$defs/function" },
-				"empty": {},
+				"mapQuery": {
+					"$ref": "#/$defs/function",
+					"description": "Optional function that maps Data Views query state into your REST query parameters."
+				},
+				"search": {
+					"type": "boolean",
+					"description": "Whether to show the search box for this Data Views screen."
+				},
+				"searchLabel": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Label to use for the search input, if enabled."
+				},
+				"getItemId": {
+					"$ref": "#/$defs/function",
+					"description": "Function that extracts the unique ID from a row item."
+				},
+				"empty": {
+					"description": "Optional configuration for the empty-state UI when there are no items.",
+					"anyOf": [
+						{ "type": "object", "additionalProperties": true },
+						{ "type": "null" }
+					]
+				},
 				"perPageSizes": {
 					"type": "array",
-					"items": { "type": "number" }
+					"items": { "type": "number" },
+					"description": "List of page sizes the user can pick from in the Data Views UI."
 				},
 				"defaultLayouts": {
 					"type": "object",
@@ -379,63 +588,120 @@
 							{ "type": "object", "additionalProperties": true },
 							{ "type": "null" }
 						]
-					}
+					},
+					"description": "Default layout configuration keyed by layout type (for example, table vs grid)."
 				},
 				"views": {
 					"type": "array",
-					"items": { "$ref": "#/$defs/resourceDataViewsSavedView" }
+					"items": { "$ref": "#/$defs/resourceDataViewsSavedView" },
+					"description": "List of saved views available from the Data Views UI."
 				},
-				"preferencesKey": { "$ref": "#/$defs/nonEmptyString" },
+				"preferencesKey": {
+					"$ref": "#/$defs/nonEmptyString",
+					"description": "Key used to store user preferences for this Data Views screen (for example, in user meta)."
+				},
 				"interactivity": {
-					"$ref": "#/$defs/resourceDataViewsInteractivity"
+					"$ref": "#/$defs/resourceDataViewsInteractivity",
+					"description": "Interactivity configuration for this Data Views instance."
 				},
-				"screen": { "$ref": "#/$defs/resourceDataViewsScreen" }
-			}
+				"screen": {
+					"$ref": "#/$defs/resourceDataViewsScreen",
+					"description": "Screen and menu wiring for the Data Views UI."
+				}
+			},
+			"description": "Configuration for the WordPress admin Data Views UI generated for this resource."
 		},
 		"resourceAdminUI": {
 			"type": "object",
 			"additionalProperties": true,
 			"properties": {
-				"view": { "type": "string", "minLength": 1 },
-				"dataviews": { "$ref": "#/$defs/resourceDataViews" }
-			}
+				"view": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Identifier for the admin view associated with this resource (for example, a React route name)."
+				},
+				"dataviews": {
+					"$ref": "#/$defs/resourceDataViews",
+					"description": "Data Views configuration for this resource's admin screen."
+				}
+			},
+			"description": "Top-level configuration for how this resource appears in the WordPress admin UI."
 		},
 		"resourceUI": {
 			"type": "object",
 			"additionalProperties": true,
 			"properties": {
-				"admin": { "$ref": "#/$defs/resourceAdminUI" }
-			}
+				"admin": {
+					"$ref": "#/$defs/resourceAdminUI",
+					"description": "Admin-only UI configuration for this resource."
+				}
+			},
+			"description": "UI configuration for the resource. At present this mostly focuses on WordPress admin screens."
 		},
 		"resourceConfig": {
 			"type": "object",
 			"required": ["name", "routes"],
 			"additionalProperties": true,
 			"properties": {
-				"name": { "type": "string", "minLength": 1 },
-				"namespace": { "type": "string", "minLength": 1 },
-				"routes": { "$ref": "#/$defs/resourceRoutes" },
-				"identity": { "$ref": "#/$defs/resourceIdentity" },
-				"storage": { "$ref": "#/$defs/resourceStorage" },
-				"cacheKeys": { "$ref": "#/$defs/resourceCacheKeys" },
-				"queryParams": { "$ref": "#/$defs/resourceQueryParams" },
-				"store": { "$ref": "#/$defs/resourceStore" },
+				"name": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Human-readable name for this resource (for example, \"Job\" or \"Booking\"). This is used in generated code and logs."
+				},
+				"namespace": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional override for the REST namespace segment for this resource. Defaults to the top-level namespace if omitted."
+				},
+				"routes": {
+					"$ref": "#/$defs/resourceRoutes",
+					"description": "REST API routes that expose this resource via WordPress's REST API."
+				},
+				"identity": {
+					"$ref": "#/$defs/resourceIdentity",
+					"description": "How this resource is identified in URLs and storage (post ID, slug, UUID, etc.)."
+				},
+				"storage": {
+					"$ref": "#/$defs/resourceStorage",
+					"description": "Where and how WordPress stores this resource's data (posts, taxonomies, options, transients)."
+				},
+				"cacheKeys": {
+					"$ref": "#/$defs/resourceCacheKeys",
+					"description": "Optional cache-key functions for integrating this resource with external caches."
+				},
+				"queryParams": {
+					"$ref": "#/$defs/resourceQueryParams",
+					"description": "Query-string parameters that can be used when calling this resource's REST routes."
+				},
+				"store": {
+					"$ref": "#/$defs/resourceStore",
+					"description": "Client-side store configuration for generated JS/TS helpers."
+				},
 				"schema": {
 					"anyOf": [
 						{ "type": "string", "minLength": 1 },
 						{ "type": "object", "additionalProperties": true },
 						{ "$ref": "#/$defs/function" }
-					]
+					],
+					"description": "Schema for the resource's data. This can be a reference to a shared schema key, an inline schema object, or a factory function that returns a schema."
 				},
 				"reporter": {
 					"anyOf": [
 						{ "type": "object", "additionalProperties": true },
 						{ "$ref": "#/$defs/function" }
-					]
+					],
+					"description": "Optional reporter object or factory used for logging and diagnostics specific to this resource."
 				},
-				"ui": { "$ref": "#/$defs/resourceUI" },
-				"capabilities": { "$ref": "#/$defs/resourceCapabilities" }
-			}
+				"ui": {
+					"$ref": "#/$defs/resourceUI",
+					"description": "UI configuration, primarily for the WordPress admin, associated with this resource."
+				},
+				"capabilities": {
+					"$ref": "#/$defs/resourceCapabilities",
+					"description": "Mapping between high-level operations on this resource and the WordPress capabilities that guard them. This is where you connect your domain permissions to WordPress's capability system."
+				}
+			},
+			"description": "Defines a single resource exposed by your plugin: its name, REST routes, WordPress storage strategy, capabilities, and optional admin UI."
 		}
 	}
 }

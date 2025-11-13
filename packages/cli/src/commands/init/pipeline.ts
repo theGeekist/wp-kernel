@@ -28,6 +28,7 @@ import {
 	detectExistingPlugin,
 	buildSkipSet,
 } from './plugin-detection';
+import { detectWorkspaceLanguage } from './workspace-language';
 import {
 	applyInitWrites,
 	buildWorkflowResult,
@@ -177,6 +178,12 @@ function createDetectionHelper(): InitFragmentHelper {
 		kind: 'fragment',
 		dependsOn: [INIT_FRAGMENT_KEY_NAMESPACE],
 		apply: async ({ context, output, reporter }) => {
+			if (!output.workspaceLanguage) {
+				output.workspaceLanguage = await detectWorkspaceLanguage(
+					context.workspace
+				);
+			}
+
 			const force = context.options.force === true;
 			if (force) {
 				reporter.info(
@@ -302,6 +309,7 @@ function createScaffoldBuilder(): InitBuilderHelper {
 					dependencyResolution: input.dependencyResolution,
 					reporter,
 					pluginDetection: input.pluginDetection,
+					workspaceLanguage: input.workspaceLanguage ?? 'typescript',
 				});
 
 				const manifest = await context.workspace.commit('init');
@@ -335,24 +343,29 @@ function createInstallBuilder(): InitBuilderHelper {
 
 			const budgets = resolveInstallBudgets(context.options.env);
 			const installers = context.options.installers;
+			const packageManager = context.options.packageManager;
 			const existingInstallations: InstallationMeasurements =
 				output.installations ?? {};
 
-			const npmMeasurement = await measureStageWithProgress({
+			const nodeMeasurement = await measureStageWithProgress({
 				reporter,
-				label: 'Installing npm dependencies',
-				stage: 'init.install.npm',
-				budgetMs: budgets.npm ?? DEFAULT_NODE_INSTALL_BUDGET_MS,
+				label: `Installing ${packageManager} dependencies`,
+				stage: `init.install.${packageManager}`,
+				budgetMs: budgets.node ?? DEFAULT_NODE_INSTALL_BUDGET_MS,
 				run: async () => {
 					await installers.installNodeDependencies(
-						context.workspace.root
+						context.workspace.root,
+						packageManager
 					);
 				},
 			});
 
 			let nextInstallations: InstallationMeasurements = {
 				...existingInstallations,
-				npm: npmMeasurement,
+				node: {
+					manager: packageManager,
+					measurement: nodeMeasurement,
+				},
 			};
 
 			if (
@@ -419,13 +432,15 @@ function finalizeDraft(draft: InitPipelineDraft): InitPipelineArtifact {
 	const dependencyResolution = draft.dependencyResolution;
 	const replacements = draft.replacements;
 	const installations = draft.installations;
+	const workspaceLanguage = draft.workspaceLanguage;
 
 	if (
 		!namespace ||
 		!templateName ||
 		!scaffoldFiles ||
 		!dependencyResolution ||
-		!replacements
+		!replacements ||
+		!workspaceLanguage
 	) {
 		throw new WPKernelError('DeveloperError', {
 			message:
@@ -445,6 +460,7 @@ function finalizeDraft(draft: InitPipelineDraft): InitPipelineArtifact {
 		manifest: draft.manifest,
 		result: draft.result,
 		installations,
+		workspaceLanguage,
 	} satisfies InitPipelineArtifact;
 }
 

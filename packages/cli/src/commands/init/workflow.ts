@@ -13,6 +13,7 @@ export async function runInitWorkflow(
 	const {
 		installers: installerOverrides,
 		installDependencies,
+		packageManager = 'npm',
 		...baseOptions
 	} = options;
 
@@ -24,6 +25,7 @@ export async function runInitWorkflow(
 
 	return runInitPipeline({
 		...baseOptions,
+		packageManager,
 		installDependencies: installDependencies === true,
 		installers,
 	});

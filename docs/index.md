@@ -25,13 +25,15 @@ features:
       details: '`wpk generate` emits PHP controllers, JS hooks, types, and docs; `wpk apply` commits atomically or rolls back.'
     - title: Inline capability mapping
       details: Declare friendly capability keys once. The CLI validates, injects server checks, and emits a runtime JS map.
-    - title: Ready for WordPress UI
+    - title: Ready-made WordPress admin screens
       details: Add `ui.admin.dataviews` to get full DataViews admin screens, React, interactivity, access control included.
 ---
 
 ## What is WPKernel?
 
-Building with WPKernel feels less like coding by hand and more like running a precision factory, you design the entire product on a single blueprint (`wpk.config.ts`). The factory floor (the CLI) then produces every component: PHP, JavaScript, UI, security, to exact specifications through a strict assembly line.
+WPKernel replaces hand-written PHP controllers, scattered JS clients, and admin-page boilerplate with a single declarative config that produces everything reliably and repeatably.
+
+You design the entire product on a single blueprint (`wpk.config.ts`). The CLI then acts as a precision factory, generating every layer of the product: PHP, JavaScript, UI, security, to exact specifications.
 
 And if that isn't enough and you need something more customised, just build an extension.
 
