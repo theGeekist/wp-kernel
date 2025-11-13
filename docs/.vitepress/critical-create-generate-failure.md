@@ -67,6 +67,8 @@ Capture deterministic timing metrics for installers and composer healers.
 **Completion log.** Update after each run:
 
 - [x] Pipeline adapter (65a) now routes init/create through `createInitPipeline` for staged logging.
+- [x] Installer instrumentation (65b) captures npm/composer timings via the pipeline install builder.
+- [x] CLI progress surface (65c) emits start/tick/success/failure logs for installers, generate/apply stages, and doctor readiness.
 
 #### 65a — Pipeline adapter for init/create
 
@@ -218,7 +220,36 @@ Files:
 What to do:
 
 - Mention the new env vars / budgets so CI (and the smoke harness) know how to raise or lower
-  tolerances when containers are slow.
+  thresholds where needed.
+
+**Result.** `packages/cli/src/commands/init/installers.ts` now streams installer stdout/stderr while the pipeline’s `init.install` builder measures each stage. `packages/cli/src/utils/progress.ts` owns spinner/tick UX and the env-var budgets (`WPK_INIT_INSTALL_NODE_MAX_MS`, `WPK_INIT_INSTALL_COMPOSER_MAX_MS`) remain optional overrides rather than hard blockers. The smoke harness (`scripts/test/smoke-create-generate.mjs`) records the create log + timings and removes artifacts automatically unless `--keep-artifacts` is passed.
+
+#### 65c — Surface timings across CLI workflows
+
+**Probe.** The installer timings were visible only inside the init pipeline. Generate, apply, and doctor still “hung” while long-running steps executed, and errors produced unstructured logs.
+
+**Fix.** Reuse the new progress helper everywhere:
+
+- `packages/cli/src/commands/generate.ts` wraps the pipeline run (and any future long-running phases) with `runWithProgress`, logging spinner ticks plus a completion line that includes elapsed time.
+- `packages/cli/src/commands/apply.ts` now reports patch preview, optional backups, and patch execution with the same helper so `wpk apply` never goes silent while doing work.
+- `packages/cli/src/commands/doctor.ts` wraps the readiness plan to highlight how long the health checks took, and the readiness helper logs already flow through LogLayer.
+- `packages/cli/src/utils/progress.ts` owns the spinner/timer logic and feeds structured success/failure events into the reporter, so downstream transports (console, hooks, CI) all see the same metadata.
+
+Every readiness/integration test already ensures the reporter child namespaces exist; the new helper is covered directly by `packages/cli/src/utils/__tests__/progress.test.ts`.
+
+#### 65d — Persist installer/generate telemetry artifacts
+
+**Probe.** Spinner logs are great during the run, but CI needs durable artifacts so we can compare timings across PRs.
+
+**Fix (in progress).**
+
+1. Extend the init pipeline artifact to carry `installations` (already in place) and persist it to disk as JSON when `WPK_CLI_TIMING_ARTIFACT_PATH` is set. The same helper can snapshot generate/apply progress by writing `{ stage, durationMs, timestamp }` into a shared ledger.
+2. Upload the ledger as a GitHub Actions artifact (mirroring the release-pack metrics flow that writes to `docs/internal/ci/release-pack-metrics.json`) so we can diff timings per PR.
+3. The CI `smoke` job (`.github/workflows/ci.yml`) already uploads `artifacts/cli-smoke/*` from `scripts/test/smoke-create-generate.mjs --keep-artifacts`. Once the JSON ledger lands, it can piggyback on the same artifact bundle so PRs always have the raw timing data attached.
+
+Until the formal JSON artifact lands, the create log preserved by the smoke script already contains the spinner/timing lines, and the pipeline artifact exposes `installations` for future consumers.
+tolerances when containers are slow.
+
 - Note that the timing metrics are now available in the pipeline artifact for Task 65d and the
   packed workflow.
 
