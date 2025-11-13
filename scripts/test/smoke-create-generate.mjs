@@ -28,14 +28,8 @@ async function main() {
 	let success = false;
 
 	try {
-		logStep('Building @wpkernel/php-driver');
-		await runPnpm(['--filter', '@wpkernel/php-driver', 'build']);
-
-		logStep('Building @wpkernel/cli');
-		await runPnpm(['--filter', '@wpkernel/cli', 'build']);
-
-		logStep('Building @wpkernel/create-wpk');
-		await runPnpm(['--filter', '@wpkernel/create-wpk', 'build']);
+		logStep('Building workspace packages');
+		await runPnpm(['build:packages']);
 
 		logStep('Packing tarballs');
 		const cliTarball = await packWorkspace('@wpkernel/cli');
