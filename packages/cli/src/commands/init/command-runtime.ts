@@ -6,7 +6,7 @@ import type {
 import { type WPKernelError } from '@wpkernel/core/error';
 import type { Command } from 'clipanion';
 import type { Workspace } from '../../workspace';
-import type { InitWorkflowOptions, InitWorkflowResult } from './workflow';
+import type { InitWorkflowOptions, InitWorkflowResult } from './types';
 import { parseStringOption } from './utils';
 import {
 	type BuildDefaultReadinessRegistryOptions,

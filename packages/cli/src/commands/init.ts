@@ -13,7 +13,7 @@ import { InitCommandBase } from './init/shared';
 import type { ReadinessHelperDescriptor, ReadinessKey } from '../dx';
 
 // Re-export types from sub-modules for TypeDoc
-export type { InitWorkflowOptions, InitWorkflowResult } from './init/workflow';
+export type { InitWorkflowOptions, InitWorkflowResult } from './init/types';
 export type { GitDependencies } from './init/git';
 export type { ScaffoldStatus } from './init/utils';
 

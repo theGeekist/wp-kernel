@@ -66,7 +66,7 @@ Capture deterministic timing metrics for installers and composer healers.
 
 **Completion log.** Update after each run:
 
-- [ ] _Run log placeholder — update after execution_
+- [x] Pipeline adapter (65a) now routes init/create through `createInitPipeline` for staged logging.
 
 #### 65a — Pipeline adapter for init/create
 

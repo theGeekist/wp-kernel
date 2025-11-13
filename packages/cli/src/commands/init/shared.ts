@@ -14,7 +14,7 @@ import {
 	type ReadinessHelperDescriptor,
 	type ReadinessKey,
 } from '../../dx';
-import type { InitWorkflowResult } from './workflow';
+import type { InitWorkflowResult } from './types';
 
 export interface InitCommandState {
 	name?: string;
