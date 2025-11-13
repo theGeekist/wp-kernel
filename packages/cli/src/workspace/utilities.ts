@@ -12,21 +12,14 @@ import { serialiseError } from '../commands/apply/errors';
 
 const execFile = promisify(execFileCallback);
 
-/**
- * Options for the `ensureGeneratedPhpClean` function.
- *
- * @category Workspace
- */
-export interface EnsureGeneratedPhpCleanOptions {
-	/** The workspace instance. */
-	readonly workspace: Workspace;
-	/** The reporter instance for logging. */
-	readonly reporter: Reporter;
-	/** Whether to skip the cleanliness check (e.g., when `--yes` is provided). */
-	readonly yes: boolean;
-	/** Optional: The directory to check for generated PHP files. Defaults to `.generated/php`. */
-	readonly directory?: string;
+export interface WorkspaceGitStatusEntry {
+	readonly code: string;
+	readonly path: string;
+	readonly originalPath?: string;
+	readonly raw: string;
 }
+
+export type WorkspaceGitStatus = ReadonlyArray<WorkspaceGitStatusEntry>;
 
 /**
  * Options for the `ensureCleanDirectory` function.
@@ -91,6 +84,35 @@ function normaliseDirectory(directory: string, workspace: Workspace): string {
 	return workspace.resolve(directory);
 }
 
+function parseGitStatusEntry(line: string): WorkspaceGitStatusEntry | null {
+	if (line.length === 0) {
+		return null;
+	}
+
+	const raw = line.replace(/\r$/, '');
+	const code = raw.slice(0, 2);
+	const remainder = raw.slice(3);
+	const renameIndex = remainder.indexOf(' -> ');
+
+	if (renameIndex === -1) {
+		return {
+			code,
+			path: remainder,
+			raw,
+		} satisfies WorkspaceGitStatusEntry;
+	}
+
+	const originalPath = remainder.slice(0, renameIndex);
+	const nextPath = remainder.slice(renameIndex + 4);
+
+	return {
+		code,
+		path: nextPath,
+		originalPath,
+		raw,
+	} satisfies WorkspaceGitStatusEntry;
+}
+
 function isGitRepositoryMissing(error: unknown): boolean {
 	if (typeof error === 'string') {
 		return error.includes('not a git repository');
@@ -118,74 +140,30 @@ function isGitRepositoryMissing(error: unknown): boolean {
 	return false;
 }
 
-/**
- * Ensures that the generated PHP directory is clean (i.e., no uncommitted changes).
- *
- * This function checks the Git status of the specified directory. If uncommitted
- * changes are found, it throws a `WPKernelError` unless the `yes` option is true.
- *
- * @category Workspace
- * @param    options.workspace
- * @param    options.reporter
- * @param    options.yes
- * @param    options.directory
- * @param    options           - Options for the cleanliness check.
- * @throws `WPKernelError` if uncommitted changes are found and `yes` is false.
- */
-export async function ensureGeneratedPhpClean({
-	workspace,
-	reporter,
-	yes,
-	directory = path.join('.generated', 'php'),
-}: EnsureGeneratedPhpCleanOptions): Promise<void> {
-	if (yes) {
-		reporter.warn(
-			'Skipping generated PHP cleanliness check (--yes provided).'
-		);
-		return;
-	}
-
-	const absoluteDirectory = normaliseDirectory(directory, workspace);
-	const stat = await statIfExists(absoluteDirectory);
-	if (!stat || !stat.isDirectory()) {
-		return;
-	}
-
-	const relativeSource = toWorkspaceRelative(workspace, absoluteDirectory);
-
+export async function readWorkspaceGitStatus(
+	workspace: Workspace
+): Promise<WorkspaceGitStatus | null> {
 	try {
-		const { stdout } = await execFile(
-			'git',
-			['status', '--porcelain', '--', relativeSource],
-			{ cwd: workspace.root }
-		);
+		const { stdout } = await execFile('git', ['status', '--porcelain'], {
+			cwd: workspace.root,
+		});
 
-		if (stdout.trim().length > 0) {
-			throw new WPKernelError('ValidationError', {
-				message: 'Generated PHP directory has uncommitted changes.',
-				context: {
-					path: relativeSource,
-					statusOutput: stdout.trim().split('\n'),
-				},
-			});
-		}
+		const entries = stdout
+			.split('\n')
+			.map((line) => parseGitStatusEntry(line))
+			.filter(
+				(entry): entry is WorkspaceGitStatusEntry => entry !== null
+			);
+
+		return entries;
 	} catch (error) {
 		if (isGitRepositoryMissing(error)) {
-			reporter.debug(
-				'Skipping generated PHP cleanliness check (not a git repository).'
-			);
-			return;
+			return null;
 		}
 
-		if (WPKernelError.isWPKernelError(error)) {
-			throw error;
-		}
-
-		/* istanbul ignore next - git invocation failed unexpectedly */
 		throw new WPKernelError('DeveloperError', {
-			message: 'Unable to verify generated PHP cleanliness.',
+			message: 'Unable to read workspace git status.',
 			context: {
-				path: relativeSource,
 				error: serialiseError(error),
 			},
 		});

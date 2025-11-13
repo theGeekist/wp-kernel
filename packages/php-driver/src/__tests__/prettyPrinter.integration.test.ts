@@ -12,6 +12,18 @@ const SOURCE_PATH = path.resolve(
 	'createPhpPrettyPrinter.ts'
 );
 
+function writeAutoloadStub(autoloadPath: string): void {
+	const contents = [
+		'<?php',
+		'namespace PhpParser;',
+		'if (!class_exists(JsonDecoder::class)) {',
+		'	class JsonDecoder {}',
+		'}',
+		'',
+	].join('\n');
+	fs.writeFileSync(autoloadPath, contents, 'utf8');
+}
+
 function transpilePrettyPrinter(): string {
 	const source = fs.readFileSync(SOURCE_PATH, 'utf8');
 	const { outputText } = ts.transpileModule(source, {
@@ -131,13 +143,13 @@ describe('pretty printer ESM integration', () => {
 			workspaceVendor,
 			'autoload.php'
 		);
-		fs.writeFileSync(workspaceAutoloadPath, '<?php\n', 'utf8');
+		writeAutoloadStub(workspaceAutoloadPath);
 
 		const fallbackRoot = path.join(temporaryDirectory, 'fallback');
 		const fallbackVendor = path.join(fallbackRoot, 'vendor');
 		fs.mkdirSync(fallbackVendor, { recursive: true });
 		const fallbackAutoloadPath = path.join(fallbackVendor, 'autoload.php');
-		fs.writeFileSync(fallbackAutoloadPath, '<?php\n', 'utf8');
+		writeAutoloadStub(fallbackAutoloadPath);
 
 		const traceFile = path.join(temporaryDirectory, 'trace.log');
 		const scriptPath = path.resolve(
@@ -197,7 +209,7 @@ describe('pretty printer ESM integration', () => {
 		const fallbackVendor = path.join(fallbackRoot, 'vendor');
 		fs.mkdirSync(fallbackVendor, { recursive: true });
 		const fallbackAutoloadPath = path.join(fallbackVendor, 'autoload.php');
-		fs.writeFileSync(fallbackAutoloadPath, '<?php\n', 'utf8');
+		writeAutoloadStub(fallbackAutoloadPath);
 
 		const traceFile = path.join(temporaryDirectory, 'trace.log');
 		const scriptPath = path.resolve(

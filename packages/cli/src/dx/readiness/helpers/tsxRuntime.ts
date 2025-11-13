@@ -11,7 +11,7 @@ import type {
 } from '../types';
 import type { DxContext } from '../../context';
 import type { Workspace } from '../../../workspace';
-import { buildResolvePaths, resolveWorkspaceRoot } from './shared';
+import { resolveWorkspaceRoot } from './shared';
 
 const execFile = promisify(execFileCallback);
 
@@ -81,14 +81,14 @@ async function resolveTsx(
 	dependencies: TsxRuntimeDependencies,
 	context: DxContext
 ): Promise<TsxResolutionResult> {
-	const paths = buildResolvePaths(context, [
-		'workspace',
-		'environmentWorkspace',
-		'project',
-	]);
+	const workspaceRoot = resolveWorkspaceRoot(context);
+	const paths =
+		workspaceRoot && workspaceRoot.length > 0 ? [workspaceRoot] : [];
 
 	try {
-		const resolved = dependencies.resolve('tsx/esm/api', { paths });
+		const resolved = dependencies.resolve('tsx/esm/api', {
+			paths: paths.length > 0 ? paths : undefined,
+		});
 		return { resolvedPath: resolved, error: null };
 	} catch (error) {
 		if (isModuleNotFoundError(error) && isTsxModuleMissing(error)) {

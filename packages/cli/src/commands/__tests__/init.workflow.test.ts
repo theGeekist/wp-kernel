@@ -1,7 +1,7 @@
 import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { runInitWorkflow } from '../init/workflow';
-import type { InitWorkflowOptions } from '../init/workflow';
+import type { InitWorkflowOptions } from '../init/types';
 import {
 	assertNoCollisions,
 	buildPathsReplacement,

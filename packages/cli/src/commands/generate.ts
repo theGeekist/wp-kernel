@@ -112,7 +112,8 @@ async function removeStaleGeneratedArtifacts({
 async function runGenerateWorkflow(
 	options: GenerateExecutionOptions
 ): Promise<GenerateResult> {
-	const { dependencies, reporter, dryRun, verbose, cwd } = options;
+	const { dependencies, reporter, dryRun, verbose, cwd, allowDirty } =
+		options;
 
 	try {
 		const loaded = await dependencies.loadWPKernelConfig();
@@ -132,6 +133,7 @@ async function runGenerateWorkflow(
 			cwd,
 			keys: [],
 			scopes: ['generate'],
+			allowDirty,
 		});
 
 		dependencies.registerFragments(pipeline);
@@ -266,6 +268,7 @@ function buildCommandConstructor(
 
 		dryRun = Option.Boolean('--dry-run', false);
 		verbose = Option.Boolean('--verbose', false);
+		allowDirty = Option.Boolean('--allow-dirty', false);
 
 		public summary: GenerationSummary | null = null;
 
@@ -285,6 +288,7 @@ function buildCommandConstructor(
 				dryRun: this.dryRun,
 				verbose: this.verbose,
 				cwd,
+				allowDirty: this.allowDirty === true,
 			});
 
 			if (result.output) {

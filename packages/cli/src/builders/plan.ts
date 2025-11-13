@@ -1,8 +1,5 @@
 import path from 'node:path';
-import {
-	buildPhpPrettyPrinter,
-	resolvePrettyPrintScriptPath,
-} from '@wpkernel/php-driver';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import {
 	buildArg,
 	buildBinaryOperation,
@@ -37,6 +34,10 @@ import type {
 import type { IRResource, IRv1 } from '../ir/publicTypes';
 import { toPascalCase } from './php/utils';
 import {
+	resolveBundledPhpDriverPrettyPrintPath,
+	resolveBundledComposerAutoloadPath,
+} from '../utils/phpAssets';
+import {
 	buildGenerationManifestFromIr,
 	type GenerationManifestDiff,
 	diffGenerationState,
@@ -52,7 +53,8 @@ const PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PLAN_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
 const PLAN_INCOMING_ROOT = path.posix.join('.wpk', 'apply', 'incoming');
 
-const PLAN_PRETTY_PRINT_SCRIPT_PATH = resolvePrettyPrintScriptPath();
+const PLAN_PRETTY_PRINT_SCRIPT_PATH = resolveBundledPhpDriverPrettyPrintPath();
+const PLAN_PRETTY_PRINT_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
 
 /**
  * Creates a builder helper for generating an apply plan.
@@ -79,6 +81,7 @@ export function createApplyPlanBuilder(): BuilderHelper {
 			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
 				scriptPath: PLAN_PRETTY_PRINT_SCRIPT_PATH,
+				autoloadPaths: [PLAN_PRETTY_PRINT_AUTOLOAD_PATH],
 			});
 
 			const plan = await collectPlanInstructions({

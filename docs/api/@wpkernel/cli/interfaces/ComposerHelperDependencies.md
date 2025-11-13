@@ -8,24 +8,25 @@
 
 ## Properties
 
-### install()
+### pathExists()
 
 ```ts
-readonly install: (cwd, __namedParameters) => Promise<void>;
+readonly pathExists: (candidate) => Promise<boolean>;
 ```
 
 #### Parameters
 
-##### cwd
+##### candidate
 
 `string`
 
-##### \_\_namedParameters
-
-[`InstallerDependencies`](InstallerDependencies.md) = `{}`
-
 #### Returns
 
+<<<<<<< HEAD
+`Promise`\<`boolean`\>
+||||||| 86d024df
+`Promise`\<`void`\>
+=======
 `Promise`\<`void`\>
 
 ---
@@ -75,3 +76,5 @@ readonly showPhpParserMetadata: (cwd) => Promise<ComposerShowResult>;
 #### Returns
 
 `Promise`\<`ComposerShowResult`\>
+
+> > > > > > > upstream/main

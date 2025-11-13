@@ -3,11 +3,7 @@ import { Command, Option } from 'clipanion';
 import { WPK_NAMESPACE, type WPKExitCode } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
-import {
-	buildWorkspace,
-	ensureCleanDirectory,
-	ensureGeneratedPhpClean,
-} from '../workspace';
+import { buildWorkspace, ensureCleanDirectory } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { installNodeDependencies } from './init/installers';
 import { type InitCommandRuntimeDependencies } from './init/command-runtime';
@@ -74,7 +70,6 @@ export type CreateCommandConstructor = new () => CreateCommandInstance;
 
 interface CreateDependencies {
 	readonly runtime: InitCommandRuntimeDependencies;
-	readonly ensureGeneratedPhpClean: typeof ensureGeneratedPhpClean;
 	readonly ensureCleanDirectory: typeof ensureCleanDirectory;
 	readonly installNodeDependencies: typeof installNodeDependencies;
 	readonly loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
@@ -102,7 +97,6 @@ function mergeDependencies(
 			runWorkflow: runWorkflowOverride,
 			buildReadinessRegistry,
 		},
-		ensureGeneratedPhpClean,
 		ensureCleanDirectory: ensureCleanDirectoryOverride,
 		installNodeDependencies: installNodeDependenciesOverride,
 		loadWPKernelConfig: loadWPKernelConfigOverride,
@@ -159,7 +153,6 @@ export function buildCreateCommand(
 				commandName: 'create',
 				reporterNamespace: buildReporterNamespace(),
 				dependencies: dependencies.runtime,
-				ensureGeneratedPhpClean: dependencies.ensureGeneratedPhpClean,
 				hooks: buildCreateCommandHooks(
 					this,
 					dependencies,

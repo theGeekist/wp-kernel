@@ -10,15 +10,16 @@
  */
 export { buildWorkspace } from './filesystem';
 export {
-	ensureGeneratedPhpClean,
 	ensureCleanDirectory,
 	promptConfirm,
 	toWorkspaceRelative,
+	readWorkspaceGitStatus,
 } from './utilities';
 export type {
-	EnsureGeneratedPhpCleanOptions,
 	EnsureCleanDirectoryOptions,
 	ConfirmPromptOptions,
+	WorkspaceGitStatus,
+	WorkspaceGitStatusEntry,
 } from './utilities';
 export type {
 	Workspace,

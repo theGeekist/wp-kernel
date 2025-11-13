@@ -8,6 +8,14 @@
 
 ## Properties
 
+### autoloadPaths?
+
+```ts
+readonly optional autoloadPaths: readonly string[];
+```
+
+---
+
 ### binary?
 
 ```ts

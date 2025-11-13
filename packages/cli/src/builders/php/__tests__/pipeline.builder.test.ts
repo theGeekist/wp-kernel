@@ -5,6 +5,7 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
+import { resolveBundledComposerAutoloadPath } from '@wpkernel/cli/utils/phpAssets';
 
 const codemodApplyMock = jest.fn(async (_options, next) => {
 	await next?.();
@@ -50,6 +51,8 @@ const { createPhpProgramWriterHelper } = jest.requireMock(
 ) as {
 	createPhpProgramWriterHelper: jest.Mock;
 };
+
+const BUNDLED_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
 
 describe('createPhpBuilder - adapter codemods', () => {
 	beforeEach(() => {
@@ -119,6 +122,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 			phpBinary: '/adapter/php',
 			scriptPath: '/adapter/codemod.php',
 			importMetaUrl: 'file:///adapter/dist/index.js',
+			autoloadPaths: [BUNDLED_AUTOLOAD_PATH],
 		});
 		expect(createPhpProgramWriterHelper).toHaveBeenCalledTimes(1);
 		expect(createWriterHelperImpl).toHaveBeenCalledWith({
@@ -126,6 +130,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 				binary: '/base/php',
 				scriptPath: '/adapter/program-writer.php',
 				importMetaUrl: 'file:///base/dist/index.js',
+				autoloadPaths: [BUNDLED_AUTOLOAD_PATH],
 			},
 		});
 		expect(codemodApplyMock).toHaveBeenCalled();
@@ -215,6 +220,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 				phpBinary: '/base/php',
 				scriptPath: '/base/codemod.php',
 				importMetaUrl: 'file:///base/dist/index.js',
+				autoloadPaths: [BUNDLED_AUTOLOAD_PATH],
 			})
 		);
 	});

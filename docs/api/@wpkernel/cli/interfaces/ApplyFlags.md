@@ -8,6 +8,14 @@
 
 ## Properties
 
+### allowDirty
+
+```ts
+readonly allowDirty: boolean;
+```
+
+---
+
 ### backup
 
 ```ts

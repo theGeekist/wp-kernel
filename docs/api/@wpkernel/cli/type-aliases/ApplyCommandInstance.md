@@ -14,6 +14,12 @@ Represents an instance of the Apply command.
 
 ## Type Declaration
 
+### allowDirty
+
+```ts
+allowDirty: boolean;
+```
+
 ### backup
 
 ```ts

@@ -1,6 +1,6 @@
 import type { Command } from 'clipanion';
 import type { ReporterOptions } from '@wpkernel/core/reporter';
-import type { InitWorkflowOptions } from '../init/workflow';
+import type { InitWorkflowOptions } from '../init/types';
 import type { ReadinessRegistry } from '../../dx';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';

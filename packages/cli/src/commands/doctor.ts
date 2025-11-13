@@ -65,9 +65,7 @@ export interface BuildDoctorCommandOptions {
 	readonly buildReadinessRegistry?: typeof buildDefaultReadinessRegistry;
 }
 
-const DOCTOR_READINESS_OVERRIDES: DefaultReadinessHelperOverrides = {
-	composer: { installOnPending: false },
-};
+const DOCTOR_READINESS_OVERRIDES: DefaultReadinessHelperOverrides = {};
 
 const buildDoctorReadinessRegistry: typeof buildDefaultReadinessRegistry = (
 	options?: BuildDefaultReadinessRegistryOptions
@@ -109,7 +107,7 @@ const DEFAULT_STATUS_MAPPING: Record<ReadinessOutcomeStatus, DoctorStatus> = {
 const STATUS_OVERRIDES: Partial<
 	Record<ReadinessKey, Partial<Record<ReadinessOutcomeStatus, DoctorStatus>>>
 > = {
-	'php-driver': {
+	'php-printer-path': {
 		pending: 'fail',
 		blocked: 'fail',
 	},
@@ -176,6 +174,7 @@ function buildReadinessContext({
 			cwd,
 			projectRoot: getCliPackageRoot(),
 			workspaceRoot,
+			allowDirty: false,
 		},
 	} satisfies DxContext;
 }

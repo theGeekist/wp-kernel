@@ -7,9 +7,8 @@
 # Function: createPhpRuntimeReadinessHelper()
 
 ```ts
-function createPhpRuntimeReadinessHelper(
-	overrides
-): ReadinessHelper<PhpRuntimeState>;
+function createPhpRuntimeReadinessHelper(overrides): ReadinessHelper & lt;
+PhpRuntimeState & gt;
 ```
 
 ## Parameters

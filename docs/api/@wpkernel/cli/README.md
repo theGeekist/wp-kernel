@@ -61,7 +61,6 @@ wpk and UI packages.
 
 - [ConfirmPromptOptions](interfaces/ConfirmPromptOptions.md)
 - [EnsureCleanDirectoryOptions](interfaces/EnsureCleanDirectoryOptions.md)
-- [EnsureGeneratedPhpCleanOptions](interfaces/EnsureGeneratedPhpCleanOptions.md)
 - [FileManifest](interfaces/FileManifest.md)
 - [MergeMarkers](interfaces/MergeMarkers.md)
 - [MergeOptions](interfaces/MergeOptions.md)
@@ -111,7 +110,6 @@ wpk and UI packages.
 - [BuildDefaultReadinessRegistryOptions](interfaces/BuildDefaultReadinessRegistryOptions.md)
 - [BuildGenerateCommandOptions](interfaces/BuildGenerateCommandOptions.md)
 - [ComposerHelperDependencies](interfaces/ComposerHelperDependencies.md)
-- [ComposerHelperOverrides](interfaces/ComposerHelperOverrides.md)
 - [ComposerReadinessState](interfaces/ComposerReadinessState.md)
 - [CreateBackupsOptions](interfaces/CreateBackupsOptions.md)
 - [CreateHelperOptions](interfaces/CreateHelperOptions.md)
@@ -143,10 +141,17 @@ wpk and UI packages.
 - [PhpCodemodIngestionDependencies](interfaces/PhpCodemodIngestionDependencies.md)
 - [PhpCodemodIngestionState](interfaces/PhpCodemodIngestionState.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
+  <<<<<<< HEAD
+- [PhpPrinterPathDependencies](interfaces/PhpPrinterPathDependencies.md)
+- [PhpPrinterPathState](interfaces/PhpPrinterPathState.md)
+  ||||||| 86d024df
+- [PhpDriverDependencies](interfaces/PhpDriverDependencies.md)
+- # [PhpDriverState](interfaces/PhpDriverState.md)
 - [PhpDriverDependencies](interfaces/PhpDriverDependencies.md)
 - [PhpDriverState](interfaces/PhpDriverState.md)
 - [PhpPrinterPathDependencies](interfaces/PhpPrinterPathDependencies.md)
 - [PhpPrinterPathState](interfaces/PhpPrinterPathState.md)
+    > > > > > > > upstream/main
 - [PhpRuntimeDependencies](interfaces/PhpRuntimeDependencies.md)
 - [PhpRuntimeState](interfaces/PhpRuntimeState.md)
 - [QuickstartDependencies](interfaces/QuickstartDependencies.md)
@@ -168,6 +173,7 @@ wpk and UI packages.
 - [ReleasePackState](interfaces/ReleasePackState.md)
 - [TsxRuntimeDependencies](interfaces/TsxRuntimeDependencies.md)
 - [TsxRuntimeState](interfaces/TsxRuntimeState.md)
+- [WorkspaceGitStatusEntry](interfaces/WorkspaceGitStatusEntry.md)
 - [WorkspaceHygieneDependencies](interfaces/WorkspaceHygieneDependencies.md)
 - [WorkspaceHygieneState](interfaces/WorkspaceHygieneState.md)
 
@@ -241,6 +247,7 @@ wpk and UI packages.
 - [ReadinessOutcomeStatus](type-aliases/ReadinessOutcomeStatus.md)
 - [ReadinessStatus](type-aliases/ReadinessStatus.md)
 - [ScaffoldStatus](type-aliases/ScaffoldStatus.md)
+- [WorkspaceGitStatus](type-aliases/WorkspaceGitStatus.md)
 
 ## Variables
 
@@ -291,7 +298,6 @@ wpk and UI packages.
 
 - [buildWorkspace](functions/buildWorkspace.md)
 - [ensureCleanDirectory](functions/ensureCleanDirectory.md)
-- [ensureGeneratedPhpClean](functions/ensureGeneratedPhpClean.md)
 - [promptConfirm](functions/promptConfirm.md)
 
 ### IR
@@ -319,6 +325,25 @@ wpk and UI packages.
 
 - [createTsCapabilityBuilder](functions/createTsCapabilityBuilder.md)
 - [createTsIndexBuilder](functions/createTsIndexBuilder.md)
+  <<<<<<< HEAD
+
+### Other
+
+- [assertReadinessRun](functions/assertReadinessRun.md)
+- [buildDefaultReadinessRegistry](functions/buildDefaultReadinessRegistry.md)
+- [createBootstrapperResolutionReadinessHelper](functions/createBootstrapperResolutionReadinessHelper.md)
+- [createComposerReadinessHelper](functions/createComposerReadinessHelper.md)
+- [createGitReadinessHelper](functions/createGitReadinessHelper.md)
+- [createPhpCodemodIngestionReadinessHelper](functions/createPhpCodemodIngestionReadinessHelper.md)
+- [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
+- [createPhpPrinterPathReadinessHelper](functions/createPhpPrinterPathReadinessHelper.md)
+- [createPhpRuntimeReadinessHelper](functions/createPhpRuntimeReadinessHelper.md)
+- [createQuickstartReadinessHelper](functions/createQuickstartReadinessHelper.md)
+- [createReadinessHelper](functions/createReadinessHelper.md)
+- [createReadinessRegistry](functions/createReadinessRegistry.md)
+- [createReleasePackReadinessHelper](functions/createReleasePackReadinessHelper.md)
+  ||||||| 86d024df
+  =======
 
 ### Other
 
@@ -336,8 +361,16 @@ wpk and UI packages.
 - [createReadinessHelper](functions/createReadinessHelper.md)
 - [createReadinessRegistry](functions/createReadinessRegistry.md)
 - [createReleasePackReadinessHelper](functions/createReleasePackReadinessHelper.md)
+    > > > > > > > upstream/main
 - [createTsxRuntimeReadinessHelper](functions/createTsxRuntimeReadinessHelper.md)
 - [createWorkspaceHygieneReadinessHelper](functions/createWorkspaceHygieneReadinessHelper.md)
+  <<<<<<< HEAD
+- [readWorkspaceGitStatus](functions/readWorkspaceGitStatus.md)
 - [registerDefaultReadinessHelpers](functions/registerDefaultReadinessHelpers.md)
 - [registerReadinessHelperFactories](functions/registerReadinessHelperFactories.md)
+  ||||||| 86d024df
+  =======
+- [registerDefaultReadinessHelpers](functions/registerDefaultReadinessHelpers.md)
+- [registerReadinessHelperFactories](functions/registerReadinessHelperFactories.md)
+    > > > > > > > upstream/main
 - [toWorkspaceRelative](functions/toWorkspaceRelative.md)

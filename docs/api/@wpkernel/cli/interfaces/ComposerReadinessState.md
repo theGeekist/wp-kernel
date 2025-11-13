@@ -8,6 +8,16 @@
 
 ## Properties
 
+<<<<<<< HEAD
+
+### autoloadPath
+
+||||||| 86d024df
+
+### vendorDirectory
+
+=======
+
 ### resolvedAutoloadPath
 
 ```ts
@@ -26,30 +36,16 @@ readonly resolvedAutoloadSource: AutoloadSource;
 
 ### vendorDirectory
 
+> > > > > > > upstream/main
+
 ```ts
-readonly vendorDirectory: string;
+readonly autoloadPath: string | null;
 ```
 
 ---
 
-### vendorPreviouslyExisted
+### sourcePackage
 
 ```ts
-readonly vendorPreviouslyExisted: boolean;
-```
-
----
-
-### workspace
-
-```ts
-readonly workspace: Workspace | null;
-```
-
----
-
-### workspaceRoot
-
-```ts
-readonly workspaceRoot: string;
+readonly sourcePackage: string | null;
 ```

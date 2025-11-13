@@ -8,3 +8,4 @@ export {
 	type FileWriteRecord,
 	type FileWriteStatus,
 } from './file-writer';
+export { createReporterCLI } from './reporter';

@@ -1,14 +1,10 @@
 import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
-import {
-	assignCommandContext,
-	createCommandReporterHarness,
-} from '@wpkernel/test-utils/cli';
+import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildCreateCommand } from '../create';
 import type { buildWorkspace } from '../../workspace/filesystem';
-import * as workspaceModule from '../../workspace';
 
 describe('CreateCommand', () => {
 	let loadWPKernelConfig: jest.Mock;
@@ -27,7 +23,7 @@ describe('CreateCommand', () => {
 			key: 'workspace-hygiene',
 			metadata: {
 				label: 'Workspace hygiene',
-				scopes: ['init', 'create'],
+				scopes: ['init', 'create', 'generate', 'apply'],
 			},
 		},
 		{
@@ -45,10 +41,6 @@ describe('CreateCommand', () => {
 		{
 			key: 'php-runtime',
 			metadata: { label: 'PHP runtime', scopes: ['init', 'create'] },
-		},
-		{
-			key: 'php-driver',
-			metadata: { label: 'PHP driver', scopes: ['init', 'create'] },
 		},
 		{
 			key: 'php-codemod-ingestion',
@@ -83,11 +75,15 @@ describe('CreateCommand', () => {
 		const npmInstall = jest.fn().mockResolvedValue(undefined);
 		const ensureDirectory = jest.fn().mockResolvedValue(undefined);
 		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+		let capturedContext: unknown;
 		const readinessPlan = jest
 			.fn()
 			.mockImplementation((keys: string[]) => ({
 				keys,
-				run: readinessRun,
+				run: (context: unknown) => {
+					capturedContext = context;
+					return readinessRun(context);
+				},
 			}));
 		const buildReadinessRegistry = jest.fn().mockReturnValue({
 			register: jest.fn(),
@@ -136,12 +132,15 @@ describe('CreateCommand', () => {
 			'git',
 			'composer',
 			'php-runtime',
-			'php-driver',
 			'php-codemod-ingestion',
 			'php-printer-path',
 			'tsx-runtime',
 		]);
 		expect(readinessRun).toHaveBeenCalledTimes(1);
+		expect(
+			(capturedContext as { environment: { allowDirty: boolean } })
+				.environment.allowDirty
+		).toBe(false);
 		expect(stdout.toString()).toContain('plugin scaffold');
 	});
 
@@ -192,7 +191,6 @@ describe('CreateCommand', () => {
 			'workspace-hygiene',
 			'git',
 			'php-runtime',
-			'php-driver',
 			'php-codemod-ingestion',
 			'php-printer-path',
 		]);
@@ -200,10 +198,7 @@ describe('CreateCommand', () => {
 		expect(stdout.toString()).toContain('summary');
 	});
 
-	it('maps --yes to workspace hygiene readiness overrides', async () => {
-		const ensureGeneratedSpy = jest
-			.spyOn(workspaceModule, 'ensureGeneratedPhpClean')
-			.mockResolvedValue(undefined);
+	it('propagates --allow-dirty to readiness context', async () => {
 		const workflow = jest.fn().mockResolvedValue({
 			manifest: { writes: [], deletes: [] },
 			summaryText: 'summary\n',
@@ -213,11 +208,15 @@ describe('CreateCommand', () => {
 			templateName: 'plugin',
 		});
 		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
+		let capturedContext: unknown;
 		const readinessPlan = jest
 			.fn()
 			.mockImplementation((keys: string[]) => ({
 				keys,
-				run: readinessRun,
+				run: (context: unknown) => {
+					capturedContext = context;
+					return readinessRun(context);
+				},
 			}));
 
 		const workspace = makeWorkspaceMock({ root: process.cwd() });
@@ -238,7 +237,7 @@ describe('CreateCommand', () => {
 		});
 
 		const command = new CreateCommand();
-		command.yes = true;
+		command.allowDirty = true;
 		const { stdout } = assignCommandContext(command, {
 			cwd: process.cwd(),
 		});
@@ -246,28 +245,12 @@ describe('CreateCommand', () => {
 		const exit = await command.execute();
 
 		expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-		const registryOptions = buildReadinessRegistry.mock.calls[0]?.[0];
+		expect(readinessRun).toHaveBeenCalledTimes(1);
 		expect(
-			registryOptions?.helperOverrides?.workspaceHygiene
-		).toBeDefined();
-		expect(
-			typeof registryOptions?.helperOverrides?.workspaceHygiene
-				?.ensureClean
-		).toBe('function');
-		const reporters = createCommandReporterHarness();
-		const reporter = reporters.create();
-		await registryOptions?.helperOverrides?.workspaceHygiene?.ensureClean?.(
-			{
-				workspace,
-				reporter,
-			}
-		);
-		expect(ensureGeneratedSpy).toHaveBeenCalledWith(
-			expect.objectContaining({ yes: true })
-		);
+			(capturedContext as { environment: { allowDirty: boolean } })
+				.environment.allowDirty
+		).toBe(true);
 		expect(stdout.toString()).toContain('summary');
-
-		ensureGeneratedSpy.mockRestore();
 	});
 
 	it('passes readiness helper factories from config to the runtime', async () => {
@@ -339,7 +322,6 @@ describe('CreateCommand', () => {
 			'git',
 			'composer',
 			'php-runtime',
-			'php-driver',
 			'php-codemod-ingestion',
 			'php-printer-path',
 			'tsx-runtime',

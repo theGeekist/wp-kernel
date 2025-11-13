@@ -7,9 +7,8 @@
 # Function: createWorkspaceHygieneReadinessHelper()
 
 ```ts
-function createWorkspaceHygieneReadinessHelper(
-	overrides
-): ReadinessHelper<WorkspaceHygieneState>;
+function createWorkspaceHygieneReadinessHelper(overrides): ReadinessHelper & lt;
+WorkspaceHygieneState & gt;
 ```
 
 ## Parameters

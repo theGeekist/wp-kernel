@@ -49,10 +49,6 @@ describe('buildDoctorCommand', () => {
 				metadata: { label: 'PHP runtime', scopes: ['doctor'] },
 			},
 			{
-				key: 'php-driver',
-				metadata: { label: 'PHP driver', scopes: ['doctor'] },
-			},
-			{
 				key: 'php-printer-path',
 				metadata: { label: 'PHP printer path', scopes: ['doctor'] },
 			},
@@ -92,7 +88,6 @@ describe('buildDoctorCommand', () => {
 			),
 			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
 			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
-			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
 			createReadinessOutcome(
 				'php-printer-path',
 				'ready',
@@ -128,7 +123,6 @@ describe('buildDoctorCommand', () => {
 			'[PASS] Composer dependencies: Composer ready.'
 		);
 		expect(stdout.toString()).toContain('[PASS] PHP runtime: Runtime ok.');
-		expect(stdout.toString()).toContain('[PASS] PHP driver: Driver ok.');
 		expect(stdout.toString()).toContain(
 			'[PASS] PHP printer path: Printer path ok.'
 		);
@@ -159,7 +153,7 @@ describe('buildDoctorCommand', () => {
 		expect(readinessPlanRun).toHaveBeenCalledTimes(1);
 	});
 
-	it('returns failure when PHP driver readiness fails', async () => {
+	it('returns failure when PHP printer readiness fails', async () => {
 		setReadinessOutcomes([
 			createReadinessOutcome(
 				'workspace-hygiene',
@@ -169,16 +163,11 @@ describe('buildDoctorCommand', () => {
 			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
 			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
 			createReadinessOutcome(
-				'php-driver',
+				'php-printer-path',
 				'pending',
-				'Missing driver',
+				'Printer missing',
 				'pending',
 				'pending'
-			),
-			createReadinessOutcome(
-				'php-printer-path',
-				'ready',
-				'Printer path ok.'
 			),
 		]);
 
@@ -196,7 +185,7 @@ describe('buildDoctorCommand', () => {
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 		expect(stdout.toString()).toContain(
-			'[FAIL] PHP driver: Missing driver'
+			'[FAIL] PHP printer path: Printer missing'
 		);
 		expect(readinessPlanRun).toHaveBeenCalledTimes(1);
 	});
@@ -212,7 +201,6 @@ describe('buildDoctorCommand', () => {
 			),
 			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
 			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
-			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
 			createReadinessOutcome(
 				'php-printer-path',
 				'ready',
@@ -276,7 +264,6 @@ describe('buildDoctorCommand', () => {
 			),
 			createReadinessOutcome('composer', 'ready', 'Composer ready.'),
 			createReadinessOutcome('php-runtime', 'ready', 'Runtime ok.'),
-			createReadinessOutcome('php-driver', 'ready', 'Driver ok.'),
 			createReadinessOutcome(
 				'php-printer-path',
 				'ready',

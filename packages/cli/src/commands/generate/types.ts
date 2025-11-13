@@ -101,6 +101,7 @@ export interface GenerateExecutionOptions {
 	readonly dryRun: boolean;
 	readonly verbose: boolean;
 	readonly cwd: string;
+	readonly allowDirty: boolean;
 }
 
 export interface SummaryRecordFactoryOptions {

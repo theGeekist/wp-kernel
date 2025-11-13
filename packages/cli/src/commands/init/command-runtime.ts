@@ -6,7 +6,7 @@ import type {
 import { type WPKernelError } from '@wpkernel/core/error';
 import type { Command } from 'clipanion';
 import type { Workspace } from '../../workspace';
-import type { InitWorkflowOptions, InitWorkflowResult } from './workflow';
+import type { InitWorkflowOptions, InitWorkflowResult } from './types';
 import { parseStringOption } from './utils';
 import {
 	type BuildDefaultReadinessRegistryOptions,
@@ -44,6 +44,7 @@ export interface InitCommandRuntimeOptions {
 	readonly preferRegistryVersions?: boolean;
 	readonly env?: InitWorkflowOptions['env'];
 	readonly readiness?: BuildDefaultReadinessRegistryOptions;
+	readonly allowDirty?: boolean;
 }
 
 export interface InitCommandRuntimeResult {
@@ -129,6 +130,8 @@ export function createInitCommandRuntime(
 	};
 
 	const readinessRegistry = buildReadinessRegistry(options.readiness);
+	const allowDirty = options.allowDirty === true;
+
 	const readinessContext: DxContext = {
 		reporter,
 		workspace,
@@ -136,6 +139,7 @@ export function createInitCommandRuntime(
 			cwd,
 			projectRoot: getCliPackageRoot(),
 			workspaceRoot: options.workspaceRoot,
+			allowDirty,
 		},
 	};
 

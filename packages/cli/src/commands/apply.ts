@@ -99,6 +99,7 @@ export function buildApplyCommand(
 		cleanup = Option.Array('--cleanup <path>', {
 			description: 'Remove leftover shim paths before applying patches.',
 		});
+		allowDirty = Option.Boolean('--allow-dirty', false);
 
 		public summary: PatchManifestSummary | null = null;
 		public records: PatchRecord[] = [];
@@ -130,6 +131,7 @@ export function buildApplyCommand(
 					cwd,
 					keys: [],
 					scopes: ['apply'],
+					allowDirty: flags.allowDirty,
 				});
 
 				const preview = await previewPatches({

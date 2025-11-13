@@ -575,8 +575,11 @@ export function createPatcher(): BuilderHelper {
 	return createHelper({
 		key: 'builder.apply.patch.core',
 		kind: 'builder',
+		dependsOn: ['builder.generate.apply.plan'],
 		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
-			if (input.phase !== 'apply') {
+			const supportedPhase =
+				input.phase === 'generate' || input.phase === 'apply';
+			if (!supportedPhase) {
 				reporter.debug('createPatcher: skipping phase.', {
 					phase: input.phase,
 				});

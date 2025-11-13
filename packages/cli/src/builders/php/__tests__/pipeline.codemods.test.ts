@@ -11,6 +11,7 @@ import {
 	createBuilderOutput,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
+import { resolveBundledPhpJsonAstIngestionPath } from '@wpkernel/cli/utils/phpAssets';
 
 jest.mock('@wpkernel/php-json-ast', () => ({
 	...jest.requireActual('@wpkernel/php-json-ast'),
@@ -102,10 +103,11 @@ describe('createPhpCodemodIngestionHelper', () => {
 			workspaceRoot: '/workspace/project',
 			files: ['/workspace/project/plugin.php'],
 			phpBinary: undefined,
-			scriptPath: undefined,
+			scriptPath: BUNDLED_INGESTION_PATH,
 			configurationPath: undefined,
 			enableDiagnostics: undefined,
 			importMetaUrl: undefined,
+			autoloadPaths: undefined,
 		});
 		expect(consumeMock).toHaveBeenCalledTimes(1);
 	});
@@ -150,6 +152,7 @@ describe('createPhpCodemodIngestionHelper', () => {
 			configurationPath: '/workspace/project/codemods/baseline.json',
 			enableDiagnostics: true,
 			importMetaUrl: 'file:///pkg/dist/index.js',
+			autoloadPaths: undefined,
 		});
 		expect(consumeMock).toHaveBeenCalledTimes(1);
 	});
@@ -185,3 +188,4 @@ describe('createPhpCodemodIngestionHelper', () => {
 		expect(consumeMock).not.toHaveBeenCalled();
 	});
 });
+const BUNDLED_INGESTION_PATH = resolveBundledPhpJsonAstIngestionPath();

@@ -173,7 +173,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 		).toBe(true);
 	});
 
-	it('reports missing runtime when no resolution paths are available', async () => {
+	it('reports missing runtime when resolution fails in cwd-only contexts', async () => {
 		const resolve = jest.fn().mockImplementation(() => {
 			throw createModuleNotFound('tsx/esm/api');
 		});
@@ -195,9 +195,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 		const detection = await helper.detect(context);
 
 		expect(detection.status).toBe('blocked');
-		expect(detection.message).toBe(
-			'tsx runtime missing; no module resolution paths available.'
-		);
+		expect(detection.message).toBe('tsx runtime missing from /tmp/empty.');
 	});
 
 	it('skips installation when execute runs without a workspace', async () => {

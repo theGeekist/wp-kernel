@@ -7,9 +7,8 @@
 # Function: createTsxRuntimeReadinessHelper()
 
 ```ts
-function createTsxRuntimeReadinessHelper(
-	overrides
-): ReadinessHelper<TsxRuntimeState>;
+function createTsxRuntimeReadinessHelper(overrides): ReadinessHelper & lt;
+TsxRuntimeState & gt;
 ```
 
 ## Parameters

@@ -1,3 +1,38 @@
+<<<<<<< HEAD
+[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+
+---
+
+[@wpkernel/cli](../README.md) / PhpPrinterPathState
+
+# Interface: PhpPrinterPathState
+
+## Properties
+
+### canonicalPath
+
+```ts
+readonly canonicalPath: string | null;
+```
+
+---
+
+### scriptPath
+
+```ts
+readonly scriptPath: string;
+```
+
+---
+
+### workspaceRoot
+
+```ts
+readonly workspaceRoot: string;
+```
+
+# ||||||| 86d024df
+
 [**@wpkernel/cli v0.12.1-beta.3**](../README.md)
 
 ---
@@ -45,3 +80,5 @@ readonly runtimeRealPath: string | null;
 ```ts
 readonly workspaceRoot: string;
 ```
+
+> > > > > > > upstream/main
