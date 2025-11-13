@@ -167,6 +167,7 @@ async function packWorkspace(workspaceName) {
 		{
 			cwd: repoRoot,
 			capture: true,
+			quietCapture: true,
 			env: {
 				...process.env,
 				PNPM_LOG_LEVEL: 'silent',
@@ -208,7 +209,12 @@ async function runNode(scriptPath, args = [], options = {}) {
 }
 
 function runCommand(command, args, options = {}) {
-	const { cwd = repoRoot, env = process.env, capture = false } = options;
+	const {
+		cwd = repoRoot,
+		env = process.env,
+		capture = false,
+		quietCapture = false,
+	} = options;
 
 	return new Promise((resolve, reject) => {
 		const child = spawn(command, args, {
@@ -222,7 +228,9 @@ function runCommand(command, args, options = {}) {
 			child.stdout.on('data', (chunk) => {
 				const value = chunk.toString();
 				stdout += value;
-				process.stdout.write(value);
+				if (!quietCapture) {
+					process.stdout.write(value);
+				}
 			});
 		}
 

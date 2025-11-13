@@ -16,7 +16,9 @@ describe('wpk bin', () => {
 			const binPath = path.join(__dirname, '../../../bin/wpk.js');
 			const result = await runCli(binPath, ['--help']);
 
-			expect(result.stdout).toContain('WPKernel CLI entry point');
+			expect(result.stdout).toContain(
+				'Unified CLI for scaffolding, generating, applying, and validating WPKernel projects.'
+			);
 		}
 	);
 

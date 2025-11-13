@@ -128,9 +128,11 @@ export function createInitCommandRuntime(
 	const force = options.force === true;
 	const verbose = options.verbose === true;
 	const preferRegistryVersions = options.preferRegistryVersions === true;
+	const envPackageManager =
+		options.env?.WPK_PACKAGE_MANAGER ?? process.env.WPK_PACKAGE_MANAGER;
 	const packageManager =
 		resolvePackageManagerOption(
-			options.packageManager ?? options.env?.WPK_PACKAGE_MANAGER
+			options.packageManager ?? envPackageManager
 		) ?? 'npm';
 
 	const workflowOptions: InitWorkflowOptions = {
@@ -149,7 +151,7 @@ export function createInitCommandRuntime(
 				process.env.WPK_INIT_INSTALL_NODE_MAX_MS,
 			WPK_INIT_INSTALL_COMPOSER_MAX_MS:
 				process.env.WPK_INIT_INSTALL_COMPOSER_MAX_MS,
-			WPK_PACKAGE_MANAGER: process.env.WPK_PACKAGE_MANAGER,
+			WPK_PACKAGE_MANAGER: envPackageManager,
 		},
 		packageManager,
 		installDependencies: options.installDependencies,

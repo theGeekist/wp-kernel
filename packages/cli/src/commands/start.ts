@@ -17,6 +17,7 @@ import { buildGenerateCommand } from './generate';
 import type { Command as ClipanionCommand } from 'clipanion';
 import { forwardProcessOutput } from './process-output';
 import { serialiseError } from './internal/serialiseError';
+import { COMMAND_HELP } from '../cli/help';
 
 type WatchFn = typeof chokidarModule.watch;
 
@@ -220,19 +221,13 @@ export function buildStartCommand(
 		static override paths = [['start']];
 
 		static override usage = Command.Usage({
-			description:
-				'Watch wpk sources, regenerate on change, and run the Vite dev server.',
-			examples: [
-				['Start watch mode with default settings', 'wpk start'],
-				[
-					'Enable verbose logging and PHP auto-apply',
-					'wpk start --verbose --auto-apply-php',
-				],
-			],
+			description: COMMAND_HELP.start.description,
+			details: COMMAND_HELP.start.details,
+			examples: COMMAND_HELP.start.examples,
 		});
 
-		verbose = Option.Boolean('--verbose', false);
-		autoApplyPhp = Option.Boolean('--auto-apply-php', false);
+		verbose = Option.Boolean('--verbose,-v', false);
+		autoApply = Option.Boolean('--auto-apply,-a', false);
 
 		#loadWatch = dependencies.loadWatch;
 		#reporterFactory = dependencies.buildReporter;
@@ -484,7 +479,7 @@ export function buildStartCommand(
 
 			reporter.info('Generation completed successfully.');
 
-			if (this.autoApplyPhp) {
+			if (this.autoApply) {
 				await this.autoApplyPhpArtifacts(
 					reporter.child('apply'),
 					generateReporter

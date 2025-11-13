@@ -29,6 +29,7 @@ import {
 import { runCommandReadiness } from './readiness';
 import { resolveCommandCwd } from './init/command-runtime';
 import { runWithProgress, formatDuration } from '../utils/progress';
+import { COMMAND_HELP } from '../cli/help';
 
 // Re-export types from sub-modules for TypeDoc
 export type { GenerationSummary } from './run-generate/types';
@@ -262,23 +263,14 @@ function buildCommandConstructor(
 		static override paths = [['generate']];
 
 		static override usage = Command.Usage({
-			description: 'Generate WPKernel artifacts from wpk.config.*.',
-			examples: [
-				['Generate artifacts into .generated/', 'wpk generate'],
-				[
-					'Preview changes without writing files',
-					'wpk generate --dry-run',
-				],
-				[
-					'Verbose logging including per-file status',
-					'wpk generate --verbose',
-				],
-			],
+			description: COMMAND_HELP.generate.description,
+			details: COMMAND_HELP.generate.details,
+			examples: COMMAND_HELP.generate.examples,
 		});
 
-		dryRun = Option.Boolean('--dry-run', false);
-		verbose = Option.Boolean('--verbose', false);
-		allowDirty = Option.Boolean('--allow-dirty', false);
+		dryRun = Option.Boolean('--dry-run,-d', false);
+		verbose = Option.Boolean('--verbose,-v', false);
+		allowDirty = Option.Boolean('--allow-dirty,-D', false);
 
 		public summary: GenerationSummary | null = null;
 

@@ -1,7 +1,6 @@
 import { Command, Option } from 'clipanion';
 import { WPK_EXIT_CODES, type WPKExitCode } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
-import * as t from 'typanion';
 import {
 	createInitCommandRuntime,
 	resolveCommandCwd,
@@ -39,24 +38,24 @@ export abstract class InitCommandBase
 	extends Command
 	implements InitCommandState
 {
-	name = Option.String('--name', {
+	name = Option.String('--name,-n', {
 		description: 'Project slug used for namespace/package defaults',
 		required: false,
 	});
 
-	template = Option.String('--template', {
+	template = Option.String('--template,-t', {
 		description: 'Reserved for future templates (plugin/theme/headless)',
 		required: false,
 	});
 
-	force = Option.Boolean('--force', false);
-	verbose = Option.Boolean('--verbose', false);
+	force = Option.Boolean('--force,-f', false);
+	verbose = Option.Boolean('--verbose,-v', false);
 	preferRegistryVersions = Option.Boolean(
-		'--prefer-registry-versions',
+		'--prefer-registry-versions,-r',
 		false
 	);
-	yes = Option.Boolean('--yes', false);
-	allowDirty = Option.Boolean('--allow-dirty', false);
+	yes = Option.Boolean('--yes,-y', false);
+	allowDirty = Option.Boolean('--allow-dirty,-D', false);
 	private static readonly PACKAGE_MANAGER_VALUES: readonly PackageManager[] =
 		['npm', 'pnpm', 'yarn'];
 
@@ -71,27 +70,12 @@ export abstract class InitCommandBase
 		return normalized;
 	}
 
-	private static readonly PACKAGE_MANAGER_VALIDATOR = t.makeValidator<
-		unknown,
-		string
-	>({
-		test: (value): value is string => {
-			if (typeof value !== 'string' || value.length === 0) {
-				return false;
-			}
-
-			InitCommandBase.parsePackageManager(value);
-			return true;
-		},
-	});
-
 	private readonly packageManagerValue = Option.String(
-		'--package-manager <manager>',
+		'--package-manager,-p,-pm',
 		{
 			description:
 				'Package manager used when installing project dependencies (default: npm).',
 			required: false,
-			validator: InitCommandBase.PACKAGE_MANAGER_VALIDATOR,
 		}
 	);
 

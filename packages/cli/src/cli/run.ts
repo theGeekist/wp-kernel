@@ -7,6 +7,7 @@
  */
 import { Cli, Command } from 'clipanion';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+import { CLI_HELP } from './help';
 import {
 	buildApplyCommand,
 	buildCreateCommand,
@@ -21,7 +22,9 @@ class RootCommand extends Command {
 	static override paths = [Command.Default];
 
 	static override usage = Command.Usage({
-		description: 'WPKernel CLI entry point.',
+		description: CLI_HELP.description,
+		details: CLI_HELP.details,
+		examples: CLI_HELP.examples,
 	});
 
 	override async execute(): Promise<number | void> {
