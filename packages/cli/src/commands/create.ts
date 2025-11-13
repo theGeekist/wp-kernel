@@ -5,7 +5,10 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import { buildWorkspace, ensureCleanDirectory } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
-import { installNodeDependencies } from './init/installers';
+import {
+	installNodeDependencies,
+	installComposerDependencies,
+} from './init/installers';
 import { type InitCommandRuntimeDependencies } from './init/command-runtime';
 import {
 	InitCommandBase,
@@ -47,6 +50,8 @@ export interface BuildCreateCommandOptions {
 	readonly ensureCleanDirectory?: typeof ensureCleanDirectory;
 	/** Optional: Custom Node.js dependency installer function. */
 	readonly installNodeDependencies?: typeof installNodeDependencies;
+	/** Optional: Custom Composer dependency installer function. */
+	readonly installComposerDependencies?: typeof installComposerDependencies;
 }
 
 /**
@@ -57,8 +62,6 @@ export interface BuildCreateCommandOptions {
 export type CreateCommandInstance = InitCommandBase & {
 	/** The target directory for the new project. */
 	target?: string;
-	/** Whether to skip dependency installation. */
-	skipInstall: boolean;
 };
 
 /**
@@ -72,6 +75,7 @@ interface CreateDependencies {
 	readonly runtime: InitCommandRuntimeDependencies;
 	readonly ensureCleanDirectory: typeof ensureCleanDirectory;
 	readonly installNodeDependencies: typeof installNodeDependencies;
+	readonly installComposerDependencies: typeof installComposerDependencies;
 	readonly loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 }
 
@@ -88,6 +92,8 @@ function mergeDependencies(
 			ensureCleanDirectoryOverride = ensureCleanDirectory,
 		installNodeDependencies:
 			installNodeDependenciesOverride = installNodeDependencies,
+		installComposerDependencies:
+			installComposerDependenciesOverride = installComposerDependencies,
 	} = options;
 
 	return {
@@ -99,6 +105,7 @@ function mergeDependencies(
 		},
 		ensureCleanDirectory: ensureCleanDirectoryOverride,
 		installNodeDependencies: installNodeDependenciesOverride,
+		installComposerDependencies: installComposerDependenciesOverride,
 		loadWPKernelConfig: loadWPKernelConfigOverride,
 	} satisfies CreateDependencies;
 }
@@ -133,15 +140,10 @@ export function buildCreateCommand(
 			examples: [
 				['Create project in current directory', 'wpk create'],
 				['Create project in ./demo-plugin', 'wpk create demo-plugin'],
-				[
-					'Create without installing dependencies',
-					'wpk create demo --skip-install',
-				],
 			],
 		});
 
 		target = Option.String({ name: 'directory', required: false });
-		skipInstall = Option.Boolean('--skip-install', false);
 
 		override async execute(): Promise<WPKExitCode> {
 			const readinessHelperFactories =
@@ -158,6 +160,13 @@ export function buildCreateCommand(
 					dependencies,
 					readinessHelperFactories
 				),
+				installDependencies: true,
+				installers: {
+					installNodeDependencies:
+						dependencies.installNodeDependencies,
+					installComposerDependencies:
+						dependencies.installComposerDependencies,
+				},
 			});
 		}
 	}
@@ -200,15 +209,7 @@ function buildCreateCommandHooks(
 				.map((helper) => helper.key)
 				.filter((key) => allowed.has(key));
 
-			if (command.skipInstall !== true) {
-				return ordered;
-			}
-
-			return ordered.filter((key) => {
-				const helper = helpers.find((entry) => entry.key === key);
-				const tags = helper?.metadata.tags ?? [];
-				return !tags.includes('requires-install');
-			});
+			return ordered;
 		},
 		prepare: async (runtime, context: InitCommandContext) => {
 			await dependencies.ensureCleanDirectory({
@@ -218,17 +219,6 @@ function buildCreateCommandHooks(
 				create: true,
 				reporter: runtime.reporter,
 			});
-		},
-		afterReadiness: async (runtime) => {
-			if (command.skipInstall === true) {
-				runtime.reporter.warn(
-					'Skipping dependency installation (--skip-install provided).'
-				);
-				return;
-			}
-
-			runtime.reporter.info('Installing npm dependencies...');
-			await dependencies.installNodeDependencies(runtime.workspace.root);
 		},
 	} satisfies InitCommandHooks;
 }

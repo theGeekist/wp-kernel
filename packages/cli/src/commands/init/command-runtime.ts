@@ -6,7 +6,11 @@ import type {
 import { type WPKernelError } from '@wpkernel/core/error';
 import type { Command } from 'clipanion';
 import type { Workspace } from '../../workspace';
-import type { InitWorkflowOptions, InitWorkflowResult } from './types';
+import type {
+	InitWorkflowOptions,
+	InitWorkflowResult,
+	InitWorkflowInstallers,
+} from './types';
 import { parseStringOption } from './utils';
 import {
 	type BuildDefaultReadinessRegistryOptions,
@@ -45,6 +49,8 @@ export interface InitCommandRuntimeOptions {
 	readonly env?: InitWorkflowOptions['env'];
 	readonly readiness?: BuildDefaultReadinessRegistryOptions;
 	readonly allowDirty?: boolean;
+	readonly installDependencies?: boolean;
+	readonly installers?: Partial<InitWorkflowInstallers>;
 }
 
 export interface InitCommandRuntimeResult {
@@ -126,7 +132,13 @@ export function createInitCommandRuntime(
 			WPK_PREFER_REGISTRY_VERSIONS:
 				process.env.WPK_PREFER_REGISTRY_VERSIONS,
 			REGISTRY_URL: process.env.REGISTRY_URL,
+			WPK_INIT_INSTALL_NODE_MAX_MS:
+				process.env.WPK_INIT_INSTALL_NODE_MAX_MS,
+			WPK_INIT_INSTALL_COMPOSER_MAX_MS:
+				process.env.WPK_INIT_INSTALL_COMPOSER_MAX_MS,
 		},
+		installDependencies: options.installDependencies,
+		installers: options.installers,
 	};
 
 	const readinessRegistry = buildReadinessRegistry(options.readiness);

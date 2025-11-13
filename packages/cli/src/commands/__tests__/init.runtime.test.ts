@@ -74,19 +74,21 @@ describe('init command runtime helpers', () => {
 
 		await runtime.runWorkflow();
 
-		expect(runWorkflow).toHaveBeenCalledWith({
-			workspace,
-			reporter,
-			projectName: 'demo',
-			template: 'plugin',
-			force: true,
-			verbose: false,
-			preferRegistryVersionsFlag: true,
-			env: {
-				WPK_PREFER_REGISTRY_VERSIONS: '1',
-				REGISTRY_URL: 'https://registry.test',
-			},
-		});
+		expect(runWorkflow).toHaveBeenCalledWith(
+			expect.objectContaining({
+				workspace,
+				reporter,
+				projectName: 'demo',
+				template: 'plugin',
+				force: true,
+				verbose: false,
+				preferRegistryVersionsFlag: true,
+				env: expect.objectContaining({
+					WPK_PREFER_REGISTRY_VERSIONS: '1',
+					REGISTRY_URL: 'https://registry.test',
+				}),
+			})
+		);
 
 		expect(runtime.readiness.registry).toBeDefined();
 		expect(runtime.readiness.context.workspace).toBe(workspace);

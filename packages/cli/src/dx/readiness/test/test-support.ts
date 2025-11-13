@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { createReporter } from '@wpkernel/core/reporter';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { WPK_SUBSYSTEM_NAMESPACES } from '@wpkernel/core/namespace';

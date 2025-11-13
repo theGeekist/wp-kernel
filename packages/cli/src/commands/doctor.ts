@@ -20,6 +20,7 @@ import {
 } from '../dx';
 import { getCliPackageRoot } from '../utils/module-url';
 import { resolveCommandCwd } from './init/command-runtime';
+import { runWithProgress, formatDuration } from '../utils/progress';
 
 /**
  * Status of a doctor check.
@@ -371,13 +372,19 @@ export function buildDoctorCommand(
 				workspaceRoot,
 				cwd,
 			});
-			const result = await plan.run(context);
+			const { result: readinessResult } = await runWithProgress({
+				reporter,
+				label: 'Running doctor readiness checks',
+				run: () => plan.run(context),
+				successMessage: (durationMs) =>
+					`✓ Doctor readiness completed in ${formatDuration(durationMs)}.`,
+			});
 
-			if (result.error) {
-				throw result.error;
+			if (readinessResult.error) {
+				throw readinessResult.error;
 			}
 
-			return result.outcomes.map((outcome) =>
+			return readinessResult.outcomes.map((outcome) =>
 				mapReadinessOutcome(outcome, helperLookup)
 			);
 		}

@@ -39,10 +39,10 @@ The `wpk` binary is installed to `node_modules/.bin/wpk` automatically when npm 
 
 ## Features
 
-- Forwards positional arguments and `--`-delimited flags into `wpk create`, so targets such as `npm create @wpkernel/wpk demo -- --skip-install` behave the same as running the CLI directly.
+- Forwards positional arguments and `--`-delimited flags into `wpk create`, so targets such as `npm create @wpkernel/wpk demo -- --force` behave the same as running the CLI directly.
 - Streams CLI output to the terminal while capturing stdout/stderr buffers for diagnostics.
 - Publishes usage telemetry through the wpk reporter under the `wpk.cli.bootstrap` namespace so bootstrap runs align with other CLI events.
 
 ## Diagnostics & coverage
 
-The CLI integration suite builds the bootstrap binary on demand (using the package `tsconfig.json`) and executes it with the same `NODE_OPTIONS` loader as the core CLI smoke tests. This ensures the published entry point forwards flags like `--skip-install` without requiring contributors to run `pnpm --filter @wpkernel/create-wpk build` manually before running Jest.
+The CLI integration suite builds the bootstrap binary on demand (using the package `tsconfig.json`) and executes it with the same `NODE_OPTIONS` loader as the core CLI smoke tests. This ensures the published entry point forwards flags without requiring contributors to run `pnpm --filter @wpkernel/create-wpk build` manually before running Jest.
