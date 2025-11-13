@@ -31,7 +31,8 @@ export interface InitCommandState {
 
 export abstract class InitCommandBase
 	extends Command
-	implements InitCommandState {
+	implements InitCommandState
+{
 	name = Option.String('--name', {
 		description: 'Project slug used for namespace/package defaults',
 		required: false,
