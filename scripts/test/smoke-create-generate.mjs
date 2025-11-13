@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
-import { readdir, mkdtemp, mkdir, rm, stat } from 'node:fs/promises';
+import {
+	readdir,
+	mkdtemp,
+	mkdir,
+	rm,
+	stat,
+	writeFile,
+} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -13,7 +20,8 @@ const repoRoot = path.resolve(
 const artifactsDir = path.join(repoRoot, 'artifacts', 'cli-smoke');
 const cliArgs = new Set(process.argv.slice(2));
 const keepWorkspace = cliArgs.has('--keep-workspace');
-const cleanArtifacts = cliArgs.has('--clean-artifacts');
+const keepArtifacts = cliArgs.has('--keep-artifacts');
+const forceCleanArtifacts = cliArgs.has('--clean-artifacts');
 
 await mkdir(artifactsDir, { recursive: true });
 
@@ -24,6 +32,7 @@ async function main() {
 	const summary = {
 		projectDir,
 		artifacts: [],
+		createLogPath: null,
 	};
 	let success = false;
 
@@ -37,18 +46,42 @@ async function main() {
 		summary.artifacts.push(cliTarball, createTarball);
 
 		logStep('Scaffolding project via create-wpk');
-		await runNode(
+		const { stdout: createStdout = '' } = await runNode(
 			path.join(repoRoot, 'packages/create-wpk/dist/index.js'),
-			[projectDir]
+			[projectDir],
+			{ capture: true }
 		);
+		const createLogPath = await persistCreateLog(createStdout);
+		summary.createLogPath = createLogPath;
+		verifyCreateLogging(createStdout);
 
 		logStep('Installing CLI tarball and tsx inside scaffold');
 		await runPnpm(['add', '-D', cliTarball, 'tsx@latest'], {
 			cwd: projectDir,
 		});
 
+		logStep('Initialising git repository inside scaffold');
+		await runCommand('git', ['init'], { cwd: projectDir });
+		await runCommand('git', ['config', 'user.name', 'WPK Smoke'], {
+			cwd: projectDir,
+		});
+		await runCommand('git', ['config', 'user.email', 'smoke@example.com'], {
+			cwd: projectDir,
+		});
+		await runCommand('git', ['add', '.'], { cwd: projectDir });
+		await runCommand(
+			'git',
+			['commit', '-m', 'chore: initial scaffold'],
+			{
+				cwd: projectDir,
+			}
+		);
+
 		logStep('Running "pnpm exec wpk generate" inside scaffold');
 		await runPnpm(['exec', 'wpk', 'generate'], { cwd: projectDir });
+
+		logStep('Committing generated assets');
+		await commitWorkspace(projectDir, 'chore: generated assets');
 
 		logStep('Running "pnpm exec wpk apply --yes" inside scaffold');
 		await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
@@ -72,14 +105,24 @@ async function cleanup(summary, success) {
 		);
 	}
 
-	if (cleanArtifacts) {
+	const shouldRemoveArtifacts =
+		(!keepArtifacts && success) || (!keepArtifacts && forceCleanArtifacts);
+	if (shouldRemoveArtifacts) {
 		await rm(artifactsDir, { recursive: true, force: true });
-		console.log('\nINFO Removed artifacts directory (--clean-artifacts).');
+		if (forceCleanArtifacts && !success) {
+			console.log(
+				'\nINFO Removed artifacts directory (--clean-artifacts).'
+			);
+		}
 	} else if (!success && summary.artifacts.length > 0) {
 		console.log('\nINFO Packed tarballs are available at:');
 		for (const artifact of summary.artifacts) {
 			console.log(`     - ${artifact}`);
 		}
+	} else if (keepArtifacts && success) {
+		console.log(
+			`\nINFO Preserved artifacts under ${artifactsDir} (--keep-artifacts).`
+		);
 	}
 }
 
@@ -90,6 +133,9 @@ function logStep(message) {
 function logSuccess(summary) {
 	console.log('\nSUCCESS Smoke test succeeded.');
 	console.log(`   Project workspace: ${summary.projectDir}`);
+	if (summary.createLogPath) {
+		console.log(`   create-wpk log:    ${summary.createLogPath}`);
+	}
 	console.log('   Tarballs:');
 	for (const artifact of summary.artifacts) {
 		console.log(`     - ${artifact}`);
@@ -206,6 +252,36 @@ function extractTarballFromStdout(stdout = '') {
 	}
 
 	return undefined;
+}
+
+async function persistCreateLog(stdout) {
+	const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+	const logPath = path.join(
+		artifactsDir,
+		`create-log-${timestamp}.txt`
+	);
+	await writeFile(logPath, stdout ?? '', 'utf8');
+	return logPath;
+}
+
+function verifyCreateLogging(output) {
+	const text = output ?? '';
+	if (!text.includes('Installing npm dependencies')) {
+		throw new Error(
+			'create-wpk output missed expected log line: "Installing npm dependencies"'
+		);
+	}
+
+	if (!text.includes('Installing npm dependencies completed')) {
+		throw new Error(
+			'create-wpk output missed completion log line: "Installing npm dependencies completed"'
+		);
+	}
+}
+
+async function commitWorkspace(cwd, message) {
+	await runCommand('git', ['add', '-A'], { cwd });
+	await runCommand('git', ['commit', '-m', message], { cwd });
 }
 
 main().catch((error) => {

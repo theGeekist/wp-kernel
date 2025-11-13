@@ -47,6 +47,10 @@ function resolveEnvironmentEnabled(): boolean {
 		return true;
 	}
 
+	if (env === 'test') {
+		return false;
+	}
+
 	return env !== 'production';
 }
 
