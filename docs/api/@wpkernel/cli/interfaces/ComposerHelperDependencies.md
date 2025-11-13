@@ -8,28 +8,6 @@
 
 ## Properties
 
-### install()
-
-```ts
-readonly install: (cwd, __namedParameters) => Promise<void>;
-```
-
-#### Parameters
-
-##### cwd
-
-`string`
-
-##### \_\_namedParameters
-
-[`InstallerDependencies`](InstallerDependencies.md) = `{}`
-
-#### Returns
-
-`Promise`\<`void`\>
-
----
-
 ### pathExists()
 
 ```ts
@@ -45,33 +23,3 @@ readonly pathExists: (candidate) => Promise<boolean>;
 #### Returns
 
 `Promise`\<`boolean`\>
-
----
-
-### resolveCliComposerRoot()
-
-```ts
-readonly resolveCliComposerRoot: () => string | null;
-```
-
-#### Returns
-
-`string` \| `null`
-
----
-
-### showPhpParserMetadata()
-
-```ts
-readonly showPhpParserMetadata: (cwd) => Promise<ComposerShowResult>;
-```
-
-#### Parameters
-
-##### cwd
-
-`string`
-
-#### Returns
-
-`Promise`\<`ComposerShowResult`\>

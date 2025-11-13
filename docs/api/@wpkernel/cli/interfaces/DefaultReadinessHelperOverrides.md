@@ -19,7 +19,7 @@ readonly optional bootstrapperResolution: BootstrapperResolutionHelperOptions;
 ### composer?
 
 ```ts
-readonly optional composer: ComposerHelperOverrides;
+readonly optional composer: Partial<ComposerHelperDependencies>;
 ```
 
 ---
@@ -36,14 +36,6 @@ readonly optional git: Partial<GitHelperDependencies>;
 
 ```ts
 readonly optional phpCodemodIngestion: Partial<PhpCodemodIngestionDependencies>;
-```
-
----
-
-### phpDriver?
-
-```ts
-readonly optional phpDriver: Partial<PhpDriverDependencies>;
 ```
 
 ---

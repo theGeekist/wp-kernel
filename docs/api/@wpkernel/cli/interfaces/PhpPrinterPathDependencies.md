@@ -164,39 +164,3 @@ The encoding (or an object specifying the encoding), used as the encoding of the
 ##### Returns
 
 `Promise`\<`string` \| `Buffer`\<`ArrayBufferLike`\>\>
-
----
-
-### resolve()
-
-```ts
-readonly resolve: (id, opts?) => string;
-```
-
-#### Parameters
-
-##### id
-
-`string`
-
-##### opts?
-
-###### paths?
-
-`string`[]
-
-#### Returns
-
-`string`
-
----
-
-### resolveRuntimePath()
-
-```ts
-readonly resolveRuntimePath: () => string;
-```
-
-#### Returns
-
-`string`

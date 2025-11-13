@@ -7,9 +7,8 @@
 # Function: createQuickstartReadinessHelper()
 
 ```ts
-function createQuickstartReadinessHelper(
-	options
-): ReadinessHelper<QuickstartState>;
+function createQuickstartReadinessHelper(options): ReadinessHelper & lt;
+QuickstartState & gt;
 ```
 
 ## Parameters

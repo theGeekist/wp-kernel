@@ -8,6 +8,30 @@
 
 ## Properties
 
+### allowDirty
+
+```ts
+readonly allowDirty: boolean;
+```
+
+---
+
+### gitRepositoryDetected
+
+```ts
+readonly gitRepositoryDetected: boolean;
+```
+
+---
+
+### gitStatus
+
+```ts
+readonly gitStatus: WorkspaceGitStatus | null;
+```
+
+---
+
 ### workspace
 
 ```ts

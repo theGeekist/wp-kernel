@@ -24,6 +24,14 @@ readonly workspaceRoot: string;
 
 ---
 
+### autoloadPaths?
+
+```ts
+readonly optional autoloadPaths: readonly string[];
+```
+
+---
+
 ### configurationPath?
 
 ```ts

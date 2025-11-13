@@ -8,34 +8,18 @@
 
 ## Properties
 
-### modulePath
+### canonicalPath
 
 ```ts
-readonly modulePath: string | null;
+readonly canonicalPath: string | null;
 ```
 
 ---
 
-### moduleRealPath
+### scriptPath
 
 ```ts
-readonly moduleRealPath: string | null;
-```
-
----
-
-### runtimePath
-
-```ts
-readonly runtimePath: string | null;
-```
-
----
-
-### runtimeRealPath
-
-```ts
-readonly runtimeRealPath: string | null;
+readonly scriptPath: string;
 ```
 
 ---

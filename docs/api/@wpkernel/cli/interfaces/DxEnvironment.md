@@ -10,6 +10,17 @@ Environment metadata shared with readiness helpers.
 
 ## Properties
 
+### allowDirty
+
+```ts
+readonly allowDirty: boolean;
+```
+
+When true, readiness helpers should tolerate dirty workspaces. This
+is controlled by the shared `--allow-dirty` flag.
+
+---
+
 ### cwd
 
 ```ts

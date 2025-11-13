@@ -15,7 +15,7 @@ ComposerReadinessState & gt;
 
 ### overrides
 
-[`ComposerHelperOverrides`](../interfaces/ComposerHelperOverrides.md) = `{}`
+`Partial`\<[`ComposerHelperDependencies`](../interfaces/ComposerHelperDependencies.md)\> = `{}`
 
 ## Returns
 

@@ -8,48 +8,16 @@
 
 ## Properties
 
-### resolvedAutoloadPath
+### autoloadPath
 
 ```ts
-readonly resolvedAutoloadPath: string | null;
+readonly autoloadPath: string | null;
 ```
 
 ---
 
-### resolvedAutoloadSource
+### sourcePackage
 
 ```ts
-readonly resolvedAutoloadSource: AutoloadSource;
-```
-
----
-
-### vendorDirectory
-
-```ts
-readonly vendorDirectory: string;
-```
-
----
-
-### vendorPreviouslyExisted
-
-```ts
-readonly vendorPreviouslyExisted: boolean;
-```
-
----
-
-### workspace
-
-```ts
-readonly workspace: Workspace | null;
-```
-
----
-
-### workspaceRoot
-
-```ts
-readonly workspaceRoot: string;
+readonly sourcePackage: string | null;
 ```

@@ -8,26 +8,18 @@
 
 ## Properties
 
-### Workspace
-
-#### readGitStatus()
+### readGitStatus()
 
 ```ts
 readonly readGitStatus: (workspace) => Promise<WorkspaceGitStatus | null>;
 ```
 
-Reads the git status for the current workspace.
+#### Parameters
 
-##### Parameters
-
-###### workspace
+##### workspace
 
 [`Workspace`](Workspace.md)
 
-Workspace instance to inspect.
+#### Returns
 
-##### Returns
-
-`Promise`\<
-[`WorkspaceGitStatus`](../interfaces/WorkspaceGitStatus.md) \| `null`
-\>
+`Promise`\<[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`\>
