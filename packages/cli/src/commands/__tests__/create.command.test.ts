@@ -117,6 +117,10 @@ describe('CreateCommand', () => {
 			expect.objectContaining({
 				workspace,
 				projectName: 'demo',
+				installDependencies: true,
+				installers: expect.objectContaining({
+					installNodeDependencies: npmInstall,
+				}),
 			})
 		);
 		expect(ensureDirectory).toHaveBeenCalledWith(
@@ -126,7 +130,6 @@ describe('CreateCommand', () => {
 				force: false,
 			})
 		);
-		expect(npmInstall).toHaveBeenCalledWith(workspace.root);
 		expect(readinessPlan).toHaveBeenCalledWith([
 			'workspace-hygiene',
 			'git',
@@ -186,7 +189,14 @@ describe('CreateCommand', () => {
 		const exit = await command.execute();
 
 		expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(npmInstall).not.toHaveBeenCalled();
+		expect(workflow).toHaveBeenCalledWith(
+			expect.objectContaining({
+				installDependencies: false,
+				installers: expect.objectContaining({
+					installNodeDependencies: npmInstall,
+				}),
+			})
+		);
 		expect(readinessPlan).toHaveBeenCalledWith([
 			'workspace-hygiene',
 			'git',

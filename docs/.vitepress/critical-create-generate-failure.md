@@ -67,6 +67,7 @@ Capture deterministic timing metrics for installers and composer healers.
 **Completion log.** Update after each run:
 
 - [x] Pipeline adapter (65a) now routes init/create through `createInitPipeline` for staged logging.
+- [x] Installers instrumented (65b) capturing npm/composer timings with env-configurable budgets.
 
 #### 65a — Pipeline adapter for init/create
 
@@ -219,6 +220,8 @@ What to do:
 
 - Mention the new env vars / budgets so CI (and the smoke harness) know how to raise or lower
   tolerances when containers are slow.
+- Current overrides: `WPK_INIT_INSTALL_NODE_MAX_MS` (default 180000ms) and
+  `WPK_INIT_INSTALL_COMPOSER_MAX_MS` (default 120000ms).
 - Note that the timing metrics are now available in the pipeline artifact for Task 65d and the
   packed workflow.
 

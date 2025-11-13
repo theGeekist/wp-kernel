@@ -21,6 +21,7 @@ import {
 	parseStringOption,
 	shouldPreferRegistryVersions,
 	slugify,
+	fileExists,
 } from './utils';
 import {
 	createEmptyPluginDetection,
@@ -32,12 +33,19 @@ import {
 	buildWorkflowResult,
 	logDependencyResolution,
 } from './workflow-support';
+import {
+	DEFAULT_COMPOSER_INSTALL_BUDGET_MS,
+	DEFAULT_NODE_INSTALL_BUDGET_MS,
+	measureStage,
+	resolveInstallBudgets,
+} from './timing';
 import type {
 	InitPipelineArtifact,
 	InitPipelineContext,
 	InitPipelineDraft,
 	InitPipelineRunOptions,
 	InitWorkflowResult,
+	InstallationMeasurements,
 } from './types';
 
 const INIT_FRAGMENT_KEY_NAMESPACE = 'init.namespace';
@@ -45,6 +53,7 @@ const INIT_FRAGMENT_KEY_DETECT = 'init.detect';
 const INIT_FRAGMENT_KEY_COLLISIONS = 'init.collisions';
 const INIT_FRAGMENT_KEY_DEPENDENCIES = 'init.dependencies';
 const INIT_BUILDER_KEY_SCAFFOLD = 'init.scaffold';
+const INIT_BUILDER_KEY_INSTALL = 'init.install';
 const INIT_BUILDER_KEY_RESULT = 'init.result';
 type InitFragmentHelper = Helper<
 	InitPipelineContext,
@@ -122,6 +131,7 @@ export function createInitPipeline() {
 	pipeline.ir.use(createCollisionHelper());
 	pipeline.ir.use(createDependencyHelper());
 	pipeline.builders.use(createScaffoldBuilder());
+	pipeline.builders.use(createInstallBuilder());
 	pipeline.builders.use(createResultBuilder());
 
 	return pipeline;
@@ -143,7 +153,7 @@ function createNamespaceHelper(): InitFragmentHelper {
 		apply({ context, output }) {
 			const namespace = slugify(
 				parseStringOption(context.options.projectName) ??
-					path.basename(context.workspace.root)
+				path.basename(context.workspace.root)
 			);
 
 			output.namespace = namespace;
@@ -264,11 +274,71 @@ function createScaffoldBuilder(): InitBuilderHelper {
 	});
 }
 
+function createInstallBuilder(): InitBuilderHelper {
+	return createHelper({
+		key: INIT_BUILDER_KEY_INSTALL,
+		kind: 'builder',
+		dependsOn: [INIT_BUILDER_KEY_SCAFFOLD],
+		async apply({ context, input, output, reporter }) {
+			if (!context.options.installDependencies) {
+				return;
+			}
+
+			const budgets = resolveInstallBudgets(context.options.env);
+			const installers = context.options.installers;
+			const existingInstallations: InstallationMeasurements =
+				output.installations ?? {};
+
+			reporter.info('Installing npm dependencies...');
+			const npmMeasurement = await measureStage({
+				stage: 'init.install.npm',
+				label: 'Installing npm dependencies',
+				budgetMs: budgets.npm ?? DEFAULT_NODE_INSTALL_BUDGET_MS,
+				reporter,
+				run: () =>
+					installers.installNodeDependencies(context.workspace.root),
+			});
+
+			let nextInstallations: InstallationMeasurements = {
+				...existingInstallations,
+				npm: npmMeasurement,
+			};
+
+			if (
+				await shouldInstallComposer({
+					summaries: input.summaries ?? [],
+					workspace: context.workspace,
+				})
+			) {
+				reporter.info('Installing composer dependencies...');
+				const composerMeasurement = await measureStage({
+					stage: 'init.install.composer',
+					label: 'Installing composer dependencies',
+					budgetMs:
+						budgets.composer ?? DEFAULT_COMPOSER_INSTALL_BUDGET_MS,
+					reporter,
+					run: () =>
+						installers.installComposerDependencies(
+							context.workspace.root
+						),
+				});
+
+				nextInstallations = {
+					...nextInstallations,
+					composer: composerMeasurement,
+				};
+			}
+
+			output.installations = nextInstallations;
+		},
+	});
+}
+
 function createResultBuilder(): InitBuilderHelper {
 	return createHelper({
 		key: INIT_BUILDER_KEY_RESULT,
 		kind: 'builder',
-		dependsOn: [INIT_BUILDER_KEY_SCAFFOLD],
+		dependsOn: [INIT_BUILDER_KEY_INSTALL],
 		apply({ input, output }) {
 			if (!input.manifest) {
 				throw new WPKernelError('DeveloperError', {
@@ -283,6 +353,7 @@ function createResultBuilder(): InitBuilderHelper {
 				templateName: input.templateName,
 				namespace: input.namespace,
 				dependencySource: input.dependencyResolution.source,
+				installations: input.installations,
 			});
 		},
 	});
@@ -296,6 +367,7 @@ function finalizeDraft(draft: InitPipelineDraft): InitPipelineArtifact {
 		draft.pluginDetection ?? createEmptyPluginDetection();
 	const dependencyResolution = draft.dependencyResolution;
 	const replacements = draft.replacements;
+	const installations = draft.installations;
 
 	if (
 		!namespace ||
@@ -321,5 +393,24 @@ function finalizeDraft(draft: InitPipelineDraft): InitPipelineArtifact {
 		summaries: draft.summaries,
 		manifest: draft.manifest,
 		result: draft.result,
-	};
+		installations,
+	} satisfies InitPipelineArtifact;
+}
+
+async function shouldInstallComposer({
+	summaries,
+	workspace,
+}: {
+	readonly summaries: InitPipelineArtifact['summaries'];
+	readonly workspace: InitPipelineContext['workspace'];
+}): Promise<boolean> {
+	const composerSummary = summaries.find(
+		(entry) => entry.path === 'composer.json'
+	);
+
+	if (composerSummary && composerSummary.status !== 'skipped') {
+		return true;
+	}
+
+	return fileExists(workspace, 'composer.json');
 }

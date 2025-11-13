@@ -5,7 +5,10 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
 import { buildWorkspace, ensureCleanDirectory } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
-import { installNodeDependencies } from './init/installers';
+import {
+	installNodeDependencies,
+	installComposerDependencies,
+} from './init/installers';
 import { type InitCommandRuntimeDependencies } from './init/command-runtime';
 import {
 	InitCommandBase,
@@ -47,6 +50,8 @@ export interface BuildCreateCommandOptions {
 	readonly ensureCleanDirectory?: typeof ensureCleanDirectory;
 	/** Optional: Custom Node.js dependency installer function. */
 	readonly installNodeDependencies?: typeof installNodeDependencies;
+	/** Optional: Custom Composer dependency installer function. */
+	readonly installComposerDependencies?: typeof installComposerDependencies;
 }
 
 /**
@@ -72,6 +77,7 @@ interface CreateDependencies {
 	readonly runtime: InitCommandRuntimeDependencies;
 	readonly ensureCleanDirectory: typeof ensureCleanDirectory;
 	readonly installNodeDependencies: typeof installNodeDependencies;
+	readonly installComposerDependencies: typeof installComposerDependencies;
 	readonly loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 }
 
@@ -88,6 +94,8 @@ function mergeDependencies(
 			ensureCleanDirectoryOverride = ensureCleanDirectory,
 		installNodeDependencies:
 			installNodeDependenciesOverride = installNodeDependencies,
+		installComposerDependencies:
+			installComposerDependenciesOverride = installComposerDependencies,
 	} = options;
 
 	return {
@@ -99,6 +107,7 @@ function mergeDependencies(
 		},
 		ensureCleanDirectory: ensureCleanDirectoryOverride,
 		installNodeDependencies: installNodeDependenciesOverride,
+		installComposerDependencies: installComposerDependenciesOverride,
 		loadWPKernelConfig: loadWPKernelConfigOverride,
 	} satisfies CreateDependencies;
 }
@@ -158,6 +167,13 @@ export function buildCreateCommand(
 					dependencies,
 					readinessHelperFactories
 				),
+				installDependencies: this.skipInstall !== true,
+				installers: {
+					installNodeDependencies:
+						dependencies.installNodeDependencies,
+					installComposerDependencies:
+						dependencies.installComposerDependencies,
+				},
 			});
 		}
 	}
@@ -224,11 +240,7 @@ function buildCreateCommandHooks(
 				runtime.reporter.warn(
 					'Skipping dependency installation (--skip-install provided).'
 				);
-				return;
 			}
-
-			runtime.reporter.info('Installing npm dependencies...');
-			await dependencies.installNodeDependencies(runtime.workspace.root);
 		},
 	} satisfies InitCommandHooks;
 }

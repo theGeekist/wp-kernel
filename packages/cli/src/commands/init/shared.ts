@@ -14,7 +14,7 @@ import {
 	type ReadinessHelperDescriptor,
 	type ReadinessKey,
 } from '../../dx';
-import type { InitWorkflowResult } from './types';
+import type { InitWorkflowResult, InitWorkflowInstallers } from './types';
 
 export interface InitCommandState {
 	name?: string;
@@ -31,8 +31,7 @@ export interface InitCommandState {
 
 export abstract class InitCommandBase
 	extends Command
-	implements InitCommandState
-{
+	implements InitCommandState {
 	name = Option.String('--name', {
 		description: 'Project slug used for namespace/package defaults',
 		required: false,
@@ -128,6 +127,8 @@ export interface RunInitCommandOptions {
 	readonly dependencies: InitCommandRuntimeDependencies;
 	readonly hooks?: InitCommandHooks;
 	readonly allowDirty?: boolean;
+	readonly installDependencies?: boolean;
+	readonly installers?: Partial<InitWorkflowInstallers>;
 }
 
 export interface RunInitCommandResult {
@@ -149,6 +150,8 @@ export async function runInitCommand({
 	dependencies,
 	allowDirty = false,
 	hooks = {},
+	installDependencies,
+	installers,
 }: RunInitCommandOptions): Promise<RunInitCommandResult> {
 	const cwd = resolveCommandCwd(command.context);
 	const workspaceRoot = resolveWorkspaceRootForCommand(cwd, command, hooks);
@@ -165,6 +168,8 @@ export async function runInitCommand({
 		preferRegistryVersions: command.preferRegistryVersions,
 		readiness,
 		allowDirty,
+		installDependencies,
+		installers,
 	});
 
 	const context: InitCommandContext = { workspaceRoot, cwd };

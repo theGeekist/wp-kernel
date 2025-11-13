@@ -5,6 +5,7 @@ import { writeScaffoldFiles } from './scaffold';
 import type { DependencyResolution } from './dependency-versions';
 import type {
 	InitWorkflowResult,
+	InstallationMeasurements,
 	PluginDetectionResult,
 	ScaffoldSummary,
 } from './types';
@@ -85,12 +86,14 @@ export function buildWorkflowResult({
 	templateName,
 	namespace,
 	dependencySource,
+	installations,
 }: {
 	readonly manifest: InitWorkflowResult['manifest'];
 	readonly summaries: ScaffoldSummary[];
 	readonly templateName: string;
 	readonly namespace: string;
 	readonly dependencySource: string;
+	readonly installations?: InstallationMeasurements;
 }): InitWorkflowResult {
 	return {
 		manifest,
@@ -103,6 +106,7 @@ export function buildWorkflowResult({
 		dependencySource,
 		namespace,
 		templateName,
+		installations,
 	};
 }
 
