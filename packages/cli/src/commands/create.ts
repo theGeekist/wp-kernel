@@ -62,8 +62,6 @@ export interface BuildCreateCommandOptions {
 export type CreateCommandInstance = InitCommandBase & {
 	/** The target directory for the new project. */
 	target?: string;
-	/** Whether to skip dependency installation. */
-	skipInstall: boolean;
 };
 
 /**
@@ -142,15 +140,10 @@ export function buildCreateCommand(
 			examples: [
 				['Create project in current directory', 'wpk create'],
 				['Create project in ./demo-plugin', 'wpk create demo-plugin'],
-				[
-					'Create without installing dependencies',
-					'wpk create demo --skip-install',
-				],
 			],
 		});
 
 		target = Option.String({ name: 'directory', required: false });
-		skipInstall = Option.Boolean('--skip-install', false);
 
 		override async execute(): Promise<WPKExitCode> {
 			const readinessHelperFactories =
@@ -167,7 +160,7 @@ export function buildCreateCommand(
 					dependencies,
 					readinessHelperFactories
 				),
-				installDependencies: this.skipInstall !== true,
+				installDependencies: true,
 				installers: {
 					installNodeDependencies:
 						dependencies.installNodeDependencies,
@@ -216,15 +209,7 @@ function buildCreateCommandHooks(
 				.map((helper) => helper.key)
 				.filter((key) => allowed.has(key));
 
-			if (command.skipInstall !== true) {
-				return ordered;
-			}
-
-			return ordered.filter((key) => {
-				const helper = helpers.find((entry) => entry.key === key);
-				const tags = helper?.metadata.tags ?? [];
-				return !tags.includes('requires-install');
-			});
+			return ordered;
 		},
 		prepare: async (runtime, context: InitCommandContext) => {
 			await dependencies.ensureCleanDirectory({
@@ -234,13 +219,6 @@ function buildCreateCommandHooks(
 				create: true,
 				reporter: runtime.reporter,
 			});
-		},
-		afterReadiness: async (runtime) => {
-			if (command.skipInstall === true) {
-				runtime.reporter.warn(
-					'Skipping dependency installation (--skip-install provided).'
-				);
-			}
 		},
 	} satisfies InitCommandHooks;
 }

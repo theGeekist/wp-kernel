@@ -25,6 +25,7 @@ import type { Workspace } from '../workspace';
 import { cleanupWorkspaceTargets } from './apply/cleanup';
 import { runCommandReadiness } from './readiness';
 import { resolveCommandCwd } from './init/command-runtime';
+import { runWithProgress, formatDuration } from '../utils/progress';
 
 /**
  * The path to the apply log file within the workspace.
@@ -134,10 +135,17 @@ export function buildApplyCommand(
 					allowDirty: flags.allowDirty,
 				});
 
-				const preview = await previewPatches({
-					dependencies,
-					workspace: activeWorkspace,
-					loaded,
+				const { result: preview } = await runWithProgress({
+					reporter,
+					label: 'Evaluating pending patches',
+					run: () =>
+						previewPatches({
+							dependencies,
+							workspace: activeWorkspace,
+							loaded,
+						}),
+					successMessage: (durationMs) =>
+						`✓ Patch preview completed in ${formatDuration(durationMs)}.`,
 				});
 
 				if (flags.cleanup.length > 0) {
@@ -162,18 +170,30 @@ export function buildApplyCommand(
 				}
 
 				if (flags.backup) {
-					await dependencies.createBackups({
-						workspace: activeWorkspace,
-						manifest: preview.workspaceManifest,
+					await runWithProgress({
 						reporter,
+						label: 'Creating workspace backups',
+						run: () =>
+							dependencies.createBackups({
+								workspace: activeWorkspace,
+								manifest: preview.workspaceManifest,
+								reporter,
+							}),
 					});
 				}
 
-				const manifest = await executeApply({
-					dependencies,
-					workspace: activeWorkspace,
-					loaded,
+				const { result: manifest } = await runWithProgress({
 					reporter,
+					label: 'Applying workspace patches',
+					run: () =>
+						executeApply({
+							dependencies,
+							workspace: activeWorkspace,
+							loaded,
+							reporter,
+						}),
+					successMessage: (durationMs) =>
+						`✓ Apply completed in ${formatDuration(durationMs)}.`,
 				});
 
 				withCommandState(this, manifest);

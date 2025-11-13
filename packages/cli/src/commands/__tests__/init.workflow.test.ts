@@ -202,7 +202,6 @@ describe('runInitWorkflow', () => {
 		).rejects.toThrow('scaffold failed');
 
 		expect(rollback).toHaveBeenCalledWith('init');
-		expect(reporter.info).not.toHaveBeenCalled();
 	});
 
 	it('captures installer timings when installation is enabled', async () => {

@@ -14,14 +14,6 @@ Represents an instance of the `create` command.
 
 ## Type Declaration
 
-### skipInstall
-
-```ts
-skipInstall: boolean;
-```
-
-Whether to skip dependency installation.
-
 ### target?
 
 ```ts

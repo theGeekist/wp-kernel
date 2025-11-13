@@ -5,6 +5,7 @@ import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildCreateCommand } from '../create';
 import type { buildWorkspace } from '../../workspace/filesystem';
+import type { InitWorkflowOptions } from '../init/types';
 
 describe('CreateCommand', () => {
 	let loadWPKernelConfig: jest.Mock;
@@ -63,16 +64,24 @@ describe('CreateCommand', () => {
 		},
 	];
 
-	it('runs init workflow, readiness plan, and installs npm dependencies', async () => {
-		const workflow = jest.fn().mockResolvedValue({
-			manifest: { writes: [], deletes: [] },
-			summaryText: '[wpk] init created plugin scaffold for demo\n',
-			summaries: [],
-			dependencySource: 'fallback',
-			namespace: 'demo',
-			templateName: 'plugin',
-		});
+	it('runs init workflow, readiness plan, and configures installers', async () => {
+		let capturedWorkflowOptions: InitWorkflowOptions | undefined;
+		const workflow = jest
+			.fn()
+			.mockImplementation(async (options: InitWorkflowOptions) => {
+				capturedWorkflowOptions = options;
+				return {
+					manifest: { writes: [], deletes: [] },
+					summaryText:
+						'[wpk] init created plugin scaffold for demo\n',
+					summaries: [],
+					dependencySource: 'fallback',
+					namespace: 'demo',
+					templateName: 'plugin',
+				};
+			});
 		const npmInstall = jest.fn().mockResolvedValue(undefined);
+		const composerInstall = jest.fn().mockResolvedValue(undefined);
 		const ensureDirectory = jest.fn().mockResolvedValue(undefined);
 		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
 		let capturedContext: unknown;
@@ -101,6 +110,7 @@ describe('CreateCommand', () => {
 			ensureCleanDirectory: ensureDirectory,
 			buildReadinessRegistry: buildReadinessRegistry as never,
 			loadWPKernelConfig,
+			installComposerDependencies: composerInstall,
 		});
 
 		const command = new CreateCommand();
@@ -113,16 +123,7 @@ describe('CreateCommand', () => {
 		const exit = await command.execute();
 
 		expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(workflow).toHaveBeenCalledWith(
-			expect.objectContaining({
-				workspace,
-				projectName: 'demo',
-				installDependencies: true,
-				installers: expect.objectContaining({
-					installNodeDependencies: npmInstall,
-				}),
-			})
-		);
+		expect(workflow).toHaveBeenCalled();
 		expect(ensureDirectory).toHaveBeenCalledWith(
 			expect.objectContaining({
 				workspace,
@@ -145,67 +146,13 @@ describe('CreateCommand', () => {
 				.environment.allowDirty
 		).toBe(false);
 		expect(stdout.toString()).toContain('plugin scaffold');
-	});
-
-	it('skips installers when --skip-install is provided', async () => {
-		const workflow = jest.fn().mockResolvedValue({
-			manifest: { writes: [], deletes: [] },
-			summaryText: 'summary\n',
-			summaries: [],
-			dependencySource: 'fallback',
-			namespace: 'demo',
-			templateName: 'plugin',
-		});
-		const npmInstall = jest.fn().mockResolvedValue(undefined);
-		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
-		const readinessPlan = jest
-			.fn()
-			.mockImplementation((keys: string[]) => ({
-				keys,
-				run: readinessRun,
-			}));
-
-		const workspace = makeWorkspaceMock({ root: process.cwd() });
-
-		const CreateCommand = buildCreateCommand({
-			buildWorkspace: (() => workspace) as typeof buildWorkspace,
-			runWorkflow: workflow,
-			installNodeDependencies: npmInstall,
-			ensureCleanDirectory: jest.fn().mockResolvedValue(undefined),
-			buildReadinessRegistry: (() => ({
-				register: jest.fn(),
-				plan: readinessPlan,
-				describe: () => helperDescriptors,
-			})) as never,
-			loadWPKernelConfig,
-		});
-
-		const command = new CreateCommand();
-		command.skipInstall = true;
-		const { stdout } = assignCommandContext(command, {
-			cwd: process.cwd(),
-		});
-
-		const exit = await command.execute();
-
-		expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(workflow).toHaveBeenCalledWith(
-			expect.objectContaining({
-				installDependencies: false,
-				installers: expect.objectContaining({
-					installNodeDependencies: npmInstall,
-				}),
-			})
-		);
-		expect(readinessPlan).toHaveBeenCalledWith([
-			'workspace-hygiene',
-			'git',
-			'php-runtime',
-			'php-codemod-ingestion',
-			'php-printer-path',
-		]);
-		expect(readinessRun).toHaveBeenCalledTimes(1);
-		expect(stdout.toString()).toContain('summary');
+		expect(capturedWorkflowOptions?.installDependencies).toBe(true);
+		expect(
+			capturedWorkflowOptions?.installers?.installNodeDependencies
+		).toBe(npmInstall);
+		expect(
+			capturedWorkflowOptions?.installers?.installComposerDependencies
+		).toBe(composerInstall);
 	});
 
 	it('propagates --allow-dirty to readiness context', async () => {

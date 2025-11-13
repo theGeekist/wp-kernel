@@ -7,8 +7,9 @@ export interface MeasureStageOptions {
 	readonly stage: string;
 	readonly label: string;
 	readonly budgetMs: number;
-	readonly reporter: Reporter;
+	readonly reporter?: Reporter;
 	readonly run: () => Promise<void>;
+	readonly logCompletion?: boolean;
 }
 
 export interface InstallBudgets {
@@ -25,6 +26,7 @@ export async function measureStage({
 	budgetMs,
 	reporter,
 	run,
+	logCompletion = true,
 }: MeasureStageOptions): Promise<StageMeasurement> {
 	const start = performance.now();
 
@@ -32,9 +34,11 @@ export async function measureStage({
 
 	const durationMs = Math.round(performance.now() - start);
 
-	reporter.info(
-		`${label} completed in ${durationMs}ms (budget ${budgetMs}ms)`
-	);
+	if (logCompletion && reporter) {
+		reporter.info(
+			`${label} completed in ${durationMs}ms (budget ${budgetMs}ms)`
+		);
+	}
 
 	if (budgetMs > 0 && durationMs > budgetMs) {
 		throw new WPKernelError('EnvironmentalError', {

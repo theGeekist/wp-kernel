@@ -28,6 +28,7 @@ import {
 } from '../apply/manifest';
 import { runCommandReadiness } from './readiness';
 import { resolveCommandCwd } from './init/command-runtime';
+import { runWithProgress, formatDuration } from '../utils/progress';
 
 // Re-export types from sub-modules for TypeDoc
 export type { GenerationSummary } from './run-generate/types';
@@ -147,16 +148,25 @@ async function runGenerateWorkflow(
 		tracked.workspace.begin(TRANSACTION_LABEL);
 
 		try {
-			const result = await pipeline.run({
-				phase: 'generate',
-				config: loaded.config,
-				namespace: loaded.namespace,
-				origin: loaded.configOrigin,
-				sourcePath: loaded.sourcePath,
-				workspace: tracked.workspace,
+			const { result: pipelineResult } = await runWithProgress({
 				reporter,
-				generationState: previousGenerationState,
+				label: 'Running generation pipeline',
+				run: () =>
+					pipeline.run({
+						phase: 'generate',
+						config: loaded.config,
+						namespace: loaded.namespace,
+						origin: loaded.configOrigin,
+						sourcePath: loaded.sourcePath,
+						workspace: tracked.workspace,
+						reporter,
+						generationState: previousGenerationState,
+					}),
+				successMessage: (durationMs) =>
+					`✓ Generation pipeline completed in ${formatDuration(durationMs)}.`,
 			});
+
+			const result = pipelineResult;
 
 			logDiagnostics(reporter, result.diagnostics);
 

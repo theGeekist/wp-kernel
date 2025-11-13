@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events';
 import { WPKernelError } from '@wpkernel/core/error';
 import {
 	installComposerDependencies,
@@ -5,90 +6,103 @@ import {
 } from '../init/installers';
 import type { InstallerDependencies } from '../init/installers';
 
-describe('init installers', () => {
-	it('executes npm install with the provided exec implementation', async () => {
-		const execMock = jest.fn(
-			async (
-				command: string,
-				args: string[],
-				options: { cwd: string }
-			) => {
-				expect(command).toBe('npm');
-				expect(args).toEqual(['install']);
-				expect(options.cwd).toBe('/tmp/project');
+function createSpawnMock({
+	onClose,
+	onError,
+}: {
+	onClose?: (emit: EventEmitter['emit']) => void;
+	onError?: (emit: EventEmitter['emit']) => void;
+} = {}) {
+	return jest.fn(() => {
+		const child = new EventEmitter();
+		process.nextTick(() => {
+			if (onClose) {
+				onClose(child.emit.bind(child));
+			} else {
+				child.emit('close', 0, null);
 			}
-		);
-		const exec = execMock as unknown as InstallerDependencies['exec'];
+		});
 
+		if (onError) {
+			process.nextTick(() => onError(child.emit.bind(child)));
+		}
+
+		return child as unknown as ReturnType<
+			NonNullable<InstallerDependencies['spawn']>
+		>;
+	});
+}
+
+describe('init installers', () => {
+	it('spawns npm install while streaming output', async () => {
+		const spawnMock = createSpawnMock();
 		await expect(
-			installNodeDependencies('/tmp/project', { exec })
-		).resolves.toBeUndefined();
-		expect(execMock).toHaveBeenCalledTimes(1);
+			installNodeDependencies('/tmp/project', {
+				spawn: spawnMock as unknown as InstallerDependencies['spawn'],
+			})
+		).resolves.toEqual({ stdout: '', stderr: '' });
+		expect(spawnMock).toHaveBeenCalledWith('npm', ['install'], {
+			cwd: '/tmp/project',
+			stdio: ['inherit', 'pipe', 'pipe'],
+		});
 	});
 
 	it('wraps npm installation failures in a developer wpk error', async () => {
-		const execMock = jest.fn(async () => {
-			const error = new Error('npm failure');
-			(error as { stderr?: string }).stderr = 'fatal';
-			(error as { stdout?: string }).stdout = 'diagnostics';
-			throw error;
+		const spawnMock = createSpawnMock({
+			onClose: (emit) => emit('close', 1, null),
 		});
-		const exec = execMock as unknown as InstallerDependencies['exec'];
-
 		await expect(
-			installNodeDependencies('/tmp/project', { exec })
+			installNodeDependencies('/tmp/project', {
+				spawn: spawnMock as unknown as InstallerDependencies['spawn'],
+			})
 		).rejects.toBeInstanceOf(WPKernelError);
 
-		await installNodeDependencies('/tmp/project', { exec }).catch(
-			(error) => {
-				expect(error).toBeInstanceOf(WPKernelError);
-				const kernelError = error as WPKernelError;
-				expect(kernelError.code).toBe('DeveloperError');
-				expect(kernelError.message).toBe(
-					'Failed to install npm dependencies.'
-				);
-				expect(kernelError.context).toEqual({
-					message: 'npm failure',
-					stderr: 'fatal',
-					stdout: 'diagnostics',
-				});
-			}
-		);
+		await installNodeDependencies('/tmp/project', {
+			spawn: spawnMock as unknown as InstallerDependencies['spawn'],
+		}).catch((error) => {
+			expect(error).toBeInstanceOf(WPKernelError);
+			const kernelError = error as WPKernelError;
+			expect(kernelError.code).toBe('DeveloperError');
+			expect(kernelError.message).toBe(
+				'Failed to install npm dependencies.'
+			);
+			expect(kernelError.context).toEqual({
+				message: 'npm exited with code 1',
+				exitCode: 1,
+				signal: undefined,
+			});
+		});
 	});
 
 	it('executes composer install and surfaces error context on failure', async () => {
-		const successExecMock = jest.fn(
-			async (
-				command: string,
-				args: string[],
-				options: { cwd: string }
-			) => {
-				expect(command).toBe('composer');
-				expect(args).toEqual(['install']);
-				expect(options.cwd).toBe('/tmp/project');
-			}
-		);
-		const successExec =
-			successExecMock as unknown as InstallerDependencies['exec'];
-
+		const successSpawn = createSpawnMock();
 		await expect(
-			installComposerDependencies('/tmp/project', { exec: successExec })
-		).resolves.toBeUndefined();
-
-		const failingExecMock = jest.fn(async () => {
-			const error = new Error('composer failure');
-			(error as { stderr?: string }).stderr = 'stderr output';
-			throw error;
+			installComposerDependencies('/tmp/project', {
+				spawn: successSpawn as unknown as InstallerDependencies['spawn'],
+			})
+		).resolves.toEqual({ stdout: '', stderr: '' });
+		expect(successSpawn).toHaveBeenCalledWith('composer', ['install'], {
+			cwd: '/tmp/project',
+			stdio: ['inherit', 'pipe', 'pipe'],
 		});
-		const failingExec =
-			failingExecMock as unknown as InstallerDependencies['exec'];
+
+		const failingSpawn = createSpawnMock({
+			onClose: () => undefined,
+			onError: (emit) =>
+				emit('error', {
+					message: 'composer failure',
+					exitCode: 127,
+				}),
+		});
 
 		await expect(
-			installComposerDependencies('/tmp/project', { exec: failingExec })
+			installComposerDependencies('/tmp/project', {
+				spawn: failingSpawn as unknown as InstallerDependencies['spawn'],
+			})
 		).rejects.toBeInstanceOf(WPKernelError);
 
 		await installComposerDependencies('/tmp/project', {
-			exec: failingExec,
+			spawn: failingSpawn as unknown as InstallerDependencies['spawn'],
 		}).catch((error) => {
 			expect(error).toBeInstanceOf(WPKernelError);
 			const kernelError = error as WPKernelError;
@@ -98,8 +112,8 @@ describe('init installers', () => {
 			);
 			expect(kernelError.context).toEqual({
 				message: 'composer failure',
-				stderr: 'stderr output',
-				stdout: undefined,
+				exitCode: 127,
+				signal: undefined,
 			});
 		});
 	});
