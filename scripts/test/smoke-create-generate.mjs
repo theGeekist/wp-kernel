@@ -28,6 +28,9 @@ async function main() {
 	let success = false;
 
 	try {
+		logStep('Building @wpkernel/php-driver');
+		await runPnpm(['--filter', '@wpkernel/php-driver', 'build']);
+
 		logStep('Building @wpkernel/cli');
 		await runPnpm(['--filter', '@wpkernel/cli', 'build']);
 
