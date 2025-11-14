@@ -1,4 +1,4 @@
-import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config/types';
 
 /**
  * WPKernel configuration for your project.
@@ -9,6 +9,7 @@ import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
  *
  * @see https://wpkernel.dev/reference/wpk-config.schema.json
  */
+/** @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules */
 export const wpkConfig: WPKernelConfigV1 = {
 	/**
 	 * Optional JSON Schema reference so editors can offer autocomplete
