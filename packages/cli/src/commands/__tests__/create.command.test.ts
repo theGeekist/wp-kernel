@@ -80,7 +80,9 @@ describe('CreateCommand', () => {
 					templateName: 'plugin',
 				};
 			});
-		const npmInstall = jest.fn().mockResolvedValue(undefined);
+		const npmInstall = jest
+			.fn()
+			.mockResolvedValue({ stdout: '', stderr: '' });
 		const composerInstall = jest.fn().mockResolvedValue(undefined);
 		const ensureDirectory = jest.fn().mockResolvedValue(undefined);
 		const readinessRun = jest.fn().mockResolvedValue({ outcomes: [] });
@@ -187,7 +189,9 @@ describe('CreateCommand', () => {
 		const CreateCommand = buildCreateCommand({
 			buildWorkspace: (() => workspace) as typeof buildWorkspace,
 			runWorkflow: workflow,
-			installNodeDependencies: jest.fn().mockResolvedValue(undefined),
+			installNodeDependencies: jest
+				.fn()
+				.mockResolvedValue({ stdout: '', stderr: '' }),
 			ensureCleanDirectory: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: buildReadinessRegistry as never,
 			loadWPKernelConfig,
@@ -257,7 +261,9 @@ describe('CreateCommand', () => {
 		const CreateCommand = buildCreateCommand({
 			buildWorkspace: (() => workspace) as typeof buildWorkspace,
 			runWorkflow: workflow,
-			installNodeDependencies: jest.fn().mockResolvedValue(undefined),
+			installNodeDependencies: jest
+				.fn()
+				.mockResolvedValue({ stdout: '', stderr: '' }),
 			ensureCleanDirectory: jest.fn().mockResolvedValue(undefined),
 			buildReadinessRegistry: buildReadinessRegistry as never,
 			loadWPKernelConfig,

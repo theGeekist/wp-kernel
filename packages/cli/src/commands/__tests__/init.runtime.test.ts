@@ -182,4 +182,56 @@ describe('init command runtime helpers', () => {
 			resolveCommandCwd(context as unknown as Command['context'])
 		).toBe('/tmp/context-root');
 	});
+
+	it('prefers package manager flag, falling back to env configuration', () => {
+		const workspace = makeWorkspaceMock({ root: '/tmp/package-manager' });
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
+
+		const buildWorkspace = jest.fn(() => workspace);
+		const buildReporter = jest.fn(() => reporter);
+		const runWorkflow = jest.fn();
+
+		const runtime = createInitCommandRuntime(
+			{ buildWorkspace, buildReporter, runWorkflow },
+			{
+				reporterNamespace: 'wpk.cli.test',
+				workspaceRoot: workspace.root,
+				env: {
+					WPK_PACKAGE_MANAGER: 'pnpm',
+				},
+			}
+		);
+
+		expect(runtime.resolved.packageManager).toBe('pnpm');
+		expect(runtime.workflowOptions.packageManager).toBe('pnpm');
+	});
+
+	it('falls back to process env when no option or env override is provided', () => {
+		const workspace = makeWorkspaceMock({
+			root: '/tmp/package-manager-env',
+		});
+		const reporters = createCommandReporterHarness();
+		const reporter = reporters.create();
+
+		const buildWorkspace = jest.fn(() => workspace);
+		const buildReporter = jest.fn(() => reporter);
+		const runWorkflow = jest.fn();
+
+		const original = process.env.WPK_PACKAGE_MANAGER;
+		process.env.WPK_PACKAGE_MANAGER = 'yarn';
+
+		const runtime = createInitCommandRuntime(
+			{ buildWorkspace, buildReporter, runWorkflow },
+			{
+				reporterNamespace: 'wpk.cli.test',
+				workspaceRoot: workspace.root,
+			}
+		);
+
+		expect(runtime.resolved.packageManager).toBe('yarn');
+		expect(runtime.workflowOptions.packageManager).toBe('yarn');
+
+		process.env.WPK_PACKAGE_MANAGER = original;
+	});
 });

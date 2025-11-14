@@ -82,6 +82,10 @@ export interface ReadinessConfig {
  * @public
  */
 export interface WPKernelConfigV1 {
+	/**
+	 * Optional JSON schema reference to enable IDE validation.
+	 */
+	$schema?: string;
 	version: WPKernelConfigVersion;
 	namespace: string;
 	schemas: SchemaRegistry;

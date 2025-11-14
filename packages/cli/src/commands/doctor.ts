@@ -21,6 +21,7 @@ import {
 import { getCliPackageRoot } from '../utils/module-url';
 import { resolveCommandCwd } from './init/command-runtime';
 import { runWithProgress, formatDuration } from '../utils/progress';
+import { COMMAND_HELP } from '../cli/help';
 
 /**
  * Status of a doctor check.
@@ -203,8 +204,9 @@ export function buildDoctorCommand(
 		static override paths = [['doctor']];
 
 		static override usage = Command.Usage({
-			description:
-				'Run health checks for wpk config, Composer autoload, PHP tooling, and workspace hygiene.',
+			description: COMMAND_HELP.doctor.description,
+			details: COMMAND_HELP.doctor.details,
+			examples: COMMAND_HELP.doctor.examples,
 		});
 
 		override async execute(): Promise<number> {

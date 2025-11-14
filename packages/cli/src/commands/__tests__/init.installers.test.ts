@@ -37,11 +37,22 @@ describe('init installers', () => {
 	it('spawns npm install while streaming output', async () => {
 		const spawnMock = createSpawnMock();
 		await expect(
-			installNodeDependencies('/tmp/project', {
+			installNodeDependencies('/tmp/project', 'npm', {
 				spawn: spawnMock as unknown as InstallerDependencies['spawn'],
 			})
 		).resolves.toEqual({ stdout: '', stderr: '' });
 		expect(spawnMock).toHaveBeenCalledWith('npm', ['install'], {
+			cwd: '/tmp/project',
+			stdio: ['inherit', 'pipe', 'pipe'],
+		});
+	});
+
+	it('supports alternate package managers', async () => {
+		const spawnMock = createSpawnMock();
+		await installNodeDependencies('/tmp/project', 'pnpm', {
+			spawn: spawnMock as unknown as InstallerDependencies['spawn'],
+		});
+		expect(spawnMock).toHaveBeenCalledWith('pnpm', ['install'], {
 			cwd: '/tmp/project',
 			stdio: ['inherit', 'pipe', 'pipe'],
 		});
@@ -52,12 +63,12 @@ describe('init installers', () => {
 			onClose: (emit) => emit('close', 1, null),
 		});
 		await expect(
-			installNodeDependencies('/tmp/project', {
+			installNodeDependencies('/tmp/project', 'npm', {
 				spawn: spawnMock as unknown as InstallerDependencies['spawn'],
 			})
 		).rejects.toBeInstanceOf(WPKernelError);
 
-		await installNodeDependencies('/tmp/project', {
+		await installNodeDependencies('/tmp/project', 'npm', {
 			spawn: spawnMock as unknown as InstallerDependencies['spawn'],
 		}).catch((error) => {
 			expect(error).toBeInstanceOf(WPKernelError);

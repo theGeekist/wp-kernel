@@ -37,6 +37,11 @@ wpk start
 
 The `wpk` binary is installed to `node_modules/.bin/wpk` automatically when npm installs the devDependencies.
 
+### CLI flags
+
+- `create-wpk --version` prints the packaged CLI version and exits immediately. This mirrors `wpk --version` for quick diagnostics.
+- Pass `--package-manager <npm|pnpm|yarn>` after the `--` separator to force a specific installer, e.g. `npm create @wpkernel/wpk demo -- --package-manager pnpm`. The bootstrapper forwards the flag to `wpk create`, so dependency installs run under the requested package manager.
+
 ## Features
 
 - Forwards positional arguments and `--`-delimited flags into `wpk create`, so targets such as `npm create @wpkernel/wpk demo -- --force` behave the same as running the CLI directly.

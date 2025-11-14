@@ -174,7 +174,7 @@ export function getReporterChild(
 }
 
 type StartCommandOptions = {
-	readonly autoApplyPhp?: boolean;
+	readonly autoApply?: boolean;
 	readonly beforeInstantiate?: (
 		StartCommand: ReturnType<typeof buildStartCommand>
 	) => void;
@@ -223,7 +223,7 @@ export class FakeChildProcess extends EventEmitter {
 }
 
 async function buildCommand({
-	autoApplyPhp = false,
+	autoApply = false,
 	beforeInstantiate,
 	...overrides
 }: StartCommandOptions = {}) {
@@ -244,7 +244,7 @@ async function buildCommand({
 	beforeInstantiate?.(StartCommand);
 
 	const command = new StartCommand();
-	command.autoApplyPhp = autoApplyPhp;
+	command.autoApply = autoApply;
 	const { stdout } = assignCommandContext(command);
 
 	const executePromise = command.execute();

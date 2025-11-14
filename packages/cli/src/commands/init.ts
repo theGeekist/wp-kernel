@@ -2,6 +2,7 @@ import { Command } from 'clipanion';
 import { WPKernelError } from '@wpkernel/core/error';
 import { WPK_NAMESPACE, type WPKExitCode } from '@wpkernel/core/contracts';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
+import { COMMAND_HELP } from '../cli/help';
 import { buildWorkspace } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { isGitRepository } from './init/git';
@@ -97,12 +98,9 @@ export function buildInitCommand(
 		static override paths = [['init']];
 
 		static override usage = Command.Usage({
-			description:
-				'Initialise a WPKernel project by scaffolding config, entrypoint, and linting presets.',
-			examples: [
-				['Scaffold project files', 'wpk init --name=my-plugin'],
-				['Overwrite existing files', 'wpk init --force'],
-			],
+			description: COMMAND_HELP.init.description,
+			details: COMMAND_HELP.init.details,
+			examples: COMMAND_HELP.init.examples,
 		});
 
 		override async execute(): Promise<WPKExitCode> {

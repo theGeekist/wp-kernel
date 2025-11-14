@@ -6,13 +6,17 @@ import type {
 	installNodeDependencies,
 } from './installers';
 import type { ScaffoldFileDescriptor, ScaffoldStatus } from './utils';
+import type { WorkspaceLanguage } from './workspace-language';
 
 export interface InitWorkflowEnv {
 	readonly WPK_PREFER_REGISTRY_VERSIONS?: string;
 	readonly REGISTRY_URL?: string;
 	readonly WPK_INIT_INSTALL_NODE_MAX_MS?: string;
 	readonly WPK_INIT_INSTALL_COMPOSER_MAX_MS?: string;
+	readonly WPK_PACKAGE_MANAGER?: string;
 }
+
+export type PackageManager = 'npm' | 'pnpm' | 'yarn';
 
 export interface InitWorkflowOptions {
 	readonly workspace: Workspace;
@@ -23,6 +27,7 @@ export interface InitWorkflowOptions {
 	readonly verbose?: boolean;
 	readonly preferRegistryVersionsFlag?: boolean;
 	readonly env?: InitWorkflowEnv;
+	readonly packageManager?: PackageManager;
 	readonly installDependencies?: boolean;
 	readonly installers?: Partial<InitWorkflowInstallers>;
 }
@@ -51,7 +56,10 @@ export interface StageMeasurement {
 }
 
 export interface InstallationMeasurements {
-	readonly npm?: StageMeasurement;
+	readonly node?: {
+		readonly manager: PackageManager;
+		readonly measurement: StageMeasurement;
+	};
 	readonly composer?: StageMeasurement;
 }
 
@@ -72,6 +80,7 @@ export interface InitPipelineDraft {
 	manifest?: FileManifest;
 	result?: InitWorkflowResult;
 	installations?: InstallationMeasurements;
+	workspaceLanguage?: WorkspaceLanguage;
 }
 
 export interface InitPipelineArtifact {
@@ -86,6 +95,7 @@ export interface InitPipelineArtifact {
 	manifest?: FileManifest;
 	result?: InitWorkflowResult;
 	installations?: InstallationMeasurements;
+	workspaceLanguage: WorkspaceLanguage;
 }
 
 export type InitPipelineRunOptions = Omit<
@@ -94,6 +104,7 @@ export type InitPipelineRunOptions = Omit<
 > & {
 	readonly installDependencies: boolean;
 	readonly installers: InitWorkflowInstallers;
+	readonly packageManager: PackageManager;
 };
 
 export interface InitPipelineContext {

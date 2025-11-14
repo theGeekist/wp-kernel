@@ -110,9 +110,9 @@ describe('buildStartCommand', () => {
 				await expectEventually(() => {
 					expect(fsCp).toHaveBeenCalledTimes(2);
 				});
-				expect(command.autoApplyPhp).toBe(true);
+				expect(command.autoApply).toBe(true);
 			},
-			{ autoApplyPhp: true }
+			{ autoApply: true }
 		);
 	});
 
@@ -123,7 +123,7 @@ describe('buildStartCommand', () => {
 			async () => {
 				// no-op: wait for command lifecycle
 			},
-			{ autoApplyPhp: true }
+			{ autoApply: true }
 		);
 
 		expect(fsCp).not.toHaveBeenCalled();
@@ -569,7 +569,7 @@ describe('buildStartCommand', () => {
 			async ({ reporterHarness: harness }) => {
 				reporter = harness.at(0)!;
 			},
-			{ autoApplyPhp: true }
+			{ autoApply: true }
 		);
 
 		const applyReporter = getReporterChild(reporter!, 'apply');

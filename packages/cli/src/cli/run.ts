@@ -7,6 +7,8 @@
  */
 import { Cli, Command } from 'clipanion';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+import { CLI_HELP } from './help';
+
 import {
 	buildApplyCommand,
 	buildCreateCommand,
@@ -17,11 +19,16 @@ import {
 } from '../commands';
 import { VERSION } from '../version';
 
+const CODE_COLOR = '\u001b[36m';
+const CODE_RESET = '\u001b[39m';
+
 class RootCommand extends Command {
 	static override paths = [Command.Default];
 
 	static override usage = Command.Usage({
-		description: 'WPKernel CLI entry point.',
+		description: CLI_HELP.description,
+		details: CLI_HELP.details,
+		examples: CLI_HELP.examples,
 	});
 
 	override async execute(): Promise<number | void> {
@@ -32,11 +39,64 @@ class RootCommand extends Command {
 	}
 }
 
-const cli = new Cli({
+type UsageCommandParam = Parameters<Cli['usage']>[0];
+
+function isRootCommandTarget(command: UsageCommandParam): boolean {
+	if (command === null) {
+		return false;
+	}
+	if (command instanceof Command) {
+		return command instanceof RootCommand;
+	}
+	return command === RootCommand;
+}
+
+class WpkCli extends Cli {
+	public override usage(
+		command: UsageCommandParam = null,
+		options: Parameters<Cli['usage']>[1] = {}
+	): string {
+		let output = super.usage(command, options);
+		if (options?.detailed) {
+			output = output.replace(
+				/\n\n(?=(?:\u001b\[[0-9;]*m)*[\t ]*(?:[•-]|\d+\.))/g,
+				'\n'
+			);
+		}
+		const expandRootUsage =
+			Boolean(options?.detailed) && isRootCommandTarget(command);
+		let rootUsageExpanded = false;
+		return output.replace(
+			/(\u001b\[1m\$\s*\u001b\[22m)([^\n]+)/g,
+			(_, prefix: string, commandLine: string) => {
+				const trimmed = commandLine.trimEnd();
+				const trailingWhitespace = commandLine.slice(trimmed.length);
+				const normalized =
+					expandRootUsage && !rootUsageExpanded && trimmed === 'wpk'
+						? ((rootUsageExpanded = true),
+							'wpk <command> [options]')
+						: trimmed;
+				const highlighted = `${CODE_COLOR}\`${normalized}\`${CODE_RESET}`;
+				return `${prefix}${highlighted}${trailingWhitespace}`;
+			}
+		);
+	}
+}
+
+const cli = new WpkCli({
 	binaryName: WPK_NAMESPACE,
 	binaryLabel: 'WPKernel CLI',
 	binaryVersion: VERSION,
 });
+
+class VersionCommand extends Command {
+	static override paths = [['--version'], ['-v']];
+
+	override async execute(): Promise<number | void> {
+		this.context.stdout.write(`wpk ${VERSION}\n`);
+		return undefined;
+	}
+}
 
 const GenerateCommand = buildGenerateCommand();
 const InitCommand = buildInitCommand();
@@ -46,6 +106,7 @@ const StartCommand = buildStartCommand();
 const ApplyCommand = buildApplyCommand();
 
 cli.register(RootCommand);
+cli.register(VersionCommand);
 cli.register(GenerateCommand);
 cli.register(InitCommand);
 cli.register(CreateCommand);

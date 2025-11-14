@@ -46,6 +46,7 @@ function buildContext(): DxContext {
 		reporter,
 		workspace: null,
 		environment: {
+			allowDirty: false,
 			cwd: process.cwd(),
 			projectRoot: path.resolve('packages/cli'),
 			workspaceRoot: null,

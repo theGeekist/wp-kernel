@@ -1,60 +1,48 @@
-import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config/types';
 
 /**
  * WPKernel configuration for your project.
  *
- * This file is the single source of truth for all code generation,
- * resource management, and plugin metadata.
+ * This file describes your plugin namespace, shared schemas, REST resources,
+ * capabilities, and readiness/adapter hooks. Update it to change what `wpk generate`
+ * and `wpk apply` produce.
  *
- * @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules
+ * @see https://wpkernel.dev/reference/wpk-config.schema.json
  */
+/** @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules */
 export const wpkConfig: WPKernelConfigV1 = {
 	/**
-	 * The configuration version. This is used to ensure that the
-	 * configuration is compatible with the version of the CLI.
-	 *
-	 * @see https://github.com/wpkernel/wpkernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules
+	 * Optional JSON Schema reference so editors can offer autocomplete
+	 * and validation when editing this file.
+	 */
+	$schema: 'https://wpkernel.dev/reference/wpk-config.schema.json',
+	/**
+	 * Configuration schema version. Keep this set to `1` for the current
+	 * WPKernel toolchain.
 	 */
 	version: 1,
 	/**
-	 * The root namespace for your plugin. This is used to generate
-	 * the PHP namespace for your plugin's code.
-	 *
-	 * For example, if you set this to 'MyPlugin', the generated
-	 * PHP namespace will be 'MyPlugin\'.
+	 * Short, slug-style identifier for this plugin or feature. Used as a prefix
+	 * for PHP namespaces, generated JS store keys, and WordPress capability names.
 	 *
 	 * @example
-	 * namespace: 'MyPlugin',
-	 *
-	 * @see https://www.php-fig.org/psr/psr-4/
+	 * namespace: 'jobs',
 	 */
 	namespace: '__WPK_NAMESPACE__',
 	/**
-	 * Schemas are used to define the shape of your data. They are
-	 * used to generate the database tables and to validate data
-	 * that is sent to the server.
-	 *
-	 * @example
-	 * schemas: {
-	 *   Book: {
-	 *     title: 'string',
-	 *     author: 'string',
-	 *   },
-	 * },
-	 *
-	 * @see https://github.com/wpkernel/wpkernel/blob/main/docs/guide/data.md
+	 * Registry of shared schema descriptors, keyed by a short name. Schemas
+	 * typically point to JSON Schema or Zod files and describe the data shapes
+	 * your resources reuse.
 	 */
 	schemas: {},
 	/**
-	 * @example
-	 * resources: {
-	 *   Book: {
-	 *     schema: 'Book',
-	 *     rest: true,
-	 *   },
-	 * },
+	 * Registry of resource descriptors keyed by identifier. Each resource
+	 * represents one domain object (job, booking, menu item, etc.) and drives
+	 * REST routes, storage strategy, capabilities, and admin UI.
 	 */
 	resources: {},
+	// adapters: {},
+	// readiness: {},
 };
 
 export type WPKernelConfig = typeof wpkConfig;

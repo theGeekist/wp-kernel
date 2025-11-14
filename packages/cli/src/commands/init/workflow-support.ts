@@ -10,6 +10,9 @@ import type {
 	ScaffoldSummary,
 } from './types';
 import { formatSummary } from './utils';
+import type { WorkspaceLanguage } from './workspace-language';
+
+const WPK_CONFIG_DOC_URL = 'https://wpkernel.dev/reference/wpk-config';
 
 export function logDependencyResolution({
 	reporter,
@@ -37,6 +40,7 @@ export async function applyInitWrites({
 	dependencyResolution,
 	reporter,
 	pluginDetection,
+	workspaceLanguage,
 }: {
 	readonly workspace: Workspace;
 	readonly scaffoldFiles: Parameters<typeof writeScaffoldFiles>[0]['files'];
@@ -49,6 +53,7 @@ export async function applyInitWrites({
 	readonly dependencyResolution: DependencyResolution;
 	readonly reporter: Reporter;
 	readonly pluginDetection: PluginDetectionResult;
+	readonly workspaceLanguage: WorkspaceLanguage;
 }): Promise<ScaffoldSummary[]> {
 	const summaries = await writeScaffoldFiles({
 		workspace,
@@ -66,6 +71,10 @@ export async function applyInitWrites({
 
 	appendPackageSummary({ summaries, packageStatus });
 
+	const jsOnlyWorkspace =
+		workspaceLanguage === 'javascript' &&
+		(pluginDetection.detected || hasSkippedSummaries(summaries));
+
 	if (
 		!force &&
 		(pluginDetection.detected || hasSkippedSummaries(summaries))
@@ -75,6 +84,10 @@ export async function applyInitWrites({
 			skipped: collectSkippedPaths(summaries),
 			reasons: pluginDetection.reasons,
 		});
+	}
+
+	if (jsOnlyWorkspace) {
+		logJavaScriptWorkspaceWarning(reporter);
 	}
 
 	return summaries;
@@ -157,4 +170,11 @@ function formatReasonList(values: readonly string[]): string {
 	const head = values.slice(0, -1).join(', ');
 	const tail = values[values.length - 1] ?? '';
 	return `${head} and ${tail}`;
+}
+
+function logJavaScriptWorkspaceWarning(reporter: Reporter): void {
+	reporter.warn(
+		'[wpk] init detected a JavaScript-only workspace. Generated files, including wpk.config.ts, use TypeScript. Keep the scaffolded tsconfig and dev dependencies so wpk commands continue to run.'
+	);
+	reporter.info(`Docs: ${WPK_CONFIG_DOC_URL}`);
 }

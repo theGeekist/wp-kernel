@@ -132,10 +132,16 @@ describe('runInitWorkflow', () => {
 		buildReplacementMapMock.mockReturnValue(new Map());
 		writePackageJsonMock.mockResolvedValue('updated');
 		resolveDependencyVersionsMock.mockResolvedValue(dependencyResolution);
-		installNodeDependenciesMock.mockResolvedValue(undefined);
-		installComposerDependenciesMock.mockResolvedValue(undefined);
+		installNodeDependenciesMock.mockResolvedValue({
+			stdout: '',
+			stderr: '',
+		});
+		installComposerDependenciesMock.mockResolvedValue({
+			stdout: '',
+			stderr: '',
+		});
 		resolveInstallBudgetsMock.mockReturnValue({
-			npm: DEFAULT_NODE_INSTALL_BUDGET_MS,
+			node: DEFAULT_NODE_INSTALL_BUDGET_MS,
 			composer: DEFAULT_COMPOSER_INSTALL_BUDGET_MS,
 		});
 		measureStageMock.mockImplementation(async ({ run, budgetMs }) => {
@@ -215,7 +221,7 @@ describe('runInitWorkflow', () => {
 		]);
 
 		resolveInstallBudgetsMock.mockReturnValue({
-			npm: 5_000,
+			node: 5_000,
 			composer: 7_000,
 		});
 		measureStageMock
@@ -238,16 +244,24 @@ describe('runInitWorkflow', () => {
 			expect.objectContaining({ stage: 'init.install.npm' })
 		);
 		expect(installNodeDependenciesMock).toHaveBeenCalledWith(
-			workspace.root
+			workspace.root,
+			'npm',
+			undefined,
+			{ verbose: false }
 		);
 		expect(measureStageMock).toHaveBeenCalledWith(
 			expect.objectContaining({ stage: 'init.install.composer' })
 		);
 		expect(installComposerDependenciesMock).toHaveBeenCalledWith(
-			workspace.root
+			workspace.root,
+			undefined,
+			{ verbose: false }
 		);
 		expect(result.installations).toEqual({
-			npm: { durationMs: 1_234, budgetMs: 5_000 },
+			node: {
+				manager: 'npm',
+				measurement: { durationMs: 1_234, budgetMs: 5_000 },
+			},
 			composer: { durationMs: 2_345, budgetMs: 7_000 },
 		});
 	});

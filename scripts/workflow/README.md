@@ -24,4 +24,30 @@ scripts/workflow/sync-fork-main.sh
 - Finishes by optionally force-pushing the cleaned branch back to the fork so it matches upstream history.
 - Accepts the same env knobs (`FORK_*`, `UPSTREAM_*`, `ALLOW_DIRTY`) for custom setups.
 
+## prerelease.ts
+
+```
+pnpm exec tsx scripts/workflow/prerelease.ts [options]
+```
+
+- Automates the hand-rolled prerelease flow directly on `${UPSTREAM_REMOTE:-upstream}/${UPSTREAM_BRANCH:-main}`.
+- Computes the next semver (defaults to `prerelease` bumps with `beta` preid, use `--mode patch` for patch+beta.0) and fans it out to every workspace via `scripts/release/bump-version.ts`.
+- Re-runs `pnpm docs:build` if the previous attempt failed so you can fix docs and resume without inventing a new semver.
+- Creates the release commit + tag locally on a temporary branch cloned from `${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH}`, and optionally pushes (`--push`) and publishes to npm (`--publish`, uses `--publish-tag` or the preid).
+- Automatically stashes your current fork work (if dirty), switches to the upstream branch for the release, then restores your original branch and reminds you to `git stash pop` when finished.
+- Stores the target semver in `.release-next-version` until the workflow completes so reruns stay idempotent.
+
+Common flags:
+
+```
+--mode <prerelease|patch>   # default prerelease
+--preid <beta>              # prerelease identifier
+--remote <upstream>         # remote to push/tags
+--branch <main>             # branch tracking upstream
+--push                      # push branch + tag to upstream when done
+--publish                   # pnpm -r publish --tag <preid>
+--publish-tag <tag>         # override npm dist-tag (default preid)
+--version <semver>          # explicitly set the next version/resume
+```
+
 Both scripts assume `origin` is your fork (theGeekist) and `upstream` is the public `wpkernel/wpkernel`. Adjust via environment variables when necessary.

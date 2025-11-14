@@ -3,6 +3,7 @@ import { Command, Option } from 'clipanion';
 import { WPK_NAMESPACE, type WPKExitCode } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterCLI as buildReporter } from '../utils/reporter.js';
+import { COMMAND_HELP } from '../cli/help';
 import { buildWorkspace, ensureCleanDirectory } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import {
@@ -135,12 +136,9 @@ export function buildCreateCommand(
 		static override paths = [['create']];
 
 		static override usage = Command.Usage({
-			description:
-				'Create a new WPKernel project, initialise git, and install dependencies.',
-			examples: [
-				['Create project in current directory', 'wpk create'],
-				['Create project in ./demo-plugin', 'wpk create demo-plugin'],
-			],
+			description: COMMAND_HELP.create.description,
+			details: COMMAND_HELP.create.details,
+			examples: COMMAND_HELP.create.examples,
 		});
 
 		target = Option.String({ name: 'directory', required: false });

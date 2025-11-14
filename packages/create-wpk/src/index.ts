@@ -147,15 +147,42 @@ const cliPackageJsonPath = require.resolve('@wpkernel/cli/package.json');
 const cliPackageRoot = path.dirname(cliPackageJsonPath);
 const cliPackageManifest = require(cliPackageJsonPath) as {
 	bin?: Record<string, string>;
+	version?: string;
 };
 const cliBinRelativePath = cliPackageManifest.bin?.wpk ?? './bin/wpk.js';
 const cliBinPath = path.join(cliPackageRoot, cliBinRelativePath);
 
-const { positional, forwarded } = splitBootstrapArguments(
-	process.argv.slice(2)
+const rawArguments = process.argv.slice(2);
+const versionFlags = new Set(['--version', '-v']);
+
+let { positional, forwarded } = splitBootstrapArguments(rawArguments);
+
+const filteredPositional = positional.filter(
+	(argument) => !versionFlags.has(argument)
 );
-const cliArguments = ['create', ...positional, ...forwarded];
+const filteredForwarded = forwarded.filter((argument) => {
+	const [name = ''] = argument.split('=');
+	return !versionFlags.has(name);
+});
+
+const requestedVersion =
+	filteredPositional.length !== positional.length ||
+	filteredForwarded.length !== forwarded.length;
+
+positional = filteredPositional;
+forwarded = filteredForwarded;
+
+if (requestedVersion) {
+	const version =
+		(cliPackageManifest as { version?: string }).version ??
+		process.env.npm_package_version ??
+		'unknown';
+	process.stdout.write(`wpk ${version}\n`);
+	process.exit(0);
+}
+
 const forwardedFlagNames = extractForwardedFlagNames(forwarded);
+const cliArguments = ['create', ...positional, ...forwarded];
 const reporter = createBootstrapReporter();
 const startedAt = performance.now();
 

@@ -21,14 +21,24 @@ export function determineExitCode(error: unknown): WPKExitCode {
 	return WPK_EXIT_CODES.UNEXPECTED_ERROR;
 }
 
+export interface ReportFailureOptions {
+	readonly includeContext?: boolean;
+}
+
 export function reportFailure(
 	reporter: Reporter,
 	message: string,
-	error: unknown
+	error: unknown,
+	options: ReportFailureOptions = {}
 ): void {
 	const payload = serialiseError(error);
 	emitFatalError(message, payload);
-	reporter.error(message, payload);
+	reporter.error(message);
+	if (options.includeContext) {
+		reporter.error('Error context', payload);
+	} else {
+		reporter.debug('Error context', payload);
+	}
 }
 
 export function serialiseError(error: unknown): SerializedError {
