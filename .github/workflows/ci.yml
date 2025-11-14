@@ -91,7 +91,10 @@ jobs:
                       examples/*/build
                       examples/*/dist
                       packages/php-json-ast/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
+                      packages/cli/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
+                  restore-keys: |
+                      build-${{ runner.os }}-
                   fail-on-cache-miss: true
             - name: Run ESLint
               run: pnpm lint
@@ -212,7 +215,8 @@ jobs:
                       examples/*/build
                       examples/*/dist
                       packages/php-json-ast/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
+                      packages/cli/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
                   fail-on-cache-miss: true
 
             - name: Run unit tests with coverage
@@ -264,7 +268,8 @@ jobs:
                       examples/*/build
                       examples/*/dist
                       packages/php-json-ast/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
+                      packages/cli/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
                   fail-on-cache-miss: true
 
             - name: Verify release pack readiness idempotency
@@ -308,7 +313,8 @@ jobs:
                       examples/*/build
                       examples/*/dist
                       packages/php-json-ast/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
+                      packages/cli/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
                   fail-on-cache-miss: true
 
             - name: Verify bootstrapper resolution
@@ -359,7 +365,8 @@ jobs:
                       examples/*/build
                       examples/*/dist
                       packages/php-json-ast/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
+                      packages/cli/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
                   fail-on-cache-miss: true
 
             - name: Run smoke test
