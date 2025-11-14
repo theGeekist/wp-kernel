@@ -11,6 +11,10 @@ export interface InstallerResult {
 	stderr: string;
 }
 
+export interface InstallerRunOptions {
+	readonly verbose?: boolean;
+}
+
 const PACKAGE_MANAGER_COMMANDS: Record<
 	PackageManager,
 	{ command: string; args: readonly string[]; description: string }
@@ -35,7 +39,8 @@ const PACKAGE_MANAGER_COMMANDS: Record<
 export async function installNodeDependencies(
 	cwd: string,
 	packageManager: PackageManager,
-	dependencies: InstallerDependencies = {}
+	dependencies: InstallerDependencies = {},
+	options: InstallerRunOptions = {}
 ): Promise<InstallerResult> {
 	const commandDescriptor = PACKAGE_MANAGER_COMMANDS[packageManager];
 	return runInstallerCommand(
@@ -45,13 +50,15 @@ export async function installNodeDependencies(
 			cwd,
 			errorMessage: `Failed to install ${commandDescriptor.description} dependencies.`,
 		},
-		dependencies
+		dependencies,
+		options
 	);
 }
 
 export async function installComposerDependencies(
 	cwd: string,
-	dependencies: InstallerDependencies = {}
+	dependencies: InstallerDependencies = {},
+	options: InstallerRunOptions = {}
 ): Promise<InstallerResult> {
 	return runInstallerCommand(
 		{
@@ -60,7 +67,8 @@ export async function installComposerDependencies(
 			cwd,
 			errorMessage: 'Failed to install composer dependencies.',
 		},
-		dependencies
+		dependencies,
+		options
 	);
 }
 
@@ -76,7 +84,8 @@ async function runInstallerCommand(
 		cwd: string;
 		errorMessage: string;
 	},
-	{ spawn = spawnProcess }: InstallerDependencies
+	{ spawn = spawnProcess }: InstallerDependencies,
+	{ verbose = false }: InstallerRunOptions = {}
 ): Promise<InstallerResult> {
 	let capturedStdout = '';
 	let capturedStderr = '';
@@ -89,13 +98,17 @@ async function runInstallerCommand(
 	child.stdout?.on('data', (chunk) => {
 		const value = chunk.toString();
 		capturedStdout += value;
-		process.stdout.write(value);
+		if (verbose) {
+			process.stdout.write(value);
+		}
 	});
 
 	child.stderr?.on('data', (chunk) => {
 		const value = chunk.toString();
 		capturedStderr += value;
-		process.stderr.write(value);
+		if (verbose) {
+			process.stderr.write(value);
+		}
 	});
 
 	return new Promise<InstallerResult>((resolve, reject) => {
@@ -103,7 +116,11 @@ async function runInstallerCommand(
 			reject(
 				new WPKernelError('DeveloperError', {
 					message: errorMessage,
-					context: serialiseSpawnError(error),
+					context: {
+						...serialiseSpawnError(error),
+						stdout: capturedStdout || undefined,
+						stderr: capturedStderr || undefined,
+					},
 				})
 			);
 		};

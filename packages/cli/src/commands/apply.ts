@@ -102,6 +102,7 @@ export function buildApplyCommand(
 			description: 'Remove leftover shim paths before applying patches.',
 		});
 		allowDirty = Option.Boolean('--allow-dirty,-D', false);
+		verbose = Option.Boolean('--verbose,-v', false);
 
 		public summary: PatchManifestSummary | null = null;
 		public records: PatchRecord[] = [];
@@ -113,7 +114,7 @@ export function buildApplyCommand(
 			const cwd = resolveCommandCwd(this.context);
 			const reporter = dependencies.buildReporter({
 				namespace: buildReporterNamespace(),
-				level: 'info',
+				level: this.verbose ? 'debug' : 'info',
 				enabled: process.env.NODE_ENV !== 'test',
 			});
 
@@ -212,7 +213,8 @@ export function buildApplyCommand(
 				reportFailure(
 					reporter,
 					'Failed to apply workspace patches.',
-					error
+					error,
+					{ includeContext: this.verbose === true }
 				);
 				const exitCode = determineExitCode(error);
 

@@ -245,13 +245,17 @@ describe('runInitWorkflow', () => {
 		);
 		expect(installNodeDependenciesMock).toHaveBeenCalledWith(
 			workspace.root,
-			'npm'
+			'npm',
+			undefined,
+			{ verbose: false }
 		);
 		expect(measureStageMock).toHaveBeenCalledWith(
 			expect.objectContaining({ stage: 'init.install.composer' })
 		);
 		expect(installComposerDependenciesMock).toHaveBeenCalledWith(
-			workspace.root
+			workspace.root,
+			undefined,
+			{ verbose: false }
 		);
 		expect(result.installations).toEqual({
 			node: {

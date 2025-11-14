@@ -221,7 +221,8 @@ async function runGenerateWorkflow(
 				const exitCode = handleFailure(
 					error,
 					reporter,
-					WPK_EXIT_CODES.UNEXPECTED_ERROR
+					WPK_EXIT_CODES.UNEXPECTED_ERROR,
+					{ includeContext: verbose }
 				);
 				return buildFailure(exitCode);
 			}
@@ -242,7 +243,8 @@ async function runGenerateWorkflow(
 			const exitCode = handleFailure(
 				error,
 				reporter,
-				WPK_EXIT_CODES.UNEXPECTED_ERROR
+				WPK_EXIT_CODES.UNEXPECTED_ERROR,
+				{ includeContext: verbose }
 			);
 			return buildFailure(exitCode);
 		}
@@ -250,7 +252,8 @@ async function runGenerateWorkflow(
 		const exitCode = handleFailure(
 			error,
 			reporter,
-			WPK_EXIT_CODES.UNEXPECTED_ERROR
+			WPK_EXIT_CODES.UNEXPECTED_ERROR,
+			{ includeContext: verbose }
 		);
 		return buildFailure(exitCode);
 	}

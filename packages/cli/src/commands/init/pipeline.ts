@@ -346,6 +346,9 @@ function createInstallBuilder(): InitBuilderHelper {
 			const packageManager = context.options.packageManager;
 			const existingInstallations: InstallationMeasurements =
 				output.installations ?? {};
+			const installerOptions = {
+				verbose: context.options.verbose === true,
+			};
 
 			const nodeMeasurement = await measureStageWithProgress({
 				reporter,
@@ -355,7 +358,9 @@ function createInstallBuilder(): InitBuilderHelper {
 				run: async () => {
 					await installers.installNodeDependencies(
 						context.workspace.root,
-						packageManager
+						packageManager,
+						undefined,
+						installerOptions
 					);
 				},
 			});
@@ -382,7 +387,9 @@ function createInstallBuilder(): InitBuilderHelper {
 						budgets.composer ?? DEFAULT_COMPOSER_INSTALL_BUDGET_MS,
 					run: async () => {
 						await installers.installComposerDependencies(
-							context.workspace.root
+							context.workspace.root,
+							undefined,
+							installerOptions
 						);
 					},
 				});

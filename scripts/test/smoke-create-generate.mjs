@@ -18,6 +18,8 @@ const cliArgs = new Set(
 );
 const keepWorkspace = cliArgs.has('--keep-workspace');
 const cleanArtifacts = cliArgs.has('--clean-artifacts');
+const smokeVerbose =
+	cliArgs.has('--verbose') || process.env.WPK_SMOKE_VERBOSE === '1';
 
 await mkdir(artifactsDir, { recursive: true });
 
@@ -32,9 +34,25 @@ async function main() {
 	};
 	let success = false;
 
+	const skipBuild =
+		process.env.WPK_SKIP_SMOKE_BUILD === '1' ||
+		process.env.CI === '1' ||
+		process.env.CI === 'true';
+	const skipBuildReason =
+		process.env.WPK_SKIP_SMOKE_BUILD === '1'
+			? 'WPK_SKIP_SMOKE_BUILD enabled'
+			: 'CI environment';
+
 	try {
-		logStep('Building workspace packages');
-		await runPnpm(['build:packages']);
+		if (!skipBuild) {
+			logStep('Building workspace packages');
+			await runPnpm(['build:packages'], {
+				capture: true,
+				quietCapture: !smokeVerbose,
+			});
+		} else {
+			logStep(`Skipping workspace build (${skipBuildReason})`);
+		}
 
 		logStep('Packing tarballs');
 		const cliTarball = await packWorkspace('@wpkernel/cli');
@@ -52,7 +70,9 @@ async function main() {
 				dir: scopedProjectDir,
 			});
 
-			logStep(`[${packageManager}] Scaffolding project via create-wpk`);
+			logStep(
+				`[${packageManager}] Running create-wpk (scaffold + dependency install)`
+			);
 			await runNode(
 				path.join(repoRoot, 'packages/create-wpk/dist/index.js'),
 				[
@@ -63,22 +83,42 @@ async function main() {
 				]
 			);
 
-			logStep(
-				`[${packageManager}] Installing CLI tarball and tsx inside scaffold`
+			await snapshotWorkspace(scopedProjectDir, '[smoke] bootstrap');
+
+		logStep(
+			`[${packageManager}] Installing CLI tarball and tsx inside scaffold`
+		);
+		await runPnpm(['add', '-D', cliTarball, 'tsx@latest'], {
+			cwd: scopedProjectDir,
+			capture: true,
+			quietCapture: !smokeVerbose,
+		});
+		if (!smokeVerbose) {
+			console.log('   pnpm add completed.');
+		}
+
+			await snapshotWorkspace(
+				scopedProjectDir,
+				'[smoke] install cli dependencies'
 			);
-			await runPnpm(['add', '-D', cliTarball, 'tsx@latest'], {
-				cwd: scopedProjectDir,
-			});
 
 			logStep(`[${packageManager}] Running "wpk generate" inside scaffold`);
 			await runPnpm(['exec', 'wpk', 'generate'], {
 				cwd: scopedProjectDir,
 			});
+			await snapshotWorkspace(
+				scopedProjectDir,
+				'[smoke] post-generate'
+			);
 
 			logStep(`[${packageManager}] Running "wpk apply --yes" inside scaffold`);
 			await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
 				cwd: scopedProjectDir,
 			});
+			await snapshotWorkspace(
+				scopedProjectDir,
+				'[smoke] post-apply'
+			);
 
 			logStep(
 				`[${packageManager}] Re-running "wpk generate" inside scaffold (idempotency check)`
@@ -86,6 +126,10 @@ async function main() {
 			await runPnpm(['exec', 'wpk', 'generate'], {
 				cwd: scopedProjectDir,
 			});
+			await snapshotWorkspace(
+				scopedProjectDir,
+				'[smoke] post-generate (idempotent)'
+			);
 
 			logStep(
 				`[${packageManager}] Re-running "wpk apply --yes" inside scaffold (idempotency check)`
@@ -93,6 +137,10 @@ async function main() {
 			await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
 				cwd: scopedProjectDir,
 			});
+			await snapshotWorkspace(
+				scopedProjectDir,
+				'[smoke] post-apply (idempotent)'
+			);
 		}
 
 		success = true;
@@ -167,7 +215,7 @@ async function packWorkspace(workspaceName) {
 		{
 			cwd: repoRoot,
 			capture: true,
-			quietCapture: true,
+			quietCapture: !smokeVerbose,
 			env: {
 				...process.env,
 				PNPM_LOG_LEVEL: 'silent',
@@ -275,6 +323,47 @@ function extractTarballFromStdout(stdout = '') {
 	}
 
 	return undefined;
+}
+
+const gitIdentity = {
+	name: process.env.WPK_SMOKE_GIT_NAME ?? 'WPK Smoke Test',
+	email: process.env.WPK_SMOKE_GIT_EMAIL ?? 'smoke@wpkernel.dev',
+};
+
+async function snapshotWorkspace(cwd, message) {
+	const status = await readGitStatus(cwd);
+	if (status === null || status.trim().length === 0) {
+		return;
+	}
+
+	await runGit(['add', '--all'], { cwd });
+	await runGit(['commit', '-m', message], {
+		cwd,
+		env: {
+			...process.env,
+			GIT_AUTHOR_NAME: gitIdentity.name,
+			GIT_AUTHOR_EMAIL: gitIdentity.email,
+			GIT_COMMITTER_NAME: gitIdentity.name,
+			GIT_COMMITTER_EMAIL: gitIdentity.email,
+		},
+	});
+}
+
+async function readGitStatus(cwd) {
+	try {
+		const { stdout } = await runGit(['status', '--porcelain'], {
+			cwd,
+			capture: true,
+			quietCapture: true,
+		});
+		return stdout;
+	} catch {
+		return null;
+	}
+}
+
+function runGit(args, options = {}) {
+	return runCommand('git', args, options);
 }
 
 main().catch((error) => {

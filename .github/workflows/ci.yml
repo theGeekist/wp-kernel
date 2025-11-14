@@ -350,6 +350,18 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
+            - name: Restore build outputs
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      examples/*/build
+                      examples/*/dist
+                      packages/php-json-ast/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
+                  fail-on-cache-miss: true
+
             - name: Run smoke test
               run: node scripts/test/smoke-create-generate.mjs --keep-artifacts
 
