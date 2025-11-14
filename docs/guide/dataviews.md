@@ -23,14 +23,6 @@ resources: {
             { id: 'jobs.edit', action: 'Job.Edit' },
             { id: 'jobs.publish', action: 'Job.Publish', supportsBulk: true },
           ],
-          // Connects the DataView's state to the resource's query params
-          mapQuery: ({ search, sort, page, perPage }) => ({
-            q: search,
-            orderBy: sort?.field ?? 'created_at',
-            order: sort?.direction ?? 'desc',
-            page,
-            perPage,
-          }),
           // Defines the admin menu page
           screen: {
             route: 'acme-jobs',
@@ -50,6 +42,8 @@ resources: {
 ### What You Get
 
 Running `wpk generate` with this configuration produces a surprising amount of code:
+
+> **Note:** Query mapping is currently derived automatically from the standard DataViews filters (search, sort, pagination). Custom functions in `wpk.config.ts` are intentionally disallowed to keep the config fully declarative.
 
 1.  **A PHP Menu Page**: Registers a new admin page in WordPress under "Jobs".
 2.  **A React Screen Component**: A new file like `.generated/ui/app/job/admin/JobsAdminScreen.tsx` is created. This component is the root of your admin page.

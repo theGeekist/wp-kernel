@@ -8,7 +8,7 @@ import type {
 	PhpFileMetadata,
 	PhpProgram,
 } from '@wpkernel/php-json-ast';
-import { createPhpProgramWriterHelper as createBasePhpProgramWriterHelper } from '@wpkernel/php-json-ast';
+import { createPhpProgramWriterHelper } from '@wpkernel/php-json-ast';
 
 /**
  * @category WordPress AST
@@ -177,14 +177,14 @@ export function buildProgramTargetPlanner<
  * @param    options
  * @category WordPress AST
  */
-export function createPhpProgramWriterHelper<
+export function createWpProgramWriterHelper<
 	TContext extends PipelineContext = PipelineContext,
 	TInput extends BuilderInput = BuilderInput,
 	TOutput extends BuilderOutput = BuilderOutput,
 >(
 	options: CreatePhpProgramWriterHelperOptions = {}
 ): BuilderHelper<TContext, TInput, TOutput> {
-	return createBasePhpProgramWriterHelper<TContext, TInput, TOutput>(options);
+	return createPhpProgramWriterHelper<TContext, TInput, TOutput>(options);
 }
 
 function resolveProgramFilePath(

@@ -269,18 +269,6 @@ importers:
 
   examples/showcase:
     dependencies:
-      '@wordpress/components':
-        specifier: '>=20.0.0'
-        version: 30.5.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data':
-        specifier: '>=10.0.0'
-        version: 10.32.0(react@18.3.1)
-      '@wordpress/dataviews':
-        specifier: '>=9.1.0'
-        version: 9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/element':
-        specifier: '>=4.0.0'
-        version: 6.32.0
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -288,12 +276,75 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui
     devDependencies:
-      '@wpkernel/e2e-utils':
+      '@kucrut/vite-for-wp':
+        specifier: ^0.12.0
+        version: 0.12.0(rollup-plugin-external-globals@0.13.0(rollup@4.52.4))(vite-plugin-external@6.2.2)(vite@7.1.9(@types/node@24.7.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
+      '@loglayer/shared':
+        specifier: '>=2.4.0'
+        version: 2.6.0
+      '@loglayer/transport':
+        specifier: '>=2.3.0'
+        version: 2.3.5
+      '@loglayer/transport-simple-pretty-terminal':
+        specifier: '>=2.2.9'
+        version: 2.2.9
+      '@types/react':
+        specifier: ^18.3.26
+        version: 18.3.26
+      '@types/react-dom':
+        specifier: ^18.3.7
+        version: 18.3.7(@types/react@18.3.26)
+      '@wordpress/api-fetch':
+        specifier: '>=7.32.0'
+        version: 7.32.0
+      '@wordpress/components':
+        specifier: ^30.5.0
+        version: 30.5.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/data':
+        specifier: '>=10.32.0'
+        version: 10.32.0(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: ^9.1.0
+        version: 9.1.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element':
+        specifier: '>=6.32.0'
+        version: 6.32.0
+      '@wordpress/hooks':
+        specifier: '>=4.32.0'
+        version: 4.32.0
+      '@wordpress/i18n':
+        specifier: ^6.5.0
+        version: 6.5.0
+      '@wordpress/interactivity':
+        specifier: '>=6.34.0'
+        version: 6.34.0
+      '@wpkernel/cli':
         specifier: workspace:*
-        version: link:../../packages/e2e-utils
-      '@wpkernel/scripts':
-        specifier: workspace:*
-        version: link:../../scripts
+        version: link:../../packages/cli
+      loglayer:
+        specifier: '>=6.7.2'
+        version: 6.9.1
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      rollup-plugin-external-globals:
+        specifier: ^0.13.0
+        version: 0.13.0(rollup@4.52.4)
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.1.9
+        version: 7.1.9(@types/node@24.7.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
+      vite-plugin-external:
+        specifier: ^6.2.2
+        version: 6.2.2
 
   packages/cli:
     dependencies:

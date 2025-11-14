@@ -1,0 +1,42 @@
+{
+	"version": 1,
+	"resources": {
+		"application": {
+			"hash": "c43823871a445bcb04e2d70b18ba4f33c7721409bf815cf439aedb3237de073d",
+			"artifacts": {
+				"generated": [
+					".generated/php/Rest/ApplicationController.php",
+					".generated/php/Rest/ApplicationController.php.ast.json",
+					".generated/ui/registry/dataviews/application.ts",
+					".generated/ui/fixtures/dataviews/application.ts",
+					".generated/ui/fixtures/interactivity/application.ts"
+				],
+				"shims": ["inc/Rest/ApplicationController.php"]
+			}
+		},
+		"job": {
+			"hash": "3e264893b8e34e75d67b08b8f47226286ebd9f4ad0b28f86dd5ebf60eba159f5",
+			"artifacts": {
+				"generated": [
+					".generated/php/Rest/JobController.php",
+					".generated/php/Rest/JobController.php.ast.json",
+					".generated/ui/registry/dataviews/job.ts",
+					".generated/ui/fixtures/dataviews/job.ts",
+					".generated/ui/fixtures/interactivity/job.ts"
+				],
+				"shims": ["inc/Rest/JobController.php"]
+			}
+		}
+	},
+	"pluginLoader": {
+		"file": "plugin.php",
+		"ast": "plugin.php.ast.json"
+	},
+	"phpIndex": {
+		"file": ".generated/php/index.php",
+		"ast": ".generated/php/index.php.ast.json"
+	},
+	"ui": {
+		"handle": "wp-acme-jobs-ui"
+	}
+}

@@ -137,10 +137,10 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				"import { createDataViewInteraction, type DataViewInteractionResult } from '@wpkernel/ui/dataviews';"
 			);
 			expect(interactivityContents).toContain(
-				"const jobsadminscreenInteractivityFeature = 'admin-screen';"
+				"const jobsAdminScreenInteractivityFeature = 'admin-screen';"
 			);
 			expect(interactivityContents).toContain(
-				'export const jobsadminscreenInteractivityNamespace = getJobsAdminScreenInteractivityNamespace();'
+				'export const jobsAdminScreenInteractivityNamespace = getJobsAdminScreenInteractivityNamespace();'
 			);
 			expect(interactivityContents).toContain(
 				'export interface CreateJobsAdminScreenDataViewInteractionOptions'
@@ -150,6 +150,80 @@ describe('createTsBuilder - DataView fixture creator', () => {
 			);
 			expect(interactivityContents).toContain(
 				'bindings[candidate.id] = candidate.action as InteractionActionInput<unknown, unknown>;'
+			);
+		});
+	});
+
+	it('sanitizes interactivity fixtures when screen components are scoped', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const dataviews = buildDataViewsConfig({
+				screen: {
+					component: '@acme/jobs-admin/JobListScreen',
+				},
+			});
+			const configSource = buildWPKernelConfigSource({
+				dataviews: {
+					screen: {
+						component: '@acme/jobs-admin/JobListScreen',
+					},
+				},
+			});
+			await workspace.write('wpk.config.ts', configSource);
+
+			const { ir, options } = buildBuilderArtifacts({
+				dataviews,
+				sourcePath: path.join(root, 'wpk.config.ts'),
+			});
+
+			const reporter = buildReporter();
+			const output = buildOutput();
+			const builder = createTsBuilder();
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+					},
+					input: {
+						phase: 'generate',
+						options,
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const interactivityPath = path.join(
+				'.generated',
+				'ui',
+				'fixtures',
+				'interactivity',
+				'job.ts'
+			);
+			const interactivityContents =
+				await workspace.readText(interactivityPath);
+
+			expect(interactivityContents).toContain(
+				"const jobListScreenInteractivityFeature = 'admin-screen';"
+			);
+			expect(interactivityContents).toContain(
+				'export const jobListScreenInteractivityNamespace = getJobListScreenInteractivityNamespace();'
+			);
+			expect(interactivityContents).toContain(
+				'function normalizeJobListScreenInteractivitySegment'
+			);
+			expect(interactivityContents).toContain(
+				'export interface CreateJobListScreenDataViewInteractionOptions'
+			);
+			expect(interactivityContents).toContain(
+				'export function createJobListScreenDataViewInteraction(options: CreateJobListScreenDataViewInteractionOptions = {})'
+			);
+			expect(interactivityContents).not.toMatch(
+				/@acme\/jobs-admin\/JobListScreen/
 			);
 		});
 	});

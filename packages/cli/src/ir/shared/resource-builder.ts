@@ -125,10 +125,7 @@ async function buildResourceEntry(options: {
 		}),
 	});
 
-	const cacheKeys = deriveCacheKeys(
-		resourceConfig.cacheKeys,
-		resourceConfig.name
-	);
+	const cacheKeys = deriveCacheKeys(resourceConfig.name);
 
 	const queryParams = normaliseQueryParams(resourceConfig.queryParams);
 

@@ -5,7 +5,7 @@ import type {
 	BuilderInput,
 	BuilderOutput,
 } from '../../../runtime/types';
-import { createPhpProgramWriterHelper } from '../pipeline.writer';
+import { createWpProgramWriterHelper } from '../pipeline.writer';
 import {
 	buildStmtNop,
 	getPhpBuilderChannel,
@@ -60,7 +60,7 @@ function buildBuilderInput(): BuilderInput {
 	return createBuilderInput();
 }
 
-describe('createPhpProgramWriterHelper', () => {
+describe('createWpProgramWriterHelper', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
@@ -92,7 +92,7 @@ describe('createPhpProgramWriterHelper', () => {
 			program,
 		});
 
-		const helper = createPhpProgramWriterHelper();
+		const helper = createWpProgramWriterHelper();
 		await helper.apply(
 			{
 				context,
@@ -167,9 +167,9 @@ describe('createPhpProgramWriterHelper', () => {
 		});
 
 		const helper = (
-			createPhpProgramWriterHelper as (
+			createWpProgramWriterHelper as (
 				options?: unknown
-			) => ReturnType<typeof createPhpProgramWriterHelper>
+			) => ReturnType<typeof createWpProgramWriterHelper>
 		)({
 			driver: {
 				binary: '/usr/bin/php82',
@@ -227,7 +227,7 @@ describe('createPhpProgramWriterHelper', () => {
 				>
 		);
 
-		const helper = createPhpProgramWriterHelper();
+		const helper = createWpProgramWriterHelper();
 		await helper.apply({
 			context,
 			input,
@@ -267,7 +267,7 @@ describe('createPhpProgramWriterHelper', () => {
 		resetPhpBuilderChannel(context);
 		resetPhpAstChannel(context);
 
-		const helper = createPhpProgramWriterHelper();
+		const helper = createWpProgramWriterHelper();
 		const next = jest.fn(async () => undefined);
 
 		await helper.apply(

@@ -1,23 +1,9 @@
 {
-	"name": "geekist/wp-kernel-showcase",
-	"description": "Showcase plugin demonstrating WPKernel framework features",
-	"type": "wordpress-plugin",
-	"license": "MIT",
+	"name": "showcase/showcase",
+	"type": "project",
 	"autoload": {
 		"psr-4": {
-			"WPKernel\\\\Showcase\\\\": "inc/"
-		}
-	},
-	"require-dev": {
-		"php-stubs/wordpress-stubs": "^6.8",
-		"php-stubs/wp-cli-stubs": "^2.11"
-	},
-	"config": {
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		},
-		"platform": {
-			"php": "8.1"
+			"Showcase\\": "inc/"
 		}
 	}
 }

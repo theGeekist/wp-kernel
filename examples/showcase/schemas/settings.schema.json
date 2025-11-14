@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Settings",
+	"description": "Plugin settings for retention and notifications.",
+	"type": "object",
+	"properties": {
+		"retention_days": { "type": "integer", "minimum": 1, "maximum": 3650 },
+		"notify_email": { "type": "string", "format": "email" },
+		"auto_archive": { "type": "boolean" }
+	},
+	"required": ["retention_days", "notify_email"],
+	"additionalProperties": false
+}

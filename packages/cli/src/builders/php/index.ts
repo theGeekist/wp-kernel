@@ -13,7 +13,7 @@ export { createPhpWpPostRoutesHelper } from './controller.wpPostRoutes';
 export { createPhpResourceControllerHelper } from './controller.resources';
 export { createPhpBaseControllerHelper } from './controller.base';
 
-export { createPhpProgramWriterHelper } from '@wpkernel/php-json-ast';
+export { createWpProgramWriterHelper } from './pipeline.writer';
 
 export {
 	type PhpProgramAction,

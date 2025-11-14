@@ -112,6 +112,11 @@ function buildNamespaceStatements(config: PluginLoaderProgramConfig): PhpStmt {
 	statements.push(buildRegisterRoutesFunction());
 
 	const registerUiAssetsFunction = buildRegisterUiAssetsFunction(config);
+	if (config.ui && !registerUiAssetsFunction) {
+		throw new Error(
+			'UI config provided but registerUiAssetsFunction was not generated'
+		);
+	}
 	if (registerUiAssetsFunction) {
 		statements.push(registerUiAssetsFunction);
 	}

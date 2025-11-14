@@ -31,25 +31,21 @@ jest.mock('../pipeline.codemods', () => ({
 	),
 }));
 
-jest.mock('@wpkernel/php-json-ast', () => {
-	const actual = jest.requireActual('@wpkernel/php-json-ast');
-	return {
-		...actual,
-		createPhpProgramWriterHelper: jest.fn((options) =>
-			createWriterHelperImpl(options)
-		),
-	};
-});
+jest.mock('../pipeline.writer', () => ({
+	createWpProgramWriterHelper: jest.fn((options) =>
+		createWriterHelperImpl(options)
+	),
+}));
 
 const { createPhpCodemodIngestionHelper } = jest.requireMock(
 	'../pipeline.codemods'
 ) as {
 	createPhpCodemodIngestionHelper: jest.Mock;
 };
-const { createPhpProgramWriterHelper } = jest.requireMock(
-	'@wpkernel/php-json-ast'
+const { createWpProgramWriterHelper } = jest.requireMock(
+	'../pipeline.writer'
 ) as {
-	createPhpProgramWriterHelper: jest.Mock;
+	createWpProgramWriterHelper: jest.Mock;
 };
 
 const BUNDLED_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
@@ -124,7 +120,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 			importMetaUrl: 'file:///adapter/dist/index.js',
 			autoloadPaths: [BUNDLED_AUTOLOAD_PATH],
 		});
-		expect(createPhpProgramWriterHelper).toHaveBeenCalledTimes(1);
+		expect(createWpProgramWriterHelper).toHaveBeenCalledTimes(1);
 		expect(createWriterHelperImpl).toHaveBeenCalledWith({
 			driver: {
 				binary: '/base/php',
@@ -170,7 +166,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 		);
 
 		expect(createPhpCodemodIngestionHelper).not.toHaveBeenCalled();
-		expect(createPhpProgramWriterHelper).toHaveBeenCalledTimes(1);
+		expect(createWpProgramWriterHelper).toHaveBeenCalledTimes(1);
 	});
 
 	it('defaults codemod driver overrides to the merged PHP driver options', async () => {

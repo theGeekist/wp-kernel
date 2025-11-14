@@ -208,6 +208,173 @@ describe('createPatcher', () => {
 		});
 	});
 
+	it('restores shim when the target file is missing', async () => {
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const reporter = buildReporter();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
+
+			const baseContents = '<?php /* base */';
+			const incomingContents = '<?php /* incoming */';
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								action: 'write',
+								file: 'php/JobController.php',
+								base: '.wpk/apply/base/php/JobController.php',
+								incoming:
+									'.wpk/apply/incoming/php/JobController.php',
+								description: 'Update Job controller shim',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'base',
+					'php',
+					'JobController.php'
+				),
+				baseContents
+			);
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'incoming',
+					'php',
+					'JobController.php'
+				),
+				incomingContents
+			);
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const updated = await workspace.readText('php/JobController.php');
+			expect(updated).toBe(incomingContents);
+		});
+	});
+
+	it('restores shim when the target file is empty', async () => {
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const reporter = buildReporter();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
+
+			const baseContents = '<?php /* base */';
+			const incomingContents = '<?php /* incoming */';
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								action: 'write',
+								file: 'php/JobController.php',
+								base: '.wpk/apply/base/php/JobController.php',
+								incoming:
+									'.wpk/apply/incoming/php/JobController.php',
+								description: 'Update Job controller shim',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'base',
+					'php',
+					'JobController.php'
+				),
+				baseContents
+			);
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'incoming',
+					'php',
+					'JobController.php'
+				),
+				incomingContents
+			);
+			await workspace.write('php/JobController.php', '', {
+				ensureDir: true,
+			});
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const updated = await workspace.readText('php/JobController.php');
+			expect(updated).toBe(incomingContents);
+		});
+	});
+
 	it('applies patch instructions during generate phase', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();

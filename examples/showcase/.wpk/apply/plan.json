@@ -1,0 +1,26 @@
+{
+	"instructions": [
+		{
+			"action": "write",
+			"file": "plugin.php",
+			"base": ".wpk/apply/base/plugin.php",
+			"incoming": ".wpk/apply/incoming/plugin.php",
+			"description": "Update plugin loader"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/ApplicationController.php",
+			"base": ".wpk/apply/base/inc/Rest/ApplicationController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/ApplicationController.php",
+			"description": "Update application controller shim"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/JobController.php",
+			"base": ".wpk/apply/base/inc/Rest/JobController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/JobController.php",
+			"description": "Update job controller shim"
+		}
+	],
+	"skippedDeletions": []
+}

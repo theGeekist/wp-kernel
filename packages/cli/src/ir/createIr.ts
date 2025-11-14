@@ -9,6 +9,7 @@ import { buildWorkspace } from '../workspace';
 import { createMetaFragment } from './fragments/meta';
 import { createSchemasFragment } from './fragments/schemas';
 import { createResourcesFragment } from './fragments/resources';
+import { createUiFragment } from './fragments/ui';
 import { createCapabilitiesFragment } from './fragments/capabilities';
 import { createCapabilityMapFragment } from './fragments/capability-map';
 import { createBlocksFragment } from './fragments/blocks';
@@ -59,6 +60,7 @@ function registerCoreFragments(pipeline: Pipeline): void {
 	pipeline.ir.use(createMetaFragment());
 	pipeline.ir.use(createSchemasFragment());
 	pipeline.ir.use(createResourcesFragment());
+	pipeline.ir.use(createUiFragment());
 	pipeline.ir.use(createCapabilitiesFragment());
 	pipeline.ir.use(createCapabilityMapFragment());
 	pipeline.ir.use(createDiagnosticsFragment());

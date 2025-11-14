@@ -1,0 +1,35 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Application",
+	"description": "Private job application payload and status model.",
+	"type": "object",
+	"properties": {
+		"uuid": { "type": "string", "format": "uuid" },
+		"candidate_name": { "type": "string" },
+		"candidate_email": { "type": "string", "format": "email" },
+		"job_id": { "type": "integer" },
+		"status": {
+			"type": "string",
+			"enum": [
+				"new",
+				"screening",
+				"interview",
+				"offer",
+				"hired",
+				"rejected"
+			]
+		},
+		"resume_url": { "type": "string", "format": "uri" },
+		"created_at": { "type": "string", "format": "date-time" },
+		"updated_at": { "type": "string", "format": "date-time" }
+	},
+	"required": [
+		"uuid",
+		"candidate_name",
+		"candidate_email",
+		"job_id",
+		"status",
+		"created_at"
+	],
+	"additionalProperties": false
+}

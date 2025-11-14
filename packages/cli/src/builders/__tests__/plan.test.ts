@@ -9,7 +9,7 @@ import {
 	makeWpPostResource,
 } from '@wpkernel/test-utils/builders/php/resources.test-support';
 import * as phpDriver from '@wpkernel/php-driver';
-import type { PhpProgram } from '@wpkernel/php-json-ast';
+import type { PhpProgram, PhpStmtFunction } from '@wpkernel/php-json-ast';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,
@@ -276,6 +276,125 @@ describe('createApplyPlanBuilder', () => {
 				'Rest',
 				'JobsController',
 			]);
+
+			prettyPrinterSpy.mockRestore();
+		});
+	});
+
+	it('includes UI enqueue hooks when dataview metadata exists', async () => {
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const reporter = buildReporter();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
+
+			const resource = makeWpPostResource({
+				name: 'jobs',
+				schemaKey: 'job',
+			});
+
+			const ir = makePhpIrFixture({
+				resources: [
+					{
+						...resource,
+						ui: {
+							admin: {
+								dataviews: {
+									preferencesKey: 'jobs/admin',
+									screen: {
+										menu: { slug: 'jobs', title: 'Jobs' },
+									},
+								},
+							},
+						},
+					},
+				],
+			});
+			ir.ui = {
+				resources: [
+					{
+						resource: 'jobs',
+						preferencesKey: 'jobs/admin',
+						menu: { slug: 'jobs', title: 'Jobs' },
+					},
+				],
+			};
+
+			const capturedPrograms: Array<{
+				program: PhpProgram;
+				filePath: string;
+			}> = [];
+			const prettyPrinterSpy = jest
+				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.mockImplementation(() => ({
+					async prettyPrint(payload) {
+						capturedPrograms.push({
+							program: payload.program,
+							filePath: payload.filePath,
+						});
+						return {
+							code: '<?php // loader\n',
+							ast: payload.program,
+						};
+					},
+				}));
+
+			const helper = createApplyPlanBuilder();
+			await helper.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input: {
+						phase: 'generate' as const,
+						options: {
+							config: ir.config,
+							namespace: ir.meta.namespace,
+							origin: ir.meta.origin,
+							sourcePath: path.join(
+								workspaceRoot,
+								'wpk.config.ts'
+							),
+						},
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const toRelative = (absolute: string): string =>
+				path
+					.relative(workspaceRoot, absolute)
+					.split(path.sep)
+					.join('/');
+
+			const loaderProgramEntry = capturedPrograms.find(
+				(entry) =>
+					toRelative(entry.filePath) ===
+					'.wpk/apply/incoming/plugin.php'
+			);
+			expect(loaderProgramEntry).toBeDefined();
+
+			const loaderProgram = loaderProgramEntry?.program ?? [];
+			const loaderNamespace = expectNodeOfType(
+				loaderProgram.find(
+					(stmt) => stmt.nodeType === 'Stmt_Namespace'
+				),
+				'Stmt_Namespace'
+			);
+
+			const findFunction = (name: string): PhpStmtFunction | undefined =>
+				loaderNamespace.stmts.find(
+					(stmt): stmt is PhpStmtFunction =>
+						stmt.nodeType === 'Stmt_Function' &&
+						stmt.name?.name === name
+				);
+
+			expect(findFunction('enqueue_wpkernel_ui_assets')).toBeDefined();
+			expect(findFunction('bootstrap_kernel')).toBeDefined();
 
 			prettyPrinterSpy.mockRestore();
 		});

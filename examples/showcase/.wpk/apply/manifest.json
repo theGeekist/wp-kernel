@@ -1,0 +1,34 @@
+{
+	"summary": {
+		"applied": 0,
+		"conflicts": 0,
+		"skipped": 3
+	},
+	"records": [
+		{
+			"file": "plugin.php",
+			"status": "skipped",
+			"description": "Update plugin loader",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "inc/Rest/ApplicationController.php",
+			"status": "skipped",
+			"description": "Update application controller shim",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "inc/Rest/JobController.php",
+			"status": "skipped",
+			"description": "Update job controller shim",
+			"details": {
+				"reason": "no-op"
+			}
+		}
+	],
+	"actions": [".wpk/apply/manifest.json"]
+}

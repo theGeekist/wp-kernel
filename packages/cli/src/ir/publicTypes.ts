@@ -188,6 +188,39 @@ export interface IRResource {
 }
 
 /**
+ * Normalized menu configuration for UI resources.
+ *
+ * @category IR
+ */
+export interface IRUiMenuConfig {
+	readonly slug?: string;
+	readonly title?: string;
+	readonly capability?: string;
+	readonly parent?: string;
+	readonly position?: number;
+}
+
+/**
+ * UI resource descriptor produced from resource DataViews metadata.
+ *
+ * @category IR
+ */
+export interface IRUiResourceDescriptor {
+	readonly resource: string;
+	readonly preferencesKey: string;
+	readonly menu?: IRUiMenuConfig;
+}
+
+/**
+ * Aggregated UI metadata derived from the configuration.
+ *
+ * @category IR
+ */
+export interface IRUiSurface {
+	readonly resources: readonly IRUiResourceDescriptor[];
+}
+
+/**
  * Represents an Intermediate Representation (IR) for a capability hint.
  *
  * @category IR
@@ -397,6 +430,8 @@ export interface IRv1 {
 	blocks: IRBlock[];
 	/** The PHP project IR. */
 	php: IRPhpProject;
+	/** Optional: UI metadata derived from resources. */
+	ui?: IRUiSurface;
 	/** Optional: An array of diagnostic messages. */
 	diagnostics?: IRDiagnostic[];
 	/** Optional: Adapter change audit trail. */

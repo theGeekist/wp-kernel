@@ -136,7 +136,6 @@ describe('validateWPKernelConfig', () => {
 						type: 'table',
 						fields: ['title'],
 					},
-					mapQuery: () => ({}) as Record<string, unknown>,
 					search: true,
 					searchLabel: 'Search things',
 					perPageSizes: [10, 25],
@@ -180,7 +179,6 @@ describe('validateWPKernelConfig', () => {
 		expect(resource.ui?.admin?.dataviews?.fields).toEqual([
 			{ id: 'title', label: 'Title' },
 		]);
-		expect(typeof resource.ui?.admin?.dataviews?.mapQuery).toBe('function');
 		expect(resource.ui?.admin?.dataviews?.search).toBe(true);
 		expect(resource.ui?.admin?.dataviews?.searchLabel).toBe(
 			'Search things'
@@ -200,6 +198,174 @@ describe('validateWPKernelConfig', () => {
 		expect(resource.ui?.admin?.dataviews?.screen?.menu?.slug).toBe(
 			'thing-admin'
 		);
+	});
+
+	it('rejects cacheKeys declarations', () => {
+		const { reporter } = createMockReporter();
+		const config = createValidConfig();
+		config.resources = {
+			thing: {
+				name: 'thing',
+				routes: {
+					list: {
+						path: '/valid/v1/things',
+						method: 'GET',
+					},
+				},
+				cacheKeys: {} as ResourceConfig['cacheKeys'],
+			},
+		} as unknown as TestConfig['resources'];
+
+		expect(() =>
+			validateWPKernelConfig(config, {
+				reporter,
+				origin: 'wpk.config.ts',
+				sourcePath: '/tmp/wpk.config.ts',
+			})
+		).toThrow(WPKernelError);
+	});
+
+	it('rejects store overrides', () => {
+		const { reporter } = createMockReporter();
+		const config = createValidConfig();
+		config.resources = {
+			thing: {
+				name: 'thing',
+				routes: {
+					list: {
+						path: '/valid/v1/things',
+						method: 'GET',
+					},
+				},
+				store: {
+					getId: () => 'invalid',
+				},
+			},
+		} as unknown as TestConfig['resources'];
+
+		expect(() =>
+			validateWPKernelConfig(config, {
+				reporter,
+				origin: 'wpk.config.ts',
+				sourcePath: '/tmp/wpk.config.ts',
+			})
+		).toThrow(WPKernelError);
+	});
+
+	it('rejects schema functions', () => {
+		const { reporter } = createMockReporter();
+		const config = createValidConfig();
+		config.resources = {
+			thing: {
+				name: 'thing',
+				routes: {
+					list: {
+						path: '/valid/v1/things',
+						method: 'GET',
+					},
+				},
+				schema: (() => ({})) as unknown as ResourceConfig['schema'],
+			},
+		} as unknown as TestConfig['resources'];
+
+		expect(() =>
+			validateWPKernelConfig(config, {
+				reporter,
+				origin: 'wpk.config.ts',
+				sourcePath: '/tmp/wpk.config.ts',
+			})
+		).toThrow(WPKernelError);
+	});
+
+	it('rejects reporter overrides', () => {
+		const { reporter } = createMockReporter();
+		const config = createValidConfig();
+		config.resources = {
+			thing: {
+				name: 'thing',
+				routes: {
+					list: {
+						path: '/valid/v1/things',
+						method: 'GET',
+					},
+				},
+				reporter: (() => ({})) as unknown as ResourceConfig['reporter'],
+			},
+		} as unknown as TestConfig['resources'];
+
+		expect(() =>
+			validateWPKernelConfig(config, {
+				reporter,
+				origin: 'wpk.config.ts',
+				sourcePath: '/tmp/wpk.config.ts',
+			})
+		).toThrow(WPKernelError);
+	});
+
+	it('rejects DataView mapQuery declarations', () => {
+		const { reporter } = createMockReporter();
+		const config = createValidConfig();
+		config.resources = {
+			thing: {
+				name: 'thing',
+				routes: {
+					list: {
+						path: '/valid/v1/things',
+						method: 'GET',
+					},
+				},
+				ui: {
+					admin: {
+						dataviews: {
+							fields: [],
+							defaultView: {},
+							mapQuery: () => ({}),
+						},
+					},
+				},
+			},
+		} as unknown as TestConfig['resources'];
+
+		expect(() =>
+			validateWPKernelConfig(config, {
+				reporter,
+				origin: 'wpk.config.ts',
+				sourcePath: '/tmp/wpk.config.ts',
+			})
+		).toThrow(WPKernelError);
+	});
+
+	it('rejects DataView getItemId declarations', () => {
+		const { reporter } = createMockReporter();
+		const config = createValidConfig();
+		config.resources = {
+			thing: {
+				name: 'thing',
+				routes: {
+					list: {
+						path: '/valid/v1/things',
+						method: 'GET',
+					},
+				},
+				ui: {
+					admin: {
+						dataviews: {
+							fields: [],
+							defaultView: {},
+							getItemId: () => 'x',
+						},
+					},
+				},
+			},
+		} as unknown as TestConfig['resources'];
+
+		expect(() =>
+			validateWPKernelConfig(config, {
+				reporter,
+				origin: 'wpk.config.ts',
+				sourcePath: '/tmp/wpk.config.ts',
+			})
+		).toThrow(WPKernelError);
 	});
 
 	it('throws when namespace cannot be sanitized', () => {

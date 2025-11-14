@@ -5,7 +5,7 @@ import type {
 	PipelineContext,
 } from '../../runtime/types';
 import type { CreatePhpProgramWriterHelperOptions } from '@wpkernel/php-json-ast';
-import { createPhpProgramWriterHelper as createBasePhpProgramWriterHelper } from '@wpkernel/wp-json-ast';
+import { createWpProgramWriterHelper as createCoreProgramWriterHelper } from '@wpkernel/wp-json-ast';
 
 /**
  * Creates a PHP builder helper for writing PHP program files to the filesystem.
@@ -18,12 +18,17 @@ import { createPhpProgramWriterHelper as createBasePhpProgramWriterHelper } from
  * @param    options - Options for configuring the PHP program writer.
  * @returns A `BuilderHelper` instance for writing PHP program files.
  */
-export function createPhpProgramWriterHelper(
+export function createWpProgramWriterHelper(
 	options: CreatePhpProgramWriterHelperOptions = {}
 ): BuilderHelper {
-	return createBasePhpProgramWriterHelper<
+	return createCoreProgramWriterHelper<
 		PipelineContext,
 		BuilderInput,
 		BuilderOutput
 	>(options);
 }
+
+/**
+ * @deprecated Use {@link createWpProgramWriterHelper} instead.
+ */
+export const createPhpProgramWriterHelper = createWpProgramWriterHelper;

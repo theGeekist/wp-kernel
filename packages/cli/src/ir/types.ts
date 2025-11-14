@@ -10,6 +10,7 @@ import type {
 	IRResource,
 	IRReferenceSummary,
 	IRSchema,
+	IRUiSurface,
 	IRv1,
 } from './publicTypes';
 import type {
@@ -28,6 +29,7 @@ export interface MutableIr {
 	capabilityMap: IRCapabilityMap | null;
 	blocks: IRBlock[];
 	php: IRPhpProject | null;
+	ui: IRUiSurface | null;
 	diagnostics: IRDiagnostic[];
 	references: IRReferenceSummary | null;
 	extensions: Record<string, unknown>;
@@ -43,6 +45,7 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 		capabilityMap: null,
 		blocks: [],
 		php: null,
+		ui: null,
 		diagnostics: [],
 		references: null,
 		extensions: Object.create(null),
@@ -53,6 +56,7 @@ const CORE_FRAGMENT_PREFIXES = [
 	'ir.meta.',
 	'ir.schemas.',
 	'ir.resources.',
+	'ir.ui.',
 	'ir.capabilities.',
 	'ir.capability-map.',
 	'ir.diagnostics.',
@@ -132,6 +136,7 @@ export function finalizeIrDraft(
 		capabilityMap: draft.capabilityMap,
 		blocks: draft.blocks,
 		php: draft.php,
+		ui: draft.ui ?? undefined,
 		diagnostics,
 		references,
 	};
@@ -159,6 +164,7 @@ export function buildIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 				['capabilityMap', partial.capabilityMap],
 				['blocks', partial.blocks],
 				['php', partial.php],
+				['ui', partial.ui],
 				['diagnostics', partial.diagnostics],
 				['references', partial.references],
 				['extensions', partial.extensions],

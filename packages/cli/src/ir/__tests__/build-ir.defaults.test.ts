@@ -44,56 +44,6 @@ describe('buildIr - defaults and inference', () => {
 		});
 	});
 
-	it('preserves configured cache key functions for write operations', async () => {
-		const config = createBaseConfig();
-		config.resources = {
-			demo: {
-				name: 'demo',
-				schema: 'auto',
-				routes: {
-					list: {
-						path: '/test-namespace/v1/items',
-						method: 'GET',
-					},
-				},
-				cacheKeys: {
-					create: () => ['demo', 'create'],
-					update: (id?: string | number) => [
-						'demo',
-						'update',
-						id ?? null,
-					],
-					remove: (id?: string | number) => [
-						'demo',
-						'remove',
-						id ?? null,
-					],
-				},
-			},
-		} as unknown as WPKernelConfigV1['resources'];
-
-		const ir = await buildIr({
-			config,
-			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'wpk.config.ts',
-			namespace: config.namespace,
-		});
-
-		const cacheKeys = ir.resources[0]!.cacheKeys;
-		expect(cacheKeys.create).toEqual({
-			source: 'config',
-			segments: ['demo', 'create'],
-		});
-		expect(cacheKeys.update).toEqual({
-			source: 'config',
-			segments: ['demo', 'update', '__wpk_id__'],
-		});
-		expect(cacheKeys.remove).toEqual({
-			source: 'config',
-			segments: ['demo', 'remove', '__wpk_id__'],
-		});
-	});
-
 	it('collects capability references across routes and resources', async () => {
 		const config = createBaseConfig();
 		config.resources = {

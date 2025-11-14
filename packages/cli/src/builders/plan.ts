@@ -48,6 +48,7 @@ import {
 	type PlanDeletionSkip,
 	type BuildShimOptions,
 } from './types';
+import { buildUiConfig } from './php/pluginLoader.ui';
 
 const PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PLAN_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
@@ -327,11 +328,15 @@ async function emitPluginLoader({
 		return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
 	});
 
+	const uiResources = ir.ui?.resources ?? [];
+	const uiConfig = buildUiConfig(ir, uiResources);
+
 	const program = buildPluginLoaderProgram({
 		origin: ir.meta.origin,
 		namespace: ir.php.namespace,
 		sanitizedNamespace: ir.meta.sanitizedNamespace,
 		resourceClassNames,
+		...(uiConfig ? { ui: uiConfig } : {}),
 	});
 
 	const incomingPath = path.posix.join(PLAN_INCOMING_ROOT, 'plugin.php');

@@ -1,0 +1,447 @@
+Let's focus our attention on examples showcase. Let me share its primary purpose. It was created solely to illustrate our config + create + generate + apply
+  commands. unfortunately it has drifted.
+  1. examples must be isolated from the monorepo. It relies on monorepo norms. Unlike our very own smoke test, `scripts/test/smoke-create-generate.mjs`, examples still has a hard dependency on the monorepo. The reason it needs to be independent is because in future, we want to extend the `create-wpk` command with templates and this showcase should serve as that template
+  2. It contains more bespoke code than needed. I understand the option to seed data or to make an actual working plugin, but we should at least ensure that we actually generate and apply before adding the extra bits
+	3. To that effect, I have created this file to illustrate the target config I think we can use for generation for the showcase, but we will need to first clean up the showcase app completely (even the .generated folder is a fake)
+---
+```ts
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
+
+export const wpkConfig: WPKernelConfigV1 = {
+	version: 1,
+
+	namespace: 'acme-jobs',
+
+	// ------------------------------------------------------------
+	// 1. Schema registry (optional but recommended)
+	// ------------------------------------------------------------
+	schemas: {
+		job: {
+			path: './schemas/job.schema.json',
+			generated: {
+				types: './.generated/types/job.d.ts',
+			},
+			description: 'Public job listing schema for REST + UI.',
+		},
+		application: {
+			path: './schemas/application.schema.json',
+			generated: {
+				types: './.generated/types/application.d.ts',
+			},
+			description: 'Private job application payload and status model.',
+		},
+		settings: {
+			path: './schemas/settings.schema.json',
+			generated: {
+				types: './.generated/types/settings.d.ts',
+			},
+			description: 'Plugin settings for retention and notifications.',
+		},
+	},
+
+	// ------------------------------------------------------------
+	// 2. Resource registry
+	// ------------------------------------------------------------
+	resources: {
+		// -----------------------------------------------------------------
+		// Public jobs: custom post type with meta + taxonomies + admin UI
+		// -----------------------------------------------------------------
+		job: {
+			name: 'job',
+			namespace: 'Acme\\Jobs',
+
+			routes: {
+				list: {
+					path: '/acme/v1/jobs',
+					method: 'GET',
+					capability: 'job.list',
+				},
+				get: {
+					path: '/acme/v1/jobs/:id',
+					method: 'GET',
+					capability: 'job.get',
+				},
+				create: {
+					path: '/acme/v1/jobs',
+					method: 'POST',
+					capability: 'job.create',
+				},
+				update: {
+					path: '/acme/v1/jobs/:id',
+					method: 'PATCH',
+					capability: 'job.update',
+				},
+				remove: {
+					path: '/acme/v1/jobs/:id',
+					method: 'DELETE',
+					capability: 'job.remove',
+				},
+			},
+
+			identity: {
+				type: 'number',
+				param: 'id',
+			},
+
+			storage: {
+				mode: 'wp-post',
+				postType: 'acme_job',
+				statuses: ['publish', 'draft', 'closed'],
+				supports: ['title', 'editor', 'excerpt', 'custom-fields'],
+
+				meta: {
+					salary_min: { type: 'number', single: true },
+					salary_max: { type: 'number', single: true },
+					location: { type: 'string', single: true },
+					external_url: { type: 'string', single: true },
+				},
+
+				taxonomies: {
+					acme_job_department: {
+						taxonomy: 'acme_job_department',
+						hierarchical: false,
+						register: true,
+					},
+					acme_job_location: {
+						taxonomy: 'acme_job_location',
+						hierarchical: true,
+						register: true,
+					},
+				},
+			},
+
+			schema: 'job',
+
+			capabilities: {
+				'job.list': 'read',
+				'job.get': 'read',
+				'job.create': {
+					capability: 'edit_posts',
+					appliesTo: 'resource',
+				},
+				'job.update': {
+					capability: 'edit_posts',
+					appliesTo: 'object',
+					binding: 'id',
+				},
+				'job.remove': {
+					capability: 'delete_posts',
+					appliesTo: 'object',
+					binding: 'id',
+				},
+			},
+
+			queryParams: {
+				search: {
+					type: 'string',
+					optional: true,
+					description: 'Free text search across title and location.',
+				},
+				department: {
+					type: 'enum',
+					enum: ['engineering', 'marketing', 'sales', 'operations'],
+					optional: true,
+					description: 'Filter jobs by department taxonomy term.',
+				},
+				location: {
+					type: 'enum',
+					enum: ['remote', 'onsite', 'hybrid'],
+					optional: true,
+					description: 'Filter jobs by location model.',
+				},
+			},
+			ui: {
+				admin: {
+					view: 'dataviews',
+					dataviews: {
+						fields: [
+							{
+								key: 'title',
+								label: 'Job title',
+								component: 'TitleColumn',
+							},
+							{
+								key: 'location',
+								label: 'Location',
+								component: 'LocationBadge',
+							},
+							{
+								key: 'department',
+								label: 'Department',
+								component: 'DepartmentBadge',
+							},
+							{
+								key: 'status',
+								label: 'Status',
+								component: 'StatusPill',
+							},
+						],
+						defaultView: {
+							layout: 'table',
+							columns: ['title', 'location', 'department', 'status'],
+						},
+						actions: [
+							{
+								key: 'open',
+								label: 'Open in editor',
+								action: 'openInEditor',
+							},
+							{
+								key: 'archive',
+								label: 'Archive job',
+								action: 'archiveJob',
+							},
+						],
+						search: true,
+						searchLabel: 'Search jobs',
+						empty: {
+							title: 'No jobs yet',
+							description: 'Create your first job to start hiring.',
+						},
+						perPageSizes: [10, 25, 50],
+						views: [
+							{
+								id: 'all',
+								label: 'All jobs',
+								view: { filters: {} },
+								description: 'Every job regardless of status.',
+								isDefault: true,
+							},
+							{
+								id: 'open',
+								label: 'Open roles',
+								view: { filters: { status: ['publish'] } },
+								description: 'Jobs currently accepting applications.',
+							},
+						],
+						preferencesKey: 'acme-jobs/dataviews/job',
+						interactivity: {
+							feature: 'admin-screen',
+						},
+						screen: {
+							component: '@acme/jobs-admin/JobListScreen',
+							route: 'acme-jobs',
+							resourceImport: '@acme/jobs/resources',
+							resourceSymbol: 'job',
+							wpkernelImport: '@wpkernel/ui/dataviews',
+							wpkernelSymbol: 'createAdminDataViewScreen',
+							menu: {
+								slug: 'acme-jobs',
+								title: 'Jobs',
+								capability: 'manage_options',
+								parent: 'options-general.php',
+								position: 58.5,
+							},
+						},
+					},
+				},
+			},
+		},
+
+		// -----------------------------------------------------------------
+		// Private applications: CPT again, string identity
+		// -----------------------------------------------------------------
+		application: {
+			name: 'application',
+			namespace: 'Acme\\Jobs',
+
+			routes: {
+				list: {
+					path: '/acme/v1/applications',
+					method: 'GET',
+					capability: 'application.list',
+				},
+				get: {
+					path: '/acme/v1/applications/:uuid',
+					method: 'GET',
+					capability: 'application.get',
+				},
+				create: {
+					path: '/acme/v1/applications',
+					method: 'POST',
+					capability: 'application.create',
+				},
+				update: {
+					path: '/acme/v1/applications/:uuid',
+					method: 'PATCH',
+					capability: 'application.update',
+				},
+			},
+
+			identity: {
+				type: 'string',
+				param: 'uuid',
+			},
+
+			storage: {
+				mode: 'wp-post',
+				postType: 'acme_application',
+				statuses: ['private', 'rejected', 'hired'],
+				supports: ['custom-fields'],
+				meta: {
+					job_id: { type: 'number', single: true },
+					cv_attachment_id: { type: 'number', single: true },
+					status: { type: 'string', single: true },
+				},
+				taxonomies: {},
+			},
+
+			schema: 'application',
+
+			capabilities: {
+				'application.list': {
+					capability: 'list_applications',
+					appliesTo: 'resource',
+				},
+				'application.get': {
+					capability: 'read_application',
+					appliesTo: 'object',
+					binding: 'uuid',
+				},
+				'application.create': 'read',
+				'application.update': {
+					capability: 'edit_application',
+					appliesTo: 'object',
+					binding: 'uuid',
+				},
+			},
+
+			queryParams: {
+				status: {
+					type: 'enum',
+					enum: ['new', 'screening', 'interview', 'offer', 'rejected'],
+					optional: true,
+					description: 'Filter applications by status.',
+				},
+			},
+			ui: {
+				admin: {
+					view: 'dataviews',
+					dataviews: {
+						fields: [
+							{ key: 'candidate_name', label: 'Candidate' },
+							{ key: 'job_title', label: 'Job' },
+							{ key: 'status', label: 'Status' },
+						],
+						defaultView: {
+							layout: 'table',
+							columns: ['candidate_name', 'job_title', 'status'],
+						},
+						search: true,
+						searchLabel: 'Search applications',
+					},
+				},
+			},
+		},
+
+		// -----------------------------------------------------------------
+		// Settings: wp-option storage
+		// -----------------------------------------------------------------
+		settings: {
+			name: 'settings',
+			namespace: 'Acme\\Jobs',
+
+			routes: {
+				get: {
+					path: '/acme/v1/settings',
+					method: 'GET',
+					capability: 'settings.get',
+				},
+				update: {
+					path: '/acme/v1/settings',
+					method: 'PATCH',
+					capability: 'settings.update',
+				},
+			},
+
+			storage: {
+				mode: 'wp-option',
+				option: 'acme_jobs_settings',
+			},
+
+			schema: 'settings',
+
+			capabilities: {
+				'settings.get': 'manage_options',
+				'settings.update': {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+			},
+		},
+
+		// -----------------------------------------------------------------
+		// Taxonomy-only resource: wp-taxonomy storage
+		// -----------------------------------------------------------------
+		jobCategory: {
+			name: 'jobCategory',
+			namespace: 'Acme\\Jobs',
+
+			routes: {
+				list: {
+					path: '/acme/v1/job-categories',
+					method: 'GET',
+					capability: 'jobCategory.list',
+				},
+			},
+
+			identity: {
+				type: 'number',
+				param: 'id',
+			},
+
+			storage: {
+				mode: 'wp-taxonomy',
+				taxonomy: 'acme_job_category',
+				hierarchical: true,
+			},
+
+			capabilities: {
+				'jobCategory.list': 'manage_categories',
+			},
+		},
+
+		// -----------------------------------------------------------------
+		// Transient-backed resource
+		// -----------------------------------------------------------------
+		statusCache: {
+			name: 'statusCache',
+			namespace: 'Acme\\Jobs',
+
+			routes: {
+				get: {
+					path: '/acme/v1/status-cache/:slug',
+					method: 'GET',
+					capability: 'statusCache.get',
+				},
+				update: {
+					path: '/acme/v1/status-cache/:slug',
+					method: 'PUT',
+					capability: 'statusCache.update',
+				},
+			},
+
+			identity: {
+				type: 'string',
+				param: 'slug',
+			},
+
+			storage: {
+				mode: 'transient',
+			},
+
+			capabilities: {
+				'statusCache.get': 'manage_options',
+				'statusCache.update': {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+			},
+		},
+	},
+
+	// No adapters, no extensions, no readiness in the plugin-developer edition.
+};
+
+export default wpkConfig;
+```
