@@ -33,13 +33,7 @@ if (!defined('ABSPATH')) {
  */
 function get_wpkernel_controllers(): array
 {
-<<<<<<< /Users/jasonnathan/Repos/wp-kernel/examples/showcase/.tmp/patcher-current-plugin.php-auytYw/plugin.php
-    return [new \Acme\Jobs\Rest\ApplicationController(), new \Acme\Jobs\Rest\JobController(), new \Acme\Jobs\Rest\JobCategoryController(), new \Acme\Jobs\Rest\SettingsController(), new \Acme\Jobs\Rest\StatusCacheController()];
-||||||| /Users/jasonnathan/Repos/wp-kernel/examples/showcase/.tmp/patcher-base-plugin.php-VmdglY/plugin.php
-    return [new \Acme\Jobs\Generated\Rest\JobController()];
-=======
     return [new \Acme\Jobs\Generated\Rest\ApplicationController(), new \Acme\Jobs\Generated\Rest\JobController(), new \Acme\Jobs\Generated\Rest\JobCategoryController(), new \Acme\Jobs\Generated\Rest\SettingsController(), new \Acme\Jobs\Generated\Rest\StatusCacheController()];
->>>>>>> /Users/jasonnathan/Repos/wp-kernel/examples/showcase/.tmp/patcher-incoming-plugin.php-AvNHhA/plugin.php
 }
 /** Register WPKernel REST controllers with WordPress. */
 function register_wpkernel_routes(): void
