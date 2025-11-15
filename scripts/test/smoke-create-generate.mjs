@@ -44,10 +44,6 @@ const REQUIRED_PACKAGES = [
 		distFile: 'packages/create-wpk/dist/index.js',
 	},
 	{
-		name: '@wpkernel/php-driver',
-		distFile: 'packages/php-driver/dist/index.js',
-	},
-	{
 		name: '@wpkernel/php-json-ast',
 		distFile: 'packages/php-json-ast/dist/index.js',
 	},
@@ -96,12 +92,10 @@ async function main() {
 		logStep('Packing tarballs');
 		const cliTarball = await packWorkspace('@wpkernel/cli');
 		const createTarball = await packWorkspace('@wpkernel/create-wpk');
-		const phpDriverTarball = await packWorkspace('@wpkernel/php-driver');
 		const phpJsonAstTarball = await packWorkspace('@wpkernel/php-json-ast');
 		const wpJsonAstTarball = await packWorkspace('@wpkernel/wp-json-ast');
 		recordTarball('@wpkernel/cli', cliTarball);
 		recordTarball('@wpkernel/create-wpk', createTarball);
-		recordTarball('@wpkernel/php-driver', phpDriverTarball);
 		recordTarball('@wpkernel/php-json-ast', phpJsonAstTarball);
 		recordTarball('@wpkernel/wp-json-ast', wpJsonAstTarball);
 
@@ -128,7 +122,6 @@ async function main() {
 			);
 			const dependencyTarballs = [
 				'@wpkernel/cli',
-				'@wpkernel/php-driver',
 				'@wpkernel/php-json-ast',
 				'@wpkernel/wp-json-ast',
 			]
