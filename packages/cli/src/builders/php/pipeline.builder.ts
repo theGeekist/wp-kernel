@@ -312,10 +312,10 @@ function ensureBundledDriverDefaults(
 		BUNDLED_PHP_AUTOLOAD_PATH,
 	]) ?? [BUNDLED_PHP_AUTOLOAD_PATH];
 
-	const scriptPath =
-		isPresent(driver?.scriptPath) && driver?.scriptPath
-			? driver.scriptPath
-			: BUNDLED_PHP_PRETTY_PRINT_SCRIPT_PATH;
+	let scriptPath: string | undefined = driver?.scriptPath;
+	if (!isPresent(scriptPath) && !isPresent(driver?.importMetaUrl)) {
+		scriptPath = BUNDLED_PHP_PRETTY_PRINT_SCRIPT_PATH;
+	}
 
 	return {
 		...(driver ?? {}),
