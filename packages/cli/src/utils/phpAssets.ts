@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createModuleResolver, getCliPackageRoot } from './module-url';
+import { createModuleResolver } from './module-url';
 
 const resolveFromCli = createModuleResolver();
 
@@ -18,5 +18,6 @@ export function resolveBundledPhpDriverPrettyPrintPath(): string {
 }
 
 export function resolveBundledComposerAutoloadPath(): string {
-	return path.resolve(getCliPackageRoot(), 'vendor', 'autoload.php');
+	const pkgRoot = resolvePackageRoot('@wpkernel/php-json-ast');
+	return path.join(pkgRoot, 'vendor', 'autoload.php');
 }
