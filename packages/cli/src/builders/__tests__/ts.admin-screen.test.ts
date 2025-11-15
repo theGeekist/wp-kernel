@@ -92,10 +92,10 @@ describe('createTsBuilder - admin screen creator', () => {
 				"import { WPKernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';"
 			);
 			expect(screenContents).toContain(
-				"const jobsadminscreenInteractivityFeature = 'admin-screen';"
+				"const jobsAdminScreenInteractivityFeature = 'admin-screen';"
 			);
 			expect(screenContents).toContain(
-				'const jobsadminscreenInteractivityContext = \'{"feature":"admin-screen","resource":"job"}\';'
+				'const jobsAdminScreenInteractivityContext = \'{"feature":"admin-screen","resource":"job"}\';'
 			);
 			expect(screenContents).toContain(
 				'const interactivityNamespace = getJobsAdminScreenInteractivityNamespace();'
@@ -104,7 +104,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				'data-wp-interactive={interactivityNamespace}'
 			);
 			expect(screenContents).toContain(
-				'data-wp-context={jobsadminscreenInteractivityContext}'
+				'data-wp-context={jobsAdminScreenInteractivityContext}'
 			);
 
 			const expectedResourceImport = normalise(
@@ -131,7 +131,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				`import { kernel } from '${prefixRelative(expectedKernelImport)}';`
 			);
 			expect(screenContents).toContain(
-				"export const jobsadminscreenRoute = '/admin/jobs';"
+				"export const jobsAdminScreenRoute = '/admin/jobs';"
 			);
 			expect(screenContents).toContain('context: {');
 			expect(screenContents).toContain("resourceName: 'job'");
@@ -268,7 +268,7 @@ describe('createTsBuilder - admin screen creator', () => {
 			const screenContents = await workspace.readText(screenPath);
 
 			expect(screenContents).toContain(
-				"import { jobBoard } from '@/resources/job-board';"
+				"import { jobBoard } from '../../../../../src/resources/job-board';"
 			);
 			expect(screenContents).toContain(
 				"import { kernel } from '@/bootstrap/kernel';"
@@ -350,7 +350,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				'<JobsAdminCustomScreenContent />'
 			);
 			expect(screenContents).toContain(
-				"export const jobsadmincustomscreenRoute = '/custom/jobs';"
+				"export const jobsAdminCustomScreenRoute = '/custom/jobs';"
 			);
 			expect(screenContents).toContain(
 				'const runtime = customKernel.getUIRuntime?.();'
@@ -410,6 +410,96 @@ describe('createTsBuilder - admin screen creator', () => {
 				'export function JobBoardAdminScreen('
 			);
 			expect(screenContents).not.toContain('Route =');
+		});
+	});
+
+	it('sanitizes scoped component identifiers for generated admin screens', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			await workspace.write(
+				'src/bootstrap/kernel.ts',
+				'export const kernel = { getUIRuntime: () => ({}) };\n'
+			);
+			await workspace.write(
+				'src/resources/job.ts',
+				'export const job = { ui: { admin: { dataviews: {} } } };\n'
+			);
+
+			const dataviews = buildDataViewsConfig({
+				screen: {
+					component: '@acme/jobs-admin/JobListScreen',
+					route: '/scoped/jobs',
+				},
+			});
+			const configSource = buildWPKernelConfigSource({
+				dataviews: {
+					screen: {
+						component: '@acme/jobs-admin/JobListScreen',
+						route: '/scoped/jobs',
+					},
+				},
+			});
+			await workspace.write('wpk.config.ts', configSource);
+
+			const { ir, options } = buildBuilderArtifacts({
+				dataviews,
+				sourcePath: path.join(root, 'wpk.config.ts'),
+			});
+
+			const reporter = buildReporter();
+			const output = buildOutput();
+			const builder = createTsBuilder({
+				creators: [buildAdminScreenCreator()],
+			});
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+					},
+					input: {
+						phase: 'generate',
+						options,
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const screenPath = path.join(
+				'.generated',
+				'ui',
+				'app',
+				'job',
+				'admin',
+				'@acme',
+				'jobs-admin',
+				'JobListScreen.tsx'
+			);
+			const screenContents = await workspace.readText(screenPath);
+
+			expect(screenContents).toContain(
+				"export const jobListScreenRoute = '/scoped/jobs';"
+			);
+			expect(screenContents).toContain(
+				"const jobListScreenInteractivityFeature = 'admin-screen';"
+			);
+			expect(screenContents).toContain(
+				'const jobListScreenInteractivityContext = \'{"feature":"admin-screen","resource":"job"}\';'
+			);
+			expect(screenContents).toContain(
+				'const interactivityNamespace = getJobListScreenInteractivityNamespace();'
+			);
+			expect(screenContents).toContain(
+				'function normalizeJobListScreenInteractivitySegment'
+			);
+			expect(screenContents).toContain('export function JobListScreen(');
+			expect(screenContents).not.toMatch(
+				/@acme\/jobs-admin\/JobListScreen/
+			);
 		});
 	});
 });

@@ -5,7 +5,7 @@ import type {
 	BuilderHelper,
 	BuilderNext,
 } from '../../runtime/types';
-import { createPhpProgramWriterHelper } from '@wpkernel/php-json-ast';
+import { createWpProgramWriterHelper } from './pipeline.writer';
 import { createPhpBlocksHelper } from './block.artifacts';
 import { createPhpBaseControllerHelper } from './controller.base';
 import { createPhpChannelHelper } from './pipeline.channel';
@@ -107,7 +107,7 @@ export function createPhpBuilder(
 				...(codemodHelperOptions
 					? [createPhpCodemodIngestionHelper(codemodHelperOptions)]
 					: []),
-				createPhpProgramWriterHelper({
+				createWpProgramWriterHelper({
 					driver: driverOptions,
 				}),
 			];

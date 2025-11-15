@@ -3,10 +3,12 @@ import { type TsBuilderCreator } from '../types';
 import {
 	resolveInteractivityFeature,
 	GENERATED_ROOT,
+	resolveAdminScreenComponentMetadata,
+	toLowerCamelIdentifier,
 } from './pipeline.creator.adminScreen';
 import { loadTsMorph } from './runtime.loader';
 import { resolveResourceImport, resolveKernelImport } from './shared.imports';
-import { toPascalCase, toCamelCase } from './shared.metadata';
+import { toCamelCase } from './shared.metadata';
 
 /**
  * Builds a `TsBuilderCreator` for generating interactivity fixtures.
@@ -40,9 +42,10 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
 			const screenConfig = descriptor.dataviews.screen ?? {};
-			const componentName =
-				screenConfig.component ??
-				`${toPascalCase(descriptor.name)}AdminScreen`;
+			const { identifier: componentIdentifier } =
+				resolveAdminScreenComponentMetadata(descriptor);
+			const componentIdentifierCamel =
+				toLowerCamelIdentifier(componentIdentifier);
 			const resourceSymbol =
 				screenConfig.resourceSymbol ?? toCamelCase(descriptor.name);
 			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
@@ -63,6 +66,8 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 					from: fixturePath,
 					configured: screenConfig.resourceImport,
 					resourceKey: descriptor.key,
+					resourceSymbol,
+					configPath: context.sourcePath,
 				}),
 				resolveKernelImport({
 					workspace: context.workspace,
@@ -123,24 +128,16 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 				namedImports: [{ name: resourceSymbol }],
 			});
 
-			const featureIdentifier = `${toCamelCase(
-				componentName
-			)}InteractivityFeature`;
-			const resourceNameIdentifier = `${toCamelCase(
-				componentName
-			)}InteractivityResourceName`;
-			const segmentFunctionName = `normalize${componentName}InteractivitySegment`;
-			const namespaceFunctionName = `get${componentName}InteractivityNamespace`;
-			const namespaceIdentifier = `${toCamelCase(
-				componentName
-			)}InteractivityNamespace`;
-			const actionsBuilderName = `build${componentName}InteractivityActions`;
-			const actionsIdentifier = `${toCamelCase(
-				componentName
-			)}InteractivityActions`;
-			const runtimeResolverName = `resolve${componentName}Runtime`;
-			const optionsInterfaceName = `Create${componentName}DataViewInteractionOptions`;
-			const createFunctionName = `create${componentName}DataViewInteraction`;
+			const featureIdentifier = `${componentIdentifierCamel}InteractivityFeature`;
+			const resourceNameIdentifier = `${componentIdentifierCamel}InteractivityResourceName`;
+			const segmentFunctionName = `normalize${componentIdentifier}InteractivitySegment`;
+			const namespaceFunctionName = `get${componentIdentifier}InteractivityNamespace`;
+			const namespaceIdentifier = `${componentIdentifierCamel}InteractivityNamespace`;
+			const actionsBuilderName = `build${componentIdentifier}InteractivityActions`;
+			const actionsIdentifier = `${componentIdentifierCamel}InteractivityActions`;
+			const runtimeResolverName = `resolve${componentIdentifier}Runtime`;
+			const optionsInterfaceName = `Create${componentIdentifier}DataViewInteractionOptions`;
+			const createFunctionName = `create${componentIdentifier}DataViewInteraction`;
 
 			sourceFile.addVariableStatement({
 				isExported: true,

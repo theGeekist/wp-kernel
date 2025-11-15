@@ -1,35 +1,20 @@
 import { deriveCacheKeys, createDefaultCacheKeySegments } from '../cache-keys';
-import type { CacheKeys } from '@wpkernel/core/resource';
-import { WPKernelError } from '@wpkernel/core/error';
 
 describe('cache-keys utilities', () => {
-	it('derives default keys when functions not provided', () => {
-		const cacheKeys = deriveCacheKeys(undefined, 'demo');
+	it('derives default cache key descriptors', () => {
+		const cacheKeys = deriveCacheKeys('demo');
 
 		expect(cacheKeys.list).toEqual({
 			source: 'default',
-			segments: expect.arrayContaining(['demo', 'list', '{}']),
+			segments: ['demo', 'list', '{}'],
 		});
 		expect(cacheKeys.get).toEqual({
 			source: 'default',
-			segments: expect.arrayContaining(['demo', 'get', '__wpk_id__']),
+			segments: ['demo', 'get', '__wpk_id__'],
 		});
-	});
-
-	it('throws when cache key function returns non-array', () => {
-		const keys: CacheKeys<unknown> = {
-			list: () =>
-				'not-an-array' as unknown as (
-					| string
-					| number
-					| boolean
-					| null
-					| undefined
-				)[],
-			get: () => ['demo', 'get'],
-		};
-
-		expect(() => deriveCacheKeys(keys, 'demo')).toThrow(WPKernelError);
+		expect(cacheKeys.create).toBeUndefined();
+		expect(cacheKeys.update).toBeUndefined();
+		expect(cacheKeys.remove).toBeUndefined();
 	});
 
 	it('creates frozen default segments', () => {

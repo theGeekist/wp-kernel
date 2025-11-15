@@ -1,0 +1,89 @@
+{
+	"instructions": [
+		{
+			"action": "write",
+			"file": "plugin.php",
+			"base": ".wpk/apply/base/plugin.php",
+			"incoming": ".wpk/apply/incoming/plugin.php",
+			"description": "Update plugin loader"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/ApplicationController.php",
+			"base": ".wpk/apply/base/inc/Rest/ApplicationController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/ApplicationController.php",
+			"description": "Update application controller shim"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/JobController.php",
+			"base": ".wpk/apply/base/inc/Rest/JobController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/JobController.php",
+			"description": "Update job controller shim"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/JobCategoryController.php",
+			"base": ".wpk/apply/base/inc/Rest/JobCategoryController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/JobCategoryController.php",
+			"description": "Update jobCategory controller shim"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/SettingsController.php",
+			"base": ".wpk/apply/base/inc/Rest/SettingsController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/SettingsController.php",
+			"description": "Update settings controller shim"
+		},
+		{
+			"action": "write",
+			"file": "inc/Rest/StatusCacheController.php",
+			"base": ".wpk/apply/base/inc/Rest/StatusCacheController.php",
+			"incoming": ".wpk/apply/incoming/inc/Rest/StatusCacheController.php",
+			"description": "Update statusCache controller shim"
+		},
+		{
+			"action": "write",
+			"file": "src/blocks/application/block.json",
+			"base": ".wpk/apply/base/src/blocks/application/block.json",
+			"incoming": ".wpk/apply/incoming/src/blocks/application/block.json",
+			"description": "Update block asset application/block.json"
+		},
+		{
+			"action": "write",
+			"file": "src/blocks/job/block.json",
+			"base": ".wpk/apply/base/src/blocks/job/block.json",
+			"incoming": ".wpk/apply/incoming/src/blocks/job/block.json",
+			"description": "Update block asset job/block.json"
+		},
+		{
+			"action": "write",
+			"file": "src/blocks/job/render.php",
+			"base": ".wpk/apply/base/src/blocks/job/render.php",
+			"incoming": ".wpk/apply/incoming/src/blocks/job/render.php",
+			"description": "Update block asset job/render.php"
+		},
+		{
+			"action": "write",
+			"file": "src/blocks/jobcategory/block.json",
+			"base": ".wpk/apply/base/src/blocks/jobcategory/block.json",
+			"incoming": ".wpk/apply/incoming/src/blocks/jobcategory/block.json",
+			"description": "Update block asset jobcategory/block.json"
+		},
+		{
+			"action": "write",
+			"file": "src/blocks/settings/block.json",
+			"base": ".wpk/apply/base/src/blocks/settings/block.json",
+			"incoming": ".wpk/apply/incoming/src/blocks/settings/block.json",
+			"description": "Update block asset settings/block.json"
+		},
+		{
+			"action": "write",
+			"file": "src/blocks/statuscache/block.json",
+			"base": ".wpk/apply/base/src/blocks/statuscache/block.json",
+			"incoming": ".wpk/apply/incoming/src/blocks/statuscache/block.json",
+			"description": "Update block asset statuscache/block.json"
+		}
+	],
+	"skippedDeletions": []
+}

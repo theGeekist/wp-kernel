@@ -1,4 +1,5 @@
 import type { ResourceConfig } from '@wpkernel/core/resource';
+import type { SerializableResourceConfig } from '../../config/types';
 import { sortObject } from './canonical';
 import type {
 	BuildIrOptions,
@@ -77,7 +78,7 @@ async function buildResourceEntry(options: {
 	accumulator: SchemaAccumulator;
 	sanitizedNamespace: string;
 	resourceKey: string;
-	resourceConfig: ResourceConfig;
+	resourceConfig: SerializableResourceConfig;
 	state: ResourceBuilderState;
 }): Promise<IRResource> {
 	const {
@@ -125,10 +126,7 @@ async function buildResourceEntry(options: {
 		}),
 	});
 
-	const cacheKeys = deriveCacheKeys(
-		resourceConfig.cacheKeys,
-		resourceConfig.name
-	);
+	const cacheKeys = deriveCacheKeys(resourceConfig.name);
 
 	const queryParams = normaliseQueryParams(resourceConfig.queryParams);
 
@@ -148,6 +146,7 @@ async function buildResourceEntry(options: {
 		storage: storageResult.storage,
 		queryParams,
 		ui: resourceConfig.ui,
+		blocks: normaliseResourceBlocks(resourceConfig.blocks),
 		capabilities: resourceConfig.capabilities,
 		hash: hashResource({
 			resourceConfig,
@@ -220,6 +219,23 @@ export function normaliseQueryParams(
 	}
 
 	return sortObject(params);
+}
+
+function normaliseResourceBlocks(
+	blocks: SerializableResourceConfig['blocks']
+): IRResource['blocks'] | undefined {
+	if (!blocks || typeof blocks !== 'object') {
+		return undefined;
+	}
+
+	const mode = (blocks as { mode?: unknown }).mode;
+	if (mode === 'ssr') {
+		return { mode: 'ssr' };
+	}
+	if (mode === 'js') {
+		return { mode: 'js' };
+	}
+	return undefined;
 }
 
 /**
@@ -489,7 +505,7 @@ export function inferPostType(options: {
  * @category IR
  */
 export function hashResource(options: {
-	resourceConfig: ResourceConfig;
+	resourceConfig: SerializableResourceConfig;
 	schemaKey: string;
 	schemaProvenance: SchemaProvenance;
 	routes: IRResource['routes'];
@@ -509,6 +525,7 @@ export function hashResource(options: {
 			'storage',
 			'queryParams',
 			'ui',
+			'blocks',
 		],
 		{
 			name: options.resourceConfig.name,
@@ -525,6 +542,8 @@ export function hashResource(options: {
 			storage: options.storage ?? null,
 			queryParams: options.queryParams ?? null,
 			ui: options.resourceConfig.ui ?? null,
+			blocks:
+				normaliseResourceBlocks(options.resourceConfig.blocks) ?? null,
 		}
 	);
 }

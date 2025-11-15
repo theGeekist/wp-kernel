@@ -16,6 +16,7 @@ import {
 	buildScalarString,
 	buildStaticCall,
 	buildVariable,
+	buildFullyQualifiedName,
 	PHP_METHOD_MODIFIER_PRIVATE,
 	PHP_METHOD_MODIFIER_STATIC,
 	type PhpStmt,
@@ -43,7 +44,7 @@ export function buildBuildRenderArgumentsMethod(): PhpStmtClassMethod {
 				default: buildScalarString(''),
 			}),
 			buildParam(buildVariable('block'), {
-				type: buildNullableType(buildName(['\\WP_Block'])),
+				type: buildNullableType(buildFullyQualifiedName(['WP_Block'])),
 				default: buildNull(),
 			}),
 		],
@@ -125,7 +126,7 @@ export function buildRenderTemplateMethod(): PhpStmtClassMethod {
 				type: buildIdentifier('string'),
 			}),
 			buildParam(buildVariable('block'), {
-				type: buildNullableType(buildName(['\\WP_Block'])),
+				type: buildNullableType(buildFullyQualifiedName(['WP_Block'])),
 				default: buildNull(),
 			}),
 		],

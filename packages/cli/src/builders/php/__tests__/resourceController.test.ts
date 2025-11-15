@@ -37,7 +37,7 @@ import {
 	createPhpWpTaxonomyStorageHelper,
 	createPhpWpPostRoutesHelper,
 	createPhpResourceControllerHelper,
-	createPhpProgramWriterHelper,
+	createWpProgramWriterHelper,
 	getPhpBuilderChannel,
 } from '../index';
 import { makeCapabilityProtectedResource } from '../test-support/capabilityProtectedResource.test-support';
@@ -382,7 +382,7 @@ describe('createPhpResourceControllerHelper', () => {
 			.mockReturnValue(prettyPrinter as never);
 
 		try {
-			const writerHelper = createPhpProgramWriterHelper();
+			const writerHelper = createWpProgramWriterHelper();
 			await writerHelper.apply(applyOptions, undefined);
 
 			expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
@@ -454,7 +454,7 @@ describe('createPhpResourceControllerHelper', () => {
 			.mockReturnValue(prettyPrinter as never);
 
 		try {
-			const writerHelper = createPhpProgramWriterHelper();
+			const writerHelper = createWpProgramWriterHelper();
 			await writerHelper.apply(applyOptions, undefined);
 
 			expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({

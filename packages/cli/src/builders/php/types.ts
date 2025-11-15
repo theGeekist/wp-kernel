@@ -9,6 +9,10 @@ import {
 } from '@wpkernel/wp-json-ast';
 import { type RESOURCE_STORAGE_HELPERS_SYMBOL } from './storage.artifacts';
 import type { IRResource, IRv1 } from '../../ir';
+import type {
+	IRUiMenuConfig,
+	IRUiResourceDescriptor,
+} from '../../ir/publicTypes';
 import { type WP_POST_ROUTE_HELPER_SYMBOL } from './controller.wpPostRoutes';
 import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import type { BuilderApplyOptions, BuilderOutput } from '../../runtime/types';
@@ -103,18 +107,8 @@ export interface PopulateWpPostRouteBundlesOptions {
 	readonly ir: IRv1;
 	readonly state: WpPostRouteHelperState;
 }
-export interface NormalizedMenuConfig {
-	readonly slug?: string;
-	readonly title?: string;
-	readonly capability?: string;
-	readonly parent?: string;
-	readonly position?: number;
-}
-export interface PluginLoaderUiResourceDescriptor {
-	readonly resource: string;
-	readonly preferencesKey: string;
-	readonly menu?: NormalizedMenuConfig;
-}
+export type NormalizedMenuConfig = IRUiMenuConfig;
+export type PluginLoaderUiResourceDescriptor = IRUiResourceDescriptor;
 export interface PluginLoaderUiConfig {
 	readonly handle: string;
 	readonly assetPath: string;

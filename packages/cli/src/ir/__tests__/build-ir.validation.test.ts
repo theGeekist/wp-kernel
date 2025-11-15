@@ -279,32 +279,4 @@ describe('buildIr - validation', () => {
 			})
 		).rejects.toBeInstanceOf(WPKernelError);
 	});
-
-	it('throws when cache key function returns non-array values', async () => {
-		const config = createBaseConfig();
-		config.resources = {
-			invalid: {
-				name: 'invalid',
-				schema: 'auto',
-				routes: {
-					list: {
-						path: '/test-namespace/v1/items',
-						method: 'GET',
-					},
-				},
-				cacheKeys: {
-					list: () => 'not-an-array' as unknown as unknown[],
-				},
-			},
-		} as unknown as WPKernelConfigV1['resources'];
-
-		await expect(
-			buildIr({
-				config,
-				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'wpk.config.ts',
-				namespace: config.namespace,
-			})
-		).rejects.toBeInstanceOf(WPKernelError);
-	});
 });

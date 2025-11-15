@@ -1,6 +1,7 @@
 import { configureWPKernel } from '@wpkernel/core/data';
 import type { WPKInstance } from '@wpkernel/core/data';
 import { wpkConfig } from '../wpk.config';
+import { registerGeneratedBlocks } from './blocks/auto-register';
 
 /**
  * Bootstrap the WPKernel runtime for this project.
@@ -32,3 +33,9 @@ export function bootstrapKernel(): WPKInstance {
  * @see https://github.com/wpkernel/wpkernel/blob/main/docs/guide/data.md
  */
 export const wpk = bootstrapKernel();
+
+/**
+ * Auto-register generated Gutenberg blocks so they are bundled and available
+ * without requiring manual imports in every project.
+ */
+registerGeneratedBlocks();

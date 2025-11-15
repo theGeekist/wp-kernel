@@ -1,96 +1,30 @@
-import type { CacheKeyFn, CacheKeys } from '@wpkernel/core/resource';
-import { WPKernelError } from '@wpkernel/core/contracts';
 import type { IRResource, IRResourceCacheKey } from '../publicTypes';
 
 /**
- * Build IR cache key descriptors for a resource from provided cache key
- * functions or fall back to sensible defaults.
+ * Build IR cache key descriptors for a resource.
  *
- * Each evaluated key is validated to ensure it returns an array. Errors
- * during evaluation are wrapped as ValidationError to aid diagnosis.
+ * Cache keys are currently derived exclusively from the resource name to
+ * preserve determinism in `.generated/**`. User-defined cache key functions
+ * were removed from `wpk.config.ts` to keep the config serialisable.
  *
- * @param    cacheKeys    - Optional CacheKeys configuration from a resource
  * @param    resourceName - Resource name used in default segments
  * @returns IR-style cache key descriptors
  * @category IR
  */
-export function deriveCacheKeys(
-	cacheKeys: CacheKeys<unknown> | undefined,
-	resourceName: string
-): IRResource['cacheKeys'] {
+export function deriveCacheKeys(resourceName: string): IRResource['cacheKeys'] {
 	const defaults = createDefaultCacheKeySegments(resourceName);
 
-	const evaluate = <T>(
-		key: keyof typeof defaults,
-		fn: CacheKeyFn<T> | undefined,
-		placeholder: T | undefined
-	): IRResourceCacheKey => {
-		if (!fn) {
-			return {
-				source: 'default',
-				segments: defaults[key],
-			};
-		}
-
-		try {
-			const result =
-				typeof placeholder === 'undefined' ? fn() : fn(placeholder);
-			if (!Array.isArray(result)) {
-				throw new WPKernelError('ValidationError', {
-					message: `cacheKeys.${String(
-						key
-					)} for resource "${resourceName}" must return an array.`,
-					context: {
-						resourceName,
-						cacheKey: String(key),
-					},
-				});
-			}
-
-			return {
-				source: 'config',
-				segments: Object.freeze(result.map((value) => value)),
-			};
-		} catch (error) {
-			if (WPKernelError.isWPKernelError(error)) {
-				throw error;
-			}
-
-			const message = `Failed to evaluate cacheKeys.${String(key)} for resource "${resourceName}".`;
-			throw new WPKernelError('ValidationError', {
-				message,
-				context: {
-					resourceName,
-					cacheKey: String(key),
-				},
-				data:
-					error instanceof Error
-						? { originalError: error }
-						: undefined,
-			});
-		}
-	};
+	const build = (key: keyof typeof defaults): IRResourceCacheKey => ({
+		source: 'default' as const,
+		segments: defaults[key],
+	});
 
 	return {
-		list: evaluate('list', cacheKeys?.list, undefined),
-		get: evaluate('get', cacheKeys?.get, '__wpk_id__' as string | number),
-		create: cacheKeys?.create
-			? evaluate('create', cacheKeys.create, undefined)
-			: undefined,
-		update: cacheKeys?.update
-			? evaluate(
-					'update',
-					cacheKeys.update,
-					'__wpk_id__' as string | number
-				)
-			: undefined,
-		remove: cacheKeys?.remove
-			? evaluate(
-					'remove',
-					cacheKeys.remove,
-					'__wpk_id__' as string | number
-				)
-			: undefined,
+		list: build('list'),
+		get: build('get'),
+		create: undefined,
+		update: undefined,
+		remove: undefined,
 	};
 }
 

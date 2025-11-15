@@ -27,7 +27,6 @@ const loadedConfig: LoadedWPKernelConfig = {
 	namespace: 'Demo',
 	sourcePath: '/path/to/workspace/wpk.config.ts',
 	configOrigin: 'wpk.config.ts',
-	composerCheck: 'ok',
 };
 
 describe('apply command helpers', () => {

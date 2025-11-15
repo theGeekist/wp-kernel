@@ -189,7 +189,7 @@ function buildReporterNamespace(): string {
  * Builds the `doctor` command for the CLI.
  *
  * This command runs various health checks for the WPKernel project,
- * including configuration, Composer autoloading, PHP tooling, and workspace hygiene.
+ * including configuration, bundled assets, PHP tooling, and workspace hygiene.
  *
  * @category Commands
  * @param    options - Options for building the doctor command, including dependencies.
@@ -226,15 +226,6 @@ export function buildDoctorCommand(
 			results.push(configResult.result);
 
 			const { loadedConfig, workspace, workspaceRoot } = configResult;
-
-			if (loadedConfig) {
-				results.push(
-					this.describeComposerCheck(
-						loadedConfig,
-						reporter.child('composer')
-					)
-				);
-			}
 
 			const readinessResults = await this.runReadiness({
 				deps: dependencies,
@@ -309,30 +300,6 @@ export function buildDoctorCommand(
 					workspaceRoot: null,
 				};
 			}
-		}
-
-		private describeComposerCheck(
-			loaded: LoadedWPKernelConfig,
-			reporter: Reporter
-		): DoctorCheckResult {
-			if (loaded.composerCheck === 'ok') {
-				reporter.info('Composer autoload mapping verified.');
-				return {
-					key: 'composer',
-					label: 'Composer autoload',
-					status: 'pass',
-					message: 'composer.json maps a PSR-4 namespace to inc/.',
-				} satisfies DoctorCheckResult;
-			}
-
-			reporter.warn('Composer autoload mapping mismatch.');
-			return {
-				key: 'composer',
-				label: 'Composer autoload',
-				status: 'warn',
-				message:
-					'Update composer.json to map your PHP namespace to inc/.',
-			} satisfies DoctorCheckResult;
 		}
 
 		private async runReadiness({

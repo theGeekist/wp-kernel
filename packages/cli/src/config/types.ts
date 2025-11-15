@@ -1,5 +1,10 @@
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { ResourceConfig } from '@wpkernel/core/resource';
+import type {
+	ResourceAdminUIConfig,
+	ResourceConfig,
+	ResourceDataViewsUIConfig,
+	ResourceUIConfig,
+} from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
 import type { IRv1 } from '../ir/publicTypes';
 import type {
@@ -54,8 +59,62 @@ export interface SchemaRegistry {
  * @category Config
  * @public
  */
+type RuntimeResourceConfig = ResourceConfig;
+
+export type ResourceBlocksMode = 'js' | 'ssr';
+
+export interface SerializableResourceBlocksConfig {
+	mode?: ResourceBlocksMode;
+}
+
+type ResourceConfigBase = Omit<
+	RuntimeResourceConfig,
+	'cacheKeys' | 'store' | 'schema' | 'reporter' | 'ui'
+>;
+
+type RuntimeResourceDataViewsUIConfig = ResourceDataViewsUIConfig<
+	unknown,
+	unknown
+>;
+
+type RuntimeResourceAdminUIConfig = ResourceAdminUIConfig<unknown, unknown>;
+
+type RuntimeResourceUIConfig = ResourceUIConfig<unknown, unknown>;
+
+export type SerializableResourceDataViewsUIConfig = Omit<
+	RuntimeResourceDataViewsUIConfig,
+	'mapQuery' | 'getItemId'
+> & {
+	mapQuery?: never;
+	getItemId?: never;
+};
+
+export type SerializableResourceAdminUIConfig = Omit<
+	RuntimeResourceAdminUIConfig,
+	'dataviews'
+> & {
+	dataviews?: SerializableResourceDataViewsUIConfig;
+};
+
+export type SerializableResourceUIConfig = Omit<
+	RuntimeResourceUIConfig,
+	'admin'
+> & {
+	admin?: SerializableResourceAdminUIConfig;
+};
+
+export type SerializableSchemaReference = string | Record<string, unknown>;
+
+export type SerializableResourceConfig = ResourceConfigBase & {
+	cacheKeys?: never;
+	schema?: SerializableSchemaReference;
+	reporter?: never;
+	ui?: SerializableResourceUIConfig;
+	blocks?: SerializableResourceBlocksConfig;
+};
+
 export interface ResourceRegistry {
-	[key: string]: ResourceConfig;
+	[key: string]: SerializableResourceConfig;
 }
 
 /**
@@ -192,6 +251,5 @@ export interface LoadedWPKernelConfig {
 	config: WPKernelConfigV1;
 	sourcePath: string;
 	configOrigin: ConfigOrigin;
-	composerCheck: 'ok' | 'mismatch';
 	namespace: string;
 }

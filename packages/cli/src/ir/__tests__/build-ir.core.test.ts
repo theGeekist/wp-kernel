@@ -41,10 +41,6 @@ describe('buildIr - core behaviours', () => {
 						capability: 'todos.create',
 					},
 				},
-				cacheKeys: {
-					list: () => ['todo', 'list'],
-					get: (id?: string | number) => ['todo', 'get', id ?? null],
-				},
 				identity: { type: 'number', param: 'id' },
 				storage: { mode: 'wp-post', postType: 'todo' },
 			},
@@ -82,12 +78,14 @@ describe('buildIr - core behaviours', () => {
 			'local',
 			'local',
 		]);
-		expect(resource.cacheKeys.list.source).toBe('config');
-		expect(resource.cacheKeys.get.segments).toEqual([
-			'todo',
-			'get',
-			'__wpk_id__',
-		]);
+		expect(resource.cacheKeys.list).toEqual({
+			source: 'default',
+			segments: ['todo', 'list', '{}'],
+		});
+		expect(resource.cacheKeys.get).toEqual({
+			source: 'default',
+			segments: ['todo', 'get', '__wpk_id__'],
+		});
 		expect(resource.identity).toEqual({ type: 'number', param: 'id' });
 		expect(resource.storage).toEqual({ mode: 'wp-post', postType: 'todo' });
 		expect(resource.warnings).toEqual([]);

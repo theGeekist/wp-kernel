@@ -109,6 +109,40 @@ describe('ts shared helpers', () => {
 				).resolves.toBe('@/resources/job-board');
 			});
 		});
+
+		it('creates a resource stub when possible and returns a relative specifier', async () => {
+			await withWorkspace(async ({ workspace, root }) => {
+				await workspace.write(
+					'wpk.config.ts',
+					'export const wpkConfig = { resources: {} };\n'
+				);
+
+				await expect(
+					resolveResourceImport({
+						workspace,
+						from: path.join(
+							'.generated',
+							'ui',
+							'app',
+							'job',
+							'admin',
+							'JobsAdminScreen.tsx'
+						),
+						resourceKey: 'job',
+						resourceSymbol: 'job',
+						configPath: path.join(root, 'wpk.config.ts'),
+					})
+				).resolves.toBe('../../../../../src/resources/job');
+
+				const stub = await workspace.readText(
+					path.join('src', 'resources', 'job.ts')
+				);
+				expect(stub).toContain("from '../../wpk.config'");
+				expect(stub).toContain(
+					'export const job = wpkConfig.resources.job;'
+				);
+			});
+		});
 	});
 
 	describe('resolveKernelImport', () => {

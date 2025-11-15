@@ -78,7 +78,6 @@ const config: WPKernelConfigV1 = {
 								capability: 'manage_options',
 							},
 						},
-						mapQuery: (state) => ({ q: state.search }),
 					},
 				},
 			},

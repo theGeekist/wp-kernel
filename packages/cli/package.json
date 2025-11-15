@@ -65,6 +65,8 @@
 		"bin",
 		"vendor",
 		"templates",
+		"composer.json",
+		"composer.lock",
 		"README.md",
 		"LICENSE"
 	],

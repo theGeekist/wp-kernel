@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
-import { readdir, mkdtemp, mkdir, rm, stat } from 'node:fs/promises';
+import { readdir, mkdtemp, mkdir, rm, stat, access } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const repoRoot = path.resolve(
 	fileURLToPath(new URL('../../', import.meta.url))
@@ -18,6 +19,7 @@ const cliArgs = new Set(
 );
 const keepWorkspace = cliArgs.has('--keep-workspace');
 const cleanArtifacts = cliArgs.has('--clean-artifacts');
+const buildArtifacts = cliArgs.has('--build-packages');
 const smokeVerbose =
 	cliArgs.has('--verbose') || process.env.WPK_SMOKE_VERBOSE === '1';
 
@@ -26,38 +28,82 @@ await mkdir(artifactsDir, { recursive: true });
 const smokeRoot = await mkdtemp(path.join(os.tmpdir(), 'wpk-smoke-'));
 const projectDir = path.join(smokeRoot, 'wpk-smoke-project');
 
+const summary = {
+	projectDir,
+	artifacts: [],
+	projects: [],
+};
+const tarballs = new Map();
+const REQUIRED_PACKAGES = [
+	{
+		name: '@wpkernel/cli',
+		distFile: 'packages/cli/dist/index.js',
+	},
+	{
+		name: '@wpkernel/create-wpk',
+		distFile: 'packages/create-wpk/dist/index.js',
+	},
+	{
+		name: '@wpkernel/php-driver',
+		distFile: 'packages/php-driver/dist/index.js',
+	},
+	{
+		name: '@wpkernel/php-json-ast',
+		distFile: 'packages/php-json-ast/dist/index.js',
+	},
+	{
+		name: '@wpkernel/wp-json-ast',
+		distFile: 'packages/wp-json-ast/dist/index.js',
+	},
+];
+const PACKAGE_MANAGER_TOOLS = {
+	npm: {
+		install: (packages) => [
+			'npm',
+			'install',
+			'--save-dev',
+			...packages,
+		],
+		execWpk: (args) => ['npx', '--yes', 'wpk', ...args],
+	},
+	pnpm: {
+		install: (packages) => ['pnpm', 'add', '-D', ...packages],
+		execWpk: (args) => ['pnpm', 'exec', 'wpk', ...args],
+	},
+	yarn: {
+		install: (packages) => ['yarn', 'add', '--dev', ...packages],
+		execWpk: (args) => ['yarn', 'wpk', ...args],
+	},
+};
+
 async function main() {
-	const summary = {
-		projectDir,
-		artifacts: [],
-		projects: [],
-	};
 	let success = false;
 
-	const skipBuild =
-		process.env.WPK_SKIP_SMOKE_BUILD === '1' ||
-		process.env.CI === '1' ||
-		process.env.CI === 'true';
-	const skipBuildReason =
-		process.env.WPK_SKIP_SMOKE_BUILD === '1'
-			? 'WPK_SKIP_SMOKE_BUILD enabled'
-			: 'CI environment';
-
 	try {
-		if (!skipBuild) {
+		await ensureLocalBuildArtifacts();
+		if (
+			buildArtifacts ||
+			process.env.WPK_SMOKE_BUILD === '1' ||
+			process.env.WPK_SKIP_SMOKE_BUILD === '0'
+		) {
 			logStep('Building workspace packages');
 			await runPnpm(['build:packages'], {
 				capture: true,
 				quietCapture: !smokeVerbose,
 			});
-		} else {
-			logStep(`Skipping workspace build (${skipBuildReason})`);
 		}
 
 		logStep('Packing tarballs');
 		const cliTarball = await packWorkspace('@wpkernel/cli');
 		const createTarball = await packWorkspace('@wpkernel/create-wpk');
-		summary.artifacts.push(cliTarball, createTarball);
+		const phpDriverTarball = await packWorkspace('@wpkernel/php-driver');
+		const phpJsonAstTarball = await packWorkspace('@wpkernel/php-json-ast');
+		const wpJsonAstTarball = await packWorkspace('@wpkernel/wp-json-ast');
+		recordTarball('@wpkernel/cli', cliTarball);
+		recordTarball('@wpkernel/create-wpk', createTarball);
+		recordTarball('@wpkernel/php-driver', phpDriverTarball);
+		recordTarball('@wpkernel/php-json-ast', phpJsonAstTarball);
+		recordTarball('@wpkernel/wp-json-ast', wpJsonAstTarball);
 
 		for (const packageManager of packageManagers) {
 			const scopedProjectDir =
@@ -73,29 +119,37 @@ async function main() {
 			logStep(
 				`[${packageManager}] Running create-wpk (scaffold + dependency install)`
 			);
-			await runNode(
-				path.join(repoRoot, 'packages/create-wpk/dist/index.js'),
-				[
-					scopedProjectDir,
-					'--',
-					'--package-manager',
-					packageManager,
-				]
-			);
+			await runLocalCreate(scopedProjectDir, packageManager);
 
 			await snapshotWorkspace(scopedProjectDir, '[smoke] bootstrap');
 
-		logStep(
-			`[${packageManager}] Installing CLI tarball and tsx inside scaffold`
-		);
-		await runPnpm(['add', '-D', cliTarball, 'tsx@latest'], {
-			cwd: scopedProjectDir,
-			capture: true,
-			quietCapture: !smokeVerbose,
-		});
-		if (!smokeVerbose) {
-			console.log('   pnpm add completed.');
-		}
+			logStep(
+				`[${packageManager}] Installing CLI tarball and tsx inside scaffold`
+			);
+			const dependencyTarballs = [
+				'@wpkernel/cli',
+				'@wpkernel/php-driver',
+				'@wpkernel/php-json-ast',
+				'@wpkernel/wp-json-ast',
+			]
+				.map((name) => tarballs.get(name))
+				.filter((tarballPath) => typeof tarballPath === 'string');
+
+			await runPackageManagerCommand(
+				packageManager,
+				'install',
+				[...dependencyTarballs, 'tsx@latest'],
+				{
+					cwd: scopedProjectDir,
+					capture: true,
+					quietCapture: !smokeVerbose,
+				}
+			);
+			if (!smokeVerbose) {
+				console.log(`   ${packageManager} install completed.`);
+			}
+
+			const cliEnv = await resolveCliEnv(scopedProjectDir);
 
 			await snapshotWorkspace(
 				scopedProjectDir,
@@ -103,40 +157,46 @@ async function main() {
 			);
 
 			logStep(`[${packageManager}] Running "wpk generate" inside scaffold`);
-			await runPnpm(['exec', 'wpk', 'generate'], {
-				cwd: scopedProjectDir,
-			});
+			await runPackageManagerCommand(
+				packageManager,
+				'execWpk',
+				['generate'],
+				{ cwd: scopedProjectDir, env: { ...process.env, ...cliEnv } }
+			);
 			await snapshotWorkspace(
 				scopedProjectDir,
 				'[smoke] post-generate'
 			);
 
 			logStep(`[${packageManager}] Running "wpk apply --yes" inside scaffold`);
-			await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
-				cwd: scopedProjectDir,
-			});
+			await runPackageManagerCommand(
+				packageManager,
+				'execWpk',
+				['apply', '--yes'],
+				{ cwd: scopedProjectDir, env: { ...process.env, ...cliEnv } }
+			);
 			await snapshotWorkspace(
 				scopedProjectDir,
 				'[smoke] post-apply'
 			);
 
-			logStep(
-				`[${packageManager}] Re-running "wpk generate" inside scaffold (idempotency check)`
+			await runPackageManagerCommand(
+				packageManager,
+				'execWpk',
+				['generate'],
+				{ cwd: scopedProjectDir, env: { ...process.env, ...cliEnv } }
 			);
-			await runPnpm(['exec', 'wpk', 'generate'], {
-				cwd: scopedProjectDir,
-			});
 			await snapshotWorkspace(
 				scopedProjectDir,
 				'[smoke] post-generate (idempotent)'
 			);
 
-			logStep(
-				`[${packageManager}] Re-running "wpk apply --yes" inside scaffold (idempotency check)`
+			await runPackageManagerCommand(
+				packageManager,
+				'execWpk',
+				['apply', '--yes'],
+				{ cwd: scopedProjectDir, env: { ...process.env, ...cliEnv } }
 			);
-			await runPnpm(['exec', 'wpk', 'apply', '--yes'], {
-				cwd: scopedProjectDir,
-			});
 			await snapshotWorkspace(
 				scopedProjectDir,
 				'[smoke] post-apply (idempotent)'
@@ -248,6 +308,11 @@ async function packWorkspace(workspaceName) {
 	return withTime[0]?.filePath ?? path.join(artifactsDir, candidates[0]);
 }
 
+function recordTarball(name, tarballPath) {
+	tarballs.set(name, tarballPath);
+	summary.artifacts.push(tarballPath);
+}
+
 async function runPnpm(args, options = {}) {
 	return runCommand('pnpm', args, options);
 }
@@ -307,6 +372,64 @@ function runCommand(command, args, options = {}) {
 	});
 }
 
+async function ensureLocalBuildArtifacts() {
+	const missing = [];
+	for (const pkg of REQUIRED_PACKAGES) {
+		const candidate = path.join(repoRoot, pkg.distFile);
+		try {
+			await access(candidate);
+		} catch {
+			missing.push({ pkg: pkg.name, file: candidate });
+		}
+	}
+
+	if (missing.length === 0) {
+		return;
+	}
+
+	const messages = missing
+		.map((entry) => ` - ${entry.pkg}: ${entry.file}`)
+		.join('\n');
+	throw new Error(
+		`Required build artifacts are missing:\n${messages}\nRun "pnpm build:packages" (or the relevant package builds) before running the smoke test.`
+	);
+}
+
+async function runLocalCreate(scopedProjectDir, packageManager) {
+	const createScript = path.join(
+		repoRoot,
+		'packages/create-wpk/dist/index.js'
+	);
+	await runNode(
+		createScript,
+		[scopedProjectDir, '--', '--package-manager', packageManager],
+		{ cwd: repoRoot }
+	);
+}
+
+async function runPackageManagerCommand(
+	packageManager,
+	commandKind,
+	args,
+	options
+) {
+	const tools = PACKAGE_MANAGER_TOOLS[packageManager];
+	if (!tools) {
+		throw new Error(`Unsupported package manager: ${packageManager}`);
+	}
+
+	const buildArgs =
+		commandKind === 'install'
+			? tools.install(args)
+			: tools.execWpk(args);
+
+	return runCommand(
+		buildArgs[0],
+		buildArgs.slice(1),
+		options
+	);
+}
+
 function extractTarballFromStdout(stdout = '') {
 	const lines = stdout
 		.split('\n')
@@ -336,9 +459,17 @@ async function snapshotWorkspace(cwd, message) {
 		return;
 	}
 
-	await runGit(['add', '--all'], { cwd });
-	await runGit(['commit', '-m', message], {
+	const gitAddOptions = {
 		cwd,
+		capture: true,
+		quietCapture: true,
+	};
+	await runGit(['add', '--all'], gitAddOptions);
+
+	const gitCommitOptions = {
+		cwd,
+		capture: true,
+		quietCapture: !smokeVerbose,
 		env: {
 			...process.env,
 			GIT_AUTHOR_NAME: gitIdentity.name,
@@ -346,7 +477,15 @@ async function snapshotWorkspace(cwd, message) {
 			GIT_COMMITTER_NAME: gitIdentity.name,
 			GIT_COMMITTER_EMAIL: gitIdentity.email,
 		},
+	};
+
+	await runGit(['commit', '--quiet', '--no-verify', '-m', message], {
+		...gitCommitOptions,
 	});
+
+	if (smokeVerbose) {
+		console.log(`   git snapshot: ${message}`);
+	}
 }
 
 async function readGitStatus(cwd) {
@@ -406,4 +545,22 @@ function parsePackageManagers(args) {
 	}
 
 	return Array.from(new Set(candidates));
+}
+async function resolveCliEnv(workspaceRoot) {
+	const cliRoot = await resolveCliPackageRoot(workspaceRoot);
+	const autoloadPath = path.join(cliRoot, 'vendor', 'autoload.php');
+	await access(autoloadPath);
+	return {
+		WPK_PHP_AUTOLOAD: autoloadPath,
+	};
+}
+
+async function resolveCliPackageRoot(workspaceRoot) {
+	const requireFromWorkspace = createRequire(
+		path.join(workspaceRoot, 'package.json')
+	);
+	const cliPackageJson = requireFromWorkspace.resolve(
+		'@wpkernel/cli/package.json'
+	);
+	return path.dirname(cliPackageJson);
 }

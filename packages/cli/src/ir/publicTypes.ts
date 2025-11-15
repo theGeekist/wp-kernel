@@ -179,12 +179,51 @@ export interface IRResource {
 	queryParams?: ResourceQueryParams;
 	/** Optional: UI configuration for the resource. */
 	ui?: ResourceUIConfig;
+	/** Optional: Generated block configuration (js-only or SSR). */
+	blocks?: IRResourceBlocksConfig;
 	/** Optional: Inline capability mappings for the resource. */
 	capabilities?: ResourceCapabilityMap;
 	/** A hash of the resource definition for change detection. */
 	hash: IRHashProvenance;
 	/** An array of warnings associated with this resource. */
 	warnings: IRWarning[];
+}
+
+export interface IRResourceBlocksConfig {
+	mode: 'js' | 'ssr';
+}
+
+/**
+ * Normalized menu configuration for UI resources.
+ *
+ * @category IR
+ */
+export interface IRUiMenuConfig {
+	readonly slug?: string;
+	readonly title?: string;
+	readonly capability?: string;
+	readonly parent?: string;
+	readonly position?: number;
+}
+
+/**
+ * UI resource descriptor produced from resource DataViews metadata.
+ *
+ * @category IR
+ */
+export interface IRUiResourceDescriptor {
+	readonly resource: string;
+	readonly preferencesKey: string;
+	readonly menu?: IRUiMenuConfig;
+}
+
+/**
+ * Aggregated UI metadata derived from the configuration.
+ *
+ * @category IR
+ */
+export interface IRUiSurface {
+	readonly resources: readonly IRUiResourceDescriptor[];
 }
 
 /**
@@ -397,6 +436,8 @@ export interface IRv1 {
 	blocks: IRBlock[];
 	/** The PHP project IR. */
 	php: IRPhpProject;
+	/** Optional: UI metadata derived from resources. */
+	ui?: IRUiSurface;
 	/** Optional: An array of diagnostic messages. */
 	diagnostics?: IRDiagnostic[];
 	/** Optional: Adapter change audit trail. */

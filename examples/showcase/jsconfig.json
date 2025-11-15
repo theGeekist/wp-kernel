@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json.schemastore.org/jsconfig",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"paths": {
+			"@/*": ["./src/*"],
+			"@wpkernel/cli": ["../../packages/cli/src/index.ts"],
+			"@wpkernel/cli/*": ["../../packages/cli/src/*"],
+			"@wpkernel/core": ["../../packages/core/src/index.ts"],
+			"@wpkernel/core/*": ["../../packages/core/src/*"],
+			"@wpkernel/e2e-utils": ["../../packages/e2e-utils/src/index.ts"],
+			"@wpkernel/e2e-utils/*": ["../../packages/e2e-utils/src/*"],
+			"@wpkernel/ui": ["../../packages/ui/src/index.ts"],
+			"@wpkernel/ui/*": ["../../packages/ui/src/*"]
+		}
+	},
+	"include": ["src/**/*", ".generated/types/**/*.d.ts", "wpk.config.ts"],
+	"exclude": ["node_modules", "dist"]
+}

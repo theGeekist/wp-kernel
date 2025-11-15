@@ -22,6 +22,8 @@ export interface ResolveResourceImportOptions {
 	readonly workspace: Workspace;
 	readonly from: string;
 	readonly resourceKey: string;
+	readonly resourceSymbol?: string;
+	readonly configPath?: string;
 	readonly configured?: string;
 }
 

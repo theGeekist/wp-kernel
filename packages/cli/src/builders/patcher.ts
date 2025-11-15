@@ -196,7 +196,8 @@ async function mergeWithGit(
 				encoding: 'utf8',
 			}
 		);
-		return { status: 'clean', result: stdout };
+		const result = await resolveMergeResult(stdout, currentFile);
+		return { status: 'clean', result };
 	} catch (error) {
 		const execError = error as NodeJS.ErrnoException & {
 			code?: number | string;
@@ -208,8 +209,12 @@ async function mergeWithGit(
 			(typeof execError.code === 'number' && execError.code === 1) ||
 			(typeof execError.code === 'string' && execError.code === '1');
 
-		if (isMergeConflict && typeof execError.stdout === 'string') {
-			return { status: 'conflict', result: execError.stdout };
+		if (isMergeConflict) {
+			const result = await resolveMergeResult(
+				execError.stdout,
+				currentFile
+			);
+			return { status: 'conflict', result };
 		}
 
 		/* istanbul ignore next - defensive logging for unexpected git failures */
@@ -379,6 +384,30 @@ async function processInstruction({
 		return;
 	}
 
+	await applyWriteInstruction({
+		workspace,
+		instruction,
+		manifest,
+		output,
+		reporter,
+	});
+}
+
+interface ProcessWriteInstructionOptions {
+	readonly workspace: Workspace;
+	readonly instruction: Exclude<PatchInstruction, { action: 'delete' }>;
+	readonly manifest: PatchManifest;
+	readonly output: BuilderOutput;
+	readonly reporter: BuilderApplyOptions['reporter'];
+}
+
+async function applyWriteInstruction({
+	workspace,
+	instruction,
+	manifest,
+	output,
+	reporter,
+}: ProcessWriteInstructionOptions): Promise<void> {
 	const file = normaliseRelativePath(instruction.file);
 	const basePath = normaliseRelativePath(instruction.base);
 	const incomingPath = normaliseRelativePath(instruction.incoming);
@@ -419,7 +448,23 @@ async function processInstruction({
 		return;
 	}
 
-	const current = (await workspace.readText(file)) ?? '';
+	const currentOriginal = await workspace.readText(file);
+	if (
+		await tryRestoreMissingOrEmptyTarget({
+			currentOriginal,
+			incoming,
+			file,
+			basePath,
+			workspace,
+			output,
+			manifest,
+			description,
+			reporter,
+		})
+	) {
+		return;
+	}
+	const current = currentOriginal ?? '';
 
 	if (current === incoming) {
 		reporter.debug('createPatcher: target already up-to-date.', { file });
@@ -464,6 +509,53 @@ async function processInstruction({
 	}
 
 	reporter.debug('createPatcher: patch applied.', { file });
+}
+
+interface RestoreTargetOptions {
+	readonly currentOriginal: string | null;
+	readonly incoming: string;
+	readonly file: string;
+	readonly basePath: string;
+	readonly workspace: Workspace;
+	readonly output: BuilderOutput;
+	readonly manifest: PatchManifest;
+	readonly description?: string;
+	readonly reporter: BuilderApplyOptions['reporter'];
+}
+
+async function tryRestoreMissingOrEmptyTarget({
+	currentOriginal,
+	incoming,
+	file,
+	basePath,
+	workspace,
+	output,
+	manifest,
+	description,
+	reporter,
+}: RestoreTargetOptions): Promise<boolean> {
+	const targetMissingOrEmpty =
+		currentOriginal === null || currentOriginal.trim().length === 0;
+	if (!targetMissingOrEmpty || incoming.trim().length === 0) {
+		return false;
+	}
+
+	await workspace.write(file, incoming, { ensureDir: true });
+	await queueWorkspaceFile(workspace, output, file);
+
+	await workspace.write(basePath, incoming, { ensureDir: true });
+	await queueWorkspaceFile(workspace, output, basePath);
+
+	recordResult(manifest, {
+		file,
+		status: 'applied',
+		description,
+	});
+	reporter.debug(
+		'createPatcher: target missing or empty, restored from incoming.',
+		{ file }
+	);
+	return true;
 }
 
 async function processDeleteInstruction({
@@ -637,4 +729,15 @@ export function createPatcher(): BuilderHelper {
 			});
 		},
 	});
+}
+
+async function resolveMergeResult(
+	stdout: string | undefined,
+	currentFile: string
+): Promise<string> {
+	if (typeof stdout === 'string' && stdout.length > 0) {
+		return stdout;
+	}
+
+	return await fs.readFile(currentFile, 'utf8');
 }

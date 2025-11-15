@@ -13,8 +13,6 @@ import {
 } from '../test-support/php-builder.test-support';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
-import type { ResourceConfig, ResourceRoutes } from '@wpkernel/core/resource';
-import { buildDataViewsConfig } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {
@@ -94,31 +92,11 @@ describe('createPhpPluginLoaderHelper', () => {
 		resetPhpAstChannel(context);
 
 		const helper = createPhpPluginLoaderHelper();
-		const dataviewsConfig = buildDataViewsConfig({
-			preferencesKey: 'books/admin',
-			screen: {
-				menu: { slug: 'books', title: 'Books' },
-			},
-		});
-		const dataviewsResourceConfig: ResourceConfig = {
-			name: 'books',
-			routes: {} as ResourceRoutes,
-			ui: {
-				admin: {
-					dataviews: dataviewsConfig,
-				},
-			},
-		};
 		const ir = createMinimalIr({
 			meta: {
 				sanitizedNamespace: 'demo-plugin',
 				origin: 'wpk.config.ts',
 				namespace: 'demo-plugin',
-			},
-			config: {
-				resources: {
-					books: dataviewsResourceConfig,
-				},
 			},
 			resources: [
 				makeResource({
@@ -127,6 +105,15 @@ describe('createPhpPluginLoaderHelper', () => {
 				}),
 			],
 		});
+		ir.ui = {
+			resources: [
+				{
+					resource: 'books',
+					preferencesKey: 'books/admin',
+					menu: { slug: 'books', title: 'Books' },
+				},
+			],
+		};
 
 		await helper.apply(
 			{

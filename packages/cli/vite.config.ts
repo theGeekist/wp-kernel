@@ -73,6 +73,20 @@ async function copyPhpJsonAstAssets(outDir: string): Promise<void> {
 	);
 }
 
+async function copyWpJsonAstAssets(outDir: string): Promise<void> {
+	const packageRoot = resolvePath(CLI_ROOT, '..', 'wp-json-ast');
+
+	await copyWpJsonAstNodeModulesAssets(
+		resolvePath(outDir, 'node_modules', '@wpkernel', 'wp-json-ast'),
+		packageRoot
+	);
+
+	await copyWpJsonAstPackageAssets(
+		resolvePath(outDir, 'packages', 'wp-json-ast'),
+		packageRoot
+	);
+}
+
 async function copyPhpJsonAstNodeModulesAssets(
 	targetRoot: string,
 	packageRoot: string
@@ -94,6 +108,8 @@ async function copyPhpJsonAstNodeModulesAssets(
 			recursive: true,
 		});
 	}
+
+	await copyEntry(packageRoot, targetRoot, 'dist', { recursive: true });
 }
 
 async function copyPhpJsonAstPackageAssets(
@@ -125,6 +141,43 @@ async function copyPhpJsonAstPackageAssets(
 			directory
 		);
 	}
+
+	await copyEntry(packageRoot, targetRoot, 'dist', { recursive: true });
+}
+
+async function copyWpJsonAstNodeModulesAssets(
+	targetRoot: string,
+	packageRoot: string
+): Promise<void> {
+	await rm(targetRoot, { recursive: true, force: true }).catch(
+		() => undefined
+	);
+	await mkdir(targetRoot, { recursive: true });
+
+	const fileEntries = ['package.json', 'README.md', 'LICENSE'];
+	for (const file of fileEntries) {
+		await copyEntry(packageRoot, targetRoot, file, { recursive: false });
+	}
+
+	await copyEntry(packageRoot, targetRoot, 'dist', { recursive: true });
+}
+
+async function copyWpJsonAstPackageAssets(
+	targetRoot: string,
+	packageRoot: string
+): Promise<void> {
+	await mkdir(targetRoot, { recursive: true });
+
+	const fileEntries = ['package.json', 'README.md', 'LICENSE'];
+	for (const file of fileEntries) {
+		const destination = resolvePath(targetRoot, file);
+		await rm(destination, { recursive: true, force: true }).catch(
+			() => undefined
+		);
+		await copyEntry(packageRoot, targetRoot, file, { recursive: false });
+	}
+
+	await copyEntry(packageRoot, targetRoot, 'dist', { recursive: true });
 }
 
 async function copyPhpJsonAstDirectory(
@@ -367,6 +420,23 @@ function phpJsonAstAssetsPlugin(): PluginOption {
 	};
 }
 
+function wpJsonAstAssetsPlugin(): PluginOption {
+	let resolvedOutDir = resolvePath(CLI_ROOT, 'dist');
+
+	return {
+		name: 'wpkernel-cli-wp-json-ast-assets',
+		apply: 'build',
+		configResolved(config) {
+			const root = config.root ?? CLI_ROOT;
+			const dir = config.build?.outDir ?? 'dist';
+			resolvedOutDir = resolvePath(root, dir);
+		},
+		async writeBundle() {
+			await copyWpJsonAstAssets(resolvedOutDir);
+		},
+	};
+}
+
 const config = createWPKLibConfig(
 	'@wpkernel/cli',
 	{
@@ -377,7 +447,11 @@ const config = createWPKLibConfig(
 	}
 );
 
-const assetPlugins = [phpDriverInstallerPlugin(), phpJsonAstAssetsPlugin()];
+const assetPlugins = [
+	phpDriverInstallerPlugin(),
+	phpJsonAstAssetsPlugin(),
+	wpJsonAstAssetsPlugin(),
+];
 const existingPlugins = config.plugins;
 
 if (Array.isArray(existingPlugins)) {

@@ -82,7 +82,6 @@ export interface ApplyLogEntry {
 export interface BuildLoadedConfigOptions<
 	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
 	TOrigin extends string = string,
-	TComposerCheck extends string = string,
 > {
 	/** The wpk configuration object. */
 	readonly config?: TConfig;
@@ -92,8 +91,6 @@ export interface BuildLoadedConfigOptions<
 	readonly sourcePath?: string;
 	/** The origin of the configuration (e.g., 'project', 'workspace'). */
 	readonly configOrigin?: TOrigin;
-	/** The composer check status. */
-	readonly composerCheck?: TComposerCheck;
 }
 
 /**
@@ -107,11 +104,10 @@ export interface BuildLoadedConfigOptions<
 export function buildLoadedConfig<
 	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
 	TOrigin extends string = string,
-	TComposerCheck extends string = string,
 >(
 	workspace: string,
-	options: BuildLoadedConfigOptions<TConfig, TOrigin, TComposerCheck> = {}
-): LoadedWPKConfigV1Like<TConfig, TOrigin, TComposerCheck> {
+	options: BuildLoadedConfigOptions<TConfig, TOrigin> = {}
+): LoadedWPKConfigV1Like<TConfig, TOrigin> {
 	const defaultConfig = {
 		version: 1,
 		namespace: 'Demo',
@@ -132,8 +128,7 @@ export function buildLoadedConfig<
 			options.sourcePath ??
 			path.join(workspace, WPK_CONFIG_SOURCES.WPK_CONFIG_TS),
 		configOrigin,
-		composerCheck: options.composerCheck ?? ('ok' as TComposerCheck),
-	} satisfies LoadedWPKConfigV1Like<TConfig, TOrigin, TComposerCheck>;
+	} satisfies LoadedWPKConfigV1Like<TConfig, TOrigin>;
 }
 
 /**

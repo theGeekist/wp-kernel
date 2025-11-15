@@ -1,68 +1,37 @@
+import { configureWPKernel } from '@wpkernel/core/data';
+import type { WPKInstance } from '@wpkernel/core/data';
+import { wpkConfig } from '../wpk.config';
+import { registerGeneratedBlocks } from './blocks/auto-register';
+
 /**
- * WPKernel Showcase Plugin - Entry Point
+ * Bootstrap the WPKernel runtime for this project.
  *
- * Initializes the Kernel runtime and mounts admin UI.
+ * This is the main entry point for your plugin's JavaScript.
+ * It is responsible for initializing the WPKernel runtime and
+ * registering your plugin's resources and actions.
+ *
+ * @see https://github.com/wpkernel/wpkernel/blob/main/docs/guide/data.md
  */
-
-import type { WPKernelRegistry } from '@wpkernel/core/data';
-import { mountAdmin } from './admin';
-import { job } from './resources';
-import { ShowcaseActionError } from './errors/ShowcaseActionError';
-import { bootstrapKernel, wpk } from './bootstrap/wpk';
-
-type WPWindow = typeof window & {
-	wp?: {
-		data?: unknown;
-	};
-};
+export function bootstrapKernel(): WPKInstance {
+	return configureWPKernel({
+		/**
+		 * The namespace for your plugin. This is used to scope all
+		 * of your plugin's data and actions.
+		 */
+		namespace: wpkConfig.namespace,
+	});
+}
 
 /**
- * Initialize plugin resources and mount the admin UI if available.
+ * The WPKernel instance for your plugin.
+ *
+ * This is the main object that you will use to interact with the
+ * WPKernel runtime. It provides access to all of the core
+ * functionality, such as defining resources, invoking actions,
+ * and accessing data.
+ *
+ * @see https://github.com/wpkernel/wpkernel/blob/main/docs/guide/data.md
  */
-export function init(): void {
-	const globalWindow = window as WPWindow;
+export const wpk = bootstrapKernel();
 
-	if (!globalWindow.wp?.data) {
-		// Classic admin may load scripts out of order; fail quietly.
-		console.warn('[WPKernel Showcase] wp.data not available yet.');
-		return;
-	}
-
-	// Initialize WPKernel runtime (middleware + events plugin)
-	bootstrapKernel(globalWindow.wp.data as WPKernelRegistry);
-
-	try {
-		// Trigger lazy store registration and warm initial data.
-		void job.store;
-		void job.prefetchList?.();
-	} catch (error) {
-		const wrapped = ShowcaseActionError.fromUnknown(error, {
-			context: { actionName: 'Jobs.Init', resourceName: job.storeKey },
-		});
-		console.error(
-			'[WPKernel Showcase] Failed to prepare job resource:',
-			wrapped
-		);
-	}
-
-	const adminRoot = document.getElementById('wpk-admin-root');
-	if (adminRoot) {
-		const uiRuntime = wpk.getUIRuntime();
-		if (!uiRuntime) {
-			console.warn(
-				'[WPKernel Showcase] UI runtime unavailable. Ensure attachUIBindings is configured.'
-			);
-			return;
-		}
-		mountAdmin(uiRuntime);
-	}
-}
-
-if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', init);
-} else {
-	init();
-}
-
-export { job } from './resources';
-export type { JobListParams } from './resources';
+registerGeneratedBlocks();

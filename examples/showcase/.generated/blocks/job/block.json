@@ -1,0 +1,59 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "acme-jobs/job",
+	"title": "Job",
+	"description": "Job block generated from project config",
+	"category": "widgets",
+	"icon": "database",
+	"textdomain": "acme-jobs",
+	"keywords": ["job"],
+	"supports": {
+		"align": ["wide", "full"],
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		}
+	},
+	"editorScriptModule": "file:./index.tsx",
+	"viewScriptModule": "file:./view.ts",
+	"attributes": {
+		"id": {
+			"type": "integer"
+		},
+		"title": {
+			"type": "string"
+		},
+		"status": {
+			"type": "string",
+			"enum": ["draft", "publish", "closed"]
+		},
+		"department": {
+			"type": "string"
+		},
+		"location": {
+			"type": "string"
+		},
+		"salary_min": {
+			"type": "number"
+		},
+		"salary_max": {
+			"type": "number"
+		},
+		"created_at": {
+			"type": "string"
+		},
+		"updated_at": {
+			"type": "string"
+		}
+	},
+	"render": "file:./render.php"
+}

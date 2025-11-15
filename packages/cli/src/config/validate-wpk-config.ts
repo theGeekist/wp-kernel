@@ -281,10 +281,8 @@ const resourceDataViewsConfigValidator = t.isObject(
 		fields: t.isOptional(t.isArray(t.isRecord(t.isUnknown()))),
 		defaultView: t.isOptional(t.isRecord(t.isUnknown())),
 		actions: t.isOptional(t.isArray(t.isRecord(t.isUnknown()))),
-		mapQuery: t.isOptional(functionValidator),
 		search: t.isOptional(t.isBoolean()),
 		searchLabel: t.isOptional(t.isString()),
-		getItemId: t.isOptional(functionValidator),
 		empty: t.isOptional(t.isUnknown()),
 		perPageSizes: t.isOptional(t.isArray(t.isNumber())),
 		defaultLayouts: t.isOptional(t.isRecord(t.isUnknown())),
@@ -310,21 +308,26 @@ const resourceUIValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
+const resourceBlocksConfigValidator = t.isObject(
+	{
+		mode: t.isOptional(t.isOneOf([t.isLiteral('js'), t.isLiteral('ssr')])),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
 const resourceConfigValidator = t.isObject(
 	{
 		name: t.isString(),
 		routes: resourceRoutesValidator,
 		identity: resourceIdentityValidator,
 		storage: resourceStorageValidator,
-		cacheKeys: t.isOptional(t.isRecord(t.isUnknown())),
 		queryParams: t.isOptional(t.isRecord(t.isUnknown())),
-		store: t.isOptional(
-			t.isObject({}, { extra: t.isRecord(t.isUnknown()) })
-		),
 		namespace: t.isOptional(t.isString()),
-		schema: t.isOptional(t.isUnknown()),
-		reporter: t.isOptional(t.isUnknown()),
+		schema: t.isOptional(
+			t.isOneOf([t.isString(), t.isRecord(t.isUnknown())])
+		),
 		ui: t.isOptional(resourceUIValidator),
+		blocks: t.isOptional(resourceBlocksConfigValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );
@@ -534,6 +537,8 @@ export function runResourceChecks(
 	resource: ResourceConfig,
 	reporter: Reporter
 ): void {
+	assertNoExecutableFields(resourceName, resource, reporter);
+
 	const routes = Object.entries(resource.routes)
 		.filter(([, route]) => typeof route !== 'undefined')
 		.map(([key, route]) => ({ key, ...route! }));
@@ -671,6 +676,90 @@ function validateStorageMode(
 			{ resourceName }
 		);
 	}
+}
+
+function assertNoExecutableFields(
+	resourceName: string,
+	resource: ResourceConfig,
+	reporter: Reporter
+): void {
+	const store = resource.store;
+	const dataviews = resource.ui?.admin?.dataviews;
+	const executableChecks: Array<{
+		condition: boolean;
+		field: string;
+		message: string;
+	}> = [
+		{
+			condition: typeof resource.cacheKeys !== 'undefined',
+			field: 'cacheKeys',
+			message:
+				'Resource cache keys are fully derived by the CLI. Remove custom cacheKeys declarations to keep wpk.config.ts declarative.',
+		},
+		{
+			condition: typeof store?.getId !== 'undefined',
+			field: 'store.getId',
+			message:
+				'Resource stores no longer accept executable getId overrides. Provide declarative metadata instead.',
+		},
+		{
+			condition: typeof store?.getQueryKey !== 'undefined',
+			field: 'store.getQueryKey',
+			message:
+				'Resource stores no longer accept executable getQueryKey overrides.',
+		},
+		{
+			condition: typeof resource.reporter !== 'undefined',
+			field: 'reporter',
+			message:
+				'Custom reporters cannot be declared in wpk.config.ts. Define runtime reporters alongside your resource code.',
+		},
+		{
+			condition: typeof resource.schema === 'function',
+			field: 'schema',
+			message:
+				'Resource schemas must reference a shared key or inline JSON object. Functions and dynamic imports are not supported.',
+		},
+		{
+			condition: typeof dataviews?.mapQuery !== 'undefined',
+			field: 'ui.admin.dataviews.mapQuery',
+			message:
+				'DataViews config must be declarative. Remove mapQuery functions from wpk.config.ts.',
+		},
+		{
+			condition: typeof dataviews?.getItemId !== 'undefined',
+			field: 'ui.admin.dataviews.getItemId',
+			message:
+				'DataViews config must be declarative. Remove getItemId functions from wpk.config.ts.',
+		},
+	];
+
+	for (const check of executableChecks) {
+		if (check.condition) {
+			throwExecutableFieldError(
+				resourceName,
+				check.field,
+				check.message,
+				reporter
+			);
+		}
+	}
+}
+
+function throwExecutableFieldError(
+	resourceName: string,
+	field: string,
+	message: string,
+	reporter: Reporter
+): never {
+	reporter.error(message, { resourceName, field });
+	throw new WPKernelError('ValidationError', {
+		message,
+		context: {
+			resourceName,
+			field,
+		},
+	});
 }
 
 /**

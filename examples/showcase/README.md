@@ -1,220 +1,61 @@
-# WPKernel Showcase Plugin
+# Acme Jobs Showcase (WPKernel)
 
-A demonstration plugin showcasing the WPKernel framework with a careers/job posting system.
+This example plugin is the canonical “golden path” for validating `wpk init → generate → apply`. Each milestone in `CLI_VALIDATION.md` documents which config surfaces we exercised, which artifacts were produced, and what fixes landed along the way. Use this project to understand what the CLI ships out-of-the-box and how to extend it safely.
 
-## Overview
+## Prerequisites
 
-This plugin demonstrates how to build a modern WordPress product using WPKernel, implementing a complete job postings and applications workflow.
+- Node.js 20+ with pnpm 9+
+- PHP 8.1+ with Composer
+- WordPress environment for manual testing (apply only rewrites PHP in this repo; you still install the plugin in your WP site)
+- Git (the smoke tests snapshot workspaces)
 
-## Features Demonstrated
-
-- **Resources**: Typed REST client with caching for Job and Application entities
-- **Actions**: Write-path orchestration for job management and application submission
-- **Block Bindings**: Data display in editor and front-end
-- **Interactivity**: Front-end form handling and filtering
-- **Jobs (Background)**: Async resume parsing and email sending
-- **Capabilities**: Permission-based UI gating
-- **Events**: Canonical event taxonomy with PHP bridge support
-
-## Project Structure
-
-```
-examples/showcase/
-├── .generated/         # Auto-generated artifacts (types, future PHP/apply output)
-│   ├── types/          # Generated TypeScript types
-│   │   └── job.d.ts    # Generated from job.schema.json
-│   ├── php/            # Reserved for generated PHP bridge code
-│   ├── rest-args/      # Reserved for REST argument maps
-│   ├── validators/     # Reserved for dev-only validators
-│   └── helpers/        # Reserved for query helpers/cache keys
-├── contracts/          # JSON Schema definitions
-│   └── job.schema.json # Job entity schema
-├── src/                # Source code
-│   ├── bootstrap/      # Kernel bootstrap + CLI runtime wiring
-│   ├── resources/      # defineResource() definitions
-│   ├── actions/        # defineAction() orchestrators
-│   ├── views/          # Block bindings + Interactivity
-│   └── admin/          # Admin surfaces
-├── inc/                # PHP bridge code (PSR-4, thin runtime wiring)
-│   └── rest/           # REST API controllers
-├── seeds/             # Development seed scripts
-└── __tests__/         # Unit tests
-```
-
-## Kernel Config & Generated Artifacts
-
-`wpk.config.ts` is the single source of truth for showcase resources. Running `pnpm generate` (an alias for `wpk generate`) reads that config, synthesises schemas, and writes artefacts into `.generated/`:
-
-- `types/` - TypeScript declarations inferred from the resource definition (`schema: 'auto'`).
-- `php/`, `rest-args/`, `validators/`, `helpers/` - Working copies that `pnpm apply` promotes into `inc/`.
-
-The legacy JSON schema in `contracts/job.schema.json` remains for documentation and tests, but day-to-day development relies on the CLI’s auto-generated output.
-
-### PHP Bridge Scaffolding
-
-REST controllers and other PHP bridge files under `inc/` adhere to PSR-4 (`WPKernel\Showcase\*`) and mirror the auto-generated templates in `.generated/php/**`. The generator derives these templates from `src/wpk.config.ts`, so developers can regenerate confidently and still customise the working copies.
-
-### Schema Validation
-
-The schema includes comprehensive validation tests in `__tests__/job-schema.test.ts`:
-
-- ✓ Schema structure validation
-- ✓ Required fields enforcement
-- ✓ Enum value validation (status, seniority, job_type, etc.)
-- ✓ Format validation (dates, slugs, etc.)
-- ✓ Type generation verification
-
-**Run schema tests:**
+## Getting Started
 
 ```bash
-pnpm test job-schema
+cd examples/showcase
+pnpm install        # workspace dependencies
+composer install    # PHP vendor tree
 ```
 
-## Development
+## Core Workflow
 
-### Install Dependencies
+1. `pnpm generate --allow-dirty` – runs the CLI pipeline and refreshes `.generated/**`.
+2. Inspect `.generated/php/**`, `.generated/ui/**`, `.generated/blocks/**`, `src/blocks/**`, and `.wpk/apply/plan.json` to verify the artifacts from the current milestone. (`src/blocks/**` is surfaced by `wpk apply` so you never edit `.generated/blocks/**` directly.)
+3. `pnpm apply --allow-dirty --yes` – applies the plan into `plugin.php` and `inc/**`.
+4. `pnpm build` – bundles `src/index.ts` (Vite/Rollup) so WordPress can enqueue the JS.
+5. Optional: `pnpm lint`, `pnpm typecheck`, `pnpm doctor --allow-dirty` to keep the repo healthy.
 
-```bash
-# Install Node.js dependencies
-pnpm install
+_Important_: `--allow-dirty` is required because the showcase intentionally carries many generated files.
 
-# Install PHP dependencies (WordPress stubs for IDE support)
-composer install
-```
+## Generated Blocks & Manual Hook
 
-### PHP Development
+`pnpm generate` now emits both the React/editor shells under `.generated/blocks/**` and the SSR plumbing in `.generated/php/Blocks` / `.generated/build/blocks-manifest.php`. `pnpm apply` projects those assets into `src/blocks/**`, so you edit the surfaced files while `.generated/blocks/**` remains the canonical source that merges on future runs.
 
-The plugin uses WordPress and WP-CLI stubs for IDE support (Intelephense):
+- **Manual bundler step** (tracked in `src/index.ts`): wire the surfaced blocks into the Vite entry so the build picks them up.
 
-- **WordPress Stubs**: Provides type hints for WordPress core functions and classes
-- **WP-CLI Stubs**: Provides type hints for WP-CLI commands
-- **VSCode Configuration**: `.vscode/settings.json` configures Intelephense to use the stubs
+    ```ts
+    import { registerGeneratedBlocks } from './blocks/auto-register';
 
-**Note**: After installing composer dependencies, reload your PHP language server (VSCode: `Ctrl+Shift+P` → "PHP: Restart Language Server") to pick up the stubs.
+    registerGeneratedBlocks();
+    ```
 
-### Build
+    Keep this import whenever you scaffold a new plugin - the CLI does not add it automatically yet, so forgetting it means none of the generated blocks make it to `build/index.js`.
 
-The showcase plugin uses Vite with `@kucrut/vite-for-wp` to build WordPress-compatible Script Modules.
+- Enable SSR by adding `blocks: { mode: 'ssr' }` to a resource in `wpk.config.ts`. That flips on `render.php`, the registrar (`.generated/php/Blocks/Register.php`), and the manifest (`.generated/build/blocks-manifest.php`). The surfaced stub in `src/blocks/<slug>/render.php` is safe to edit after apply; rerun `pnpm generate && pnpm apply` whenever you change schema-driven fields so PHP stays in sync.
+- After running `pnpm build`, confirm that the Vite output (`build/index.asset.json` + `build/index.js`) exists before applying the plugin in a WordPress site.
 
-**Required dependencies:**
+## Validation Log
 
-The build requires specific peer dependencies for proper WordPress package externalization:
+Every milestone entry, discovery, and fix is captured in [`CLI_VALIDATION.md`](CLI_VALIDATION.md). Reference it to understand:
 
-- `rollup-plugin-external-globals@^0.13`
-- `vite-plugin-external@^6`
+- Which config surfaces are currently validated
+- Commands we ran at each step
+- Notes about manual patches (e.g. resolving `plugin.php` conflicts, seeding plans)
 
-These are already declared in `package.json`. Without them, WordPress packages (wp.data, wp.element, etc.) will be bundled instead of externalized, causing duplicate registries and runtime errors.
+## Seeds & Next Steps
 
-**Build output:**
+Milestone 7 will refresh the seeding scripts and README again once we finalise the lean template. Until then:
 
-- Bundle size: ~22KB (WordPress packages externalized)
-- Format: ESM (WordPress Script Modules)
-- Externals: `window.wp.*` globals
-
-```bash
-pnpm build  # Runs wpk build (generate + Vite build + apply)
-```
-
-Run the generators without building assets:
-
-```bash
-pnpm generate  # Updates .generated/ artefacts
-pnpm apply     # Copies generated PHP/UI into inc/
-```
-
-### Watch Mode
-
-```bash
-pnpm start  # Runs wpk start (watch generate + Vite dev server)
-```
-
-### Testing
-
-```bash
-# Run all tests
-pnpm test
-
-# Run specific test
-pnpm test job-schema
-
-# Watch mode
-pnpm test:watch
-```
-
-### Seed Data
-
-Load sample job postings and users:
-
-```bash
-pnpm wp:seed
-```
-
-## Schema Example
-
-The Job entity schema (`contracts/job.schema.json`) defines:
-
-**Required fields:**
-
-- `id` (integer) - Post ID
-- `title` (string) - Job title
-- `status` (enum) - `draft`, `publish`, or `closed`
-- `created_at` (date-time) - Creation timestamp
-
-**Optional fields:**
-
-- `slug` (string) - URL-friendly identifier
-- `description` (string) - Full HTML description
-- `department` (string) - Department/team
-- `location` (string) - Geographic location
-- `seniority` (enum) - Junior, Mid, Senior, Lead, Principal
-- `job_type` (enum) - Full-time, Part-time, Contract, Internship, Temporary
-- `remote_capability` (enum) - on-site, remote, hybrid
-- `salary_min`, `salary_max` (integer) - Salary range in cents
-- `apply_deadline` (date-time) - Application deadline
-- `updated_at` (date-time) - Last update timestamp
-
-## Generated Types Usage
-
-Once types are generated, import and use them in your code:
-
-```typescript
-import type { Job } from '../wpk.config';
-
-// Fully typed Job entity
-const job: Job = {
-	id: 123,
-	title: 'Senior WordPress Developer',
-	status: 'publish',
-	seniority: 'Senior',
-	created_at: '2025-10-01T12:00:00Z',
-	// ... other fields
-};
-```
-
-## Framework Separation
-
-⚠️ **Important**: This showcase plugin contains **domain-specific code** (job postings). The schemas and types here are examples that demonstrate the framework, not part of the framework itself.
-
-**Framework code** (generic, reusable):
-
-- `packages/core/` - Core framework primitives
-- `defineResource<T>()` - Generic resource factory
-- Error handling, events, transport layer
-
-**Showcase code** (domain-specific demonstration):
-
-- `examples/showcase/contracts/` - Job Posting schema
-- `examples/showcase/src/resources/job.ts` - Uses `defineResource<Job>()`
-- REST endpoints, UI components, business logic
-
-## License
-
-EUPL-1.2
-
-## Documentation
-
-For complete framework documentation, see:
-
-- [Product Specification](../../information/Product%20Specification%20PO%20Draft%20%E2%80%A2%20v1.0.md)
-- [Sprint 1 Tasks](../../information/sprints/sprint_1_tasks.md)
-- [API Reference](../../docs/api/)
+- Seeds (`seeds/*.php`) still point to legacy routes - do **not** rely on them yet.
+- Keep documenting new findings in the validation log before changing config.
+- If you adjust manual steps (like block registration), update this README so future runs stay reproducible.

@@ -14,6 +14,69 @@ export type AdminDataViewsWithInteractivity = AdminDataViews & {
 	readonly interactivity?: { readonly feature?: unknown };
 };
 
+export type AdminScreenComponentMetadata = {
+	readonly identifier: string;
+	readonly fileName: string;
+	readonly directories: readonly string[];
+};
+
+const COMPONENT_EXTENSION_PATTERN = /\.(?:[tj]sx?|mjs|cjs)$/iu;
+
+function stripComponentExtension(value: string): string {
+	return value.replace(COMPONENT_EXTENSION_PATTERN, '');
+}
+
+function buildPascalIdentifier(value: string): string {
+	return value
+		.split(/[^a-zA-Z0-9_$]+/u)
+		.filter(Boolean)
+		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+		.join('');
+}
+
+function ensurePascalIdentifier(value: string, fallback: string): string {
+	const candidate = buildPascalIdentifier(value);
+	const base = candidate.length > 0 ? candidate : fallback;
+	if (/^[0-9]/u.test(base)) {
+		return `_${base}`;
+	}
+	return base;
+}
+
+export function toLowerCamelIdentifier(value: string): string {
+	if (value.length === 0) {
+		return value;
+	}
+	return value.charAt(0).toLowerCase() + value.slice(1);
+}
+
+export function resolveAdminScreenComponentMetadata(
+	descriptor: ResourceDescriptor
+): AdminScreenComponentMetadata {
+	const screenConfig = descriptor.dataviews.screen ?? {};
+	const defaultBase = `${toPascalCase(descriptor.name)}AdminScreen`;
+	const configured =
+		typeof screenConfig.component === 'string'
+			? screenConfig.component.trim()
+			: '';
+	const rawName = configured.length > 0 ? configured : defaultBase;
+	const withoutExtension = stripComponentExtension(rawName);
+	const segments = withoutExtension.split(/[\\/]/u).filter(Boolean);
+	const fileName = segments.pop() ?? defaultBase;
+	const directories = segments;
+	const fallbackIdentifier = ensurePascalIdentifier(
+		defaultBase,
+		'GeneratedAdminScreen'
+	);
+	const identifier = ensurePascalIdentifier(fileName, fallbackIdentifier);
+
+	return {
+		identifier,
+		fileName,
+		directories,
+	};
+}
+
 /**
  * Resolves the interactivity feature identifier for a resource.
  *
@@ -61,9 +124,13 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			const { VariableDeclarationKind } = await loadTsMorph();
 			const { descriptor } = context;
 			const screenConfig = descriptor.dataviews.screen ?? {};
-			const componentName =
-				screenConfig.component ??
-				`${toPascalCase(descriptor.name)}AdminScreen`;
+			const {
+				identifier: componentIdentifier,
+				fileName: componentFileName,
+				directories: componentDirectories,
+			} = resolveAdminScreenComponentMetadata(descriptor);
+			const componentIdentifierCamel =
+				toLowerCamelIdentifier(componentIdentifier);
 			const resourceSymbol =
 				screenConfig.resourceSymbol ?? toCamelCase(descriptor.name);
 			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
@@ -75,7 +142,11 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				descriptor.name,
 				'admin'
 			);
-			const screenPath = path.join(screenDir, `${componentName}.tsx`);
+			const screenPath = path.join(
+				screenDir,
+				...componentDirectories,
+				`${componentFileName}.tsx`
+			);
 
 			const [resourceImport, wpkernelImport] = await Promise.all([
 				resolveResourceImport({
@@ -83,6 +154,8 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 					from: screenPath,
 					configured: screenConfig.resourceImport,
 					resourceKey: descriptor.key,
+					resourceSymbol,
+					configPath: context.sourcePath,
 				}),
 				resolveKernelImport({
 					workspace: context.workspace,
@@ -130,7 +203,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 					declarationKind: VariableDeclarationKind.Const,
 					declarations: [
 						{
-							name: `${toCamelCase(componentName)}Route`,
+							name: `${componentIdentifierCamel}Route`,
 							initializer: (writer) => {
 								writer.quote(route);
 							},
@@ -139,17 +212,13 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				});
 			}
 
-			const contentComponentName = `${componentName}Content`;
+			const contentComponentName = `${componentIdentifier}Content`;
 			const interactivityFeature =
 				resolveInteractivityFeature(descriptor);
-			const featureIdentifier = `${toCamelCase(
-				componentName
-			)}InteractivityFeature`;
-			const contextIdentifier = `${toCamelCase(
-				componentName
-			)}InteractivityContext`;
-			const segmentFunctionName = `normalize${componentName}InteractivitySegment`;
-			const namespaceFunctionName = `get${componentName}InteractivityNamespace`;
+			const featureIdentifier = `${componentIdentifierCamel}InteractivityFeature`;
+			const contextIdentifier = `${componentIdentifierCamel}InteractivityContext`;
+			const segmentFunctionName = `normalize${componentIdentifier}InteractivitySegment`;
+			const namespaceFunctionName = `get${componentIdentifier}InteractivityNamespace`;
 			const resourceNameFallback = descriptor.name;
 
 			sourceFile.addVariableStatement({
@@ -251,7 +320,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			});
 
 			sourceFile.addFunction({
-				name: componentName,
+				name: componentIdentifier,
 				isExported: true,
 				statements: (writer) => {
 					writer.writeLine(

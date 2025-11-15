@@ -386,38 +386,6 @@
 			},
 			"description": "Map of query parameter names to their descriptors, defining the supported query-string filters for this resource."
 		},
-		"resourceCacheKeys": {
-			"type": "object",
-			"additionalProperties": { "$ref": "#/$defs/function" },
-			"properties": {
-				"list": { "$ref": "#/$defs/function" },
-				"get": { "$ref": "#/$defs/function" },
-				"create": { "$ref": "#/$defs/function" },
-				"update": { "$ref": "#/$defs/function" },
-				"remove": { "$ref": "#/$defs/function" }
-			},
-			"description": "Optional functions that compute cache keys for the resource's REST calls. Use this to integrate with custom caching layers (for example, a CDN or object cache) while keeping the logic close to the resource definition."
-		},
-		"resourceStore": {
-			"type": "object",
-			"additionalProperties": true,
-			"properties": {
-				"getId": {
-					"$ref": "#/$defs/function",
-					"description": "Function that returns the unique ID for a given item in the client-side store."
-				},
-				"getQueryKey": {
-					"$ref": "#/$defs/function",
-					"description": "Function that returns a stable query key for a given list/query, used by client-side caching libraries."
-				},
-				"initialState": {
-					"type": "object",
-					"additionalProperties": true,
-					"description": "Initial client-side state for this resource's store, if you need to seed it with defaults."
-				}
-			},
-			"description": "Optional configuration for the client-side store used by the generated JS/TS helpers for this resource."
-		},
 		"resourceDataViewsMenu": {
 			"type": "object",
 			"required": ["slug", "title"],
@@ -557,10 +525,6 @@
 					},
 					"description": "Action definitions (row/bulk actions) available from the Data Views UI."
 				},
-				"mapQuery": {
-					"$ref": "#/$defs/function",
-					"description": "Optional function that maps Data Views query state into your REST query parameters."
-				},
 				"search": {
 					"type": "boolean",
 					"description": "Whether to show the search box for this Data Views screen."
@@ -569,10 +533,6 @@
 					"type": "string",
 					"minLength": 1,
 					"description": "Label to use for the search input, if enabled."
-				},
-				"getItemId": {
-					"$ref": "#/$defs/function",
-					"description": "Function that extracts the unique ID from a row item."
 				},
 				"empty": {
 					"description": "Optional configuration for the empty-state UI when there are no items.",
@@ -670,36 +630,24 @@
 					"$ref": "#/$defs/resourceStorage",
 					"description": "Where and how WordPress stores this resource's data (posts, taxonomies, options, transients)."
 				},
-				"cacheKeys": {
-					"$ref": "#/$defs/resourceCacheKeys",
-					"description": "Optional cache-key functions for integrating this resource with external caches."
-				},
 				"queryParams": {
 					"$ref": "#/$defs/resourceQueryParams",
 					"description": "Query-string parameters that can be used when calling this resource's REST routes."
 				},
-				"store": {
-					"$ref": "#/$defs/resourceStore",
-					"description": "Client-side store configuration for generated JS/TS helpers."
-				},
 				"schema": {
 					"anyOf": [
 						{ "type": "string", "minLength": 1 },
-						{ "type": "object", "additionalProperties": true },
-						{ "$ref": "#/$defs/function" }
+						{ "type": "object", "additionalProperties": true }
 					],
-					"description": "Schema for the resource's data. This can be a reference to a shared schema key, an inline schema object, or a factory function that returns a schema."
-				},
-				"reporter": {
-					"anyOf": [
-						{ "type": "object", "additionalProperties": true },
-						{ "$ref": "#/$defs/function" }
-					],
-					"description": "Optional reporter object or factory used for logging and diagnostics specific to this resource."
+					"description": "Schema for the resource's data. Provide a reference to a shared schema key or an inline schema object."
 				},
 				"ui": {
 					"$ref": "#/$defs/resourceUI",
 					"description": "UI configuration, primarily for the WordPress admin, associated with this resource."
+				},
+				"blocks": {
+					"$ref": "#/$defs/resourceBlocksConfig",
+					"description": "Optional Gutenberg block configuration for this resource. Set `mode: \"ssr\"` to generate server-rendered blocks with PHP registrars; omit or set `mode: \"js\"` to keep the default JS-only blocks."
 				},
 				"capabilities": {
 					"$ref": "#/$defs/resourceCapabilities",
@@ -707,6 +655,19 @@
 				}
 			},
 			"description": "Defines a single resource exposed by your plugin: its name, REST routes, WordPress storage strategy, capabilities, and optional admin UI."
+		},
+		"resourceBlocksConfig": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"mode": {
+					"type": "string",
+					"enum": ["js", "ssr"],
+					"default": "js",
+					"description": "Controls whether the CLI emits JS-only blocks (`\"js\"`, default) or full SSR-ready blocks with PHP render callbacks (`\"ssr\"`)."
+				}
+			},
+			"description": "Optional per-resource control over generated Gutenberg blocks. Use `mode: \"ssr\"` when the block must render HTML on the server (SEO, email, non-JS clients)."
 		}
 	}
 }

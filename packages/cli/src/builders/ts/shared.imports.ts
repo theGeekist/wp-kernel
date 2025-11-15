@@ -5,6 +5,7 @@ import {
 	type ResolveKernelImportOptions,
 	type ModuleSpecifierOptions,
 } from './types';
+import { toCamelCase } from './shared.metadata';
 
 /**
  * Workspace file extensions that qualify as module sources.
@@ -27,6 +28,8 @@ export const MODULE_SOURCE_EXTENSIONS = [
  * @param    root0.workspace
  * @param    root0.from
  * @param    root0.resourceKey
+ * @param    root0.resourceSymbol
+ * @param    root0.configPath
  * @param    root0.configured
  * @category Builders
  */
@@ -34,18 +37,42 @@ export async function resolveResourceImport({
 	workspace,
 	from,
 	resourceKey,
+	resourceSymbol,
+	configPath,
 	configured,
 }: ResolveResourceImportOptions): Promise<string> {
 	if (configured) {
 		return configured;
 	}
 
-	const resolved = await findWorkspaceModule(
+	const existingModule = await findWorkspaceModule(
 		workspace,
 		path.join('src', 'resources', resourceKey)
 	);
-	if (resolved) {
-		return buildModuleSpecifier({ workspace, from, target: resolved });
+	if (existingModule) {
+		return buildModuleSpecifier({
+			workspace,
+			from,
+			target: existingModule,
+		});
+	}
+
+	const stubPath = await ensureResourceModule({
+		workspace,
+		resourceKey,
+		resourceSymbol:
+			resourceSymbol && resourceSymbol.length > 0
+				? resourceSymbol
+				: toCamelCase(resourceKey),
+		configPath,
+	});
+
+	if (stubPath) {
+		return buildModuleSpecifier({
+			workspace,
+			from,
+			target: stubPath,
+		});
 	}
 
 	return `@/resources/${resourceKey}`;
@@ -148,4 +175,52 @@ function normaliseModuleSpecifier(specifier: string): string {
 		return normalised;
 	}
 	return `./${normalised}`;
+}
+
+async function ensureResourceModule({
+	workspace,
+	resourceKey,
+	resourceSymbol,
+	configPath,
+}: {
+	readonly workspace: Workspace;
+	readonly resourceKey: string;
+	readonly resourceSymbol: string;
+	readonly configPath?: string;
+}): Promise<string | null> {
+	if (!configPath) {
+		return null;
+	}
+
+	const resourcePath = path.join('src', 'resources', `${resourceKey}.ts`);
+	if (await workspace.exists(resourcePath)) {
+		return resourcePath;
+	}
+
+	const configSpecifier = buildModuleSpecifier({
+		workspace,
+		from: resourcePath,
+		target: configPath,
+	});
+
+	const resourceAccess = buildResourceAccessor(resourceKey);
+
+	const contents = [
+		`import { wpkConfig } from '${configSpecifier}';`,
+		'',
+		`export const ${resourceSymbol} = ${resourceAccess};`,
+		'',
+	].join('\n');
+
+	await workspace.write(resourcePath, contents, { ensureDir: true });
+	return resourcePath;
+}
+
+function buildResourceAccessor(resourceKey: string): string {
+	const identifierPattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/u;
+	if (identifierPattern.test(resourceKey)) {
+		return `wpkConfig.resources.${resourceKey}`;
+	}
+
+	return `wpkConfig.resources[${JSON.stringify(resourceKey)}]`;
 }
