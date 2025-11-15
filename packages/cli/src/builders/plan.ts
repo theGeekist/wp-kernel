@@ -286,6 +286,8 @@ async function collectBlockSurfaceInstructions({
 			output.queueWrite({ file: basePath, contents: baseSnapshot });
 		}
 
+		generatedSuffixes.add(suffix);
+
 		instructions.push({
 			action: 'write',
 			file: targetFile,
