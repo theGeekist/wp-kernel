@@ -138,6 +138,12 @@ jobs:
             - name: Build packages
               run: pnpm build
 
+            - name: Debug – list CLI dist layout
+              run: |
+                  echo "### CLI dist tree (CI build)"
+                  ls -R packages/cli/dist || echo "dist missing"
+                  echo "### CLI dist node_modules (if any)"
+                  ls -R packages/cli/dist/node_modules || echo "dist/node_modules missing"
             # Upload what used to live in the build cache
             - name: Upload build artifacts
               uses: actions/upload-artifact@v4

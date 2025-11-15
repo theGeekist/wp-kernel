@@ -364,6 +364,80 @@ describe('createApplyPlanBuilder', () => {
 		});
 	});
 
+	it('removes stale surfaced block assets when generators stop emitting them', async () => {
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const reporter = buildReporter();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
+
+			const orphanFile = path.posix.join(
+				'src',
+				'blocks',
+				'orphan',
+				'block.json'
+			);
+			await workspace.write(orphanFile, '{"name":"demo/orphan"}', {
+				ensureDir: true,
+			});
+			const baseOrphan = path.posix.join(
+				'.wpk',
+				'apply',
+				'base',
+				'src',
+				'blocks',
+				'orphan',
+				'block.json'
+			);
+			await workspace.write(baseOrphan, '{"name":"demo/orphan"}', {
+				ensureDir: true,
+			});
+
+			const ir = makePhpIrFixture({ resources: [] });
+
+			const helper = createApplyPlanBuilder();
+			await helper.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input: {
+						phase: 'generate' as const,
+						options: {
+							config: ir.config,
+							namespace: ir.meta.namespace,
+							origin: ir.meta.origin,
+							sourcePath: path.join(
+								workspaceRoot,
+								'wpk.config.ts'
+							),
+						},
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
+			const planRaw = await workspace.readText(planPath);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: Array<{ action: string; file: string }>;
+			};
+			expect(plan.instructions).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						action: 'delete',
+						file: 'src/blocks/orphan/block.json',
+					}),
+				])
+			);
+		});
+	});
+
 	it('includes UI enqueue hooks when dataview metadata exists', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
