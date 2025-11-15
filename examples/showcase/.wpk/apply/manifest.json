@@ -2,7 +2,7 @@
 	"summary": {
 		"applied": 0,
 		"conflicts": 0,
-		"skipped": 3
+		"skipped": 6
 	},
 	"records": [
 		{
@@ -25,6 +25,30 @@
 			"file": "inc/Rest/JobController.php",
 			"status": "skipped",
 			"description": "Update job controller shim",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "inc/Rest/JobCategoryController.php",
+			"status": "skipped",
+			"description": "Update jobCategory controller shim",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "inc/Rest/SettingsController.php",
+			"status": "skipped",
+			"description": "Update settings controller shim",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "inc/Rest/StatusCacheController.php",
+			"status": "skipped",
+			"description": "Update statusCache controller shim",
 			"details": {
 				"reason": "no-op"
 			}

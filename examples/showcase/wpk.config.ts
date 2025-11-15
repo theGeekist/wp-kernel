@@ -353,6 +353,93 @@ export const wpkConfig: WPKernelConfigV1 = {
 				},
 			},
 		},
+		settings: {
+			name: 'settings',
+			namespace: 'Acme\\Jobs',
+			routes: {
+				get: {
+					path: '/acme/v1/settings',
+					method: 'GET',
+					capability: 'settings.get',
+				},
+				update: {
+					path: '/acme/v1/settings',
+					method: 'PATCH',
+					capability: 'settings.update',
+				},
+			},
+			storage: {
+				mode: 'wp-option',
+				option: 'acme_jobs_settings',
+			},
+			schema: 'settings',
+			capabilities: {
+				'settings.get': 'manage_options',
+				'settings.update': {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+			},
+		},
+		jobCategory: {
+			name: 'jobCategory',
+			namespace: 'Acme\\Jobs',
+			routes: {
+				list: {
+					path: '/acme/v1/job-categories',
+					method: 'GET',
+					capability: 'jobCategory.list',
+				},
+				get: {
+					path: '/acme/v1/job-categories/:id',
+					method: 'GET',
+					capability: 'jobCategory.get',
+				},
+			},
+			identity: {
+				type: 'number',
+				param: 'id',
+			},
+			storage: {
+				mode: 'wp-taxonomy',
+				taxonomy: 'acme_job_category',
+				hierarchical: true,
+			},
+			capabilities: {
+				'jobCategory.list': 'manage_categories',
+				'jobCategory.get': 'manage_categories',
+			},
+		},
+		statusCache: {
+			name: 'statusCache',
+			namespace: 'Acme\\Jobs',
+			routes: {
+				get: {
+					path: '/acme/v1/status-cache/:slug',
+					method: 'GET',
+					capability: 'statusCache.get',
+				},
+				update: {
+					path: '/acme/v1/status-cache/:slug',
+					method: 'PUT',
+					capability: 'statusCache.update',
+				},
+			},
+			identity: {
+				type: 'string',
+				param: 'slug',
+			},
+			storage: {
+				mode: 'transient',
+			},
+			capabilities: {
+				'statusCache.get': 'manage_options',
+				'statusCache.update': {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+			},
+		},
 	},
 	// adapters: {},
 	// readiness: {},

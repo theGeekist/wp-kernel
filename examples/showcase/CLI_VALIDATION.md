@@ -125,12 +125,31 @@ This log is the authoritative proof that the showcase plugin validates every maj
 
 ### Milestone 6 — Remaining resources
 
-- **Goal**: Add `settings` (wp-option singleton), `jobCategory` (taxonomy), and `statusCache` (transient) resources.
-- **Validation criteria**: Each resource’s storage adapter generates correct artifacts (option controllers, taxonomy handlers, transient endpoints).
-- **Commands**: For each addition, run `pnpm generate --allow-dirty`, `pnpm apply --allow-dirty --yes`.
+- **Goal**: Add `settings` (wp-option singleton), `jobCategory` (taxonomy), and `statusCache` (transient cache) resources so the showcase exercises every storage adapter the CLI currently supports.
+- **Validation criteria**:
+    - Config compiles without relying on functions; storage descriptors remain declarative for wp-option/wp-taxonomy/transient adapters.
+    - `.generated/php/Rest/**` emits one controller per resource with adapter-specific helpers (option CRUD, WP_Term queries, transient serialization).
+    - Apply stage wires the new controllers into `plugin.php` and hydrates matching `inc/Rest/**` shims without manual edits.
+- **Commands**:
+    - `pnpm generate --allow-dirty`
+    - `pnpm apply --allow-dirty --yes`
+- **Artifacts to verify**:
+    - `.generated/php/Rest/SettingsController.php`
+    - `.generated/php/Rest/JobCategoryController.php`
+    - `.generated/php/Rest/StatusCacheController.php`
+    - `.generated/blocks/{settings,jobcategory,statuscache}/block.json`
+    - `inc/Rest/{SettingsController,JobCategoryController,StatusCacheController}.php`
+    - `plugin.php`
+- **Validated contents**:
+    - `.generated/php/Rest/SettingsController.php:1-120` exposes wp-option accessors (`getSettingsOptionName`, `normaliseSettingsAutoload`) and enforces the schema keys we registered in `wpk.config.ts`.
+    - `.generated/php/Rest/JobCategoryController.php:1-170` wires taxonomy-backed list/get routes, including pagination, `WP_Term_Query`, and validation helpers for the numeric identifier we declared in the config.
+    - `.generated/php/Rest/StatusCacheController.php:1-120` maps directly to the transient adapter with helpers to normalise expiration + namespace keys.
+    - `.generated/blocks/*/block.json` now mirrors the new resources so UI builders/plugins can register blocks without bespoke metadata.
+    - `plugin.php:34-74` enumerates all five controllers (job, application, jobCategory, settings, statusCache) so WordPress registers each REST namespace, and `inc/Rest/*.php` shims extend the generated controllers ready for customization.
 - **Discoveries / Fixes**:
-    - _TBD_
-- **Status**: _Pending_
+    - Identity validation failed for `jobCategory` because the lone list route never exposed `:id`. Added a dedicated GET route/capability pair in `wpk.config.ts:384-411` so the CLI can map the numeric identifier and generate the REST handler.
+    - `wpk apply` reported a conflict while `plugin.php` still carried earlier manual edits. Accepted `.wpk/apply/incoming/plugin.php` and reran apply so future runs stay idempotent and the CLI remains the single writer for the plugin loader.
+- **Status**: ✓ Completed 2025-11-15
 
 ### Milestone 7 — Seeds & README refresh
 

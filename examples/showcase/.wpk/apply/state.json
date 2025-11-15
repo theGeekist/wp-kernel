@@ -2,7 +2,7 @@
 	"version": 1,
 	"resources": {
 		"application": {
-			"hash": "c43823871a445bcb04e2d70b18ba4f33c7721409bf815cf439aedb3237de073d",
+			"hash": "d39e3ec505fb9c4c1a4f1dc5d03d8add4a14920ea84255cbb9efb0bca5e058ce",
 			"artifacts": {
 				"generated": [
 					".generated/php/Rest/ApplicationController.php",
@@ -15,7 +15,7 @@
 			}
 		},
 		"job": {
-			"hash": "3e264893b8e34e75d67b08b8f47226286ebd9f4ad0b28f86dd5ebf60eba159f5",
+			"hash": "7287d9e3a3da15b2a867458c230268e6c859117e58815141a3e92a3f53f2e500",
 			"artifacts": {
 				"generated": [
 					".generated/php/Rest/JobController.php",
@@ -25,6 +25,36 @@
 					".generated/ui/fixtures/interactivity/job.ts"
 				],
 				"shims": ["inc/Rest/JobController.php"]
+			}
+		},
+		"jobCategory": {
+			"hash": "4f799994a2aea3c61219a9e48b97d2fbd37802da56379468e1c1c3d09ae8f514",
+			"artifacts": {
+				"generated": [
+					".generated/php/Rest/JobCategoryController.php",
+					".generated/php/Rest/JobCategoryController.php.ast.json"
+				],
+				"shims": ["inc/Rest/JobCategoryController.php"]
+			}
+		},
+		"settings": {
+			"hash": "5b2ffcc3c609012bd1df96f6be9e57f3868a98194a285be914b534cb5495d04e",
+			"artifacts": {
+				"generated": [
+					".generated/php/Rest/SettingsController.php",
+					".generated/php/Rest/SettingsController.php.ast.json"
+				],
+				"shims": ["inc/Rest/SettingsController.php"]
+			}
+		},
+		"statusCache": {
+			"hash": "a4f2b8d779bd79f91ebb5948c8d9bba5b2dc567a73010d82519a507a391009d4",
+			"artifacts": {
+				"generated": [
+					".generated/php/Rest/StatusCacheController.php",
+					".generated/php/Rest/StatusCacheController.php.ast.json"
+				],
+				"shims": ["inc/Rest/StatusCacheController.php"]
 			}
 		}
 	},

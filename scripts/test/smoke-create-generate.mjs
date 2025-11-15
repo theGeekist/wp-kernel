@@ -336,9 +336,17 @@ async function snapshotWorkspace(cwd, message) {
 		return;
 	}
 
-	await runGit(['add', '--all'], { cwd });
-	await runGit(['commit', '-m', message], {
+	const gitAddOptions = {
 		cwd,
+		capture: true,
+		quietCapture: true,
+	};
+	await runGit(['add', '--all'], gitAddOptions);
+
+	const gitCommitOptions = {
+		cwd,
+		capture: true,
+		quietCapture: !smokeVerbose,
 		env: {
 			...process.env,
 			GIT_AUTHOR_NAME: gitIdentity.name,
@@ -346,7 +354,15 @@ async function snapshotWorkspace(cwd, message) {
 			GIT_COMMITTER_NAME: gitIdentity.name,
 			GIT_COMMITTER_EMAIL: gitIdentity.email,
 		},
+	};
+
+	await runGit(['commit', '--quiet', '--no-verify', '-m', message], {
+		...gitCommitOptions,
 	});
+
+	if (smokeVerbose) {
+		console.log(`   git snapshot: ${message}`);
+	}
 }
 
 async function readGitStatus(cwd) {

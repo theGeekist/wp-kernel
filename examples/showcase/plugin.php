@@ -33,7 +33,7 @@ if (!defined('ABSPATH')) {
  */
 function get_wpkernel_controllers(): array
 {
-    return [new \Acme\Jobs\Generated\Rest\ApplicationController(), new \Acme\Jobs\Generated\Rest\JobController()];
+    return [new \Acme\Jobs\Generated\Rest\ApplicationController(), new \Acme\Jobs\Generated\Rest\JobController(), new \Acme\Jobs\Generated\Rest\JobCategoryController(), new \Acme\Jobs\Generated\Rest\SettingsController(), new \Acme\Jobs\Generated\Rest\StatusCacheController()];
 }
 /** Register WPKernel REST controllers with WordPress. */
 function register_wpkernel_routes(): void

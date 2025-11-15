@@ -742,6 +742,432 @@
 											},
 											"byRef": false,
 											"unpack": false
+										},
+										{
+											"nodeType": "ArrayItem",
+											"attributes": [],
+											"key": {
+												"nodeType": "Scalar_String",
+												"attributes": [],
+												"value": "jobCategory.get"
+											},
+											"value": {
+												"nodeType": "Expr_Array",
+												"attributes": [],
+												"items": [
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "appliesTo"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "resource"
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "binding"
+														},
+														"value": {
+															"nodeType": "Expr_ConstFetch",
+															"attributes": [],
+															"name": {
+																"nodeType": "Name",
+																"attributes": [],
+																"parts": [
+																	"null"
+																]
+															}
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "capability"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "manage_categories"
+														},
+														"byRef": false,
+														"unpack": false
+													}
+												]
+											},
+											"byRef": false,
+											"unpack": false
+										},
+										{
+											"nodeType": "ArrayItem",
+											"attributes": [],
+											"key": {
+												"nodeType": "Scalar_String",
+												"attributes": [],
+												"value": "jobCategory.list"
+											},
+											"value": {
+												"nodeType": "Expr_Array",
+												"attributes": [],
+												"items": [
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "appliesTo"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "resource"
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "binding"
+														},
+														"value": {
+															"nodeType": "Expr_ConstFetch",
+															"attributes": [],
+															"name": {
+																"nodeType": "Name",
+																"attributes": [],
+																"parts": [
+																	"null"
+																]
+															}
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "capability"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "manage_categories"
+														},
+														"byRef": false,
+														"unpack": false
+													}
+												]
+											},
+											"byRef": false,
+											"unpack": false
+										},
+										{
+											"nodeType": "ArrayItem",
+											"attributes": [],
+											"key": {
+												"nodeType": "Scalar_String",
+												"attributes": [],
+												"value": "settings.get"
+											},
+											"value": {
+												"nodeType": "Expr_Array",
+												"attributes": [],
+												"items": [
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "appliesTo"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "resource"
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "binding"
+														},
+														"value": {
+															"nodeType": "Expr_ConstFetch",
+															"attributes": [],
+															"name": {
+																"nodeType": "Name",
+																"attributes": [],
+																"parts": [
+																	"null"
+																]
+															}
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "capability"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "manage_options"
+														},
+														"byRef": false,
+														"unpack": false
+													}
+												]
+											},
+											"byRef": false,
+											"unpack": false
+										},
+										{
+											"nodeType": "ArrayItem",
+											"attributes": [],
+											"key": {
+												"nodeType": "Scalar_String",
+												"attributes": [],
+												"value": "settings.update"
+											},
+											"value": {
+												"nodeType": "Expr_Array",
+												"attributes": [],
+												"items": [
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "appliesTo"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "resource"
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "binding"
+														},
+														"value": {
+															"nodeType": "Expr_ConstFetch",
+															"attributes": [],
+															"name": {
+																"nodeType": "Name",
+																"attributes": [],
+																"parts": [
+																	"null"
+																]
+															}
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "capability"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "manage_options"
+														},
+														"byRef": false,
+														"unpack": false
+													}
+												]
+											},
+											"byRef": false,
+											"unpack": false
+										},
+										{
+											"nodeType": "ArrayItem",
+											"attributes": [],
+											"key": {
+												"nodeType": "Scalar_String",
+												"attributes": [],
+												"value": "statusCache.get"
+											},
+											"value": {
+												"nodeType": "Expr_Array",
+												"attributes": [],
+												"items": [
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "appliesTo"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "resource"
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "binding"
+														},
+														"value": {
+															"nodeType": "Expr_ConstFetch",
+															"attributes": [],
+															"name": {
+																"nodeType": "Name",
+																"attributes": [],
+																"parts": [
+																	"null"
+																]
+															}
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "capability"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "manage_options"
+														},
+														"byRef": false,
+														"unpack": false
+													}
+												]
+											},
+											"byRef": false,
+											"unpack": false
+										},
+										{
+											"nodeType": "ArrayItem",
+											"attributes": [],
+											"key": {
+												"nodeType": "Scalar_String",
+												"attributes": [],
+												"value": "statusCache.update"
+											},
+											"value": {
+												"nodeType": "Expr_Array",
+												"attributes": [],
+												"items": [
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "appliesTo"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "resource"
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "binding"
+														},
+														"value": {
+															"nodeType": "Expr_ConstFetch",
+															"attributes": [],
+															"name": {
+																"nodeType": "Name",
+																"attributes": [],
+																"parts": [
+																	"null"
+																]
+															}
+														},
+														"byRef": false,
+														"unpack": false
+													},
+													{
+														"nodeType": "ArrayItem",
+														"attributes": [],
+														"key": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "capability"
+														},
+														"value": {
+															"nodeType": "Scalar_String",
+															"attributes": [],
+															"value": "manage_options"
+														},
+														"byRef": false,
+														"unpack": false
+													}
+												]
+											},
+											"byRef": false,
+											"unpack": false
 										}
 									]
 								}

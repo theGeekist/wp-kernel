@@ -208,6 +208,72 @@
 									},
 									"byRef": false,
 									"unpack": false
+								},
+								{
+									"nodeType": "ArrayItem",
+									"attributes": [],
+									"key": null,
+									"value": {
+										"nodeType": "Expr_New",
+										"attributes": [],
+										"class": {
+											"nodeType": "Name_FullyQualified",
+											"attributes": [],
+											"parts": [
+												"Acme",
+												"Jobs",
+												"Rest",
+												"JobCategoryController"
+											]
+										},
+										"args": []
+									},
+									"byRef": false,
+									"unpack": false
+								},
+								{
+									"nodeType": "ArrayItem",
+									"attributes": [],
+									"key": null,
+									"value": {
+										"nodeType": "Expr_New",
+										"attributes": [],
+										"class": {
+											"nodeType": "Name_FullyQualified",
+											"attributes": [],
+											"parts": [
+												"Acme",
+												"Jobs",
+												"Rest",
+												"SettingsController"
+											]
+										},
+										"args": []
+									},
+									"byRef": false,
+									"unpack": false
+								},
+								{
+									"nodeType": "ArrayItem",
+									"attributes": [],
+									"key": null,
+									"value": {
+										"nodeType": "Expr_New",
+										"attributes": [],
+										"class": {
+											"nodeType": "Name_FullyQualified",
+											"attributes": [],
+											"parts": [
+												"Acme",
+												"Jobs",
+												"Rest",
+												"StatusCacheController"
+											]
+										},
+										"args": []
+									},
+									"byRef": false,
+									"unpack": false
 								}
 							]
 						}

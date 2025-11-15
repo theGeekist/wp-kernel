@@ -197,7 +197,7 @@ async function mergeWithGit(
 			}
 		);
 		const result =
-			typeof stdout === 'string' && stdout.length > 0
+			typeof stdout === 'string'
 				? stdout
 				: await fs.readFile(currentFile, 'utf8');
 		return { status: 'clean', result };
@@ -214,8 +214,7 @@ async function mergeWithGit(
 
 		if (isMergeConflict) {
 			const result =
-				typeof execError.stdout === 'string' &&
-				execError.stdout.length > 0
+				typeof execError.stdout === 'string'
 					? execError.stdout
 					: await fs.readFile(currentFile, 'utf8');
 			return { status: 'conflict', result };

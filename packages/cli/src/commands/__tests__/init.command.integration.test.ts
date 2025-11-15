@@ -69,6 +69,7 @@ describe('InitCommand', () => {
 				'utf8'
 			);
 			expect(indexFile).toContain('bootstrapKernel');
+			expect(indexFile).toContain('registerGeneratedBlocks');
 
 			const tsconfig = JSON.parse(
 				await fs.readFile(path.join(workspace, 'tsconfig.json'), 'utf8')
