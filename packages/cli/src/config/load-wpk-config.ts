@@ -7,10 +7,9 @@
  * are normalised to the canonical wpk configuration object.
  */
 import path from 'node:path';
-import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import type * as cosmiconfigNamespace from 'cosmiconfig';
-import { createReporter, type Reporter } from '@wpkernel/core/reporter';
+import { createReporter } from '@wpkernel/core/reporter';
 import { WPKernelError } from '@wpkernel/core/error';
 import {
 	WPK_CONFIG_SOURCES,
@@ -71,9 +70,8 @@ async function loadDefaultLoader<
  * Locate and load the project's wpk configuration.
  *
  * The function searches for supported config files, executes them via
- * cosmiconfig loaders, validates the resulting structure and performs a
- * Composer autoload sanity check to ensure PHP namespaces are mapped
- * correctly.
+ * cosmiconfig loaders, validates the resulting structure, and returns the
+ * canonicalised configuration metadata.
  *
  * @return The validated wpk config and associated metadata.
  * @throws WPKernelError when discovery, parsing or validation fails.
@@ -121,12 +119,6 @@ export async function loadWPKernelConfig(): Promise<LoadedWPKernelConfig> {
 		origin,
 	});
 
-	const composerCheck = await validateComposerAutoload(
-		path.dirname(sourcePath),
-		namespace,
-		reporter.child('composer')
-	);
-
 	reporter.info('Kernel config loaded successfully.', {
 		origin,
 		namespace,
@@ -137,7 +129,6 @@ export async function loadWPKernelConfig(): Promise<LoadedWPKernelConfig> {
 		config,
 		sourcePath,
 		configOrigin: origin,
-		composerCheck,
 		namespace,
 	};
 }
@@ -303,209 +294,6 @@ export async function resolveConfigValue(value: unknown): Promise<unknown> {
 	}
 
 	return current;
-}
-
-/**
- * Validates the Composer autoload configuration for the project.
- *
- * This function checks if a `composer.json` file exists, reads its contents,
- * and verifies that it contains a PSR-4 autoload mapping to an `inc/` directory,
- * which is required for generated PHP output.
- *
- * @category Config
- * @param    startDir           - The directory to start searching for `composer.json`.
- * @param    namespace          - The namespace to validate against.
- * @param    validationReporter - A reporter instance for logging validation messages.
- * @returns A promise that resolves to 'ok' if the Composer autoload is valid.
- * @throws `WPKernelError` if `composer.json` is not found, is invalid, or lacks the required PSR-4 mapping.
- */
-export async function validateComposerAutoload(
-	startDir: string,
-	namespace: string,
-	validationReporter: Reporter
-): Promise<'ok'> {
-	const composerPath = await findUp(startDir, 'composer.json');
-	if (!composerPath) {
-		const message = `composer.json not found near ${startDir}. Ensure your plugin declares psr-4 autoload mapping to "inc/".`;
-		validationReporter.error(message, { startDir });
-		throw new WPKernelError('ValidationError', {
-			message,
-			context: {
-				startDir,
-				namespace,
-			},
-		});
-	}
-
-	const composerJson = await readComposerJson(
-		composerPath,
-		validationReporter
-	);
-	const autoload = getComposerAutoloadMap(
-		composerJson,
-		composerPath,
-		validationReporter
-	);
-	assertIncMapping(autoload, composerPath, validationReporter);
-
-	validationReporter.debug('Composer autoload verified for namespace.', {
-		composerPath,
-		namespace,
-	});
-
-	return 'ok';
-}
-
-/**
- * Reads and parses the `composer.json` file.
- *
- * @category Config
- * @param    composerPath       - The absolute path to the `composer.json` file.
- * @param    validationReporter - A reporter instance for logging validation messages.
- * @returns A promise that resolves with the parsed JSON content of `composer.json`.
- * @throws `WPKernelError` if the file cannot be read or parsed.
- */
-export async function readComposerJson(
-	composerPath: string,
-	validationReporter: Reporter
-): Promise<unknown> {
-	try {
-		const composerRaw = await fs.readFile(composerPath, 'utf8');
-		return JSON.parse(composerRaw);
-	} catch (error) {
-		const message = `Unable to read composer.json at ${composerPath}: ${formatError(error)}`;
-		validationReporter.error(message, { composerPath });
-		const underlying = error instanceof Error ? error : undefined;
-		throw new WPKernelError('ValidationError', {
-			message,
-			context: { composerPath },
-			data: underlying ? { originalError: underlying } : undefined,
-		});
-	}
-}
-
-/**
- * Extracts the PSR-4 autoload map from the Composer JSON content.
- *
- * @category Config
- * @param    composerJson       - The parsed content of `composer.json`.
- * @param    composerPath       - The absolute path to the `composer.json` file.
- * @param    validationReporter - A reporter instance for logging validation messages.
- * @returns The PSR-4 autoload map as a record of namespaces to paths.
- * @throws `WPKernelError` if the `autoload` or `psr-4` fields are missing or invalid.
- */
-export function getComposerAutoloadMap(
-	composerJson: unknown,
-	composerPath: string,
-	validationReporter: Reporter
-): Record<string, unknown> {
-	if (
-		!isObject(composerJson) ||
-		!isObject((composerJson as Record<string, unknown>).autoload)
-	) {
-		const message = `composer.json at ${composerPath} is missing an "autoload" object.`;
-		validationReporter.error(message, { composerPath });
-		throw new WPKernelError('ValidationError', {
-			message,
-			context: { composerPath },
-		});
-	}
-
-	const autoload = (composerJson as { autoload: Record<string, unknown> })
-		.autoload['psr-4'];
-	if (!isObject(autoload)) {
-		const message = `composer.json at ${composerPath} must declare "autoload.psr-4".`;
-		validationReporter.error(message, { composerPath });
-		throw new WPKernelError('ValidationError', {
-			message,
-			context: { composerPath },
-		});
-	}
-
-	return autoload;
-}
-
-/**
- * Asserts that at least one PSR-4 namespace in the Composer autoload map points to `inc/`.
- *
- * This is a requirement for generated PHP output to be correctly loaded by Composer.
- *
- * @category Config
- * @param    autoload           - The PSR-4 autoload map.
- * @param    composerPath       - The absolute path to the `composer.json` file.
- * @param    validationReporter - A reporter instance for logging validation messages.
- * @throws `WPKernelError` if no namespace maps to `inc/`.
- */
-export function assertIncMapping(
-	autoload: Record<string, unknown>,
-	composerPath: string,
-	validationReporter: Reporter
-): void {
-	const hasIncMapping = Object.values(autoload).some((mapping) => {
-		if (typeof mapping !== 'string') {
-			return false;
-		}
-
-		const normalized = mapping.endsWith('/') ? mapping : `${mapping}/`;
-		return normalized === 'inc/';
-	});
-
-	if (hasIncMapping) {
-		return;
-	}
-
-	const message = `composer.json at ${composerPath} must map at least one PSR-4 namespace to "inc/" to match generated PHP output.`;
-	validationReporter.error(message, {
-		composerPath,
-		autoload,
-	});
-	throw new WPKernelError('ValidationError', {
-		message,
-		context: { composerPath },
-	});
-}
-
-/**
- * Searches for a file or directory by traversing up the directory tree.
- *
- * @category Config
- * @param    startDir - The directory to start the search from.
- * @param    fileName - The name of the file or directory to find.
- * @returns A promise that resolves with the absolute path to the found file/directory, or `null` if not found.
- */
-export async function findUp(
-	startDir: string,
-	fileName: string
-): Promise<string | null> {
-	const current = path.resolve(startDir);
-	const candidate = path.join(current, fileName);
-
-	if (await fileExists(candidate)) {
-		return candidate;
-	}
-
-	const parent = path.dirname(current);
-	if (parent === current) {
-		return null;
-	}
-
-	return findUp(parent, fileName);
-}
-
-/**
- * Checks if a file exists at the given path.
- *
- * @category Config
- * @param    filePath - The absolute path to the file.
- * @returns A promise that resolves to `true` if the file exists, `false` otherwise.
- */
-export async function fileExists(filePath: string): Promise<boolean> {
-	try {
-		await fs.access(filePath);
-		return true;
-	} catch {
-		return false;
-	}
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

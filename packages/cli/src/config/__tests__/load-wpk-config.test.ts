@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -9,8 +8,6 @@ import {
 	formatError,
 	createTsLoader,
 	createJsLoader,
-	findUp,
-	fileExists,
 	getTsImport,
 	setCachedTsImport,
 } from '../load-wpk-config';
@@ -32,7 +29,7 @@ describe('loadWPKernelConfig', () => {
 		await runWorkspace(run, { files });
 	}
 
-	it('loads a wpk config and validates composer autoload', async () => {
+	it('loads a wpk config', async () => {
 		await withWorkspace(
 			{
 				'wpk.config.js': `module.exports = {
@@ -51,7 +48,6 @@ describe('loadWPKernelConfig', () => {
   }
 };
 `,
-				'composer.json': createComposerJson('inc/'),
 			},
 			async (workspaceRoot) => {
 				const result = await loadWPKernelConfig();
@@ -68,201 +64,17 @@ describe('loadWPKernelConfig', () => {
 						path.join(workspaceRoot, 'wpk.config.js')
 					)
 				);
-				expect(result.composerCheck).toBe('ok');
 				expect(result.config.version).toBe(1);
 			}
 		);
 	});
 
 	it('throws when no wpk config is discovered', async () => {
-		await withWorkspace(
-			{
-				'composer.json': createComposerJson('inc/'),
-			},
-			async () => {
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'DeveloperError',
-				});
-			}
-		);
-	});
-
-	it('throws a validation error when composer autoload mapping is incorrect', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': `module.exports = {
-  version: 1,
-  namespace: 'valid-namespace',
-  schemas: {},
-  resources: {
-    thing: {
-      name: 'thing',
-      identity: { type: 'number' },
-      routes: {
-        list: { path: '/valid/v1/things', method: 'GET' },
-        get: { path: '/valid/v1/things/:id', method: 'GET' }
-      }
-    }
-  }
-};
-`,
-				'composer.json': createComposerJson('src/'),
-			},
-			async () => {
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'ValidationError',
-				});
-			}
-		);
-	});
-
-	it('throws when composer.json is missing', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
-			},
-			async () => {
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'ValidationError',
-				});
-			}
-		);
-	});
-
-	it('throws when composer.json cannot be parsed', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
-				'composer.json': '{ invalid json',
-			},
-			async () => {
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'ValidationError',
-				});
-			}
-		);
-	});
-
-	it('wraps composer read failures with WPKernelError for primitive reasons', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
-				'composer.json': createComposerJson('inc/'),
-			},
-			async () => {
-				const originalReadFile = fs.readFile;
-				const readSpy = jest
-					.spyOn(fs, 'readFile')
-					.mockImplementation(async (...args) => {
-						const [pathLike] = args;
-						if (
-							typeof pathLike === 'string' &&
-							pathLike.endsWith('composer.json')
-						) {
-							throw new Error('read-failure');
-						}
-
-						return originalReadFile(
-							...(args as Parameters<typeof fs.readFile>)
-						);
-					});
-
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'ValidationError',
-				});
-
-				expect(readSpy).toHaveBeenCalled();
-				readSpy.mockRestore();
-			}
-		);
-	});
-
-	it('throws when composer.json is missing autoload metadata', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
-				'composer.json': JSON.stringify(
-					{ name: 'temp/plugin' },
-					null,
-					2
-				),
-			},
-			async () => {
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'ValidationError',
-				});
-			}
-		);
-	});
-
-	it('accepts composer mappings without trailing slash', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
-				'composer.json': JSON.stringify(
-					{
-						name: 'temp/plugin',
-						autoload: {
-							'psr-4': {
-								'Temp\\\\Plugin\\\\': 'inc',
-							},
-						},
-					},
-					null,
-					2
-				),
-			},
-			async () => {
-				const result = await loadWPKernelConfig();
-				expect(result.namespace).toBe('valid-namespace');
-			}
-		);
-	});
-
-	it('throws when composer.json is missing psr-4 autoload mappings', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
-				'composer.json': JSON.stringify(
-					{
-						name: 'temp/plugin',
-						autoload: {},
-					},
-					null,
-					2
-				),
-			},
-			async () => {
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'ValidationError',
-				});
-			}
-		);
-	});
-
-	it('throws when composer.json psr-4 mappings are not strings', async () => {
-		await withWorkspace(
-			{
-				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
-				'composer.json': JSON.stringify(
-					{
-						name: 'temp/plugin',
-						autoload: {
-							'psr-4': {
-								'Temp\\\\Plugin\\\\': ['inc/'],
-							},
-						},
-					},
-					null,
-					2
-				),
-			},
-			async () => {
-				await expect(loadWPKernelConfig()).rejects.toMatchObject({
-					code: 'ValidationError',
-				});
-			}
-		);
+		await withWorkspace({}, async () => {
+			await expect(loadWPKernelConfig()).rejects.toMatchObject({
+				code: 'DeveloperError',
+			});
+		});
 	});
 
 	it('throws when resource identity metadata does not match routes', async () => {
@@ -284,7 +96,6 @@ describe('loadWPKernelConfig', () => {
   }
 };
 `,
-				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
 				await expect(loadWPKernelConfig()).rejects.toMatchObject({
@@ -298,7 +109,6 @@ describe('loadWPKernelConfig', () => {
 		await withWorkspace(
 			{
 				'wpk.config.js': `throw new Error('boom');`,
-				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
 				await expect(loadWPKernelConfig()).rejects.toMatchObject({
@@ -319,7 +129,6 @@ describe('loadWPKernelConfig', () => {
   }
 });
 `,
-				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
 				const result = await loadWPKernelConfig();
@@ -340,7 +149,6 @@ describe('loadWPKernelConfig', () => {
   }
 });
 `,
-				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
 				const tsImportMock = jest.fn().mockResolvedValue({
@@ -432,7 +240,6 @@ describe('loadWPKernelConfig', () => {
 		await withWorkspace(
 			{
 				'package.json': JSON.stringify(packageJson, null, 2),
-				'composer.json': createComposerJson('inc/'),
 			},
 			async (workspaceRoot) => {
 				const result = await loadWPKernelConfig();
@@ -513,46 +320,6 @@ describe('loadWPKernelConfig helpers', () => {
 		});
 	});
 
-	it('searches upwards for files until the filesystem root', async () => {
-		const workspaceRoot = await fs.mkdtemp(
-			path.join(os.tmpdir(), TMP_PREFIX)
-		);
-		try {
-			await fs.writeFile(
-				path.join(workspaceRoot, 'composer.json'),
-				createComposerJson('inc/'),
-				'utf8'
-			);
-			const nested = path.join(workspaceRoot, 'nested', 'dir');
-			await fs.mkdir(nested, { recursive: true });
-
-			const found = await findUp(nested, 'composer.json');
-			expect(found && path.basename(found)).toBe('composer.json');
-
-			const missing = await findUp(nested, 'nonexistent.json');
-			expect(missing).toBeNull();
-		} finally {
-			await fs.rm(workspaceRoot, { recursive: true, force: true });
-		}
-	});
-
-	it('checks for file existence using fs access semantics', async () => {
-		const workspaceRoot = await fs.mkdtemp(
-			path.join(os.tmpdir(), TMP_PREFIX)
-		);
-		try {
-			const filePath = path.join(workspaceRoot, 'test.txt');
-			await fs.writeFile(filePath, 'hello', 'utf8');
-
-			await expect(fileExists(filePath)).resolves.toBe(true);
-			await expect(
-				fileExists(path.join(workspaceRoot, 'missing.txt'))
-			).resolves.toBe(false);
-		} finally {
-			await fs.rm(workspaceRoot, { recursive: true, force: true });
-		}
-	});
-
 	it('reuses cached tsImport loaders when preset', async () => {
 		const cached = Promise.resolve(jest.fn());
 		setCachedTsImport(cached);
@@ -564,25 +331,6 @@ describe('loadWPKernelConfig helpers', () => {
 		setCachedTsImport(null);
 	});
 });
-
-function createComposerJson(autoloadPath: string): string {
-	return JSON.stringify(
-		{
-			name: 'temp/plugin',
-			autoload: {
-				'psr-4': {
-					'Temp\\\\Plugin\\\\': autoloadPath,
-				},
-			},
-		},
-		null,
-		2
-	);
-}
-
-function createValidWPKernelConfig(namespace: string): string {
-	return `module.exports = ${createConfigObjectString(namespace)};\n`;
-}
 
 function createConfigObjectString(namespace: string): string {
 	return JSON.stringify(createConfigObject(namespace), null, 2);

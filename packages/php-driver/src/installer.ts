@@ -1,15 +1,10 @@
-import { promisify } from 'node:util';
-import { execFile } from 'node:child_process';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper, type Helper } from '@wpkernel/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { DriverWorkspace } from './types';
 
-const REQUIRED_PACKAGE = 'nikic/php-parser';
 const VENDOR_AUTOLOAD = 'vendor/autoload.php';
 const COMPOSER_MANIFEST = 'composer.json';
-
-const execFileAsync = promisify(execFile);
 
 export interface DriverContext {
 	readonly workspace: DriverWorkspace;
@@ -47,34 +42,19 @@ export function createPhpDriverInstaller(): DriverHelper {
 				await workspace.exists(vendorAutoloadPath);
 
 			if (!hasVendorAutoload) {
-				reporter.info(
-					`Installing ${REQUIRED_PACKAGE} via composer (composer install).`
+				reporter.error(
+					'Bundled PHP parser assets missing from CLI build.',
+					{ autoloadPath: vendorAutoloadPath }
 				);
-
-				try {
-					await execFileAsync('composer', ['install'], {
-						cwd: workspace.root,
-					});
-					reporter.info(
-						`${REQUIRED_PACKAGE} installed successfully.`
-					);
-				} catch (error) {
-					reporter.error(
-						`Composer install failed while fetching ${REQUIRED_PACKAGE}.`,
-						{ error }
-					);
-					throw new WPKernelError('DeveloperError', {
-						message: 'Composer install failed.',
-						data:
-							error instanceof Error
-								? { message: error.message }
-								: undefined,
-					});
-				}
-				return;
+				throw new WPKernelError('DeveloperError', {
+					message: 'Bundled PHP parser assets missing.',
+					data: {
+						autoloadPath: vendorAutoloadPath,
+					},
+				});
 			}
 
-			reporter.debug('PHP parser dependency detected via composer.');
+			reporter.debug('PHP parser dependency detected in bundled assets.');
 		},
 	});
 }

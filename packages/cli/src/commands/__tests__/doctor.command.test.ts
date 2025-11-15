@@ -75,7 +75,6 @@ describe('buildDoctorCommand', () => {
 			config: {},
 			sourcePath: configPath,
 			configOrigin: 'wpk.config.ts',
-			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
 		buildWorkspace.mockReturnValue({ root: process.cwd() });
@@ -115,7 +114,6 @@ describe('buildDoctorCommand', () => {
 
 		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 		expect(stdout.toString()).toContain('[PASS] Kernel config');
-		expect(stdout.toString()).toContain('[PASS] Composer autoload');
 		expect(stdout.toString()).toContain(
 			'[PASS] Workspace hygiene: Workspace clean.'
 		);
@@ -224,32 +222,6 @@ describe('buildDoctorCommand', () => {
 		expect(stdout.toString()).toContain(
 			'[WARN] Workspace hygiene: Workspace unresolved.'
 		);
-	});
-
-	it('warns when composer autoload mapping is missing', async () => {
-		const configPath = path.join(process.cwd(), 'wpk.config.ts');
-		loadWPKernelConfig.mockResolvedValueOnce({
-			config: {},
-			sourcePath: configPath,
-			configOrigin: 'wpk.config.ts',
-			composerCheck: 'mismatch',
-			namespace: 'Demo\\Plugin\\',
-		});
-
-		const DoctorCommand = buildDoctorCommand({
-			loadWPKernelConfig,
-			buildWorkspace,
-			buildReporter: reporterFactory,
-			buildReadinessRegistry,
-		});
-
-		const command = new DoctorCommand();
-		const { stdout } = assignCommandContext(command);
-
-		const exitCode = await command.execute();
-
-		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
-		expect(stdout.toString()).toContain('[WARN] Composer autoload');
 	});
 
 	it('warns when workspace cannot be resolved', async () => {

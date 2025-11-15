@@ -23,7 +23,6 @@ describe('doctor command default environment checks', () => {
 			config: {},
 			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 			configOrigin: 'wpk.config.ts',
-			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
 		const { workspace } = createCommandWorkspaceHarness({
@@ -72,7 +71,6 @@ describe('doctor command default environment checks', () => {
 			config: {},
 			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 			configOrigin: 'wpk.config.ts',
-			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
 		const { workspace } = createCommandWorkspaceHarness({
@@ -119,7 +117,6 @@ describe('doctor command default environment checks', () => {
 			config: {},
 			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 			configOrigin: 'wpk.config.ts',
-			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
 		const { workspace } = createCommandWorkspaceHarness({
@@ -168,7 +165,6 @@ describe('doctor command default environment checks', () => {
 			config: {},
 			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 			configOrigin: 'wpk.config.ts',
-			composerCheck: 'ok',
 			namespace: 'Demo\\Plugin\\',
 		});
 		const { workspace } = createCommandWorkspaceHarness({

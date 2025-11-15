@@ -5,16 +5,6 @@ type Reporter = ReturnType<typeof createReporter>;
 
 type Workspace = ReturnType<typeof baseWorkspace>;
 
-const execFileMock = jest.fn();
-
-jest.mock('node:util', () => ({
-	promisify: <T extends (...args: unknown[]) => unknown>(fn: T) => fn,
-}));
-
-jest.mock('node:child_process', () => ({
-	execFile: (...args: unknown[]) => execFileMock(...args),
-}));
-
 function createReporter() {
 	return {
 		debug: jest.fn(),
@@ -43,7 +33,6 @@ describe('createPhpDriverInstaller', () => {
 	let reporter: Reporter;
 
 	beforeEach(() => {
-		execFileMock.mockReset();
 		reporter = createReporter();
 	});
 
@@ -70,48 +59,12 @@ describe('createPhpDriverInstaller', () => {
 			2,
 			'/workspace/vendor/autoload.php'
 		);
-		expect(execFileMock).not.toHaveBeenCalled();
 		expect(reporter.debug).toHaveBeenCalledWith(
-			'PHP parser dependency detected via composer.'
+			'PHP parser dependency detected in bundled assets.'
 		);
 	});
 
-	it('installs dependencies via composer when vendor autoload is missing', async () => {
-		execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
-
-		const helper = createPhpDriverInstaller();
-		const workspace = createWorkspace({
-			exists: jest.fn(async (target: string) =>
-				target.endsWith('composer.json') ? true : false
-			),
-		});
-
-		await helper.apply(
-			{
-				context: { workspace },
-				input: undefined as never,
-				output: undefined as never,
-				reporter,
-			},
-			undefined
-		);
-
-		expect(execFileMock).toHaveBeenCalledWith('composer', ['install'], {
-			cwd: workspace.root,
-		});
-		expect(reporter.info).toHaveBeenNthCalledWith(
-			1,
-			'Installing nikic/php-parser via composer (composer install).'
-		);
-		expect(reporter.info).toHaveBeenNthCalledWith(
-			2,
-			'nikic/php-parser installed successfully.'
-		);
-	});
-
-	it('wraps composer failures in a WPKernelError', async () => {
-		execFileMock.mockRejectedValue(new Error('composer failed'));
-
+	it('throws when bundled assets are missing', async () => {
 		const helper = createPhpDriverInstaller();
 		const workspace = createWorkspace({
 			exists: jest.fn(async (target: string) =>
@@ -132,8 +85,8 @@ describe('createPhpDriverInstaller', () => {
 		).rejects.toBeInstanceOf(WPKernelError);
 
 		expect(reporter.error).toHaveBeenCalledWith(
-			'Composer install failed while fetching nikic/php-parser.',
-			expect.objectContaining({ error: expect.any(Error) })
+			'Bundled PHP parser assets missing from CLI build.',
+			{ autoloadPath: '/workspace/vendor/autoload.php' }
 		);
 	});
 
@@ -158,6 +111,5 @@ describe('createPhpDriverInstaller', () => {
 		expect(reporter.debug).toHaveBeenCalledWith(
 			'createPhpDriverInstaller: composer.json missing, skipping installer.'
 		);
-		expect(execFileMock).not.toHaveBeenCalled();
 	});
 });

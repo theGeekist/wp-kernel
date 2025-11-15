@@ -222,7 +222,6 @@ describe('CreateCommand', () => {
 			},
 			sourcePath: '/workspace/wpk.config.ts',
 			configOrigin: 'wpk.config.ts',
-			composerCheck: 'ok',
 			namespace: 'demo',
 		});
 

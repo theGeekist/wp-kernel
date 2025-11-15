@@ -21,5 +21,5 @@ The pretty printer prefers Composer autoloaders in the following order:
 3. Entries from `WPK_PHP_AUTOLOAD_PATHS` (falling back to the legacy `PHP_DRIVER_AUTOLOAD_PATHS` when present)
 4. Shared fallbacks bundled with the monorepo (CLI, `php-json-ast`, PHP driver)
 
-If no autoload file provides `nikic/php-parser`, the bridge emits a structured failure trace and a
-helpful error suggesting `composer install` or setting `WPK_PHP_AUTOLOAD`.
+If no autoload file provides `nikic/php-parser`, the bridge emits a structured failure trace and
+instructs developers to reinstall the CLI or point `WPK_PHP_AUTOLOAD` at a valid autoloader path.

@@ -251,6 +251,5 @@ export interface LoadedWPKernelConfig {
 	config: WPKernelConfigV1;
 	sourcePath: string;
 	configOrigin: ConfigOrigin;
-	composerCheck: 'ok' | 'mismatch';
 	namespace: string;
 }

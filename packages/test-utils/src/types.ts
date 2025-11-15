@@ -51,12 +51,10 @@ export interface WPKConfigV1Like<
 export interface LoadedWPKConfigV1Like<
 	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
 	TOrigin extends string = string,
-	TComposerCheck extends string = string,
 > {
 	readonly config: TConfig;
 	readonly sourcePath: string;
 	readonly configOrigin: TOrigin;
-	readonly composerCheck: TComposerCheck;
 	readonly namespace: string;
 }
 

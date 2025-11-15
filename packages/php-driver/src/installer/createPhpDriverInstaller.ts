@@ -1,50 +1,13 @@
-import { promisify } from 'node:util';
-import { execFile, type ExecFileOptions } from 'node:child_process';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { WorkspaceLike } from '../workspace';
 
-const REQUIRED_PACKAGE = 'nikic/php-parser';
 const VENDOR_AUTOLOAD = 'vendor/autoload.php';
 const COMPOSER_MANIFEST = 'composer.json';
-
-type ExecFileResult = { stdout: string | Buffer; stderr: string | Buffer };
-
-type ExecFileFn = (
-	command: string,
-	args: readonly string[],
-	options: ExecFileOptions
-) => Promise<ExecFileResult>;
-
-let cachedExecFileAsync: ExecFileFn | null = null;
-
-function resolveExecFile(configExec?: ExecFileFn): ExecFileFn {
-	if (configExec) {
-		return configExec;
-	}
-
-	if (!cachedExecFileAsync) {
-		if (typeof execFile !== 'function') {
-			throw new WPKernelError('DeveloperError', {
-				message: 'Composer install support is unavailable.',
-			});
-		}
-
-		cachedExecFileAsync = promisify(execFile);
-	}
-
-	return cachedExecFileAsync;
-}
 
 export interface PhpDriverInstallLogger {
 	info?: (message: string, context?: unknown) => void;
 	debug?: (message: string, context?: unknown) => void;
 	error?: (message: string, context?: unknown) => void;
-}
-
-export interface PhpDriverInstallerConfig {
-	readonly composerBinary?: string;
-	readonly installArgs?: readonly string[];
-	readonly exec?: ExecFileFn;
 }
 
 export interface PhpDriverInstallOptions {
@@ -68,14 +31,8 @@ export interface PhpDriverInstaller {
 }
 
 export function createPhpDriverInstaller(
-	config: PhpDriverInstallerConfig = {}
+	_config: Record<string, never> = {}
 ): PhpDriverInstaller {
-	const {
-		composerBinary = 'composer',
-		installArgs = ['install'],
-		exec,
-	} = config;
-
 	return {
 		async install(options: PhpDriverInstallOptions) {
 			const { workspace, logger } = options;
@@ -88,32 +45,17 @@ export function createPhpDriverInstaller(
 				};
 			}
 
-			logger?.info?.(
-				`Installing ${REQUIRED_PACKAGE} via composer (${composerBinary} ${installArgs.join(' ')}).`
+			const vendorAutoloadPath = workspace.resolve(VENDOR_AUTOLOAD);
+			logger?.error?.(
+				'Bundled PHP parser assets missing from CLI build.',
+				{ autoloadPath: vendorAutoloadPath }
 			);
-
-			try {
-				const execFn = resolveExecFile(exec);
-				await execFn(composerBinary, installArgs, {
-					cwd: workspace.root,
-				});
-			} catch (error) {
-				logger?.error?.(
-					`Composer install failed while fetching ${REQUIRED_PACKAGE}.`,
-					{ error }
-				);
-				throw new WPKernelError('DeveloperError', {
-					message: 'Composer install failed.',
-					data:
-						error instanceof Error
-							? { message: error.message }
-							: undefined,
-				});
-			}
-
-			logger?.info?.(`${REQUIRED_PACKAGE} installed successfully.`);
-
-			return { installed: true };
+			throw new WPKernelError('DeveloperError', {
+				message: 'Bundled PHP parser assets missing.',
+				data: {
+					autoloadPath: vendorAutoloadPath,
+				},
+			});
 		},
 	};
 }
@@ -136,7 +78,7 @@ async function detectSkipReason(
 	const hasVendorAutoload = await workspace.exists(vendorAutoloadPath);
 
 	if (hasVendorAutoload) {
-		logger?.debug?.('PHP parser dependency detected via composer.');
+		logger?.debug?.('PHP parser dependency detected in bundled assets.');
 		return 'already-installed';
 	}
 
