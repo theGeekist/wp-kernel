@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -123,10 +123,38 @@ Optional: Custom workspace builder function.
 
 ---
 
+#### installComposerDependencies()?
+
+```ts
+readonly optional installComposerDependencies: (cwd, dependencies, options) => Promise<InstallerResult>;
+```
+
+Optional: Custom Composer dependency installer function.
+
+##### Parameters
+
+###### cwd
+
+`string`
+
+###### dependencies
+
+[`InstallerDependencies`](InstallerDependencies.md) = `{}`
+
+###### options
+
+`InstallerRunOptions` = `{}`
+
+##### Returns
+
+`Promise`\<`InstallerResult`\>
+
+---
+
 #### installNodeDependencies()?
 
 ```ts
-readonly optional installNodeDependencies: (cwd, __namedParameters) => Promise<void>;
+readonly optional installNodeDependencies: (cwd, packageManager, dependencies, options) => Promise<InstallerResult>;
 ```
 
 Optional: Custom Node.js dependency installer function.
@@ -137,13 +165,21 @@ Optional: Custom Node.js dependency installer function.
 
 `string`
 
-###### \_\_namedParameters
+###### packageManager
+
+`PackageManager`
+
+###### dependencies
 
 [`InstallerDependencies`](InstallerDependencies.md) = `{}`
 
+###### options
+
+`InstallerRunOptions` = `{}`
+
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`\<`InstallerResult`\>
 
 ---
 
@@ -164,14 +200,14 @@ Optional: Custom kernel config loader.
 #### runWorkflow()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
+readonly optional runWorkflow: (options) => Promise<InitWorkflowResult>;
 ```
 
 Optional: Custom workflow runner function.
 
 ##### Parameters
 
-###### \_\_namedParameters
+###### options
 
 [`InitWorkflowOptions`](InitWorkflowOptions.md)
 

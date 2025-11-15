@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -117,6 +117,16 @@ warnings: IRWarning[];
 ```
 
 An array of warnings associated with this resource.
+
+---
+
+### blocks?
+
+```ts
+optional blocks: IRResourceBlocksConfig;
+```
+
+Optional: Generated block configuration (js-only or SSR).
 
 ---
 

@@ -1,10 +1,10 @@
-[**@wpkernel/test-utils v0.12.1-beta.3**](../README.md)
+[**@wpkernel/test-utils v0.12.2-beta.0**](../README.md)
 
 ---
 
 [@wpkernel/test-utils](../README.md) / LoadedWPKConfigV1Like
 
-# Interface: LoadedWPKConfigV1Like\<TConfig, TOrigin, TComposerCheck\>
+# Interface: LoadedWPKConfigV1Like\<TConfig, TOrigin\>
 
 ## Type Parameters
 
@@ -16,19 +16,7 @@
 
 `TOrigin` _extends_ `string` = `string`
 
-### TComposerCheck
-
-`TComposerCheck` _extends_ `string` = `string`
-
 ## Properties
-
-### composerCheck
-
-```ts
-readonly composerCheck: TComposerCheck;
-```
-
----
 
 ### config
 

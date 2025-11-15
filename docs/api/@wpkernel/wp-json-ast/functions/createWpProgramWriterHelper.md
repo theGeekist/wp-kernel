@@ -1,13 +1,13 @@
-[**@wpkernel/wp-json-ast v0.12.1-beta.3**](../README.md)
+[**@wpkernel/wp-json-ast v0.12.2-beta.0**](../README.md)
 
 ---
 
-[@wpkernel/wp-json-ast](../README.md) / createPhpProgramWriterHelper
+[@wpkernel/wp-json-ast](../README.md) / createWpProgramWriterHelper
 
-# Function: createPhpProgramWriterHelper()
+# Function: createWpProgramWriterHelper()
 
 ```ts
-function createPhpProgramWriterHelper<TContext, TInput, TOutput>(
+function createWpProgramWriterHelper<TContext, TInput, TOutput>(
 	options
 ): BuilderHelper<TContext, TInput, TOutput>;
 ```

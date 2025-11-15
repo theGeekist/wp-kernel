@@ -1,8 +1,8 @@
-**@wpkernel/test-utils v0.12.1-beta.3**
+**@wpkernel/test-utils v0.12.2-beta.0**
 
 ---
 
-# @wpkernel/test-utils v0.12.1-beta.3
+# @wpkernel/test-utils v0.12.2-beta.0
 
 ## Classes
 

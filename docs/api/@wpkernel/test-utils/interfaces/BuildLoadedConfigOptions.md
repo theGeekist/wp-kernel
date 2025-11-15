@@ -1,10 +1,10 @@
-[**@wpkernel/test-utils v0.12.1-beta.3**](../README.md)
+[**@wpkernel/test-utils v0.12.2-beta.0**](../README.md)
 
 ---
 
 [@wpkernel/test-utils](../README.md) / BuildLoadedConfigOptions
 
-# Interface: BuildLoadedConfigOptions\<TConfig, TOrigin, TComposerCheck\>
+# Interface: BuildLoadedConfigOptions\<TConfig, TOrigin\>
 
 Options for building a loaded wpk configuration.
 
@@ -18,21 +18,7 @@ Options for building a loaded wpk configuration.
 
 `TOrigin` _extends_ `string` = `string`
 
-### TComposerCheck
-
-`TComposerCheck` _extends_ `string` = `string`
-
 ## Properties
-
-### composerCheck?
-
-```ts
-readonly optional composerCheck: TComposerCheck;
-```
-
-The composer check status.
-
----
 
 ### config?
 

@@ -1,8 +1,8 @@
-**@wpkernel/wp-json-ast v0.12.1-beta.3**
+**@wpkernel/wp-json-ast v0.12.2-beta.0**
 
 ---
 
-# @wpkernel/wp-json-ast v0.12.1-beta.3
+# @wpkernel/wp-json-ast v0.12.2-beta.0
 
 ## Interfaces
 
@@ -343,9 +343,9 @@
 - [collectMetaQueryEntries](functions/collectMetaQueryEntries.md)
 - [collectTaxonomyQueryEntries](functions/collectTaxonomyQueryEntries.md)
 - [createPhpChannelHelper](functions/createPhpChannelHelper.md)
-- [createPhpProgramWriterHelper](functions/createPhpProgramWriterHelper.md)
 - [~~createWpPhpFileBuilder~~](functions/createWpPhpFileBuilder.md)
 - [createWpPhpProgramBuilder](functions/createWpPhpProgramBuilder.md)
+- [createWpProgramWriterHelper](functions/createWpProgramWriterHelper.md)
 - [deriveModuleNamespace](functions/deriveModuleNamespace.md)
 - [deriveRestControllerImports](functions/deriveRestControllerImports.md)
 - [ensureWpTaxonomyStorage](functions/ensureWpTaxonomyStorage.md)

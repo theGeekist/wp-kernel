@@ -66,10 +66,7 @@ function updateRoadmapVersion(
 }
 
 function gatherWorkspacePackageJsonFiles(repoRoot: string): string[] {
-	const manifestGlobs = [
-		path.join(repoRoot, 'packages'),
-		path.join(repoRoot, 'examples'),
-	];
+	const manifestGlobs = [path.join(repoRoot, 'packages')];
 
 	const files: string[] = [];
 	for (const basePath of manifestGlobs) {

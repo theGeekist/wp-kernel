@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -13,7 +13,7 @@ function buildDoctorCommand(options): () => Command;
 Builds the `doctor` command for the CLI.
 
 This command runs various health checks for the WPKernel project,
-including configuration, Composer autoloading, PHP tooling, and workspace hygiene.
+including configuration, bundled assets, PHP tooling, and workspace hygiene.
 
 ## Parameters
 

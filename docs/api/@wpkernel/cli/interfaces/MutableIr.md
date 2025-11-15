@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -114,4 +114,12 @@ resources: IRResource[];
 
 ```ts
 schemas: IRSchema[];
+```
+
+---
+
+### ui
+
+```ts
+ui: IRUiSurface | null;
 ```

@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -27,19 +27,7 @@ readonly workspace: Workspace;
 ### env?
 
 ```ts
-readonly optional env: object;
-```
-
-#### REGISTRY_URL?
-
-```ts
-readonly optional REGISTRY_URL: string;
-```
-
-#### WPK_PREFER_REGISTRY_VERSIONS?
-
-```ts
-readonly optional WPK_PREFER_REGISTRY_VERSIONS: string;
+readonly optional env: InitWorkflowEnv;
 ```
 
 ---
@@ -48,6 +36,30 @@ readonly optional WPK_PREFER_REGISTRY_VERSIONS: string;
 
 ```ts
 readonly optional force: boolean;
+```
+
+---
+
+### installDependencies?
+
+```ts
+readonly optional installDependencies: boolean;
+```
+
+---
+
+### installers?
+
+```ts
+readonly optional installers: Partial<InitWorkflowInstallers>;
+```
+
+---
+
+### packageManager?
+
+```ts
+readonly optional packageManager: PackageManager;
 ```
 
 ---

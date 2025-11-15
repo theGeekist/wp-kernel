@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -119,14 +119,14 @@ Optional: Custom git repository checker function.
 #### runWorkflow()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
+readonly optional runWorkflow: (options) => Promise<InitWorkflowResult>;
 ```
 
 Optional: Custom workflow runner function.
 
 ##### Parameters
 
-###### \_\_namedParameters
+###### options
 
 [`InitWorkflowOptions`](InitWorkflowOptions.md)
 

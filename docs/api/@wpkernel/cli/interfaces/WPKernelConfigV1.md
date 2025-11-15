@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -39,6 +39,16 @@ schemas: SchemaRegistry;
 ```ts
 version: 1;
 ```
+
+---
+
+### $schema?
+
+```ts
+optional $schema: string;
+```
+
+Optional JSON schema reference to enable IDE validation.
 
 ---
 

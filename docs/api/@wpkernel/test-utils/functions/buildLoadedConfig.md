@@ -1,4 +1,4 @@
-[**@wpkernel/test-utils v0.12.1-beta.3**](../README.md)
+[**@wpkernel/test-utils v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -7,10 +7,10 @@
 # Function: buildLoadedConfig()
 
 ```ts
-function buildLoadedConfig<TConfig, TOrigin, TComposerCheck>(
+function buildLoadedConfig<TConfig, TOrigin>(
 	workspace,
 	options
-): LoadedWPKConfigV1Like<TConfig, TOrigin, TComposerCheck>;
+): LoadedWPKConfigV1Like<TConfig, TOrigin>;
 ```
 
 Builds a loaded wpk configuration object for testing.
@@ -25,10 +25,6 @@ Builds a loaded wpk configuration object for testing.
 
 `TOrigin` _extends_ `string` = `string`
 
-### TComposerCheck
-
-`TComposerCheck` _extends_ `string` = `string`
-
 ## Parameters
 
 ### workspace
@@ -39,12 +35,12 @@ The path to the workspace.
 
 ### options
 
-[`BuildLoadedConfigOptions`](../interfaces/BuildLoadedConfigOptions.md)\<`TConfig`, `TOrigin`, `TComposerCheck`\> = `{}`
+[`BuildLoadedConfigOptions`](../interfaces/BuildLoadedConfigOptions.md)\<`TConfig`, `TOrigin`\> = `{}`
 
 Options for configuring the loaded config.
 
 ## Returns
 
-[`LoadedWPKConfigV1Like`](../interfaces/LoadedWPKConfigV1Like.md)\<`TConfig`, `TOrigin`, `TComposerCheck`\>
+[`LoadedWPKConfigV1Like`](../interfaces/LoadedWPKConfigV1Like.md)\<`TConfig`, `TOrigin`\>
 
 A `LoadedWPKConfigV1Like` object.

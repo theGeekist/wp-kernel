@@ -16,6 +16,7 @@ interface Options {
 	publish: boolean;
 	publishTag?: string;
 	version?: string;
+	allowDirty: boolean;
 }
 
 interface ParsedVersion {
@@ -43,6 +44,7 @@ function parseArgs(argv: string[]): Options {
 		branch: 'main',
 		push: false,
 		publish: false,
+		allowDirty: false,
 	};
 
 	const expectValue = (flag: string, value: string | undefined): string => {
@@ -77,6 +79,7 @@ function parseArgs(argv: string[]): Options {
 	const booleanFlags = new Map<string, () => void>([
 		['--push', () => (options.push = true)],
 		['--publish', () => (options.publish = true)],
+		['--allow-dirty', () => (options.allowDirty = true)],
 	]);
 
 	for (let index = 0; index < argv.length; index += 1) {
@@ -408,7 +411,9 @@ function main(): void {
 	const currentFilePath = fileURLToPath(import.meta.url);
 	const repoRoot = path.resolve(path.dirname(currentFilePath), '..', '..');
 
-	const stashToken = stashWorkingTreeIfNeeded(repoRoot);
+	const stashToken = options.allowDirty
+		? null
+		: stashWorkingTreeIfNeeded(repoRoot);
 	const branchInfo = resolveReleaseBranch(
 		repoRoot,
 		options.remote,

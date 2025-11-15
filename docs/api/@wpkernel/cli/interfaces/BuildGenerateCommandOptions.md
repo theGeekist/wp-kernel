@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -164,9 +164,8 @@ readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 Locate and load the project's wpk configuration.
 
 The function searches for supported config files, executes them via
-cosmiconfig loaders, validates the resulting structure and performs a
-Composer autoload sanity check to ensure PHP namespaces are mapped
-correctly.
+cosmiconfig loaders, validates the resulting structure, and returns the
+canonicalised configuration metadata.
 
 ##### Returns
 

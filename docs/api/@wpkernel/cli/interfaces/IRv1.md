@@ -1,4 +1,4 @@
-[**@wpkernel/cli v0.12.1-beta.3**](../README.md)
+[**@wpkernel/cli v0.12.2-beta.0**](../README.md)
 
 ---
 
@@ -219,3 +219,13 @@ optional references: IRReferenceSummary;
 ```
 
 Optional: Cross-reference summary for CI inspection.
+
+---
+
+### ui?
+
+```ts
+optional ui: IRUiSurface;
+```
+
+Optional: UI metadata derived from resources.
