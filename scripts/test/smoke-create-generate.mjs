@@ -115,6 +115,7 @@ async function main() {
 			);
 			await runLocalCreate(scopedProjectDir, packageManager);
 			await initGitRepository(scopedProjectDir);
+			await commitWorkspace(scopedProjectDir, 'chore: initial scaffold');
 
 			await snapshotWorkspace(scopedProjectDir, '[smoke] bootstrap');
 
@@ -150,6 +151,9 @@ async function main() {
 				'[smoke] install cli dependencies'
 			);
 
+			// Ensure a clean, valid repository before running the CLI.
+			await resetGitRepository(scopedProjectDir, 'chore: post-install snapshot');
+
 			logStep(`[${packageManager}] Running "wpk generate" inside scaffold`);
 			await runPackageManagerCommand(
 				packageManager,
@@ -173,6 +177,9 @@ async function main() {
 				scopedProjectDir,
 				'[smoke] post-apply'
 			);
+
+			// Re-initialise git to avoid any partial object state before reruns.
+			await resetGitRepository(scopedProjectDir, 'chore: post-apply snapshot');
 
 			await runPackageManagerCommand(
 				packageManager,
@@ -522,6 +529,24 @@ async function initGitRepository(cwd) {
 	).catch(() => {
 		// If commit fails (shouldn't), leave repository initialised to avoid fatal git errors.
 	});
+}
+
+async function resetGitRepository(cwd, message) {
+	await rm(path.join(cwd, '.git'), { recursive: true, force: true });
+	await initGitRepository(cwd);
+	await runGit(['add', '--all'], {
+		cwd,
+		capture: true,
+		quietCapture: true,
+	});
+	await runGit(
+		['commit', '--quiet', '--no-verify', '--allow-empty', '-m', message],
+		{
+			cwd,
+			capture: true,
+			quietCapture: !smokeVerbose,
+		}
+	).catch(() => undefined);
 }
 
 main().catch((error) => {
