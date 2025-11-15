@@ -368,7 +368,7 @@ jobs:
                   fail-on-cache-miss: true
 
             - name: Run smoke test
-              run: node scripts/test/smoke-create-generate.mjs --keep-artifacts
+              run: node scripts/test/smoke-create-generate.mjs --package-managers=pnpm --keep-artifacts
 
             - name: Upload smoke artifacts
               if: always()
