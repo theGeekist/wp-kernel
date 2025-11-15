@@ -114,6 +114,7 @@ async function main() {
 				`[${packageManager}] Running create-wpk (scaffold + dependency install)`
 			);
 			await runLocalCreate(scopedProjectDir, packageManager);
+			await initGitRepository(scopedProjectDir);
 
 			await snapshotWorkspace(scopedProjectDir, '[smoke] bootstrap');
 
@@ -496,6 +497,31 @@ async function readGitStatus(cwd) {
 
 function runGit(args, options = {}) {
 	return runCommand('git', args, options);
+}
+
+async function initGitRepository(cwd) {
+	// Always re-init to ensure .git exists and is consistent.
+	await runGit(['init'], { cwd, capture: true, quietCapture: true });
+	await runGit(
+		['config', 'user.name', gitIdentity.name],
+		{ cwd, capture: true, quietCapture: true }
+	);
+	await runGit(
+		['config', 'user.email', gitIdentity.email],
+		{ cwd, capture: true, quietCapture: true }
+	);
+	// Seed an initial commit so future git status calls don't error on missing objects.
+	await runGit(['add', '--all'], { cwd, capture: true, quietCapture: true });
+	await runGit(
+		['commit', '--quiet', '--no-verify', '--allow-empty', '-m', 'chore: initial scaffold'],
+		{
+			cwd,
+			capture: true,
+			quietCapture: !smokeVerbose,
+		}
+	).catch(() => {
+		// If commit fails (shouldn't), leave repository initialised to avoid fatal git errors.
+	});
 }
 
 main().catch((error) => {
