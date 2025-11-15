@@ -62,7 +62,7 @@
 	],
 	"scripts": {
 		"dev": "vite build --watch",
-		"build": "vite build && tsc --noEmit",
+		"build": "node ./scripts/ensure-composer-assets.mjs && vite build && tsc --noEmit",
 		"clean": "rm -rf dist dist-tests *.tsbuildinfo",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",
