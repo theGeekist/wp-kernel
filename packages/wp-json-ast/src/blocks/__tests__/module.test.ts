@@ -1,5 +1,32 @@
 import { buildBlockModule } from '../module';
 import type { BlockModuleConfig } from '../types';
+import type { PhpNode } from '@wpkernel/php-json-ast';
+
+function hasMatchingNameNode(
+	value: unknown,
+	matcher: (node: PhpNode & { readonly parts?: unknown }) => boolean
+): boolean {
+	if (Array.isArray(value)) {
+		return value.some((entry) => hasMatchingNameNode(entry, matcher));
+	}
+
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+
+	const candidate = value as Partial<PhpNode> & { readonly parts?: unknown };
+	if (
+		typeof candidate.nodeType === 'string' &&
+		candidate.nodeType.length > 0 &&
+		matcher(candidate as PhpNode & { readonly parts?: unknown })
+	) {
+		return true;
+	}
+
+	return Object.values(candidate).some((entry) =>
+		hasMatchingNameNode(entry, matcher)
+	);
+}
 
 describe('buildBlockModule', () => {
 	it('emits manifest and registrar files plus render stubs', () => {
@@ -52,6 +79,19 @@ describe('buildBlockModule', () => {
 			'Source: wpk.config.ts → blocks.ssr.register',
 		]);
 		expect(registrarFile?.program).toHaveLength(2);
+		expect(
+			hasMatchingNameNode(registrarFile?.program, (node) => {
+				if (
+					node.nodeType !== 'Name_FullyQualified' ||
+					!Array.isArray((node as { parts?: unknown }).parts)
+				) {
+					return false;
+				}
+
+				const parts = (node as { parts: string[] }).parts;
+				return parts.length === 1 && parts[0] === 'WP_Block';
+			})
+		).toBe(true);
 
 		expect(result.renderStubs).toHaveLength(1);
 		const stub = result.renderStubs[0]!;

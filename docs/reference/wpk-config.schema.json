@@ -645,12 +645,29 @@
 					"$ref": "#/$defs/resourceUI",
 					"description": "UI configuration, primarily for the WordPress admin, associated with this resource."
 				},
+				"blocks": {
+					"$ref": "#/$defs/resourceBlocksConfig",
+					"description": "Optional Gutenberg block configuration for this resource. Set `mode: \"ssr\"` to generate server-rendered blocks with PHP registrars; omit or set `mode: \"js\"` to keep the default JS-only blocks."
+				},
 				"capabilities": {
 					"$ref": "#/$defs/resourceCapabilities",
 					"description": "Mapping between high-level operations on this resource and the WordPress capabilities that guard them. This is where you connect your domain permissions to WordPress's capability system."
 				}
 			},
 			"description": "Defines a single resource exposed by your plugin: its name, REST routes, WordPress storage strategy, capabilities, and optional admin UI."
+		},
+		"resourceBlocksConfig": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"mode": {
+					"type": "string",
+					"enum": ["js", "ssr"],
+					"default": "js",
+					"description": "Controls whether the CLI emits JS-only blocks (`\"js\"`, default) or full SSR-ready blocks with PHP render callbacks (`\"ssr\"`)."
+				}
+			},
+			"description": "Optional per-resource control over generated Gutenberg blocks. Use `mode: \"ssr\"` when the block must render HTML on the server (SEO, email, non-JS clients)."
 		}
 	}
 }

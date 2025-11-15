@@ -2,7 +2,7 @@
 	"version": 1,
 	"resources": {
 		"application": {
-			"hash": "d39e3ec505fb9c4c1a4f1dc5d03d8add4a14920ea84255cbb9efb0bca5e058ce",
+			"hash": "23f5cdede12f2f3c431464bb72fe477b26a25c351a7c3f1ac96546b1275e3fc8",
 			"artifacts": {
 				"generated": [
 					".generated/php/Rest/ApplicationController.php",
@@ -15,7 +15,7 @@
 			}
 		},
 		"job": {
-			"hash": "7287d9e3a3da15b2a867458c230268e6c859117e58815141a3e92a3f53f2e500",
+			"hash": "9948908551dab40acfcf1151d6bbea7e96501cff31cb3e033d5c68068a5e526f",
 			"artifacts": {
 				"generated": [
 					".generated/php/Rest/JobController.php",
@@ -28,7 +28,7 @@
 			}
 		},
 		"jobCategory": {
-			"hash": "4f799994a2aea3c61219a9e48b97d2fbd37802da56379468e1c1c3d09ae8f514",
+			"hash": "53e473f799357e725d6e36fee6a62aca13773a97a6c381ed80624587b13e105a",
 			"artifacts": {
 				"generated": [
 					".generated/php/Rest/JobCategoryController.php",
@@ -38,7 +38,7 @@
 			}
 		},
 		"settings": {
-			"hash": "5b2ffcc3c609012bd1df96f6be9e57f3868a98194a285be914b534cb5495d04e",
+			"hash": "4c3e58c3be4b25bcfd7ab92f3f5529e0450d89996daedb5672b8910ed7369b0d",
 			"artifacts": {
 				"generated": [
 					".generated/php/Rest/SettingsController.php",
@@ -48,7 +48,7 @@
 			}
 		},
 		"statusCache": {
-			"hash": "a4f2b8d779bd79f91ebb5948c8d9bba5b2dc567a73010d82519a507a391009d4",
+			"hash": "36cd19a042d5ee88200f459e4b217b496651990fc6f4f3a71e9f3bdfbd793680",
 			"artifacts": {
 				"generated": [
 					".generated/php/Rest/StatusCacheController.php",

@@ -29,12 +29,20 @@ _Important_: `--allow-dirty` is required because the showcase intentionally carr
 
 ## Generated Blocks & Manual Hook
 
-The CLI writes every JS-only block to `.generated/blocks/<resource>/`. To surface them:
+`pnpm generate` now emits both the React/editor shells under `.generated/blocks/**` and the SSR plumbing in `.generated/php/Blocks` / `.generated/build/blocks-manifest.php`. Treat the JS as author-owned (safe to edit) and the PHP output as generated (rerun the CLI if you need to regenerate the registrar or manifest).
 
-- **Manual step** (already applied in this repo): import `registerGeneratedBlocks` from `../.generated/blocks/auto-register` and call it in `src/index.ts`. This ensures the bundler sees the generated blocks even though they live outside `src/`.
-- Rationale: `.generated/blocks/**` is user-editable source; we keep `plugin.php` focused on PHP wiring. Until the CLI autowires this import, remember to add the hook whenever you scaffold a new project.
+- **Manual bundler step** (tracked in `src/index.ts`): wire the generated blocks into the Vite entry so the build picks them up.
 
-When you run `pnpm build`, Vite sees the import and includes the generated block metadata + stubs under `build/`.
+    ```ts
+    import { registerGeneratedBlocks } from '../.generated/blocks/auto-register';
+
+    registerGeneratedBlocks();
+    ```
+
+    Keep this import whenever you scaffold a new plugin - the CLI does not add it automatically yet, so forgetting it means none of the generated blocks make it to `build/index.js`.
+
+- Enable SSR by adding `blocks: { mode: 'ssr' }` to a resource in `wpk.config.ts`. That flips on `render.php`, the registrar (`.generated/php/Blocks/Register.php`), and the manifest (`.generated/build/blocks-manifest.php`). The stub is safe to edit after generation; rerun `pnpm generate` whenever you change schema-driven fields so PHP stays in sync.
+- After running `pnpm build`, confirm that the Vite output (`build/index.asset.json` + `build/index.js`) exists before applying the plugin in a WordPress site.
 
 ## Validation Log
 

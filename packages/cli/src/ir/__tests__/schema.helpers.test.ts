@@ -176,6 +176,51 @@ describe('schema helpers', () => {
 		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
+	it('registers inline schema objects and reuses identical definitions', async () => {
+		const accumulator = createSchemaAccumulator();
+		const inlineSchema = {
+			$schema: 'https://json-schema.org/draft/2020-12/schema',
+			type: 'object',
+			properties: {
+				title: { type: 'string' },
+			},
+			required: ['title'],
+		};
+
+		const resource = {
+			name: 'inline',
+			routes: {},
+			schema: inlineSchema,
+		} as unknown as ResourceConfig;
+
+		const result = await resolveResourceSchema(
+			'inline',
+			resource,
+			accumulator,
+			'example'
+		);
+
+		expect(result.schemaKey).toMatch(/^inline:/);
+		expect(accumulator.entries).toHaveLength(1);
+		expect(accumulator.entries[0]?.schema).toEqual(inlineSchema);
+
+		const secondResource = {
+			...resource,
+			name: 'inline-copy',
+			schema: JSON.parse(JSON.stringify(inlineSchema)),
+		} as unknown as ResourceConfig;
+
+		const second = await resolveResourceSchema(
+			'inline-copy',
+			secondResource,
+			accumulator,
+			'example'
+		);
+
+		expect(second.schemaKey).toBe(result.schemaKey);
+		expect(accumulator.entries).toHaveLength(1);
+	});
+
 	it('creates schema fragments from post meta descriptors', () => {
 		expect(
 			createSchemaFromPostMeta({ type: 'string', single: true })

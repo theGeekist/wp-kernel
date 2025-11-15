@@ -179,12 +179,18 @@ export interface IRResource {
 	queryParams?: ResourceQueryParams;
 	/** Optional: UI configuration for the resource. */
 	ui?: ResourceUIConfig;
+	/** Optional: Generated block configuration (js-only or SSR). */
+	blocks?: IRResourceBlocksConfig;
 	/** Optional: Inline capability mappings for the resource. */
 	capabilities?: ResourceCapabilityMap;
 	/** A hash of the resource definition for change detection. */
 	hash: IRHashProvenance;
 	/** An array of warnings associated with this resource. */
 	warnings: IRWarning[];
+}
+
+export interface IRResourceBlocksConfig {
+	mode: 'js' | 'ssr';
 }
 
 /**

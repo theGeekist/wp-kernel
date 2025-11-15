@@ -81,9 +81,9 @@ function registerCoreFragments(pipeline: Pipeline): void {
 function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createBundler());
 	pipeline.builders.use(createPhpDriverInstaller());
+	pipeline.builders.use(createJsBlocksBuilder());
 	pipeline.builders.use(createPhpBuilder());
 	pipeline.builders.use(createApplyPlanBuilder());
-	pipeline.builders.use(createJsBlocksBuilder());
 	pipeline.builders.use(createTsBuilder());
 	pipeline.builders.use(createTsCapabilityBuilder());
 	pipeline.builders.use(createTsIndexBuilder());

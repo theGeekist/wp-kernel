@@ -252,6 +252,9 @@ export const wpkConfig: WPKernelConfigV1 = {
 					},
 				},
 			},
+			blocks: {
+				mode: 'ssr',
+			},
 		},
 		application: {
 			name: 'application',

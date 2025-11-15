@@ -12,7 +12,7 @@ import type {
 	SchemaProvenance,
 } from '../publicTypes';
 import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
-import { sortObject } from './canonical';
+import { hashCanonical, sortObject } from './canonical';
 import { buildHashProvenance } from './hashing';
 import { createSchemaId } from './identity';
 
@@ -147,6 +147,37 @@ export async function resolveResourceSchema(
 	}
 
 	if (typeof schema !== 'string') {
+		if (schema && typeof schema === 'object' && !Array.isArray(schema)) {
+			const normalizedSchema = sortObject(
+				schema as Record<string, unknown>
+			);
+			const hash = hashCanonical(normalizedSchema);
+			const schemaKey = `inline:${hash}`;
+			const existingInline = accumulator.byKey.get(schemaKey);
+			if (existingInline) {
+				return { schemaKey, provenance: existingInline.provenance };
+			}
+
+			const irSchema: IRSchema = {
+				id: createSchemaId({
+					key: schemaKey,
+					provenance: 'manual',
+					schema: normalizedSchema,
+					sourcePath: `[inline:${resourceKey}]`,
+				}),
+				key: schemaKey,
+				sourcePath: `[inline:${resourceKey}]`,
+				hash: buildHashProvenance(['schema'], normalizedSchema),
+				schema: normalizedSchema,
+				provenance: 'manual',
+			};
+
+			accumulator.entries.push(irSchema);
+			accumulator.byKey.set(schemaKey, irSchema);
+
+			return { schemaKey, provenance: 'manual' };
+		}
+
 		throw new WPKernelError('ValidationError', {
 			message: `Resource "${resourceKey}" must declare a schema reference or use 'auto'.`,
 			context: { resource: resourceKey },

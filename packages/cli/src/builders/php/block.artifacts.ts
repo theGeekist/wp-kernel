@@ -6,11 +6,13 @@ import type {
 	BuilderNext,
 	BuilderOutput,
 } from '../../runtime/types';
+import type { IRBlock } from '../../ir/publicTypes';
 import {
 	collectBlockManifests,
 	type BlockManifestEntry,
 	type ProcessedBlockManifest,
 } from '../shared.blocks.manifest';
+import { deriveResourceBlocks } from '../shared.blocks.derived';
 import {
 	buildBlockModule,
 	buildProgramTargetPlanner,
@@ -51,7 +53,19 @@ export function createPhpBlocksHelper(): BuilderHelper {
 			}
 
 			const ir = input.ir;
-			const blocks = ir.blocks.filter((block) => block.hasRender);
+			const existingBlocks = new Map(
+				ir.blocks.map((block): [string, IRBlock] => [block.key, block])
+			);
+			const derivedBlocks = deriveResourceBlocks({
+				ir,
+				existingBlocks,
+			});
+			const derivedSsrBlocks = derivedBlocks
+				.filter((entry) => entry.kind === 'ssr')
+				.map((entry) => entry.block);
+			const blocks = [...ir.blocks, ...derivedSsrBlocks].filter(
+				(block) => block.hasRender
+			);
 			if (blocks.length === 0) {
 				reporter.debug(
 					'createPhpBlocksHelper: no SSR blocks discovered.'
@@ -84,9 +98,10 @@ export function createPhpBlocksHelper(): BuilderHelper {
 				return;
 			}
 
+			const blockNamespace = `${ir.php.namespace}\\Blocks`;
 			const blockModule = buildBlockModule({
 				origin: ir.meta.origin,
-				namespace: `${ir.php.namespace}\\Blocks`,
+				namespace: blockNamespace,
 				manifest: {
 					fileName: 'build/blocks-manifest.php',
 					entries: manifestEntries,

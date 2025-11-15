@@ -9,6 +9,8 @@ import type {
 } from '../ir/publicTypes';
 import { createBlockHash, createBlockId } from '../ir/shared/identity';
 
+type DerivedBlockKind = 'js' | 'ssr';
+
 /**
  * A generated resource block together with the JSON manifest produced for it.
  *
@@ -23,6 +25,7 @@ import { createBlockHash, createBlockId } from '../ir/shared/identity';
 export interface DerivedResourceBlock {
 	readonly block: IRBlock;
 	readonly manifest: Record<string, unknown>;
+	readonly kind: DerivedBlockKind;
 }
 
 /**
@@ -49,13 +52,12 @@ export function deriveResourceBlocks(options: {
 	const derived: DerivedResourceBlock[] = [];
 
 	for (const resource of ir.resources) {
-		if (!shouldGenerateBlock(resource)) {
+		const desiredMode = resolveDeclaredBlockMode(resource);
+		if (!shouldGenerateBlock(resource, desiredMode)) {
 			continue;
 		}
 
-		if (determineBlockType(resource) !== 'js-only') {
-			continue;
-		}
+		const blockKind = determineBlockType(resource, desiredMode);
 
 		const slug = toBlockSlug(resource.name);
 		const blockKey = `${ir.config.namespace}/${slug}`;
@@ -73,12 +75,12 @@ export function deriveResourceBlocks(options: {
 			}),
 			key: blockKey,
 			directory,
-			hasRender: false,
+			hasRender: blockKind === 'ssr',
 			manifestSource,
 			hash: createBlockHash({
 				key: blockKey,
 				directory,
-				hasRender: false,
+				hasRender: blockKind === 'ssr',
 				manifestSource,
 			}),
 		};
@@ -86,15 +88,34 @@ export function deriveResourceBlocks(options: {
 			ir,
 			resource,
 			blockKey,
+			kind: blockKind,
 		});
 
-		derived.push({ block, manifest });
+		derived.push({ block, manifest, kind: blockKind });
 	}
 
 	return derived;
 }
 
-function shouldGenerateBlock(resource: IRResource): boolean {
+function resolveDeclaredBlockMode(
+	resource: IRResource
+): DerivedBlockKind | undefined {
+	const mode = resource.blocks?.mode;
+	if (mode === 'ssr' || mode === 'js') {
+		return mode;
+	}
+
+	return undefined;
+}
+
+function shouldGenerateBlock(
+	resource: IRResource,
+	declaredMode?: DerivedBlockKind
+): boolean {
+	if (declaredMode) {
+		return true;
+	}
+
 	const hasGetRoute = resource.routes.some(
 		(route: IRRoute) => route.method.toUpperCase() === 'GET'
 	);
@@ -102,7 +123,14 @@ function shouldGenerateBlock(resource: IRResource): boolean {
 	return hasGetRoute || hasUi;
 }
 
-function determineBlockType(resource: IRResource): 'js-only' | 'ssr' {
+function determineBlockType(
+	resource: IRResource,
+	declaredMode?: DerivedBlockKind
+): DerivedBlockKind {
+	if (declaredMode) {
+		return declaredMode;
+	}
+
 	const hasStorage = Boolean(resource.storage);
 	const hasLocalRoute = resource.routes.some(
 		(route: IRRoute) => route.transport === 'local'
@@ -112,15 +140,16 @@ function determineBlockType(resource: IRResource): 'js-only' | 'ssr' {
 		return 'ssr';
 	}
 
-	return 'js-only';
+	return 'js';
 }
 
 function createBlockManifest(options: {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
 	readonly blockKey: string;
+	readonly kind: DerivedBlockKind;
 }): Record<string, unknown> {
-	const { ir, resource, blockKey } = options;
+	const { ir, resource, blockKey, kind } = options;
 	const schema = findSchema(ir.schemas, resource.schemaKey);
 	const attributes = deriveAttributes(schema);
 	const title = toTitleCase(resource.name);
@@ -156,6 +185,10 @@ function createBlockManifest(options: {
 
 	if (attributes) {
 		manifest.attributes = attributes;
+	}
+
+	if (kind === 'ssr') {
+		manifest.render = 'file:./render.php';
 	}
 
 	return manifest;

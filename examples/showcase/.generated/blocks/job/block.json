@@ -54,5 +54,6 @@
 		"updated_at": {
 			"type": "string"
 		}
-	}
+	},
+	"render": "file:./render.php"
 }

@@ -31,22 +31,77 @@ features:
 
 ## What is WPKernel?
 
+> **A meta-framework that brings **determinism** and **predictability** to WordPress development.**
+
 WPKernel replaces hand-written PHP controllers, scattered JS clients, and admin-page boilerplate with a single declarative config that produces everything reliably and repeatably.
 
 You design the entire product on a single blueprint (`wpk.config.ts`). The CLI then acts as a precision factory, generating every layer of the product: PHP, JavaScript, UI, security, to exact specifications.
 
-And if that isn't enough and you need something more customised, just build an extension.
+## Why the Generated Artifacts Matter
 
-This is WPKernel: a meta-framework that brings **determinism** and **predictability** to WordPress development, transforming an often-chaotic process into a streamlined and reliable one.
+> _It's a WordPress developer’s dream, finally real_
 
-## Solving WordPress Developer Pain Points
+Most tools “scaffold” WordPress code.
+WPKernel goes much further: it _builds_ your plugin.
 
-WordPress's flexibility is its strength, but with it comes complexity and maintenance headaches. WPKernel directly addresses these critical pain points:
+Every run of `wpk generate` doesn’t just spit out files; it produces a complete, internally consistent product layer made from your single declarative config.
 
-- **No More Spaghetti Code or Plugin Bloat**: It enforces a clear separation of concerns. Your `wpk.config.ts` defines your application's intent, and the CLI generates clean, structured code. This eliminates the need for dozens of conflicting plugins and reduces the "spaghetti PHP" often found in custom solutions.
-- **Robust Security and Reliability**: By generating server-side permission checks and client-side utilities from a single source of truth, it drastically reduces security vulnerabilities. Updates become less fragile, as the generated code adheres to consistent standards, minimizing unexpected breaks.
-- **Streamlined Tooling and Workflow**: It simplifies dependency management, custom routing, and meta-field definitions. It provides a consistent development experience, moving away from global state reliance and making your logic easier to test and understand.
-- **Predictable Client Interactions**: With a deterministic generation process, what you define is what you get. This reduces layout breaks from client "tweaks" and helps manage expectations by providing a clear, consistent foundation for your application.
+If you are a plugin author, here’s what that means in real life:
+
+### 1. You define the domain once
+
+Routes, storage, schema, capabilities, UI design, block behaviour, you describe intent in `wpk.config.ts`.
+
+> This is the last time you write it by hand
+
+### 2. The CLI builds all the moving parts you (probably) normally hate
+
+- PHP REST controllers
+- Capability maps + permission callbacks
+- Schema-driven REST args
+- DataView admin screens
+- Interactivity wiring
+- JS resource clients
+- SSR-ready block scaffolds
+- Editor modules
+- Manifests, registrars, type definitions
+- Patch plans and apply diffs
+
+_…and it does this deterministically, every time._
+
+### 3. Everything stays in sync
+
+> No more “fix PHP, break JS” OR “route changed but block still expects the old one” OR “admin screen outdated but backend updated”.
+
+The CLI enforces parity you simply don’t want to maintain manually.
+
+### 4. You get production-grade code, so you only focus on the parts that matter to you.
+
+> WordPress development burns more hours on glue, boilerplate, and synchronisation than on actual product work.
+
+WPKernel removes that _entire category_ of suffering. :)
+
+### 5. But what if you need something bespoke?
+
+> You can extend the pipeline, not just the plugin.
+
+You can build reusable extensions that plug into WPKernel’s deterministic pipeline: your branding assets, your own controllers, your paid upgrades, your internal helpers.
+Use them to build the next plugin for your next client, over and over, from the same config-driven flow.
+
+## What this really enables
+
+Put simply, WPKernel changes what “WordPress development” even means.
+
+- **No more spaghetti plugins and copy-pasted snippets**  
+  Your `wpk.config.ts` describes the product; the CLI generates clean, structured code instead of you wiring everything by hand.
+- **Security and permissions that actually line up**  
+  Capability maps, permission callbacks, and REST routes all come from one source of truth, so “I forgot to protect that endpoint” becomes much harder to do.
+- **A consistent workflow instead of one-off hacks**  
+  Routing, storage, meta fields, admin UI, blocks, and interactivity follow the same pattern in every project. Your mental model stops resetting on each build.
+- **Predictable client behaviour**  
+  What you describe is what you get. Fewer “one-off tweaks” that secretly bypass capability checks or drift from the backend, fewer surprises when someone edits code in production.
+
+This is where WordPress work stops feeling like patching a medieval craft and starts behaving like modern software engineering — with the ergonomics of a framework and the reach of the WordPress ecosystem.
 
 ## Actions-First: The Guardrail for Reliability
 
@@ -81,20 +136,19 @@ const config: WPKernelConfigV1 = {
 
 	resources: {
 		myPost: {
-			name: 'myPost', // resource name
 			routes: {
 				list: {
-					path: '/wpk/v1/post',
+					path: '/myorg/v1/post',
 					method: 'GET',
 					capability: 'post.list', // or anything you want to call it
 				},
 				get: {
-					path: '/wpk/v1/post/:id',
+					path: '/myorg/v1/post/:id',
 					method: 'GET',
 					capability: 'post.get',
 				},
 				create: {
-					path: '/wpk/v1/post',
+					path: '/myorg/v1/post',
 					method: 'POST',
 					capability: 'post.create',
 				},
@@ -114,8 +168,6 @@ const config: WPKernelConfigV1 = {
 			},
 		},
 	},
-
-	adapters: {},
 };
 
 export default config;
@@ -141,11 +193,4 @@ Enable your plugin and open its admin screen (it’s already capability-gated.)
 - **Edit the config** → [/guide/config](/guide/config)
 - **Understand the workflow** → [/guide](/guide/index)
 - **CLI reference** → [/packages/cli](/packages/cli)
-
-### Philosophy
-
-WPKernel follows a **config-first** [principle](/guide/philosophy.md):
-
-- _Describe intent once._ The CLI derives artefacts deterministically.
-- _Generate, don’t scaffold._ Each run syncs code, types, and enforcement from your config.
-- _Stay reversible._ Every `apply` is transactional, safe to rerun, easy to roll back.
+- **The WPK Philosophy** [/guide/philosophy](/guide/philosophy.md)

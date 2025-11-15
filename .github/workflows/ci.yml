@@ -82,20 +82,12 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: false
 
-            - name: Restore build outputs
-              uses: actions/cache@v4
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
               with:
-                  path: |
-                      packages/*/dist
-                      packages/*/*.tsbuildinfo
-                      examples/*/build
-                      examples/*/dist
-                      packages/php-json-ast/vendor
-                      packages/cli/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
-                  restore-keys: |
-                      build-${{ runner.os }}-
-                  fail-on-cache-miss: false
+                  name: dist
+                  path: .
+
             - name: Run ESLint
               run: pnpm lint
 
@@ -124,7 +116,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
-            # Moved PHP setup here so build artefacts reflect the PHP toolchain
+            # PHP setup so build artefacts reflect the PHP toolchain
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
@@ -142,10 +134,14 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: false
 
-            - name: Cache build outputs
-              id: cache-build
-              uses: actions/cache@v4
+            # Always build fresh
+            - name: Build packages
+              run: pnpm build
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
               with:
+                  name: dist
                   path: |
                       packages/*/dist
                       packages/*/*.tsbuildinfo
@@ -153,22 +149,6 @@ jobs:
                       examples/*/dist
                       packages/php-json-ast/vendor
                       packages/cli/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
-                  restore-keys: |
-                      build-${{ runner.os }}-
-
-            - name: Build packages
-              if: steps.cache-build.outputs.cache-hit != 'true'
-              run: pnpm build
-
-            - name: Upload build artifacts (fallback)
-              if: steps.cache-build.outputs.cache-hit != 'true'
-              uses: actions/upload-artifact@v4
-              with:
-                  name: dist
-                  path: |
-                      packages/*/dist
-                      examples/*/build
                   retention-days: 1
 
     # Unit Tests: Run Jest tests
@@ -207,20 +187,11 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: false
 
-            - name: Restore build outputs
-              uses: actions/cache@v4
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
               with:
-                  path: |
-                      packages/*/dist
-                      packages/*/*.tsbuildinfo
-                      examples/*/build
-                      examples/*/dist
-                      packages/php-json-ast/vendor
-                      packages/cli/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
-                  restore-keys: |
-                      build-${{ runner.os }}-
-                  fail-on-cache-miss: false
+                  name: dist
+                  path: .
 
             - name: Run unit tests with coverage
               run: pnpm test:coverage
@@ -262,20 +233,11 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: false
 
-            - name: Restore build outputs
-              uses: actions/cache@v4
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
               with:
-                  path: |
-                      packages/*/dist
-                      packages/*/*.tsbuildinfo
-                      examples/*/build
-                      examples/*/dist
-                      packages/php-json-ast/vendor
-                      packages/cli/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
-                  restore-keys: |
-                      build-${{ runner.os }}-
-                  fail-on-cache-miss: false
+                  name: dist
+                  path: .
 
             - name: Verify release pack readiness idempotency
               run: pnpm --filter @wpkernel/cli exec tsx scripts/check-release-pack-ci.ts
@@ -309,20 +271,11 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: false
 
-            - name: Restore build outputs
-              uses: actions/cache@v4
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
               with:
-                  path: |
-                      packages/*/dist
-                      packages/*/*.tsbuildinfo
-                      examples/*/build
-                      examples/*/dist
-                      packages/php-json-ast/vendor
-                      packages/cli/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
-                  restore-keys: |
-                      build-${{ runner.os }}-
-                  fail-on-cache-miss: false
+                  name: dist
+                  path: .
 
             - name: Verify bootstrapper resolution
               run: pnpm --filter @wpkernel/cli exec tsx scripts/check-bootstrapper-resolution-ci.ts
@@ -363,20 +316,11 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: false
 
-            - name: Restore build outputs
-              uses: actions/cache@v4
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
               with:
-                  path: |
-                      packages/*/dist
-                      packages/*/*.tsbuildinfo
-                      examples/*/build
-                      examples/*/dist
-                      packages/php-json-ast/vendor
-                      packages/cli/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json','packages/cli/composer.lock','packages/cli/composer.json') }}
-                  restore-keys: |
-                      build-${{ runner.os }}-
-                  fail-on-cache-miss: false
+                  name: dist
+                  path: .
 
             - name: Run smoke test
               run: node scripts/test/smoke-create-generate.mjs --keep-artifacts
@@ -418,16 +362,11 @@ jobs:
     #           examples/*/node_modules
     #         key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
     #         fail-on-cache-miss: false
-    #     - name: Restore build outputs
-    #       uses: actions/cache@v4
+    #     - name: Download build artifacts
+    #       uses: actions/download-artifact@v4
     #       with:
-    #         path: |
-    #           packages/*/dist
-    #           packages/*/*.tsbuildinfo
-    #           examples/*/build
-    #           examples/*/dist
-    #         key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
-    #         fail-on-cache-miss: false
+    #         name: dist
+    #         path: .
     #     - name: Start WordPress (wp-env)
     #       run: pnpm wp:start
     #     - name: Seed test data

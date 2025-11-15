@@ -61,6 +61,12 @@ export interface SchemaRegistry {
  */
 type RuntimeResourceConfig = ResourceConfig;
 
+export type ResourceBlocksMode = 'js' | 'ssr';
+
+export interface SerializableResourceBlocksConfig {
+	mode?: ResourceBlocksMode;
+}
+
 type ResourceConfigBase = Omit<
 	RuntimeResourceConfig,
 	'cacheKeys' | 'store' | 'schema' | 'reporter' | 'ui'
@@ -104,6 +110,7 @@ export type SerializableResourceConfig = ResourceConfigBase & {
 	schema?: SerializableSchemaReference;
 	reporter?: never;
 	ui?: SerializableResourceUIConfig;
+	blocks?: SerializableResourceBlocksConfig;
 };
 
 export interface ResourceRegistry {

@@ -308,6 +308,13 @@ const resourceUIValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
+const resourceBlocksConfigValidator = t.isObject(
+	{
+		mode: t.isOptional(t.isOneOf([t.isLiteral('js'), t.isLiteral('ssr')])),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
 const resourceConfigValidator = t.isObject(
 	{
 		name: t.isString(),
@@ -320,6 +327,7 @@ const resourceConfigValidator = t.isObject(
 			t.isOneOf([t.isString(), t.isRecord(t.isUnknown())])
 		),
 		ui: t.isOptional(resourceUIValidator),
+		blocks: t.isOptional(resourceBlocksConfigValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );

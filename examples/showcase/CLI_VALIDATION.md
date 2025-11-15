@@ -149,9 +149,37 @@ This log is the authoritative proof that the showcase plugin validates every maj
 - **Discoveries / Fixes**:
     - Identity validation failed for `jobCategory` because the lone list route never exposed `:id`. Added a dedicated GET route/capability pair in `wpk.config.ts:384-411` so the CLI can map the numeric identifier and generate the REST handler.
     - `wpk apply` reported a conflict while `plugin.php` still carried earlier manual edits. Accepted `.wpk/apply/incoming/plugin.php` and reran apply so future runs stay idempotent and the CLI remains the single writer for the plugin loader.
+    - Added `blocks: { mode: 'ssr' }` to the `job` resource so the CLI produces a server-rendered Gutenberg block (block.json, TypeScript registrar, `.generated/blocks/job/render.php`, and PHP `Blocks/Register.php`). This keeps SEO-sensitive listings honest and exercises the new SSR plumbing end-to-end.
 - **Status**: ✓ Completed 2025-11-15
 
-### Milestone 7 — Seeds & README refresh
+### Milestone 7 — Blocks pipeline rehab (SSR + loader integration)
+
+- **Goal**: Close the drift between config/IR/builders so resource-level blocks (JS-only + SSR) are generated, registered, and documented end-to-end.
+- **Validation criteria**:
+    - `blocks` config contract exposes `mode: 'js' | 'ssr'` and fails fast if executable fields/functions appear.
+    - IR gains derived block metadata so `createPhpBlocksHelper` can emit `.generated/php/Blocks/Register.php` and `.generated/build/blocks-manifest.php`.
+    - PHP writer successfully pretty-prints the registrar (fixing the `\WP_Block` namespace bug) and apply accepts the regenerated `plugin.php` without conflicts.
+    - README explains the manual bundler hook for `.generated/blocks/**` so future scaffolds stay deterministic.
+    - Jest regression test (`packages/wp-json-ast/src/blocks/__tests__/module.test.ts`) asserts the registrar contains a fully-qualified `WP_Block`.
+- **Commands**:
+    - `pnpm generate --allow-dirty`
+    - `pnpm apply --allow-dirty --yes`
+    - `pnpm --filter @wpkernel/wp-json-ast test -- --runTestsByPath src/blocks/__tests__/module.test.ts`
+- **Artifacts to verify**:
+    - `.generated/php/Blocks/Register.php` (registrar) and `.generated/php/Blocks/Register.php.ast.json`
+    - `.generated/build/blocks-manifest.php`
+    - `.generated/blocks/job/render.php` (editable SSR stub)
+    - `examples/showcase/README.md` blocks section
+    - `jest.config.base.js` ignore rule for `packages/cli/dist`
+- **Discoveries / Fixes**:
+    - Blocks IR/builders had gone stale: `resources.*.blocks` wasn’t parsed, `createPhpBlocksHelper` never derived SSR targets, and `wp-json-ast` still referenced the old JSON-only schema. Added the config type/schema/docs entries plus IR plumbing so the resource definition now rounds-trip into block manifests (`packages/cli/src/config/types.ts`, `packages/cli/src/ir/shared/resource-builder.ts`, `docs/reference/wpk-config.schema.json`).
+    - PHP printer crashed with `Name parts must be non-empty` because we built nullable types using `buildName(['\\WP_Block'])`. Swapped to `buildFullyQualifiedName(['WP_Block'])` so the registrar uses canonical names and the writer no longer strips the leading segment (`packages/wp-json-ast/src/blocks/registrar/methods/render.ts`).
+    - Restored block manifest/registrar generation by feeding derived SSR blocks into the PHP builder, staging render stubs, and removing the earlier `console.log` instrumentation (`packages/cli/src/builders/php/block.artifacts.ts`).
+    - Accepted `.wpk/apply/incoming/plugin.php` to resolve the standing conflict and documented the manual bundler hook + SSR outputs in `examples/showcase/README.md`.
+    - Added `modulePathIgnorePatterns: ['packages/cli/dist']` to `jest.config.base.js` so Jest stops seeing duplicate packages after we rebuild the CLI, then reran the focused block test to lock in coverage.
+- **Status**: ✓ Completed 2025-11-15
+
+### Milestone 8 — Seeds & README refresh
 
 - **Goal**: Restore/update seeding scripts + rewrite README to describe the lean template.
 - **Validation criteria**: Seeds reference current routes/resources; README instructions align with new workflow; generate/apply idempotent.
@@ -160,7 +188,7 @@ This log is the authoritative proof that the showcase plugin validates every maj
     - _TBD_
 - **Status**: _Pending_
 
-### Final Validation
+### Milestone 9 — Final Validation
 
 - **Goal**: Confirm end-to-end by running `pnpm generate --allow-dirty`, `pnpm apply --allow-dirty --yes`, `pnpm lint`, and relevant tests.
 - **Validation criteria**: All commands succeed; `pnpm doctor` passes readiness checks; git diff contains only intentional artifacts.

@@ -78,6 +78,7 @@ describe('deriveResourceBlocks', () => {
 			hasRender: false,
 			manifestSource: '.generated/blocks/alpha-resource/block.json',
 		});
+		expect(entry.kind).toBe('js');
 		expect(entry.block.id).toEqual(expect.stringMatching(/^blk:/));
 		expect(entry.block.hash).toMatchObject({
 			algo: 'sha256',
@@ -181,7 +182,7 @@ describe('deriveResourceBlocks', () => {
 			existingBlocks: new Map([[existingBlock.key, existingBlock]]),
 		});
 
-		expect(derived).toHaveLength(2);
+		expect(derived).toHaveLength(3);
 
 		const manifestByKey = new Map(
 			derived.map((entry) => [entry.block.key, entry.manifest])
@@ -198,6 +199,46 @@ describe('deriveResourceBlocks', () => {
 			title: 'Resource',
 			name: 'test-namespace/',
 		});
+
+		const ssrEntry = derived.find(
+			(entry) => entry.block.key === 'test-namespace/ssr-resource'
+		);
+		expect(ssrEntry?.kind).toBe('ssr');
+		expect(ssrEntry?.block.hasRender).toBe(true);
+		expect(ssrEntry?.manifest).toMatchObject({
+			render: 'file:./render.php',
+		});
+	});
+
+	it('respects explicit blocks mode in resource config', () => {
+		const ir = makeIr({
+			schemas: [],
+			resources: [
+				makeResource('Content Block', 'auto', {
+					routes: [
+						makeRoute({
+							method: 'POST',
+							transport: 'remote',
+						}),
+					],
+					blocks: { mode: 'ssr' },
+				}),
+			],
+			phpOutputDir: '.generated/php',
+		});
+
+		const derived = deriveResourceBlocks({
+			ir,
+			existingBlocks: new Map(),
+		});
+
+		expect(derived).toHaveLength(1);
+		const [entry] = derived;
+		expect(entry.kind).toBe('ssr');
+		expect(entry.block.hasRender).toBe(true);
+		expect(entry.manifest).toMatchObject({
+			render: 'file:./render.php',
+		});
 	});
 });
 
@@ -211,6 +252,7 @@ type ResourceOverrides = Partial<
 		| 'cacheKeys'
 		| 'hash'
 		| 'warnings'
+		| 'blocks'
 	> & {
 		routes: IRRoute[];
 		cacheKeys: IRResource['cacheKeys'];
@@ -221,6 +263,7 @@ type ResourceOverrides = Partial<
 	cacheKeys?: Partial<IRResource['cacheKeys']>;
 	hash?: string;
 	warnings?: IRResource['warnings'];
+	blocks?: IRResource['blocks'];
 };
 
 function makeIr(options?: {
@@ -288,6 +331,7 @@ function makeResource(
 		storage: overrides?.storage,
 		queryParams: overrides?.queryParams,
 		ui: overrides?.ui,
+		blocks: overrides?.blocks,
 		hash:
 			overrides?.hash ??
 			makeHash(`${name}-hash`, ['name', 'schemaKey', 'schemaProvenance']),
