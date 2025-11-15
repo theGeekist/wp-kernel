@@ -281,6 +281,89 @@ describe('createApplyPlanBuilder', () => {
 		});
 	});
 
+	it('surfaces generated block assets via plan instructions', async () => {
+		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const reporter = buildReporter();
+			const output = buildOutput<BuilderOutput['actions'][number]>();
+
+			await workspace.write(
+				path.posix.join(
+					'.generated',
+					'blocks',
+					'example',
+					'block.json'
+				),
+				'{"name":"example/block","title":"Example","category":"widgets"}',
+				{ ensureDir: true }
+			);
+			await workspace.write(
+				path.posix.join('.generated', 'blocks', 'example', 'index.tsx'),
+				'export default function ExampleBlock() { return null; }',
+				{ ensureDir: true }
+			);
+
+			const ir = makePhpIrFixture({ resources: [] });
+
+			const helper = createApplyPlanBuilder();
+			await helper.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input: {
+						phase: 'generate' as const,
+						options: {
+							config: ir.config,
+							namespace: ir.meta.namespace,
+							origin: ir.meta.origin,
+							sourcePath: path.join(
+								workspaceRoot,
+								'wpk.config.ts'
+							),
+						},
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
+			const planRaw = await workspace.readText(planPath);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: Array<{ file: string }>;
+			};
+			expect(plan.instructions).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						file: 'src/blocks/example/block.json',
+					}),
+					expect.objectContaining({
+						file: 'src/blocks/example/index.tsx',
+					}),
+				])
+			);
+
+			const incomingIndex = await workspace.readText(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'incoming',
+					'src',
+					'blocks',
+					'example',
+					'index.tsx'
+				)
+			);
+			expect(incomingIndex).toContain('ExampleBlock');
+		});
+	});
+
 	it('includes UI enqueue hooks when dataview metadata exists', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();

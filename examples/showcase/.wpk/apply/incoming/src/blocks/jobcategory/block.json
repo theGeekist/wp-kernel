@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "acme-jobs/jobcategory",
+	"title": "Jobcategory",
+	"description": "Jobcategory block generated from project config",
+	"category": "widgets",
+	"icon": "database",
+	"textdomain": "acme-jobs",
+	"keywords": ["jobCategory"],
+	"supports": {
+		"align": ["wide", "full"],
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		}
+	},
+	"editorScriptModule": "file:./index.tsx",
+	"viewScriptModule": "file:./view.ts"
+}

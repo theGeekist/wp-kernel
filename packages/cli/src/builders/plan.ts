@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import {
@@ -49,10 +50,13 @@ import {
 	type BuildShimOptions,
 } from './types';
 import { buildUiConfig } from './php/pluginLoader.ui';
+import { toWorkspaceRelative } from '../workspace';
 
 const PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PLAN_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
 const PLAN_INCOMING_ROOT = path.posix.join('.wpk', 'apply', 'incoming');
+const GENERATED_BLOCKS_ROOT = path.posix.join('.generated', 'blocks');
+const SURFACED_BLOCKS_ROOT = path.posix.join('src', 'blocks');
 
 const PLAN_PRETTY_PRINT_SCRIPT_PATH = resolveBundledPhpDriverPrettyPrintPath();
 const PLAN_PRETTY_PRINT_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
@@ -147,6 +151,11 @@ async function collectPlanInstructions({
 	});
 	instructions.push(...resourceInstructions);
 
+	const blockInstructions = await collectBlockSurfaceInstructions({
+		options,
+	});
+	instructions.push(...blockInstructions);
+
 	const nextManifest = buildGenerationManifestFromIr(input.ir ?? null);
 	const diff = diffGenerationState(
 		options.context.generationState,
@@ -203,6 +212,84 @@ async function collectResourceInstructions({
 	}
 
 	return resourceInstructions;
+}
+
+async function collectBlockSurfaceInstructions({
+	options,
+}: {
+	readonly options: BuilderApplyOptions;
+}): Promise<PlanInstruction[]> {
+	const instructions: PlanInstruction[] = [];
+	const { context, output, reporter } = options;
+	const candidates = await context.workspace.glob([
+		path.posix.join(GENERATED_BLOCKS_ROOT, '*'),
+		path.posix.join(GENERATED_BLOCKS_ROOT, '**/*'),
+	]);
+	if (candidates.length === 0) {
+		return instructions;
+	}
+
+	for (const absolute of candidates) {
+		const stats = await statIfFile(absolute);
+		if (!stats) {
+			continue;
+		}
+
+		const workspaceRelative = toWorkspaceRelative(
+			context.workspace,
+			absolute
+		);
+		const suffix = path.posix.relative(
+			GENERATED_BLOCKS_ROOT,
+			workspaceRelative
+		);
+		if (suffix.startsWith('..') || suffix.length === 0) {
+			continue;
+		}
+
+		const sourceContents = await context.workspace.read(workspaceRelative);
+		if (!sourceContents) {
+			continue;
+		}
+
+		const targetFile = path.posix.join(SURFACED_BLOCKS_ROOT, suffix);
+		const incomingPath = path.posix.join(PLAN_INCOMING_ROOT, targetFile);
+		const basePath = path.posix.join(PLAN_BASE_ROOT, targetFile);
+
+		await context.workspace.write(incomingPath, sourceContents, {
+			ensureDir: true,
+		});
+		output.queueWrite({ file: incomingPath, contents: sourceContents });
+
+		const existingBase = await context.workspace.read(basePath);
+		if (existingBase === null) {
+			const targetSnapshot = await context.workspace.read(targetFile);
+			const baseSnapshot = targetSnapshot ?? sourceContents;
+			await context.workspace.write(basePath, baseSnapshot, {
+				ensureDir: true,
+			});
+			output.queueWrite({ file: basePath, contents: baseSnapshot });
+		}
+
+		instructions.push({
+			action: 'write',
+			file: targetFile,
+			base: basePath,
+			incoming: incomingPath,
+			description: `Update block asset ${suffix}`,
+		});
+	}
+
+	if (instructions.length > 0) {
+		reporter.debug(
+			'createApplyPlanBuilder: queued block asset surfacing instructions.',
+			{
+				files: instructions.map((instruction) => instruction.file),
+			}
+		);
+	}
+
+	return instructions;
 }
 
 async function collectDeletionInstructions({
@@ -472,6 +559,21 @@ function formatRequirePath(relative: string): string {
 
 	const prefixed = relative.startsWith('.') ? relative : `./${relative}`;
 	return prefixed.startsWith('/') ? prefixed : `/${prefixed}`;
+}
+
+async function statIfFile(
+	absolute: string
+): Promise<{ isFile: boolean } | null> {
+	try {
+		const stats = await fs.lstat(absolute);
+		return stats.isFile() ? { isFile: true } : null;
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return null;
+		}
+
+		throw error;
+	}
 }
 
 function buildShimProgram(options: BuildShimOptions) {

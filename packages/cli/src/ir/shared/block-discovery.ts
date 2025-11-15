@@ -5,7 +5,12 @@ import { WPKernelError } from '@wpkernel/core/error';
 import type { IRBlock } from '../publicTypes';
 import { createBlockHash, createBlockId } from './identity';
 
-const IGNORED_DIRECTORIES = new Set(['node_modules', '.generated', '.git']);
+const IGNORED_DIRECTORIES = new Set([
+	'node_modules',
+	'.generated',
+	'.git',
+	'.wpk',
+]);
 
 interface BlockDiscoveryState {
 	queue: string[];

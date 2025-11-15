@@ -137,19 +137,19 @@ This log is the authoritative proof that the showcase plugin validates every maj
     - `.generated/php/Rest/SettingsController.php`
     - `.generated/php/Rest/JobCategoryController.php`
     - `.generated/php/Rest/StatusCacheController.php`
-    - `.generated/blocks/{settings,jobcategory,statuscache}/block.json`
+    - `src/blocks/{settings,jobcategory,statuscache}/block.json` (surfaced from `.generated/blocks/**` during apply)
     - `inc/Rest/{SettingsController,JobCategoryController,StatusCacheController}.php`
     - `plugin.php`
 - **Validated contents**:
     - `.generated/php/Rest/SettingsController.php:1-120` exposes wp-option accessors (`getSettingsOptionName`, `normaliseSettingsAutoload`) and enforces the schema keys we registered in `wpk.config.ts`.
     - `.generated/php/Rest/JobCategoryController.php:1-170` wires taxonomy-backed list/get routes, including pagination, `WP_Term_Query`, and validation helpers for the numeric identifier we declared in the config.
     - `.generated/php/Rest/StatusCacheController.php:1-120` maps directly to the transient adapter with helpers to normalise expiration + namespace keys.
-    - `.generated/blocks/*/block.json` now mirrors the new resources so UI builders/plugins can register blocks without bespoke metadata.
+    - `src/blocks/*/block.json` now mirrors the new resources so UI builders/plugins can register blocks without bespoke metadata.
     - `plugin.php:34-74` enumerates all five controllers (job, application, jobCategory, settings, statusCache) so WordPress registers each REST namespace, and `inc/Rest/*.php` shims extend the generated controllers ready for customization.
 - **Discoveries / Fixes**:
     - Identity validation failed for `jobCategory` because the lone list route never exposed `:id`. Added a dedicated GET route/capability pair in `wpk.config.ts:384-411` so the CLI can map the numeric identifier and generate the REST handler.
     - `wpk apply` reported a conflict while `plugin.php` still carried earlier manual edits. Accepted `.wpk/apply/incoming/plugin.php` and reran apply so future runs stay idempotent and the CLI remains the single writer for the plugin loader.
-    - Added `blocks: { mode: 'ssr' }` to the `job` resource so the CLI produces a server-rendered Gutenberg block (block.json, TypeScript registrar, `.generated/blocks/job/render.php`, and PHP `Blocks/Register.php`). This keeps SEO-sensitive listings honest and exercises the new SSR plumbing end-to-end.
+    - Added `blocks: { mode: 'ssr' }` to the `job` resource so the CLI produces a server-rendered Gutenberg block (block.json, TypeScript registrar, `src/blocks/job/render.php`, and PHP `Blocks/Register.php`). This keeps SEO-sensitive listings honest and exercises the new SSR plumbing end-to-end.
 - **Status**: ✓ Completed 2025-11-15
 
 ### Milestone 7 — Blocks pipeline rehab (SSR + loader integration)
@@ -159,7 +159,7 @@ This log is the authoritative proof that the showcase plugin validates every maj
     - `blocks` config contract exposes `mode: 'js' | 'ssr'` and fails fast if executable fields/functions appear.
     - IR gains derived block metadata so `createPhpBlocksHelper` can emit `.generated/php/Blocks/Register.php` and `.generated/build/blocks-manifest.php`.
     - PHP writer successfully pretty-prints the registrar (fixing the `\WP_Block` namespace bug) and apply accepts the regenerated `plugin.php` without conflicts.
-    - README explains the manual bundler hook for `.generated/blocks/**` so future scaffolds stay deterministic.
+    - README explains the manual bundler hook for `src/blocks/**` so future scaffolds stay deterministic.
     - Jest regression test (`packages/wp-json-ast/src/blocks/__tests__/module.test.ts`) asserts the registrar contains a fully-qualified `WP_Block`.
 - **Commands**:
     - `pnpm generate --allow-dirty`
@@ -168,7 +168,7 @@ This log is the authoritative proof that the showcase plugin validates every maj
 - **Artifacts to verify**:
     - `.generated/php/Blocks/Register.php` (registrar) and `.generated/php/Blocks/Register.php.ast.json`
     - `.generated/build/blocks-manifest.php`
-    - `.generated/blocks/job/render.php` (editable SSR stub)
+    - `src/blocks/job/render.php` (editable SSR stub)
     - `examples/showcase/README.md` blocks section
     - `jest.config.base.js` ignore rule for `packages/cli/dist`
 - **Discoveries / Fixes**:

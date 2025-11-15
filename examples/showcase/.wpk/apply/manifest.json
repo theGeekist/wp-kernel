@@ -1,17 +1,14 @@
 {
 	"summary": {
 		"applied": 0,
-		"conflicts": 0,
-		"skipped": 6
+		"conflicts": 1,
+		"skipped": 11
 	},
 	"records": [
 		{
 			"file": "plugin.php",
-			"status": "skipped",
-			"description": "Update plugin loader",
-			"details": {
-				"reason": "no-op"
-			}
+			"status": "conflict",
+			"description": "Update plugin loader"
 		},
 		{
 			"file": "inc/Rest/ApplicationController.php",
@@ -52,7 +49,55 @@
 			"details": {
 				"reason": "no-op"
 			}
+		},
+		{
+			"file": "src/blocks/application/block.json",
+			"status": "skipped",
+			"description": "Update block asset application/block.json",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "src/blocks/job/block.json",
+			"status": "skipped",
+			"description": "Update block asset job/block.json",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "src/blocks/job/render.php",
+			"status": "skipped",
+			"description": "Update block asset job/render.php",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "src/blocks/jobcategory/block.json",
+			"status": "skipped",
+			"description": "Update block asset jobcategory/block.json",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "src/blocks/settings/block.json",
+			"status": "skipped",
+			"description": "Update block asset settings/block.json",
+			"details": {
+				"reason": "no-op"
+			}
+		},
+		{
+			"file": "src/blocks/statuscache/block.json",
+			"status": "skipped",
+			"description": "Update block asset statuscache/block.json",
+			"details": {
+				"reason": "no-op"
+			}
 		}
 	],
-	"actions": [".wpk/apply/manifest.json"]
+	"actions": ["plugin.php", ".wpk/apply/manifest.json"]
 }

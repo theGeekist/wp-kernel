@@ -196,10 +196,7 @@ async function mergeWithGit(
 				encoding: 'utf8',
 			}
 		);
-		const result =
-			typeof stdout === 'string'
-				? stdout
-				: await fs.readFile(currentFile, 'utf8');
+		const result = await resolveMergeResult(stdout, currentFile);
 		return { status: 'clean', result };
 	} catch (error) {
 		const execError = error as NodeJS.ErrnoException & {
@@ -213,10 +210,10 @@ async function mergeWithGit(
 			(typeof execError.code === 'string' && execError.code === '1');
 
 		if (isMergeConflict) {
-			const result =
-				typeof execError.stdout === 'string'
-					? execError.stdout
-					: await fs.readFile(currentFile, 'utf8');
+			const result = await resolveMergeResult(
+				execError.stdout,
+				currentFile
+			);
 			return { status: 'conflict', result };
 		}
 
@@ -732,4 +729,15 @@ export function createPatcher(): BuilderHelper {
 			});
 		},
 	});
+}
+
+async function resolveMergeResult(
+	stdout: string | undefined,
+	currentFile: string
+): Promise<string> {
+	if (typeof stdout === 'string' && stdout.length > 0) {
+		return stdout;
+	}
+
+	return await fs.readFile(currentFile, 'utf8');
 }

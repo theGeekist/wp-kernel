@@ -256,6 +256,11 @@ async function emitRegistrarModule(options: {
 			namedImports: ['registerBlockType'],
 		});
 		sourceFile.addImportDeclaration({
+			moduleSpecifier: '@wordpress/blocks',
+			namedImports: ['BlockConfiguration'],
+			isTypeOnly: true,
+		});
+		sourceFile.addImportDeclaration({
 			moduleSpecifier: '@wordpress/element',
 			namedImports: ['createElement'],
 		});
@@ -280,8 +285,6 @@ async function emitRegistrarModule(options: {
 		addEmptyRegistrar(sourceFile, metadata.registrationFunction);
 	}
 
-	sourceFile.addStatements(`\n${metadata.registrationFunction}();`);
-
 	sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
 
 	const contents = sourceFile.getFullText();
@@ -297,6 +300,7 @@ function addSettingsHelper(sourceFile: SourceFile, helperName: string): void {
 			writer.writeLine('const title = metadata?.title ?? "Block";');
 			writer.writeLine('return {');
 			writer.indent(() => {
+				writer.writeLine('...metadata,');
 				writer.writeLine(
 					"edit: () => createElement('div', null, `${title} (edit)`),"
 				);
@@ -306,8 +310,9 @@ function addSettingsHelper(sourceFile: SourceFile, helperName: string): void {
 			});
 			writer.writeLine('};');
 		},
+		returnType: 'BlockConfiguration',
 	});
-	helper.addParameter({ name: 'metadata', type: '{ title?: string }' });
+	helper.addParameter({ name: 'metadata', type: 'BlockConfiguration' });
 }
 
 function addRegistrarFunction(
@@ -322,7 +327,7 @@ function addRegistrarFunction(
 		statements: (writer) => {
 			for (const entry of registrations) {
 				writer.writeLine(
-					`registerBlockType(${entry.variableName} as any, ${helperName}(${entry.variableName}));`
+					`registerBlockType(${entry.variableName} as BlockConfiguration, ${helperName}(${entry.variableName}));`
 				);
 			}
 		},
@@ -519,7 +524,7 @@ function usesFileModule(candidate: unknown): boolean {
 function createEditorStub(): string {
 	return [
 		'/* AUTO-GENERATED WPK STUB: safe to edit. */',
-		"import { registerBlockType } from '@wordpress/blocks';",
+		"import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';",
 		'// Vite/tsconfig should allow JSON imports (.d.ts for JSON can be global)',
 		"import metadata from './block.json';",
 		'',
@@ -532,7 +537,13 @@ function createEditorStub(): string {
 		"  <div>{ metadata.title || 'Block' } (save)</div>",
 		');',
 		'',
-		'registerBlockType(metadata as any, { edit: Edit, save });',
+		'const blockSettings: BlockConfiguration = {',
+		'  ...metadata,',
+		'  edit: Edit,',
+		'  save,',
+		'};',
+		'',
+		'registerBlockType(metadata as BlockConfiguration, blockSettings);',
 		'',
 	].join('\n');
 }
@@ -542,9 +553,9 @@ function createViewStub(): string {
 		'/* AUTO-GENERATED WPK STUB: safe to edit.',
 		' * Runs on the front-end when the block appears.',
 		' */',
-		'export function initBlockView(root: HTMLElement) {',
+		'export function initBlockView(_root: HTMLElement) {',
 		'  // Optional: hydrate interactivity',
-		"  // console.log('Init view for', root);",
+		"  // console.log('Init view for', _root);",
 		'}',
 		'',
 	].join('\n');

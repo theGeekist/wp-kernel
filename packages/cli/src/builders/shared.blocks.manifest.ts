@@ -68,6 +68,8 @@ interface BlockManifestCache {
 }
 
 const BLOCK_CACHE = new WeakMap<Workspace, BlockManifestCache>();
+const GENERATED_BLOCKS_ROOT = path.posix.join('.generated', 'blocks');
+const SURFACED_BLOCKS_ROOT = path.posix.join('src', 'blocks');
 
 /**
  * Options for scanning the workspace for block manifests.
@@ -136,19 +138,24 @@ async function processBlock(
 ): Promise<ProcessedBlockManifest> {
 	const registrar = buildBlockRegistrarMetadata(block.key);
 	const warnings: string[] = [];
-	const manifestAbsolutePath = workspace.resolve(block.manifestSource);
+	const manifestLocation = await resolveBlockPath(
+		workspace,
+		block.manifestSource
+	);
+	const manifestAbsolutePath = manifestLocation.absolute;
+	const manifestRelativePath = manifestLocation.relative;
 	const manifestDirectory = path.dirname(manifestAbsolutePath);
-	const manifestRelativePath = toWorkspaceRelative(
+	const blockDirectoryLocation = await resolveBlockPath(
 		workspace,
-		manifestAbsolutePath
+		block.directory
 	);
-	const blockDirectoryAbsolute = workspace.resolve(block.directory);
-	const blockDirectoryRelative = toWorkspaceRelative(
-		workspace,
-		blockDirectoryAbsolute
-	);
+	const blockDirectoryAbsolute = blockDirectoryLocation.absolute;
+	const blockDirectoryRelative = blockDirectoryLocation.relative;
 
-	const manifestRead = await readManifest(workspace, block);
+	const manifestRead = await readManifest(workspace, {
+		...block,
+		manifestSource: manifestRelativePath,
+	});
 	warnings.push(...manifestRead.warnings);
 
 	if (!manifestRead.manifestObject) {
@@ -395,6 +402,51 @@ function fileSignatureEqual(a: FileSignature, b: FileSignature): boolean {
 	}
 
 	return a.mtimeMs === b.mtimeMs && a.size === b.size && a.hash === b.hash;
+}
+
+async function resolveBlockPath(
+	workspace: Workspace,
+	relativePath: string
+): Promise<{ relative: string; absolute: string }> {
+	const normalised = relativePath.split('\\').join('/');
+	if (!normalised.startsWith(GENERATED_BLOCKS_ROOT)) {
+		return {
+			relative: normalised,
+			absolute: workspace.resolve(normalised),
+		};
+	}
+
+	const suffix = path.posix.relative(GENERATED_BLOCKS_ROOT, normalised);
+	if (suffix.startsWith('..')) {
+		return {
+			relative: normalised,
+			absolute: workspace.resolve(normalised),
+		};
+	}
+
+	const surfacedRelative = path.posix.join(SURFACED_BLOCKS_ROOT, suffix);
+	const surfacedAbsolute = workspace.resolve(surfacedRelative);
+	if (await pathExists(surfacedAbsolute)) {
+		return { relative: surfacedRelative, absolute: surfacedAbsolute };
+	}
+
+	return {
+		relative: normalised,
+		absolute: workspace.resolve(normalised),
+	};
+}
+
+async function pathExists(absolute: string): Promise<boolean> {
+	try {
+		await fs.stat(absolute);
+		return true;
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return false;
+		}
+
+		throw error;
+	}
 }
 
 async function readManifest(

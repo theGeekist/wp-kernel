@@ -116,7 +116,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
-            # PHP setup so build artefacts reflect the PHP toolchain
+            # Moved PHP setup here so build artefacts reflect the PHP toolchain
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
@@ -134,10 +134,11 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: false
 
-            # Always build fresh
+            # 🔥 Always build fresh (no build cache)
             - name: Build packages
               run: pnpm build
 
+            # Upload what used to live in the build cache
             - name: Upload build artifacts
               uses: actions/upload-artifact@v4
               with:
@@ -362,11 +363,16 @@ jobs:
     #           examples/*/node_modules
     #         key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
     #         fail-on-cache-miss: false
-    #     - name: Download build artifacts
-    #       uses: actions/download-artifact@v4
+    #     - name: Restore build outputs
+    #       uses: actions/cache@v4
     #       with:
-    #         name: dist
-    #         path: .
+    #         path: |
+    #           packages/*/dist
+    #           packages/*/*.tsbuildinfo
+    #           examples/*/build
+    #           examples/*/dist
+    #         key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+    #         fail-on-cache-miss: false
     #     - name: Start WordPress (wp-env)
     #       run: pnpm wp:start
     #     - name: Seed test data

@@ -1,7 +1,7 @@
 import { configureWPKernel } from '@wpkernel/core/data';
 import type { WPKInstance } from '@wpkernel/core/data';
 import { wpkConfig } from '../wpk.config';
-import { registerGeneratedBlocks } from '../.generated/blocks/auto-register';
+import { registerGeneratedBlocks } from './blocks/auto-register';
 
 /**
  * Bootstrap the WPKernel runtime for this project.
