@@ -8,14 +8,25 @@ import {
 	makePhpIrFixture,
 	makeWpPostResource,
 } from '@wpkernel/test-utils/builders/php/resources.test-support';
-import * as phpDriver from '@wpkernel/php-driver';
-import type { PhpProgram, PhpStmtFunction } from '@wpkernel/php-json-ast';
+import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
+import type { PhpStmtFunction } from '@wpkernel/php-json-ast/nodes';
+import type { PhpStmt } from '@wpkernel/php-json-ast/nodes/stmt/types';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,
 	buildOutput,
 } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import { makeIr, makeIrMeta } from '../../tests/ir.test-support';
+import type { WPKernelConfigV1 } from '../../config/types';
+import type {
+	IRv1,
+	IRResource,
+	IRSchema,
+	IRCapabilityHint,
+	IRBlock,
+	IRDiagnostic,
+} from '../../ir/publicTypes';
 
 type PlanWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
@@ -25,6 +36,80 @@ const withWorkspace = (run: (context: PlanWorkspaceContext) => Promise<void>) =>
 	baseWithWorkspace(run, {
 		createWorkspace: (root) => buildWorkspace(root),
 	});
+
+function toRealIr(
+	irLike: ReturnType<typeof makePhpIrFixture>,
+	sourcePath: string
+) {
+	const toHash = (hash: IRResource['hash'] | string | undefined) =>
+		typeof hash === 'string'
+			? ({
+					algo: 'sha256',
+					inputs: ['resource'],
+					value: hash,
+				} satisfies IRResource['hash'])
+			: hash;
+	const normaliseRoute = (route: IRResource['routes'][number]) => ({
+		...route,
+		hash:
+			typeof route.hash === 'string'
+				? {
+						algo: 'sha256',
+						inputs: ['route'],
+						value: route.hash,
+					}
+				: route.hash,
+	});
+
+	const fallbackResourceHash: IRResource['hash'] = {
+		algo: 'sha256',
+		inputs: ['resource'],
+		value: 'fixture',
+	};
+	const resources: IRResource[] = (irLike.resources ?? []).map((res) => ({
+		...res,
+		id: (res as { id?: string }).id ?? `res:${res.name}`,
+		schemaProvenance:
+			res.schemaProvenance as IRResource['schemaProvenance'],
+		routes: Array.from(res.routes ?? []).map((route) =>
+			normaliseRoute(route as unknown as IRResource['routes'][number])
+		) as IRResource['routes'],
+		cacheKeys: res.cacheKeys as IRResource['cacheKeys'],
+		ui: (res as { ui?: IRResource['ui'] }).ui,
+		warnings: (res.warnings ?? []) as IRResource['warnings'],
+		hash:
+			toHash((res as { hash?: IRResource['hash'] | string }).hash) ??
+			fallbackResourceHash,
+		identity: (res as { identity?: IRResource['identity'] }).identity,
+		queryParams: (res as { queryParams?: IRResource['queryParams'] })
+			.queryParams,
+	}));
+
+	return makeIr({
+		namespace: irLike.meta.namespace,
+		meta: makeIrMeta(irLike.meta.namespace, {
+			origin: irLike.meta.origin,
+			sourcePath,
+		}),
+		config: irLike.config as WPKernelConfigV1,
+		resources,
+		schemas: (irLike.schemas ?? []) as unknown as IRSchema[],
+		capabilities: (irLike.capabilities ??
+			[]) as unknown as IRCapabilityHint[],
+		capabilityMap: irLike.capabilityMap as unknown as IRv1['capabilityMap'],
+		blocks: (irLike.blocks ?? []) as unknown as IRBlock[],
+		php: irLike.php as unknown as IRv1['php'],
+		ui: (irLike as { ui?: IRv1['ui'] }).ui,
+		diagnostics: (irLike.diagnostics ?? []).map(
+			(diag) =>
+				({
+					severity: (diag as IRDiagnostic)?.severity ?? 'warning',
+					code: (diag as IRDiagnostic)?.code ?? 'Unknown',
+					message: (diag as IRDiagnostic)?.message ?? 'diagnostic',
+				}) as IRDiagnostic
+		),
+	});
+}
 
 function expectNodeOfType<T extends { nodeType: string }>(
 	node: T | null | undefined,
@@ -41,18 +126,22 @@ describe('createApplyPlanBuilder', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const ir = makePhpIrFixture({
+			const irLike = makePhpIrFixture({
 				resources: [
 					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
 				],
 			});
+			const ir = toRealIr(
+				irLike,
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 
 			const capturedPrograms: Array<{
-				program: PhpProgram;
+				program: any;
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({
@@ -190,11 +279,11 @@ describe('createApplyPlanBuilder', () => {
 			const loaderProgram = loaderProgramEntry?.program ?? [];
 			const loaderNamespace = expectNodeOfType(
 				loaderProgram.find(
-					(stmt) => stmt.nodeType === 'Stmt_Namespace'
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
 				),
 				'Stmt_Namespace'
-			);
-			expect(loaderNamespace.name?.parts).toEqual(['Demo', 'Plugin']);
+			) as any;
+			expect(loaderNamespace.name?.parts).toEqual(['demo-plugin']);
 
 			const programEntry = capturedPrograms.find(
 				(entry) =>
@@ -204,17 +293,17 @@ describe('createApplyPlanBuilder', () => {
 			expect(programEntry).toBeDefined();
 			const program = programEntry?.program ?? [];
 			const namespaceStmt = expectNodeOfType(
-				program.find((stmt) => stmt.nodeType === 'Stmt_Namespace'),
+				program.find(
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
+				),
 				'Stmt_Namespace'
-			);
-			expect(namespaceStmt.name?.parts).toEqual([
-				'Demo',
-				'Plugin',
-				'Rest',
-			]);
+			) as any;
+			expect(namespaceStmt.name?.parts).toEqual(['demo-plugin', 'Rest']);
 
 			const ifStatement = expectNodeOfType(
-				namespaceStmt.stmts.find((stmt) => stmt.nodeType === 'Stmt_If'),
+				namespaceStmt.stmts.find(
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_If'
+				),
 				'Stmt_If'
 			);
 			expect(ifStatement.cond.nodeType).toBe('Expr_BooleanNot');
@@ -231,8 +320,7 @@ describe('createApplyPlanBuilder', () => {
 			);
 			expect(classArg.class.nodeType).toBe('Name');
 			expect(classArg.class.parts).toEqual([
-				'Demo',
-				'Plugin',
+				'demo-plugin',
 				'Generated',
 				'Rest',
 				'JobsController',
@@ -263,15 +351,14 @@ describe('createApplyPlanBuilder', () => {
 
 			const classStmt = expectNodeOfType(
 				namespaceStmt.stmts.find(
-					(stmt) => stmt.nodeType === 'Stmt_Class'
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Class'
 				),
 				'Stmt_Class'
 			);
 			expect(classStmt.name?.name).toBe('JobsController');
 			const extendsName = expectNodeOfType(classStmt.extends, 'Name');
 			expect(extendsName.parts).toEqual([
-				'Demo',
-				'Plugin',
+				'demo-plugin',
 				'Generated',
 				'Rest',
 				'JobsController',
@@ -302,7 +389,10 @@ describe('createApplyPlanBuilder', () => {
 				{ ensureDir: true }
 			);
 
-			const ir = makePhpIrFixture({ resources: [] });
+			const ir = toRealIr(
+				makePhpIrFixture({ resources: [] }),
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 
 			const helper = createApplyPlanBuilder();
 			await helper.apply(
@@ -391,7 +481,10 @@ describe('createApplyPlanBuilder', () => {
 				ensureDir: true,
 			});
 
-			const ir = makePhpIrFixture({ resources: [] });
+			const ir = toRealIr(
+				makePhpIrFixture({ resources: [] }),
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 
 			const helper = createApplyPlanBuilder();
 			await helper.apply(
@@ -448,7 +541,7 @@ describe('createApplyPlanBuilder', () => {
 				schemaKey: 'job',
 			});
 
-			const ir = makePhpIrFixture({
+			const irLike = makePhpIrFixture({
 				resources: [
 					{
 						...resource,
@@ -465,6 +558,10 @@ describe('createApplyPlanBuilder', () => {
 					},
 				],
 			});
+			const ir = toRealIr(
+				irLike,
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 			ir.ui = {
 				resources: [
 					{
@@ -476,11 +573,11 @@ describe('createApplyPlanBuilder', () => {
 			};
 
 			const capturedPrograms: Array<{
-				program: PhpProgram;
+				program: any;
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({
@@ -538,14 +635,14 @@ describe('createApplyPlanBuilder', () => {
 			const loaderProgram = loaderProgramEntry?.program ?? [];
 			const loaderNamespace = expectNodeOfType(
 				loaderProgram.find(
-					(stmt) => stmt.nodeType === 'Stmt_Namespace'
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
 				),
 				'Stmt_Namespace'
-			);
+			) as any;
 
 			const findFunction = (name: string): PhpStmtFunction | undefined =>
 				loaderNamespace.stmts.find(
-					(stmt): stmt is PhpStmtFunction =>
+					(stmt: any): stmt is PhpStmtFunction =>
 						stmt.nodeType === 'Stmt_Function' &&
 						stmt.name?.name === name
 				);
@@ -562,19 +659,31 @@ describe('createApplyPlanBuilder', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const ir = makePhpIrFixture({
-				resources: [
-					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
-				],
-			});
-			ir.php.autoload = '';
+			const ir = toRealIr(
+				{
+					...makePhpIrFixture({
+						resources: [
+							makeWpPostResource({
+								name: 'jobs',
+								schemaKey: 'job',
+							}),
+						],
+					}),
+					php: {
+						autoload: '',
+						outputDir: '.generated/php',
+						namespace: 'DemoPlugin',
+					},
+				},
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 
 			const capturedPrograms: Array<{
-				program: PhpProgram;
+				program: any;
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({
@@ -663,11 +772,11 @@ describe('createApplyPlanBuilder', () => {
 			const loaderProgram = loaderProgramEntry?.program ?? [];
 			const loaderNamespace = expectNodeOfType(
 				loaderProgram.find(
-					(stmt) => stmt.nodeType === 'Stmt_Namespace'
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
 				),
 				'Stmt_Namespace'
-			);
-			expect(loaderNamespace.name?.parts).toEqual(['Demo', 'Plugin']);
+			) as any;
+			expect(loaderNamespace.name?.parts).toEqual(['demo-plugin']);
 
 			const programEntry = capturedPrograms.find(
 				(entry) =>
@@ -677,11 +786,15 @@ describe('createApplyPlanBuilder', () => {
 			expect(programEntry).toBeDefined();
 			const program = programEntry?.program ?? [];
 			const namespaceStmt = expectNodeOfType(
-				program.find((stmt) => stmt.nodeType === 'Stmt_Namespace'),
+				program.find(
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_Namespace'
+				),
 				'Stmt_Namespace'
-			);
+			) as any;
 			const ifStatement = expectNodeOfType(
-				namespaceStmt.stmts.find((stmt) => stmt.nodeType === 'Stmt_If'),
+				namespaceStmt.stmts.find(
+					(stmt: PhpStmt) => stmt.nodeType === 'Stmt_If'
+				),
 				'Stmt_If'
 			);
 			const requireStatement = expectNodeOfType(
@@ -713,22 +826,25 @@ describe('createApplyPlanBuilder', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const ir = makePhpIrFixture({
-				resources: [
-					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
-				],
-			});
+			const ir = toRealIr(
+				makePhpIrFixture({
+					resources: [
+						makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
+					],
+				}),
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 
 			await workspace.write('plugin.php', '<?php\n// custom loader\n', {
 				ensureDir: true,
 			});
 
 			const capturedPrograms: Array<{
-				program: PhpProgram;
+				program: any;
 				filePath: string;
 			}> = [];
 			const prettyPrinterSpy = jest
-				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
 						capturedPrograms.push({
@@ -812,7 +928,10 @@ describe('createApplyPlanBuilder', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const ir = makePhpIrFixture({ resources: [] });
+			const ir = toRealIr(
+				makePhpIrFixture({ resources: [] }),
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 			const helper = createApplyPlanBuilder();
 			const previous: GenerationManifest = {
 				version: 1,
@@ -893,18 +1012,15 @@ describe('createApplyPlanBuilder', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const baseIr = makePhpIrFixture({
-				resources: [
-					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
-				],
-			});
-			const ir = {
-				...baseIr,
-				php: {
-					...baseIr.php,
-					autoload: 'includes/',
-				},
-			};
+			const ir = toRealIr(
+				makePhpIrFixture({
+					resources: [
+						makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
+					],
+				}),
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
+			ir.php.autoload = 'includes/';
 
 			const helper = createApplyPlanBuilder();
 			const previous: GenerationManifest = {
@@ -986,7 +1102,10 @@ describe('createApplyPlanBuilder', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const ir = makePhpIrFixture({ resources: [] });
+			const ir = toRealIr(
+				makePhpIrFixture({ resources: [] }),
+				path.join(workspaceRoot, 'wpk.config.ts')
+			);
 
 			const helper = createApplyPlanBuilder();
 			const previous: GenerationManifest = {

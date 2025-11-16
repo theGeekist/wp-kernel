@@ -1,3 +1,5 @@
+import type { ResourceRoutes } from '@wpkernel/core';
+
 /**
  * Schema configuration compatible with CLI SchemaConfig
  */
@@ -17,20 +19,23 @@ export interface SchemaRegistryLike {
 }
 
 /**
- * Resource configuration compatible with @wpkernel/core ResourceConfig
+ * Resource configuration compatible with CLI SerializableResourceConfig.
  */
 export interface ResourceConfigLike {
 	name: string;
-	routes: unknown;
+	routes: ResourceRoutes;
 	identity?: unknown;
 	storage?: unknown;
+	queryParams?: unknown;
 	cacheKeys?: unknown;
 	ui?: unknown;
+	blocks?: unknown;
+	schema?: unknown;
 	[key: string]: unknown;
 }
 
 /**
- * Resource registry compatible with CLI ResourceRegistry
+ * Resource registry compatible with CLI ResourceRegistry.
  */
 export interface ResourceRegistryLike {
 	[key: string]: ResourceConfigLike;

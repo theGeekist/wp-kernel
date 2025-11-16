@@ -2,7 +2,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { createTsBuilder } from '../ts';
 import { createPatcher } from '../patcher';
-import { createPhpDriverInstaller } from '@wpkernel/php-driver';
+import { createPhpDriverInstaller } from '@wpkernel/php-json-ast';
 import type { BuildIrOptions, IRv1 } from '../../ir/publicTypes';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
@@ -11,6 +11,8 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import { makeIrMeta } from '../../tests/ir.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('node:child_process', () => {
 	const execFileMock = jest.fn(
@@ -44,13 +46,10 @@ const buildOptions: BuildIrOptions = {
 };
 
 const ir: IRv1 = {
-	meta: {
-		version: 1,
-		namespace: 'test',
+	meta: makeIrMeta('test', {
 		origin: 'typescript',
 		sourcePath: 'wpk.config.ts',
-		sanitizedNamespace: 'test',
-	},
+	}),
 	config: buildOptions.config,
 	schemas: [],
 	resources: [],
@@ -91,9 +90,10 @@ describe('builder stubs', () => {
 	const reporter = buildReporter();
 
 	const context = {
-		workspace,
+		workspace: workspace as unknown as Workspace,
 		phase: 'generate' as const,
 		reporter,
+		generationState: buildEmptyGenerationState(),
 	};
 
 	beforeEach(() => {

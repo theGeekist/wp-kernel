@@ -17,6 +17,9 @@ import {
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
+import { makeIr } from '../../tests/ir.test-support';
+import type { BuildIrOptions } from '../../ir/publicTypes';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
@@ -25,7 +28,27 @@ jest.mock('../../commands/run-generate/validation', () => ({
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
 ) =>
-	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
+	baseWithWorkspace(run, {
+		createWorkspace: (root: string) => buildWorkspace(root),
+	});
+
+function materialiseArtifacts(
+	artifacts: ReturnType<typeof buildBuilderArtifacts>
+): { buildOptions: BuildIrOptions; typedIr: ReturnType<typeof makeIr> } {
+	const buildOptions = artifacts.options as unknown as BuildIrOptions;
+	const typedIr = makeIr({
+		namespace: artifacts.ir.meta.namespace,
+		meta: artifacts.ir.meta as any,
+		config: buildOptions.config as any,
+		schemas: artifacts.ir.schemas as any,
+		resources: artifacts.ir.resources as any,
+		capabilityMap: artifacts.ir.capabilityMap as any,
+		php: artifacts.ir.php as any,
+		ui: artifacts.ir.ui as any,
+	});
+
+	return { buildOptions, typedIr };
+}
 
 describe('createTsBuilder - admin screen creator', () => {
 	it('generates admin screens with resolved relative imports', async () => {
@@ -47,6 +70,10 @@ describe('createTsBuilder - admin screen creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -63,11 +90,12 @@ describe('createTsBuilder - admin screen creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
-						options,
-						ir,
+						options: buildOptions,
+						ir: typedIr,
 					},
 					output,
 					reporter,
@@ -168,6 +196,10 @@ describe('createTsBuilder - admin screen creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -181,11 +213,12 @@ describe('createTsBuilder - admin screen creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
-						options,
-						ir,
+						options: buildOptions,
+						ir: typedIr,
 					},
 					output,
 					reporter,
@@ -234,6 +267,10 @@ describe('createTsBuilder - admin screen creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -245,11 +282,12 @@ describe('createTsBuilder - admin screen creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
-						options,
-						ir,
+						options: buildOptions,
+						ir: typedIr,
 					},
 					output,
 					reporter,
@@ -307,6 +345,10 @@ describe('createTsBuilder - admin screen creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -318,11 +360,12 @@ describe('createTsBuilder - admin screen creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
-						options,
-						ir,
+						options: buildOptions,
+						ir: typedIr,
 					},
 					output,
 					reporter,
@@ -370,6 +413,10 @@ describe('createTsBuilder - admin screen creator', () => {
 				resourceKey: 'job-board',
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -381,11 +428,12 @@ describe('createTsBuilder - admin screen creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
-						options,
-						ir,
+						options: buildOptions,
+						ir: typedIr,
 					},
 					output,
 					reporter,
@@ -444,6 +492,10 @@ describe('createTsBuilder - admin screen creator', () => {
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -457,11 +509,12 @@ describe('createTsBuilder - admin screen creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
-						options,
-						ir,
+						options: buildOptions,
+						ir: typedIr,
 					},
 					output,
 					reporter,

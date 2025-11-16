@@ -13,10 +13,13 @@ import {
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
 import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 describe('createPhpIndexFileHelper', () => {
 	it('skips generation when no IR is present', async () => {
-		const context = createPipelineContext();
+		const context = createPipelineContext({
+			generationState: buildEmptyGenerationState(),
+		});
 		resetPhpBuilderChannel(context);
 		resetPhpAstChannel(context);
 
@@ -38,7 +41,9 @@ describe('createPhpIndexFileHelper', () => {
 	});
 
 	it('indexes base controllers and resource controllers', async () => {
-		const context = createPipelineContext();
+		const context = createPipelineContext({
+			generationState: buildEmptyGenerationState(),
+		});
 		resetPhpBuilderChannel(context);
 		resetPhpAstChannel(context);
 

@@ -1,6 +1,13 @@
 import path from 'node:path';
 import { createJsBlocksBuilder } from '../block.artifacts';
-import type { IRResource, IRSchema, IRv1 } from '../../../ir/publicTypes';
+import type {
+	IRResource,
+	IRSchema,
+	IRv1,
+	BuildIrOptions,
+	IRBlock,
+	IRHashProvenance,
+} from '../../../ir/publicTypes';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
@@ -12,11 +19,55 @@ import {
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
+import { makeIr } from '../../../tests/ir.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
 ) =>
-	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
+	baseWithWorkspace(run, {
+		createWorkspace: (root: string) => buildWorkspace(root),
+	});
+
+const makeBlockHash = (label: string): IRHashProvenance => ({
+	algo: 'sha256',
+	inputs: ['key', 'directory', 'hasRender', 'manifestSource'],
+	value: label,
+});
+
+const makeBlock = (
+	key: string,
+	directory: string,
+	manifestSource: string,
+	hasRender: boolean
+): IRBlock => ({
+	id: `blk:${key}`,
+	hash: makeBlockHash(`${key}-hash`),
+	key,
+	directory,
+	hasRender,
+	manifestSource,
+});
+
+function materialiseArtifacts(
+	artifacts: ReturnType<typeof buildBuilderArtifacts>
+): { buildOptions: BuildIrOptions; typedIr: IRv1 } {
+	const buildOptions = artifacts.options as unknown as BuildIrOptions;
+	const typedIr = makeIr({
+		namespace: artifacts.ir.meta.namespace,
+		meta: artifacts.ir.meta as any,
+		config: buildOptions.config as any,
+		schemas: artifacts.ir.schemas as any,
+		resources: artifacts.ir.resources as any,
+		capabilityMap: artifacts.ir.capabilityMap as any,
+		blocks: artifacts.ir.blocks as any,
+		php: artifacts.ir.php as any,
+		ui: artifacts.ir.ui as any,
+		diagnostics: artifacts.ir.diagnostics as any,
+	});
+
+	return { buildOptions, typedIr };
+}
 
 describe('createJsBlocksBuilder', () => {
 	it('emits registrar and stubs for js-only blocks', async () => {
@@ -45,15 +96,14 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 			const irWithBlocks: IRv1 = {
-				...ir,
+				...typedIr,
 				blocks: [
-					{
-						key: 'demo/example',
-						directory: blockDir,
-						hasRender: false,
-						manifestSource: manifestPath,
-					},
+					makeBlock('demo/example', blockDir, manifestPath, false),
 				],
 			};
 
@@ -63,10 +113,15 @@ describe('createJsBlocksBuilder', () => {
 
 			await builder.apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
-						options,
+						options: buildOptions,
 						ir: irWithBlocks,
 					},
 					output,
@@ -120,15 +175,14 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 			const irWithBlocks: IRv1 = {
-				...ir,
+				...typedIr,
 				blocks: [
-					{
-						key: 'demo/module',
-						directory: blockDir,
-						hasRender: false,
-						manifestSource: manifestPath,
-					},
+					makeBlock('demo/module', blockDir, manifestPath, false),
 				],
 			};
 
@@ -138,10 +192,15 @@ describe('createJsBlocksBuilder', () => {
 
 			await builder.apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
-						options,
+						options: buildOptions,
 						ir: irWithBlocks,
 					},
 					output,
@@ -196,15 +255,14 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 			const irWithBlocks: IRv1 = {
-				...ir,
+				...typedIr,
 				blocks: [
-					{
-						key: 'demo/existing',
-						directory: blockDir,
-						hasRender: false,
-						manifestSource: manifestPath,
-					},
+					makeBlock('demo/existing', blockDir, manifestPath, false),
 				],
 			};
 
@@ -213,10 +271,15 @@ describe('createJsBlocksBuilder', () => {
 
 			await createJsBlocksBuilder().apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
-						options,
+						options: buildOptions,
 						ir: irWithBlocks,
 					},
 					output,
@@ -248,15 +311,14 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 			const irWithBlocks: IRv1 = {
-				...ir,
+				...typedIr,
 				blocks: [
-					{
-						key: 'demo/invalid',
-						directory: blockDir,
-						hasRender: false,
-						manifestSource: manifestPath,
-					},
+					makeBlock('demo/invalid', blockDir, manifestPath, false),
 				],
 			};
 
@@ -265,10 +327,15 @@ describe('createJsBlocksBuilder', () => {
 
 			await createJsBlocksBuilder().apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
-						options,
+						options: buildOptions,
 						ir: irWithBlocks,
 					},
 					output,
@@ -309,16 +376,13 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 			const irWithBlocks: IRv1 = {
-				...ir,
-				blocks: [
-					{
-						key: 'demo/ssr',
-						directory: blockDir,
-						hasRender: true,
-						manifestSource: manifestPath,
-					},
-				],
+				...typedIr,
+				blocks: [makeBlock('demo/ssr', blockDir, manifestPath, true)],
 			};
 
 			const reporter = buildReporter();
@@ -326,10 +390,15 @@ describe('createJsBlocksBuilder', () => {
 
 			await createJsBlocksBuilder().apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
-						options,
+						options: buildOptions,
 						ir: irWithBlocks,
 					},
 					output,
@@ -434,15 +503,14 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 			const irWithBlocks: IRv1 = {
-				...ir,
+				...typedIr,
 				blocks: [
-					{
-						key: 'demo/null-read',
-						directory: blockDir,
-						hasRender: false,
-						manifestSource: manifestPath,
-					},
+					makeBlock('demo/null-read', blockDir, manifestPath, false),
 				],
 			};
 
@@ -467,10 +535,15 @@ describe('createJsBlocksBuilder', () => {
 
 			await createJsBlocksBuilder().apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
-						options,
+						options: buildOptions,
 						ir: irWithBlocks,
 					},
 					output,
@@ -525,15 +598,14 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 			const irWithBlocks: IRv1 = {
-				...ir,
+				...typedIr,
 				blocks: [
-					{
-						key: 'demo/failing',
-						directory: blockDir,
-						hasRender: false,
-						manifestSource: manifestPath,
-					},
+					makeBlock('demo/failing', blockDir, manifestPath, false),
 				],
 			};
 
@@ -549,10 +621,15 @@ describe('createJsBlocksBuilder', () => {
 			await expect(
 				createJsBlocksBuilder().apply(
 					{
-						context: { workspace, phase: 'generate', reporter },
+						context: {
+							workspace,
+							phase: 'generate',
+							reporter,
+							generationState: buildEmptyGenerationState(),
+						},
 						input: {
 							phase: 'generate',
-							options,
+							options: buildOptions,
 							ir: irWithBlocks,
 						},
 						output,
@@ -576,8 +653,13 @@ describe('createJsBlocksBuilder', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+			const { buildOptions, typedIr } = materialiseArtifacts({
+				ir,
+				options,
+			});
 
 			const resource: IRResource = {
+				id: 'res:books',
 				name: 'books',
 				schemaKey: 'book',
 				schemaProvenance: 'manual',
@@ -586,7 +668,11 @@ describe('createJsBlocksBuilder', () => {
 						method: 'GET',
 						path: '/kernel/v1/books',
 						capability: undefined,
-						hash: 'list',
+						hash: {
+							algo: 'sha256',
+							inputs: ['method', 'path'],
+							value: 'list',
+						},
 						transport: 'remote',
 					},
 				],
@@ -598,14 +684,23 @@ describe('createJsBlocksBuilder', () => {
 				storage: undefined,
 				queryParams: undefined,
 				ui: undefined,
-				hash: 'books-resource',
+				hash: {
+					algo: 'sha256',
+					inputs: ['resource'],
+					value: 'books-resource',
+				},
 				warnings: [],
 			};
 
 			const schema: IRSchema = {
+				id: 'sch:book',
 				key: 'book',
 				sourcePath: 'schemas/book.json',
-				hash: 'schema-book',
+				hash: {
+					algo: 'sha256',
+					inputs: ['schema'],
+					value: 'schema-book',
+				},
 				schema: {
 					type: 'object',
 					properties: {
@@ -617,7 +712,7 @@ describe('createJsBlocksBuilder', () => {
 			};
 
 			const irWithResource: IRv1 = {
-				...ir,
+				...typedIr,
 				resources: [resource],
 				schemas: [schema],
 			};
@@ -627,10 +722,15 @@ describe('createJsBlocksBuilder', () => {
 
 			await createJsBlocksBuilder().apply(
 				{
-					context: { workspace, phase: 'generate', reporter },
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+						generationState: buildEmptyGenerationState(),
+					},
 					input: {
 						phase: 'generate',
-						options,
+						options: buildOptions,
 						ir: irWithResource,
 					},
 					output,

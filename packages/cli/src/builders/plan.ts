@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import {
 	buildArg,
 	buildBinaryOperation,
@@ -21,6 +20,7 @@ import {
 	type PhpName,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { buildNode } from '@wpkernel/php-json-ast/nodes/base';
 import {
 	AUTO_GUARD_BEGIN,
@@ -85,8 +85,10 @@ export function createApplyPlanBuilder(): BuilderHelper {
 
 			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
-				scriptPath: PLAN_PRETTY_PRINT_SCRIPT_PATH,
-				autoloadPaths: [PLAN_PRETTY_PRINT_AUTOLOAD_PATH],
+				scriptPath: PLAN_PRETTY_PRINT_SCRIPT_PATH ?? undefined,
+				autoloadPaths: [PLAN_PRETTY_PRINT_AUTOLOAD_PATH].filter(
+					(entry): entry is string => typeof entry === 'string'
+				),
 			});
 
 			const plan = await collectPlanInstructions({

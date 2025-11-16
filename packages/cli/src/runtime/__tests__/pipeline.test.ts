@@ -59,6 +59,20 @@ describe('createPipeline', () => {
 							sanitizedNamespace: 'test-namespace',
 							origin: 'typescript',
 							sourcePath: 'config.ts',
+							features: [],
+							ids: {
+								algorithm: 'sha256',
+								resourcePrefix: 'res:',
+								schemaPrefix: 'sch:',
+								blockPrefix: 'blk:',
+								capabilityPrefix: 'cap:',
+							},
+							redactions: [],
+							limits: {
+								maxConfigKB: 512,
+								maxSchemaKB: 512,
+								policy: 'error',
+							},
 						},
 						php: {
 							namespace: 'TestNamespace',
@@ -502,6 +516,20 @@ describe('createPipeline', () => {
 								sanitizedNamespace: 'Priority',
 								origin: 'typescript',
 								sourcePath: 'config.ts',
+								features: [],
+								ids: {
+									algorithm: 'sha256',
+									resourcePrefix: 'res:',
+									schemaPrefix: 'sch:',
+									blockPrefix: 'blk:',
+									capabilityPrefix: 'cap:',
+								},
+								redactions: [],
+								limits: {
+									maxConfigKB: 512,
+									maxSchemaKB: 512,
+									policy: 'error',
+								},
 							},
 							php: {
 								namespace: 'Priority',

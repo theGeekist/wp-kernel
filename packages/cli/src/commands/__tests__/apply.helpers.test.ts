@@ -50,7 +50,7 @@ describe('apply command helpers', () => {
 					Parameters<Workspace['readText']>
 				>()
 				.mockResolvedValue(null),
-		});
+		}) as unknown as Workspace;
 
 		await expect(readManifest(workspace)).resolves.toBeNull();
 	});
@@ -81,7 +81,7 @@ describe('apply command helpers', () => {
 						],
 					})
 				),
-		});
+		}) as unknown as Workspace;
 
 		const manifest = await readManifest(workspace);
 
@@ -113,7 +113,7 @@ describe('apply command helpers', () => {
 					Parameters<Workspace['readText']>
 				>()
 				.mockResolvedValue('invalid-json'),
-		});
+		}) as unknown as Workspace;
 
 		await expect(readManifest(workspace)).rejects.toMatchObject({
 			code: 'DeveloperError',
@@ -130,6 +130,7 @@ describe('apply command helpers', () => {
 					description: 'Updated file',
 				},
 			],
+			actions: [],
 		});
 
 		expect(text).toContain('Apply summary:');
@@ -148,6 +149,7 @@ describe('apply command helpers', () => {
 					details: { reason: 'modified-target', action: 'delete' },
 				},
 			],
+			actions: [],
 		});
 
 		expect(text).toContain(
@@ -179,7 +181,7 @@ describe('apply command helpers', () => {
 			rm: jest.fn(async (file: string) => {
 				removedTargets.set(file, false);
 			}),
-		});
+		}) as unknown as Workspace;
 
 		const reporters = createCommandReporterHarness();
 		const reporter = reporters.create();

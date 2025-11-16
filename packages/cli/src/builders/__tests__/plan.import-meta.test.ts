@@ -5,6 +5,8 @@ import {
 	buildOutput,
 } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import type { BuilderOutput } from '../../runtime/types';
+import { makeIr, makeIrMeta } from '../../tests/ir.test-support';
+import type { Workspace } from '../../workspace/types';
 
 describe('createApplyPlanBuilder pretty printer wiring', () => {
 	afterEach(() => {
@@ -19,8 +21,10 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 			prettyPrint: jest.fn(async () => ({ code: '<?php\n', ast: [] })),
 		}));
 
-		jest.doMock('@wpkernel/php-driver', () => {
-			const actual = jest.requireActual('@wpkernel/php-driver');
+		jest.doMock('@wpkernel/php-json-ast/php-driver', () => {
+			const actual = jest.requireActual(
+				'@wpkernel/php-json-ast/php-driver'
+			);
 			return {
 				...actual,
 				buildPhpPrettyPrinter: prettyPrinterFactory,
@@ -32,21 +36,29 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 		const { buildEmptyGenerationState } = await import(
 			'../../apply/manifest'
 		);
-		const { makePhpIrFixture } = await import(
-			'@wpkernel/test-utils/builders/php/resources.test-support'
-		);
-
 		await baseWithWorkspace(
 			async ({ workspace, root: workspaceRoot }) => {
 				const reporter = buildReporter();
 				const output = buildOutput<BuilderOutput['actions'][number]>();
 				const helper = createApplyPlanBuilder();
-				const ir = makePhpIrFixture();
+				const meta = makeIrMeta('demo-plugin', {
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+					origin: 'typescript',
+					features: ['phpAutoload'],
+				});
+				const ir = makeIr({
+					namespace: meta.namespace,
+					meta,
+					config: {
+						resources: {},
+						schemas: {},
+					},
+				});
 
 				await helper.apply(
 					{
 						context: {
-							workspace,
+							workspace: workspace as unknown as Workspace,
 							reporter,
 							phase: 'generate',
 							generationState: buildEmptyGenerationState(),
@@ -57,10 +69,7 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 								config: ir.config,
 								namespace: ir.meta.namespace,
 								origin: ir.meta.origin,
-								sourcePath: path.join(
-									workspaceRoot,
-									'wpk.config.ts'
-								),
+								sourcePath: meta.sourcePath,
 							},
 							ir,
 						},
@@ -70,7 +79,7 @@ describe('createApplyPlanBuilder pretty printer wiring', () => {
 					undefined
 				);
 			},
-			{ createWorkspace: (root) => buildWorkspace(root) }
+			{ createWorkspace: (root: string) => buildWorkspace(root) }
 		);
 
 		expect(prettyPrinterFactory).toHaveBeenCalledWith(

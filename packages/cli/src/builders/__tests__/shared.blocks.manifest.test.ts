@@ -5,13 +5,35 @@ import {
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
-import type { IRBlock } from '../../ir/publicTypes';
+import type { IRBlock, IRHashProvenance } from '../../ir/publicTypes';
 import { collectBlockManifests } from '../shared.blocks.manifest';
+
+const makeBlockHash = (label: string): IRHashProvenance => ({
+	algo: 'sha256',
+	inputs: ['key', 'directory', 'hasRender', 'manifestSource'],
+	value: label,
+});
+
+const makeBlock = (
+	key: string,
+	directory: string,
+	manifestSource: string,
+	hasRender: boolean
+): IRBlock => ({
+	id: `blk:${key}`,
+	hash: makeBlockHash(`${key}-hash`),
+	key,
+	directory,
+	hasRender,
+	manifestSource,
+});
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
 ) =>
-	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
+	baseWithWorkspace(run, {
+		createWorkspace: (root: string) => buildWorkspace(root),
+	});
 
 describe('collectBlockManifests', () => {
 	it('returns manifest entries and render metadata for blocks with declared render files', async () => {
@@ -37,12 +59,12 @@ describe('collectBlockManifests', () => {
 			);
 			await workspace.write(renderPath, '<?php echo "render";\n');
 
-			const block: IRBlock = {
-				key: 'demo/example',
-				directory: blockDir,
-				hasRender: true,
-				manifestSource: manifestPath,
-			};
+			const block = makeBlock(
+				'demo/example',
+				blockDir,
+				manifestPath,
+				true
+			);
 
 			const result = await collectBlockManifests({
 				workspace,
@@ -87,12 +109,7 @@ describe('collectBlockManifests', () => {
 				)
 			);
 
-			const block: IRBlock = {
-				key: 'demo/stub',
-				directory: blockDir,
-				hasRender: true,
-				manifestSource: manifestPath,
-			};
+			const block = makeBlock('demo/stub', blockDir, manifestPath, true);
 
 			const result = await collectBlockManifests({
 				workspace,
@@ -132,12 +149,12 @@ describe('collectBlockManifests', () => {
 				)
 			);
 
-			const block: IRBlock = {
-				key: 'demo/fallback',
-				directory: blockDir,
-				hasRender: true,
-				manifestSource: manifestPath,
-			};
+			const block = makeBlock(
+				'demo/fallback',
+				blockDir,
+				manifestPath,
+				true
+			);
 
 			const result = await collectBlockManifests({
 				workspace,
@@ -177,12 +194,12 @@ describe('collectBlockManifests', () => {
 				)
 			);
 
-			const block: IRBlock = {
-				key: 'demo/callback',
-				directory: blockDir,
-				hasRender: true,
-				manifestSource: manifestPath,
-			};
+			const block = makeBlock(
+				'demo/callback',
+				blockDir,
+				manifestPath,
+				true
+			);
 
 			const result = await collectBlockManifests({
 				workspace,
@@ -218,12 +235,7 @@ describe('collectBlockManifests', () => {
 				)
 			);
 
-			const block: IRBlock = {
-				key: 'demo/cache',
-				directory: blockDir,
-				hasRender: true,
-				manifestSource: manifestPath,
-			};
+			const block = makeBlock('demo/cache', blockDir, manifestPath, true);
 
 			const first = await collectBlockManifests({
 				workspace,
@@ -282,12 +294,12 @@ describe('collectBlockManifests', () => {
 				)
 			);
 
-			const block: IRBlock = {
-				key: 'demo/render',
-				directory: blockDir,
-				hasRender: true,
-				manifestSource: manifestPath,
-			};
+			const block = makeBlock(
+				'demo/render',
+				blockDir,
+				manifestPath,
+				true
+			);
 
 			const first = await collectBlockManifests({
 				workspace,

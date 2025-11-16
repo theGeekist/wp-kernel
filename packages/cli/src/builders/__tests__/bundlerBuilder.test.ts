@@ -18,8 +18,10 @@ import {
 	toWordPressGlobal,
 	toWordPressHandle,
 } from '../bundler';
+import { makeIrMeta } from '../../tests/ir.test-support';
 import { withWorkspace as baseWithWorkspace } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 describe('createBundler', () => {
 	type BundlerWorkspaceContext = BuilderHarnessContext<
@@ -30,7 +32,7 @@ describe('createBundler', () => {
 		run: (context: BundlerWorkspaceContext) => Promise<void>
 	) =>
 		baseWithWorkspace(run, {
-			createWorkspace: (root) => buildWorkspace(root),
+			createWorkspace: (root: string) => buildWorkspace(root),
 		});
 
 	function buildBuilderInput({
@@ -55,25 +57,23 @@ describe('createBundler', () => {
 					version: 1,
 					namespace,
 					schemas: {},
-					resources: resourceConfigs,
+					resources: resourceConfigs as Record<string, never>,
 				},
 				namespace,
 				origin: 'wpk.config.ts',
 				sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 			},
 			ir: {
-				meta: {
-					version: 1,
-					namespace,
+				meta: makeIrMeta(namespace, {
 					sanitizedNamespace,
 					origin: 'wpk.config.ts',
 					sourcePath: 'wpk.config.ts',
-				},
+				}),
 				config: {
 					version: 1,
 					namespace,
 					schemas: {},
-					resources: {},
+					resources: resourceConfigs as Record<string, never>,
 				},
 				schemas: [],
 				resources,
@@ -138,6 +138,7 @@ describe('createBundler', () => {
 						workspace,
 						reporter,
 						phase: 'generate',
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -289,6 +290,7 @@ describe('createBundler', () => {
 						workspace,
 						reporter,
 						phase: 'generate',
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -341,6 +343,7 @@ describe('createBundler', () => {
 							workspace,
 							reporter,
 							phase: 'generate',
+							generationState: buildEmptyGenerationState(),
 						},
 						input,
 						output,
@@ -403,6 +406,7 @@ describe('createBundler', () => {
 						workspace,
 						reporter,
 						phase: 'apply',
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,

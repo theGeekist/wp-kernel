@@ -12,6 +12,7 @@ import type { IRCapabilityScope, IRv1 } from '../../ir/publicTypes';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { makeIrMeta } from '../../tests/ir.test-support';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 
@@ -510,13 +511,10 @@ function createIr(): IRv1 {
 	const config = createConfig();
 
 	return {
-		meta: {
-			version: 1,
-			namespace: 'Demo\\Namespace',
+		meta: makeIrMeta('Demo\\Namespace', {
 			sourcePath: '/workspace/wpk.config.ts',
 			origin: 'file',
-			sanitizedNamespace: 'Demo\\Namespace',
-		},
+		}),
 		config,
 		schemas: [],
 		resources: [],

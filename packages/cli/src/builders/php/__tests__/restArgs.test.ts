@@ -33,9 +33,14 @@ function buildResource(overrides: Partial<IRResource> = {}): IRResource {
 
 function buildSchema(schema: unknown): IRSchema {
 	return {
+		id: '',
 		key: 'book',
 		sourcePath: 'schema/book.json',
-		hash: 'schema-hash',
+		hash: {
+			algo: 'sha256',
+			inputs: [''],
+			value: 'schema-hash',
+		},
 		schema,
 		provenance: 'manual',
 	};

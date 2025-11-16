@@ -6,7 +6,11 @@
 		"outDir": "./dist",
 		"moduleResolution": "bundler"
 	},
-	"include": ["src/**/*", "../../types/**/*.d.ts"],
+	"include": [
+		"src/**/*",
+		"../../types/**/*.d.ts",
+		"src/tests/ir.test-support.ts"
+	],
 	"exclude": [
 		"node_modules",
 		"dist",
@@ -21,9 +25,6 @@
 		},
 		{
 			"path": "../pipeline"
-		},
-		{
-			"path": "../php-driver"
 		},
 		{
 			"path": "../php-json-ast"

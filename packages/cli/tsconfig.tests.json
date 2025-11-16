@@ -10,7 +10,8 @@
 		"src/**/*.test.tsx",
 		"src/**/*.test-support.ts",
 		"src/**/*.test-support.tsx",
-		"vite.config.ts"
+		"vite.config.ts",
+		"src/tests/ir.test-support.ts"
 	],
 	"exclude": ["dist", "dist-tests", "node_modules"],
 	"references": [

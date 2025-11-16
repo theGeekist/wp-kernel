@@ -5,6 +5,7 @@ import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildReporter } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 function buildWorkspace(): Workspace {
 	return makeWorkspaceMock({
@@ -50,6 +51,7 @@ describe('createPhpBuilder (unit)', () => {
 						workspace,
 						reporter,
 						phase: 'generate',
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',

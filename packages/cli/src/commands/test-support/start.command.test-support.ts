@@ -1,5 +1,7 @@
 import { EventEmitter } from 'node:events';
+import type * as fs from 'node:fs/promises';
 import { PassThrough } from 'node:stream';
+import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { FSWatcher } from 'chokidar';
 import { Command } from 'clipanion';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
@@ -9,44 +11,40 @@ import {
 	flushAsync,
 	type CommandReporterHarness,
 	type ReporterMock,
+	type MemoryStream,
 } from '@wpkernel/test-utils/cli';
-import { buildStartCommand } from '../start';
+import { buildStartCommand, type FileSystem } from '../start';
+import type {
+	BuildGenerateCommandOptions,
+	CommandConstructor as GenerateCommandConstructor,
+	GenerationSummary,
+} from '../generate';
 
 export const FAST_DEBOUNCE_MS = 200;
 export const SLOW_DEBOUNCE_MS = 600;
 
-export const fsAccess = jest.fn<Promise<void>, [string]>();
-export const fsMkdir = jest.fn<
-	Promise<void>,
-	[string, { recursive: boolean }]
->();
-export const fsCp = jest.fn<
-	Promise<void>,
-	[string, string, { recursive: boolean }]
->();
+export const fsAccess: jest.MockedFunction<typeof fs.access> = jest.fn();
+export const fsMkdir: jest.MockedFunction<typeof fs.mkdir> = jest.fn();
+export const fsCp: jest.MockedFunction<typeof fs.cp> = jest.fn();
 
-export type WatchOptions = {
-	readonly cwd: string;
-	readonly ignoreInitial: boolean;
-	readonly ignored: readonly string[];
-};
-
-export type WatchFactory = (
-	patterns: readonly string[],
-	options: WatchOptions
-) => FSWatcher;
+// Use a typeof import so we keep inferred arg types without triggering lint
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+type WatchFactory = ReturnType<(typeof import('chokidar'))['watch']>;
 
 export const loadWatch = jest.fn<Promise<WatchFactory>, []>();
-export const watchFactory = jest.fn<FSWatcher, [string[], WatchOptions]>();
-export const spawnViteProcess = jest.fn<FakeChildProcess, []>();
+export const watchFactory = jest.fn<
+	ReturnType<WatchFactory>,
+	Parameters<WatchFactory>
+>();
+export const spawnViteProcess = jest.fn<ChildProcessWithoutNullStreams, []>();
 
 export const reporterHarness = createCommandReporterHarness();
 export const reporterFactory = reporterHarness.factory;
 
 export interface StartCommandTestContext {
-	readonly command: InstanceType<ReturnType<typeof buildStartCommand>>;
+	readonly command: StartCommandInstance;
 	readonly watcher: FakeWatcher;
-	readonly stdout: PassThrough;
+	readonly stdout: MemoryStream;
 	readonly reporterHarness: CommandReporterHarness;
 	readonly shutdown: (
 		signals?: NodeJS.Signals | readonly NodeJS.Signals[]
@@ -62,7 +60,10 @@ export function setupStartCommandTest(): void {
 	watchFactory.mockImplementation(
 		() => new FakeWatcher() as unknown as FSWatcher
 	);
-	spawnViteProcess.mockImplementation(() => new FakeChildProcess());
+	spawnViteProcess.mockImplementation(
+		() =>
+			new FakeChildProcess() as unknown as ChildProcessWithoutNullStreams
+	);
 	reporterHarness.reset();
 	FakeGenerateCommand.executeMock.mockResolvedValue(WPK_EXIT_CODES.SUCCESS);
 }
@@ -106,20 +107,22 @@ export async function withStartCommand(
 export function createStartCommandInstance(
 	overrides: Partial<StartCommandDependencies> = {}
 ) {
+	const fileSystem: FileSystem = {
+		access: fsAccess,
+		mkdir: fsMkdir,
+		cp: fsCp,
+	};
+
 	const StartCommand = buildStartCommand({
 		loadWatch,
 		spawnViteProcess,
 		buildReporter: reporterFactory,
-		buildGenerateCommand: () =>
-			FakeGenerateCommand as unknown as GenerateConstructor,
-		fileSystem: {
-			access: fsAccess,
-			mkdir: fsMkdir,
-			cp: fsCp,
-		},
+		buildGenerateCommand: (_options?: BuildGenerateCommandOptions) =>
+			FakeGenerateCommand as GenerateCommandConstructor,
+		fileSystem,
 		adoptCommandEnvironment: jest.fn(),
 		...overrides,
-	});
+	}) as StartCommandConstructor;
 
 	const command = new StartCommand();
 	assignCommandContext(command);
@@ -182,13 +185,15 @@ type StartCommandOptions = {
 
 type StartCommandDependencies = Parameters<typeof buildStartCommand>[0];
 
-type GenerateConstructor = new () => Command;
+type StartCommandInstance = Command & { autoApply: boolean };
+type StartCommandConstructor = new () => StartCommandInstance;
 
 export class FakeGenerateCommand extends Command {
 	static readonly executeMock = jest.fn<Promise<number>, []>();
 
 	dryRun = false;
 	verbose = false;
+	summary: GenerationSummary | null = null;
 
 	override async execute(): Promise<number> {
 		const result = await FakeGenerateCommand.executeMock.call(this);
@@ -206,6 +211,7 @@ export class FakeWatcher extends EventEmitter {
 }
 
 export class FakeChildProcess extends EventEmitter {
+	stdin = new PassThrough();
 	stdout = new PassThrough();
 	stderr = new PassThrough();
 	killed = false;
@@ -227,19 +233,21 @@ async function buildCommand({
 	beforeInstantiate,
 	...overrides
 }: StartCommandOptions = {}) {
+	const fileSystem: FileSystem = {
+		access: fsAccess,
+		mkdir: fsMkdir,
+		cp: fsCp,
+	};
+
 	const StartCommand = buildStartCommand({
 		loadWatch,
 		spawnViteProcess,
 		buildReporter: reporterFactory,
-		buildGenerateCommand: () =>
-			FakeGenerateCommand as unknown as GenerateConstructor,
-		fileSystem: {
-			access: fsAccess,
-			mkdir: fsMkdir,
-			cp: fsCp,
-		},
+		buildGenerateCommand: (_options?: BuildGenerateCommandOptions) =>
+			FakeGenerateCommand as GenerateCommandConstructor,
+		fileSystem,
 		...overrides,
-	});
+	}) as StartCommandConstructor;
 
 	beforeInstantiate?.(StartCommand);
 
@@ -247,7 +255,7 @@ async function buildCommand({
 	command.autoApply = autoApply;
 	const { stdout } = assignCommandContext(command);
 
-	const executePromise = command.execute();
+	const executePromise = command.execute() as Promise<number>;
 	await flushAsync({ runAllTimers: true });
 
 	const watcher = watchFactory.mock.results[0]

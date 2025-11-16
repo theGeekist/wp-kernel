@@ -42,11 +42,15 @@ function defaultDependencies(): ComposerHelperDependencies {
 async function resolveBundledAutoload(
 	dependencies: ComposerHelperDependencies
 ): Promise<{ path: string; sourcePackage: string } | null> {
-	const autoloadPath = resolveBundledComposerAutoloadPath();
+	const autoloadPath = resolveBundledComposerAutoloadPath({ optional: true });
+	if (!autoloadPath) {
+		return null;
+	}
+
 	const exists = await dependencies.pathExists(autoloadPath);
 
 	if (exists) {
-		return { path: autoloadPath, sourcePackage: '@wpkernel/cli' };
+		return { path: autoloadPath, sourcePackage: '@wpkernel/php-json-ast' };
 	}
 
 	return null;
@@ -93,7 +97,7 @@ export function createComposerReadinessHelper(
 					sourcePackage: null,
 				},
 				message:
-					'Bundled composer autoload missing from CLI installation.',
+					'Bundled composer autoload missing from PHP assets package.',
 			};
 		},
 		async confirm(
