@@ -11,7 +11,7 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import { makeIrMeta } from '../../../tests/ir.test-support';
+import { makeIrMeta } from '../../tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('node:child_process', () => {

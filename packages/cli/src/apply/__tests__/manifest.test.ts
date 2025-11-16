@@ -1,7 +1,7 @@
 import type { Workspace } from '../../workspace';
 import type { IRResource } from '../../ir/publicTypes';
 import type { SerializableResourceUIConfig } from '../../config/types';
-import { makeIr, makeIrMeta } from '../../../tests/ir.test-support';
+import { makeIr, makeIrMeta } from '../../tests/ir.test-support';
 import {
 	buildEmptyGenerationState,
 	buildGenerationManifestFromIr,

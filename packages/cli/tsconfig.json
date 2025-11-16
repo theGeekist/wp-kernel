@@ -9,7 +9,7 @@
 	"include": [
 		"src/**/*",
 		"../../types/**/*.d.ts",
-		"tests/ir.test-support.ts"
+		"src/tests/ir.test-support.ts"
 	],
 	"exclude": [
 		"node_modules",

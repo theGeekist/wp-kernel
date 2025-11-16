@@ -17,7 +17,7 @@ import {
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
-import { makeIr } from '../../../tests/ir.test-support';
+import { makeIr } from '../../tests/ir.test-support';
 import type { BuildIrOptions } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 

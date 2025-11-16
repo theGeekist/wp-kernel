@@ -5,7 +5,7 @@ import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '@wpkernel/wp-json-ast';
-import { makeIrMeta } from '../../../tests/ir.test-support';
+import { makeIrMeta } from '../../tests/ir.test-support';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,

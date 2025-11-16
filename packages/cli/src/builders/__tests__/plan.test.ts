@@ -17,7 +17,7 @@ import {
 	buildOutput,
 } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import { makeIr, makeIrMeta } from '../../../tests/ir.test-support';
+import { makeIr, makeIrMeta } from '../../tests/ir.test-support';
 import type { WPKernelConfigV1 } from '../../config/types';
 import type {
 	IRv1,

@@ -11,7 +11,7 @@
 		"src/**/*.test-support.ts",
 		"src/**/*.test-support.tsx",
 		"vite.config.ts",
-		"tests/ir.test-support.ts"
+		"src/tests/ir.test-support.ts"
 	],
 	"exclude": ["dist", "dist-tests", "node_modules"],
 	"references": [
