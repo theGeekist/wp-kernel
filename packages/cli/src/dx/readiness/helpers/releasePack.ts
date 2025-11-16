@@ -76,6 +76,8 @@ const DEFAULT_MANIFEST: readonly ReleasePackManifestEntry[] = [
 		expectedArtifacts: [
 			path.join('dist', 'index.js'),
 			path.join('dist', 'index.d.ts'),
+			path.join('dist', 'php-driver.js'),
+			path.join('dist', 'php-driver.d.ts'),
 			path.join('php', 'ingest-program.php'),
 			path.join('php', 'pretty-print.php'),
 			path.join('vendor', 'autoload.php'),
