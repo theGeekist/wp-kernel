@@ -166,12 +166,14 @@ export async function withPipelineHarness(
 			const runPipeline = (
 				overrides: Partial<PipelineRunOptions> = {}
 			): Promise<PipelineRunResult> =>
-				pipeline.run(
-					mergeRunOptions(
-						resolvedDefaults,
-						workspace,
-						reporter,
-						overrides
+				Promise.resolve(
+					pipeline.run(
+						mergeRunOptions(
+							resolvedDefaults,
+							workspace,
+							reporter,
+							overrides
+						)
 					)
 				);
 

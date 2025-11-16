@@ -20,6 +20,7 @@ import {
 	createBuilderOutput,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 jest.mock('@wpkernel/php-json-ast/php-driver', () => {
 	const actual = jest.requireActual<typeof phpDriverModule>(
@@ -62,6 +63,7 @@ function buildPipelineContext(): PipelineContext {
 	return createPipelineContext({
 		workspace,
 		reporter: buildReporter(),
+		generationState: buildEmptyGenerationState(),
 	});
 }
 

@@ -5,6 +5,7 @@ import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '@wpkernel/wp-json-ast';
+import { makeIrMeta } from '../../../tests/ir.test-support';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,
@@ -25,13 +26,10 @@ const withWorkspace = (
 
 function buildIr(namespace: string): IRv1 {
 	return {
-		meta: {
-			version: 1,
-			namespace,
+		meta: makeIrMeta(namespace, {
 			origin: 'wpk.config.ts',
 			sourcePath: 'wpk.config.ts',
-			sanitizedNamespace: namespace,
-		},
+		}),
 		config: {
 			version: 1,
 			namespace,

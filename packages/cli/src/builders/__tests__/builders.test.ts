@@ -11,6 +11,8 @@ import {
 	buildReporter,
 	buildOutput,
 } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import { makeIrMeta } from '../../../tests/ir.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('node:child_process', () => {
 	const execFileMock = jest.fn(
@@ -44,13 +46,10 @@ const buildOptions: BuildIrOptions = {
 };
 
 const ir: IRv1 = {
-	meta: {
-		version: 1,
-		namespace: 'test',
+	meta: makeIrMeta('test', {
 		origin: 'typescript',
 		sourcePath: 'wpk.config.ts',
-		sanitizedNamespace: 'test',
-	},
+	}),
 	config: buildOptions.config,
 	schemas: [],
 	resources: [],
@@ -91,9 +90,10 @@ describe('builder stubs', () => {
 	const reporter = buildReporter();
 
 	const context = {
-		workspace,
+		workspace: workspace as unknown as Workspace,
 		phase: 'generate' as const,
 		reporter,
+		generationState: buildEmptyGenerationState(),
 	};
 
 	beforeEach(() => {

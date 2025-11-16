@@ -5,24 +5,25 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import { resolveBundledComposerAutoloadPath } from '@wpkernel/cli/utils/phpAssets';
 
 const codemodApplyMock = jest.fn(async (_options, next) => {
 	await next?.();
 });
-const createCodemodHelperImpl = jest.fn(() => ({
+const createCodemodHelperImpl = jest.fn((options?: unknown) => ({
 	key: 'builder.generate.php.codemod-ingestion',
 	kind: 'builder' as const,
 	apply: codemodApplyMock,
+	options,
 }));
 
 const writerApplyMock = jest.fn(async (_options, next) => {
 	await next?.();
 });
-const createWriterHelperImpl = jest.fn(() => ({
+const createWriterHelperImpl = jest.fn((options?: unknown) => ({
 	key: 'builder.generate.php.writer',
 	kind: 'builder' as const,
 	apply: writerApplyMock,
+	options,
 }));
 
 jest.mock('../pipeline.codemods', () => ({
@@ -47,8 +48,6 @@ const { createWpProgramWriterHelper } = jest.requireMock(
 ) as {
 	createWpProgramWriterHelper: jest.Mock;
 };
-
-const BUNDLED_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
 
 describe('createPhpBuilder - adapter codemods', () => {
 	beforeEach(() => {
@@ -101,6 +100,8 @@ describe('createPhpBuilder - adapter codemods', () => {
 			options: {
 				config: ir.config,
 				namespace: ir.config.namespace,
+				sourcePath: '',
+				origin: '',
 			},
 		});
 		const output = createBuilderOutput();
@@ -118,7 +119,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 			phpBinary: '/adapter/php',
 			scriptPath: '/adapter/codemod.php',
 			importMetaUrl: 'file:///adapter/dist/index.js',
-			autoloadPaths: [BUNDLED_AUTOLOAD_PATH],
+			autoloadPaths: undefined,
 		});
 		expect(createWpProgramWriterHelper).toHaveBeenCalledTimes(1);
 		expect(createWriterHelperImpl).toHaveBeenCalledWith({
@@ -126,7 +127,7 @@ describe('createPhpBuilder - adapter codemods', () => {
 				binary: '/base/php',
 				scriptPath: '/adapter/program-writer.php',
 				importMetaUrl: 'file:///base/dist/index.js',
-				autoloadPaths: [BUNDLED_AUTOLOAD_PATH],
+				autoloadPaths: undefined,
 			},
 		});
 		expect(codemodApplyMock).toHaveBeenCalled();
@@ -156,6 +157,8 @@ describe('createPhpBuilder - adapter codemods', () => {
 			options: {
 				config: ir.config,
 				namespace: ir.config.namespace,
+				sourcePath: '',
+				origin: '',
 			},
 		});
 		const output = createBuilderOutput();
@@ -201,6 +204,8 @@ describe('createPhpBuilder - adapter codemods', () => {
 			options: {
 				config: ir.config,
 				namespace: ir.config.namespace,
+				sourcePath: '',
+				origin: '',
 			},
 		});
 		const output = createBuilderOutput();
@@ -216,8 +221,40 @@ describe('createPhpBuilder - adapter codemods', () => {
 				phpBinary: '/base/php',
 				scriptPath: '/base/codemod.php',
 				importMetaUrl: 'file:///base/dist/index.js',
-				autoloadPaths: [BUNDLED_AUTOLOAD_PATH],
+				autoloadPaths: undefined,
 			})
 		);
+	});
+
+	it('does not override importMetaUrl-only driver configs', async () => {
+		const builder = createPhpBuilder({
+			driver: {
+				importMetaUrl: 'file:///custom/driver/index.js',
+			},
+		});
+
+		const ir = createMinimalIr();
+		const context = createPipelineContext();
+		const input = createBuilderInput({
+			ir,
+			options: {
+				config: ir.config,
+				namespace: ir.config.namespace,
+				sourcePath: '',
+				origin: '',
+			},
+		});
+		const output = createBuilderOutput();
+
+		await builder.apply(
+			{ context, input, output, reporter: context.reporter },
+			undefined
+		);
+
+		expect(createWpProgramWriterHelper).toHaveBeenCalledWith({
+			driver: {
+				importMetaUrl: 'file:///custom/driver/index.js',
+			},
+		});
 	});
 });

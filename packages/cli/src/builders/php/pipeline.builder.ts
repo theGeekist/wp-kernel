@@ -33,12 +33,8 @@ import type {
 import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import { createPhpCodemodIngestionHelper } from './pipeline.codemods';
 import type { CreatePhpCodemodIngestionHelperOptions } from './pipeline.codemods';
-import {
-	resolveBundledComposerAutoloadPath,
-	resolveBundledPhpDriverPrettyPrintPath,
-} from '../../utils/phpAssets';
+import { resolveBundledPhpDriverPrettyPrintPath } from '../../utils/phpAssets';
 
-const BUNDLED_PHP_AUTOLOAD_PATH = resolveBundledComposerAutoloadPath();
 const BUNDLED_PHP_PRETTY_PRINT_SCRIPT_PATH =
 	resolveBundledPhpDriverPrettyPrintPath();
 const DRIVER_OPTION_KEYS = ['binary', 'scriptPath', 'importMetaUrl'] as const;
@@ -308,10 +304,6 @@ function isNonEmptyString(value: unknown): value is string {
 function ensureBundledDriverDefaults(
 	driver: PhpDriverConfigurationOptions | undefined
 ): PhpDriverConfigurationOptions {
-	const autoloadPaths = mergeAutoloadPathEntries(driver?.autoloadPaths, [
-		BUNDLED_PHP_AUTOLOAD_PATH,
-	]) ?? [BUNDLED_PHP_AUTOLOAD_PATH];
-
 	let scriptPath: string | undefined = driver?.scriptPath;
 	if (!isPresent(scriptPath) && !isPresent(driver?.importMetaUrl)) {
 		scriptPath = BUNDLED_PHP_PRETTY_PRINT_SCRIPT_PATH;
@@ -319,7 +311,7 @@ function ensureBundledDriverDefaults(
 
 	return {
 		...(driver ?? {}),
-		autoloadPaths,
+		autoloadPaths: driver?.autoloadPaths,
 		scriptPath,
 	};
 }

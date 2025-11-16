@@ -85,8 +85,10 @@ export function createApplyPlanBuilder(): BuilderHelper {
 
 			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
-				scriptPath: PLAN_PRETTY_PRINT_SCRIPT_PATH,
-				autoloadPaths: [PLAN_PRETTY_PRINT_AUTOLOAD_PATH],
+				scriptPath: PLAN_PRETTY_PRINT_SCRIPT_PATH ?? undefined,
+				autoloadPaths: [PLAN_PRETTY_PRINT_AUTOLOAD_PATH].filter(
+					(entry): entry is string => typeof entry === 'string'
+				),
 			});
 
 			const plan = await collectPlanInstructions({

@@ -14,10 +14,13 @@ import {
 	createReporter,
 } from '../test-support/php-builder.test-support';
 import { makeCapabilityDefinition } from '../test-support/fixtures.test-support';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 describe('createPhpCapabilityHelper', () => {
 	it('skips generation when the IR artifact is missing', async () => {
-		const context = createPipelineContext();
+		const context = createPipelineContext({
+			generationState: buildEmptyGenerationState(),
+		});
 		resetPhpBuilderChannel(context);
 		resetPhpAstChannel(context);
 

@@ -1,5 +1,7 @@
 import type { Workspace } from '../../workspace';
 import type { IRResource } from '../../ir/publicTypes';
+import type { SerializableResourceUIConfig } from '../../config/types';
+import { makeIr, makeIrMeta } from '../../../tests/ir.test-support';
 import {
 	buildEmptyGenerationState,
 	buildGenerationManifestFromIr,
@@ -141,8 +143,14 @@ describe('generation manifest helpers', () => {
 			fields: [{ id: 'title', label: 'Title' }],
 			defaultView: { type: 'table', fields: ['title'] },
 			preferencesKey: 'books/admin',
-		} as unknown;
+		};
+		const uiConfig: SerializableResourceUIConfig = {
+			admin: {
+				dataviews: dataviewsConfig,
+			},
+		};
 		const resource: IRResource = {
+			id: 'res:books',
 			name: 'books',
 			schemaKey: 'books',
 			schemaProvenance: 'manual',
@@ -157,71 +165,57 @@ describe('generation manifest helpers', () => {
 				inputs: ['resource'],
 				value: 'abc123',
 			},
-			ui: {
-				admin: {
-					dataviews: dataviewsConfig,
-				},
-			} as unknown,
+			ui: uiConfig,
 		};
 
-		const manifest = buildGenerationManifestFromIr({
-			meta: {
-				version: 1,
+		const manifest = buildGenerationManifestFromIr(
+			makeIr({
 				namespace: 'demo-plugin',
-				sourcePath: 'wpk.config.ts',
-				origin: 'typescript',
-				sanitizedNamespace: 'demo-plugin',
-				features: ['capabilityMap', 'blocks', 'phpAutoload'],
-				ids: {
-					algorithm: 'sha256',
-					resourcePrefix: 'res:',
-					schemaPrefix: 'sch:',
-					blockPrefix: 'blk:',
-					capabilityPrefix: 'cap:',
-				},
-				redactions: ['config.env', 'adapters.secrets'],
-				limits: {
-					maxConfigKB: 256,
-					maxSchemaKB: 1024,
-					policy: 'truncate',
-				},
-			},
-			config: {
-				version: 1,
-				namespace: 'demo-plugin',
-				resources: {
-					books: {
-						name: 'books',
-						schema: 'auto',
-						routes: {},
-						cacheKeys: {},
-						ui: {
-							admin: {
-								dataviews: dataviewsConfig,
-							},
+				meta: makeIrMeta('demo-plugin', {
+					sourcePath: 'wpk.config.ts',
+					origin: 'typescript',
+					features: ['capabilityMap', 'blocks', 'phpAutoload'],
+					redactions: ['config.env', 'adapters.secrets'],
+					limits: {
+						maxConfigKB: 256,
+						maxSchemaKB: 1024,
+						policy: 'truncate',
+					},
+				}),
+				config: {
+					resources: {
+						books: {
+							name: 'books',
+							schema: 'auto',
+							routes: {},
+							cacheKeys: undefined,
+							ui: uiConfig,
 						},
-					} as unknown,
+					},
+					schemas: {},
 				},
-				schemas: {},
-			},
-			schemas: [],
-			resources: [resource],
-			capabilities: [],
-			capabilityMap: {
-				definitions: [],
-				fallback: { capability: 'manage_demo', appliesTo: 'resource' },
-				missing: [],
-				unused: [],
-				warnings: [],
-			},
-			blocks: [],
-			php: {
-				namespace: 'DemoPlugin',
-				autoload: 'inc/',
-				outputDir: '.generated/php',
-			},
-			diagnostics: [],
-		});
+				schemas: [],
+				resources: [resource],
+				capabilities: [],
+				capabilityMap: {
+					definitions: [],
+					fallback: {
+						capability: 'manage_demo',
+						appliesTo: 'resource',
+					},
+					missing: [],
+					unused: [],
+					warnings: [],
+				},
+				blocks: [],
+				php: {
+					namespace: 'DemoPlugin',
+					autoload: 'inc/',
+					outputDir: '.generated/php',
+				},
+				diagnostics: [],
+			})
+		);
 
 		expect(manifest.resources.books).toEqual({
 			hash: 'abc123',
@@ -254,13 +248,10 @@ describe('generation manifest helpers', () => {
 
 	it('omits resources that cannot be normalised to PascalCase', () => {
 		const manifest = buildGenerationManifestFromIr({
-			meta: {
-				version: 1,
-				namespace: 'DemoPlugin',
+			meta: makeIrMeta('DemoPlugin', {
 				sourcePath: 'wpk.config.ts',
 				origin: 'typescript',
-				sanitizedNamespace: 'DemoPlugin',
-			},
+			}),
 			config: {
 				version: 1,
 				namespace: 'DemoPlugin',
@@ -270,6 +261,7 @@ describe('generation manifest helpers', () => {
 			schemas: [],
 			resources: [
 				{
+					id: 'res:ignored',
 					name: '---',
 					schemaKey: 'ignored',
 					schemaProvenance: 'manual',
@@ -279,7 +271,11 @@ describe('generation manifest helpers', () => {
 						get: { segments: [], source: 'default' },
 					},
 					warnings: [],
-					hash: 'bad',
+					hash: {
+						algo: 'sha256',
+						inputs: ['resource'],
+						value: 'bad',
+					},
 				},
 			],
 			capabilities: [],

@@ -4,6 +4,7 @@ import {
 	consumePhpProgramIngestion,
 	runPhpCodemodIngestion,
 } from '@wpkernel/php-json-ast';
+import { type Workspace } from '../../../workspace';
 import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import { createPhpCodemodIngestionHelper } from '../pipeline.codemods';
 import {
@@ -12,6 +13,7 @@ import {
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
 import { resolveBundledPhpJsonAstIngestionPath } from '@wpkernel/cli/utils/phpAssets';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 jest.mock('@wpkernel/php-json-ast', () => ({
 	...jest.requireActual('@wpkernel/php-json-ast'),
@@ -31,7 +33,10 @@ describe('createPhpCodemodIngestionHelper', () => {
 		const helper = createPhpCodemodIngestionHelper({
 			files: ['plugin.php'],
 		});
-		const context = createPipelineContext({ phase: 'init' });
+		const context = createPipelineContext({
+			phase: 'init',
+			generationState: buildEmptyGenerationState(),
+		});
 		const input = createBuilderInput({ phase: 'init' });
 		const output = createBuilderOutput();
 
@@ -51,8 +56,11 @@ describe('createPhpCodemodIngestionHelper', () => {
 		const workspace = makeWorkspaceMock({
 			root: '/workspace/project',
 			exists: jest.fn(async () => false),
+		}) as unknown as Workspace;
+		const context = createPipelineContext({
+			workspace,
+			generationState: buildEmptyGenerationState(),
 		});
-		const context = createPipelineContext({ workspace });
 		const input = createBuilderInput();
 		const output = createBuilderOutput();
 
@@ -77,8 +85,11 @@ describe('createPhpCodemodIngestionHelper', () => {
 			exists: jest.fn(async () => true),
 			resolve: (...parts: string[]) =>
 				path.join('/workspace/project', ...parts),
+		}) as unknown as Workspace;
+		const context = createPipelineContext({
+			workspace,
+			generationState: buildEmptyGenerationState(),
 		});
-		const context = createPipelineContext({ workspace });
 		const input = createBuilderInput();
 		const output = createBuilderOutput();
 
@@ -127,7 +138,7 @@ describe('createPhpCodemodIngestionHelper', () => {
 			exists: jest.fn(async () => true),
 			resolve: (...parts: string[]) =>
 				path.join('/workspace/project', ...parts),
-		});
+		}) as unknown as Workspace;
 		const context = createPipelineContext({ workspace });
 		const input = createBuilderInput();
 		const output = createBuilderOutput();
@@ -166,7 +177,7 @@ describe('createPhpCodemodIngestionHelper', () => {
 			exists: jest.fn(async () => true),
 			resolve: (...parts: string[]) =>
 				path.join('/workspace/project', ...parts),
-		});
+		}) as unknown as Workspace;
 		const context = createPipelineContext({ workspace });
 		const input = createBuilderInput();
 		const output = createBuilderOutput();

@@ -42,7 +42,11 @@ function defaultDependencies(): ComposerHelperDependencies {
 async function resolveBundledAutoload(
 	dependencies: ComposerHelperDependencies
 ): Promise<{ path: string; sourcePackage: string } | null> {
-	const autoloadPath = resolveBundledComposerAutoloadPath();
+	const autoloadPath = resolveBundledComposerAutoloadPath({ optional: true });
+	if (!autoloadPath) {
+		return null;
+	}
+
 	const exists = await dependencies.pathExists(autoloadPath);
 
 	if (exists) {

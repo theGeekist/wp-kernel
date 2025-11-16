@@ -549,6 +549,22 @@ async function resetGitRepository(cwd, message) {
 	).catch(() => undefined);
 }
 
+async function commitWorkspace(cwd, message) {
+	await runGit(['add', '--all'], {
+		cwd,
+		capture: true,
+		quietCapture: true,
+	});
+	await runGit(
+		['commit', '--quiet', '--no-verify', '--allow-empty', '-m', message],
+		{
+			cwd,
+			capture: true,
+			quietCapture: !smokeVerbose,
+		}
+	).catch(() => undefined);
+}
+
 main().catch((error) => {
 	console.error('\nERROR Smoke test failed.');
 	console.error(error);
@@ -562,7 +578,7 @@ function parsePackageManagers(args) {
 	const supported = ['npm', 'pnpm', 'yarn'];
 
 	if (!entry) {
-		return ['npm'];
+		return ['pnpm'];
 	}
 
 	const [, value = ''] = entry.split('=');
@@ -572,7 +588,7 @@ function parsePackageManagers(args) {
 		.filter((item) => item.length > 0);
 
 	if (candidates.length === 0) {
-		return ['npm'];
+		return ['pnpm'];
 	}
 
 	if (candidates.includes('all')) {

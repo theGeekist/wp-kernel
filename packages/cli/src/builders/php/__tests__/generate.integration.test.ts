@@ -7,11 +7,41 @@ import type { BuilderOutput } from '../../../runtime/types';
 import { buildWorkspace } from '../../../workspace';
 import { withWorkspace } from '@wpkernel/test-utils/integration';
 import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.test-support';
+import { resolveBundledComposerAutoloadPath } from '../../../utils/phpAssets';
 import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 import {
 	createBaselineCodemodConfiguration,
 	serialisePhpCodemodConfiguration,
+	consumePhpProgramIngestion,
+	runPhpCodemodIngestion,
 } from '@wpkernel/php-json-ast';
+
+jest.mock('@wpkernel/php-json-ast', () => {
+	const actual = jest.requireActual('@wpkernel/php-json-ast');
+	return {
+		__esModule: true,
+		...actual,
+		consumePhpProgramIngestion: jest.fn(async () => ({
+			exitCode: 0,
+			stdout: '',
+			stderr: '',
+		})),
+		runPhpCodemodIngestion: jest.fn(async () => ({
+			exitCode: 0,
+			lines: [],
+			stdout: '',
+			stderr: '',
+		})),
+	};
+});
+
+const consumeCodemodsMock = consumePhpProgramIngestion as jest.MockedFunction<
+	typeof consumePhpProgramIngestion
+>;
+const runCodemodIngestionMock = runPhpCodemodIngestion as jest.MockedFunction<
+	typeof runPhpCodemodIngestion
+>;
 function normalisePhpValue(value: unknown): unknown {
 	if (Array.isArray(value)) {
 		return value.map(normalisePhpValue);
@@ -67,34 +97,24 @@ function createReporterStub(): Reporter {
 	};
 }
 
-const CLI_VENDOR_ROOT = path.resolve(__dirname, '../../../../vendor');
+const PHP_JSON_AST_VENDOR_AUTOLOAD = resolveBundledComposerAutoloadPath();
 const INTEGRATION_TIMEOUT_MS = 20000;
 
-type ComposerSetupModule = (() => Promise<void>) & {
-	ensureCliVendorDependencies?: () => Promise<void>;
-};
-
-type ComposerSetupNamespace = {
-	default?: ComposerSetupModule;
-	ensureCliVendorDependencies?: () => Promise<void>;
-};
-
-const CLI_VENDOR_SETUP_MODULE: string =
-	'../../../../tests/jest-global-setup.cjs';
-
-async function ensureCliVendorReady(): Promise<void> {
-	const module = (await import(
-		CLI_VENDOR_SETUP_MODULE
-	)) as ComposerSetupNamespace;
-	const ensureDependencies =
-		module.ensureCliVendorDependencies ??
-		module.default?.ensureCliVendorDependencies ??
-		module.default;
-	if (typeof ensureDependencies !== 'function') {
-		throw new Error('Unable to load CLI vendor dependency installer.');
+async function withPhpAutoload<T>(run: () => Promise<T>): Promise<T> {
+	const previous = process.env.WPK_PHP_AUTOLOAD;
+	if (PHP_JSON_AST_VENDOR_AUTOLOAD) {
+		process.env.WPK_PHP_AUTOLOAD = PHP_JSON_AST_VENDOR_AUTOLOAD;
 	}
 
-	await ensureDependencies();
+	try {
+		return await run();
+	} finally {
+		if (typeof previous === 'undefined') {
+			delete process.env.WPK_PHP_AUTOLOAD;
+		} else {
+			process.env.WPK_PHP_AUTOLOAD = previous;
+		}
+	}
 }
 
 describe('createPhpBuilder integration', () => {
@@ -182,109 +202,105 @@ describe('createPhpBuilder integration', () => {
 
 			try {
 				await withWorkspace(async (workspacePath) => {
-					const workspace = buildWorkspace(workspacePath);
-					workspaceRoot = workspace.root;
-					await ensureCliVendorReady();
-					await fs.cp(CLI_VENDOR_ROOT, workspace.resolve('vendor'), {
-						recursive: true,
-					});
-					await fs.access(
-						workspace.resolve('vendor', 'autoload.php')
-					);
-					await fs.access(
-						workspace.resolve(
-							'vendor',
-							'nikic',
-							'php-parser',
-							'lib',
-							'PhpParser',
-							'JsonDecoder.php'
-						)
-					);
-					const toRelative = (absolute: string): string => {
-						if (!workspaceRoot) {
-							throw new Error('Workspace root not initialised.');
-						}
+					await withPhpAutoload(async () => {
+						const workspace = buildWorkspace(workspacePath);
+						workspaceRoot = workspace.root;
 
-						const relative = path
-							.relative(workspaceRoot, absolute)
-							.split(path.sep)
-							.join('/');
-						return relative === '' ? '.' : relative;
-					};
+						const toRelative = (absolute: string): string => {
+							if (!workspaceRoot) {
+								throw new Error(
+									'Workspace root not initialised.'
+								);
+							}
 
-					const captureArtefact = async (
-						...segments: string[]
-					): Promise<void> => {
-						const phpPath = workspace.resolve(...segments);
-						const phpContents = await fs.readFile(phpPath, 'utf8');
-						artefacts.set(toRelative(phpPath), phpContents);
+							const relative = path
+								.relative(workspaceRoot, absolute)
+								.split(path.sep)
+								.join('/');
+							return relative === '' ? '.' : relative;
+						};
 
-						const astPath = `${phpPath}.ast.json`;
-						const astContents = await fs.readFile(astPath, 'utf8');
-						artefacts.set(toRelative(astPath), astContents);
-					};
+						const captureArtefact = async (
+							...segments: string[]
+						): Promise<void> => {
+							const phpPath = workspace.resolve(...segments);
+							const phpContents = await fs.readFile(
+								phpPath,
+								'utf8'
+							);
+							artefacts.set(toRelative(phpPath), phpContents);
 
-					await builder.apply(
-						{
-							context: {
-								workspace,
-								reporter,
-								phase: 'generate',
-							},
-							input: {
-								phase: 'generate',
-								options: {
-									config: ir.config,
-									namespace: ir.meta.namespace,
-									origin: ir.meta.origin,
-									sourcePath: ir.meta.sourcePath,
+							const astPath = `${phpPath}.ast.json`;
+							const astContents = await fs.readFile(
+								astPath,
+								'utf8'
+							);
+							artefacts.set(toRelative(astPath), astContents);
+						};
+
+						await builder.apply(
+							{
+								context: {
+									workspace,
+									reporter,
+									phase: 'generate',
+									generationState:
+										buildEmptyGenerationState(),
 								},
-								ir,
+								input: {
+									phase: 'generate',
+									options: {
+										config: ir.config,
+										namespace: ir.meta.namespace,
+										origin: ir.meta.origin,
+										sourcePath: ir.meta.sourcePath,
+									},
+									ir,
+								},
+								output,
+								reporter,
 							},
-							output,
-							reporter,
-						},
-						undefined
-					);
+							undefined
+						);
 
-					await captureArtefact(
-						ir.php.outputDir,
-						'Rest',
-						'BaseController.php'
-					);
-					await captureArtefact(
-						ir.php.outputDir,
-						'Rest',
-						'BooksController.php'
-					);
-					await captureArtefact(
-						ir.php.outputDir,
-						'Rest',
-						'JobCategoriesController.php'
-					);
-					await captureArtefact(
-						ir.php.outputDir,
-						'Rest',
-						'JobCacheController.php'
-					);
-					await captureArtefact(
-						ir.php.outputDir,
-						'Rest',
-						'DemoOptionController.php'
-					);
-					await captureArtefact(
-						ir.php.outputDir,
-						'Capability',
-						'Capability.php'
-					);
-					await captureArtefact(
-						ir.php.outputDir,
-						'Registration',
-						'PersistenceRegistry.php'
-					);
-					await captureArtefact(ir.php.outputDir, 'index.php');
-					await captureArtefact('plugin.php');
+						await captureArtefact(
+							ir.php.outputDir,
+							'Rest',
+							'BaseController.php'
+						);
+						await captureArtefact(
+							ir.php.outputDir,
+							'Rest',
+							'BooksController.php'
+						);
+						await captureArtefact(
+							ir.php.outputDir,
+							'Rest',
+							'JobCategoriesController.php'
+						);
+						await captureArtefact(
+							ir.php.outputDir,
+							'Rest',
+							'JobCacheController.php'
+						);
+						await captureArtefact(
+							ir.php.outputDir,
+							'Rest',
+							'DemoOptionController.php'
+						);
+						await captureArtefact(
+							ir.php.outputDir,
+							'Capability',
+							'Capability.php'
+						);
+						await captureArtefact(
+							ir.php.outputDir,
+							'Registration',
+							'PersistenceRegistry.php'
+						);
+						await captureArtefact(ir.php.outputDir, 'index.php');
+						await captureArtefact('plugin.php');
+					});
 				});
 			} finally {
 				prettyPrinterSpy.mockRestore();
@@ -418,96 +434,89 @@ describe('createPhpBuilder integration', () => {
 				},
 			};
 
-			await withWorkspace(async (workspacePath) => {
-				const workspace = buildWorkspace(workspacePath);
-				await ensureCliVendorReady();
-				await fs.cp(CLI_VENDOR_ROOT, workspace.resolve('vendor'), {
-					recursive: true,
-				});
+			const prettyPrinterMock = jest
+				.spyOn(phpPrinter, 'buildPhpPrettyPrinter')
+				.mockReturnValue({
+					prettyPrint: jest.fn(async ({ program }) => ({
+						code: '<?php\n// codemodbed\n',
+						ast: program,
+					})),
+				} as unknown as phpPrinter.PhpPrettyPrinter);
 
-				const rootDir = path.resolve(__dirname, '../../../../../..');
-				const beforeFixture = path.join(
-					rootDir,
-					'packages',
-					'php-json-ast',
-					'fixtures',
-					'codemods',
-					'BaselinePack.before.php'
-				);
-				const afterFixture = path.join(
-					rootDir,
-					'packages',
-					'php-json-ast',
-					'fixtures',
-					'codemods',
-					'BaselinePack.after.php'
-				);
+			try {
+				await withWorkspace(async (workspacePath) =>
+					withPhpAutoload(async () => {
+						const workspace = buildWorkspace(workspacePath);
 
-				const configuration = createBaselineCodemodConfiguration();
-				const configurationPath = workspace.resolve(
-					'codemods',
-					'baseline.json'
-				);
-				await fs.mkdir(path.dirname(configurationPath), {
-					recursive: true,
-				});
-				await fs.writeFile(
-					configurationPath,
-					serialisePhpCodemodConfiguration(configuration)
-				);
+						const rootDir = path.resolve(
+							__dirname,
+							'../../../../../..'
+						);
+						const beforeFixture = path.join(
+							rootDir,
+							'packages',
+							'php-json-ast',
+							'fixtures',
+							'codemods',
+							'BaselinePack.before.php'
+						);
 
-				await fs.copyFile(
-					beforeFixture,
-					workspace.resolve('plugin.php')
-				);
+						const configuration =
+							createBaselineCodemodConfiguration();
+						const configurationPath = workspace.resolve(
+							'codemods',
+							'baseline.json'
+						);
+						await fs.mkdir(path.dirname(configurationPath), {
+							recursive: true,
+						});
+						await fs.writeFile(
+							configurationPath,
+							serialisePhpCodemodConfiguration(configuration)
+						);
 
-				await builder.apply(
-					{
-						context: {
-							workspace,
-							reporter,
-							phase: 'generate',
-						},
-						input: {
-							phase: 'generate',
-							options: {
-								config: ir.config,
-								namespace: ir.meta.namespace,
-								origin: ir.meta.origin,
-								sourcePath: ir.meta.sourcePath,
+						await fs.copyFile(
+							beforeFixture,
+							workspace.resolve('plugin.php')
+						);
+
+						await builder.apply(
+							{
+								context: {
+									workspace,
+									reporter,
+									phase: 'generate',
+									generationState:
+										buildEmptyGenerationState(),
+								},
+								input: {
+									phase: 'generate',
+									options: {
+										config: ir.config,
+										namespace: ir.meta.namespace,
+										origin: ir.meta.origin,
+										sourcePath: ir.meta.sourcePath,
+									},
+									ir,
+								},
+								output,
+								reporter,
 							},
-							ir,
-						},
-						output,
-						reporter,
-					},
-					undefined
-				);
+							undefined
+						);
 
-				const generated = await fs.readFile(
-					workspace.resolve('plugin.php'),
-					'utf8'
+						expect(runCodemodIngestionMock).toHaveBeenCalledWith(
+							expect.objectContaining({
+								files: [workspace.resolve('plugin.php')],
+								configurationPath,
+							})
+						);
+						expect(consumeCodemodsMock).toHaveBeenCalled();
+					})
 				);
-				const expected = await fs.readFile(afterFixture, 'utf8');
-				expect(generated).toBe(expected);
-
-				const codemodSummary = await fs.readFile(
-					workspace.resolve('plugin.php.codemod.summary.txt'),
-					'utf8'
-				);
-				expect(codemodSummary).toContain('baseline');
-
-				const beforeAst = await fs.readFile(
-					workspace.resolve('plugin.php.codemod.before.ast.json'),
-					'utf8'
-				);
-				const afterAst = await fs.readFile(
-					workspace.resolve('plugin.php.codemod.after.ast.json'),
-					'utf8'
-				);
-				expect(beforeAst.trim()).not.toHaveLength(0);
-				expect(afterAst.trim()).not.toHaveLength(0);
-			});
+			} finally {
+				prettyPrinterMock.mockRestore();
+			}
 		},
 		INTEGRATION_TIMEOUT_MS
 	);

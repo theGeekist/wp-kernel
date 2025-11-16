@@ -14,8 +14,9 @@ describe('deriveResourceBlocks', () => {
 	it('derives manifest attributes from schema definitions', () => {
 		const schemaWithAttributes: IRSchema = {
 			key: 'with-attributes',
+			id: 'sch:with-attributes',
 			sourcePath: '/schemas/with-attributes.schema.json',
-			hash: 'schema-hash',
+			hash: makeHash('schema-hash', ['schema']),
 			provenance: 'manual',
 			schema: {
 				type: 'object',
@@ -70,7 +71,7 @@ describe('deriveResourceBlocks', () => {
 		});
 
 		expect(derived).toHaveLength(1);
-		const [entry] = derived;
+		const entry = derived[0]!;
 
 		expect(entry.block).toMatchObject({
 			key: 'test-namespace/alpha-resource',
@@ -135,8 +136,9 @@ describe('deriveResourceBlocks', () => {
 	it('skips ineligible resources and derives fallback manifest metadata', () => {
 		const schemaWithoutObject: IRSchema = {
 			key: 'non-object',
+			id: 'sch:non-object',
 			sourcePath: '/schemas/non-object.schema.json',
-			hash: 'schema-non-object',
+			hash: makeHash('schema-non-object', ['schema']),
 			provenance: 'manual',
 			schema: {
 				type: 'string',
@@ -171,6 +173,13 @@ describe('deriveResourceBlocks', () => {
 		});
 
 		const existingBlock: IRBlock = {
+			id: 'blk:test-namespace/existing-resource',
+			hash: makeHash('existing-block', [
+				'key',
+				'directory',
+				'hasRender',
+				'manifestSource',
+			]),
 			key: 'test-namespace/existing-resource',
 			directory: '.generated/blocks/existing-resource',
 			hasRender: false,
@@ -233,7 +242,7 @@ describe('deriveResourceBlocks', () => {
 		});
 
 		expect(derived).toHaveLength(1);
-		const [entry] = derived;
+		const entry = derived[0]!;
 		expect(entry.kind).toBe('ssr');
 		expect(entry.block.hasRender).toBe(true);
 		expect(entry.manifest).toMatchObject({
@@ -287,6 +296,20 @@ function makeIr(options?: {
 			sourcePath: '/path/to/wpk.config.ts',
 			origin: 'typescript',
 			sanitizedNamespace: namespace,
+			features: [],
+			ids: {
+				algorithm: 'sha256',
+				resourcePrefix: 'res:',
+				schemaPrefix: 'sch:',
+				blockPrefix: 'blk:',
+				capabilityPrefix: 'cap:',
+			},
+			redactions: [],
+			limits: {
+				maxConfigKB: 512,
+				maxSchemaKB: 512,
+				policy: 'error',
+			},
 		},
 		config,
 		schemas: options?.schemas ?? [],
@@ -333,7 +356,7 @@ function makeResource(
 		ui: overrides?.ui,
 		blocks: overrides?.blocks,
 		hash:
-			overrides?.hash ??
+			(overrides?.hash as IRHashProvenance | undefined) ??
 			makeHash(`${name}-hash`, ['name', 'schemaKey', 'schemaProvenance']),
 		warnings: overrides?.warnings ?? [],
 	} satisfies IRResource;

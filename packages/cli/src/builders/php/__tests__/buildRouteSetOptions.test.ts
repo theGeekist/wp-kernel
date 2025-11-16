@@ -27,6 +27,7 @@ function buildMetadataHost(): ResourceMetadataHost {
 
 function buildResource(storage: IRResource['storage']): IRResource {
 	return {
+		id: '',
 		name: 'book',
 		schemaKey: 'book',
 		schemaProvenance: 'manual',
@@ -42,7 +43,14 @@ function buildResource(storage: IRResource['storage']): IRResource {
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: 'resource-hash',
+		hash: {
+			/** The hashing algorithm used to generate the value. */
+			algo: 'sha256',
+			/** The logical inputs that were included in the hash derivation. */
+			inputs: [''],
+			/** The computed hash digest. */
+			value: '',
+		},
 		warnings: [],
 	};
 }
@@ -53,7 +61,14 @@ function buildRoute(method: IRRoute['method']): IRRoute {
 		path: '/kernel/v1/books',
 		capability: undefined,
 		transport: 'local',
-		hash: `${method.toLowerCase()}-route`,
+		hash: {
+			/** The hashing algorithm used to generate the value. */
+			algo: 'sha256',
+			/** The logical inputs that were included in the hash derivation. */
+			inputs: [''],
+			/** The computed hash digest. */
+			value: `${method.toLowerCase()}-route`,
+		},
 	};
 }
 

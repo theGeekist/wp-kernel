@@ -24,7 +24,9 @@ import { validateGeneratedImports } from '../../commands/run-generate/validation
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
 ) =>
-	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
+	baseWithWorkspace(run, {
+		createWorkspace: (root: string) => buildWorkspace(root),
+	});
 
 jest.mock('../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),

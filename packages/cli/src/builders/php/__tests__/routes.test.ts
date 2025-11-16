@@ -53,6 +53,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 			queryParams: undefined,
 			ui: undefined,
 			hash: 'resource-hash',
+
 			warnings: [],
 		};
 	}
@@ -76,6 +77,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 		await createPhpWpPostRoutesHelper().apply(
 			{
 				context,
+
 				input: {
 					phase: 'generate' as const,
 					options: {

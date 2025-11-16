@@ -22,7 +22,9 @@ jest.mock('../../commands/run-generate/validation', () => ({
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
 ) =>
-	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
+	baseWithWorkspace(run, {
+		createWorkspace: (root: string) => buildWorkspace(root),
+	});
 
 describe('createTsBuilder - DataView fixture creator', () => {
 	it('generates fixtures referencing the wpk config via a relative path', async () => {
