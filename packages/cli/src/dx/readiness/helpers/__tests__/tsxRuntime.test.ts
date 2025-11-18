@@ -4,7 +4,7 @@ import type { DxContext } from '../../context';
 import {
 	createReadinessTestContext,
 	createRecordingReporter,
-	createWorkspaceDouble,
+	makeWorkspaceMock,
 } from '../../test/test-support';
 
 function createModuleNotFound(
@@ -17,6 +17,8 @@ function createModuleNotFound(
 	error.code = 'MODULE_NOT_FOUND';
 	return error;
 }
+
+const buildWorkspace = () => makeWorkspaceMock({ root: '/tmp/project' });
 
 describe('createTsxRuntimeReadinessHelper', () => {
 	it('detects existing tsx runtime', async () => {
@@ -46,7 +48,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			})
 			.mockReturnValue('/tmp/node_modules/tsx/esm/api.js');
 		const exec = jest.fn().mockResolvedValue({ stdout: '', stderr: '' });
-		const workspace = createWorkspaceDouble();
+		const workspace = buildWorkspace();
 		const helper = createTsxRuntimeReadinessHelper({ resolve, exec });
 
 		const baseContext = createReadinessTestContext({ workspace });
@@ -68,7 +70,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			'npm',
 			['install', '--save-dev', 'tsx'],
 			{
-				cwd: '/tmp/project',
+				cwd: workspace.root,
 			}
 		);
 		expect(
@@ -88,7 +90,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			'npm',
 			['uninstall', '--save-dev', 'tsx'],
 			{
-				cwd: '/tmp/project',
+				cwd: workspace.root,
 			}
 		);
 	});
@@ -116,7 +118,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			throw new Error('resolution failure');
 		});
 		const { reporter, records } = createRecordingReporter();
-		const workspace = createWorkspaceDouble();
+		const workspace = buildWorkspace();
 		const baseContext = createReadinessTestContext({ workspace });
 		const context: DxContext = { ...baseContext, reporter };
 		const helper = createTsxRuntimeReadinessHelper({
@@ -144,7 +146,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			throw createModuleNotFound('tsx/esm/api');
 		});
 		const exec = jest.fn().mockResolvedValue({ stdout: '', stderr: '' });
-		const workspace = createWorkspaceDouble();
+		const workspace = buildWorkspace();
 		const helper = createTsxRuntimeReadinessHelper({ resolve, exec });
 		const baseContext = createReadinessTestContext({ workspace });
 		const { reporter, records } = createRecordingReporter();
@@ -221,7 +223,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 		const resolve = jest.fn().mockImplementation(() => {
 			throw createModuleNotFound('tsx', "Can't resolve 'tsx'");
 		});
-		const workspace = createWorkspaceDouble();
+		const workspace = buildWorkspace();
 		const helper = createTsxRuntimeReadinessHelper({
 			resolve,
 			exec: jest.fn(),
@@ -240,7 +242,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			.fn()
 			.mockReturnValue(undefined as unknown as string);
 		const exec = jest.fn();
-		const workspace = createWorkspaceDouble();
+		const workspace = buildWorkspace();
 		const { reporter, records } = createRecordingReporter();
 		const context: DxContext = {
 			...createReadinessTestContext({ workspace }),
@@ -274,7 +276,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			resolve,
 			exec: jest.fn(),
 		});
-		const workspace = createWorkspaceDouble();
+		const workspace = buildWorkspace();
 		const detection = await helper.detect(
 			createReadinessTestContext({ workspace })
 		);
@@ -291,7 +293,7 @@ describe('createTsxRuntimeReadinessHelper', () => {
 			.mockReturnValue('/tmp/node_modules/tsx/esm/api.js');
 		const exec = jest.fn().mockResolvedValue({ stdout: '', stderr: '' });
 		const helper = createTsxRuntimeReadinessHelper({ resolve, exec });
-		const workspace = createWorkspaceDouble();
+		const workspace = buildWorkspace();
 		const detection = await helper.detect(
 			createReadinessTestContext({ workspace })
 		);
