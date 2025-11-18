@@ -104,7 +104,7 @@ function canGeneratePluginLoader(
 function buildResourceClassNames(ir: GeneratePhaseInput['ir']): string[] {
 	return ir.resources.map((resource) => {
 		const pascal = toPascalCase(resource.name);
-		return `${ir.php.namespace}\\Rest\\${pascal}Controller`;
+		return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
 	});
 }
 

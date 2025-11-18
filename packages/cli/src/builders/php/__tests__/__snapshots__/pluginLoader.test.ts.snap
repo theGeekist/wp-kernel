@@ -185,6 +185,7 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
                       "nodeType": "Name_FullyQualified",
                       "parts": [
                         "demo-plugin",
+                        "Generated",
                         "Rest",
                         "BooksController",
                       ],
@@ -3468,6 +3469,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
                       "parts": [
                         "Demo",
                         "Plugin",
+                        "Generated",
                         "Rest",
                         "BooksController",
                       ],
@@ -3490,6 +3492,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
                       "parts": [
                         "Demo",
                         "Plugin",
+                        "Generated",
                         "Rest",
                         "AuthorsController",
                       ],
@@ -3962,6 +3965,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
                         "Acme",
                         "Demo",
                         "Plugin",
+                        "Generated",
                         "Rest",
                         "JobsController",
                       ],
