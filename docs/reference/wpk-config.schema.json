@@ -58,6 +58,24 @@
 					"items": { "$ref": "#/$defs/function" }
 				}
 			}
+		},
+		"directories": {
+			"type": "object",
+			"description": "Optional mapping of applied artifact identifiers to workspace-relative directories (omit the \".applied\" suffix). Supported keys: blocks, blocks.applied, controllers, controllers.applied, plugin, plugin.loader.",
+			"propertyNames": {
+				"enum": [
+					"blocks",
+					"blocks.applied",
+					"controllers",
+					"controllers.applied",
+					"plugin",
+					"plugin.loader"
+				]
+			},
+			"additionalProperties": {
+				"type": "string",
+				"minLength": 1
+			}
 		}
 	},
 	"$defs": {

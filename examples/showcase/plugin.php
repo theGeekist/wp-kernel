@@ -33,7 +33,7 @@ if (!defined('ABSPATH')) {
  */
 function get_wpkernel_controllers(): array
 {
-    return [new \Acme\Jobs\Generated\Rest\ApplicationController(), new \Acme\Jobs\Generated\Rest\JobController(), new \Acme\Jobs\Generated\Rest\JobCategoryController(), new \Acme\Jobs\Generated\Rest\SettingsController(), new \Acme\Jobs\Generated\Rest\StatusCacheController()];
+    return [new \Acme\Jobs\Rest\ApplicationController(), new \Acme\Jobs\Rest\JobController(), new \Acme\Jobs\Rest\JobCategoryController(), new \Acme\Jobs\Rest\SettingsController(), new \Acme\Jobs\Rest\StatusCacheController()];
 }
 /** Register WPKernel REST controllers with WordPress. */
 function register_wpkernel_routes(): void
@@ -68,15 +68,70 @@ function enqueue_wpkernel_ui_assets(): void
     }
     $script_url = plugins_url('build/index.js', __FILE__);
     wp_register_script('wp-acme-jobs-ui', $script_url, $dependencies, $version);
-    $localization = ['namespace' => 'acme-jobs', 'resources' => [['resource' => 'application', 'preferencesKey' => 'acme-jobs/dataviews/application'], ['resource' => 'job', 'preferencesKey' => 'acme-jobs/dataviews/job', 'menu' => ['slug' => 'acme-jobs', 'title' => 'Jobs', 'capability' => 'manage_options', 'parent' => 'options-general.php', 'position' => 58]]]];
+    $localization = ['namespace' => 'acme-jobs', 'resources' => [['resource' => 'application', 'preferencesKey' => 'acme-jobs/dataviews/application', 'menu' => ['slug' => 'acme-applications', 'title' => 'Applications', 'capability' => 'manage_options', 'parent' => 'acme-jobs']], ['resource' => 'job', 'preferencesKey' => 'acme-jobs/dataviews/job', 'menu' => ['slug' => 'acme-jobs', 'title' => 'Jobs', 'capability' => 'manage_options', 'position' => 58]]]];
     wp_localize_script('wp-acme-jobs-ui', 'wpKernelUISettings', $localization);
     wp_enqueue_script('wp-acme-jobs-ui');
+}
+/** Register admin menu entries for WPKernel DataViews screens. */
+function register_wpkernel_admin_menu(): void
+{
+    $parent_menus = [['slug' => 'acme-jobs', 'title' => 'Jobs', 'capability' => 'manage_options', 'position' => 58]];
+    $child_menus = [['slug' => 'acme-applications', 'title' => 'Applications', 'capability' => 'manage_options', 'parent' => 'acme-jobs']];
+    foreach ($parent_menus as $menu) {
+        $slug = $menu['slug'];
+        $title = $menu['title'];
+        $capability = isset($menu['capability']) ? $menu['capability'] : 'manage_options';
+        $callback = __NAMESPACE__ . '\render_wpkernel_admin_screen';
+        if (isset($menu['parent']) && $menu['parent']) {
+            if (isset($menu['position'])) {
+                add_submenu_page($menu['parent'], $title, $title, $capability, $slug, $callback, $menu['position']);
+            } else {
+                add_submenu_page($menu['parent'], $title, $title, $capability, $slug, $callback);
+            }
+            continue;
+        }
+        if (isset($menu['position'])) {
+            add_menu_page($title, $title, $capability, $slug, $callback, '', $menu['position']);
+        } else {
+            add_menu_page($title, $title, $capability, $slug, $callback, '');
+        }
+    }
+    foreach ($child_menus as $menu) {
+        $slug = $menu['slug'];
+        $title = $menu['title'];
+        $capability = isset($menu['capability']) ? $menu['capability'] : 'manage_options';
+        $callback = __NAMESPACE__ . '\render_wpkernel_admin_screen';
+        if (isset($menu['parent']) && $menu['parent']) {
+            if (isset($menu['position'])) {
+                add_submenu_page($menu['parent'], $title, $title, $capability, $slug, $callback, $menu['position']);
+            } else {
+                add_submenu_page($menu['parent'], $title, $title, $capability, $slug, $callback);
+            }
+            continue;
+        }
+        if (isset($menu['position'])) {
+            add_menu_page($title, $title, $capability, $slug, $callback, '', $menu['position']);
+        } else {
+            add_menu_page($title, $title, $capability, $slug, $callback, '');
+        }
+    }
+}
+/** Render container for WPKernel-admin DataViews screens. */
+function render_wpkernel_admin_screen(): void
+{
+    $page = '';
+    if (isset($_GET['page'])) {
+        $page = sanitize_key(strval($_GET['page']));
+    }
+    printf('<div class="wrap"><div id="wpkernel-admin-screen" data-wpkernel-page="%s"></div></div>', esc_attr($page));
 }
 /** Attach wpk hooks required for REST registration. */
 function bootstrap_kernel(): void
 {
     add_action('rest_api_init', __NAMESPACE__ . '\register_wpkernel_routes');
     add_action('admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_wpkernel_ui_assets');
+    add_action('admin_menu', __NAMESPACE__ . '\register_wpkernel_admin_menu');
 }
 bootstrap_kernel();
 // WPK:END AUTO
+// Custom plugin logic may be added below. This area is left untouched by the generator.
