@@ -4,8 +4,7 @@
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"moduleResolution": "bundler",
-		"paths": {}
+		"moduleResolution": "bundler"
 	},
 	"include": [
 		"src/**/*",
