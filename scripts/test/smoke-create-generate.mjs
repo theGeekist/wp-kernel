@@ -214,7 +214,7 @@ async function main() {
 
 async function cleanup(summary, success) {
 	if (!keepWorkspace) {
-		await rm(smokeRoot, { recursive: true, force: true });
+		await safeRm(smokeRoot);
 	} else {
 		const preserved =
 			summary.projects.length > 0
@@ -227,7 +227,7 @@ async function cleanup(summary, success) {
 	}
 
 	if (cleanArtifacts) {
-		await rm(artifactsDir, { recursive: true, force: true });
+		await safeRm(artifactsDir);
 		console.log('\nINFO Removed artifacts directory (--clean-artifacts).');
 	} else if (!success && summary.artifacts.length > 0) {
 		console.log('\nINFO Packed tarballs are available at:');
@@ -506,6 +506,27 @@ function runGit(args, options = {}) {
 	return runCommand('git', args, options);
 }
 
+async function safeRm(target) {
+	try {
+		await rm(target, {
+			recursive: true,
+			force: true,
+			maxRetries: 5,
+			retryDelay: 100,
+		});
+	} catch (error) {
+		// Fallback for runtimes that don't support maxRetries/retryDelay or transient ENOTEMPTY.
+		if (
+			error &&
+			(error.code === 'ENOTEMPTY' || error.code === 'EEXIST')
+		) {
+			await rm(target, { recursive: true, force: true });
+			return;
+		}
+		throw error;
+	}
+}
+
 async function initGitRepository(cwd) {
 	// Always re-init to ensure .git exists and is consistent.
 	await runGit(['init'], { cwd, capture: true, quietCapture: true });
@@ -532,7 +553,7 @@ async function initGitRepository(cwd) {
 }
 
 async function resetGitRepository(cwd, message) {
-	await rm(path.join(cwd, '.git'), { recursive: true, force: true });
+	await safeRm(path.join(cwd, '.git'));
 	await initGitRepository(cwd);
 	await runGit(['add', '--all'], {
 		cwd,

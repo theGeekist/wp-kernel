@@ -203,9 +203,9 @@ This section details the configuration options for defining capabilities within 
 
 ### UI configuration (`resources.<key>.ui`)
 
-| Path          | Accepted values & defaults                                        | CLI & pipeline consumers                                | Generated files                          | WordPress artifacts                         | Runtime usage |
-| ------------- | ----------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------- | ------------------------------------------- | ------------- |
-| `directories` | Optional object mapping logical IDs → paths (applied assets only) | Sets applied output targets (e.g., blocks/controllers). | Applied artifacts land where configured. | N/A (affects generated/apply destinations). | N/A           |
+| Path          | Accepted values & defaults                                                                         | CLI & pipeline consumers                                        | Generated files                          | WordPress artifacts                                            | Runtime usage |
+| ------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------- | ------------- |
+| `directories` | Optional mapping of applied layout IDs → paths (`blocks`, `controllers`, `plugin`/`plugin.loader`) | Sets applied output targets (blocks/controllers/plugin loader). | Applied artifacts land where configured. | N/A (affects apply destinations only; `.wpk/*` remains fixed). | N/A           |
 
 | Path                                 | Accepted values & defaults                  | CLI & pipeline consumers                                | Generated files                                                                                         | WordPress artifacts                                          | Runtime usage                               |
 | ------------------------------------ | ------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------- |

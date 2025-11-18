@@ -56,6 +56,15 @@ function normalizeLayout(layout: unknown): Record<string, LayoutNode> {
 	return layout.directories as Record<string, LayoutNode>;
 }
 
+const USER_OVERRIDABLE_IDS: Record<string, string> = {
+	blocks: 'blocks.applied',
+	'blocks.applied': 'blocks.applied',
+	controllers: 'controllers.applied',
+	'controllers.applied': 'controllers.applied',
+	plugin: 'plugin.loader',
+	'plugin.loader': 'plugin.loader',
+};
+
 function mergeAppliedOverrides(
 	defaults: LayoutMap,
 	overrides: Record<string, string> | undefined
@@ -66,12 +75,22 @@ function mergeAppliedOverrides(
 
 	const next = { ...defaults };
 	for (const [key, value] of Object.entries(overrides)) {
+		const targetId = USER_OVERRIDABLE_IDS[key];
+		if (!targetId) {
+			throw new WPKernelError('ValidationError', {
+				message: `Unsupported layout override "${key}". Allowed ids: ${Object.keys(
+					USER_OVERRIDABLE_IDS
+				).join(', ')}`,
+			});
+		}
+
 		if (typeof value !== 'string' || value.length === 0) {
 			continue;
 		}
 
-		next[key] = value;
-		next[`${key}.applied`] = value;
+		next[targetId] = value;
+		// Provide the ".applied" alias for convenience.
+		next[`${targetId}.applied`] = value;
 	}
 
 	return next;

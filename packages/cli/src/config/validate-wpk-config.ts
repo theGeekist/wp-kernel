@@ -337,7 +337,16 @@ const wpkConfigValidator = t.isObject(
 		version: t.isOptional(t.isLiteral(1)),
 		namespace: t.isString(),
 		directories: t.isOptional(
-			t.isRecord(t.isString(), { keys: t.isString() })
+			t.isRecord(t.isString(), {
+				keys: t.isOneOf([
+					t.isLiteral('blocks'),
+					t.isLiteral('blocks.applied'),
+					t.isLiteral('controllers'),
+					t.isLiteral('controllers.applied'),
+					t.isLiteral('plugin'),
+					t.isLiteral('plugin.loader'),
+				]),
+			})
 		),
 		schemas: t.isRecord(schemaConfigValidator),
 		resources: t.isRecord(resourceConfigValidator),

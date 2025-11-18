@@ -80,6 +80,31 @@ describe('layout fragment', () => {
 		);
 	});
 
+	it('rejects overrides for non-applied layout ids', async () => {
+		await withTempWorkspace(
+			async () => {},
+			async (root) => {
+				const config = createBaseConfig();
+				config.directories = {
+					'plan.manifest': 'custom/plan.json',
+				} as Record<string, string>;
+
+				await expect(
+					buildIr({
+						config,
+						sourcePath: path.join(root, 'wpk.config.ts'),
+						origin: 'wpk.config.ts',
+						namespace: config.namespace,
+					})
+				).rejects.toMatchObject({
+					message: expect.stringContaining(
+						'Unsupported layout override'
+					),
+				});
+			}
+		);
+	});
+
 	it('falls back to bundled manifest when manifest is missing', async () => {
 		await withTempWorkspace(
 			async () => {},
