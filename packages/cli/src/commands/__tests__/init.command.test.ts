@@ -3,7 +3,7 @@ import {
 	assignCommandContext,
 	createCommandReporterHarness,
 } from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import { buildInitCommand } from '../init';
 import type { buildWorkspace } from '../../workspace/filesystem';
 

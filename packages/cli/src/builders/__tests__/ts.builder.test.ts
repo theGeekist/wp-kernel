@@ -20,7 +20,7 @@ import {
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { validateGeneratedImports } from '../../commands/run-generate/validation';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>

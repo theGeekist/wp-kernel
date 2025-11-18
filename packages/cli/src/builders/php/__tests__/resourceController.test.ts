@@ -6,11 +6,11 @@ import {
 	WP_POST_MUTATION_CONTRACT,
 	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
-import type { IRResource, IRv1, IRWarning } from '../../../ir/publicTypes';
+import type { IRv1 } from '../../../ir/publicTypes';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import {
 	createBuilderInput,
 	createBuilderOutput,
@@ -41,7 +41,7 @@ import {
 	getPhpBuilderChannel,
 } from '../index';
 import { makeCapabilityProtectedResource } from '../test-support/capabilityProtectedResource.test-support';
-import { makeHash } from '../test-support/fixtures.test-support';
+import { buildCacheKeyPlan } from '../controller.storageArtifacts';
 
 function buildReporter(): Reporter {
 	return {
@@ -82,6 +82,17 @@ function findNamespace(program: PhpProgram): PhpStmtNamespace | undefined {
 	);
 }
 
+function getRoute(
+	routes: ReturnType<typeof makeWpPostRoutes>,
+	matcher: (route: ReturnType<typeof makeWpPostRoutes>[number]) => boolean
+) {
+	const route = routes.find(matcher);
+	if (!route) {
+		throw new Error('Expected route to be defined.');
+	}
+	return route;
+}
+
 function hasUseImport(
 	program: PhpProgram,
 	expectedParts: readonly string[]
@@ -108,6 +119,64 @@ function hasUseImport(
 }
 
 describe('createPhpResourceControllerHelper', () => {
+	function buildIr(): IRv1 {
+		return {
+			meta: {
+				version: 1,
+				namespace: 'demo',
+				sanitizedNamespace: 'Demo',
+				origin: 'typescript',
+				sourcePath: 'wpk.config.ts',
+				features: ['capabilityMap', 'phpAutoload'],
+				ids: {
+					algorithm: 'sha256',
+					resourcePrefix: 'res:',
+					schemaPrefix: 'sch:',
+					blockPrefix: 'blk:',
+					capabilityPrefix: 'cap:',
+				},
+				redactions: ['config.env', 'adapters.secrets'],
+				limits: {
+					maxConfigKB: 256,
+					maxSchemaKB: 1024,
+					policy: 'truncate',
+				},
+			},
+			config: {
+				version: 1,
+				namespace: 'demo',
+				schemas: {},
+				resources: {},
+			},
+			schemas: [],
+			resources: [makeWpPostResource(), makeWpTaxonomyResource()],
+			capabilities: [],
+			capabilityMap: {
+				sourcePath: undefined,
+				definitions: [],
+				fallback: {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+				missing: [],
+				unused: [],
+				warnings: [],
+			},
+			blocks: [],
+			php: {
+				namespace: 'Demo',
+				autoload: 'inc/',
+				outputDir: 'inc/generated',
+			},
+			layout: {
+				resolve(id: string) {
+					return id;
+				},
+				all: {} satisfies IRv1['layout']['all'],
+			},
+		} satisfies IRv1;
+	}
+
 	it('queues resource controllers with resolved identity and route kinds', async () => {
 		const ir = buildIr();
 		const applyOptions = buildApplyOptions(ir);
@@ -119,7 +188,8 @@ describe('createPhpResourceControllerHelper', () => {
 		const entry = channel
 			.pending()
 			.find(
-				(candidate) => candidate.metadata.kind === 'resource-controller'
+				(candidate) =>
+					candidate.metadata?.kind === 'resource-controller'
 			);
 
 		expect(entry).toBeDefined();
@@ -296,7 +366,7 @@ describe('createPhpResourceControllerHelper', () => {
 			.pending()
 			.find(
 				(candidate) =>
-					candidate.metadata.kind === 'resource-controller' &&
+					candidate.metadata?.kind === 'resource-controller' &&
 					candidate.metadata.name === 'jobCategories'
 			);
 
@@ -646,116 +716,6 @@ describe('buildResourceControllerRouteMetadata', () => {
 		]);
 	});
 });
-
-function buildIr(): IRv1 {
-	const ir = createMinimalIr();
-	const resources = [
-		hydrateResource(makeWpPostResource()),
-		hydrateResource(makeWpTaxonomyResource()),
-		hydrateResource(makeWpOptionResource()),
-		hydrateResource(makeTransientResource()),
-	];
-	return {
-		...ir,
-		resources,
-	};
-}
-
-function buildCacheKeyPlan(resource: Pick<IRResource, 'cacheKeys'>) {
-	return {
-		list: { segments: resource.cacheKeys.list.segments },
-		get: { segments: resource.cacheKeys.get.segments },
-		create: resource.cacheKeys.create
-			? { segments: resource.cacheKeys.create.segments }
-			: undefined,
-		update: resource.cacheKeys.update
-			? { segments: resource.cacheKeys.update.segments }
-			: undefined,
-		remove: resource.cacheKeys.remove
-			? { segments: resource.cacheKeys.remove.segments }
-			: undefined,
-	} as const;
-}
-
-function getRoute(
-	routes: ReturnType<typeof makeWpPostRoutes>,
-	matcher: (route: ReturnType<typeof makeWpPostRoutes>[number]) => boolean
-) {
-	const route = routes.find(matcher);
-	if (!route) {
-		throw new Error('Expected route to be defined.');
-	}
-	return route;
-}
-
-type AnyResourceLike =
-	| ReturnType<typeof makeWpPostResource>
-	| ReturnType<typeof makeWpTaxonomyResource>
-	| ReturnType<typeof makeWpOptionResource>
-	| ReturnType<typeof makeTransientResource>;
-
-function hydrateResource(resourceLike: AnyResourceLike): IRResource {
-	return {
-		id: resourceLike.name,
-		name: resourceLike.name,
-		schemaKey: resourceLike.schemaKey,
-		schemaProvenance: resourceLike.schemaProvenance,
-		routes: resourceLike.routes.map(hydrateRoute),
-		cacheKeys: {
-			list: hydrateCacheKey(resourceLike.cacheKeys.list),
-			get: hydrateCacheKey(resourceLike.cacheKeys.get),
-			...(resourceLike.cacheKeys.create
-				? { create: hydrateCacheKey(resourceLike.cacheKeys.create) }
-				: {}),
-			...(resourceLike.cacheKeys.update
-				? { update: hydrateCacheKey(resourceLike.cacheKeys.update) }
-				: {}),
-			...(resourceLike.cacheKeys.remove
-				? { remove: hydrateCacheKey(resourceLike.cacheKeys.remove) }
-				: {}),
-		},
-		identity: resourceLike.identity,
-		storage: resourceLike.storage,
-		queryParams: resourceLike.queryParams,
-		ui: resourceLike.ui,
-		hash: makeHash(resourceLike.hash ?? `resource:${resourceLike.name}`),
-		warnings: (resourceLike.warnings ?? []).map(hydrateWarning),
-	};
-}
-
-type AnyRouteLike = AnyResourceLike['routes'][number];
-
-function hydrateRoute(routeLike: AnyRouteLike) {
-	return {
-		method: routeLike.method,
-		path: routeLike.path,
-		capability: routeLike.capability,
-		transport: routeLike.transport,
-		hash: makeHash(
-			routeLike.hash ?? `${routeLike.method}:${routeLike.path}`
-		),
-	};
-}
-
-type AnyCacheKeyLike = AnyResourceLike['cacheKeys']['list'];
-
-function hydrateCacheKey(cacheKeyLike: AnyCacheKeyLike) {
-	return {
-		segments: [...cacheKeyLike.segments],
-		source: cacheKeyLike.source,
-	};
-}
-
-type AnyWarningLike = AnyResourceLike['warnings'][number];
-
-function hydrateWarning(warningLike: AnyWarningLike): IRWarning {
-	return {
-		code: warningLike.code,
-		message: warningLike.message,
-		context: warningLike.context,
-		hint: warningLike.hint,
-	};
-}
 
 function buildApplyOptions(
 	ir: IRv1,

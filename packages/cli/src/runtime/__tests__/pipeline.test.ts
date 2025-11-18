@@ -15,8 +15,8 @@ import {
 	buildFragmentHelper,
 	buildPipelineExtension,
 } from '@wpkernel/test-utils/runtime/pipeline.fixtures.test-support';
-import { withPipelineHarness } from '../test-support/pipeline.test-support';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { withPipelineHarness } from '@cli-tests/runtime/pipeline.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 const DUMMY_LAYOUT = {
 	resolve(id: string) {
@@ -24,6 +24,137 @@ const DUMMY_LAYOUT = {
 	},
 	all: {},
 };
+
+type MetaHelperOptions = {
+	readonly key?: string;
+	readonly namespace?: string;
+	readonly sanitizedNamespace?: string;
+	readonly outputDir?: string;
+	readonly mode?: FragmentHelper['mode'];
+	readonly onApply?: () => void;
+};
+
+function createMetaHelper({
+	key = 'ir.meta.test',
+	namespace = 'test-namespace',
+	sanitizedNamespace = namespace,
+	outputDir,
+	mode = 'override',
+	onApply,
+}: MetaHelperOptions = {}): FragmentHelper {
+	const resolvedOutputDir = outputDir ?? 'php.generated';
+	return createHelper({
+		key,
+		kind: 'fragment',
+		mode,
+		apply({ output }: FragmentApplyOptions) {
+			onApply?.();
+			output.assign({
+				meta: {
+					version: 1,
+					namespace,
+					sanitizedNamespace,
+					origin: 'typescript',
+					sourcePath: 'config.ts',
+					features: [],
+					ids: {
+						algorithm: 'sha256',
+						resourcePrefix: 'res:',
+						schemaPrefix: 'sch:',
+						blockPrefix: 'blk:',
+						capabilityPrefix: 'cap:',
+					},
+					redactions: [],
+					limits: {
+						maxConfigKB: 512,
+						maxSchemaKB: 512,
+						policy: 'error',
+					},
+				},
+				php: {
+					namespace: sanitizedNamespace,
+					autoload: 'inc/',
+					outputDir: resolvedOutputDir,
+				},
+			});
+		},
+	});
+}
+
+type CollectionHelperOptions = {
+	readonly key?: string;
+	readonly dependsOn?: string;
+	readonly capabilityMap?: IRCapabilityMap;
+	readonly onApply?: () => void;
+};
+
+function createCollectionHelper({
+	key = 'ir.collection.test',
+	dependsOn = 'ir.meta.test',
+	capabilityMap = buildCapabilityMap(),
+	onApply,
+}: CollectionHelperOptions = {}): FragmentHelper {
+	return createHelper({
+		key,
+		kind: 'fragment',
+		dependsOn: [dependsOn],
+		apply({ output }: FragmentApplyOptions) {
+			onApply?.();
+			output.assign({
+				schemas: [],
+				resources: [],
+				capabilities: [],
+				blocks: [],
+				capabilityMap,
+			});
+		},
+	});
+}
+
+type CapabilityHelperOptions = {
+	readonly key?: string;
+	readonly dependsOn?: string;
+	readonly capabilityMap?: IRCapabilityMap;
+	readonly onApply?: () => void;
+};
+
+function createCapabilityHelper({
+	key = 'ir.capability-map.test',
+	dependsOn = 'ir.collection.test',
+	capabilityMap = buildCapabilityMap(),
+	onApply,
+}: CapabilityHelperOptions = {}): FragmentHelper {
+	return createHelper({
+		key,
+		kind: 'fragment',
+		dependsOn: [dependsOn],
+		apply({ output }: FragmentApplyOptions) {
+			onApply?.();
+			output.assign({ capabilityMap });
+		},
+	});
+}
+
+type ValidationHelperOptions = {
+	readonly key?: string;
+	readonly dependsOn?: string;
+	readonly onApply?: () => void;
+};
+
+function createValidationHelper({
+	key = 'ir.validation.test',
+	dependsOn = 'ir.capability-map.test',
+	onApply,
+}: ValidationHelperOptions = {}): FragmentHelper {
+	return createHelper({
+		key,
+		kind: 'fragment',
+		dependsOn: [dependsOn],
+		apply() {
+			onApply?.();
+		},
+	});
+}
 
 function buildCapabilityMap(): IRCapabilityMap {
 	return {
@@ -70,76 +201,23 @@ describe('createPipeline', () => {
 	it('orders helpers by dependency metadata and executes builders', async () => {
 		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const runOrder: string[] = [];
-			const metaHelper = createHelper({
-				key: 'ir.meta.test',
-				kind: 'fragment',
-				mode: 'override',
-				apply({ output }: FragmentApplyOptions) {
-					runOrder.push('meta');
-					output.assign({
-						meta: {
-							version: 1,
-							namespace: 'test-namespace',
-							sanitizedNamespace: 'test-namespace',
-							origin: 'typescript',
-							sourcePath: 'config.ts',
-							features: [],
-							ids: {
-								algorithm: 'sha256',
-								resourcePrefix: 'res:',
-								schemaPrefix: 'sch:',
-								blockPrefix: 'blk:',
-								capabilityPrefix: 'cap:',
-							},
-							redactions: [],
-							limits: {
-								maxConfigKB: 512,
-								maxSchemaKB: 512,
-								policy: 'error',
-							},
-						},
-						php: {
-							namespace: 'TestNamespace',
-							autoload: 'inc/',
-							// Use layout ID to stay in sync with manifest defaults
-							outputDir: layout.resolve('php.generated'),
-						},
-					});
-				},
+			const metaHelper = createMetaHelper({
+				namespace: 'test-namespace',
+				sanitizedNamespace: 'test-namespace',
+				outputDir: layout.resolve('php.generated'),
+				onApply: () => runOrder.push('meta'),
 			});
-
-			const collectionHelper = createHelper({
-				key: 'ir.collection.test',
-				kind: 'fragment',
-				dependsOn: ['ir.meta.test'],
-				apply({ output }: FragmentApplyOptions) {
-					runOrder.push('collection');
-					output.assign({
-						schemas: [],
-						resources: [],
-						capabilities: [],
-						blocks: [],
-					});
-				},
+			const collectionHelper = createCollectionHelper({
+				dependsOn: 'ir.meta.test',
+				onApply: () => runOrder.push('collection'),
 			});
-
-			const capabilityHelper = createHelper({
-				key: 'ir.capability-map.test',
-				kind: 'fragment',
-				dependsOn: ['ir.collection.test'],
-				apply({ output }: FragmentApplyOptions) {
-					runOrder.push('capability');
-					output.assign({ capabilityMap: buildCapabilityMap() });
-				},
+			const capabilityHelper = createCapabilityHelper({
+				dependsOn: 'ir.collection.test',
+				onApply: () => runOrder.push('capability'),
 			});
-
-			const validationHelper = createHelper({
-				key: 'ir.validation.test',
-				kind: 'fragment',
-				dependsOn: ['ir.capability-map.test'],
-				apply() {
-					runOrder.push('validation');
-				},
+			const validationHelper = createValidationHelper({
+				dependsOn: 'ir.capability-map.test',
+				onApply: () => runOrder.push('validation'),
 			});
 
 			const builderHelper = createHelper({
@@ -263,37 +341,18 @@ describe('createPipeline', () => {
 		await withConfiguredPipeline(async ({ pipeline, run }) => {
 			const executionOrder: string[] = [];
 
-			const metaHelper = createHelper({
+			const metaHelper = createMetaHelper({
 				key: 'ir.meta.inline',
-				kind: 'fragment',
-				mode: 'override',
-				apply({ output }: FragmentApplyOptions) {
-					executionOrder.push('meta');
-					output.assign({
-						meta: {
-							version: 1,
-							namespace: 'ext',
-							sanitizedNamespace: 'ext',
-							origin: 'typescript',
-							sourcePath: 'config.ts',
-						},
-						php: {
-							namespace: 'Ext',
-							autoload: 'inc/',
-							outputDir: layout.resolve('php.generated'),
-						},
-					});
-				},
+				namespace: 'ext',
+				sanitizedNamespace: 'ext',
+				outputDir: layout.resolve('php.generated'),
+				onApply: () => executionOrder.push('meta'),
 			});
 
-			const capabilityHelper = createHelper({
+			const capabilityHelper = createCapabilityHelper({
 				key: 'ir.capability-map.inline',
-				kind: 'fragment',
-				dependsOn: ['ir.meta.inline'],
-				apply({ output }: FragmentApplyOptions) {
-					executionOrder.push('capability');
-					output.assign({ capabilityMap: buildCapabilityMap() });
-				},
+				dependsOn: 'ir.meta.inline',
+				onApply: () => executionOrder.push('capability'),
 			});
 
 			const builderHelper = createHelper({
@@ -345,54 +404,25 @@ describe('createPipeline', () => {
 			const hookSpy = jest.fn();
 
 			pipeline.ir.use(
-				createHelper({
+				createMetaHelper({
 					key: 'ir.meta.async',
-					kind: 'fragment',
-					mode: 'override',
-					apply({ output }: FragmentApplyOptions) {
-						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'async',
-								sanitizedNamespace: 'Async',
-								origin: 'typescript',
-								sourcePath: 'config.ts',
-							},
-							php: {
-								namespace: 'Async',
-								autoload: 'inc/',
-								outputDir: layout.resolve('php.generated'),
-							},
-						});
-					},
+					namespace: 'async',
+					sanitizedNamespace: 'Async',
+					outputDir: layout.resolve('php.generated'),
 				})
 			);
 
 			pipeline.ir.use(
-				createHelper({
+				createCollectionHelper({
 					key: 'ir.resources.async',
-					kind: 'fragment',
-					dependsOn: ['ir.meta.async'],
-					apply({ output }: FragmentApplyOptions) {
-						output.assign({
-							schemas: [],
-							resources: [],
-							capabilities: [],
-							blocks: [],
-							capabilityMap: buildCapabilityMap(),
-						});
-					},
+					dependsOn: 'ir.meta.async',
 				})
 			);
 
 			pipeline.ir.use(
-				createHelper({
+				createValidationHelper({
 					key: 'ir.validation.async',
-					kind: 'fragment',
-					dependsOn: ['ir.resources.async'],
-					apply() {
-						// validation no-op
-					},
+					dependsOn: 'ir.resources.async',
 				})
 			);
 
@@ -434,54 +464,25 @@ describe('createPipeline', () => {
 			const recordedActions: string[] = [];
 
 			pipeline.ir.use(
-				createHelper({
+				createMetaHelper({
 					key: 'ir.meta.update',
-					kind: 'fragment',
-					mode: 'override',
-					apply({ output }: FragmentApplyOptions) {
-						output.assign({
-							meta: {
-								version: 1,
-								namespace: 'initial',
-								sanitizedNamespace: 'Initial',
-								origin: 'typescript',
-								sourcePath: 'config.ts',
-							},
-							php: {
-								namespace: 'Initial',
-								autoload: 'inc/',
-								outputDir: layout.resolve('php.generated'),
-							},
-						});
-					},
+					namespace: 'initial',
+					sanitizedNamespace: 'Initial',
+					outputDir: layout.resolve('php.generated'),
 				})
 			);
 
 			pipeline.ir.use(
-				createHelper({
+				createCollectionHelper({
 					key: 'ir.collection.update',
-					kind: 'fragment',
-					dependsOn: ['ir.meta.update'],
-					apply({ output }: FragmentApplyOptions) {
-						output.assign({
-							schemas: [],
-							resources: [],
-							capabilities: [],
-							blocks: [],
-							capabilityMap: buildCapabilityMap(),
-						});
-					},
+					dependsOn: 'ir.meta.update',
 				})
 			);
 
 			pipeline.ir.use(
-				createHelper({
+				createValidationHelper({
 					key: 'ir.validation.update',
-					kind: 'fragment',
-					dependsOn: ['ir.collection.update'],
-					apply() {
-						// validation no-op
-					},
+					dependsOn: 'ir.collection.update',
 				})
 			);
 

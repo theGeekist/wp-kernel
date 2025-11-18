@@ -5,8 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { IRResource } from '../../ir/publicTypes';
 import type { SerializableResourceUIConfig } from '../../config/types';
-import { makeIr, makeIrMeta } from '../../tests/ir.test-support';
-import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
+import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import {
 	buildEmptyGenerationState,
 	buildGenerationManifestFromIr,
@@ -16,7 +16,7 @@ import {
 	writeGenerationState,
 	type GenerationManifest,
 } from '../manifest';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 describe('generation manifest helpers', () => {
 	let phpGeneratedRoot: string;

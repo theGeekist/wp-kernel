@@ -10,7 +10,7 @@ import type {
 } from '../../ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../config/types';
 import path from 'path';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 const layout = loadTestLayoutSync();
 

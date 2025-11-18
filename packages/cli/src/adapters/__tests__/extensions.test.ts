@@ -12,7 +12,7 @@ import type { IRCapabilityScope, IRv1 } from '../../ir/publicTypes';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
-import { makeIrMeta } from '../../tests/ir.test-support';
+import { makeIrMeta } from '@cli-tests/ir.test-support';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 

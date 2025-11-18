@@ -140,4 +140,7 @@ export type WorkspaceMergeOptionsLike = Parameters<
 	Workspace['threeWayMerge']
 >[4];
 
-export type WorkspaceLike = Workspace;
+export type WorkspaceLike = Workspace & {
+	resolve?: (...parts: string[]) => string;
+	exists?: (target: string) => Promise<boolean>;
+};

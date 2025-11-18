@@ -46,7 +46,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       "attributes": {},
       "nodeType": "Name",
       "parts": [
-        "DemoPlugin",
+        "Demo",
         "Generated",
         "Rest",
       ],
@@ -7264,7 +7264,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
       "attributes": {},
       "nodeType": "Name",
       "parts": [
-        "DemoPlugin",
+        "Demo",
         "Generated",
         "Rest",
       ],

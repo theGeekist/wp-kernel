@@ -1,10 +1,10 @@
-import defaultLayoutManifest from '../../../../layout.manifest.json' assert { type: 'json' };
+import defaultLayoutManifest from '../../../layout.manifest.json' assert { type: 'json' };
 import {
 	loadLayoutFromWorkspace,
 	resolveLayoutFromManifest,
 	type ResolvedLayout,
-} from '../layout/manifest';
-import { buildWorkspace } from '../workspace';
+} from '../src/layout/manifest';
+import { buildWorkspace } from '../src/workspace';
 
 /**
  * Test helper for resolving layout IDs from layout.manifest.json via the production loader.

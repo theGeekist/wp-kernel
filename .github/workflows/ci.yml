@@ -110,6 +110,9 @@ jobs:
             - name: TypeScript type check
               run: pnpm typecheck
 
+            - name: Check dist declarations for source imports
+              run: node scripts/check-dts-imports.mjs
+
     # Build: Ensure all packages build successfully
     build:
         name: Build

@@ -25,13 +25,14 @@ const offenders = [];
 const importPattern = new RegExp(
 	`(['"])(?:\\.\\./)+(?:packages\\/)?(${PACKAGES.join(
 		'|'
-	)})\\/src\\/([^'"]+)\\1`,
+	)})(?:\\/src\\/([^'"]+)|\\/dist\\/index\\.d\\.ts)\\1`,
 	'g'
 );
 
-function toPackageImport(pkg, rest) {
+function toPackageImport(pkg, rest = 'index') {
 	const cleaned = rest
 		.replace(/\\/g, '/')
+		.replace(/^\/dist\/index\.d\.ts$/, 'index')
 		.replace(/(\.d)?\.ts$/, '')
 		.replace(/\.js$/, '');
 
@@ -47,10 +48,22 @@ async function processFile(file) {
 	let mutated = contents;
 	let changed = false;
 
+	// Normalize references to package sources or dist/index.d.ts
 	mutated = mutated.replace(importPattern, (match, quote, pkg, rest) => {
 		changed = true;
 		return `${quote}${toPackageImport(pkg, rest)}${quote}`;
 	});
+
+	// Ensure imports of .d.ts files are type-only and point at .js to satisfy TS2846
+	const dtsImportPattern =
+		/import\s+(type\s+)?([^'"]+?)\s+from\s+(['"])([^'"]+)\.d\.ts\3/g;
+	mutated = mutated.replace(
+		dtsImportPattern,
+		(_match, typePrefix, bindings, quote, specifier) => {
+			changed = true;
+			return `import type ${bindings.trim()} from ${quote}${specifier}.js${quote}`;
+		}
+	);
 
 	if (changed) {
 		if (mode === 'fix') {

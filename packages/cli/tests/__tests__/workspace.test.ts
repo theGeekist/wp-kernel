@@ -4,7 +4,7 @@ import path from 'node:path';
 import {
 	createWorkspaceRunner,
 	withWorkspace,
-} from '../workspace.test-support';
+} from '@wpkernel/test-utils/integration';
 
 describe('withWorkspace', () => {
 	it('creates and tears down a temporary workspace', async () => {

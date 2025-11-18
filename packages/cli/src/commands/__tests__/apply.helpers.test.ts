@@ -13,8 +13,8 @@ import type {
 	LoadedWPKernelConfig,
 } from '../../../config/types';
 import type { Workspace } from '../../workspace';
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 const wpkConfig: WPKernelConfigV1 = {
 	version: 1,

@@ -4,8 +4,8 @@ import os from 'node:os';
 import { createApplyPlanBuilder } from '../plan';
 import { buildWorkspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { makeIr } from '../../tests/ir.test-support';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 function buildReporter() {
 	return {

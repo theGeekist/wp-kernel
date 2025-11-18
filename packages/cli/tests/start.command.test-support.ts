@@ -1,8 +1,9 @@
+import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import type * as fs from 'node:fs/promises';
 import { PassThrough } from 'node:stream';
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
-import type { FSWatcher } from 'chokidar';
+import type { FSWatcher, watch as ChokidarWatch } from 'chokidar';
 import type { Command } from 'clipanion';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
@@ -13,29 +14,32 @@ import {
 	type ReporterMock,
 	type MemoryStream,
 } from '@wpkernel/test-utils/cli';
-import { buildStartCommand, type FileSystem } from '../start';
-import type { PackageManager } from '../init/types';
-import type { GenerateRunner } from '../start/generate-runner';
-import type { GenerateResult } from '../generate/types';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
-import path from 'node:path';
+import { loadTestLayoutSync } from './layout.test-support';
+import { buildStartCommand, type FileSystem } from '../src/commands/start';
+import type { PackageManager } from '../src/commands/init/types';
+import type { GenerateRunner } from '../src/commands/start/generate-runner';
+import type { GenerateResult } from '../src/commands/generate/types';
 
 export const FAST_DEBOUNCE_MS = 200;
 export const SLOW_DEBOUNCE_MS = 600;
+export const runGenerateSuccess = {
+	exitCode: WPK_EXIT_CODES.SUCCESS,
+	summary: {
+		counts: { written: 0, unchanged: 0, skipped: 0 },
+		entries: [],
+		dryRun: false,
+	},
+	output: '[summary]\n',
+} satisfies GenerateResult;
 
 export const fsAccess: jest.MockedFunction<typeof fs.access> = jest.fn();
 export const fsMkdir: jest.MockedFunction<typeof fs.mkdir> = jest.fn();
 export const fsCp: jest.MockedFunction<typeof fs.cp> = jest.fn();
 
-// Use a typeof import so we keep inferred arg types without triggering lint
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-type WatchFactory = ReturnType<(typeof import('chokidar'))['watch']>;
+type WatchFn = typeof ChokidarWatch;
 
-export const loadWatch = jest.fn<Promise<WatchFactory>, []>();
-export const watchFactory = jest.fn<
-	ReturnType<WatchFactory>,
-	Parameters<WatchFactory>
->();
+export const loadWatch = jest.fn<Promise<WatchFn>, []>();
+export const watchFactory = jest.fn<ReturnType<WatchFn>, Parameters<WatchFn>>();
 export const spawnViteProcess = jest.fn<
 	ChildProcessWithoutNullStreams,
 	[PackageManager]
@@ -60,15 +64,7 @@ export function setupStartCommandTest(): void {
 	fsAccess.mockResolvedValue(undefined);
 	fsMkdir.mockResolvedValue(undefined);
 	fsCp.mockResolvedValue(undefined);
-	runGenerate.mockResolvedValue({
-		exitCode: WPK_EXIT_CODES.SUCCESS,
-		summary: {
-			counts: { written: 0, unchanged: 0, skipped: 0 },
-			entries: [],
-			dryRun: false,
-		},
-		output: '[summary]\n',
-	} satisfies GenerateResult);
+	runGenerate.mockResolvedValue(runGenerateSuccess);
 	loadWatch.mockResolvedValue(watchFactory);
 	watchFactory.mockImplementation(
 		() => new FakeWatcher() as unknown as FSWatcher
@@ -284,6 +280,16 @@ async function buildCommand({
 	}
 
 	return { command, watcher, stdout, executePromise };
+}
+
+export function createStartScenario(
+	overrides: Partial<StartCommandOptions> = {}
+) {
+	return {
+		run: withStartCommand,
+		options: overrides,
+		runGenerateSuccess,
+	};
 }
 
 async function shutdownCommand(

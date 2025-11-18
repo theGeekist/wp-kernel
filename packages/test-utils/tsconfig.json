@@ -6,13 +6,28 @@
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"types": ["node", "jest"],
-		"moduleResolution": "node",
+		"disableSourceOfProjectReferenceRedirect": true,
+		"moduleResolution": "bundler",
 		"module": "ESNext",
 		"paths": {
 			"@wpkernel/core": ["packages/core/dist/index.d.ts"],
 			"@wpkernel/core/dist/*": ["packages/core/dist/*"],
 			"@wpkernel/core/reporter/types": [
 				"packages/core/dist/reporter/types.d.ts"
+			],
+			"@wpkernel/core/contracts": [
+				"packages/core/dist/contracts/index.d.ts"
+			],
+			"@wpkernel/core/resource": [
+				"packages/core/dist/resource/index.d.ts"
+			],
+			"@wpkernel/core/reporter": [
+				"packages/core/dist/reporter/index.d.ts"
+			],
+			"@wpkernel/core/events": ["packages/core/dist/events/index.d.ts"],
+			"@wpkernel/core/data": ["packages/core/dist/data/index.d.ts"],
+			"@wpkernel/core/namespace": [
+				"packages/core/dist/namespace/index.d.ts"
 			],
 			"@wpkernel/core/*": ["packages/core/dist/*"],
 			"@wpkernel/cli": ["packages/cli/dist/index.d.ts"],
@@ -33,7 +48,10 @@
 			"@wpkernel/pipeline": ["packages/pipeline/dist/index.d.ts"],
 			"@wpkernel/pipeline/*": ["packages/pipeline/dist/*"],
 			"@wpkernel/php-json-ast": ["packages/php-json-ast/dist/index.d.ts"],
-			"@wpkernel/php-json-ast/*": ["packages/php-json-ast/dist/*"],
+			"@wpkernel/php-json-ast/*": [
+				"packages/php-json-ast/dist/*.d.ts",
+				"packages/php-json-ast/dist/*"
+			],
 			"@wpkernel/ui": ["packages/ui/dist/index.d.ts"],
 			"@wpkernel/ui/*": ["packages/ui/dist/*"],
 			"@wpkernel/wp-json-ast": ["packages/wp-json-ast/dist/index.d.ts"],
@@ -42,5 +60,9 @@
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
-	"references": [{ "path": "../core" }, { "path": "../pipeline" }]
+	"references": [
+		{ "path": "../core" },
+		{ "path": "../pipeline" },
+		{ "path": "../php-json-ast" }
+	]
 }

@@ -12,8 +12,10 @@ export type { WorkspaceOptions } from './integration/index.js';
 export { withWorkspace, createWorkspaceRunner } from './integration/index.js';
 
 export type WorkspaceMockOptions<
-	TWorkspace extends WorkspaceLike = WorkspaceLike,
-> = Partial<Omit<TWorkspace, 'root'>> & { readonly root?: string };
+	TWorkspace extends WorkspaceContract = WorkspaceContract,
+> = Partial<TWorkspace> & { readonly root?: string };
+
+type WorkspaceContract = WorkspaceLike;
 
 function makeEmptyManifest(): WorkspaceFileManifestLike {
 	return { writes: [], deletes: [] };
@@ -63,7 +65,7 @@ async function defaultDryRun<T>(
 
 /* eslint-disable complexity */
 export function makeWorkspaceMock<
-	TWorkspace extends WorkspaceLike = WorkspaceLike,
+	TWorkspace extends WorkspaceContract = WorkspaceContract,
 >(overrides: WorkspaceMockOptions<TWorkspace> = {}): TWorkspace {
 	const manifestFactory = () => makeEmptyManifest();
 	const defaultRoot = path.join(process.cwd(), 'next-workspace');
@@ -94,7 +96,7 @@ export function makeWorkspaceMock<
 		);
 	const defaultResolve = (...parts: string[]) => path.join(root, ...parts);
 
-	const workspace: WorkspaceLike = {
+	const workspace = {
 		root,
 		cwd,
 		read,
@@ -111,7 +113,7 @@ export function makeWorkspaceMock<
 		dryRun,
 		tmpDir: tmpDir ?? defaultTmpDir,
 		resolve: resolve ?? defaultResolve,
-	} satisfies WorkspaceLike;
+	} as WorkspaceLike;
 
 	return workspace as TWorkspace;
 }

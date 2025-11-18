@@ -1,6 +1,6 @@
 import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
 import { WPKernelError } from '@wpkernel/core/error';
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import { runInitWorkflow } from '../init/workflow';
 import type { InitWorkflowOptions } from '../init/types';
 import {

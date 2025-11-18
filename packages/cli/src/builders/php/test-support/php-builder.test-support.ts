@@ -7,10 +7,10 @@ import type {
 } from '../../../runtime/types';
 import type { IRv1 } from '../../../ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../../config/types';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '../../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 

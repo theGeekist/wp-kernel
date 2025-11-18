@@ -7,9 +7,9 @@ import {
 	buildEmptyGenerationState,
 	GENERATION_STATE_VERSION,
 } from '../../apply/manifest';
-import { makeIr } from '../../tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import type { GenerationManifest } from '../../apply/manifest';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 function makeReporter() {
 	return {

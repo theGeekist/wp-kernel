@@ -1,5 +1,5 @@
 import { createPhpPrinterPathReadinessHelper } from '../phpPrinterPath';
-import { createReadinessTestContext } from '../../test/test-support';
+import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
 
 jest.mock('../../../../utils/phpAssets', () => ({
 	resolveBundledPhpDriverPrettyPrintPath: jest

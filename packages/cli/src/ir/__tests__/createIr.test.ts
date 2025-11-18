@@ -15,7 +15,7 @@ import { createIr } from '../createIr';
 import {
 	withWorkspace,
 	makeWorkspaceMock,
-} from '../../../tests/workspace.test-support';
+} from '@wpkernel/test-utils/workspace.test-support';
 import { makeWPKernelConfigFixture } from '@wpkernel/test-utils/printers.test-support';
 
 jest.mock('../../builders', () => {

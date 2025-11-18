@@ -120,7 +120,7 @@
 		"lint:fix": "eslint src/ --fix",
 		"format": "prettier --write 'src/**/*.{ts,tsx}'",
 		"format:check": "prettier --check 'src/**/*.{ts,tsx}'",
-		"typecheck": "tsc --project tsconfig.json --noEmit",
+		"typecheck": "tsc --project tsconfig.json --noEmit --rootDir ../..",
 		"typecheck:tests": "wpk-run-typecheck-tests",
 		"test": "wpk-run-jest",
 		"test:watch": "wpk-run-jest --watch",

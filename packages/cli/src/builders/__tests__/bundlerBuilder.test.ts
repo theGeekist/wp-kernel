@@ -18,11 +18,11 @@ import {
 	toWordPressGlobal,
 	toWordPressHandle,
 } from '../bundler';
-import { makeIrMeta } from '../../tests/ir.test-support';
+import { makeIrMeta } from '@cli-tests/ir.test-support';
 import { withWorkspace as baseWithWorkspace } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 describe('createBundler', () => {
 	type BundlerWorkspaceContext = BuilderHarnessContext<

@@ -66,10 +66,7 @@ export async function readManifest(
 }
 
 async function resolvePatchManifestPath(workspace: Workspace): Promise<string> {
-	const layout = await loadLayoutFromWorkspace({
-		workspace,
-		strict: false,
-	});
+	const layout = await loadLayoutFromWorkspace({ workspace, strict: false });
 	const paths = resolvePatchPaths({ layout: layout ?? undefined });
 	return paths.manifestPath;
 }

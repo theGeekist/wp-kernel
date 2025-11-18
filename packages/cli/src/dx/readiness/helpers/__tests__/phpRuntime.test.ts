@@ -1,5 +1,5 @@
 import { createPhpRuntimeReadinessHelper } from '../phpRuntime';
-import { createReadinessTestContext } from '../../test/test-support';
+import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
 
 describe('createPhpRuntimeReadinessHelper', () => {
 	it('detects php binary availability', async () => {

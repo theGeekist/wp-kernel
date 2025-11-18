@@ -3,14 +3,20 @@ import {
 	withWorkspace,
 	type WorkspaceOptions,
 } from '@wpkernel/test-utils/integration';
-import { buildWorkspace } from '../../workspace';
-import { createPipeline } from '../createPipeline';
-import { buildEmptyGenerationState } from '../../apply/manifest';
-import type { GenerationManifest } from '../../apply/manifest';
-import { FIXTURE_CONFIG_PATH } from '../../ir/shared/test-helpers';
-import type { WPKernelConfigV1 } from '../../config/types';
-import type { Workspace } from '../../workspace/types';
-import type { Pipeline, PipelineRunOptions, PipelineRunResult } from '../types';
+import { buildWorkspace } from '../../src/workspace';
+import { createPipeline } from '../../src/runtime/createPipeline';
+import {
+	buildEmptyGenerationState,
+	type GenerationManifest,
+} from '../../src/apply/manifest';
+import { FIXTURE_CONFIG_PATH } from '../../src/ir/shared/test-helpers';
+import type { WPKernelConfigV1 } from '../../src/config/types';
+import type { Workspace } from '../../src/workspace/types';
+import type {
+	Pipeline,
+	PipelineRunOptions,
+	PipelineRunResult,
+} from '../../src/runtime/types';
 
 const DEFAULT_CONFIG: WPKernelConfigV1 = {
 	version: 1,

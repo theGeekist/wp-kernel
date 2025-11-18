@@ -4,7 +4,7 @@ import { createBootstrapperResolutionReadinessHelper } from '../bootstrapperReso
 import {
 	createReadinessTestContext,
 	makeNoEntry,
-} from '../../test/test-support';
+} from '@cli-tests/readiness.test-support';
 
 const repoRoot = '/repo';
 const projectRoot = path.join(repoRoot, 'packages', 'cli');

@@ -22,7 +22,7 @@ import type {
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 	const layout = loadTestLayoutSync();

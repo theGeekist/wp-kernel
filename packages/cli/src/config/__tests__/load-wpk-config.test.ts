@@ -13,7 +13,7 @@ import {
 } from '../load-wpk-config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
-import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
+import { createWorkspaceRunner } from '@wpkernel/test-utils/workspace.test-support';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';
 

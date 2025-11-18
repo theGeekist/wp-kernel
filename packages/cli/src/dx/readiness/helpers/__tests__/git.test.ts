@@ -1,5 +1,5 @@
 import { createGitReadinessHelper } from '../git';
-import { createReadinessTestContext } from '../../test/test-support';
+import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
 
 describe('createGitReadinessHelper', () => {
 	it('detects an existing git repository', async () => {

@@ -19,9 +19,9 @@ import {
 } from '@wpkernel/test-utils/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
-import { makeIr } from '../../../tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayout } from '../../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>

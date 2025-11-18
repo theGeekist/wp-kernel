@@ -23,7 +23,7 @@ import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
 import * as BlockModule from '@wpkernel/wp-json-ast';
 import { withBlocks } from '../test-support/fixtures.test-support';
-import { loadTestLayout } from '../../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 jest.mock('@wpkernel/wp-json-ast', () => {
 	const actual = jest.requireActual<typeof BlockModule>(

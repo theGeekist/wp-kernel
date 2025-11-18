@@ -17,36 +17,44 @@ export interface MockFs {
 }
 
 function toKey(file: string | Buffer | URL | number): string {
-	return typeof file === 'string'
-		? path.resolve(file)
-		: typeof file === 'number'
-			? String(file)
-			: file instanceof URL
-				? file.toString()
-				: file.toString();
+	if (typeof file === 'string') {
+		return path.resolve(file);
+	}
+	if (typeof file === 'number') {
+		return String(file);
+	}
+	if (file instanceof URL) {
+		return file.toString();
+	}
+
+	return file.toString();
 }
 
 /**
  * Minimal in-memory fs mock suitable for most CLI tests.
  * Allows seeding files and tracks writes without touching disk.
+ * @param seed
  */
 export function createMockFs(
 	seed: Record<string, string | Buffer> = {}
 ): MockFs {
 	const files = new Map<string, Buffer>();
 	for (const [relative, value] of Object.entries(seed)) {
-		files.set(path.resolve(relative), Buffer.isBuffer(value) ? value : Buffer.from(value));
+		files.set(
+			path.resolve(relative),
+			Buffer.isBuffer(value) ? value : Buffer.from(value)
+		);
 	}
 
-	const readFile = jest.fn(
-		async (file: string | Buffer | URL | number) => {
-			const key = toKey(file);
-			if (!files.has(key)) {
-				throw Object.assign(new Error(`ENOENT: ${key}`), { code: 'ENOENT' });
-			}
-			return files.get(key)!;
+	const readFile = jest.fn(async (file: string | Buffer | URL | number) => {
+		const key = toKey(file);
+		if (!files.has(key)) {
+			throw Object.assign(new Error(`ENOENT: ${key}`), {
+				code: 'ENOENT',
+			});
 		}
-	);
+		return files.get(key)!;
+	});
 
 	const writeFile = jest.fn(
 		async (
@@ -64,7 +72,9 @@ export function createMockFs(
 	const access = jest.fn(async (file: string | Buffer | URL | number) => {
 		const key = toKey(file);
 		if (!files.has(key)) {
-			throw Object.assign(new Error(`ENOENT: ${key}`), { code: 'ENOENT' });
+			throw Object.assign(new Error(`ENOENT: ${key}`), {
+				code: 'ENOENT',
+			});
 		}
 	});
 
@@ -72,18 +82,18 @@ export function createMockFs(
 		files.has(toKey(file))
 	);
 
-	const stat = jest.fn(
-		async (file: string | Buffer | URL | number) => {
-			const key = toKey(file);
-			if (!files.has(key)) {
-				throw Object.assign(new Error(`ENOENT: ${key}`), { code: 'ENOENT' });
-			}
-			return {
-				isDirectory: () => false,
-				isFile: () => true,
-			};
+	const stat = jest.fn(async (file: string | Buffer | URL | number) => {
+		const key = toKey(file);
+		if (!files.has(key)) {
+			throw Object.assign(new Error(`ENOENT: ${key}`), {
+				code: 'ENOENT',
+			});
 		}
-	);
+		return {
+			isDirectory: () => false,
+			isFile: () => true,
+		};
+	});
 
 	const rm = jest.fn(async (file: string | Buffer | URL | number) => {
 		files.delete(toKey(file));

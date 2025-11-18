@@ -6,11 +6,7 @@
 		"outDir": "./dist",
 		"moduleResolution": "bundler"
 	},
-	"include": [
-		"src/**/*",
-		"../../types/**/*.d.ts",
-		"src/tests/ir.test-support.ts"
-	],
+	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": [
 		"node_modules",
 		"dist",

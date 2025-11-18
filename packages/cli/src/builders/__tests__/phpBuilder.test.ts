@@ -14,7 +14,7 @@ import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import * as phpDriverModule from '@wpkernel/php-json-ast/php-driver';
 const { buildPhpPrettyPrinter } = phpDriverModule;
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import { buildReporter } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
 import {
 	createMinimalIr,

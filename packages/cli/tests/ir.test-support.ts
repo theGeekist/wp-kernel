@@ -10,12 +10,12 @@ import type {
 	IRCapabilityDefinition,
 	IRCapabilityScope,
 	IRWarning,
-} from '../ir/publicTypes';
+} from '../src/ir/publicTypes';
 import type {
 	WPKernelConfigV1,
 	ResourceRegistry,
 	SchemaRegistry,
-} from '../config/types';
+} from '../src/config/types';
 import { loadTestLayoutSync } from './layout.test-support';
 
 type DeepPartial<T> = {

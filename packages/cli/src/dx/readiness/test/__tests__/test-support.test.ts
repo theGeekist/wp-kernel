@@ -4,8 +4,8 @@ import {
 	createRecordingReporter,
 	makeNoEntry,
 	createReadinessTestContext,
-} from '../test-support';
-import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
+} from '@cli-tests/readiness.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 
 describe('readiness test support utilities', () => {
 	it('records reporter output with nested namespaces', () => {

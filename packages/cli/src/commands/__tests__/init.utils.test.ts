@@ -1,6 +1,6 @@
 import path from 'node:path';
 import * as fs from 'node:fs/promises';
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 jest.mock('node:fs/promises', () => ({
 	access: jest.fn(),
 	readFile: jest.fn(),

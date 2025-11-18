@@ -10,7 +10,7 @@ import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.te
 import { resolveBundledComposerAutoloadPath } from '../../../utils/phpAssets';
 import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayout } from '../../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 import {
 	createBaselineCodemodConfiguration,
 	serialisePhpCodemodConfiguration,

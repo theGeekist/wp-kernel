@@ -2,8 +2,8 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../tests/workspace.test-support';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { createWorkspaceRunner as buildWorkspaceRunner } from '@wpkernel/test-utils/workspace.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 import * as ApplyModule from '../apply';
 import {
 	TMP_PREFIX,
@@ -54,13 +54,79 @@ function createReadinessRegistryStub() {
 	};
 }
 
+type ApplyCommandCtor = ReturnType<typeof ApplyModule.buildApplyCommand>;
+type ApplyCommandInstance = InstanceType<ApplyCommandCtor>;
+
+type PlanSeed = {
+	target: string;
+	base: string;
+	incoming: string;
+	current?: string;
+	description?: string;
+};
+
+type PrepareApplyOptions = {
+	cwd?: string;
+	flags?: Partial<Pick<ApplyCommandInstance, 'yes' | 'backup' | 'force'>>;
+	plan?: PlanSeed;
+};
+
+async function prepareApplyCommand(
+	workspace: string,
+	options: PrepareApplyOptions = {}
+) {
+	const cwd = options.cwd ?? workspace;
+	const layout = options.plan
+		? await loadTestLayout({
+				cwd,
+				strict: true,
+			})
+		: undefined;
+
+	if (options.plan && layout) {
+		const { target, base, incoming, current, description } = options.plan;
+		await seedPlan(cwd, target, {
+			base,
+			incoming,
+			current: current ?? base,
+			description: description ?? 'Apply integration test plan',
+			layout: resolvePlanLayout(layout),
+		});
+	}
+
+	const loadConfig = jest.fn().mockResolvedValue(buildLoadedConfig(cwd));
+	const readiness = createReadinessRegistryStub();
+	const ApplyCommand = ApplyModule.buildApplyCommand({
+		loadWPKernelConfig: loadConfig,
+		buildReadinessRegistry: readiness.buildReadinessRegistry,
+	});
+	const command = new ApplyCommand();
+	command.yes = options.flags?.yes ?? true;
+	command.backup = options.flags?.backup ?? false;
+	command.force = options.flags?.force ?? false;
+	const context = assignCommandContext(command, { cwd });
+
+	return {
+		command,
+		context,
+		layout,
+		readiness,
+	};
+}
+
+function resolvePlanLayout(
+	layout: Awaited<ReturnType<typeof loadTestLayout>>
+): Parameters<typeof seedPlan>[2]['layout'] {
+	return {
+		planManifest: layout.resolve('plan.manifest'),
+		planBase: layout.resolve('plan.base'),
+		planIncoming: layout.resolve('plan.incoming'),
+	};
+}
+
 describe('ApplyCommand integration', () => {
 	it('applies git patches and reports summary', async () => {
 		await withWorkspace(async (workspace) => {
-			const layout = await loadTestLayout({
-				cwd: workspace,
-				strict: true,
-			});
 			const target = path.posix.join('php', 'JobController.php');
 			const baseContents = ['<?php', 'class JobController {}', ''].join(
 				'\n'
@@ -71,33 +137,16 @@ describe('ApplyCommand integration', () => {
 				'',
 			].join('\n');
 
-			await seedPlan(workspace, target, {
-				base: baseContents,
-				incoming: incomingContents,
-				description: 'Update controller shim',
-				current: baseContents,
-				layout: {
-					planManifest: layout.resolve('plan.manifest'),
-					planBase: layout.resolve('plan.base'),
-					planIncoming: layout.resolve('plan.incoming'),
-				},
-			});
-
-			const loadConfig = jest
-				.fn()
-				.mockResolvedValue(buildLoadedConfig(workspace));
-			const readiness = createReadinessRegistryStub();
-			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadWPKernelConfig: loadConfig,
-				buildReadinessRegistry: readiness.buildReadinessRegistry,
-			});
-			const command = new ApplyCommand();
-			command.yes = true;
-			command.backup = false;
-			command.force = false;
-			const { stdout } = assignCommandContext(command, {
-				cwd: workspace,
-			});
+			const { command, layout, readiness, context } =
+				await prepareApplyCommand(workspace, {
+					plan: {
+						target,
+						base: baseContents,
+						incoming: incomingContents,
+						current: baseContents,
+						description: 'Update controller shim',
+					},
+				});
 
 			const exitCode = await command.execute();
 
@@ -117,10 +166,11 @@ describe('ApplyCommand integration', () => {
 			expect(command.manifest?.actions).toEqual(
 				expect.arrayContaining([
 					target,
-					layout.resolve('patch.manifest'),
-					path.posix.join(layout.resolve('plan.base'), target),
+					layout?.resolve('patch.manifest'),
+					path.posix.join(layout!.resolve('plan.base'), target),
 				])
 			);
+			const stdout = context.stdout.toString();
 			expect(stdout.toString()).toContain('Applied: 1');
 			expect(stdout.toString()).toContain(target);
 
@@ -133,10 +183,6 @@ describe('ApplyCommand integration', () => {
 
 	it('creates backups when the backup flag is set', async () => {
 		await withWorkspace(async (workspace) => {
-			const layout = await loadTestLayout({
-				cwd: workspace,
-				strict: true,
-			});
 			const target = path.posix.join('php', 'BackupController.php');
 			const baseContents = [
 				'<?php',
@@ -149,31 +195,19 @@ describe('ApplyCommand integration', () => {
 				'',
 			].join('\n');
 
-			await seedPlan(workspace, target, {
-				base: baseContents,
-				incoming: updatedContents,
-				current: baseContents,
-				description: 'Update controller shim',
-				layout: {
-					planManifest: layout.resolve('plan.manifest'),
-					planBase: layout.resolve('plan.base'),
-					planIncoming: layout.resolve('plan.incoming'),
-				},
-			});
-
-			const loadConfig = jest
-				.fn()
-				.mockResolvedValue(buildLoadedConfig(workspace));
-			const readiness = createReadinessRegistryStub();
-			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadWPKernelConfig: loadConfig,
-				buildReadinessRegistry: readiness.buildReadinessRegistry,
-			});
-			const command = new ApplyCommand();
-			command.yes = true;
-			command.backup = true;
-			command.force = false;
-			assignCommandContext(command, { cwd: workspace });
+			const { command, readiness } = await prepareApplyCommand(
+				workspace,
+				{
+					flags: { backup: true },
+					plan: {
+						target,
+						base: baseContents,
+						incoming: updatedContents,
+						current: baseContents,
+						description: 'Update controller shim',
+					},
+				}
+			);
 
 			await command.execute();
 
@@ -185,10 +219,6 @@ describe('ApplyCommand integration', () => {
 	});
 	it('accepts git repositories located in ancestor directories', async () => {
 		await withWorkspace(async (workspace) => {
-			const layout = await loadTestLayout({
-				cwd: workspace,
-				strict: true,
-			});
 			const projectWorkspace = path.join(workspace, 'packages', 'demo');
 			await fs.mkdir(projectWorkspace, { recursive: true });
 
@@ -204,31 +234,19 @@ describe('ApplyCommand integration', () => {
 				'',
 			].join('\n');
 
-			await seedPlan(projectWorkspace, target, {
-				base: baseContents,
-				incoming: incomingContents,
-				current: baseContents,
-				description: 'Update controller shim',
-				layout: {
-					planManifest: layout.resolve('plan.manifest'),
-					planBase: layout.resolve('plan.base'),
-					planIncoming: layout.resolve('plan.incoming'),
-				},
-			});
-
-			const loadConfig = jest
-				.fn()
-				.mockResolvedValue(buildLoadedConfig(projectWorkspace));
-			const readiness = createReadinessRegistryStub();
-			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadWPKernelConfig: loadConfig,
-				buildReadinessRegistry: readiness.buildReadinessRegistry,
-			});
-			const command = new ApplyCommand();
-			command.yes = true;
-			command.backup = false;
-			command.force = false;
-			assignCommandContext(command, { cwd: projectWorkspace });
+			const { command, readiness } = await prepareApplyCommand(
+				workspace,
+				{
+					cwd: projectWorkspace,
+					plan: {
+						target,
+						base: baseContents,
+						incoming: incomingContents,
+						current: baseContents,
+						description: 'Update controller shim',
+					},
+				}
+			);
 
 			const exitCode = await command.execute();
 
@@ -244,10 +262,6 @@ describe('ApplyCommand integration', () => {
 
 	it('records apply runs in the workspace log', async () => {
 		await withWorkspace(async (workspace) => {
-			const layout = await loadTestLayout({
-				cwd: workspace,
-				strict: true,
-			});
 			const target = path.posix.join('php', 'LogController.php');
 			const baseContents = ['<?php', 'class LogController {}', ''].join(
 				'\n'
@@ -258,31 +272,18 @@ describe('ApplyCommand integration', () => {
 				'',
 			].join('\n');
 
-			await seedPlan(workspace, target, {
-				base: baseContents,
-				incoming: incomingContents,
-				current: baseContents,
-				description: 'Promote controller changes',
-				layout: {
-					planManifest: layout.resolve('plan.manifest'),
-					planBase: layout.resolve('plan.base'),
-					planIncoming: layout.resolve('plan.incoming'),
-				},
-			});
-
-			const loadConfig = jest
-				.fn()
-				.mockResolvedValue(buildLoadedConfig(workspace));
-			const readiness = createReadinessRegistryStub();
-			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadWPKernelConfig: loadConfig,
-				buildReadinessRegistry: readiness.buildReadinessRegistry,
-			});
-			const command = new ApplyCommand();
-			command.yes = true;
-			command.backup = false;
-			command.force = false;
-			assignCommandContext(command, { cwd: workspace });
+			const { command, readiness } = await prepareApplyCommand(
+				workspace,
+				{
+					plan: {
+						target,
+						base: baseContents,
+						incoming: incomingContents,
+						current: baseContents,
+						description: 'Promote controller changes',
+					},
+				}
+			);
 
 			await command.execute();
 
@@ -306,21 +307,8 @@ describe('ApplyCommand integration', () => {
 
 	it('returns success when no plan exists', async () => {
 		await withWorkspace(async (workspace) => {
-			const loadConfig = jest
-				.fn()
-				.mockResolvedValue(buildLoadedConfig(workspace));
-			const readiness = createReadinessRegistryStub();
-			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadWPKernelConfig: loadConfig,
-				buildReadinessRegistry: readiness.buildReadinessRegistry,
-			});
-			const command = new ApplyCommand();
-			command.yes = true;
-			command.backup = false;
-			command.force = false;
-			const { stdout } = assignCommandContext(command, {
-				cwd: workspace,
-			});
+			const { command, context, readiness } =
+				await prepareApplyCommand(workspace);
 
 			const exitCode = await command.execute();
 
@@ -331,6 +319,7 @@ describe('ApplyCommand integration', () => {
 				skipped: 0,
 			});
 			expect(command.records).toEqual([]);
+			const stdout = context.stdout.toString();
 			expect(stdout.toString()).toContain('No apply manifest produced');
 
 			const entries = await readApplyLogEntries(workspace);
@@ -347,42 +336,23 @@ describe('ApplyCommand integration', () => {
 
 	it('exits with validation error when conflicts occur', async () => {
 		await withWorkspace(async (workspace) => {
-			const layout = await loadTestLayout({
-				cwd: workspace,
-				strict: true,
-			});
 			const target = path.posix.join('php', 'Conflict.php');
 			const base = ['line-one', 'line-two', ''].join('\n');
 			const incoming = ['line-one updated', 'line-two', ''].join('\n');
 			const current = ['line-one custom', 'line-two', ''].join('\n');
 
-			await seedPlan(workspace, target, {
-				base,
-				incoming,
-				current,
-				description: 'Introduce new logic',
-				layout: {
-					planManifest: layout.resolve('plan.manifest'),
-					planBase: layout.resolve('plan.base'),
-					planIncoming: layout.resolve('plan.incoming'),
-				},
-			});
-
-			const loadConfig = jest
-				.fn()
-				.mockResolvedValue(buildLoadedConfig(workspace));
-			const readiness = createReadinessRegistryStub();
-			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadWPKernelConfig: loadConfig,
-				buildReadinessRegistry: readiness.buildReadinessRegistry,
-			});
-			const command = new ApplyCommand();
-			command.yes = true;
-			command.backup = false;
-			command.force = false;
-			const { stdout } = assignCommandContext(command, {
-				cwd: workspace,
-			});
+			const { command, context, readiness } = await prepareApplyCommand(
+				workspace,
+				{
+					plan: {
+						target,
+						base,
+						incoming,
+						current,
+						description: 'Introduce new logic',
+					},
+				}
+			);
 
 			const exitCode = await command.execute();
 
@@ -392,6 +362,7 @@ describe('ApplyCommand integration', () => {
 				conflicts: 1,
 				skipped: 0,
 			});
+			const stdout = context.stdout.toString();
 			expect(stdout.toString()).toContain('Conflicts: 1');
 
 			const entries = await readApplyLogEntries(workspace);
@@ -408,40 +379,24 @@ describe('ApplyCommand integration', () => {
 
 	it('returns success for conflicts when force is enabled', async () => {
 		await withWorkspace(async (workspace) => {
-			const layout = await loadTestLayout({
-				cwd: workspace,
-				strict: true,
-			});
 			const target = path.posix.join('php', 'Forced.php');
 			const base = ['original', ''].join('\n');
 			const incoming = ['updated', ''].join('\n');
 			const current = ['custom', ''].join('\n');
 
-			await seedPlan(workspace, target, {
-				base,
-				incoming,
-				current,
-				description: 'Introduce conflict',
-				layout: {
-					planManifest: layout.resolve('plan.manifest'),
-					planBase: layout.resolve('plan.base'),
-					planIncoming: layout.resolve('plan.incoming'),
-				},
-			});
-
-			const loadConfig = jest
-				.fn()
-				.mockResolvedValue(buildLoadedConfig(workspace));
-			const readiness = createReadinessRegistryStub();
-			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadWPKernelConfig: loadConfig,
-				buildReadinessRegistry: readiness.buildReadinessRegistry,
-			});
-			const command = new ApplyCommand();
-			command.yes = true;
-			command.backup = false;
-			command.force = true;
-			assignCommandContext(command, { cwd: workspace });
+			const { command, readiness } = await prepareApplyCommand(
+				workspace,
+				{
+					flags: { force: true },
+					plan: {
+						target,
+						base,
+						incoming,
+						current,
+						description: 'Introduce conflict',
+					},
+				}
+			);
 
 			const exitCode = await command.execute();
 

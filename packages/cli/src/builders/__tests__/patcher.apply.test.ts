@@ -10,9 +10,9 @@ import {
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { type IRv1 } from '../../ir';
 import { createPatcher } from '../patcher';
-import { makeIrMeta } from '../../tests/ir.test-support';
+import { makeIrMeta } from '@cli-tests/ir.test-support';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
@@ -21,12 +21,12 @@ type PatcherWorkspaceContext = BuilderHarnessContext<
 const withWorkspace = (
 	run: (context: PatcherWorkspaceContext) => Promise<void>
 ) =>
-	baseWithWorkspace(run, {
-		createWorkspace: (root) => buildWorkspace(root),
-	});
+	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
-async function buildIr(namespace: string): Promise<IRv1> {
-	const layout = loadTestLayoutSync();
+function buildIr(
+	namespace: string,
+	layout: ReturnType<typeof loadTestLayoutSync> = loadTestLayoutSync()
+): IRv1 {
 	return {
 		meta: makeIrMeta(namespace, {
 			origin: 'wpk.config.ts',
@@ -129,7 +129,7 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = await buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -256,7 +256,7 @@ describe('patcher.apply', () => {
 				incomingContents
 			);
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = await buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -343,7 +343,7 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = await buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -439,7 +439,7 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = await buildIr('Demo');
 			const input = {
 				phase: 'generate' as const,
 				options: {
@@ -542,7 +542,7 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = await buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -668,7 +668,7 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = await buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -805,7 +805,7 @@ describe('patcher.apply', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = await buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {

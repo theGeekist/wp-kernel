@@ -1,5 +1,5 @@
 import type { FileManifest } from '../../workspace';
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 
 function buildCommandContext() {
 	return {
