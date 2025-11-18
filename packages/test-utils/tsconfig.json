@@ -2,9 +2,43 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "../../tsconfig.lib.json",
 	"compilerOptions": {
+		"baseUrl": "../..",
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"types": ["node", "jest"]
+		"types": ["node", "jest"],
+		"moduleResolution": "node",
+		"module": "ESNext",
+		"paths": {
+			"@wpkernel/core": ["packages/core/dist/index.d.ts"],
+			"@wpkernel/core/dist/*": ["packages/core/dist/*"],
+			"@wpkernel/core/reporter/types": [
+				"packages/core/dist/reporter/types.d.ts"
+			],
+			"@wpkernel/core/*": ["packages/core/dist/*"],
+			"@wpkernel/cli": ["packages/cli/dist/index.d.ts"],
+			"@wpkernel/cli/config/types": [
+				"packages/cli/dist/config/types.d.ts"
+			],
+			"@wpkernel/cli/config/*": ["packages/cli/dist/config/*"],
+			"@wpkernel/cli/ir/publicTypes": [
+				"packages/cli/dist/ir/publicTypes.d.ts"
+			],
+			"@wpkernel/cli/ir/*": ["packages/cli/dist/ir/*"],
+			"@wpkernel/cli/workspace": [
+				"packages/cli/dist/workspace/index.d.ts"
+			],
+			"@wpkernel/cli/workspace/*": ["packages/cli/dist/workspace/*"],
+			"@wpkernel/cli/dist/*": ["packages/cli/dist/*"],
+			"@wpkernel/cli/*": ["packages/cli/dist/*"],
+			"@wpkernel/pipeline": ["packages/pipeline/dist/index.d.ts"],
+			"@wpkernel/pipeline/*": ["packages/pipeline/dist/*"],
+			"@wpkernel/php-json-ast": ["packages/php-json-ast/dist/index.d.ts"],
+			"@wpkernel/php-json-ast/*": ["packages/php-json-ast/dist/*"],
+			"@wpkernel/ui": ["packages/ui/dist/index.d.ts"],
+			"@wpkernel/ui/*": ["packages/ui/dist/*"],
+			"@wpkernel/wp-json-ast": ["packages/wp-json-ast/dist/index.d.ts"],
+			"@wpkernel/wp-json-ast/*": ["packages/wp-json-ast/dist/*"]
+		}
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],

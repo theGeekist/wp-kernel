@@ -1,7 +1,7 @@
-import { createResourcePipeline } from '@wpkernel/core/pipeline/resources/createResourcePipeline';
-import type { ResourcePipeline } from '@wpkernel/core/pipeline/resources/types';
-import { createMemoryReporter } from './memory-reporter.test-support';
-import type { MemoryReporter } from './memory-reporter.test-support';
+import { createResourcePipeline } from '@wpkernel/core/dist/pipeline/resources/createResourcePipeline.js';
+import type { ResourcePipeline } from '@wpkernel/core/dist/pipeline/resources/types.js';
+import { createMemoryReporter } from './memory-reporter.test-support.js';
+import type { MemoryReporter } from './memory-reporter.test-support.js';
 
 /**
  * Options for building a `CoreResourcePipelineHarness`.

@@ -4,6 +4,7 @@ import type {
 	ResourceDataViewsScreenConfig,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
+import type { IRHashProvenance } from '@wpkernel/cli/ir/publicTypes';
 export { withWorkspace } from './builder-harness.test-support.js';
 export {
 	buildReporter,
@@ -23,6 +24,12 @@ import type {
 	WPKConfigV1Like,
 } from '../../types.js';
 import { loadDefaultLayout } from '../../layout.test-support.js';
+
+const makeHash = (value: string): IRHashProvenance => ({
+	algo: 'sha256',
+	inputs: [],
+	value,
+});
 
 export interface WPKernelConfigSourceOptions {
 	readonly namespace?: string;
@@ -255,6 +262,7 @@ export function buildBuilderArtifacts(
 	} as WPKConfigV1Like;
 
 	const irResource: IRResourceLike = {
+		id: `${resourceKey}:resource`,
 		name: resourceName,
 		schemaKey: resourceKey,
 		schemaProvenance: 'manual',
@@ -263,7 +271,7 @@ export function buildBuilderArtifacts(
 			list: { segments: [resourceKey, 'list'], source: 'config' },
 			get: { segments: [resourceKey, 'get'], source: 'config' },
 		},
-		hash: 'demo-hash',
+		hash: makeHash('demo-hash'),
 		warnings: [],
 	} as IRResourceLike;
 
@@ -276,6 +284,20 @@ export function buildBuilderArtifacts(
 			origin: 'typescript',
 			sourcePath: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 			sanitizedNamespace,
+			features: [],
+			ids: {
+				algorithm: 'sha256',
+				resourcePrefix: 'res:',
+				schemaPrefix: 'sch:',
+				blockPrefix: 'blk:',
+				capabilityPrefix: 'cap:',
+			},
+			redactions: [],
+			limits: {
+				maxConfigKB: 0,
+				maxSchemaKB: 0,
+				policy: 'truncate',
+			},
 		},
 		config,
 		schemas: [],
@@ -298,6 +320,7 @@ export function buildBuilderArtifacts(
 			autoload: 'inc/',
 			outputDir: layout.resolve('php.generated'),
 		},
+		layout,
 	} as IRv1Like;
 
 	const buildOptions: BuildIrOptionsLike = {

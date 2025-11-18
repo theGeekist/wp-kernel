@@ -26,9 +26,29 @@ function stripIndex(value) {
 	return value.endsWith('/index') ? value.slice(0, -'/index'.length) : value;
 }
 
-function buildModuleNameMapper() {
-	const mapper = { ...(baseConfig.moduleNameMapper ?? {}) };
+function addDistOverrides(entries) {
+	// For Jest, prefer source for core/pipeline/php-json-ast/ui/wp-json-ast dist imports
+	// to avoid ESM moduleGraph issues inside ts-jest.
+	entries.push([
+		'^@wpkernel/(core|pipeline|php-json-ast|ui|wp-json-ast)/dist/(.*?)(?:\\.js)?$',
+		'<rootDir>/packages/$1/src/$2',
+	]);
+	// Prefer built artifacts when tests import dist paths directly (other packages).
+	entries.push([
+		'^@wpkernel/([^/]+)/dist/(.*)$',
+		'<rootDir>/packages/$1/dist/$2',
+	]);
+}
 
+function addBaseMapper(entries) {
+	for (const [key, value] of Object.entries(
+		baseConfig.moduleNameMapper ?? {}
+	)) {
+		entries.push([key, value]);
+	}
+}
+
+function addTsPathEntries(entries) {
 	for (const [alias, targets] of Object.entries(tsPaths)) {
 		if (!targets?.length) {
 			continue;
@@ -48,17 +68,24 @@ function buildModuleNameMapper() {
 			: normalizedTarget;
 
 		const regex = hasWildcard ? `^${aliasPattern}$` : `^${alias}$`;
-		mapper[regex] = hasWildcard
+		const mapped = hasWildcard
 			? `${normalizedTargetDir}/$1`
 			: normalizedTarget;
 
+		entries.push([regex, mapped]);
+
 		if (hasWildcard && !alias.endsWith('**')) {
-			mapper[`${regex.replace(/\(\.\*\)\$$/, '(.*)\\.js$')}`] =
-				mapper[regex];
+			entries.push([regex.replace(/\(\.\*\)\$$/, '(.*)\\.js$'), mapped]);
 		}
 	}
+}
 
-	return mapper;
+function buildModuleNameMapper() {
+	const entries = [];
+	addDistOverrides(entries);
+	addBaseMapper(entries);
+	addTsPathEntries(entries);
+	return Object.fromEntries(entries);
 }
 
 function findRepoRoot(startDir) {

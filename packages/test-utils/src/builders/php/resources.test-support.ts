@@ -11,6 +11,7 @@ import type {
 	IRWarningLike,
 	WPKConfigV1Like,
 } from '../../types.js';
+import type { IRHashProvenance } from '@wpkernel/cli/ir/publicTypes';
 import { loadDefaultLayout } from '../../layout.test-support.js';
 
 type ResourceCacheKeys<TCacheKey extends IRResourceCacheKeyLike> = {
@@ -55,6 +56,15 @@ const DEFAULT_CACHE_KEYS = {
 	},
 } as const;
 
+const makeHash = (value: string): IRHashProvenance => ({
+	algo: 'sha256',
+	inputs: [],
+	value,
+});
+
+const normaliseHash = (hash: IRHashProvenance | string): IRHashProvenance =>
+	typeof hash === 'string' ? makeHash(hash) : hash;
+
 export interface MakeWpPostResourceOptions<
 	TRoute extends IRRouteLike = IRRouteLike,
 	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
@@ -68,7 +78,7 @@ export interface MakeWpPostResourceOptions<
 	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
 	readonly identity?: TIdentity;
 	readonly storage?: Partial<TStorage>;
-	readonly hash?: string;
+	readonly hash?: IRHashProvenance | string;
 	readonly warnings?: readonly TWarning[];
 }
 
@@ -78,35 +88,35 @@ export function makeWpPostRoutes(): IRRouteLike[] {
 			method: 'GET',
 			path: '/wpk/v1/books',
 			capability: undefined,
-			hash: 'list',
+			hash: makeHash('list'),
 			transport: 'local',
 		},
 		{
 			method: 'GET',
 			path: '/wpk/v1/books/:slug',
 			capability: undefined,
-			hash: 'get',
+			hash: makeHash('get'),
 			transport: 'local',
 		},
 		{
 			method: 'POST',
 			path: '/wpk/v1/books',
 			capability: undefined,
-			hash: 'create',
+			hash: makeHash('create'),
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
 			path: '/wpk/v1/books/:slug',
 			capability: undefined,
-			hash: 'update',
+			hash: makeHash('update'),
 			transport: 'local',
 		},
 		{
 			method: 'DELETE',
 			path: '/wpk/v1/books/:slug',
 			capability: undefined,
-			hash: 'remove',
+			hash: makeHash('remove'),
 			transport: 'local',
 		},
 	];
@@ -169,7 +179,7 @@ export function makeWpPostResource<
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'resource-hash',
+		hash: normaliseHash(options.hash ?? 'resource-hash'),
 		warnings,
 	} as IRResourceLike<
 		TRoute,
@@ -195,7 +205,7 @@ export interface MakeWpTaxonomyResourceOptions<
 	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
 	readonly identity?: TIdentity;
 	readonly storage?: Partial<TStorage>;
-	readonly hash?: string;
+	readonly hash?: IRHashProvenance | string;
 	readonly warnings?: readonly TWarning[];
 }
 
@@ -234,14 +244,14 @@ export function makeWpTaxonomyResource<
 			method: 'GET',
 			path: '/wpk/v1/job-categories',
 			capability: undefined,
-			hash: 'taxonomy-list',
+			hash: makeHash('taxonomy-list'),
 			transport: 'local',
 		},
 		{
 			method: 'GET',
 			path: '/wpk/v1/job-categories/:slug',
 			capability: undefined,
-			hash: 'taxonomy-get',
+			hash: makeHash('taxonomy-get'),
 			transport: 'local',
 		},
 	];
@@ -270,7 +280,7 @@ export function makeWpTaxonomyResource<
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'taxonomy-resource',
+		hash: normaliseHash(options.hash ?? 'taxonomy-resource'),
 		warnings,
 	} as IRResourceLike<
 		TRoute,
@@ -294,7 +304,7 @@ export interface MakeWpOptionResourceOptions<
 	readonly routes?: readonly TRoute[];
 	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
 	readonly storage?: Partial<TStorage>;
-	readonly hash?: string;
+	readonly hash?: IRHashProvenance | string;
 	readonly warnings?: readonly TWarning[];
 }
 
@@ -330,14 +340,14 @@ export function makeWpOptionResource<
 			method: 'GET',
 			path: '/wpk/v1/demo-option',
 			capability: undefined,
-			hash: 'wp-option-get',
+			hash: makeHash('wp-option-get'),
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
 			path: '/wpk/v1/demo-option',
 			capability: undefined,
-			hash: 'wp-option-update',
+			hash: makeHash('wp-option-update'),
 			transport: 'local',
 		},
 	];
@@ -361,7 +371,7 @@ export function makeWpOptionResource<
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'wp-option-resource',
+		hash: normaliseHash(options.hash ?? 'wp-option-resource'),
 		warnings,
 	} as IRResourceLike<
 		TRoute,
@@ -386,7 +396,7 @@ export interface MakeTransientResourceOptions<
 	readonly routes?: readonly TRoute[];
 	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
 	readonly storage?: Partial<TStorage>;
-	readonly hash?: string;
+	readonly hash?: IRHashProvenance | string;
 	readonly identity?: TIdentity;
 	readonly warnings?: readonly TWarning[];
 }
@@ -424,21 +434,21 @@ export function makeTransientResource<
 			method: 'GET',
 			path: '/wpk/v1/job-cache',
 			capability: undefined,
-			hash: 'transient-get',
+			hash: makeHash('transient-get'),
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
 			path: '/wpk/v1/job-cache',
 			capability: undefined,
-			hash: 'transient-set',
+			hash: makeHash('transient-set'),
 			transport: 'local',
 		},
 		{
 			method: 'DELETE',
 			path: '/wpk/v1/job-cache',
 			capability: undefined,
-			hash: 'transient-delete',
+			hash: makeHash('transient-delete'),
 			transport: 'local',
 		},
 	];
@@ -463,7 +473,7 @@ export function makeTransientResource<
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'transient-resource',
+		hash: normaliseHash(options.hash ?? 'transient-resource'),
 		warnings,
 	} as IRResourceLike<
 		TRoute,
@@ -506,6 +516,20 @@ export function makePhpIrFixture<
 			sanitizedNamespace: 'DemoPlugin',
 			origin: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 			sourcePath: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+			features: [],
+			ids: {
+				algorithm: 'sha256',
+				resourcePrefix: 'res:',
+				schemaPrefix: 'sch:',
+				blockPrefix: 'blk:',
+				capabilityPrefix: 'cap:',
+			},
+			redactions: [],
+			limits: {
+				maxConfigKB: 0,
+				maxSchemaKB: 0,
+				policy: 'truncate',
+			},
 		},
 		config: {
 			version: 1,
@@ -514,7 +538,7 @@ export function makePhpIrFixture<
 			resources: {},
 		},
 		schemas: [],
-		resources,
+		resources: [...resources] as TResource[],
 		capabilities: [],
 		capabilityMap: {
 			sourcePath: undefined,

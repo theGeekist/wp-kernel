@@ -3,7 +3,29 @@
 	"extends": "../../tsconfig.tests.json",
 	"compilerOptions": {
 		"rootDir": "../../",
-		"outDir": "./dist-tests"
+		"outDir": "./dist-tests",
+		"paths": {
+			"@wpkernel/scripts/register-workspace": [
+				"./scripts/register-workspace.ts"
+			],
+			"@wpkernel/scripts/*": ["./scripts/*"],
+			"@wpkernel/core/dist/*": ["./packages/core/dist/*"],
+			"@wpkernel/core/*": ["./packages/core/src/*"],
+			"@wpkernel/core": ["./packages/core/src/index.ts"],
+			"@wpkernel/pipeline": ["./packages/pipeline/src/index.ts"],
+			"@wpkernel/pipeline/*": ["./packages/pipeline/src/*"],
+			"@wpkernel/php-json-ast": ["./packages/php-json-ast/src/index.ts"],
+			"@wpkernel/php-json-ast/*": ["./packages/php-json-ast/src/*"],
+			"@wpkernel/ui": ["./packages/ui/src/index.ts"],
+			"@wpkernel/ui/*": ["./packages/ui/src/*"],
+			"@wpkernel/cli": ["./packages/cli/src/index.ts"],
+			"@wpkernel/cli/*": ["./packages/cli/src/*"],
+			"@wpkernel/cli/src/*": ["./packages/cli/src/*"],
+			"@wpkernel/test-utils": ["./packages/test-utils/src/index.ts"],
+			"@wpkernel/test-utils/*": ["./packages/test-utils/src/*"],
+			"@cli-tests/*": ["./packages/cli/tests/*"],
+			"@test-utils/*": ["./tests/test-utils/*"]
+		}
 	},
 	"include": [
 		"src/**/*",

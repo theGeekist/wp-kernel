@@ -8,6 +8,7 @@ import type {
 	ReporterMockOptions,
 } from '../../shared/reporter.js';
 import { makeWorkspaceMock } from '../../workspace.test-support.js';
+import type { WorkspaceMockOptions } from '../../workspace.test-support.js';
 import type {
 	BuilderOutputLike,
 	BuilderWriteActionLike,
@@ -41,7 +42,9 @@ export async function withWorkspace<
 		await ensureLayoutManifest(root);
 		const workspace = (await (options.createWorkspace
 			? options.createWorkspace(root)
-			: makeWorkspaceMock({ root }))) as TWorkspace;
+			: makeWorkspaceMock({
+					root,
+				} as WorkspaceMockOptions<TWorkspace>))) as Awaited<TWorkspace>;
 		await run({ workspace, root });
 	} finally {
 		await fs.rm(root, { recursive: true, force: true });

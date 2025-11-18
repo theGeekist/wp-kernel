@@ -8,11 +8,8 @@ import type {
 	WorkspaceWriteOptionsLike,
 } from './types.js';
 
-export type { WorkspaceOptions } from '@wpkernel/test-utils/integration';
-export {
-	withWorkspace,
-	createWorkspaceRunner,
-} from '@wpkernel/test-utils/integration';
+export type { WorkspaceOptions } from './integration/index.js';
+export { withWorkspace, createWorkspaceRunner } from './integration/index.js';
 
 export type WorkspaceMockOptions<
 	TWorkspace extends WorkspaceLike = WorkspaceLike,

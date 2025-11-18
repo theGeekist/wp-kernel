@@ -7,9 +7,19 @@ import type {
 	IRv1Like,
 	WPKConfigV1Like,
 } from './types.js';
+import type { IRHashProvenance } from '@wpkernel/cli/ir/publicTypes';
 import { loadDefaultLayout } from './layout.test-support.js';
 
 const testLayout = loadDefaultLayout();
+
+const makeHash = (value: string): IRHashProvenance => ({
+	algo: 'sha256',
+	inputs: [],
+	value,
+});
+
+const normaliseHash = (hash: IRHashProvenance | string): IRHashProvenance =>
+	typeof hash === 'string' ? makeHash(hash) : hash;
 
 export interface MakeWPKernelConfigFixtureOptions {
 	readonly namespace?: string;
@@ -49,9 +59,10 @@ export function makeWPKernelConfigFixture(
 }
 
 export interface PrinterIRSchema {
+	readonly id: string;
 	readonly key: string;
 	readonly sourcePath: string;
-	readonly hash: string;
+	readonly hash: IRHashProvenance;
 	readonly schema: unknown;
 	readonly provenance: 'manual' | 'auto';
 	readonly generatedFrom?: {
@@ -63,7 +74,7 @@ export interface PrinterIRSchema {
 export interface PrinterIRCapabilityReference {
 	readonly resource: string;
 	readonly route: string;
-	readonly transport: string;
+	readonly transport: IRRouteLike['transport'];
 }
 
 export interface PrinterIRCapabilityHint {
@@ -73,6 +84,7 @@ export interface PrinterIRCapabilityHint {
 }
 
 export interface PrinterIRCapabilityDefinition {
+	readonly id: string;
 	readonly key: string;
 	readonly capability: string;
 	readonly appliesTo: 'resource' | 'object';
@@ -93,10 +105,12 @@ export interface PrinterIRCapabilityMap {
 }
 
 export interface PrinterIRBlock {
+	readonly id: string;
 	readonly key: string;
 	readonly directory: string;
 	readonly hasRender: boolean;
 	readonly manifestSource: string;
+	readonly hash: IRHashProvenance;
 }
 
 export interface PrinterPhpProject {
@@ -158,6 +172,20 @@ export function makePrinterIrFixture({
 		sourcePath,
 		origin,
 		sanitizedNamespace,
+		features: [],
+		ids: {
+			algorithm: 'sha256',
+			resourcePrefix: 'res:',
+			schemaPrefix: 'sch:',
+			blockPrefix: 'blk:',
+			capabilityPrefix: 'cap:',
+		},
+		redactions: [],
+		limits: {
+			maxConfigKB: 0,
+			maxSchemaKB: 0,
+			policy: 'truncate',
+		},
 		...restMeta,
 	};
 
@@ -169,6 +197,7 @@ export function makePrinterIrFixture({
 		capabilities,
 		capabilityMap,
 		blocks,
+		layout: testLayout,
 		php,
 		...(diagnostics ? { diagnostics } : {}),
 	} satisfies PrinterIr;
@@ -177,9 +206,10 @@ export function makePrinterIrFixture({
 
 export function makeDefaultSchemas(): PrinterIRSchema[] {
 	const jobSchema: PrinterIRSchema = {
+		id: 'schema-job',
 		key: 'job',
 		sourcePath: 'contracts/job.schema.json',
-		hash: 'hash-job',
+		hash: makeHash('hash-job'),
 		schema: {
 			type: 'object',
 			required: ['id', 'status'],
@@ -205,9 +235,10 @@ export function makeDefaultSchemas(): PrinterIRSchema[] {
 	};
 
 	const taskSchema: PrinterIRSchema = {
+		id: 'schema-task',
 		key: 'auto:task',
 		sourcePath: '[storage:task]',
-		hash: 'hash-task',
+		hash: makeHash('hash-task'),
 		schema: {
 			type: 'object',
 			required: ['slug', 'status'],
@@ -225,9 +256,10 @@ export function makeDefaultSchemas(): PrinterIRSchema[] {
 	};
 
 	const literalSchema: PrinterIRSchema = {
+		id: 'schema-literal',
 		key: 'literal',
 		sourcePath: 'schemas/literal.schema.json',
-		hash: 'hash-literal',
+		hash: makeHash('hash-literal'),
 		schema: {
 			type: 'object',
 			properties: {
@@ -239,9 +271,10 @@ export function makeDefaultSchemas(): PrinterIRSchema[] {
 	};
 
 	const fallbackSchema: PrinterIRSchema = {
+		id: 'schema-fallback',
 		key: 'auto:',
 		sourcePath: '[storage:fallback]',
-		hash: 'hash-fallback',
+		hash: makeHash('hash-fallback'),
 		schema: {
 			type: 'object',
 			properties: {
@@ -260,6 +293,7 @@ function makeDefaultCapabilityMap(): PrinterIRCapabilityMap {
 		sourcePath: 'src/capability-map.ts',
 		definitions: [
 			{
+				id: 'cap:jobs.create',
 				key: 'jobs.create',
 				capability: 'manage_options',
 				appliesTo: 'resource',
@@ -299,7 +333,7 @@ function makeDefaultResources(): IRResourceLike[] {
 export interface MakeResourceOptions {
 	readonly name?: string;
 	readonly routes?: IRRouteLike[];
-	readonly hash?: string;
+	readonly hash?: IRHashProvenance | string;
 	readonly identity?: IRResourceLike['identity'];
 }
 
@@ -310,19 +344,17 @@ type ExtendedPostMetaDescriptor = ResourcePostMetaDescriptor & {
 type WpPostStorage = {
 	readonly mode: 'wp-post';
 	readonly postType?: string;
-	readonly statuses?: readonly string[];
-	readonly supports?: readonly string[];
-	readonly meta?: Record<string, ExtendedPostMetaDescriptor>;
-	readonly taxonomies?: Record<
-		string,
-		{ taxonomy: string; hierarchical?: boolean }
-	>;
+	statuses?: string[];
+	supports?: ('title' | 'editor' | 'excerpt' | 'custom-fields')[];
+	meta?: Record<string, ExtendedPostMetaDescriptor>;
+	taxonomies?: Record<string, { taxonomy: string; hierarchical?: boolean }>;
 };
 type ExtendedWpPostStorage = WpPostStorage & {
-	readonly cacheTtl?: number;
-	readonly retryLimit?: number;
-	readonly revision?: bigint;
-	readonly meta?: Record<string, ExtendedPostMetaDescriptor>;
+	statuses?: string[];
+	cacheTtl?: number;
+	retryLimit?: number;
+	revision?: bigint;
+	meta?: Record<string, ExtendedPostMetaDescriptor>;
 };
 type WpOptionStorage = {
 	readonly mode: 'wp-option';
@@ -378,9 +410,12 @@ export function makeJobResource(
 		mode: 'wp-post',
 		postType: 'job',
 		cacheTtl: 900,
+		statuses: ['draft', 'published'],
+		supports: ['title', 'editor'],
 	};
 
 	return {
+		id: options.name ?? 'job',
 		name: options.name ?? 'job',
 		schemaKey: 'job',
 		schemaProvenance: 'manual',
@@ -388,26 +423,26 @@ export function makeJobResource(
 			{
 				method: 'GET',
 				path: '/jobs',
-				hash: 'route-job-list',
+				hash: makeHash('route-job-list'),
 				transport: 'local',
 			},
 			{
 				method: 'GET',
 				path: '/jobs/:id',
-				hash: 'route-job-get',
+				hash: makeHash('route-job-get'),
 				transport: 'local',
 			},
 			{
 				method: 'POST',
 				path: '/jobs',
-				hash: 'route-job-create',
+				hash: makeHash('route-job-create'),
 				transport: 'local',
 				capability: 'jobs.create',
 			},
 			{
 				method: 'PUT',
 				path: '/jobs/:id',
-				hash: 'route-job-update',
+				hash: makeHash('route-job-update'),
 				transport: 'local',
 			},
 		],
@@ -416,7 +451,7 @@ export function makeJobResource(
 		storage,
 		queryParams,
 		ui: undefined,
-		hash: options.hash ?? 'resource-job',
+		hash: normaliseHash(options.hash ?? 'resource-job'),
 		warnings: [],
 	} satisfies IRResourceLike;
 }
@@ -449,6 +484,7 @@ export function makeTaskResource(
 	};
 
 	return {
+		id: options.name ?? 'task',
 		name: options.name ?? 'task',
 		schemaKey: 'auto:task',
 		schemaProvenance: 'auto',
@@ -456,7 +492,7 @@ export function makeTaskResource(
 			{
 				method: 'GET',
 				path: '/tasks/:slug',
-				hash: 'route-task-list',
+				hash: makeHash('route-task-list'),
 				transport: 'local',
 			},
 		],
@@ -465,7 +501,7 @@ export function makeTaskResource(
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'resource-task',
+		hash: normaliseHash(options.hash ?? 'resource-task'),
 		warnings: [],
 	} satisfies IRResourceLike;
 }
@@ -483,13 +519,13 @@ export function makeWpOptionResource(
 		{
 			method: 'GET',
 			path: '/demo-namespace/demo-option',
-			hash: 'route-option-get',
+			hash: makeHash('route-option-get'),
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
 			path: '/demo-namespace/demo-option',
-			hash: 'route-option-update',
+			hash: makeHash('route-option-update'),
 			transport: 'local',
 		},
 	];
@@ -502,6 +538,7 @@ export function makeWpOptionResource(
 	};
 
 	return {
+		id: options.name ?? 'demoOption',
 		name: options.name ?? 'demoOption',
 		schemaKey: 'demoOption',
 		schemaProvenance: 'manual',
@@ -511,7 +548,7 @@ export function makeWpOptionResource(
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'resource-option',
+		hash: normaliseHash(options.hash ?? 'resource-option'),
 		warnings: [],
 	} satisfies IRResourceLike;
 }
@@ -528,19 +565,19 @@ export function makeTransientResource(
 		{
 			method: 'GET',
 			path: '/demo-namespace/job-cache',
-			hash: 'route-transient-get',
+			hash: makeHash('route-transient-get'),
 			transport: 'local',
 		},
 		{
 			method: 'PUT',
 			path: '/demo-namespace/job-cache',
-			hash: 'route-transient-set',
+			hash: makeHash('route-transient-set'),
 			transport: 'local',
 		},
 		{
 			method: 'DELETE',
 			path: '/demo-namespace/job-cache',
-			hash: 'route-transient-delete',
+			hash: makeHash('route-transient-delete'),
 			transport: 'local',
 		},
 	];
@@ -554,6 +591,7 @@ export function makeTransientResource(
 	};
 
 	return {
+		id: options.name ?? 'jobCache',
 		name: options.name ?? 'jobCache',
 		schemaKey: 'jobCache',
 		schemaProvenance: 'manual',
@@ -563,7 +601,7 @@ export function makeTransientResource(
 		storage,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'resource-transient',
+		hash: normaliseHash(options.hash ?? 'resource-transient'),
 		warnings: [],
 	} satisfies IRResourceLike;
 }
@@ -580,6 +618,7 @@ export function makeLiteralResource(
 	};
 
 	return {
+		id: options.name ?? 'literal',
 		name: options.name ?? 'literal',
 		schemaKey: 'literal',
 		schemaProvenance: 'manual',
@@ -587,7 +626,7 @@ export function makeLiteralResource(
 			{
 				method: 'GET',
 				path: '/demo-namespace/literal',
-				hash: 'route-literal-get',
+				hash: makeHash('route-literal-get'),
 				transport: 'local',
 			},
 		],
@@ -596,7 +635,7 @@ export function makeLiteralResource(
 		storage: undefined,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'resource-literal',
+		hash: normaliseHash(options.hash ?? 'resource-literal'),
 		warnings: [],
 	} satisfies IRResourceLike;
 }
@@ -610,6 +649,7 @@ export function makeOrphanResource(
 	};
 
 	return {
+		id: options.name ?? 'orphan',
 		name: options.name ?? 'orphan',
 		schemaKey: 'missing',
 		schemaProvenance: 'manual',
@@ -617,7 +657,7 @@ export function makeOrphanResource(
 			{
 				method: 'GET',
 				path: '/demo-namespace/orphan',
-				hash: 'route-orphan-get',
+				hash: makeHash('route-orphan-get'),
 				transport: 'local',
 			},
 		],
@@ -626,7 +666,7 @@ export function makeOrphanResource(
 		storage: undefined,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'resource-orphan',
+		hash: normaliseHash(options.hash ?? 'resource-orphan'),
 		warnings: [
 			{
 				code: 'schema_missing',
@@ -645,6 +685,7 @@ export function makeRemoteResource(
 	};
 
 	return {
+		id: options.name ?? 'remote',
 		name: options.name ?? 'remote',
 		schemaKey: 'remote',
 		schemaProvenance: 'manual',
@@ -652,7 +693,7 @@ export function makeRemoteResource(
 			{
 				method: 'GET',
 				path: '/remote',
-				hash: 'route-remote-get',
+				hash: makeHash('route-remote-get'),
 				transport: 'remote',
 			},
 		],
@@ -661,7 +702,7 @@ export function makeRemoteResource(
 		storage: undefined,
 		queryParams: undefined,
 		ui: undefined,
-		hash: options.hash ?? 'resource-remote',
+		hash: normaliseHash(options.hash ?? 'resource-remote'),
 		warnings: [],
 	} satisfies IRResourceLike;
 }

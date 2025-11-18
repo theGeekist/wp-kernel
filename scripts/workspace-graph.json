@@ -1,12 +1,12 @@
 {
-	"generatedAt": "2025-11-15T18:48:30.648Z",
+	"generatedAt": "2025-11-18T10:50:27.505Z",
 	"root": "/Users/jasonnathan/Repos/wp-kernel",
 	"workspaces": [
 		{
 			"name": "@wpkernel/cli",
 			"dir": "packages/cli/",
 			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/cli/package.json",
-			"packageJsonMtimeMs": 1763229311092.8555,
+			"packageJsonMtimeMs": 1763285865853.291,
 			"localDeps": [
 				"@wpkernel/php-json-ast",
 				"@wpkernel/wp-json-ast",
@@ -54,7 +54,7 @@
 			"name": "@wpkernel/php-json-ast",
 			"dir": "packages/php-json-ast/",
 			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/php-json-ast/package.json",
-			"packageJsonMtimeMs": 1763231327286.2954,
+			"packageJsonMtimeMs": 1763285865886.742,
 			"localDeps": [
 				"@wpkernel/test-utils",
 				"@wpkernel/core",
@@ -79,7 +79,7 @@
 			"name": "@wpkernel/test-utils",
 			"dir": "packages/test-utils/",
 			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/test-utils/package.json",
-			"packageJsonMtimeMs": 1763222058602.7898,
+			"packageJsonMtimeMs": 1763435017884.8796,
 			"localDeps": [
 				"@wpkernel/core",
 				"@wpkernel/pipeline",

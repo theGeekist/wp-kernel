@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type { WPKConfigV1Like, LoadedWPKConfigV1Like } from '../../types.js';
+import type { ConfigOrigin } from '@wpkernel/cli/config/types';
 
 /**
  * Prefix for temporary directories created for CLI apply command tests.
@@ -81,7 +82,7 @@ export interface ApplyLogEntry {
  */
 export interface BuildLoadedConfigOptions<
 	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
-	TOrigin extends string = string,
+	TOrigin extends ConfigOrigin = ConfigOrigin,
 > {
 	/** The wpk configuration object. */
 	readonly config?: TConfig;
@@ -103,7 +104,7 @@ export interface BuildLoadedConfigOptions<
  */
 export function buildLoadedConfig<
 	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
-	TOrigin extends string = string,
+	TOrigin extends ConfigOrigin = ConfigOrigin,
 >(
 	workspace: string,
 	options: BuildLoadedConfigOptions<TConfig, TOrigin> = {}

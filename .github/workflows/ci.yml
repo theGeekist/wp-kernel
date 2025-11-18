@@ -95,6 +95,12 @@ jobs:
                   key: build-${{ runner.os }}-${{ github.run_id }}
                   fail-on-cache-miss: true
 
+            - name: Check emitted d.ts imports
+              run: pnpm lint:dts-imports
+
+            - name: Typecheck test-utils drift
+              run: pnpm typecheck:test-utils
+
             - name: Run ESLint
               run: pnpm lint
 
