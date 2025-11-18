@@ -1,3 +1,6 @@
+/* eslint-disable @wpkernel/no-hardcoded-layout-paths */
+// Example config keeps explicit generated paths for clarity; layout manifests
+// will remap these when consumers follow the recommended helpers.
 import type { WPKernelConfigV1 } from '@wpkernel/cli/config/types';
 
 /**
@@ -38,21 +41,21 @@ export const wpkConfig: WPKernelConfigV1 = {
 		job: {
 			path: './schemas/job.schema.json',
 			generated: {
-				types: './.generated/types/job.d.ts',
+				types: '.wpk/generated/types/job.d.ts',
 			},
 			description: 'Public job listing schema for REST + UI.',
 		},
 		application: {
 			path: './schemas/application.schema.json',
 			generated: {
-				types: './.generated/types/application.d.ts',
+				types: '.wpk/generated/types/application.d.ts',
 			},
 			description: 'Private job application payload and status model.',
 		},
 		settings: {
 			path: './schemas/settings.schema.json',
 			generated: {
-				types: './.generated/types/settings.d.ts',
+				types: '.wpk/generated/types/settings.d.ts',
 			},
 			description: 'Plugin settings for retention and notifications.',
 		},
@@ -245,7 +248,6 @@ export const wpkConfig: WPKernelConfigV1 = {
 								slug: 'acme-jobs',
 								title: 'Jobs',
 								capability: 'manage_options',
-								parent: 'options-general.php',
 								position: 58,
 							},
 						},
@@ -351,6 +353,12 @@ export const wpkConfig: WPKernelConfigV1 = {
 							resourceSymbol: 'application',
 							wpkernelImport: '@wpkernel/ui/dataviews',
 							wpkernelSymbol: 'createAdminDataViewScreen',
+							menu: {
+								slug: 'acme-applications',
+								title: 'Applications',
+								capability: 'manage_options',
+								parent: 'acme-jobs',
+							},
 						},
 					},
 				},

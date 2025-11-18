@@ -179,7 +179,23 @@ This log is the authoritative proof that the showcase plugin validates every maj
     - Added `modulePathIgnorePatterns: ['packages/cli/dist']` to `jest.config.base.js` so Jest stops seeing duplicate packages after we rebuild the CLI, then reran the focused block test to lock in coverage.
 - **Status**: ✓ Completed 2025-11-15
 
-### Milestone 8 — Seeds & README refresh
+### Milestone 8 — Live plugin activation & admin smoke test
+
+- **Goal**: Validate the plugin inside a real WordPress install (symlinked) and exercise admin surface wiring (DataViews menu + assets).
+- **Validation criteria**:
+    - Plugin activates without fatal errors (confirmed locally).
+    - Admin menu entry appears for the Job dataview (per `ui.admin.dataviews.screen.menu`).
+    - `pnpm generate --allow-dirty` / `pnpm apply --allow-dirty --yes` stay idempotent after menu wiring.
+    - Admin page loads localized settings + enqueues the bundle when opened.
+- **Commands**: `pnpm generate --allow-dirty`, `pnpm apply --allow-dirty --yes`, WordPress admin load (manual), focused tests as added.
+- **Discoveries / Fixes**:
+    - Activation succeeds in a real WP site via symlinked plugin.
+    - Added admin menu registration to the PHP loader driven by `ui.admin.dataviews.screen.menu`; `admin_menu` hook now renders a container and enqueues the bundle when assets exist.
+    - Plugin loader now exposes a user-owned section after `WPK:END AUTO` for custom code while keeping the generated block clearly marked.
+    - REST shims upgraded to use fully-qualified generated class references for PHP 8.2 compatibility and clearer guidance (“Edits…will be preserved”).
+- **Status**: ✓ Menu wiring complete (pending visual admin confirmation)
+
+### Milestone 9 — Seeds & README refresh
 
 - **Goal**: Restore/update seeding scripts + rewrite README to describe the lean template.
 - **Validation criteria**: Seeds reference current routes/resources; README instructions align with new workflow; generate/apply idempotent.
@@ -188,7 +204,7 @@ This log is the authoritative proof that the showcase plugin validates every maj
     - _TBD_
 - **Status**: _Pending_
 
-### Milestone 9 — Final Validation
+### Milestone 10 — Final Validation
 
 - **Goal**: Confirm end-to-end by running `pnpm generate --allow-dirty`, `pnpm apply --allow-dirty --yes`, `pnpm lint`, and relevant tests.
 - **Validation criteria**: All commands succeed; `pnpm doctor` passes readiness checks; git diff contains only intentional artifacts.
