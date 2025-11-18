@@ -99,16 +99,16 @@ describe('apply plan (layout-driven)', () => {
 				};
 
 				const plugin = plan.instructions?.find(
-					(instr) => instr.file === 'plugin.php'
+					(instr) => instr.file === layout.resolve('plugin.loader')
 				);
 				expect(plugin).toMatchObject({
 					base: path.posix.join(
 						layout.resolve('plan.base'),
-						'plugin.php'
+						layout.resolve('plugin.loader')
 					),
 					incoming: path.posix.join(
 						layout.resolve('plan.incoming'),
-						'plugin.php'
+						layout.resolve('plugin.loader')
 					),
 				});
 
@@ -206,7 +206,7 @@ describe('apply plan (layout-driven)', () => {
 				};
 
 				const plugin = plan.instructions?.find(
-					(instr) => instr.file === 'plugin.php'
+					(instr) => instr.file === 'custom/plugin.php'
 				);
 				expect(plugin).toMatchObject({
 					base: path.posix.join('base-dir', 'custom/plugin.php'),

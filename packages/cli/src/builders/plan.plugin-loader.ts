@@ -38,6 +38,7 @@ export async function emitPluginLoader({
 	const { input, context, output, reporter } = options;
 	const { ir } = input;
 	const paths = resolvePlanPaths(options);
+	const pluginLoaderPath = paths.pluginLoader;
 
 	if (!ir) {
 		reporter.warn(
@@ -48,7 +49,7 @@ export async function emitPluginLoader({
 
 	let existingPlugin: string | null = null;
 	try {
-		existingPlugin = await context.workspace.readText('plugin.php');
+		existingPlugin = await context.workspace.readText(pluginLoaderPath);
 	} catch {
 		existingPlugin = null;
 	}
@@ -58,7 +59,7 @@ export async function emitPluginLoader({
 		!new RegExp(AUTO_GUARD_BEGIN, 'u').test(existingPlugin)
 	) {
 		reporter.info(
-			'createApplyPlanBuilder: skipping plugin loader instruction because plugin.php appears user-owned.'
+			`createApplyPlanBuilder: skipping plugin loader instruction because ${pluginLoaderPath} appears user-owned.`
 		);
 		return null;
 	}
@@ -106,7 +107,7 @@ export async function emitPluginLoader({
 
 	return {
 		action: 'write',
-		file: 'plugin.php',
+		file: pluginLoaderPath,
 		base: basePath,
 		incoming: incomingPath,
 		description: 'Update plugin loader',

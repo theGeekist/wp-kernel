@@ -61,14 +61,14 @@ describe('plan.plugin-loader', () => {
 			});
 			const [instr] = instructions;
 			expect(instr).toMatchObject({
-				file: 'plugin.php',
+				file: layout.resolve('plugin.loader'),
 				base: path.posix.join(
 					layout.resolve('plan.base'),
-					'plugin.php'
+					layout.resolve('plugin.loader')
 				),
 				incoming: path.posix.join(
 					layout.resolve('plan.incoming'),
-					'plugin.php'
+					layout.resolve('plugin.loader')
 				),
 			});
 		} finally {

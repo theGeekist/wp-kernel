@@ -110,11 +110,17 @@ describe('plan (orchestrator)', () => {
 			const { plan } = await runPlan({ root, workspace, ir });
 
 			const plugin = plan.instructions?.find(
-				(instr: any) => instr.file === 'plugin.php'
+				(instr: any) => instr.file === layout.resolve('plugin.loader')
 			);
 			expect(plugin).toMatchObject({
-				base: layout.resolve('plan.base') + '/plugin.php',
-				incoming: layout.resolve('plan.incoming') + '/plugin.php',
+				base: path.posix.join(
+					layout.resolve('plan.base'),
+					layout.resolve('plugin.loader')
+				),
+				incoming: path.posix.join(
+					layout.resolve('plan.incoming'),
+					layout.resolve('plugin.loader')
+				),
 			});
 
 			const shim = plan.instructions?.find((instr: any) =>
@@ -173,7 +179,7 @@ describe('plan (orchestrator)', () => {
 			});
 
 			const plugin = plan.instructions?.find(
-				(instr: any) => instr.file === 'plugin.php'
+				(instr: any) => instr.file === 'custom/plugin.php'
 			);
 			expect(plugin).toMatchObject(
 				expect.objectContaining({
@@ -233,13 +239,15 @@ describe('plan (orchestrator)', () => {
 
 	it('skips plugin loader when an unguarded user plugin exists', async () => {
 		await withTempWorkspace(async ({ root, workspace }) => {
+			const layout = await loadTestLayout({ cwd: root });
+			const pluginLoaderPath = layout.resolve('plugin.loader');
 			await fs.writeFile(
-				path.join(root, 'plugin.php'),
+				path.join(root, pluginLoaderPath),
 				'<?php // user loader'
 			);
 			const { plan } = await runPlan({ root, workspace, ir: makeIr() });
 			const plugin = plan.instructions?.find(
-				(instr: any) => instr.file === 'plugin.php'
+				(instr: any) => instr.file === pluginLoaderPath
 			);
 			expect(plugin).toBeUndefined();
 		});

@@ -499,6 +499,7 @@ describe('patcher.apply', () => {
 			].join('\n');
 
 			const layout = loadTestLayoutSync();
+			const pluginLoaderPath = layout.resolve('plugin.loader');
 			await workspace.write(
 				layout.resolve('plan.manifest'),
 				JSON.stringify(
@@ -506,14 +507,14 @@ describe('patcher.apply', () => {
 						instructions: [
 							{
 								action: 'write',
-								file: 'plugin.php',
+								file: pluginLoaderPath,
 								base: path.posix.join(
 									layout.resolve('plan.base'),
-									'plugin.php'
+									pluginLoaderPath
 								),
 								incoming: path.posix.join(
 									layout.resolve('plan.incoming'),
-									'plugin.php'
+									pluginLoaderPath
 								),
 								description: 'Update plugin loader',
 							},
@@ -525,16 +526,19 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.base'), 'plugin.php'),
+				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath),
 				baseLoader,
 				{ ensureDir: true }
 			);
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.incoming'), 'plugin.php'),
+				path.posix.join(
+					layout.resolve('plan.incoming'),
+					pluginLoaderPath
+				),
 				incomingLoader,
 				{ ensureDir: true }
 			);
-			await workspace.write('plugin.php', baseLoader, {
+			await workspace.write(pluginLoaderPath, baseLoader, {
 				ensureDir: true,
 			});
 
@@ -566,11 +570,11 @@ describe('patcher.apply', () => {
 				undefined
 			);
 
-			const updated = await workspace.readText('plugin.php');
+			const updated = await workspace.readText(pluginLoaderPath);
 			expect(updated).toBe(incomingLoader);
 
 			const baseSnapshot = await workspace.readText(
-				path.posix.join(layout.resolve('plan.base'), 'plugin.php')
+				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath)
 			);
 			expect(baseSnapshot).toBe(incomingLoader);
 
@@ -585,7 +589,7 @@ describe('patcher.apply', () => {
 			expect(manifest.records).toEqual(
 				expect.arrayContaining([
 					expect.objectContaining({
-						file: 'plugin.php',
+						file: pluginLoaderPath,
 						status: 'applied',
 					}),
 				])
@@ -621,6 +625,7 @@ describe('patcher.apply', () => {
 			].join('\n');
 
 			const layout = loadTestLayoutSync();
+			const pluginLoaderPath = layout.resolve('plugin.loader');
 			await workspace.write(
 				layout.resolve('plan.manifest'),
 				JSON.stringify(
@@ -628,14 +633,14 @@ describe('patcher.apply', () => {
 						instructions: [
 							{
 								action: 'write',
-								file: 'plugin.php',
+								file: pluginLoaderPath,
 								base: path.posix.join(
 									layout.resolve('plan.base'),
-									'plugin.php'
+									pluginLoaderPath
 								),
 								incoming: path.posix.join(
 									layout.resolve('plan.incoming'),
-									'plugin.php'
+									pluginLoaderPath
 								),
 								description: 'Update plugin loader',
 							},
@@ -647,16 +652,19 @@ describe('patcher.apply', () => {
 			);
 
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.base'), 'plugin.php'),
+				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath),
 				baseLoader,
 				{ ensureDir: true }
 			);
 			await workspace.write(
-				path.posix.join(layout.resolve('plan.incoming'), 'plugin.php'),
+				path.posix.join(
+					layout.resolve('plan.incoming'),
+					pluginLoaderPath
+				),
 				incomingLoader,
 				{ ensureDir: true }
 			);
-			await workspace.write('plugin.php', customLoader, {
+			await workspace.write(pluginLoaderPath, customLoader, {
 				ensureDir: true,
 			});
 
@@ -688,12 +696,12 @@ describe('patcher.apply', () => {
 				undefined
 			);
 
-			const merged = await workspace.readText('plugin.php');
+			const merged = await workspace.readText(pluginLoaderPath);
 			expect(merged).toContain('custom bootstrap');
 			expect(merged).toContain('<<<<<<<');
 
 			const baseSnapshot = await workspace.readText(
-				path.posix.join(layout.resolve('plan.base'), 'plugin.php')
+				path.posix.join(layout.resolve('plan.base'), pluginLoaderPath)
 			);
 			expect(baseSnapshot).toBe(baseLoader);
 
@@ -708,7 +716,7 @@ describe('patcher.apply', () => {
 			expect(manifest.records).toEqual(
 				expect.arrayContaining([
 					expect.objectContaining({
-						file: 'plugin.php',
+						file: pluginLoaderPath,
 						status: 'conflict',
 					}),
 				])
