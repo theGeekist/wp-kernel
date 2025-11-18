@@ -30,17 +30,23 @@
 				"packages/core/dist/namespace/index.d.ts"
 			],
 			"@wpkernel/core/*": ["packages/core/dist/*"],
-			"@wpkernel/cli": ["packages/cli/dist/index.d.ts"],
+			"@wpkernel/cli": [
+				"packages/cli/dist/index.d.ts",
+				"packages/cli/src/index.ts"
+			],
 			"@wpkernel/cli/config/types": [
-				"packages/cli/dist/config/types.d.ts"
+				"packages/cli/dist/config/types.d.ts",
+				"packages/cli/src/config/types.ts"
 			],
 			"@wpkernel/cli/config/*": ["packages/cli/dist/config/*"],
 			"@wpkernel/cli/ir/publicTypes": [
-				"packages/cli/dist/ir/publicTypes.d.ts"
+				"packages/cli/dist/ir/publicTypes.d.ts",
+				"packages/cli/src/ir/publicTypes.ts"
 			],
 			"@wpkernel/cli/ir/*": ["packages/cli/dist/ir/*"],
 			"@wpkernel/cli/workspace": [
-				"packages/cli/dist/workspace/index.d.ts"
+				"packages/cli/dist/workspace/index.d.ts",
+				"packages/cli/src/workspace/index.ts"
 			],
 			"@wpkernel/cli/workspace/*": ["packages/cli/dist/workspace/*"],
 			"@wpkernel/cli/dist/*": ["packages/cli/dist/*"],

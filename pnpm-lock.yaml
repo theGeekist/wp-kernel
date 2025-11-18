@@ -508,12 +508,6 @@ importers:
         specifier: workspace:*
         version: link:../../scripts
 
-  packages/types:
-    devDependencies:
-      '@wpkernel/scripts':
-        specifier: workspace:*
-        version: link:../../scripts
-
   packages/ui:
     dependencies:
       '@testing-library/react':
