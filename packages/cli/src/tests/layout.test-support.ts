@@ -1,17 +1,13 @@
-import type { ResolvedLayout } from '../layout/manifest';
-import { loadLayoutFromWorkspace } from '../layout/manifest';
+import defaultLayoutManifest from '../../../../layout.manifest.json' assert { type: 'json' };
+import {
+	loadLayoutFromWorkspace,
+	resolveLayoutFromManifest,
+	type ResolvedLayout,
+} from '../layout/manifest';
 import { buildWorkspace } from '../workspace';
-import fs from 'node:fs';
-import path from 'node:path';
 
 /**
- * Very small, per-process cache for test layouts.
- * Keyed by cwd + overrides + strict so behaviour stays deterministic.
- */
-const layoutCache = new Map<string, Promise<ResolvedLayout>>();
-
-/**
- * Test helper for resolving layout IDs from layout.manifest.json.
+ * Test helper for resolving layout IDs from layout.manifest.json via the production loader.
  *
  * Keeps tests aligned to the manifest so path expectations do not bake in
  * `.wpk` or `.generated` strings.
@@ -29,33 +25,17 @@ export async function loadTestLayout(
 ): Promise<ResolvedLayout> {
 	const cwd = options.cwd ?? process.cwd();
 	const strict = options.strict ?? true;
-
-	// cache key is "behavioural": different inputs => different key
-	const cacheKey = JSON.stringify({
-		cwd,
-		overrides: options.overrides ?? null,
+	const workspace = buildWorkspace(cwd);
+	const layout = await loadLayoutFromWorkspace({
+		workspace,
+		overrides: options.overrides,
 		strict,
 	});
-
-	let cached = layoutCache.get(cacheKey);
-	if (!cached) {
-		const workspace = buildWorkspace(cwd);
-		cached = (async () => {
-			const layout = await loadLayoutFromWorkspace({
-				workspace,
-				overrides: options.overrides,
-				strict,
-			});
-			if (!layout) {
-				throw new Error('layout.manifest.json not found for tests.');
-			}
-			return layout;
-		})();
-
-		layoutCache.set(cacheKey, cached);
+	if (!layout) {
+		throw new Error('layout.manifest.json not found for tests.');
 	}
 
-	return cached;
+	return layout;
 }
 
 export async function resolveLayoutPath(
@@ -66,57 +46,13 @@ export async function resolveLayoutPath(
 	return layout.resolve(id);
 }
 
-function buildLayoutMap(
-	prefix: string,
-	node: unknown,
-	into: Record<string, string>
-): void {
-	if (typeof node === 'string') {
-		into[node] = prefix;
-		return;
-	}
-
-	if (node && typeof node === 'object') {
-		const record = node as Record<string, unknown>;
-		const id = typeof record.$id === 'string' ? record.$id : null;
-		if (id) {
-			into[id] = prefix;
-		}
-
-		for (const [segment, child] of Object.entries(record)) {
-			if (segment === '$id') {
-				continue;
-			}
-
-			const nextPrefix =
-				prefix === '.' ? segment : path.posix.join(prefix, segment);
-			buildLayoutMap(nextPrefix, child, into);
-		}
-	}
-}
-
-export function loadTestLayoutSync(): ResolvedLayout {
-	const manifestPath = path.resolve(
-		__dirname,
-		'..',
-		'..',
-		'..',
-		'..',
-		'layout.manifest.json'
-	);
-	const text = fs.readFileSync(manifestPath, 'utf8');
-	const manifest = JSON.parse(text) as { directories?: unknown };
-	const map: Record<string, string> = {};
-	buildLayoutMap('.', manifest.directories ?? {}, map);
-
-	return {
-		resolve(id: string): string {
-			const value = map[id] ?? map[`${id}.applied`];
-			if (!value) {
-				throw new Error(`Unknown layout id "${id}".`);
-			}
-			return value;
-		},
-		all: map,
-	};
+export function loadTestLayoutSync(
+	options: {
+		readonly overrides?: Record<string, string>;
+	} = {}
+): ResolvedLayout {
+	return resolveLayoutFromManifest({
+		manifest: defaultLayoutManifest,
+		overrides: options.overrides,
+	});
 }

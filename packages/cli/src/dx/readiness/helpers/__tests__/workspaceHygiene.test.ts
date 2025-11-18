@@ -1,9 +1,7 @@
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createWorkspaceHygieneReadinessHelper } from '../workspaceHygiene';
-import {
-	createReadinessTestContext,
-	makeWorkspaceMock,
-} from '../../test/test-support';
+import { createReadinessTestContext } from '../../test/test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 
 describe('createWorkspaceHygieneReadinessHelper', () => {
 	it('blocks detection without workspace', async () => {

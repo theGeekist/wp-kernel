@@ -4,8 +4,8 @@ import type { DxContext } from '../../context';
 import {
 	createReadinessTestContext,
 	createRecordingReporter,
-	makeWorkspaceMock,
 } from '../../test/test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 
 function createModuleNotFound(
 	specifier: string,

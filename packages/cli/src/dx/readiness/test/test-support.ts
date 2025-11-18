@@ -101,8 +101,3 @@ export function createReadinessTestContext({
 		},
 	} satisfies DxContext;
 }
-
-export {
-	makeWorkspaceMock,
-	type WorkspaceMockOptions,
-} from '../../../../tests/workspace.test-support';

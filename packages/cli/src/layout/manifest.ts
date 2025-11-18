@@ -110,6 +110,28 @@ async function readManifestText(workspace: Workspace): Promise<string | null> {
 	return JSON.stringify(defaultLayoutManifest);
 }
 
+export function resolveLayoutFromManifest(options: {
+	readonly manifest: unknown;
+	readonly overrides?: Record<string, string>;
+}): ResolvedLayout {
+	const directories = normalizeLayout(options.manifest);
+	const resolved = buildLayoutMap('.', directories);
+	const merged = mergeAppliedOverrides(resolved, options.overrides);
+
+	return {
+		resolve(id: string): string {
+			const value = merged[id] ?? merged[`${id}.applied`];
+			if (!value) {
+				throw new WPKernelError('DeveloperError', {
+					message: `Unknown layout id "${id}".`,
+				});
+			}
+			return value;
+		},
+		all: merged,
+	};
+}
+
 export async function loadLayoutFromWorkspace(options: {
 	readonly workspace: Workspace;
 	readonly overrides?: Record<string, string>;
@@ -139,20 +161,8 @@ export async function loadLayoutFromWorkspace(options: {
 		});
 	}
 
-	const directories = normalizeLayout(manifest);
-	const resolved = buildLayoutMap('.', directories);
-	const merged = mergeAppliedOverrides(resolved, options.overrides);
-
-	return {
-		resolve(id: string): string {
-			const value = merged[id] ?? merged[`${id}.applied`];
-			if (!value) {
-				throw new WPKernelError('DeveloperError', {
-					message: `Unknown layout id "${id}".`,
-				});
-			}
-			return value;
-		},
-		all: merged,
-	};
+	return resolveLayoutFromManifest({
+		manifest,
+		overrides: options.overrides,
+	});
 }
