@@ -31,7 +31,6 @@ import {
 	prioritiseQueued,
 	type Trigger,
 	type ChangeTier,
-	toWorkspaceRelativePath,
 } from './start/helpers';
 import {
 	parsePackageManager,
@@ -180,6 +179,7 @@ export function buildStartCommand(
 		#spawnViteProcess = dependencies.spawnViteProcess;
 		#runGenerate = dependencies.runGenerate;
 		#layoutPaths: StartLayoutPaths | null = null;
+		#layoutPathsCwd: string | null = null;
 
 		get packageManager(): PackageManager {
 			return (
@@ -437,30 +437,35 @@ export function buildStartCommand(
 			if (this.autoApply) {
 				await this.autoApplyPhpArtifacts(
 					reporter.child('apply'),
-					generateReporter
+					generateReporter,
+					cwd
 				);
 			}
 		}
 
 		private async autoApplyPhpArtifacts(
 			reporter: Reporter,
-			generateReporter: Reporter
+			generateReporter: Reporter,
+			cwd: string
 		): Promise<void> {
-			const layoutPaths = await this.resolveLayoutPaths();
-			const sourceDir = path.resolve(
-				process.cwd(),
-				layoutPaths.phpGenerated
-			);
-			const targetDir = path.resolve(
-				process.cwd(),
-				layoutPaths.phpTargetDir
-			);
+			const layoutPaths = await this.resolveLayoutPaths(cwd);
+			const sourceDir = path.resolve(cwd, layoutPaths.phpGenerated);
+			const targetDir = path.resolve(cwd, layoutPaths.phpTargetDir);
+
+			const toRelative = (absolute: string): string => {
+				const relative = path.relative(cwd, absolute);
+				if (relative === '') {
+					return '.';
+				}
+
+				return relative.split(path.sep).join('/');
+			};
 
 			try {
 				await this.#fileSystem.access(sourceDir);
 			} catch {
 				reporter.debug('No PHP artifacts to apply.', {
-					sourceDir: toWorkspaceRelativePath(sourceDir),
+					sourceDir: toRelative(sourceDir),
 				});
 				return;
 			}
@@ -471,8 +476,8 @@ export function buildStartCommand(
 					recursive: true,
 				});
 				reporter.info('Applied generated PHP artifacts.', {
-					source: toWorkspaceRelativePath(sourceDir),
-					target: toWorkspaceRelativePath(targetDir),
+					source: toRelative(sourceDir),
+					target: toRelative(targetDir),
 				});
 			} catch (error) {
 				reporter.warn(
@@ -486,13 +491,16 @@ export function buildStartCommand(
 			}
 		}
 
-		private async resolveLayoutPaths(): Promise<StartLayoutPaths> {
-			if (this.#layoutPaths) {
+		private async resolveLayoutPaths(
+			cwd: string
+		): Promise<StartLayoutPaths> {
+			if (this.#layoutPaths && this.#layoutPathsCwd === cwd) {
 				return this.#layoutPaths;
 			}
 
-			const resolved = await resolveStartLayoutPaths();
+			const resolved = await resolveStartLayoutPaths({ cwd });
 			this.#layoutPaths = resolved;
+			this.#layoutPathsCwd = cwd;
 			return resolved;
 		}
 

@@ -9,12 +9,16 @@ export interface StartLayoutPaths {
 	readonly phpTargetDir: string;
 }
 
-export async function resolveStartLayoutPaths(): Promise<StartLayoutPaths> {
-	const workspace = buildWorkspace(process.cwd());
+export async function resolveStartLayoutPaths({
+	cwd,
+}: {
+	readonly cwd: string;
+}): Promise<StartLayoutPaths> {
+	const workspace = buildWorkspace(cwd);
 
 	let overrides: Record<string, string> | undefined;
 	try {
-		const loaded = await loadWPKernelConfig();
+		const loaded = await loadWPKernelConfig({ cwd });
 		overrides = loaded.config.directories as
 			| Record<string, string>
 			| undefined;

@@ -621,22 +621,23 @@ describe('buildStartCommand', () => {
 	});
 
 	it('formats workspace-relative paths when auto-applying artifacts', async () => {
-		const layoutPaths = await resolveStartLayoutPaths();
+		const cwd = process.cwd();
+		const layoutPaths = await resolveStartLayoutPaths({ cwd });
 		const realResolve = path.resolve.bind(path);
 		const resolveSpy = jest
 			.spyOn(path, 'resolve')
 			.mockImplementation((...segments: string[]) => {
 				if (
-					segments[0] === process.cwd() &&
+					segments[0] === cwd &&
 					segments[1] === layoutPaths.phpGenerated
 				) {
-					return process.cwd();
+					return cwd;
 				}
 				if (
-					segments[0] === process.cwd() &&
+					segments[0] === cwd &&
 					segments[1] === layoutPaths.phpTargetDir
 				) {
-					return path.join(process.cwd(), layoutPaths.phpTargetDir);
+					return path.join(cwd, layoutPaths.phpTargetDir);
 				}
 
 				return realResolve(...segments);
@@ -665,10 +666,11 @@ describe('buildStartCommand', () => {
 					reporterMock: ReturnType<typeof reporterHarness.create>,
 					generateReporterMock: ReturnType<
 						typeof reporterHarness.create
-					>
+					>,
+					cwd: string
 				) => Promise<void>;
 			}
-		).autoApplyPhpArtifacts(reporter, generateReporter);
+		).autoApplyPhpArtifacts(reporter, generateReporter, cwd);
 
 		expect(reporter.info).toHaveBeenCalledWith(
 			'Applied generated PHP artifacts.',

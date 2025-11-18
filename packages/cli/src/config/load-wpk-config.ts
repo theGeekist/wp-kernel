@@ -73,10 +73,14 @@ async function loadDefaultLoader<
  * cosmiconfig loaders, validates the resulting structure, and returns the
  * canonicalised configuration metadata.
  *
+ * @param options
+ * @param options.cwd
  * @return The validated wpk config and associated metadata.
  * @throws WPKernelError when discovery, parsing or validation fails.
  */
-export async function loadWPKernelConfig(): Promise<LoadedWPKernelConfig> {
+export async function loadWPKernelConfig(options?: {
+	readonly cwd?: string;
+}): Promise<LoadedWPKernelConfig> {
 	const cosmiconfigModule = await loadCosmiconfigModule();
 	const explorer = cosmiconfigModule.cosmiconfig(WPK_NAMESPACE, {
 		searchPlaces: [
@@ -94,7 +98,7 @@ export async function loadWPKernelConfig(): Promise<LoadedWPKernelConfig> {
 		},
 	});
 
-	const searchResult = await explorer.search();
+	const searchResult = await explorer.search(options?.cwd);
 	if (!searchResult || searchResult.isEmpty) {
 		const message =
 			'Unable to locate a wpk config. Create wpk.config.ts (or wpk.config.js) or add a "wpk" field to package.json.';
