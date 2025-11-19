@@ -6,6 +6,17 @@ import { once } from 'node:events';
 import { readFile, stat } from 'fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
+import workspaceGraph from './workspace-graph.cjs';
+
+const {
+	loadWorkspaceGraph,
+	getWorkspaceByName,
+	getWorkspaceDependencies,
+	getWorkspaceDependents,
+	findWorkspaceForFile,
+} = workspaceGraph;
+
+export { loadWorkspaceGraph };
 
 /* -------------------------------------------------------------------------- */
 /* colours / terminal                                                         */
@@ -320,46 +331,6 @@ export function isDocumentationFile(file) {
 	return false;
 }
 
-/* -------------------------------------------------------------------------- */
-/* workspace graph (precomputed JSON)                                         */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Try to load the precomputed workspace graph from a few known locations.
- *
- * - preferred: node_modules/.cache/wpkernel/workspace-graph.json
- * - fallback:  scripts/workspace-graph.json
- *
- * @param {string} [graphPath]
- * @returns {Promise<{generatedAt?: string, root?: string, workspaces: Array<{name: string, dir: string, localDeps?: string[], localDependents?: string[]}>, edges?: Array<{from: string, to: string}>}>}
- */
-export async function loadWorkspaceGraph(graphPath) {
-	const cwd = process.cwd();
-
-	// explicit path wins
-	if (graphPath) {
-		const raw = await readFile(graphPath, 'utf8');
-		return JSON.parse(raw);
-	}
-
-	// 1. new “container friendly” location
-	const cachePath = path.resolve(
-		cwd,
-		'node_modules/.cache/wpkernel/workspace-graph.json',
-	);
-	try {
-		const raw = await readFile(cachePath, 'utf8');
-		return JSON.parse(raw);
-	} catch {
-		// ignore
-	}
-
-	// 2. old location for local runs
-	const scriptsPath = path.resolve(cwd, 'scripts/workspace-graph.json');
-	const raw = await readFile(scriptsPath, 'utf8');
-	return JSON.parse(raw);
-}
-
 function collectDeclaredTypeArtifacts(manifest) {
 	const paths = new Set();
 	const addPath = (value) => {
@@ -516,81 +487,56 @@ export function isRepoWideChange(file) {
 export function resolveAffectedFromFiles(stagedFiles, graph) {
 	/** @type {Map<string, {name: string, dir: string, reasons: string[]}>} */
 	const affected = new Map();
-
-	// index by name
-	const byName = new Map();
-	for (const ws of graph.workspaces) {
-		// normalise dirs to forward slashes
-		const dir = ws.dir.replace(/\\/g, '/');
-		byName.set(ws.name, { ...ws, dir });
-	}
-
-	// 1. direct hits
-	for (const ws of graph.workspaces) {
-		const wsDir = ws.dir.replace(/\\/g, '/');
-		const touched = stagedFiles.some((f) => f.startsWith(wsDir));
-		if (touched) {
-			affected.set(ws.name, {
-				name: ws.name,
-				dir: wsDir,
-				reasons: [`${ws.name} files changed`],
-			});
+	const queue = [];
+	const markWorkspace = (ws, reason) => {
+		const dir = ws.dir ? ws.dir.replace(/\\/g, '/') : '';
+		const entry =
+			affected.get(ws.name) ??
+			{ name: ws.name, dir, reasons: [] };
+		if (reason && !entry.reasons.includes(reason)) {
+			entry.reasons.push(reason);
 		}
+		if (!affected.has(ws.name)) {
+			affected.set(ws.name, entry);
+			queue.push(ws.name);
+		}
+	};
+
+	for (const file of stagedFiles) {
+		const ws = findWorkspaceForFile(graph, file);
+		if (!ws) continue;
+		markWorkspace(ws, `${ws.name} files changed`);
 	}
 
-	// 2. propagate via localDependents
-	/** @type {string[]} */
-	const queue = [...affected.keys()];
-	/** @type {Set<string>} */
 	const seen = new Set(queue);
-
 	while (queue.length > 0) {
-		const currentName = queue.shift();
-		const currentWs = byName.get(currentName);
-		if (!currentWs) continue;
-		const dependents = currentWs.localDependents ?? [];
+		const current = queue.shift();
+		const dependents = getWorkspaceDependents(graph, current);
 		for (const depName of dependents) {
-			const depWs = byName.get(depName);
+			const depWs = getWorkspaceByName(graph, depName);
 			if (!depWs) continue;
+			markWorkspace(depWs, `${depWs.name} depends on ${current}`);
 			if (!seen.has(depName)) {
 				seen.add(depName);
 				queue.push(depName);
 			}
-			const entry = affected.get(depName) ?? {
-				name: depWs.name,
-				dir: depWs.dir,
-				reasons: [],
-			};
-			const reason = `${depWs.name} depends on ${currentWs.name}`;
-			if (!entry.reasons.includes(reason)) {
-				entry.reasons.push(reason);
-			}
-			affected.set(depName, entry);
 		}
 	}
 
 	const affectedArr = Array.from(affected.values()).sort((a, b) =>
 		a.name.localeCompare(b.name),
 	);
-
 	const filters = affectedArr.map((a) => a.name);
-
 	return { affected: affectedArr, filters };
 }
 
 export function collectWorkspaceDependencies(workspaceNames, graph) {
 	if (!graph) return [];
-	const byName = new Map();
-	for (const ws of graph.workspaces ?? []) {
-		byName.set(ws.name, ws);
-	}
 	const deps = new Set();
 	const queue = [...(workspaceNames ?? [])];
 	while (queue.length > 0) {
 		const current = queue.shift();
-		const ws = byName.get(current);
-		if (!ws) continue;
-		for (const depName of ws.localDeps ?? []) {
+		for (const depName of getWorkspaceDependencies(graph, current)) {
 			if (deps.has(depName)) continue;
 			deps.add(depName);
 			queue.push(depName);

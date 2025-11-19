@@ -3,7 +3,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
-import { loadWorkspaceGraph } from './precommit-utils.mjs';
+import workspaceGraph from './workspace-graph.cjs';
+
+const { loadWorkspaceGraph } = workspaceGraph;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,8 +36,8 @@ function parseArgs(argv) {
 	return { targets, extras };
 }
 
-async function runCommand(command, args, options = {}) {
-	return await new Promise((resolve, reject) => {
+function runCommand(command, args, options = {}) {
+	return new Promise((resolve, reject) => {
 		const child = spawn(command, args, {
 			stdio: 'inherit',
 			cwd: options.cwd ?? repoRoot,
@@ -47,45 +49,101 @@ async function runCommand(command, args, options = {}) {
 				return;
 			}
 			const reason =
-				code !== null
-					? `exit code ${code}`
-					: `signal ${signal ?? '<unknown>'}`;
-			reject(new Error(`${command} ${args.join(' ')} failed (${reason})`));
+				code === null
+					? `signal ${signal ?? '<unknown>'}`
+					: `exit code ${code}`;
+			reject(
+				new Error(`${command} ${args.join(' ')} failed (${reason})`)
+			);
 		});
 		child.on('error', (error) => reject(error));
 	});
 }
 
-async function ensureWorkspaceGraph() {
-	try {
-		return await loadWorkspaceGraph();
-	} catch (error) {
-		console.warn(
-			`prebuild: unable to load workspace graph (${error.message}). Regenerating…`
-		);
-		await runCommand('node', [path.join('scripts', 'build-workspace-graph.mjs')]);
-		return await loadWorkspaceGraph();
-	}
-}
-
 async function readPackageJson(workspace) {
-	if (!workspace?.packageJsonPath) {
-		return null;
+	if (workspace?.packageJsonPath) {
+		const raw = await readFile(workspace.packageJsonPath, 'utf8');
+		return JSON.parse(raw);
 	}
-	const raw = await readFile(workspace.packageJsonPath, 'utf8');
-	return JSON.parse(raw);
+	return null;
 }
 
-async function main() {
-	const { targets, extras } = parseArgs(process.argv.slice(2));
-	if (targets.length === 0 && extras.length === 0) {
-		console.error(
-			'Usage: node scripts/prebuild-workspace.mjs <workspace> [--also <workspace> ...]'
-		);
-		process.exit(1);
+async function planBuildOrder({
+	targets,
+	extras,
+	workspaceByName,
+	getWorkspaceDeps,
+}) {
+	const visiting = new Set();
+	const visited = new Set();
+	const order = [];
+	const missing = new Set();
+
+	async function dfs(name) {
+		if (!name || visited.has(name)) {
+			return;
+		}
+		if (visiting.has(name)) {
+			console.warn(
+				`prebuild: detected dependency cycle involving "${name}", skipping recursive resolution.`
+			);
+			return;
+		}
+		const workspace = workspaceByName.get(name);
+		if (!workspace) {
+			missing.add(name);
+			return;
+		}
+		visiting.add(name);
+		const deps = await getWorkspaceDeps(name);
+		for (const dep of deps) {
+			await dfs(dep);
+		}
+		visiting.delete(name);
+		visited.add(name);
+		order.push(name);
 	}
 
-	const graph = await ensureWorkspaceGraph();
+	for (const name of [...targets, ...extras]) {
+		await dfs(name);
+	}
+
+	return { order, missing };
+}
+
+function warnMissingWorkspaces(missing) {
+	if (!missing || missing.size === 0) {
+		return;
+	}
+	for (const missingName of missing) {
+		console.warn(
+			`prebuild: workspace "${missingName}" was requested but is not part of the current graph.`
+		);
+	}
+}
+
+function deriveBuildList(order, targets) {
+	const skip = new Set(targets);
+	const uniqueOrder = Array.from(new Set(order));
+	return uniqueOrder.filter((name) => !skip.has(name));
+}
+
+async function collectPackagesToBuild(buildList, getPackageJson) {
+	const packagesToBuild = [];
+	for (const name of buildList) {
+		const pkg = await getPackageJson(name);
+		if (!pkg) {
+			continue;
+		}
+		if (!pkg.scripts || typeof pkg.scripts.build !== 'string') {
+			continue;
+		}
+		packagesToBuild.push(name);
+	}
+	return packagesToBuild;
+}
+
+async function buildWorkspaces({ targets, extras, graph }) {
 	const workspaceByName = new Map();
 	for (const ws of graph.workspaces ?? []) {
 		workspaceByName.set(ws.name, ws);
@@ -117,73 +175,32 @@ async function main() {
 			return [];
 		}
 		const deps = pkg.dependencies ?? {};
-		const local = Object.keys(deps).filter((dep) => workspaceByName.has(dep));
+		const local = Object.keys(deps).filter((dep) =>
+			workspaceByName.has(dep)
+		);
 		dependencyCache.set(name, local);
 		return local;
 	}
 
-	const visiting = new Set();
-	const visited = new Set();
-	const order = [];
-	const missingWorkspaces = new Set();
+	const { order, missing } = await planBuildOrder({
+		targets,
+		extras,
+		workspaceByName,
+		getWorkspaceDeps,
+	});
 
-	async function dfs(name) {
-		if (visited.has(name)) {
-			return;
-		}
-		if (visiting.has(name)) {
-			console.warn(
-				`prebuild: detected cyclic dependency involving "${name}", skipping recursive resolution.`
-			);
-			return;
-		}
-		if (!workspaceByName.has(name)) {
-			missingWorkspaces.add(name);
-			return;
-		}
-		visiting.add(name);
-		const deps = await getWorkspaceDeps(name);
-		for (const dep of deps) {
-			await dfs(dep);
-		}
-		visiting.delete(name);
-		visited.add(name);
-		order.push(name);
-	}
-
-	for (const name of [...targets, ...extras]) {
-		await dfs(name);
-	}
-
-	if (missingWorkspaces.size > 0) {
-		for (const missing of missingWorkspaces) {
-			console.warn(
-				`prebuild: workspace "${missing}" was requested but is not part of the current graph.`
-			);
-		}
-	}
+	warnMissingWorkspaces(missing);
 
 	if (order.length === 0) {
 		console.log('prebuild: no workspaces to build.');
 		return;
 	}
 
-	const skip = new Set(targets);
-	const uniqueOrder = order.filter(
-		(name, index) => order.indexOf(name) === index
+	const buildList = deriveBuildList(order, targets);
+	const packagesToBuild = await collectPackagesToBuild(
+		buildList,
+		getPackageJson
 	);
-
-	const buildList = uniqueOrder.filter((name) => !skip.has(name));
-
-	const packagesToBuild = [];
-	for (const name of buildList) {
-		const pkg = await getPackageJson(name);
-		if (!pkg) continue;
-		if (!pkg.scripts || typeof pkg.scripts.build !== 'string') {
-			continue;
-		}
-		packagesToBuild.push(name);
-	}
 
 	if (packagesToBuild.length === 0) {
 		console.log('prebuild: nothing required compiling.');
@@ -194,6 +211,19 @@ async function main() {
 		console.log(`prebuild: building ${name}`);
 		await runCommand('pnpm', ['--filter', name, 'build']);
 	}
+}
+
+async function main() {
+	const { targets, extras } = parseArgs(process.argv.slice(2));
+	if (targets.length === 0 && extras.length === 0) {
+		console.error(
+			'Usage: node scripts/prebuild-workspace.mjs <workspace> [--also <workspace> ...]'
+		);
+		process.exit(1);
+	}
+
+	const graph = await loadWorkspaceGraph();
+	await buildWorkspaces({ targets, extras, graph });
 }
 
 main().catch((error) => {
