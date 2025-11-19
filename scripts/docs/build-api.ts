@@ -244,7 +244,7 @@ async function main() {
 		path.join(docsDir, 'api', '@wpkernel', pkg)
 	);
 	const allGeneratedExist = (
-		await Promise.all(generatedDirs.map((dir) => pathExists(dir)))
+		await Promise.all(generatedDirs.map(pathExists))
 	).every(Boolean);
 	const signature = await computeSignature();
 

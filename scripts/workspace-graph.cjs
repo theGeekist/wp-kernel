@@ -11,7 +11,11 @@ const CACHE_PATH = path.join(
 	'workspace-graph.json'
 );
 const LEGACY_PATH = path.join(repoRoot, 'scripts', 'workspace-graph.json');
-const BUILD_SCRIPT = path.join(repoRoot, 'scripts', 'build-workspace-graph.mjs');
+const BUILD_SCRIPT = path.join(
+	repoRoot,
+	'scripts',
+	'build-workspace-graph.mjs'
+);
 
 function normalizeDir(dir = '') {
 	const forward = dir.replace(/\\/g, '/');
@@ -42,13 +46,32 @@ function regenerateGraph() {
 	}
 }
 
+function normalizeWorkspaceEntry(ws) {
+	const dir = normalizeDir(ws.dir);
+	const packageJsonPath =
+		ws.packageJsonPath && path.isAbsolute(ws.packageJsonPath)
+			? ws.packageJsonPath
+			: path.join(repoRoot, dir, 'package.json');
+	return {
+		...ws,
+		dir,
+		packageJsonPath,
+	};
+}
+
+function normalizeGraph(graph) {
+	return {
+		...graph,
+		root: repoRoot,
+		workspaces: (graph?.workspaces ?? []).map(normalizeWorkspaceEntry),
+	};
+}
+
 function loadWorkspaceGraph(options = {}) {
 	const { allowRegenerate = true } = options;
-	const graph =
-		readGraphFrom(CACHE_PATH) ??
-		readGraphFrom(LEGACY_PATH);
+	const graph = readGraphFrom(CACHE_PATH) ?? readGraphFrom(LEGACY_PATH);
 	if (graph) {
-		return graph;
+		return normalizeGraph(graph);
 	}
 	if (!allowRegenerate) {
 		throw new Error(
