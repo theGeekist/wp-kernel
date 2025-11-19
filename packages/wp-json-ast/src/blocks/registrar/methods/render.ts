@@ -1,4 +1,5 @@
 import {
+	buildAssign,
 	buildArg,
 	buildArray,
 	buildArrayItem,
@@ -17,6 +18,7 @@ import {
 	buildStaticCall,
 	buildVariable,
 	buildFullyQualifiedName,
+	buildFuncCall,
 	PHP_METHOD_MODIFIER_PRIVATE,
 	PHP_METHOD_MODIFIER_STATIC,
 	type PhpStmt,
@@ -103,13 +105,37 @@ export function buildRenderTemplateMethod(): PhpStmtClassMethod {
 		}),
 		buildExpressionStatement(buildFunctionCall('ob_start', [])),
 		buildExpressionStatement(
-			buildFunctionCall('require', [
-				buildArg(buildVariable('render_path')),
-			])
+			buildAssign(
+				buildVariable('render_callback'),
+				buildFunctionCall('require', [
+					buildArg(buildVariable('render_path')),
+				])
+			)
 		),
-		buildReturn(
-			buildScalarCast('string', buildFunctionCall('ob_get_clean', []))
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('buffer'),
+				buildFunctionCall('ob_get_clean', [])
+			)
 		),
+		buildIfStatementNode({
+			condition: buildFunctionCall('is_callable', [
+				buildArg(buildVariable('render_callback')),
+			]),
+			statements: [
+				buildReturn(
+					buildScalarCast(
+						'string',
+						buildFuncCall(buildVariable('render_callback'), [
+							buildArg(buildVariable('attributes')),
+							buildArg(buildVariable('content')),
+							buildArg(buildVariable('block')),
+						])
+					)
+				),
+			],
+		}),
+		buildReturn(buildScalarCast('string', buildVariable('buffer'))),
 	];
 
 	return buildClassMethod(buildIdentifier('render_template'), {
