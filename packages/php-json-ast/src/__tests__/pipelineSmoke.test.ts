@@ -10,7 +10,7 @@ import {
 	createTestPipelineContext,
 	resetTestChannels,
 } from './testUtils.test-support';
-import { loadDefaultLayout } from '@wpkernel/test-utils/layout.test-support';
+import { loadDefaultLayout } from '../../tests/layout.test-support.js';
 
 describe('pipeline smoke test', () => {
 	interface SmokeContext extends PipelineContext {

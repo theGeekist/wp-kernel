@@ -5,7 +5,7 @@ import {
 	assignCommandContext,
 	createCommandWorkspaceHarness,
 	createCommandReporterHarness,
-} from '@wpkernel/test-utils/cli';
+} from '@cli-tests/cli';
 import {
 	buildGenerateCommand,
 	type BuildGenerateCommandOptions,

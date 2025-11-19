@@ -2,8 +2,11 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { WPKConfigV1Like, LoadedWPKConfigV1Like } from '../../types.js';
-import type { ConfigOrigin } from '@wpkernel/cli/config/types';
+import type {
+	ConfigOrigin,
+	LoadedWPKernelConfig,
+	WPKernelConfigV1,
+} from '../../src/config/types';
 
 /**
  * Prefix for temporary directories created for CLI apply command tests.
@@ -81,7 +84,7 @@ export interface ApplyLogEntry {
  * @category CLI Helpers
  */
 export interface BuildLoadedConfigOptions<
-	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
+	TConfig extends WPKernelConfigV1 = WPKernelConfigV1,
 	TOrigin extends ConfigOrigin = ConfigOrigin,
 > {
 	/** The wpk configuration object. */
@@ -100,15 +103,15 @@ export interface BuildLoadedConfigOptions<
  * @category CLI Helpers
  * @param    workspace - The path to the workspace.
  * @param    options   - Options for configuring the loaded config.
- * @returns A `LoadedWPKConfigV1Like` object.
+ * @returns A `LoadedWPKernelConfig` object.
  */
 export function buildLoadedConfig<
-	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
+	TConfig extends WPKernelConfigV1 = WPKernelConfigV1,
 	TOrigin extends ConfigOrigin = ConfigOrigin,
 >(
 	workspace: string,
 	options: BuildLoadedConfigOptions<TConfig, TOrigin> = {}
-): LoadedWPKConfigV1Like<TConfig, TOrigin> {
+): LoadedWPKernelConfig & { config: TConfig; configOrigin: TOrigin } {
 	const defaultConfig = {
 		version: 1,
 		namespace: 'Demo',
@@ -129,7 +132,7 @@ export function buildLoadedConfig<
 			options.sourcePath ??
 			path.join(workspace, WPK_CONFIG_SOURCES.WPK_CONFIG_TS),
 		configOrigin,
-	} satisfies LoadedWPKConfigV1Like<TConfig, TOrigin>;
+	};
 }
 
 /**

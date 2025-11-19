@@ -391,9 +391,6 @@ importers:
       '@wpkernel/scripts':
         specifier: workspace:*
         version: link:../../scripts
-      '@wpkernel/test-utils':
-        specifier: workspace:*
-        version: link:../test-utils
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -491,9 +488,6 @@ importers:
 
   packages/test-utils:
     dependencies:
-      '@wpkernel/cli':
-        specifier: workspace:*
-        version: link:../cli
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core

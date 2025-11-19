@@ -90,7 +90,6 @@
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/pipeline": "workspace:*",
-		"@wpkernel/test-utils": "workspace:*",
 		"@wpkernel/ui": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*"
 	},
@@ -113,7 +112,6 @@
 	},
 	"devDependencies": {
 		"@wpkernel/scripts": "workspace:*",
-		"@wpkernel/test-utils": "workspace:*",
 		"lodash": "^4.17.21"
 	}
 }

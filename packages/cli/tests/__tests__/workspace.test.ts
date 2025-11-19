@@ -1,10 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {
-	createWorkspaceRunner,
-	withWorkspace,
-} from '@wpkernel/test-utils/integration';
+import { createWorkspaceRunner, withWorkspace } from '../integration/workspace';
 
 describe('withWorkspace', () => {
 	it('creates and tears down a temporary workspace', async () => {

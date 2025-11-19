@@ -1,18 +1,18 @@
 import path from 'node:path';
-import type { WorkspaceLike, WorkspaceFileManifestLike } from '../../types.js';
+import type { Workspace, FileManifest } from '../../src/workspace/types';
 import {
 	makeWorkspaceMock,
 	type WorkspaceMockOptions,
-} from '../../workspace.test-support.js';
+} from '../workspace.test-support.js';
 
 export interface CommandWorkspaceHarnessOptions {
 	readonly root?: string;
 	readonly files?: Record<string, Buffer | string>;
-	readonly manifestFactory?: () => WorkspaceFileManifestLike;
+	readonly manifestFactory?: () => FileManifest;
 }
 
 export interface CommandWorkspaceHarness<
-	TWorkspace extends WorkspaceLike = WorkspaceLike,
+	TWorkspace extends Workspace = Workspace,
 > {
 	readonly workspace: TWorkspace;
 	readonly files: Map<string, Buffer>;
@@ -29,7 +29,7 @@ function normaliseBuffer(value: Buffer | string): Buffer {
 }
 
 export function createCommandWorkspaceHarness<
-	TWorkspace extends WorkspaceLike = WorkspaceLike,
+	TWorkspace extends Workspace = Workspace,
 >(
 	options: CommandWorkspaceHarnessOptions = {}
 ): CommandWorkspaceHarness<TWorkspace> {
@@ -46,7 +46,7 @@ export function createCommandWorkspaceHarness<
 	const resolvePath = (file: string) =>
 		path.isAbsolute(file) ? path.normalize(file) : path.resolve(root, file);
 
-	const manifestFactory =
+	const manifestFactory: () => FileManifest =
 		options.manifestFactory ?? (() => ({ writes: [], deletes: [] }));
 
 	const read = jest.fn(
@@ -113,7 +113,7 @@ export function createCommandWorkspaceHarness<
 		dryRun,
 		tmpDir,
 		resolve,
-	} as WorkspaceMockOptions<WorkspaceLike>) as TWorkspace;
+	} as WorkspaceMockOptions<Workspace>) as TWorkspace;
 
 	const get = (file: string) => files.get(resolvePath(file));
 	const getText = (file: string) => {

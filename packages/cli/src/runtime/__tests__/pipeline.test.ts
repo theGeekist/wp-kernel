@@ -14,9 +14,9 @@ import {
 	buildBuilderHelper,
 	buildFragmentHelper,
 	buildPipelineExtension,
-} from '@wpkernel/test-utils/runtime/pipeline.fixtures.test-support';
-import { withPipelineHarness } from '@cli-tests/runtime/pipeline.test-support';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+} from '../../../tests/runtime/pipeline.fixtures.test-support';
+import { withPipelineHarness } from '../../../tests/runtime/pipeline.test-support';
+import { loadTestLayoutSync } from '../../../tests/layout.test-support';
 
 const DUMMY_LAYOUT = {
 	resolve(id: string) {

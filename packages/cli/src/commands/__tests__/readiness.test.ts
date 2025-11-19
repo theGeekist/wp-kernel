@@ -1,6 +1,6 @@
 import { createReadinessHelper, createReadinessRegistry } from '../../dx';
 import { runCommandReadiness } from '../readiness';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { createRecordingReporter } from '@cli-tests/readiness.test-support';
 
 describe('runCommandReadiness', () => {

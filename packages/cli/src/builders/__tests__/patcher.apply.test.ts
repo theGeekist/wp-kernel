@@ -6,7 +6,7 @@ import {
 	buildReporter,
 	buildOutput,
 	type BuilderHarnessContext,
-} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+} from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { type IRv1 } from '../../ir';
 import { createPatcher } from '../patcher';

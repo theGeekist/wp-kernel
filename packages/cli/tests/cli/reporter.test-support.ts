@@ -3,7 +3,7 @@ import {
 	type ReporterFactoryMock,
 	type ReporterMock,
 	type ReporterMockOptions,
-} from '../../shared/reporter.js';
+} from '../reporter.js';
 
 /**
  * Represents a harness for constructing and tracking reporter mocks that share

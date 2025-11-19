@@ -1,10 +1,7 @@
 import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
-import {
-	createReporterMock,
-	type ReporterMock,
-} from '@wpkernel/test-utils/cli';
+import { createReporterMock, type ReporterMock } from '@cli-tests/reporter';
 import {
 	validateWPKernelConfig,
 	resourceRoutesValidator,

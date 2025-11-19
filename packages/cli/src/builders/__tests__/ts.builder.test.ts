@@ -16,7 +16,7 @@ import {
 	buildReporter,
 	buildOutput,
 	type BuilderHarnessContext,
-} from '@wpkernel/test-utils/builders/tests/ts.test-support';
+} from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { validateGeneratedImports } from '../../commands/run-generate/validation';

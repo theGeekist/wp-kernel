@@ -15,8 +15,8 @@ import { createIr } from '../createIr';
 import {
 	withWorkspace,
 	makeWorkspaceMock,
-} from '@wpkernel/test-utils/workspace.test-support';
-import { makeWPKernelConfigFixture } from '@wpkernel/test-utils/printers.test-support';
+} from '@cli-tests/workspace.test-support';
+import { makeWPKernelConfigFixture } from '@cli-tests/printers.test-support';
 
 jest.mock('../../builders', () => {
 	const { createHelper } = jest.requireActual('../../runtime');

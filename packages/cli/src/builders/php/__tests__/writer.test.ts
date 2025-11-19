@@ -14,7 +14,7 @@ import {
 import * as phpDriverModule from '@wpkernel/php-json-ast/php-driver';
 const { buildPhpPrettyPrinter } = phpDriverModule;
 import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	createBuilderInput,
 	createBuilderOutput,

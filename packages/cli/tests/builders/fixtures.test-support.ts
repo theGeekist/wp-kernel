@@ -5,13 +5,13 @@ import type {
 	IRResource,
 	IRRoute,
 	IRv1,
-} from '../../types.js';
+} from '../../src/ir/publicTypes';
 import type { ResourceIdentityConfig } from '@wpkernel/core/resource';
 import {
 	createBlockHash,
 	createBlockId,
 } from '@wpkernel/cli/ir/shared/identity';
-import { buildControllerClassName } from '../../ir/meta.test-support.js';
+import { buildControllerClassName } from '../ir/meta.test-support.js';
 
 /**
  * Builds a deterministic IR hash provenance for tests.

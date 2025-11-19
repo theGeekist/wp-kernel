@@ -7,13 +7,7 @@
 		"outDir": "../dist-test-support",
 		"noEmit": true
 	},
-	"files": [
-		"../../test-utils/src/workspace.test-support.ts",
-		"../package.json"
-	],
+	"files": ["../package.json"],
 	"include": ["./**/*.ts", "./**/*.tsx"],
-	"references": [
-		{ "path": "../tsconfig.json" },
-		{ "path": "../../test-utils/tsconfig.json" }
-	]
+	"references": [{ "path": "../tsconfig.json" }]
 }

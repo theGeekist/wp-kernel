@@ -1,7 +1,7 @@
 import { finalizeIrDraft, buildIrDraft, type MutableIr } from '../types';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { FragmentFinalizationMetadata } from '@wpkernel/pipeline';
-import { makeWPKernelConfigFixture } from '@wpkernel/test-utils/printers.test-support';
+import { makeWPKernelConfigFixture } from '@cli-tests/printers.test-support';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 function createHelpersMetadata(

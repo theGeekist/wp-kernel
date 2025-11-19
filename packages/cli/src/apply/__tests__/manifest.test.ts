@@ -6,7 +6,7 @@ import path from 'node:path';
 import type { IRResource } from '../../ir/publicTypes';
 import type { SerializableResourceUIConfig } from '../../config/types';
 import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	buildEmptyGenerationState,
 	buildGenerationManifestFromIr,

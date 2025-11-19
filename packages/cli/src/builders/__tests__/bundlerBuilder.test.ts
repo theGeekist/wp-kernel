@@ -19,8 +19,8 @@ import {
 	toWordPressHandle,
 } from '../bundler';
 import { makeIrMeta } from '@cli-tests/ir.test-support';
-import { withWorkspace as baseWithWorkspace } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import { withWorkspace as baseWithWorkspace } from '@cli-tests/builders/builder-harness.test-support';
+import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 

@@ -2,7 +2,7 @@
 import { createReporter } from '@wpkernel/core/reporter';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { WPK_SUBSYSTEM_NAMESPACES } from '@wpkernel/core/namespace';
-import type { DxContext } from '@wpkernel/test-utils/cli';
+import type { DxContext } from '../../cli';
 import type { Workspace } from '@wpkernel/cli/src/workspace';
 
 export interface RecordingEntry {

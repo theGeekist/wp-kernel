@@ -9,8 +9,8 @@ import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,
 	buildOutput,
-} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+} from '@cli-tests/builders/builder-harness.test-support';
+import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 type PatcherWorkspaceContext = BuilderHarnessContext<

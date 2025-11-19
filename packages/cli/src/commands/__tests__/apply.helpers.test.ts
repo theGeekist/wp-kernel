@@ -6,14 +6,14 @@ import {
 	readManifest,
 	resolveWorkspaceRoot,
 } from '../apply';
-import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
+import { createCommandReporterHarness } from '@cli-tests/cli';
 import { resolveFlags } from '../apply/flags';
 import type {
 	WPKernelConfigV1,
 	LoadedWPKernelConfig,
 } from '../../../config/types';
 import type { Workspace } from '../../workspace';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 const wpkConfig: WPKernelConfigV1 = {

@@ -83,8 +83,8 @@ cache invalidation and capability checks stay consistent.
 ## Validation & test utilities
 
 - Run `pnpm --filter @wpkernel/cli test:coverage` before shipping changes.
-- `@wpkernel/test-utils/cli` exposes command contexts, reporter mocks, and memory streams.
-- Integration suites reuse workspace helpers from `@wpkernel/test-utils/integration` (re-exported
+- `@cli-tests/cli` exposes command contexts, reporter mocks, and memory streams.
+- Integration suites reuse workspace helpers from `@cli-tests/integration` (re-exported
   via `tests/workspace.test-support.ts`).
 - End-to-end specs can drive CLI workflows with `runNodeSnippet()` from `@wpkernel/e2e-utils`.
 
@@ -92,7 +92,7 @@ cache invalidation and capability checks stay consistent.
 
 - Node.js 20+
 - pnpm 9+ (or npm/yarn alternatives with workspace support)
-- Workspace dependencies: `@wpkernel/core`, `@wpkernel/test-utils`, `@wpkernel/php-json-ast`
+- Workspace dependencies: `@wpkernel/core`, `@cli-tests`, `@wpkernel/php-json-ast`
   (linked via `workspace:*` so builds share runtime contracts)
 - Run `pnpm lint:peers` to confirm peer ranges before publishing.
 

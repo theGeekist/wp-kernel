@@ -3,7 +3,7 @@ import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,
 	buildOutput,
-} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+} from '@cli-tests/builders/builder-harness.test-support';
 import type { BuilderOutput } from '../../runtime/types';
 import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
 import type { Workspace } from '../../workspace/types';

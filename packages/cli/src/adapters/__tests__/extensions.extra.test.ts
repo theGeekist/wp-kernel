@@ -18,7 +18,7 @@ import { WPKernelError } from '@wpkernel/core/error';
 import type { AdapterContext } from '../../config/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock } from '@cli-tests/reporter';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 

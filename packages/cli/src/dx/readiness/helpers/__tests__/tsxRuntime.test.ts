@@ -5,7 +5,7 @@ import {
 	createReadinessTestContext,
 	createRecordingReporter,
 } from '@cli-tests/readiness.test-support';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 
 function createModuleNotFound(
 	specifier: string,

@@ -1,8 +1,8 @@
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock } from '../reporter.js';
 import {
 	withWorkspace,
 	type WorkspaceOptions,
-} from '@wpkernel/test-utils/integration';
+} from '../integration/workspace.js';
 import { buildWorkspace } from '../../src/workspace';
 import { createPipeline } from '../../src/runtime/createPipeline';
 import {

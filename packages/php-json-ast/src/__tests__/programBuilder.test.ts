@@ -25,7 +25,7 @@ import {
 	getTestBuilderQueue,
 } from './testUtils.test-support';
 import type { PhpFileMetadata } from '../types';
-import { loadDefaultLayout } from '@wpkernel/test-utils/layout.test-support';
+import { loadDefaultLayout } from '../../tests/layout.test-support.js';
 
 const layout = loadDefaultLayout();
 const resolvePhpPath = (

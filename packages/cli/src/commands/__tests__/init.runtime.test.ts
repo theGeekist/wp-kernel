@@ -3,8 +3,8 @@ import type { ReporterOptions } from '@wpkernel/core/reporter';
 import type { InitWorkflowOptions } from '../init/types';
 import type { ReadinessRegistry } from '../../dx';
 import { WPKernelError } from '@wpkernel/core/error';
-import { createCommandReporterHarness } from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { createCommandReporterHarness } from '@cli-tests/cli';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	createInitCommandRuntime,
 	formatInitWorkflowError,

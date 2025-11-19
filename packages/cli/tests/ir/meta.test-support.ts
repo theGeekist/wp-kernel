@@ -1,5 +1,4 @@
-import type { IRPluginMeta, IRResource } from '@wpkernel/cli/ir/publicTypes';
-import type { IRResourceLike } from '../types.js';
+import type { IRPluginMeta } from '../../src/ir/publicTypes';
 
 const FALLBACK_NAMESPACE = 'demo-plugin';
 
@@ -95,17 +94,4 @@ export function buildControllerClassName(
 	const resourceClass = toPascalCase(resourceName);
 
 	return `${phpNamespace}\\Generated\\Rest\\${resourceClass}Controller`;
-}
-
-export function withControllerClass<
-	TResource extends IRResourceLike | IRResource,
->(resource: TResource, namespace: string): TResource {
-	if ((resource as IRResource).controllerClass) {
-		return resource;
-	}
-
-	return {
-		...resource,
-		controllerClass: buildControllerClassName(namespace, resource.name),
-	};
 }

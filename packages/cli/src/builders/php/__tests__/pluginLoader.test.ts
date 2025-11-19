@@ -12,11 +12,11 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	makeResource,
 	makeRoute,
-} from '@wpkernel/test-utils/builders/php/fixtures.test-support';
+} from '@cli-tests/builders/fixtures.test-support';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 describe('createPhpPluginLoaderHelper', () => {

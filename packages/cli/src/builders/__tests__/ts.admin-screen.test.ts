@@ -14,7 +14,7 @@ import {
 	normalise,
 	prefixRelative,
 	type BuilderHarnessContext,
-} from '@wpkernel/test-utils/builders/tests/ts.test-support';
+} from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { makeIr } from '@cli-tests/ir.test-support';

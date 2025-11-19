@@ -1,6 +1,6 @@
 import { WPKernelError } from '@wpkernel/core/error';
 import type { DependencyResolution } from '../init/dependency-versions';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import type { Workspace } from '../../workspace';
 import { appendPackageSummary, writePackageJson } from '../init/package-json';
 

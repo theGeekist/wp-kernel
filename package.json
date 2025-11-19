@@ -22,8 +22,8 @@
 	"scripts": {
 		"prepare": "husky || true",
 		"dev": "pnpm --filter './packages/*' --parallel run dev",
-		"build": "pnpm --recursive --filter './packages/*' --filter './examples/*' run build && pnpm run lint:dts-imports:fix",
-		"build:packages": "pnpm --recursive --filter './packages/*' run build && pnpm run lint:dts-imports:fix",
+		"build": "node ./scripts/workspace-build.run.mjs --with-examples",
+		"build:packages": "node ./scripts/workspace-build.run.mjs",
 		"clean": "pnpm --recursive run clean && rm -rf node_modules",
 		"clean:dist": "pnpm --recursive run clean",
 		"lint": "pnpm run lint:peers && pnpm run lint:dts-imports && eslint --max-warnings=0 --cache --cache-location node_modules/.cache/eslint --cache-strategy=content --report-unused-disable-directives packages/ examples/",

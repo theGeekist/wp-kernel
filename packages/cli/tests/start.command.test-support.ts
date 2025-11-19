@@ -11,9 +11,9 @@ import {
 	createCommandReporterHarness,
 	flushAsync,
 	type CommandReporterHarness,
-	type ReporterMock,
 	type MemoryStream,
-} from '@wpkernel/test-utils/cli';
+} from './cli';
+import type { ReporterMock } from './reporter.js';
 import { loadTestLayoutSync } from './layout.test-support';
 import { buildStartCommand, type FileSystem } from '../src/commands/start';
 import type { PackageManager } from '../src/commands/init/types';

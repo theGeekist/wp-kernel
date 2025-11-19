@@ -5,7 +5,7 @@ import { Readable, Writable } from 'node:stream';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { WPKernelError } from '@wpkernel/core/error';
-import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock as buildReporterMock } from '@cli-tests/reporter';
 import { buildWorkspace } from '../filesystem';
 import {
 	readWorkspaceGitStatus,

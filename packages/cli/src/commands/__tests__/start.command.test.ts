@@ -1,10 +1,7 @@
 import path from 'node:path';
 import type { FSWatcher } from 'chokidar';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import {
-	assignCommandContext,
-	type ReporterMock,
-} from '@wpkernel/test-utils/cli';
+import { assignCommandContext, type ReporterMock } from '@cli-tests/cli';
 import { buildStartCommand } from '../start';
 import {
 	advanceBy,

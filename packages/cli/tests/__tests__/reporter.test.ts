@@ -1,4 +1,4 @@
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock } from '../reporter.js';
 
 describe('createReporterMock', () => {
 	it('creates isolated jest mocks for reporter methods', () => {

@@ -4,7 +4,13 @@ import type {
 	ResourceDataViewsScreenConfig,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
-import type { IRHashProvenance } from '@wpkernel/cli/ir/publicTypes';
+import type {
+	BuildIrOptions,
+	IRHashProvenance,
+	IRResource,
+	IRv1,
+} from '../../src/ir/publicTypes';
+import type { WPKernelConfigV1 } from '../../src/config/types';
 export { withWorkspace } from './builder-harness.test-support.js';
 export {
 	buildReporter,
@@ -17,17 +23,11 @@ export type {
 	BuilderHarnessContext,
 	WorkspaceFactoryOptions,
 } from './builder-harness.test-support.js';
-import type {
-	BuildIrOptionsLike,
-	IRResourceLike,
-	IRv1Like,
-	WPKConfigV1Like,
-} from '../../types.js';
-import { loadDefaultLayout } from '../../layout.test-support.js';
+import { loadDefaultLayout } from '../layout.test-support.js';
 import {
 	buildControllerClassName,
 	buildPluginMetaFixture,
-} from '../../ir/meta.test-support.js';
+} from '../ir/meta.test-support.js';
 
 const makeHash = (value: string): IRHashProvenance => ({
 	algo: 'sha256',
@@ -222,14 +222,10 @@ export interface BuilderArtifactOptions {
 	readonly sourcePath: string;
 }
 
-export interface BuilderArtifacts<
-	TConfig extends WPKConfigV1Like = WPKConfigV1Like,
-	TIr extends IRv1Like<TConfig> = IRv1Like<TConfig>,
-	TOptions extends BuildIrOptionsLike<TConfig> = BuildIrOptionsLike<TConfig>,
-> {
-	readonly config: TConfig;
-	readonly ir: TIr;
-	readonly options: TOptions;
+export interface BuilderArtifacts {
+	readonly config: WPKernelConfigV1;
+	readonly ir: IRv1;
+	readonly options: BuildIrOptions;
 }
 
 export function buildBuilderArtifacts(
@@ -256,16 +252,16 @@ export function buildBuilderArtifacts(
 			: {}),
 	} as ResourceConfig;
 
-	const config: WPKConfigV1Like = {
+	const config: WPKernelConfigV1 = {
 		version: 1,
 		namespace,
 		schemas: {},
 		resources: {
 			[resourceKey]: resourceConfig,
 		},
-	} as WPKConfigV1Like;
+	} as WPKernelConfigV1;
 
-	const irResource: IRResourceLike = {
+	const irResource: IRResource = {
 		id: `${resourceKey}:resource`,
 		name: resourceName,
 		controllerClass: buildControllerClassName(namespace, resourceName),
@@ -278,12 +274,12 @@ export function buildBuilderArtifacts(
 		},
 		hash: makeHash('demo-hash'),
 		warnings: [],
-	} as IRResourceLike;
+	} as IRResource;
 
 	const sanitizedNamespace = toPascalCase(namespace);
 	const pluginMeta = buildPluginMetaFixture({ namespace });
 
-	const ir: IRv1Like = {
+	const ir: IRv1 = {
 		meta: {
 			version: 1,
 			namespace,
@@ -328,14 +324,14 @@ export function buildBuilderArtifacts(
 			outputDir: layout.resolve('php.generated'),
 		},
 		layout,
-	} as IRv1Like;
+	} as IRv1;
 
-	const buildOptions: BuildIrOptionsLike = {
+	const buildOptions: BuildIrOptions = {
 		config,
 		namespace,
 		origin: 'typescript',
 		sourcePath,
-	} as BuildIrOptionsLike;
+	} as BuildIrOptions;
 
 	return { config, ir, options: buildOptions } satisfies BuilderArtifacts;
 }

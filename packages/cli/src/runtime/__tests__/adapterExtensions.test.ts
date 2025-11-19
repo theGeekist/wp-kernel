@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
-import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock as buildReporterMock } from '@cli-tests/reporter';
 import type { WPKernelConfigV1 } from '../../config/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import type {
@@ -11,7 +11,7 @@ import { buildAdapterExtensionsExtension } from '../adapterExtensions';
 import { runAdapterExtensions } from '../../adapters';
 import { mkdir } from 'node:fs/promises';
 import { buildTsFormatter } from '../../builders/ts';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import type { Workspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';

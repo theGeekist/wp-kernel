@@ -1,13 +1,13 @@
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type { ResourcePostMetaDescriptor } from '@wpkernel/core/resource';
 import type {
-	IRResourceLike,
-	IRRouteLike,
-	IRWarningLike,
-	IRv1Like,
-	WPKConfigV1Like,
-} from './types.js';
-import type { IRHashProvenance } from '@wpkernel/cli/ir/publicTypes';
+	IRHashProvenance,
+	IRResource,
+	IRRoute,
+	IRWarning,
+	IRv1,
+} from '../src/ir/publicTypes';
+import type { WPKernelConfigV1 } from '../src/config/types';
 import { loadDefaultLayout } from './layout.test-support.js';
 import {
 	buildControllerClassName,
@@ -28,16 +28,16 @@ const normaliseHash = (hash: IRHashProvenance | string): IRHashProvenance =>
 
 export interface MakeWPKernelConfigFixtureOptions {
 	readonly namespace?: string;
-	readonly schemas?: WPKConfigV1Like['schemas'];
-	readonly resources?: WPKConfigV1Like['resources'];
-	readonly adapters?: WPKConfigV1Like['adapters'];
+	readonly schemas?: WPKernelConfigV1['schemas'];
+	readonly resources?: WPKernelConfigV1['resources'];
+	readonly adapters?: WPKernelConfigV1['adapters'];
 }
 
 export function makeWPKernelConfigFixture(
 	options: MakeWPKernelConfigFixtureOptions = {}
-): WPKConfigV1Like {
+): WPKernelConfigV1 {
 	const typesRoot = testLayout.resolve('php.generated');
-	const defaultSchemas: WPKConfigV1Like['schemas'] = {
+	const defaultSchemas: WPKernelConfigV1['schemas'] = {
 		job: {
 			path: './contracts/job.schema.json',
 			generated: {
@@ -45,7 +45,7 @@ export function makeWPKernelConfigFixture(
 			},
 		},
 	};
-	const defaultResources: WPKConfigV1Like['resources'] = {};
+	const defaultResources: WPKernelConfigV1['resources'] = {};
 
 	const {
 		namespace = 'demo-namespace',
@@ -60,7 +60,7 @@ export function makeWPKernelConfigFixture(
 		schemas: schemas ?? defaultSchemas,
 		resources: resources ?? defaultResources,
 		...(adapters ? { adapters } : {}),
-	} satisfies WPKConfigV1Like;
+	} satisfies WPKernelConfigV1;
 }
 
 export interface PrinterIRSchema {
@@ -79,7 +79,7 @@ export interface PrinterIRSchema {
 export interface PrinterIRCapabilityReference {
 	readonly resource: string;
 	readonly route: string;
-	readonly transport: IRRouteLike['transport'];
+	readonly transport: IRRoute['transport'];
 }
 
 export interface PrinterIRCapabilityHint {
@@ -106,7 +106,7 @@ export interface PrinterIRCapabilityMap {
 	};
 	readonly missing: string[];
 	readonly unused: string[];
-	readonly warnings: IRWarningLike[];
+	readonly warnings: IRWarning[];
 }
 
 export interface PrinterIRBlock {
@@ -124,21 +124,23 @@ export interface PrinterPhpProject {
 	readonly outputDir: string;
 }
 
-export type PrinterIr = IRv1Like<
-	WPKConfigV1Like,
-	PrinterIRSchema,
-	IRRouteLike,
-	IRResourceLike,
-	PrinterIRCapabilityHint,
-	PrinterIRCapabilityMap,
-	PrinterIRBlock,
-	PrinterPhpProject
->;
+export interface PrinterIr {
+	readonly meta: IRv1['meta'];
+	readonly config: WPKernelConfigV1;
+	readonly schemas: PrinterIRSchema[];
+	readonly resources: IRResource[];
+	readonly capabilities: PrinterIRCapabilityHint[];
+	readonly capabilityMap: PrinterIRCapabilityMap;
+	readonly blocks: PrinterIRBlock[];
+	readonly layout: typeof testLayout;
+	readonly php: PrinterPhpProject;
+	readonly diagnostics?: IRv1['diagnostics'];
+}
 
 export interface MakePrinterIrFixtureOptions {
-	readonly config?: WPKConfigV1Like;
+	readonly config?: WPKernelConfigV1;
 	readonly schemas?: PrinterIRSchema[];
-	readonly resources?: IRResourceLike[];
+	readonly resources?: IRResource[];
 	readonly capabilityMap?: PrinterIRCapabilityMap;
 	readonly capabilities?: PrinterIr['capabilities'];
 	readonly blocks?: PrinterIRBlock[];
@@ -147,7 +149,6 @@ export interface MakePrinterIrFixtureOptions {
 	readonly diagnostics?: PrinterIr['diagnostics'];
 }
 
-/* eslint-disable complexity */
 export function makePrinterIrFixture({
 	config = makeWPKernelConfigFixture(),
 	schemas = makeDefaultSchemas(),
@@ -176,7 +177,7 @@ export function makePrinterIrFixture({
 		overrides: pluginOverrides,
 	});
 
-	const meta: PrinterIr['meta'] = {
+	const meta: IRv1['meta'] = {
 		version: 1,
 		namespace,
 		sourcePath,
@@ -213,7 +214,6 @@ export function makePrinterIrFixture({
 		...(diagnostics ? { diagnostics } : {}),
 	} satisfies PrinterIr;
 }
-/* eslint-enable complexity */
 
 export function makeDefaultSchemas(): PrinterIRSchema[] {
 	const jobSchema: PrinterIRSchema = {
@@ -321,7 +321,7 @@ function makeDefaultCapabilityMap(): PrinterIRCapabilityMap {
 	} satisfies PrinterIRCapabilityMap;
 }
 
-function makeDefaultResources(): IRResourceLike[] {
+function makeDefaultResources(): IRResource[] {
 	const jobResource = makeJobResource();
 	const taskResource = makeTaskResource();
 	const optionResource = makeWpOptionResource();
@@ -343,9 +343,9 @@ function makeDefaultResources(): IRResourceLike[] {
 
 export interface MakeResourceOptions {
 	readonly name?: string;
-	readonly routes?: IRRouteLike[];
+	readonly routes?: IRRoute[];
 	readonly hash?: IRHashProvenance | string;
-	readonly identity?: IRResourceLike['identity'];
+	readonly identity?: IRResource['identity'];
 	readonly namespace?: string;
 }
 
@@ -375,21 +375,19 @@ type WpOptionStorage = {
 type TransientStorage = { readonly mode: 'transient' };
 
 export interface MakeWpOptionResourceOptions extends MakeResourceOptions {
-	readonly cacheKeys?: IRResourceLike['cacheKeys'];
+	readonly cacheKeys?: IRResource['cacheKeys'];
 	readonly storage?: Partial<WpOptionStorage>;
 }
 
 export interface MakeTransientResourceOptions extends MakeResourceOptions {
-	readonly cacheKeys?: IRResourceLike['cacheKeys'];
+	readonly cacheKeys?: IRResource['cacheKeys'];
 	readonly storage?: Partial<TransientStorage>;
 }
 
-export function makeJobResource(
-	options: MakeResourceOptions = {}
-): IRResourceLike {
+export function makeJobResource(options: MakeResourceOptions = {}): IRResource {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const resourceName = options.name ?? 'job';
-	const cacheKeys: IRResourceLike['cacheKeys'] = {
+	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['job', 'list'] as const, source: 'config' },
 		get: {
 			segments: ['job', 'get', '__wpk_id__'] as const,
@@ -398,9 +396,9 @@ export function makeJobResource(
 		create: { segments: ['job', 'create'] as const, source: 'config' },
 		update: { segments: ['job', 'update'] as const, source: 'config' },
 		remove: { segments: ['job', 'remove'] as const, source: 'config' },
-	} satisfies IRResourceLike['cacheKeys'];
+	} satisfies IRResource['cacheKeys'];
 
-	const queryParams: NonNullable<IRResourceLike['queryParams']> = {
+	const queryParams: NonNullable<IRResource['queryParams']> = {
 		search: {
 			type: 'string',
 			description: 'Search term',
@@ -468,15 +466,15 @@ export function makeJobResource(
 		ui: undefined,
 		hash: normaliseHash(options.hash ?? 'resource-job'),
 		warnings: [],
-	} satisfies IRResourceLike;
+	} satisfies IRResource;
 }
 
 export function makeTaskResource(
 	options: MakeResourceOptions = {}
-): IRResourceLike {
+): IRResource {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const resourceName = options.name ?? 'task';
-	const cacheKeys: IRResourceLike['cacheKeys'] = {
+	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['task', 'list'] as const, source: 'config' },
 		get: {
 			segments: ['task', 'get', '__wpk_id__'] as const,
@@ -521,12 +519,12 @@ export function makeTaskResource(
 		ui: undefined,
 		hash: normaliseHash(options.hash ?? 'resource-task'),
 		warnings: [],
-	} satisfies IRResourceLike;
+	} satisfies IRResource;
 }
 
 export function makeWpOptionResource(
 	options: MakeWpOptionResourceOptions = {}
-): IRResourceLike {
+): IRResource {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const resourceName = options.name ?? 'demoOption';
 	const storage: WpOptionStorage = {
@@ -535,7 +533,7 @@ export function makeWpOptionResource(
 		...options.storage,
 	};
 
-	const defaultRoutes: IRRouteLike[] = [
+	const defaultRoutes: IRRoute[] = [
 		{
 			method: 'GET',
 			path: '/demo-namespace/demo-option',
@@ -571,12 +569,12 @@ export function makeWpOptionResource(
 		ui: undefined,
 		hash: normaliseHash(options.hash ?? 'resource-option'),
 		warnings: [],
-	} satisfies IRResourceLike;
+	} satisfies IRResource;
 }
 
 export function makeTransientResource(
 	options: MakeTransientResourceOptions = {}
-): IRResourceLike {
+): IRResource {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const resourceName = options.name ?? 'jobCache';
 	const storage: TransientStorage = {
@@ -584,7 +582,7 @@ export function makeTransientResource(
 		...options.storage,
 	};
 
-	const defaultRoutes: IRRouteLike[] = [
+	const defaultRoutes: IRRoute[] = [
 		{
 			method: 'GET',
 			path: '/demo-namespace/job-cache',
@@ -627,15 +625,15 @@ export function makeTransientResource(
 		ui: undefined,
 		hash: normaliseHash(options.hash ?? 'resource-transient'),
 		warnings: [],
-	} satisfies IRResourceLike;
+	} satisfies IRResource;
 }
 
 export function makeLiteralResource(
 	options: MakeResourceOptions = {}
-): IRResourceLike {
+): IRResource {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const resourceName = options.name ?? 'literal';
-	const cacheKeys: IRResourceLike['cacheKeys'] = {
+	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['literal', 'list'] as const, source: 'config' },
 		get: {
 			segments: ['literal', 'get', '__wpk_id__'] as const,
@@ -664,15 +662,15 @@ export function makeLiteralResource(
 		ui: undefined,
 		hash: normaliseHash(options.hash ?? 'resource-literal'),
 		warnings: [],
-	} satisfies IRResourceLike;
+	} satisfies IRResource;
 }
 
 export function makeOrphanResource(
 	options: MakeResourceOptions = {}
-): IRResourceLike {
+): IRResource {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const resourceName = options.name ?? 'orphan';
-	const cacheKeys: IRResourceLike['cacheKeys'] = {
+	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['orphan', 'list'] as const, source: 'config' },
 		get: { segments: ['orphan', 'get'] as const, source: 'default' },
 	};
@@ -703,15 +701,15 @@ export function makeOrphanResource(
 				message: 'Schema not found',
 			},
 		],
-	} satisfies IRResourceLike;
+	} satisfies IRResource;
 }
 
 export function makeRemoteResource(
 	options: MakeResourceOptions = {}
-): IRResourceLike {
+): IRResource {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const resourceName = options.name ?? 'remote';
-	const cacheKeys: IRResourceLike['cacheKeys'] = {
+	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['remote', 'list'] as const, source: 'config' },
 		get: { segments: ['remote', 'get'] as const, source: 'default' },
 	};
@@ -737,5 +735,5 @@ export function makeRemoteResource(
 		ui: undefined,
 		hash: normaliseHash(options.hash ?? 'resource-remote'),
 		warnings: [],
-	} satisfies IRResourceLike;
+	} satisfies IRResource;
 }

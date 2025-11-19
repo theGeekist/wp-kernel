@@ -2,8 +2,8 @@ import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	assignCommandContext,
 	createCommandReporterHarness,
-} from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+} from '@cli-tests/cli';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { buildInitCommand } from '../init';
 import type { buildWorkspace } from '../../workspace/filesystem';
 

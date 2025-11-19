@@ -10,7 +10,7 @@ import type { IRv1 } from '../../../ir/publicTypes';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	createBuilderInput,
 	createBuilderOutput,
@@ -29,7 +29,7 @@ import {
 	makeWpTaxonomyResource,
 	makeWpOptionResource,
 	makeTransientResource,
-} from '@wpkernel/test-utils/builders/php/resources.test-support';
+} from '@cli-tests/builders/resources.test-support';
 import {
 	createPhpChannelHelper,
 	createPhpTransientStorageHelper,

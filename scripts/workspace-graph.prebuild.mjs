@@ -1,46 +1,69 @@
 #!/usr/bin/env node
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
-import workspaceGraph from './workspace-graph.utils.cjs';
-
-const { loadWorkspaceGraph } = workspaceGraph;
+import path from 'node:path';
+import { access } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import {
+	PREBUILD_SETS,
+	WORKSPACE_DIRS,
+} from './workspace-build.constants.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
-if (process.cwd() !== repoRoot) {
-	process.chdir(repoRoot);
+
+if (process.env.WPKERNEL_PREBUILD_BYPASS === '1') {
+	console.log('prebuild: bypassed (WPKERNEL_PREBUILD_BYPASS=1).');
+	process.exit(0);
 }
 
 function parseArgs(argv) {
-	const targets = [];
-	const extras = [];
+	const primaries = [];
+	const also = [];
 	for (let idx = 0; idx < argv.length; idx += 1) {
 		const arg = argv[idx];
 		if (arg === '--also') {
 			const next = argv[idx + 1];
 			if (!next || next.startsWith('-')) {
-				throw new Error('--also requires a package name argument');
+				throw new Error('--also requires a workspace name');
 			}
-			extras.push(next);
+			also.push(next);
 			idx += 1;
 			continue;
 		}
 		if (arg.startsWith('-')) {
-			throw new Error(`Unknown flag "${arg}"`);
+			continue;
 		}
-		targets.push(arg);
+		primaries.push(arg);
 	}
-	return { targets, extras };
+	return { primaries, also };
+}
+
+function unique(values) {
+	return [...new Set(values)];
+}
+
+function resolveSequence(targets) {
+	const sequence = [];
+	for (const target of targets) {
+		const deps = PREBUILD_SETS[target];
+		if (!deps || deps.length === 0) {
+			continue;
+		}
+		for (const dep of deps) {
+			if (!sequence.includes(dep)) {
+				sequence.push(dep);
+			}
+		}
+	}
+	return sequence;
 }
 
 function runCommand(command, args, options = {}) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(command, args, {
 			stdio: 'inherit',
-			cwd: options.cwd ?? repoRoot,
+			cwd: repoRoot,
 			env: { ...process.env, ...options.env },
 		});
 		child.on('exit', (code, signal) => {
@@ -60,173 +83,65 @@ function runCommand(command, args, options = {}) {
 	});
 }
 
-async function readPackageJson(workspace) {
-	if (workspace?.packageJsonPath) {
-		const raw = await readFile(workspace.packageJsonPath, 'utf8');
-		return JSON.parse(raw);
+async function needsBuild(workspace) {
+	const dir = WORKSPACE_DIRS[workspace];
+	if (!dir) {
+		return true;
 	}
-	return null;
-}
-
-async function planBuildOrder({
-	targets,
-	extras,
-	workspaceByName,
-	getWorkspaceDeps,
-}) {
-	const visiting = new Set();
-	const visited = new Set();
-	const order = [];
-	const missing = new Set();
-
-	async function dfs(name) {
-		if (!name || visited.has(name)) {
-			return;
-		}
-		if (visiting.has(name)) {
-			console.warn(
-				`prebuild: detected dependency cycle involving "${name}", skipping recursive resolution.`
-			);
-			return;
-		}
-		const workspace = workspaceByName.get(name);
-		if (!workspace) {
-			missing.add(name);
-			return;
-		}
-		visiting.add(name);
-		const deps = await getWorkspaceDeps(name);
-		for (const dep of deps) {
-			await dfs(dep);
-		}
-		visiting.delete(name);
-		visited.add(name);
-		order.push(name);
-	}
-
-	for (const name of [...targets, ...extras]) {
-		await dfs(name);
-	}
-
-	return { order, missing };
-}
-
-function warnMissingWorkspaces(missing) {
-	if (!missing || missing.size === 0) {
-		return;
-	}
-	for (const missingName of missing) {
-		console.warn(
-			`prebuild: workspace "${missingName}" was requested but is not part of the current graph.`
-		);
-	}
-}
-
-function deriveBuildList(order, targets) {
-	const skip = new Set(targets);
-	const uniqueOrder = Array.from(new Set(order));
-	return uniqueOrder.filter((name) => !skip.has(name));
-}
-
-async function collectPackagesToBuild(buildList, getPackageJson) {
-	const packagesToBuild = [];
-	for (const name of buildList) {
-		const pkg = await getPackageJson(name);
-		if (!pkg) {
-			continue;
-		}
-		if (!pkg.scripts || typeof pkg.scripts.build !== 'string') {
-			continue;
-		}
-		packagesToBuild.push(name);
-	}
-	return packagesToBuild;
-}
-
-async function buildWorkspaces({ targets, extras, graph }) {
-	const workspaceByName = new Map();
-	for (const ws of graph.workspaces ?? []) {
-		workspaceByName.set(ws.name, ws);
-	}
-
-	const packageJsonCache = new Map();
-	const dependencyCache = new Map();
-
-	async function getPackageJson(name) {
-		if (packageJsonCache.has(name)) {
-			return packageJsonCache.get(name);
-		}
-		const workspace = workspaceByName.get(name);
-		if (!workspace) {
-			return null;
-		}
-		const json = await readPackageJson(workspace);
-		packageJsonCache.set(name, json);
-		return json;
-	}
-
-	async function getWorkspaceDeps(name) {
-		if (dependencyCache.has(name)) {
-			return dependencyCache.get(name);
-		}
-		const pkg = await getPackageJson(name);
-		if (!pkg || typeof pkg !== 'object') {
-			dependencyCache.set(name, []);
-			return [];
-		}
-		const deps = pkg.dependencies ?? {};
-		const local = Object.keys(deps).filter((dep) =>
-			workspaceByName.has(dep)
-		);
-		dependencyCache.set(name, local);
-		return local;
-	}
-
-	const { order, missing } = await planBuildOrder({
-		targets,
-		extras,
-		workspaceByName,
-		getWorkspaceDeps,
-	});
-
-	warnMissingWorkspaces(missing);
-
-	if (order.length === 0) {
-		console.log('prebuild: no workspaces to build.');
-		return;
-	}
-
-	const buildList = deriveBuildList(order, targets);
-	const packagesToBuild = await collectPackagesToBuild(
-		buildList,
-		getPackageJson
-	);
-
-	if (packagesToBuild.length === 0) {
-		console.log('prebuild: nothing required compiling.');
-		return;
-	}
-
-	for (const name of packagesToBuild) {
-		console.log(`prebuild: building ${name}`);
-		await runCommand('pnpm', ['--filter', name, 'build']);
+	const distPath = path.join(repoRoot, dir, 'dist');
+	try {
+		await access(distPath);
+		return false;
+	} catch {
+		return true;
 	}
 }
 
 async function main() {
-	const { targets, extras } = parseArgs(process.argv.slice(2));
-	if (targets.length === 0 && extras.length === 0) {
+	const { primaries, also } = parseArgs(process.argv.slice(2));
+	if (primaries.length === 0) {
 		console.error(
-			'Usage: node scripts/workspace-graph.prebuild.mjs <workspace> [--also <workspace> ...]'
+			'Usage: node scripts/workspace-graph.prebuild.mjs <workspace> [...]'
 		);
 		process.exit(1);
 	}
 
-	const graph = await loadWorkspaceGraph();
-	await buildWorkspaces({ targets, extras, graph });
+	const sequence = resolveSequence(unique(primaries));
+	if (sequence.length === 0) {
+		console.log('prebuild: nothing required compiling.');
+	} else {
+		for (const workspace of sequence) {
+			const shouldBuild = await needsBuild(workspace);
+			if (!shouldBuild) {
+				console.log(
+					`prebuild: skipping ${workspace}, dist already built.`
+				);
+				continue;
+			}
+			console.log(`prebuild: building ${workspace}`);
+			await runCommand('pnpm', ['--filter', workspace, 'build'], {
+				env: { WPKERNEL_PREBUILD_BYPASS: '1' },
+			});
+		}
+	}
+
+	const extras = unique(also).filter((name) => !primaries.includes(name));
+	for (const workspace of extras) {
+		const shouldBuild = await needsBuild(workspace);
+		if (!shouldBuild) {
+			console.log(
+				`prebuild: skipping ${workspace}, dist already built (also).`
+			);
+			continue;
+		}
+		console.log(`prebuild: ensuring ${workspace} is built.`);
+		await runCommand('pnpm', ['--filter', workspace, 'build'], {
+			env: { WPKERNEL_PREBUILD_BYPASS: '1' },
+		});
+	}
 }
 
 main().catch((error) => {
-	console.error('prebuild: failed to build workspace dependencies:', error);
+	console.error('prebuild: failed to build dependencies:', error);
 	process.exitCode = 1;
 });

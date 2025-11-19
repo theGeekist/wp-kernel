@@ -15,7 +15,7 @@ import {
 import {
 	makeResource,
 	makeRoute,
-} from '@wpkernel/test-utils/builders/php/fixtures.test-support';
+} from '@cli-tests/builders/fixtures.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 

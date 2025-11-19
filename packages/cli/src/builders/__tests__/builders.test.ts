@@ -6,12 +6,12 @@ import { createPhpDriverInstaller } from '@wpkernel/php-json-ast';
 import type { BuildIrOptions, IRv1 } from '../../ir/publicTypes';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 import {
 	buildReporter,
 	buildOutput,
-} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+} from '@cli-tests/builders/builder-harness.test-support';
 import { makeIrMeta } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 
