@@ -113,6 +113,7 @@
 		"LICENSE"
 	],
 	"scripts": {
+		"prebuild": "pnpm --filter @wpkernel/cli build",
 		"dev": "tsc --project tsconfig.json --watch",
 		"build": "vite build && tsc --project tsconfig.json",
 		"clean": "rm -rf dist *.tsbuildinfo",
@@ -128,14 +129,11 @@
 		"test:integration": "wpk-run-jest integration"
 	},
 	"devDependencies": {
-		"@wpkernel/scripts": "workspace:*",
-		"@wpkernel/cli": "workspace:*"
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
-		"@wpkernel/cli": "workspace:*",
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/pipeline": "workspace:*",
-		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/ui": "workspace:*",
 		"react": ">=18.0.0"
 	},
