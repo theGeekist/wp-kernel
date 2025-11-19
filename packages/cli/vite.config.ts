@@ -18,9 +18,7 @@ function resolveCliRoot(): string {
 
 const CLI_ROOT = resolveCliRoot();
 
-const externalPeerDependencies = Object.keys(pkg.peerDependencies || {}).filter(
-	(dep) => dep !== '@wpkernel/php-json-ast'
-);
+const externalPeerDependencies = Object.keys(pkg.peerDependencies || {});
 
 const external = [
 	...externalPeerDependencies,
@@ -34,6 +32,7 @@ const external = [
 	'@wordpress/element',
 	'typescript',
 	'ts-morph',
+	/^@wpkernel\/php-json-ast(\/.*)?$/,
 ];
 
 const config = createWPKLibConfig(
