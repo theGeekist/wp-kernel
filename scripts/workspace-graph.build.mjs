@@ -178,6 +178,14 @@ function collectDepNames(pkg) {
 	return Array.from(acc);
 }
 
+function normalizeDir(dirRel) {
+	if (!dirRel) {
+		return '';
+	}
+	const forward = dirRel.replace(/\\/g, '/');
+	return forward.endsWith('/') ? forward : `${forward}/`;
+}
+
 async function main() {
 	const dirs = await discoverWorkspaceDirs();
 
@@ -192,10 +200,11 @@ async function main() {
 		if (!name) {
 			continue;
 		}
+		const normalizedDir = normalizeDir(dirRel);
 		workspaces.push({
 			name,
-			dir: dirRel.endsWith('/') ? dirRel : dirRel + '/',
-			packageJsonPath: pkg.path,
+			dir: normalizedDir,
+			packageJsonPath: `${normalizedDir}package.json`,
 			packageJsonMtimeMs: pkg.mtimeMs,
 			raw: pkg.data,
 		});
@@ -239,7 +248,7 @@ async function main() {
 
 	const out = {
 		generatedAt: new Date().toISOString(),
-		root: REPO_ROOT,
+		root: '.',
 		workspaces: workspaces.map((ws) => ({
 			name: ws.name,
 			dir: ws.dir,

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
-import workspaceGraph from './workspace-graph.cjs';
+import workspaceGraph from './workspace-graph.utils.cjs';
 
 const { loadWorkspaceGraph } = workspaceGraph;
 
@@ -217,7 +217,7 @@ async function main() {
 	const { targets, extras } = parseArgs(process.argv.slice(2));
 	if (targets.length === 0 && extras.length === 0) {
 		console.error(
-			'Usage: node scripts/prebuild-workspace.mjs <workspace> [--also <workspace> ...]'
+			'Usage: node scripts/workspace-graph.prebuild.mjs <workspace> [--also <workspace> ...]'
 		);
 		process.exit(1);
 	}

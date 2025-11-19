@@ -10,11 +10,15 @@ const CACHE_PATH = path.join(
 	'wpkernel',
 	'workspace-graph.json'
 );
-const LEGACY_PATH = path.join(repoRoot, 'scripts', 'workspace-graph.json');
+const LEGACY_PATH = path.join(
+	repoRoot,
+	'scripts',
+	'workspace-graph.snapshot.json'
+);
 const BUILD_SCRIPT = path.join(
 	repoRoot,
 	'scripts',
-	'build-workspace-graph.mjs'
+	'workspace-graph.build.mjs'
 );
 
 function normalizeDir(dir = '') {
@@ -48,10 +52,11 @@ function regenerateGraph() {
 
 function normalizeWorkspaceEntry(ws) {
 	const dir = normalizeDir(ws.dir);
-	const packageJsonPath =
-		ws.packageJsonPath && path.isAbsolute(ws.packageJsonPath)
-			? ws.packageJsonPath
-			: path.join(repoRoot, dir, 'package.json');
+	const packageJsonPath = path.join(
+		repoRoot,
+		dir,
+		'package.json'
+	);
 	return {
 		...ws,
 		dir,
@@ -75,7 +80,7 @@ function loadWorkspaceGraph(options = {}) {
 	}
 	if (!allowRegenerate) {
 		throw new Error(
-			'Unable to load workspace graph. Run `node scripts/build-workspace-graph.mjs` to regenerate it.'
+			'Unable to load workspace graph. Run `node scripts/workspace-graph.build.mjs` to regenerate it.'
 		);
 	}
 	regenerateGraph();

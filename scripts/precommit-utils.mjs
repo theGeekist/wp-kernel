@@ -6,7 +6,7 @@ import { once } from 'node:events';
 import { readFile, stat } from 'fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
-import workspaceGraph from './workspace-graph.cjs';
+import workspaceGraph from './workspace-graph.utils.cjs';
 
 const {
 	loadWorkspaceGraph,

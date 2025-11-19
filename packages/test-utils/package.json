@@ -113,7 +113,7 @@
 		"LICENSE"
 	],
 	"scripts": {
-		"prebuild": "node ../../scripts/prebuild-workspace.mjs @wpkernel/test-utils --also @wpkernel/cli",
+		"prebuild": "node ../../scripts/workspace-graph.prebuild.mjs @wpkernel/test-utils --also @wpkernel/cli",
 		"dev": "tsc --project tsconfig.json --watch",
 		"build": "vite build && tsc --project tsconfig.json",
 		"clean": "rm -rf dist *.tsbuildinfo",
