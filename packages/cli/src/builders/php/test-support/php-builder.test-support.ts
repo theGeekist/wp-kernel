@@ -7,6 +7,7 @@ import type {
 } from '../../../runtime/types';
 import type { IRv1 } from '../../../ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../../config/types';
+import { buildPluginMeta } from '../../../ir/shared/pluginMeta';
 import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
 import type { Workspace } from '../../../workspace/types';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
@@ -205,6 +206,13 @@ function buildIrMeta(
 	const sanitizedNamespace =
 		overrides?.sanitizedNamespace ??
 		namespace.replace(/[^A-Za-z0-9]+/gu, '');
+	const { plugin: pluginOverrides, ...restOverrides } = overrides ?? {};
+	const plugin = pluginOverrides
+		? {
+				...buildPluginMeta({ sanitizedNamespace }),
+				...pluginOverrides,
+			}
+		: buildPluginMeta({ sanitizedNamespace });
 
 	const defaults: IRv1['meta'] = {
 		version: 1,
@@ -212,6 +220,7 @@ function buildIrMeta(
 		sourcePath: DEFAULT_CONFIG_SOURCE,
 		origin: 'typescript',
 		sanitizedNamespace,
+		plugin,
 		features: ['capabilityMap', 'phpAutoload'],
 		ids: {
 			algorithm: 'sha256',
@@ -230,9 +239,10 @@ function buildIrMeta(
 
 	return {
 		...defaults,
-		...overrides,
+		...restOverrides,
 		namespace,
 		sanitizedNamespace,
+		plugin,
 	};
 }
 

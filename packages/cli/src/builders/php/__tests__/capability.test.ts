@@ -13,7 +13,7 @@ import {
 	createPipelineContext,
 	createReporter,
 } from '../test-support/php-builder.test-support';
-import { makeCapabilityDefinition } from '../test-support/fixtures.test-support';
+import { makeCapabilityDefinition } from '@wpkernel/test-utils/builders/php/fixtures.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 describe('createPhpCapabilityHelper', () => {

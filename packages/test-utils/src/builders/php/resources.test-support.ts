@@ -509,13 +509,24 @@ export function makePhpIrFixture<
 			makeTransientResource(),
 		] as unknown as readonly TResource[]);
 
-	return {
+	const ir: IRv1Like<WPKConfigV1Like, unknown, TRoute, TResource> = {
 		meta: {
 			version: 1,
 			namespace: 'demo-plugin',
-			sanitizedNamespace: 'DemoPlugin',
+			sanitizedNamespace: 'demo-plugin',
 			origin: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 			sourcePath: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+			plugin: {
+				name: 'Demo Plugin',
+				description:
+					'Bootstrap loader for the Demo Plugin WPKernel integration.',
+				version: '0.1.0',
+				requiresAtLeast: '6.7',
+				requiresPhp: '8.1',
+				textDomain: 'demo-plugin',
+				author: 'WPKernel Contributors',
+				license: 'GPL-2.0-or-later',
+			},
 			features: [],
 			ids: {
 				algorithm: 'sha256',
@@ -559,4 +570,25 @@ export function makePhpIrFixture<
 		},
 		layout,
 	} as IRv1Like<WPKConfigV1Like, unknown, TRoute, TResource>;
+
+	ir.resources = ir.resources.map((resource) => {
+		const controllerClass =
+			resource.controllerClass ??
+			buildControllerClassName(ir.php.namespace, resource.name);
+		return { ...resource, controllerClass } as TResource;
+	});
+
+	return ir;
+}
+
+function buildControllerClassName(
+	namespace: string,
+	resourceName: string
+): string {
+	const pascal = resourceName
+		.split(/[^A-Za-z0-9]+/u)
+		.filter(Boolean)
+		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+		.join('');
+	return `${namespace}\\Generated\\Rest\\${pascal}Controller`;
 }

@@ -6,6 +6,7 @@
  */
 
 import { FlatCompat } from '@eslint/eslintrc';
+import fs from 'node:fs';
 import js from '@eslint/js';
 import importPlugin from 'eslint-plugin-import';
 import unicorn from 'eslint-plugin-unicorn';
@@ -27,6 +28,11 @@ import noHardcodedLayoutPaths from './eslint-rules/no-hardcoded-layout-paths.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const packagesDir = path.join(__dirname, 'packages');
+const workspacePackageDirs = fs
+	.readdirSync(packagesDir, { withFileTypes: true })
+	.filter((entry) => entry.isDirectory())
+	.map((entry) => path.join(packagesDir, entry.name));
 
 const kernelPlugin = {
 	rules: {
@@ -254,6 +260,9 @@ export default [
 			'**/*.config.ts',
 			'**/*.config.cjs',
 			'**/*.config.mjs',
+			'**/jest.config.js',
+			'**/jest.config.cjs',
+			'**/jest.config.ts',
 			'**/bin/**', // CLI bin files
 		],
 		rules: {
@@ -264,7 +273,7 @@ export default [
 					devDependencies: true,
 					optionalDependencies: false,
 					peerDependencies: false,
-					packageDir: [__dirname], // Look for dependencies in monorepo root
+					packageDir: [__dirname, ...workspacePackageDirs], // Look for dependencies in monorepo root and workspaces
 				},
 			],
 			// Allow multiple imports from packages with subpath exports (e.g., @kucrut/vite-for-wp and @kucrut/vite-for-wp/plugins)
@@ -305,6 +314,32 @@ export default [
 		files: ['packages/cli/**/*.{js,ts,tsx}'],
 		rules: {
 			'import/no-extraneous-dependencies': 'off',
+		},
+	},
+	{
+		files: ['packages/test-utils/**/*.{js,ts,tsx}'],
+		ignores: [
+			'packages/test-utils/**/*.config.js',
+			'packages/test-utils/**/*.config.ts',
+			'packages/test-utils/**/*.config.cjs',
+			'packages/test-utils/**/*.config.mjs',
+			'packages/test-utils/**/jest.config.js',
+			'packages/test-utils/**/jest.config.cjs',
+			'packages/test-utils/**/jest.config.ts',
+		],
+		rules: {
+			'import/no-extraneous-dependencies': [
+				'error',
+				{
+					devDependencies: false,
+					optionalDependencies: false,
+					peerDependencies: true,
+					packageDir: [
+						path.join(__dirname, 'packages/test-utils'),
+						__dirname,
+					],
+				},
+			],
 		},
 	},
 

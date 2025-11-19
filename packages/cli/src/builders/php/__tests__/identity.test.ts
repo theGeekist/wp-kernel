@@ -1,6 +1,6 @@
 import { resolveIdentityConfig } from '@wpkernel/wp-json-ast';
 import type { IRResource } from '../../../ir/publicTypes';
-import { makeResource } from '../test-support/fixtures.test-support';
+import { makeResource } from '@wpkernel/test-utils/builders/php/fixtures.test-support';
 
 describe('resolveIdentityConfig', () => {
 	it('defaults to numeric id when identity is missing', () => {

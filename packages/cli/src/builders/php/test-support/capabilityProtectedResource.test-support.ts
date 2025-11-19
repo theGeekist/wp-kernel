@@ -1,5 +1,8 @@
 import type { IRResource } from '../../../ir/publicTypes';
-import { makeRoute, makeResource } from './fixtures.test-support';
+import {
+	makeRoute,
+	makeResource,
+} from '@wpkernel/test-utils/builders/php/fixtures.test-support';
 
 /**
  * Builds a WP_Post IR resource where write routes require `manage_books`.

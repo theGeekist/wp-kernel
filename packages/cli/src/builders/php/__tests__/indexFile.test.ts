@@ -12,7 +12,10 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
+import {
+	makeResource,
+	makeRoute,
+} from '@wpkernel/test-utils/builders/php/fixtures.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 

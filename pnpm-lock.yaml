@@ -84,13 +84,13 @@ importers:
         specifier: ^8.45.0
         version: 8.47.0(eslint@9.39.1)(typescript@5.9.3)
       '@wordpress/api-fetch':
-        specifier: ^7.35.0
+        specifier: ^7.32.0
         version: 7.35.0
       '@wordpress/components':
-        specifier: ^30.8.0
+        specifier: ^30.5.0
         version: 30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
-        specifier: ^10.35.0
+        specifier: ^10.32.0
         version: 10.35.0(react@18.3.1)
       '@wordpress/dataviews':
         specifier: ^9.1.0
@@ -105,7 +105,7 @@ importers:
         specifier: ^1.35.0
         version: 1.35.0(@playwright/test@1.56.1)
       '@wordpress/element':
-        specifier: ^6.35.0
+        specifier: ^6.32.0
         version: 6.35.0
       '@wordpress/env':
         specifier: ^10.35.0
@@ -114,13 +114,13 @@ importers:
         specifier: ^22.21.0
         version: 22.21.0(@babel/core@7.28.5)(@types/eslint@9.6.1)(eslint@9.39.1)(jest@30.2.0(@types/node@24.10.1)(babel-plugin-macros@3.1.0))(prettier@3.6.2)(typescript@5.9.3)
       '@wordpress/hooks':
-        specifier: ^4.35.0
+        specifier: ^4.32.0
         version: 4.35.0
       '@wordpress/i18n':
-        specifier: ^6.8.0
+        specifier: ^6.5.0
         version: 6.8.0
       '@wordpress/interactivity':
-        specifier: ^6.35.0
+        specifier: ^6.34.0
         version: 6.35.0
       '@wordpress/jest-console':
         specifier: ^8.35.0

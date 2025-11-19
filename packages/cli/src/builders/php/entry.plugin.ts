@@ -11,8 +11,8 @@ import {
 	buildProgramTargetPlanner,
 	getPhpBuilderChannel,
 } from '@wpkernel/wp-json-ast';
-import { toPascalCase } from './utils';
 import { buildUiConfig } from './pluginLoader.ui';
+import { toPascalCase } from './utils';
 /**
  * Creates a PHP builder helper for generating the main plugin loader file (`plugin.php`).
  *
@@ -36,13 +36,12 @@ export function createPhpPluginLoaderHelper(): BuilderHelper {
 
 			const ir = input.ir;
 			const resourceClassNames = buildResourceClassNames(ir);
-			const uiResources = ir.ui?.resources ?? [];
-			const uiConfig = buildUiConfig(ir, uiResources);
+			const uiConfig = buildUiConfig(ir);
 
 			await writeDebugUiFile({
 				workspace: context.workspace,
 				ir,
-				uiResources,
+				uiResources: ir.ui?.resources ?? [],
 				uiConfig,
 			});
 
@@ -103,6 +102,9 @@ function canGeneratePluginLoader(
 
 function buildResourceClassNames(ir: GeneratePhaseInput['ir']): string[] {
 	return ir.resources.map((resource) => {
+		if (resource.controllerClass) {
+			return resource.controllerClass;
+		}
 		const pascal = toPascalCase(resource.name);
 		return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
 	});
@@ -125,6 +127,7 @@ function buildLoaderConfig({
 		origin: ir.meta.origin,
 		namespace: ir.php.namespace,
 		sanitizedNamespace: ir.meta.sanitizedNamespace,
+		plugin: ir.meta.plugin,
 		resourceClassNames,
 	};
 

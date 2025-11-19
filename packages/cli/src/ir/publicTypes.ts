@@ -157,6 +157,8 @@ export interface IRResource {
 	id: string;
 	/** The name of the resource. */
 	name: string;
+	/** Fully-qualified PHP controller class name for this resource. */
+	controllerClass: string;
 	/** The key of the schema associated with this resource. */
 	schemaKey: string;
 	/** The provenance of the schema. */
@@ -217,6 +219,14 @@ export interface IRUiResourceDescriptor {
 	readonly menu?: IRUiMenuConfig;
 }
 
+export interface IRUiLoader {
+	readonly handle: string;
+	readonly assetPath: string;
+	readonly scriptPath: string;
+	readonly localizationObject: string;
+	readonly namespace: string;
+}
+
 /**
  * Aggregated UI metadata derived from the configuration.
  *
@@ -224,6 +234,7 @@ export interface IRUiResourceDescriptor {
  */
 export interface IRUiSurface {
 	readonly resources: readonly IRUiResourceDescriptor[];
+	readonly loader?: IRUiLoader;
 }
 
 /**
@@ -312,6 +323,13 @@ export interface IRBlock {
 	manifestSource: string;
 	/** Provenance hash for the discovered block. */
 	hash: IRHashProvenance;
+	/** Optional override for the registrar file name. */
+	registrarFileName?: string;
+	/** Optional render stub defaults chosen by fragments. */
+	renderStub?: {
+		message?: string;
+		textDomain?: string;
+	};
 }
 
 /**
@@ -405,6 +423,36 @@ export interface IRReferenceSummary {
 }
 
 /**
+ * WordPress plugin metadata normalised for IR consumers.
+ *
+ * @category IR
+ */
+export interface IRPluginMeta {
+	/** Plugin name shown inside WordPress. */
+	name: string;
+	/** Short description for the generated loader header. */
+	description: string;
+	/** Plugin version stamped into the loader header. */
+	version: string;
+	/** Minimum WordPress version required. */
+	requiresAtLeast: string;
+	/** Minimum PHP version required. */
+	requiresPhp: string;
+	/** Text domain for translations. */
+	textDomain: string;
+	/** Display author. */
+	author: string;
+	/** Optional author URL. */
+	authorUri?: string;
+	/** Optional plugin URL. */
+	pluginUri?: string;
+	/** License identifier. */
+	license: string;
+	/** Optional license URL. */
+	licenseUri?: string;
+}
+
+/**
  * The top-level Intermediate Representation (IR) for version 1.
  *
  * @category IR
@@ -431,6 +479,8 @@ export interface IRv1 {
 			maxSchemaKB: number;
 			policy: 'truncate' | 'error';
 		};
+		/** WordPress plugin metadata derived from config. */
+		plugin: IRPluginMeta;
 	};
 	/** The original WPKernel configuration. */
 	config: WPKernelConfigV1;

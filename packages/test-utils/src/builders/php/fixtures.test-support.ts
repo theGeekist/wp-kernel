@@ -5,9 +5,13 @@ import type {
 	IRResource,
 	IRRoute,
 	IRv1,
-} from '../../../ir/publicTypes';
+} from '../../types.js';
 import type { ResourceIdentityConfig } from '@wpkernel/core/resource';
-import { createBlockHash, createBlockId } from '../../../ir/shared/identity';
+import {
+	createBlockHash,
+	createBlockId,
+} from '@wpkernel/cli/ir/shared/identity';
+import { buildControllerClassName } from '../../ir/meta.test-support.js';
 
 /**
  * Builds a deterministic IR hash provenance for tests.
@@ -37,28 +41,52 @@ export function makeRoute(overrides: Partial<IRRoute> = {}): IRRoute {
 	};
 }
 
+type ResourceFixtureOverrides = Partial<IRResource> & {
+	namespace?: string;
+};
+
+const pick = <T>(value: T | undefined, fallback: () => T): T =>
+	value === undefined ? fallback() : value;
+
 /**
  * Creates an IR resource with stable defaults for tests.
- *
- * @param overrides - Partial resource overrides to merge into the defaults.
+ * @param overrides
  */
-export function makeResource(overrides: Partial<IRResource> = {}): IRResource {
-	const name = overrides.name ?? 'resource';
+export function makeResource(
+	overrides: ResourceFixtureOverrides = {}
+): IRResource {
+	const { namespace = 'demo-namespace', ...rest } = overrides;
+	const name = pick(rest.name, () => 'resource');
+	const controllerClass = pick(rest.controllerClass, () =>
+		buildControllerClassName(namespace, name)
+	);
+	const schemaKey = pick(rest.schemaKey, () => `${name}.schema`);
+	const schemaProvenance = pick(
+		rest.schemaProvenance,
+		() => 'manual' as IRResource['schemaProvenance']
+	);
+	const routes = pick(rest.routes, () => [makeRoute()]);
+	const cacheKeys = resolveCacheKeys(name, rest.cacheKeys);
+	const identity = resolveIdentity(rest.identity);
+	const hash = pick(rest.hash, () => makeHash(`resource:${name}`));
+	const warnings = pick(rest.warnings, () => []);
 
 	return {
-		id: overrides.id ?? `res:${name}`,
+		id: pick(rest.id, () => `res:${name}`),
 		name,
-		schemaKey: overrides.schemaKey ?? `${name}.schema`,
-		schemaProvenance: overrides.schemaProvenance ?? 'manual',
-		routes: overrides.routes ?? [makeRoute()],
-		cacheKeys: resolveCacheKeys(name, overrides.cacheKeys),
-		identity: resolveIdentity(overrides.identity),
-		storage: overrides.storage,
-		queryParams: overrides.queryParams,
-		ui: overrides.ui,
-		capabilities: overrides.capabilities,
-		hash: overrides.hash ?? makeHash(`resource:${name}`),
-		warnings: overrides.warnings ?? [],
+		controllerClass,
+		schemaKey,
+		schemaProvenance,
+		routes,
+		cacheKeys,
+		identity,
+		storage: rest.storage,
+		queryParams: rest.queryParams,
+		ui: rest.ui,
+		blocks: rest.blocks,
+		capabilities: rest.capabilities,
+		hash,
+		warnings,
 	};
 }
 
@@ -140,7 +168,7 @@ export function makeBlock(fixture: BlockFixture): IRBlock {
 }
 
 /**
- * Convenience helper for updating an IRV1 with block fixtures.
+ * Convenience helper for updating an IR with block fixtures.
  * @param ir
  * @param fixtures
  */

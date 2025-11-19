@@ -2,6 +2,7 @@
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 import tabsMarkdownPlugin from '@red-asuka/vitepress-plugin-tabs';
+import { configSidebar } from './sidebars/config';
 
 // Fast mode for pre-commit hooks (MPA mode + no minification)
 // Defaults to enabled locally unless DOCS_FAST=0/false.
@@ -131,7 +132,21 @@ export default withMermaid(
 				{ text: 'Guide', link: '/guide/' },
 				{ text: 'Packages', link: '/packages/' },
 				{ text: 'Examples', link: '/examples/' },
-				{ text: 'Reference', link: '/reference/contracts' },
+				{
+					text: 'Reference',
+					items: [
+						{ text: 'Contracts', link: '/reference/contracts' },
+						{ text: 'Config', link: '/reference/config/' },
+						{
+							text: 'Decision Matrix',
+							link: '/reference/decision-matrix',
+						},
+						{
+							text: 'CLI Commands',
+							link: '/reference/cli-commands',
+						},
+					],
+				},
 				{ text: 'API', link: '/api/' },
 				{ text: 'Contributing', link: '/contributing/' },
 			],
@@ -275,6 +290,7 @@ export default withMermaid(
 						],
 					},
 				],
+				'/reference/config/': configSidebar,
 				'/api/': [
 					{
 						text: 'API Reference',

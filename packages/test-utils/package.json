@@ -132,6 +132,7 @@
 		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
+		"@wpkernel/cli": "workspace:*",
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/pipeline": "workspace:*",
 		"@wpkernel/ui": "workspace:*",

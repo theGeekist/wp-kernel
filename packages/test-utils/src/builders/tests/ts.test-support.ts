@@ -24,6 +24,10 @@ import type {
 	WPKConfigV1Like,
 } from '../../types.js';
 import { loadDefaultLayout } from '../../layout.test-support.js';
+import {
+	buildControllerClassName,
+	buildPluginMetaFixture,
+} from '../../ir/meta.test-support.js';
 
 const makeHash = (value: string): IRHashProvenance => ({
 	algo: 'sha256',
@@ -264,6 +268,7 @@ export function buildBuilderArtifacts(
 	const irResource: IRResourceLike = {
 		id: `${resourceKey}:resource`,
 		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: resourceKey,
 		schemaProvenance: 'manual',
 		routes: [],
@@ -276,6 +281,7 @@ export function buildBuilderArtifacts(
 	} as IRResourceLike;
 
 	const sanitizedNamespace = toPascalCase(namespace);
+	const pluginMeta = buildPluginMetaFixture({ namespace });
 
 	const ir: IRv1Like = {
 		meta: {
@@ -284,6 +290,7 @@ export function buildBuilderArtifacts(
 			origin: 'typescript',
 			sourcePath: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 			sanitizedNamespace,
+			plugin: pluginMeta,
 			features: [],
 			ids: {
 				algorithm: 'sha256',

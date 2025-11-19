@@ -14,6 +14,14 @@ import type {
 	IRResourceCacheKey,
 	IRWarning,
 } from '@wpkernel/cli/ir/publicTypes';
+export type {
+	IRBlock,
+	IRCapabilityDefinition,
+	IRHashProvenance,
+	IRResource,
+	IRRoute,
+	IRv1,
+} from '@wpkernel/cli/ir/publicTypes';
 import type { Workspace, FileManifest } from '@wpkernel/cli/workspace';
 // Pipeline doesn't export these; retype locally for test helpers.
 export interface BuilderWriteActionLike<TContents = Buffer | string> {

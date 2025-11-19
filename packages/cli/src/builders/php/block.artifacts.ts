@@ -27,6 +27,7 @@ import {
 	type StageRenderStubsOptions,
 } from './types';
 import type { Workspace } from '../../workspace';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 
 type BlockModuleQueuedFile = ReturnType<
 	typeof buildBlockModule
@@ -276,10 +277,15 @@ export async function stageRenderStubs({
 		return;
 	}
 
+	const printer = buildPhpPrettyPrinter({ workspace });
 	workspace.begin(RENDER_TRANSACTION_LABEL);
 	try {
 		for (const stub of stubs) {
-			await workspace.write(stub.relativePath, stub.contents, {
+			const { code } = await printer.prettyPrint({
+				filePath: stub.absolutePath,
+				program: stub.program,
+			});
+			await workspace.write(stub.relativePath, code, {
 				ensureDir: true,
 			});
 		}

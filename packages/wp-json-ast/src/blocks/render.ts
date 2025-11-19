@@ -1,5 +1,24 @@
+import {
+	buildAssign,
+	buildBinaryOperation,
+	buildDeclare,
+	buildDeclareItem,
+	buildDocComment,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildName,
+	buildReturn,
+	buildScalarInt,
+	buildScalarString,
+	buildStmtNop,
+	buildVariable,
+	buildClosure,
+	buildParam,
+	buildArg,
+	type PhpProgram,
+} from '@wpkernel/php-json-ast';
 import type { BlockRenderStub, BlockRenderStubDescriptor } from './types';
-
 interface RenderStubTemplateOptions {
 	readonly blockKey: string;
 	readonly manifest: BlockRenderStubDescriptor['manifest'];
@@ -15,22 +34,83 @@ export function buildRenderStub(
 	return {
 		absolutePath: descriptor.target.absolutePath,
 		relativePath: descriptor.target.relativePath,
-		contents: createRenderStub({
+		program: createRenderStubProgram({
 			blockKey: descriptor.blockKey,
 			manifest: descriptor.manifest,
 		}),
 	};
 }
 
-function createRenderStub(options: RenderStubTemplateOptions): string {
+function createRenderStubProgram(options: {
+	readonly blockKey: string;
+	readonly manifest: BlockRenderStubDescriptor['manifest'];
+}): PhpProgram {
 	const title = deriveTitle(options);
 	const textdomain = deriveTextdomain(options);
 	const message = `${title} - hello from a dynamic block!`;
 
-	const escapedMessage = escapeForSingleQuotedPhp(message);
-	const escapedDomain = escapeForSingleQuotedPhp(textdomain);
+	const docblock = buildDocComment([
+		'AUTO-GENERATED WPK STUB: safe to edit.',
+		'',
+		'@see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render',
+	]);
 
-	return `<?php\n/**\n * AUTO-GENERATED WPK STUB: safe to edit.\n *\n * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render\n */\n?>\n<p <?php echo get_block_wrapper_attributes(); ?>>\n\t<?php esc_html_e( '${escapedMessage}', '${escapedDomain}' ); ?>\n</p>\n`;
+	const wrapperAssign = buildAssign(
+		buildVariable('wrapper'),
+		buildFuncCall(buildName(['get_block_wrapper_attributes']))
+	);
+
+	const bodyAssign = buildAssign(
+		buildVariable('body'),
+		buildFuncCall(buildName(['esc_html__']), [
+			buildArg(buildScalarString(message)),
+			buildArg(buildScalarString(textdomain)),
+		])
+	);
+
+	const returnExpr = buildBinaryOperation(
+		'Concat',
+		buildBinaryOperation(
+			'Concat',
+			buildBinaryOperation(
+				'Concat',
+				buildScalarString('<p '),
+				buildVariable('wrapper')
+			),
+			buildBinaryOperation(
+				'Concat',
+				buildScalarString('>'),
+				buildVariable('body')
+			)
+		),
+		buildScalarString('</p>')
+	);
+
+	const renderClosure = buildClosure({
+		params: [
+			buildParam(buildVariable('attributes'), {
+				type: buildIdentifier('array'),
+			}),
+			buildParam(buildVariable('content'), {
+				type: buildIdentifier('string'),
+			}),
+			buildParam(buildVariable('block'), {
+				type: buildName(['WP_Block']),
+			}),
+		],
+		returnType: buildIdentifier('string'),
+		stmts: [
+			buildExpressionStatement(wrapperAssign),
+			buildExpressionStatement(bodyAssign),
+			buildReturn(returnExpr),
+		],
+	});
+
+	return [
+		buildDeclare([buildDeclareItem('strict_types', buildScalarInt(1))]),
+		buildStmtNop({ comments: [docblock] }),
+		buildReturn(renderClosure),
+	];
 }
 
 function deriveTitle(options: RenderStubTemplateOptions): string {
@@ -65,8 +145,4 @@ function deriveTextdomain(options: RenderStubTemplateOptions): string {
 
 	const [namespace] = options.blockKey.split('/');
 	return namespace && namespace.length > 0 ? namespace : 'messages';
-}
-
-function escapeForSingleQuotedPhp(value: string): string {
-	return value.replace(/\\/gu, '\\\\').replace(/'/gu, "\\'");
 }

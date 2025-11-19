@@ -9,8 +9,13 @@ import type {
 } from './types.js';
 import type { IRHashProvenance } from '@wpkernel/cli/ir/publicTypes';
 import { loadDefaultLayout } from './layout.test-support.js';
+import {
+	buildControllerClassName,
+	buildPluginMetaFixture,
+} from './ir/meta.test-support.js';
 
 const testLayout = loadDefaultLayout();
+const DEFAULT_NAMESPACE = 'demo-namespace';
 
 const makeHash = (value: string): IRHashProvenance => ({
 	algo: 'sha256',
@@ -163,8 +168,13 @@ export function makePrinterIrFixture({
 		sourcePath = WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 		origin = WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 		sanitizedNamespace = 'Demo\\Namespace',
+		plugin: pluginOverrides,
 		...restMeta
 	} = metaOverrides;
+	const plugin = buildPluginMetaFixture({
+		namespace,
+		overrides: pluginOverrides,
+	});
 
 	const meta: PrinterIr['meta'] = {
 		version: 1,
@@ -172,6 +182,7 @@ export function makePrinterIrFixture({
 		sourcePath,
 		origin,
 		sanitizedNamespace,
+		plugin,
 		features: [],
 		ids: {
 			algorithm: 'sha256',
@@ -335,6 +346,7 @@ export interface MakeResourceOptions {
 	readonly routes?: IRRouteLike[];
 	readonly hash?: IRHashProvenance | string;
 	readonly identity?: IRResourceLike['identity'];
+	readonly namespace?: string;
 }
 
 type ExtendedPostMetaDescriptor = ResourcePostMetaDescriptor & {
@@ -375,6 +387,8 @@ export interface MakeTransientResourceOptions extends MakeResourceOptions {
 export function makeJobResource(
 	options: MakeResourceOptions = {}
 ): IRResourceLike {
+	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
+	const resourceName = options.name ?? 'job';
 	const cacheKeys: IRResourceLike['cacheKeys'] = {
 		list: { segments: ['job', 'list'] as const, source: 'config' },
 		get: {
@@ -415,8 +429,9 @@ export function makeJobResource(
 	};
 
 	return {
-		id: options.name ?? 'job',
-		name: options.name ?? 'job',
+		id: resourceName,
+		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: 'job',
 		schemaProvenance: 'manual',
 		routes: options.routes ?? [
@@ -459,6 +474,8 @@ export function makeJobResource(
 export function makeTaskResource(
 	options: MakeResourceOptions = {}
 ): IRResourceLike {
+	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
+	const resourceName = options.name ?? 'task';
 	const cacheKeys: IRResourceLike['cacheKeys'] = {
 		list: { segments: ['task', 'list'] as const, source: 'config' },
 		get: {
@@ -484,8 +501,9 @@ export function makeTaskResource(
 	};
 
 	return {
-		id: options.name ?? 'task',
-		name: options.name ?? 'task',
+		id: resourceName,
+		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: 'auto:task',
 		schemaProvenance: 'auto',
 		routes: options.routes ?? [
@@ -509,6 +527,8 @@ export function makeTaskResource(
 export function makeWpOptionResource(
 	options: MakeWpOptionResourceOptions = {}
 ): IRResourceLike {
+	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
+	const resourceName = options.name ?? 'demoOption';
 	const storage: WpOptionStorage = {
 		mode: 'wp-option',
 		option: 'demo_option',
@@ -538,8 +558,9 @@ export function makeWpOptionResource(
 	};
 
 	return {
-		id: options.name ?? 'demoOption',
-		name: options.name ?? 'demoOption',
+		id: resourceName,
+		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: 'demoOption',
 		schemaProvenance: 'manual',
 		routes: options.routes ?? defaultRoutes,
@@ -556,6 +577,8 @@ export function makeWpOptionResource(
 export function makeTransientResource(
 	options: MakeTransientResourceOptions = {}
 ): IRResourceLike {
+	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
+	const resourceName = options.name ?? 'jobCache';
 	const storage: TransientStorage = {
 		mode: 'transient',
 		...options.storage,
@@ -591,8 +614,9 @@ export function makeTransientResource(
 	};
 
 	return {
-		id: options.name ?? 'jobCache',
-		name: options.name ?? 'jobCache',
+		id: resourceName,
+		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: 'jobCache',
 		schemaProvenance: 'manual',
 		routes: options.routes ?? defaultRoutes,
@@ -609,6 +633,8 @@ export function makeTransientResource(
 export function makeLiteralResource(
 	options: MakeResourceOptions = {}
 ): IRResourceLike {
+	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
+	const resourceName = options.name ?? 'literal';
 	const cacheKeys: IRResourceLike['cacheKeys'] = {
 		list: { segments: ['literal', 'list'] as const, source: 'config' },
 		get: {
@@ -618,8 +644,9 @@ export function makeLiteralResource(
 	};
 
 	return {
-		id: options.name ?? 'literal',
-		name: options.name ?? 'literal',
+		id: resourceName,
+		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: 'literal',
 		schemaProvenance: 'manual',
 		routes: options.routes ?? [
@@ -643,14 +670,17 @@ export function makeLiteralResource(
 export function makeOrphanResource(
 	options: MakeResourceOptions = {}
 ): IRResourceLike {
+	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
+	const resourceName = options.name ?? 'orphan';
 	const cacheKeys: IRResourceLike['cacheKeys'] = {
 		list: { segments: ['orphan', 'list'] as const, source: 'config' },
 		get: { segments: ['orphan', 'get'] as const, source: 'default' },
 	};
 
 	return {
-		id: options.name ?? 'orphan',
-		name: options.name ?? 'orphan',
+		id: resourceName,
+		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: 'missing',
 		schemaProvenance: 'manual',
 		routes: options.routes ?? [
@@ -679,14 +709,17 @@ export function makeOrphanResource(
 export function makeRemoteResource(
 	options: MakeResourceOptions = {}
 ): IRResourceLike {
+	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
+	const resourceName = options.name ?? 'remote';
 	const cacheKeys: IRResourceLike['cacheKeys'] = {
 		list: { segments: ['remote', 'list'] as const, source: 'config' },
 		get: { segments: ['remote', 'get'] as const, source: 'default' },
 	};
 
 	return {
-		id: options.name ?? 'remote',
-		name: options.name ?? 'remote',
+		id: resourceName,
+		name: resourceName,
+		controllerClass: buildControllerClassName(namespace, resourceName),
 		schemaKey: 'remote',
 		schemaProvenance: 'manual',
 		routes: options.routes ?? [

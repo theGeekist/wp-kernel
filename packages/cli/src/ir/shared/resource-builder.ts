@@ -13,6 +13,7 @@ import type { SchemaAccumulator } from './schema';
 import { resolveResourceSchema } from './schema';
 import { buildHashProvenance } from './hashing';
 import { createResourceId } from './identity';
+import { toPascalCase } from '../../builders/php/utils';
 
 interface ResourceBuilderState {
 	duplicateDetector: Map<string, { resource: string; route: string }>;
@@ -47,12 +48,20 @@ export async function buildResources(
 	const resourceEntries = Object.entries(options.config.resources);
 
 	for (const [resourceKey, resourceConfig] of resourceEntries) {
+		const name =
+			typeof resourceConfig.name === 'string' &&
+			resourceConfig.name.length > 0
+				? resourceConfig.name
+				: resourceKey;
+		(resourceConfig as SerializableResourceConfig).name = name;
+
 		const resource = await buildResourceEntry({
 			accumulator,
 			resourceConfig,
 			resourceKey,
 			sanitizedNamespace,
 			state,
+			namespace: options.config.namespace,
 		});
 
 		resources.push(resource);
@@ -72,6 +81,7 @@ export async function buildResources(
  * @param    options.resourceKey
  * @param    options.resourceConfig
  * @param    options.state
+ * @param    options.namespace
  * @category IR
  */
 async function buildResourceEntry(options: {
@@ -80,6 +90,7 @@ async function buildResourceEntry(options: {
 	resourceKey: string;
 	resourceConfig: SerializableResourceConfig;
 	state: ResourceBuilderState;
+	namespace: string;
 }): Promise<IRResource> {
 	const {
 		accumulator,
@@ -87,6 +98,7 @@ async function buildResourceEntry(options: {
 		resourceConfig,
 		sanitizedNamespace,
 		state,
+		namespace,
 	} = options;
 
 	const schemaResolution = await resolveResourceSchema(
@@ -137,6 +149,10 @@ async function buildResourceEntry(options: {
 			name: resourceConfig.name,
 			routes,
 		}),
+		controllerClass: buildControllerClassName(
+			namespace,
+			resourceConfig.name
+		),
 		name: resourceConfig.name,
 		schemaKey: schemaResolution.schemaKey,
 		schemaProvenance: schemaResolution.provenance,
@@ -162,6 +178,19 @@ async function buildResourceEntry(options: {
 	};
 
 	return irResource;
+}
+
+function buildControllerClassName(
+	namespace: string,
+	resourceName: string
+): string {
+	const pascal = toPascalCase(resourceName);
+	const phpNamespace = namespace
+		.split('-')
+		.filter(Boolean)
+		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+		.join('\\');
+	return `${phpNamespace}\\Generated\\Rest\\${pascal}Controller`;
 }
 
 function collectWarnings(options: {

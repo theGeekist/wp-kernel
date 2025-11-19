@@ -16,6 +16,7 @@ import type {
 	ResourceRegistry,
 	SchemaRegistry,
 } from '../src/config/types';
+import { buildPluginMeta } from '../src/ir/shared/pluginMeta';
 import { loadTestLayoutSync } from './layout.test-support';
 
 type DeepPartial<T> = {
@@ -41,6 +42,13 @@ export function makeIrMeta(
 		policy: 'error' as const,
 		...(overrides.limits ?? {}),
 	};
+	const pluginDefaults = buildPluginMeta({
+		sanitizedNamespace: overrides.sanitizedNamespace ?? namespace,
+	});
+	const plugin = {
+		...pluginDefaults,
+		...(overrides.plugin ?? {}),
+	};
 
 	return {
 		version: 1,
@@ -52,6 +60,7 @@ export function makeIrMeta(
 		ids,
 		redactions: (overrides.redactions ?? []) as string[],
 		limits,
+		plugin,
 	};
 }
 
