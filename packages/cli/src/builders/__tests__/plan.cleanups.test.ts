@@ -4,7 +4,7 @@ import os from 'node:os';
 import type { GenerationManifestDiff } from '../../apply/manifest';
 import { collectDeletionInstructions } from '../plan.cleanups';
 import { buildWorkspace } from '../../workspace';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 const reporter = {
 	info: jest.fn(),

@@ -7,8 +7,8 @@ import {
 import type { IRResource } from '../../../ir/publicTypes';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
-import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.test-support';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makePhpIrFixture } from '@cli-tests/builders/resources.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	createPhpWpPostRoutesHelper,
 	getWpPostRouteHelperState,

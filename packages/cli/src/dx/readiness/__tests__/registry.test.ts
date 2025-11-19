@@ -7,7 +7,7 @@ import {
 	type ReadinessDetection,
 	type ReadinessConfirmation,
 } from '..';
-import { createRecordingReporter } from '../test/test-support';
+import { createRecordingReporter } from '@cli-tests/readiness.test-support';
 
 describe('ReadinessRegistry', () => {
 	function buildContext(overrides: Partial<DxContext> = {}): DxContext {

@@ -1,4 +1,4 @@
-import { flushAsync } from '@wpkernel/test-utils/cli';
+import { flushAsync } from '../cli';
 
 describe('flushAsync', () => {
 	it('awaits the requested number of microtask turns', async () => {

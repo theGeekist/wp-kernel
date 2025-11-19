@@ -48,6 +48,16 @@ function detectTs6305(output) {
 	return output.split(/\r?\n/).some((line) => re.test(line));
 }
 
+function detectTs2846(output) {
+	return output
+		.split(/\r?\n/)
+		.some((line) =>
+			/^.+?:\(\d+,\d+\): error TS2846: A declaration file cannot be imported without 'import type'./.test(
+				line,
+			),
+		);
+}
+
 function printTruncated(output, maxLines) {
 	const lines = output.split(/\r?\n/);
 	if (!maxLines || lines.length <= maxLines) {
@@ -170,33 +180,12 @@ function ensurePackageBuiltForConfig(configPath) {
 		return;
 	}
 
-	let needsBuild = true;
-
-	if (typeof packageJson.types === 'string') {
-		const typesPath = path.resolve(configDir, packageJson.types);
-		if (fs.existsSync(typesPath)) {
-			needsBuild = false;
-		}
-	} else {
-		const distDir = path.resolve(configDir, 'dist');
-		if (fs.existsSync(distDir)) {
-			needsBuild = false;
-		}
-	}
-
-	if (needsBuild) {
-		const result = spawnSync('pnpm', ['--filter', packageName, 'build'], {
-			stdio: 'inherit',
-			cwd: repoRoot,
-		});
-
-		if (result.error) {
-			throw result.error;
-		}
-
-		if (result.status !== 0) {
-			process.exit(result.status ?? 1);
-		}
+	// Separation of concerns: do not build here; only ensure output exists.
+	const distDir = path.join(configDir, 'dist');
+	if (!fs.existsSync(distDir)) {
+		throw new Error(
+			`Package ${packageName} has no dist/ artifacts. Run: pnpm --filter ${packageName} build`,
+		);
 	}
 
 	builtPackages.add(packageName);
@@ -267,6 +256,7 @@ function runTypecheck(configPath) {
 	if (result.status !== 0) {
 		const is6307 = detectTs6307(output);
 		const is6305 = detectTs6305(output);
+		const is2846 = detectTs2846(output);
 
 		if (IS_PRECOMMIT && (is6307 || is6305)) {
 			if (is6307) {
@@ -300,6 +290,18 @@ function runTypecheck(configPath) {
 
 			printTruncated(output, MAX_LINES_PRECOMMIT);
 			process.exit(1);
+		}
+
+		if (is2846) {
+			console.error(
+				'\n✖ TypeScript reported TS2846 (declaration files imported as values).',
+			);
+			console.error(
+				'→ Run: node scripts/check-dts-imports.mjs --fix (from repo root) after building the packages.',
+			);
+			console.error(
+				'→ The build emitted .d.ts imports without `import type`; fix and rebuild before retrying.',
+			);
 		}
 
 		// non-precommit or other TS errors → show full

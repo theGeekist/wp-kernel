@@ -61,6 +61,7 @@ export async function applyInitWrites({
 		replacements,
 		force,
 		skip: skipSet,
+		namespace,
 	});
 
 	const packageStatus = await writePackageJson(workspace, {

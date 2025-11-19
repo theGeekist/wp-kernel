@@ -30,6 +30,17 @@ export const wpkConfig: WPKernelConfigV1 = {
 	 */
 	namespace: '__WPK_NAMESPACE__',
 	/**
+	 * Optional plugin metadata for the generated `plugin.php` header.
+	 * Leave this commented out to inherit sensible defaults derived
+	 * from `namespace`.
+	 */
+	// meta: {
+	// 	name: '__WPK_PLUGIN_TITLE__',
+	// 	description:
+	// 		'Bootstrap loader for the __WPK_PLUGIN_TITLE__ WPKernel integration.',
+	// 	textDomain: '__WPK_NAMESPACE__',
+	// },
+	/**
 	 * Registry of shared schema descriptors, keyed by a short name. Schemas
 	 * typically point to JSON Schema or Zod files and describe the data shapes
 	 * your resources reuse.

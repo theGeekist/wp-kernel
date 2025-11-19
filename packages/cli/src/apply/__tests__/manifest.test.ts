@@ -3,10 +3,10 @@
 // so literals here are intentional fixtures, not new behaviour.
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Workspace } from '../../workspace';
 import type { IRResource } from '../../ir/publicTypes';
 import type { SerializableResourceUIConfig } from '../../config/types';
-import { makeIr, makeIrMeta } from '../../tests/ir.test-support';
+import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	buildEmptyGenerationState,
 	buildGenerationManifestFromIr,
@@ -16,7 +16,7 @@ import {
 	writeGenerationState,
 	type GenerationManifest,
 } from '../manifest';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 describe('generation manifest helpers', () => {
 	let phpGeneratedRoot: string;
@@ -24,6 +24,17 @@ describe('generation manifest helpers', () => {
 	let applyStatePath: string;
 	let layoutManifestText: string;
 	let testLayout: Awaited<ReturnType<typeof loadTestLayout>>;
+	const defaultWorkspace = (
+		overrides: Parameters<typeof makeWorkspaceMock>[0] = {}
+	) =>
+		makeWorkspaceMock({
+			root: '/',
+			readText: jest.fn(async (file?: string) =>
+				file === 'layout.manifest.json' ? layoutManifestText : null
+			),
+			writeJson: jest.fn(async () => undefined),
+			...overrides,
+		});
 
 	beforeAll(async () => {
 		testLayout = await loadTestLayout();
@@ -42,22 +53,8 @@ describe('generation manifest helpers', () => {
 		layoutManifestText = fs.readFileSync(manifestPath, 'utf8');
 	});
 
-	function createWorkspaceMock(
-		overrides: Partial<Workspace> = {}
-	): Workspace {
-		const workspace: Partial<Workspace> = {
-			readText: jest.fn(async (file?: string) =>
-				file === 'layout.manifest.json' ? layoutManifestText : null
-			),
-			writeJson: jest.fn(async () => undefined),
-			...overrides,
-		};
-
-		return workspace as Workspace;
-	}
-
 	it('returns an empty state when the manifest file is missing', async () => {
-		const workspace = createWorkspaceMock();
+		const workspace = defaultWorkspace();
 		const result = await readGenerationState(workspace);
 
 		expect(result).toEqual(buildEmptyGenerationState());
@@ -65,7 +62,7 @@ describe('generation manifest helpers', () => {
 	});
 
 	it('normalises manifest contents from disk', async () => {
-		const workspace = createWorkspaceMock({
+		const workspace = defaultWorkspace({
 			readText: jest.fn(async (file?: string) => {
 				if (file === 'layout.manifest.json') {
 					return layoutManifestText;
@@ -158,7 +155,7 @@ describe('generation manifest helpers', () => {
 	});
 
 	it('throws when the state file contains invalid JSON', async () => {
-		const workspace = createWorkspaceMock({
+		const workspace = defaultWorkspace({
 			readText: jest.fn(async (file?: string) => {
 				if (file === 'layout.manifest.json') {
 					return layoutManifestText;
@@ -173,7 +170,7 @@ describe('generation manifest helpers', () => {
 	});
 
 	it('writes the manifest back to disk with pretty formatting', async () => {
-		const workspace = createWorkspaceMock();
+		const workspace = defaultWorkspace();
 		const state = {
 			version: 1,
 			resources: {},

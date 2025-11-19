@@ -32,19 +32,35 @@ export type WPKernelConfigVersion = 1;
 /**
  * Configuration for a registered schema file.
  *
+ * Describes a shared schema source and where generated TypeScript types should
+ * be written. Mirrors the JSON Schema `schemaConfig` definition.
+ *
  * @category Config
  * @public
  */
 export interface SchemaConfig {
+	/**
+	 * Relative path (from plugin root) to the source schema file
+	 * (for example, a JSON Schema or Zod schema).
+	 */
 	path: string;
 	generated: {
+		/**
+		 * Relative path where WPKernel should write the generated TypeScript
+		 * types for this schema.
+		 */
 		types: string;
 	};
+	/**
+	 * Human-readable description of what this schema models
+	 * (for example, "Public job listing API payload").
+	 */
 	description?: string;
 }
 
 /**
- * Mapping of schema identifiers to their configuration.
+ * Registry of schema descriptors keyed by identifier. May be empty but is
+ * always present in the config object.
  *
  * @category Config
  * @public
@@ -64,6 +80,10 @@ type RuntimeResourceConfig = ResourceConfig;
 export type ResourceBlocksMode = 'js' | 'ssr';
 
 export interface SerializableResourceBlocksConfig {
+	/**
+	 * Controls whether the CLI emits JS-only blocks (`"js"`, default)
+	 * or SSR-ready blocks with PHP render callbacks (`"ssr"`).
+	 */
 	mode?: ResourceBlocksMode;
 }
 
@@ -106,10 +126,19 @@ export type SerializableResourceUIConfig = Omit<
 export type SerializableSchemaReference = string | Record<string, unknown>;
 
 export type SerializableResourceConfig = ResourceConfigBase & {
+	/**
+	 * Resource name. Optional; defaults to the map key when omitted.
+	 */
+	name?: string;
 	cacheKeys?: never;
 	schema?: SerializableSchemaReference;
 	reporter?: never;
 	ui?: SerializableResourceUIConfig;
+	/**
+	 * Optional Gutenberg block configuration. Set `mode: "ssr"` to emit
+	 * server-rendered blocks with PHP registrars; omit or set `mode: "js"`
+	 * to keep the default JS-only blocks.
+	 */
 	blocks?: SerializableResourceBlocksConfig;
 };
 
@@ -123,7 +152,15 @@ export interface ResourceRegistry {
  * @category Adapters
  */
 export interface AdaptersConfig {
+	/**
+	 * Factory that returns PHP codegen overrides (for example, changing
+	 * namespaces or adding extra includes). Most plugins do not need this.
+	 */
 	php?: PhpAdapterFactory;
+	/**
+	 * Adapter extension factories that run during generation to patch or extend
+	 * the default adapters.
+	 */
 	extensions?: AdapterExtensionFactory[];
 }
 
@@ -131,7 +168,41 @@ export interface AdaptersConfig {
  * Optional readiness helper configuration provided by a wpk project.
  */
 export interface ReadinessConfig {
+	/**
+	 * List of factories that WPKernel calls when building the readiness
+	 * registry. Each factory can register one or more custom health checks.
+	 */
 	helpers?: ReadonlyArray<ReadinessHelperFactory>;
+}
+
+/**
+ * Optional WordPress plugin metadata used for generated plugin headers.
+ *
+ * @category Config
+ */
+export interface PluginMetaConfig {
+	/** Human-readable plugin name shown in the WordPress plugin list. Defaults to the namespace in title case. */
+	name?: string;
+	/** Short description visible in the WordPress plugin list. */
+	description?: string;
+	/** Plugin version stamped into the generated loader. */
+	version?: string;
+	/** Minimum WordPress version required by the plugin. */
+	requiresAtLeast?: string;
+	/** Minimum PHP version required by the plugin. */
+	requiresPhp?: string;
+	/** Text domain used for translations. Defaults to the sanitized namespace. */
+	textDomain?: string;
+	/** Author shown in the plugin header. */
+	author?: string;
+	/** Optional author URL shown in the plugin header. */
+	authorUri?: string;
+	/** Optional plugin URL shown in the plugin header. */
+	pluginUri?: string;
+	/** License identifier stamped into the plugin header. */
+	license?: string;
+	/** Optional license URL stamped into the plugin header. */
+	licenseUri?: string;
 }
 
 /**
@@ -142,17 +213,38 @@ export interface ReadinessConfig {
  */
 export interface WPKernelConfigV1 {
 	/**
-	 * Optional JSON schema reference to enable IDE validation.
+	 * Optional JSON Schema URI used by editors and tooling.
+	 * Ignored by WPKernel at runtime.
 	 */
 	$schema?: string;
 	version: WPKernelConfigVersion;
+	/**
+	 * Short, slug-style identifier for this plugin or feature.
+	 * Used as a prefix for generated PHP namespaces, JS store keys,
+	 * and WordPress capability names.
+	 */
 	namespace: string;
 	/**
-	 * Optional applied-path overrides for surfaced assets (e.g., blocks, controllers).
-	 * Keys are logical identifiers; values are workspace-relative paths.
+	 * Optional mapping of applied artifact identifiers to workspace-relative
+	 * directories (omit the ".applied" suffix). Supported keys:
+	 * blocks, blocks.applied, controllers, controllers.applied, plugin,
+	 * plugin.loader.
 	 */
 	directories?: Record<string, string>;
+	/**
+	 * Optional plugin metadata used for generated plugin headers. When omitted,
+	 * sane defaults are derived from the namespace.
+	 */
+	meta?: PluginMetaConfig;
+	/**
+	 * Registry of shared schema descriptors keyed by identifier.
+	 * Required but may be empty.
+	 */
 	schemas: SchemaRegistry;
+	/**
+	 * Registry of resource descriptors keyed by identifier.
+	 * Required and drives routes, storage, capabilities, UI, and builders.
+	 */
 	resources: ResourceRegistry;
 	adapters?: AdaptersConfig;
 	readiness?: ReadinessConfig;

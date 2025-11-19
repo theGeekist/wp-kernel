@@ -3,8 +3,8 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { createPhpBuilder } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
-import { buildReporter } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
+import { buildReporter } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 
 function buildWorkspace(): Workspace {

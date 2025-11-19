@@ -1,7 +1,7 @@
-import { createActionPipeline } from '@wpkernel/core/pipeline/actions/createActionPipeline';
-import type { ActionPipeline } from '@wpkernel/core/pipeline/actions/types';
-import { createMemoryReporter } from './memory-reporter.test-support';
-import type { MemoryReporter } from './memory-reporter.test-support';
+import { createActionPipeline } from '@wpkernel/core/dist/pipeline/actions/createActionPipeline.js';
+import type { ActionPipeline } from '@wpkernel/core/dist/pipeline/actions/types.js';
+import { createMemoryReporter } from './memory-reporter.test-support.js';
+import type { MemoryReporter } from './memory-reporter.test-support.js';
 
 /**
  * Overrides for action runtime configuration.

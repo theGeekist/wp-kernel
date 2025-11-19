@@ -1,6 +1,7 @@
 import { buildBlockModule } from '../module';
 import type { BlockModuleConfig } from '../types';
 import type { PhpNode } from '@wpkernel/php-json-ast';
+import { buildStmtNop } from '@wpkernel/php-json-ast';
 
 function hasMatchingNameNode(
 	value: unknown,
@@ -96,7 +97,7 @@ describe('buildBlockModule', () => {
 		expect(result.renderStubs).toHaveLength(1);
 		const stub = result.renderStubs[0]!;
 		expect(stub.relativePath).toBe('src/blocks/example/render.php');
-		expect(stub.contents).toContain('AUTO-GENERATED WPK STUB');
+		expect(stub.program).toHaveLength(3);
 	});
 
 	it('omits manifest file when no entries are present', () => {
@@ -137,7 +138,7 @@ describe('buildBlockModule', () => {
 				}),
 				renderStub: (stub) => ({
 					...stub,
-					contents: `${stub.contents}\n<!-- Hooked -->\n`,
+					program: [...stub.program, buildStmtNop()],
 				}),
 			},
 			renderStubs: [
@@ -163,7 +164,7 @@ describe('buildBlockModule', () => {
 
 		expect(manifestFile?.docblock).toContain('Hooked');
 		expect(registrarFile?.fileName).toBe('Blocks/HookedRegister.php');
-		expect(result.renderStubs[0]?.contents).toContain('<!-- Hooked -->');
+		expect(result.renderStubs[0]?.program).toHaveLength(4);
 	});
 
 	it('surfaces manifest validation errors via metadata', () => {

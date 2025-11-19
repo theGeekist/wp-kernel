@@ -13,8 +13,10 @@
 		"src/**/*.spec.tsx",
 		"src/**/test-support/**/*.ts",
 		"src/tests/**/*.ts",
+		"tests/jest.setup.ts",
 		"vite.config.ts",
-		"./package.json"
+		"./package.json",
+		"../../layout.manifest.json"
 	],
 	"references": [
 		{ "path": "./tsconfig.json" },

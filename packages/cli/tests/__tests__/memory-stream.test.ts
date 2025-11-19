@@ -1,4 +1,4 @@
-import { MemoryStream, createMemoryStream } from '@wpkernel/test-utils/cli';
+import { MemoryStream, createMemoryStream } from '../cli';
 
 describe('MemoryStream', () => {
 	it('captures written chunks and exposes them via toString', () => {

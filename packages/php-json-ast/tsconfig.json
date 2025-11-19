@@ -2,8 +2,16 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "../../tsconfig.lib.json",
 	"compilerOptions": {
+		"baseUrl": "../..",
 		"rootDir": "./src",
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"declarationMap": false,
+		"paths": {
+			"@wpkernel/core": ["packages/core/dist/index.d.ts"],
+			"@wpkernel/core/*": ["packages/core/dist/*"],
+			"@wpkernel/pipeline": ["packages/pipeline/dist/index.d.ts"],
+			"@wpkernel/pipeline/*": ["packages/pipeline/dist/*"]
+		}
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": [

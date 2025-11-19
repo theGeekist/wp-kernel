@@ -12,7 +12,10 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
+import {
+	makeResource,
+	makeRoute,
+} from '@cli-tests/builders/fixtures.test-support';
 
 describe('createPhpPersistenceRegistryHelper', () => {
 	it('skips generation when the IR is unavailable', async () => {

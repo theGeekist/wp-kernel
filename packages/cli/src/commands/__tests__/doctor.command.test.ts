@@ -1,9 +1,7 @@
 import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import {
-	assignCommandContext,
-	createReporterFactory,
-} from '@wpkernel/test-utils/cli';
+import { assignCommandContext } from '@cli-tests/cli';
+import { createReporterFactory } from '@cli-tests/reporter';
 import { buildDoctorCommand, renderDoctorSummary } from '../doctor';
 import type {
 	ReadinessHelperDescriptor,

@@ -7,10 +7,10 @@ import {
 	emitPluginLoader,
 } from '../plan.plugin-loader';
 import type { PlanInstruction } from '../types';
-import { makeIr } from '../../tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 const prettyPrinter = buildPhpPrettyPrinter({
 	workspace: buildWorkspace(process.cwd()),

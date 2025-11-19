@@ -6,19 +6,25 @@ const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(moduleDir, '..', '..');
 const cliGlobalSetup = path.resolve(
 	repoRoot,
-	'packages/cli/tests/jest-global-setup.cjs'
+	'packages/cli/tests/jest-global-setup.js'
 );
 
 const INTEGRATION_TEST_PATTERN = '\\.integration\\.test\\.(?:[jt]sx?)$';
 
 export function createRootJestConfig(options = {}) {
 	const skipIntegration = options.skipIntegration ?? false;
+	const distModuleRedirects = {
+		'^@wpkernel/(core|pipeline|php-json-ast|ui|wp-json-ast)/dist/(.*?)(?:\\.js)?$':
+			'<rootDir>/packages/$1/src/$2',
+		'^@wpkernel/([^/]+)/dist/(.*)$': '<rootDir>/packages/$1/dist/$2',
+	};
 
 	const config = {
 		...baseConfig,
 		bail: 1, // Fail fast on first error
 		roots: ['<rootDir>/packages', '<rootDir>/examples', '<rootDir>/tests'],
 		moduleNameMapper: {
+			...distModuleRedirects,
 			...baseConfig.moduleNameMapper,
 			'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
 			'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',

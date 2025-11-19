@@ -67,7 +67,7 @@ export interface BlockRenderStubDescriptor {
  * @category WordPress AST
  */
 export interface BlockRenderStub extends BlockRenderTarget {
-	readonly contents: string;
+	readonly program: PhpProgram;
 }
 
 /**

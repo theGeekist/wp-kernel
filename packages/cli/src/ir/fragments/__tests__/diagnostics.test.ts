@@ -1,4 +1,4 @@
-import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock as buildReporterMock } from '@cli-tests/reporter';
 import type { WPKernelConfigV1 } from '../../../config/types';
 import { createDiagnosticsFragment } from '../diagnostics';
 import { buildIrDraft, buildIrFragmentOutput } from '../../types';

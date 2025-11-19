@@ -4,14 +4,14 @@ import { createPatcher } from '../patcher';
 import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { makeIrMeta } from '../../tests/ir.test-support';
+import { makeIrMeta } from '@cli-tests/ir.test-support';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,
 	buildOutput,
-} from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import type { BuilderHarnessContext } from '@wpkernel/test-utils/builders/tests/builder-harness.test-support';
-import { loadTestLayout } from '../../tests/layout.test-support';
+} from '@cli-tests/builders/builder-harness.test-support';
+import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 type PatcherWorkspaceContext = BuilderHarnessContext<
 	ReturnType<typeof buildWorkspace>
@@ -24,8 +24,12 @@ const withWorkspace = (
 		createWorkspace: (root) => buildWorkspace(root),
 	});
 
-async function buildIr(namespace: string, cwd: string): Promise<IRv1> {
-	const layout = await loadTestLayout({ cwd, strict: true });
+const DEFAULT_LAYOUT = loadTestLayoutSync();
+
+function buildIr(
+	namespace: string,
+	layout: ReturnType<typeof loadTestLayoutSync> = DEFAULT_LAYOUT
+): IRv1 {
 	return {
 		meta: makeIrMeta(namespace, {
 			origin: 'wpk.config.ts',
@@ -54,7 +58,7 @@ async function buildIr(namespace: string, cwd: string): Promise<IRv1> {
 			autoload: 'inc/',
 			outputDir: layout.resolve('php.generated'),
 		},
-	} satisfies IRv1;
+	};
 }
 
 describe('createPatcher', () => {
@@ -62,7 +66,7 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = await loadTestLayout({ cwd: workspaceRoot });
+			const layout = loadTestLayoutSync();
 
 			const base = ['line-one', 'line-two', ''].join('\n');
 			const incoming = ['line-one updated', 'line-two', ''].join('\n');
@@ -112,7 +116,7 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo', layout);
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -171,7 +175,7 @@ describe('createPatcher', () => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -210,7 +214,7 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = await loadTestLayout({ cwd: workspaceRoot });
+			const layout = loadTestLayoutSync();
 
 			await workspace.write(
 				layout.resolve('plan.manifest'),
@@ -255,7 +259,7 @@ describe('createPatcher', () => {
 				'base'
 			);
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo', layout);
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -317,7 +321,7 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = await loadTestLayout({ cwd: workspaceRoot });
+			const layout = loadTestLayoutSync();
 
 			const sharedContents = ['<?php', 'echo "noop";', ''].join('\n');
 
@@ -362,7 +366,7 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo', layout);
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -414,7 +418,7 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = await loadTestLayout({ cwd: workspaceRoot });
+			const layout = loadTestLayoutSync();
 
 			await workspace.write(
 				layout.resolve('plan.manifest'),
@@ -446,7 +450,7 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo', layout);
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -507,7 +511,7 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = await loadTestLayout({ cwd: workspaceRoot });
+			const layout = loadTestLayoutSync();
 
 			await workspace.write(
 				layout.resolve('plan.manifest'),
@@ -545,7 +549,7 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo', layout);
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -598,7 +602,7 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = await loadTestLayout({ cwd: workspaceRoot });
+			const layout = loadTestLayoutSync();
 
 			await workspace.write(
 				layout.resolve('plan.manifest'),
@@ -618,7 +622,7 @@ describe('createPatcher', () => {
 				)
 			);
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo', layout);
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -675,14 +679,14 @@ describe('createPatcher', () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
 			const reporter = buildReporter();
 			const output = buildOutput<BuilderOutput['actions'][number]>();
-			const layout = await loadTestLayout({ cwd: workspaceRoot });
+			const layout = loadTestLayoutSync();
 
 			await workspace.write(
 				layout.resolve('plan.manifest'),
 				'{ invalid json ]'
 			);
 
-			const ir = await buildIr('Demo', workspaceRoot);
+			const ir = buildIr('Demo', layout);
 			const input = {
 				phase: 'apply' as const,
 				options: {

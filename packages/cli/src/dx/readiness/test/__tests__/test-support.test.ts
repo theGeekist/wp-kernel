@@ -4,8 +4,8 @@ import {
 	createRecordingReporter,
 	makeNoEntry,
 	createReadinessTestContext,
-	createWorkspaceDouble,
-} from '../test-support';
+} from '@cli-tests/readiness.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 
 describe('readiness test support utilities', () => {
 	it('records reporter output with nested namespaces', () => {
@@ -70,14 +70,11 @@ describe('readiness test support utilities', () => {
 		expect(context.environment.allowDirty).toBe(true);
 	});
 
-	it('constructs workspace doubles with overrides', async () => {
-		const workspace = createWorkspaceDouble({
-			root: '/tmp/workspace',
-			resolve: (...parts: string[]) =>
-				path.join('/tmp/workspace', ...parts),
-		});
+	it('uses shared workspace mocks for readiness contexts', async () => {
+		const workspace = makeWorkspaceMock({ root: '/tmp/workspace' });
+		const context = createReadinessTestContext({ workspace });
 
-		expect(workspace.root).toBe('/tmp/workspace');
+		expect(context.environment.workspaceRoot).toBe('/tmp/workspace');
 		expect(workspace.resolve('file.ts')).toBe(
 			path.join('/tmp/workspace', 'file.ts')
 		);

@@ -2,8 +2,8 @@ import path from 'node:path';
 import {
 	assignCommandContext,
 	createCommandWorkspaceHarness,
-	createReporterFactory,
-} from '@wpkernel/test-utils/cli';
+} from '@cli-tests/cli';
+import { createReporterFactory } from '@cli-tests/reporter';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import {
 	buildDefaultReadinessRegistry,

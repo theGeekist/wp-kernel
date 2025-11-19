@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { WPKernelError } from '@wpkernel/core/error';
-import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import { assignCommandContext } from '@cli-tests/cli';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { buildCreateCommand } from '../create';
 import type { buildWorkspace } from '../../workspace/filesystem';
 import type { InitWorkflowOptions } from '../init/types';

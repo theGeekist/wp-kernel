@@ -8,6 +8,10 @@ import type {
 } from '../publicTypes';
 import type { ResourceDataViewsMenuConfig } from '@wpkernel/core/resource';
 
+const DEFAULT_UI_ASSET_PATH = 'build/index.asset.json';
+const DEFAULT_UI_SCRIPT_PATH = 'build/index.js';
+const UI_LOCALIZATION_OBJECT = 'wpKernelUISettings';
+
 /**
  * Fragment key for UI aggregation.
  */
@@ -28,9 +32,24 @@ export function createUiFragment(): IrFragment {
 				input.draft.meta?.namespace ?? input.options.namespace ?? '';
 			const resources = input.draft.resources ?? [];
 
-			const surface: IRUiSurface = {
-				resources: collectUiResourceDescriptors(namespace, resources),
-			};
+			const slug = input.draft.meta?.sanitizedNamespace?.trim();
+			const surfaceResources = collectUiResourceDescriptors(
+				namespace,
+				resources
+			);
+			const loader =
+				surfaceResources.length > 0 && slug
+					? {
+							handle: `wp-${slug}-ui`,
+							assetPath: DEFAULT_UI_ASSET_PATH,
+							scriptPath: DEFAULT_UI_SCRIPT_PATH,
+							localizationObject: UI_LOCALIZATION_OBJECT,
+							namespace,
+						}
+					: undefined;
+			const surface: IRUiSurface = loader
+				? { resources: surfaceResources, loader }
+				: { resources: surfaceResources };
 			output.assign({
 				ui: surface,
 			});

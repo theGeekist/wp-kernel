@@ -2,12 +2,12 @@ import path from 'node:path';
 import {
 	withWorkspace as baseWithWorkspace,
 	type BuilderHarnessContext,
-} from '@wpkernel/test-utils/builders/tests/ts.test-support';
+} from '@cli-tests/builders/ts.test-support';
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import type { IRBlock, IRHashProvenance } from '../../ir/publicTypes';
 import { collectBlockManifests } from '../shared.blocks.manifest';
-import { loadTestLayout } from '../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 
 const makeBlockHash = (label: string): IRHashProvenance => ({
 	algo: 'sha256',

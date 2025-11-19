@@ -71,6 +71,7 @@
 		"LICENSE"
 	],
 	"scripts": {
+		"prebuild": "node ../../scripts/workspace-graph.prebuild.mjs @wpkernel/cli",
 		"dev": "vite build --watch",
 		"build": "node ./scripts/ensure-composer-assets.mjs && vite build && node ./scripts/generate-versions.mjs && tsc --noEmit",
 		"clean": "rm -rf dist *.tsbuildinfo",
@@ -89,7 +90,6 @@
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/pipeline": "workspace:*",
-		"@wpkernel/test-utils": "workspace:*",
 		"@wpkernel/ui": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*"
 	},
@@ -112,7 +112,6 @@
 	},
 	"devDependencies": {
 		"@wpkernel/scripts": "workspace:*",
-		"@wpkernel/test-utils": "workspace:*",
 		"lodash": "^4.17.21"
 	}
 }

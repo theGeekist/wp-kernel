@@ -76,6 +76,10 @@
 				"type": "string",
 				"minLength": 1
 			}
+		},
+		"meta": {
+			"$ref": "#/$defs/pluginMeta",
+			"description": "Optional plugin metadata used for generated plugin headers. Defaults are derived from the namespace."
 		}
 	},
 	"$defs": {
@@ -87,6 +91,68 @@
 			"type": "string",
 			"minLength": 1,
 			"description": "A non-empty string."
+		},
+		"pluginMeta": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"name": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Human-readable plugin name shown in the WordPress plugin list. Defaults to the namespace in title case."
+				},
+				"description": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Short description visible in the WordPress plugin list."
+				},
+				"version": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Plugin version stamped into the generated loader."
+				},
+				"requiresAtLeast": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Minimum WordPress version required by the plugin."
+				},
+				"requiresPhp": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Minimum PHP version required by the plugin."
+				},
+				"textDomain": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Text domain used for translations. Defaults to the sanitized namespace."
+				},
+				"author": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Author shown in the plugin header."
+				},
+				"authorUri": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional author URL shown in the plugin header."
+				},
+				"pluginUri": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional plugin URL shown in the plugin header."
+				},
+				"license": {
+					"type": "string",
+					"minLength": 1,
+					"description": "License identifier stamped into the plugin header."
+				},
+				"licenseUri": {
+					"type": "string",
+					"minLength": 1,
+					"description": "Optional license URL stamped into the plugin header."
+				}
+			},
+			"description": "WordPress plugin metadata used for generated plugin headers. When omitted, defaults are derived from the namespace."
 		},
 		"schemaConfig": {
 			"type": "object",
@@ -623,13 +689,13 @@
 		},
 		"resourceConfig": {
 			"type": "object",
-			"required": ["name", "routes"],
+			"required": ["routes"],
 			"additionalProperties": true,
 			"properties": {
 				"name": {
 					"type": "string",
 					"minLength": 1,
-					"description": "Human-readable name for this resource (for example, \"Job\" or \"Booking\"). This is used in generated code and logs."
+					"description": "Optional human-readable name for this resource (for example, \"Job\" or \"Booking\"). If omitted, WPKernel uses the resource key instead."
 				},
 				"namespace": {
 					"type": "string",

@@ -14,14 +14,14 @@ import {
 import * as phpDriverModule from '@wpkernel/php-json-ast/php-driver';
 const { buildPhpPrettyPrinter } = phpDriverModule;
 import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	createBuilderInput,
 	createBuilderOutput,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '../../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 jest.mock('@wpkernel/php-json-ast/php-driver', () => {
 	const actual = jest.requireActual<typeof phpDriverModule>(

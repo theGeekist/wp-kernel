@@ -7,9 +7,9 @@ import {
 	collectBlockDeletionInstructions,
 } from '../plan.blocks';
 
-import { makeIr } from '../../tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 function makeOptions(root: string) {
 	const workspace = buildWorkspace(root);

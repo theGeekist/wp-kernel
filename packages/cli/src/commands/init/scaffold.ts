@@ -2,6 +2,8 @@ import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type { Workspace } from '../../workspace';
+import { sanitizeNamespace } from '@wpkernel/core/namespace';
+import { buildPluginMeta } from '../../ir/shared/pluginMeta';
 import {
 	applyReplacements,
 	buildComposerPackageName,
@@ -15,6 +17,8 @@ import {
 	type ScaffoldFileDescriptor,
 	type ScaffoldStatus,
 } from './utils';
+import { buildPluginLoaderProgram } from '@wpkernel/wp-json-ast';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 
 const WPK_CONFIG_FILENAME = WPK_CONFIG_SOURCES.WPK_CONFIG_TS;
 const SRC_INDEX_PATH = path.join('src', 'index.ts');
@@ -192,12 +196,14 @@ export async function writeScaffoldFiles({
 	replacements,
 	force,
 	skip,
+	namespace,
 }: {
 	readonly workspace: Workspace;
 	readonly files: readonly ScaffoldFileDescriptor[];
 	readonly replacements: Map<string, Record<string, string>>;
 	readonly force: boolean;
 	readonly skip?: ReadonlySet<string>;
+	readonly namespace: string;
 }): Promise<Array<{ path: string; status: ScaffoldStatus }>> {
 	const summaries: Array<{ path: string; status: ScaffoldStatus }> = [];
 	const skipSet = !force && skip ? new Set(skip) : new Set<string>();
@@ -211,18 +217,28 @@ export async function writeScaffoldFiles({
 			continue;
 		}
 
-		const templateContents = await loadTemplate(descriptor.templatePath);
-		const replaced = applyReplacements(
-			templateContents,
-			replacements.get(descriptor.relativePath) ??
-				descriptor.replacements ??
-				{}
-		);
+		let contents: string;
+		if (descriptor.relativePath === PLUGIN_LOADER) {
+			contents = await renderPluginLoader({
+				workspace,
+				namespace,
+			});
+		} else {
+			const templateContents = await loadTemplate(
+				descriptor.templatePath
+			);
+			contents = applyReplacements(
+				templateContents,
+				replacements.get(descriptor.relativePath) ??
+					descriptor.replacements ??
+					{}
+			);
+		}
 
 		const existed = await fileExists(workspace, descriptor.relativePath);
 		await workspace.write(
 			descriptor.relativePath,
-			ensureTrailingNewline(replaced)
+			ensureTrailingNewline(contents)
 		);
 		summaries.push({
 			path: descriptor.relativePath,
@@ -231,6 +247,40 @@ export async function writeScaffoldFiles({
 	}
 
 	return summaries;
+}
+
+async function renderPluginLoader({
+	workspace,
+	namespace,
+}: {
+	readonly workspace: Workspace;
+	readonly namespace: string;
+}): Promise<string> {
+	const sanitizedNamespace = sanitizeNamespace(namespace);
+	if (!sanitizedNamespace) {
+		throw new WPKernelError('ValidationError', {
+			message: `Unable to sanitise namespace "${namespace}" while scaffolding plugin.php.`,
+		});
+	}
+
+	const plugin = buildPluginMeta({
+		sanitizedNamespace,
+	});
+	const program = buildPluginLoaderProgram({
+		origin: WPK_CONFIG_FILENAME,
+		namespace: buildPhpNamespace(namespace).replace(/\\+$/u, ''),
+		sanitizedNamespace,
+		plugin,
+		resourceClassNames: [],
+	});
+
+	const printer = buildPhpPrettyPrinter({ workspace });
+	const { code } = await printer.prettyPrint({
+		filePath: workspace.resolve(PLUGIN_LOADER),
+		program,
+	});
+
+	return code;
 }
 
 async function detectCollisions(

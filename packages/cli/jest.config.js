@@ -39,5 +39,9 @@ config.watchPathIgnorePatterns = [
 	...(config.watchPathIgnorePatterns ?? []),
 	DIST_PATH,
 ];
+config.setupFilesAfterEnv = [
+	...(config.setupFilesAfterEnv ?? []),
+	path.resolve(__dirname, 'tests/jest.setup.ts'),
+];
 
 export default config;

@@ -1,9 +1,7 @@
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createWorkspaceHygieneReadinessHelper } from '../workspaceHygiene';
-import {
-	createReadinessTestContext,
-	createWorkspaceDouble,
-} from '../../test/test-support';
+import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 
 describe('createWorkspaceHygieneReadinessHelper', () => {
 	it('blocks detection without workspace', async () => {
@@ -17,7 +15,7 @@ describe('createWorkspaceHygieneReadinessHelper', () => {
 	});
 
 	it('skips hygiene when git repository is missing', async () => {
-		const workspace = createWorkspaceDouble();
+		const workspace = makeWorkspaceMock({ root: '/tmp/project' });
 		const helper = createWorkspaceHygieneReadinessHelper({
 			readGitStatus: jest.fn().mockResolvedValue(null),
 		});
@@ -33,7 +31,7 @@ describe('createWorkspaceHygieneReadinessHelper', () => {
 	});
 
 	it('confirms clean workspace', async () => {
-		const workspace = createWorkspaceDouble();
+		const workspace = makeWorkspaceMock({ root: '/tmp/project' });
 		const helper = createWorkspaceHygieneReadinessHelper({
 			readGitStatus: jest.fn().mockResolvedValue([]),
 		});
@@ -52,7 +50,7 @@ describe('createWorkspaceHygieneReadinessHelper', () => {
 	});
 
 	it('throws EnvironmentalError for dirty workspace without allowDirty', async () => {
-		const workspace = createWorkspaceDouble();
+		const workspace = makeWorkspaceMock({ root: '/tmp/project' });
 		const helper = createWorkspaceHygieneReadinessHelper({
 			readGitStatus: jest
 				.fn()
@@ -67,7 +65,7 @@ describe('createWorkspaceHygieneReadinessHelper', () => {
 	});
 
 	it('allows dirty workspace when allowDirty flag is set', async () => {
-		const workspace = createWorkspaceDouble();
+		const workspace = makeWorkspaceMock({ root: '/tmp/project' });
 		const readGitStatus = jest
 			.fn()
 			.mockResolvedValue([
@@ -92,7 +90,7 @@ describe('createWorkspaceHygieneReadinessHelper', () => {
 	});
 
 	it('formats plural dirty workspace messages', async () => {
-		const workspace = createWorkspaceDouble();
+		const workspace = makeWorkspaceMock({ root: '/tmp/project' });
 		const entries = [
 			{ code: '??', path: 'first.ts', raw: '?? first.ts' },
 			{ code: 'M ', path: 'second.ts', raw: 'M  second.ts' },

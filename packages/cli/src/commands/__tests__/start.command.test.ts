@@ -1,10 +1,7 @@
 import path from 'node:path';
 import type { FSWatcher } from 'chokidar';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import {
-	assignCommandContext,
-	type ReporterMock,
-} from '@wpkernel/test-utils/cli';
+import { assignCommandContext, type ReporterMock } from '@cli-tests/cli';
 import { buildStartCommand } from '../start';
 import {
 	advanceBy,
@@ -29,7 +26,7 @@ import {
 	watchFactory,
 	runGenerate,
 	withStartCommand,
-} from '../tests/start.command.test-support';
+} from '@cli-tests/start.command.test-support';
 import { resolveStartLayoutPaths } from '../start/layout';
 
 describe('buildStartCommand', () => {
@@ -185,7 +182,10 @@ describe('buildStartCommand', () => {
 			.mockImplementationOnce(
 				() =>
 					new Promise((resolve) => {
-						resolveGeneration = resolve;
+						// resolve has a more specific parameter type; cast to match the variable's type
+						resolveGeneration = resolve as unknown as (
+							result: unknown
+						) => void;
 					})
 			)
 			.mockResolvedValueOnce({

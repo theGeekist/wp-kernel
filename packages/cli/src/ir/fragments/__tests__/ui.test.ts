@@ -80,6 +80,13 @@ describe('createUiFragment', () => {
 					menu: { slug: 'jobs', title: 'Jobs' },
 				},
 			],
+			loader: {
+				handle: 'wp-demo-ui',
+				assetPath: 'build/index.asset.json',
+				scriptPath: 'build/index.js',
+				localizationObject: 'wpKernelUISettings',
+				namespace: 'demo',
+			},
 		});
 	});
 
@@ -111,6 +118,13 @@ describe('createUiFragment', () => {
 					preferencesKey: 'demo/dataviews/applications',
 				},
 			],
+			loader: {
+				handle: 'wp-demo-ui',
+				assetPath: 'build/index.asset.json',
+				scriptPath: 'build/index.js',
+				localizationObject: 'wpKernelUISettings',
+				namespace: 'demo',
+			},
 		});
 	});
 });

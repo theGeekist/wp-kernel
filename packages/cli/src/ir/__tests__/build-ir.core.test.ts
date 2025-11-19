@@ -2,7 +2,7 @@ import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { WPKernelConfigV1 } from '../../config/types';
 import { buildIr } from '../buildIr';
-import { buildDataViewsConfig } from '@wpkernel/test-utils/builders/tests/ts.test-support';
+import { buildDataViewsConfig } from '@cli-tests/builders/ts.test-support';
 import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,

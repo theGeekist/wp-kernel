@@ -7,8 +7,8 @@ import {
 } from '@wpkernel/wp-json-ast';
 import path from 'path';
 import { buildUiConfig } from './php/pluginLoader.ui';
-import { toPascalCase } from './ts';
 import { resolvePlanPaths } from './plan.paths';
+import { toPascalCase } from './ts';
 
 export async function addPluginLoaderInstruction({
 	options,
@@ -65,17 +65,20 @@ export async function emitPluginLoader({
 	}
 
 	const resourceClassNames = ir.resources.map((resource) => {
+		if (resource.controllerClass) {
+			return resource.controllerClass;
+		}
 		const pascal = toPascalCase(resource.name);
 		return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
 	});
 
-	const uiResources = ir.ui?.resources ?? [];
-	const uiConfig = buildUiConfig(ir, uiResources);
+	const uiConfig = buildUiConfig(ir);
 
 	const program = buildPluginLoaderProgram({
 		origin: ir.meta.origin,
 		namespace: ir.php.namespace,
 		sanitizedNamespace: ir.meta.sanitizedNamespace,
+		plugin: ir.meta.plugin,
 		resourceClassNames,
 		...(uiConfig ? { ui: uiConfig } : {}),
 	});

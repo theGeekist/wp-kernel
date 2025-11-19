@@ -1,6 +1,6 @@
 import { createComposerReadinessHelper } from '../composer';
 import { resolveBundledComposerAutoloadPath } from '../../../../utils/phpAssets';
-import { createReadinessTestContext } from '../../test/test-support';
+import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
 
 function createHelper(
 	overrides: Parameters<typeof createComposerReadinessHelper>[0] = {}

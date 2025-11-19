@@ -1,5 +1,5 @@
 import type { IRv1 } from '../../ir/publicTypes';
-import { makeIr } from '../../tests/ir.test-support';
+import { makeIr } from '@cli-tests/ir.test-support';
 import { diffIr } from '../changeLog';
 
 describe('diffIr', () => {

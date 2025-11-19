@@ -50,6 +50,7 @@ export default {
 			'<rootDir>/packages/php-json-ast/package.json',
 		'^@wpkernel/php-json-ast/(.*)$':
 			'<rootDir>/packages/php-json-ast/src/$1',
+		'^@cli-tests/(.*)$': '<rootDir>/packages/cli/tests/$1',
 		'^@wordpress/interactivity$':
 			'<rootDir>/tests/mocks/wp-interactivity.ts',
 	},

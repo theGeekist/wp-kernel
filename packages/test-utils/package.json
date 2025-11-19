@@ -45,31 +45,6 @@
 			"import": "./dist/integration/workspace.js",
 			"default": "./dist/integration/workspace.js"
 		},
-		"./cli": {
-			"types": "./dist/cli/index.d.ts",
-			"import": "./dist/cli/index.js",
-			"default": "./dist/cli/index.js"
-		},
-		"./cli/command-context": {
-			"types": "./dist/cli/command-context.d.ts",
-			"import": "./dist/cli/command-context.js",
-			"default": "./dist/cli/command-context.js"
-		},
-		"./cli/reporter": {
-			"types": "./dist/cli/reporter.d.ts",
-			"import": "./dist/cli/reporter.js",
-			"default": "./dist/cli/reporter.js"
-		},
-		"./cli/memory-stream": {
-			"types": "./dist/cli/memory-stream.d.ts",
-			"import": "./dist/cli/memory-stream.js",
-			"default": "./dist/cli/memory-stream.js"
-		},
-		"./cli/flush": {
-			"types": "./dist/cli/flush.d.ts",
-			"import": "./dist/cli/flush.js",
-			"default": "./dist/cli/flush.js"
-		},
 		"./core": {
 			"types": "./dist/core/index.d.ts",
 			"import": "./dist/core/index.js",
@@ -113,6 +88,7 @@
 		"LICENSE"
 	],
 	"scripts": {
+		"prebuild": "node ../../scripts/workspace-graph.prebuild.mjs @wpkernel/test-utils",
 		"dev": "tsc --project tsconfig.json --watch",
 		"build": "vite build && tsc --project tsconfig.json",
 		"clean": "rm -rf dist *.tsbuildinfo",
@@ -120,7 +96,7 @@
 		"lint:fix": "eslint src/ --fix",
 		"format": "prettier --write 'src/**/*.{ts,tsx}'",
 		"format:check": "prettier --check 'src/**/*.{ts,tsx}'",
-		"typecheck": "tsc --project tsconfig.json --noEmit",
+		"typecheck": "tsc --project tsconfig.json --noEmit --rootDir ../..",
 		"typecheck:tests": "wpk-run-typecheck-tests",
 		"test": "wpk-run-jest",
 		"test:watch": "wpk-run-jest --watch",

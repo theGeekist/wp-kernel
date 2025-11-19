@@ -5,6 +5,7 @@ import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { toWorkspaceRelative } from '../../utils';
 import { createPhpNamespace } from '../shared/php';
 import { enumerateFeatures } from '../shared/features';
+import { buildPluginMeta } from '../shared/pluginMeta';
 
 /**
  * The extension key for the meta fragment.
@@ -54,6 +55,10 @@ export function createMetaFragment(): IrFragment {
 				sourcePath: toWorkspaceRelative(input.options.sourcePath),
 				origin: input.options.origin,
 				sanitizedNamespace,
+				plugin: buildPluginMeta({
+					sanitizedNamespace,
+					configMeta: input.options.config.meta,
+				}),
 				features: enumerateFeatures(input.options.config),
 				ids: {
 					algorithm: 'sha256' as const,

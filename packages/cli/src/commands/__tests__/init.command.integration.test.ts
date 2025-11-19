@@ -3,8 +3,8 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
+import { assignCommandContext } from '@cli-tests/cli';
+import { createWorkspaceRunner } from '@cli-tests/workspace.test-support';
 import { buildInitCommand } from '../init';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-next-init-command-');

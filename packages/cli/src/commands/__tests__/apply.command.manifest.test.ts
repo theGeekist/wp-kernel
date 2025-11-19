@@ -1,17 +1,17 @@
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../tests/workspace.test-support';
+import { assignCommandContext } from '@cli-tests/cli';
+import { createWorkspaceRunner as buildWorkspaceRunner } from '@cli-tests/workspace.test-support';
 import * as ApplyModule from '../apply';
 import {
 	TMP_PREFIX,
 	buildLoadedConfig,
-} from '@wpkernel/test-utils/cli/commands/apply.test-support';
+} from '@cli-tests/cli/apply.test-support';
 import type {
 	ReadinessHelperDescriptor,
 	ReadinessPlan,
 	ReadinessRegistry,
 } from '../../dx';
-import { loadTestLayoutSync } from '../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 

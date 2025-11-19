@@ -1,6 +1,6 @@
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createPhpCodemodIngestionReadinessHelper } from '../phpCodemodIngestion';
-import { createReadinessTestContext } from '../../test/test-support';
+import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
 
 jest.mock('../../../../utils/phpAssets', () => ({
 	resolveBundledPhpJsonAstIngestionPath: jest

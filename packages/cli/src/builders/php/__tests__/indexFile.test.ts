@@ -12,9 +12,12 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
+import {
+	makeResource,
+	makeRoute,
+} from '@cli-tests/builders/fixtures.test-support';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayoutSync } from '../../../tests/layout.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 describe('createPhpIndexFileHelper', () => {
 	it('skips generation when no IR is present', async () => {

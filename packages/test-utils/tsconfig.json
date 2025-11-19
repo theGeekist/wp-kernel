@@ -2,11 +2,73 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "../../tsconfig.lib.json",
 	"compilerOptions": {
+		"baseUrl": "../..",
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"types": ["node", "jest"]
+		"types": ["node", "jest"],
+		"disableSourceOfProjectReferenceRedirect": true,
+		"moduleResolution": "bundler",
+		"module": "ESNext",
+		"paths": {
+			"@wpkernel/core": ["packages/core/dist/index.d.ts"],
+			"@wpkernel/core/dist/*": ["packages/core/dist/*"],
+			"@wpkernel/core/reporter/types": [
+				"packages/core/dist/reporter/types.d.ts"
+			],
+			"@wpkernel/core/contracts": [
+				"packages/core/dist/contracts/index.d.ts"
+			],
+			"@wpkernel/core/resource": [
+				"packages/core/dist/resource/index.d.ts"
+			],
+			"@wpkernel/core/reporter": [
+				"packages/core/dist/reporter/index.d.ts"
+			],
+			"@wpkernel/core/events": ["packages/core/dist/events/index.d.ts"],
+			"@wpkernel/core/data": ["packages/core/dist/data/index.d.ts"],
+			"@wpkernel/core/namespace": [
+				"packages/core/dist/namespace/index.d.ts"
+			],
+			"@wpkernel/core/*": ["packages/core/dist/*"],
+			"@wpkernel/cli": [
+				"packages/cli/dist/index.d.ts",
+				"packages/cli/src/index.ts"
+			],
+			"@wpkernel/cli/config/types": [
+				"packages/cli/dist/config/types.d.ts",
+				"packages/cli/src/config/types.ts"
+			],
+			"@wpkernel/cli/config/*": ["packages/cli/dist/config/*"],
+			"@wpkernel/cli/ir/publicTypes": [
+				"packages/cli/dist/ir/publicTypes.d.ts",
+				"packages/cli/src/ir/publicTypes.ts"
+			],
+			"@wpkernel/cli/ir/*": ["packages/cli/dist/ir/*"],
+			"@wpkernel/cli/workspace": [
+				"packages/cli/dist/workspace/index.d.ts",
+				"packages/cli/src/workspace/index.ts"
+			],
+			"@wpkernel/cli/workspace/*": ["packages/cli/dist/workspace/*"],
+			"@wpkernel/cli/dist/*": ["packages/cli/dist/*"],
+			"@wpkernel/cli/*": ["packages/cli/dist/*"],
+			"@wpkernel/pipeline": ["packages/pipeline/dist/index.d.ts"],
+			"@wpkernel/pipeline/*": ["packages/pipeline/dist/*"],
+			"@wpkernel/php-json-ast": ["packages/php-json-ast/dist/index.d.ts"],
+			"@wpkernel/php-json-ast/*": [
+				"packages/php-json-ast/dist/*.d.ts",
+				"packages/php-json-ast/dist/*"
+			],
+			"@wpkernel/ui": ["packages/ui/dist/index.d.ts"],
+			"@wpkernel/ui/*": ["packages/ui/dist/*"],
+			"@wpkernel/wp-json-ast": ["packages/wp-json-ast/dist/index.d.ts"],
+			"@wpkernel/wp-json-ast/*": ["packages/wp-json-ast/dist/*"]
+		}
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
-	"references": [{ "path": "../core" }, { "path": "../pipeline" }]
+	"references": [
+		{ "path": "../core" },
+		{ "path": "../pipeline" },
+		{ "path": "../php-json-ast" }
+	]
 }

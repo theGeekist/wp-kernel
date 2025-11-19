@@ -5,7 +5,7 @@ import {
 	runPhpCodemodIngestion,
 } from '@wpkernel/php-json-ast';
 import { type Workspace } from '../../../workspace';
-import { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { createPhpCodemodIngestionHelper } from '../pipeline.codemods';
 import {
 	createBuilderInput,

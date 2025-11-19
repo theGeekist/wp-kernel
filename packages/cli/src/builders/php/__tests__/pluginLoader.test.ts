@@ -12,9 +12,12 @@ import {
 	createMinimalIr,
 	createPipelineContext,
 } from '../test-support/php-builder.test-support';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
-import { makeResource, makeRoute } from '../test-support/fixtures.test-support';
-import { loadTestLayoutSync } from '../../../tests/layout.test-support';
+import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
+import {
+	makeResource,
+	makeRoute,
+} from '@cli-tests/builders/fixtures.test-support';
+import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
 
 describe('createPhpPluginLoaderHelper', () => {
 	it('skips when no IR is available', async () => {

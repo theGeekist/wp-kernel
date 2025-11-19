@@ -5,7 +5,7 @@ describe('cli-command test support', () => {
 
 	it('creates distinct stdout and stderr streams', async () => {
 		const { createCommandContext, assignCommandContext } = await import(
-			'@wpkernel/test-utils/cli'
+			'../cli'
 		);
 
 		const first = createCommandContext();
@@ -25,9 +25,7 @@ describe('cli-command test support', () => {
 	});
 
 	it('honours provided cwd and color depth overrides', async () => {
-		const { createCommandContext } = await import(
-			'@wpkernel/test-utils/cli'
-		);
+		const { createCommandContext } = await import('../cli');
 		const customCwd = '/custom';
 
 		const harness = createCommandContext({ cwd: customCwd, colorDepth: 8 });

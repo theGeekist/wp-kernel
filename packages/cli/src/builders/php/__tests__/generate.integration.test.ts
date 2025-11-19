@@ -5,12 +5,12 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import { createPhpBuilder } from '../pipeline.builder';
 import type { BuilderOutput } from '../../../runtime/types';
 import { buildWorkspace } from '../../../workspace';
-import { withWorkspace } from '@wpkernel/test-utils/integration';
-import { makePhpIrFixture } from '@wpkernel/test-utils/builders/php/resources.test-support';
+import { withWorkspace } from '@cli-tests/integration';
+import { makePhpIrFixture } from '@cli-tests/builders/resources.test-support';
 import { resolveBundledComposerAutoloadPath } from '../../../utils/phpAssets';
 import * as phpPrinter from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../../apply/manifest';
-import { loadTestLayout } from '../../../tests/layout.test-support';
+import { loadTestLayout } from '@cli-tests/layout.test-support';
 import {
 	createBaselineCodemodConfiguration,
 	serialisePhpCodemodConfiguration,
