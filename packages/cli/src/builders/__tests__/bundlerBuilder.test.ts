@@ -103,6 +103,9 @@ describe('createBundler', () => {
 
 	it('writes rollup driver configuration and asset metadata', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const layout = loadTestLayoutSync();
+			const bundlerConfigPath = layout.resolve('bundler.config');
+			const bundlerAssetsPath = layout.resolve('bundler.assets');
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -167,6 +170,12 @@ describe('createBundler', () => {
 			const assetManifest = JSON.parse(
 				await fs.readFile(assetPath, 'utf8')
 			);
+			const updatedPkg = JSON.parse(
+				await fs.readFile(
+					path.join(workspaceRoot, 'package.json'),
+					'utf8'
+				)
+			);
 
 			expect(config.driver).toBe('rollup');
 			expect(config.external).toEqual(
@@ -174,17 +183,21 @@ describe('createBundler', () => {
 					'@wordpress/data',
 					'@wordpress/components',
 					'@wordpress/dataviews',
+					'@wordpress/block-editor',
+					'@wordpress/blocks',
 					'@wordpress/hooks',
 					'@wordpress/i18n',
 					'@wordpress/interactivity',
 					'@wordpress/api-fetch',
 					'react',
 					'react-dom',
+					'react-dom/client',
 				])
 			);
+			const aliasRoot = workspace.resolve('src').replace(/\\/g, '/');
 			expect(config.alias).toContainEqual({
 				find: '@/',
-				replacement: './src/',
+				replacement: `${aliasRoot}/`,
 			});
 			expect(config.assetManifest.path).toBe('build/index.asset.json');
 			expect(config.sourcemap).toEqual({
@@ -195,13 +208,15 @@ describe('createBundler', () => {
 
 			expect(assetManifest).toMatchObject({
 				entry: 'index',
-				version: '1.2.3',
+				version: '0.1.0',
 			});
 			expect(assetManifest.dependencies).toEqual(
 				expect.arrayContaining([
 					'wp-data',
 					'wp-components',
 					'wp-dataviews',
+					'wp-block-editor',
+					'wp-blocks',
 					'wp-hooks',
 					'wp-i18n',
 					'wp-interactivity',
@@ -210,6 +225,15 @@ describe('createBundler', () => {
 				])
 			);
 			expect(assetManifest.ui).toBeUndefined();
+			expect(updatedPkg.dependencies ?? {}).not.toHaveProperty(
+				'loglayer'
+			);
+			expect(updatedPkg.devDependencies ?? {}).not.toHaveProperty(
+				'loglayer'
+			);
+			expect(updatedPkg.peerDependencies ?? {}).not.toHaveProperty(
+				'loglayer'
+			);
 
 			expect(output.queueWrite).toHaveBeenCalled();
 			const queuedFiles = queueWrite.mock.calls.map(
@@ -217,14 +241,30 @@ describe('createBundler', () => {
 			);
 			expect(queuedFiles).toEqual(
 				expect.arrayContaining([
-					path.posix.join('.wpk', 'bundler', 'config.json'),
-					path.posix.join(
-						'.wpk',
-						'bundler',
-						'assets',
-						'index.asset.json'
-					),
+					bundlerConfigPath,
+					bundlerAssetsPath,
+					'vite.config.ts',
 				])
+			);
+
+			expect(config.input.index).toBe(
+				path.posix.join(layout.resolve('ui.generated'), 'index.tsx')
+			);
+
+			const viteConfig = await workspace.readText('vite.config.ts');
+			const relativeImport = path.posix
+				.relative(
+					path.posix.dirname('vite.config.ts'),
+					bundlerConfigPath
+				)
+				.replace(/\\/g, '/');
+			const normalizedImport =
+				relativeImport.startsWith('./') ||
+				relativeImport.startsWith('../')
+					? relativeImport
+					: `./${relativeImport}`;
+			expect(viteConfig).toContain(
+				`import bundlerConfig from '${normalizedImport}';`
 			);
 		});
 	});

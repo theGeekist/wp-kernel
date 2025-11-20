@@ -68,8 +68,8 @@
 		},
 		"./dataviews": {
 			"types": "./dist/dataviews/index.d.ts",
-			"import": "./dist/dataviews/index.js",
-			"default": "./dist/dataviews/index.js"
+			"import": "./dist/dataviews.js",
+			"default": "./dist/dataviews.js"
 		},
 		"./package.json": "./package.json"
 	},

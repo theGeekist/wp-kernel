@@ -1,102 +1,67 @@
+import { WPKernelHooksTransport } from '@wpkernel/core/reporter';
 import type { Reporter } from '@wpkernel/core/reporter';
-import {
-	logLayerInstances,
-	mockedLogLayer,
-	mockedSimplePrettyTerminalTransport,
-	mockedWPKernelHooksTransport,
-	resetLogLayerMocks,
-} from '@cli-tests/mocks';
 import { createReporterCLI } from '../reporter';
 
 describe('createReporterCLI', () => {
+	let writeSpy: jest.SpyInstance;
+
 	beforeEach(() => {
-		resetLogLayerMocks();
-		delete process.env.NODE_ENV;
+		writeSpy = jest
+			.spyOn(process.stdout, 'write')
+			.mockImplementation(() => true);
 	});
 
-	it('creates a console reporter with pretty terminal transport', () => {
+	afterEach(() => {
+		writeSpy.mockRestore();
+	});
+
+	it('writes colored lines to stdout for info/warn', () => {
 		const reporter: Reporter = createReporterCLI();
 
 		reporter.info('hello');
 		reporter.warn('warn', { foo: 'bar' });
 
-		expect(mockedSimplePrettyTerminalTransport).toHaveBeenCalledWith({
-			runtime: 'node',
-			level: 'info',
-			enabled: true,
-		});
-		expect(mockedLogLayer).toHaveBeenCalledTimes(1);
-		expect(logLayerInstances[0]?.withContext).toHaveBeenCalledWith({
-			namespace: expect.any(String),
-		});
-		expect(logLayerInstances[0]?.info).toHaveBeenCalledWith('hello');
-		expect(logLayerInstances[0]?.withMetadata).toHaveBeenCalledWith({
-			context: { foo: 'bar' },
-		});
-		expect(logLayerInstances[0]?.metadataTarget.warn).toHaveBeenCalledWith(
-			'warn'
+		expect(writeSpy).toHaveBeenCalledWith(
+			expect.stringContaining('INFO hello\n')
+		);
+		expect(writeSpy).toHaveBeenCalledWith(
+			expect.stringContaining('WARN warn')
 		);
 	});
 
-	it('disables logging when enabled is false', () => {
+	it('does nothing when disabled', () => {
 		const reporter: Reporter = createReporterCLI({ enabled: false });
 
 		reporter.error('boom');
 
-		expect(logLayerInstances[0]?.disableLogging).toHaveBeenCalled();
-		expect(logLayerInstances[0]?.error).not.toHaveBeenCalled();
+		expect(writeSpy).not.toHaveBeenCalled();
 	});
 
-	it('combines transports when channel is set to all', () => {
-		const reporter: Reporter = createReporterCLI({
-			channel: 'all',
-			level: 'debug',
-		});
+	it('emits hook transport when channel is hooks/all', () => {
+		const hookSpy = jest
+			.spyOn(WPKernelHooksTransport.prototype, 'shipToLogger')
+			.mockImplementation(() => []);
 
-		reporter.debug('combined');
+		const reporter: Reporter = createReporterCLI({ channel: 'hooks' });
+		reporter.info('hooked', { foo: 'bar' });
 
-		expect(mockedSimplePrettyTerminalTransport).toHaveBeenCalledWith({
-			runtime: 'node',
-			level: 'debug',
-			enabled: true,
-		});
-		expect(mockedWPKernelHooksTransport).toHaveBeenCalledWith('debug');
-		expect(logLayerInstances[0]?.debug).toHaveBeenCalledWith('combined');
-	});
-
-	it('creates hook-only transports when channel is hooks', () => {
-		createReporterCLI({ channel: 'hooks' });
-
-		expect(mockedSimplePrettyTerminalTransport).not.toHaveBeenCalled();
-		expect(mockedWPKernelHooksTransport).toHaveBeenCalledWith('info');
-	});
-
-	it('respects production NODE_ENV when enabling transports', () => {
-		process.env.NODE_ENV = 'production';
-
-		createReporterCLI();
-
-		expect(mockedSimplePrettyTerminalTransport).toHaveBeenCalledWith({
-			runtime: 'node',
-			level: 'info',
-			enabled: false,
-		});
-	});
-
-	it('throws when the bridge channel is requested', () => {
-		expect(() => createReporterCLI({ channel: 'bridge' })).toThrow(
-			'Bridge transport'
+		expect(hookSpy).toHaveBeenCalledWith(
+			expect.objectContaining({
+				logLevel: 'info',
+				messages: ['hooked'],
+			})
 		);
+
+		hookSpy.mockRestore();
 	});
 
-	it('creates child reporters with derived namespaces', () => {
+	it('supports child reporters', () => {
 		const reporter: Reporter = createReporterCLI({ namespace: 'cli' });
 
 		reporter.child('dx').info('child');
 
-		expect(logLayerInstances).toHaveLength(2);
-		expect(logLayerInstances[1]?.withContext).toHaveBeenCalledWith({
-			namespace: 'cli.dx',
-		});
+		expect(writeSpy).toHaveBeenCalledWith(
+			expect.stringContaining('INFO child')
+		);
 	});
 });

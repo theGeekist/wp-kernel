@@ -361,12 +361,12 @@ describe('ReadinessRegistry', () => {
 				}),
 				expect.objectContaining({
 					namespace: 'composer.detect',
-					level: 'error',
+					level: 'warn',
 					message: 'Detect phase blocked readiness.',
 				}),
 				expect.objectContaining({
 					namespace: 'composer',
-					level: 'error',
+					level: 'warn',
 					message: 'Readiness helper blocked.',
 					context: expect.objectContaining({ status: 'blocked' }),
 				}),

@@ -97,6 +97,7 @@
 		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*",
 		"@loglayer/transport-simple-pretty-terminal": ">=2.2.9",
+		"picocolors": "^1.1.1",
 		"chokidar": "^4.0.3",
 		"clipanion": "4.0.0-rc.4",
 		"cosmiconfig": "^9.0.0",

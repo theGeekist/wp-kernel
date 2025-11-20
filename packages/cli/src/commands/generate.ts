@@ -86,8 +86,7 @@ async function finalizeWorkspaceTransaction(
 	} as const;
 	const message = 'Failed to locate apply manifest after generation.';
 
-	emitFatalError(message, context);
-	reporter.error(message, context);
+	emitFatalError(message, { context, reporter });
 
 	return buildFailure(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 }

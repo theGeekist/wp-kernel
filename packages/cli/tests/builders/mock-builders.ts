@@ -17,6 +17,9 @@ export function buildBuildersMock() {
 		createBundler: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.bundler')
 		),
+		createUiEntryBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ui-entry')
+		),
 		createApplyPlanBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.plan')
 		),

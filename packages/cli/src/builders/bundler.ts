@@ -4,6 +4,7 @@ import { sanitizeNamespace } from '../adapters/extensions';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
+	BuilderInput,
 	BuilderOutput,
 	PipelineContext,
 } from '../runtime/types';
@@ -16,36 +17,355 @@ import {
 	type AssetManifest,
 } from './types';
 import { resolveBundlerPaths } from './bundler.paths';
+import type { IRResource, IRv1 } from '../ir/publicTypes';
+import {
+	resolveDependencyVersions,
+	type DependencyResolution,
+} from '../commands/init/dependency-versions';
+
+const VITE_CONFIG_FILENAME = 'vite.config.ts';
+const MONOREPO_DEP_DENYLIST = new Set([
+	'loglayer',
+	'@loglayer/shared',
+	'@loglayer/transport',
+	'@loglayer/transport-simple-pretty-terminal',
+	'@wpkernel/cli',
+	'@wpkernel/e2e-utils',
+]);
 
 const BUNDLER_TRANSACTION_LABEL = 'builder.generate.bundler.core';
 
 const DEFAULT_ENTRY_POINT = 'src/index.ts';
 const DEFAULT_ENTRY_KEY = 'index';
 const DEFAULT_OUTPUT_DIR = 'build';
-const DEFAULT_ASSET_PATH = path.posix.join(
-	DEFAULT_OUTPUT_DIR,
-	'index.asset.json'
-);
+const DEFAULT_ALIAS_ROOT = './src';
+
+const DEFAULT_PACKAGE_SCRIPTS: Record<string, string> = {
+	start: 'wpk start',
+	build: 'vite build',
+	generate: 'wpk generate',
+	apply: 'wpk apply',
+};
 
 const DEFAULT_WORDPRESS_EXTERNALS = [
 	'@wordpress/dataviews',
 	'@wordpress/data',
 	'@wordpress/components',
 	'@wordpress/element',
+	'@wordpress/element/jsx-runtime',
+	'@wordpress/element/jsx-dev-runtime',
 	'@wordpress/hooks',
 	'@wordpress/i18n',
 	'@wordpress/interactivity',
+	'@wordpress/api-fetch',
+	'@wordpress/block-editor',
+	'@wordpress/blocks',
 ];
 
 const REACT_EXTERNALS = [
 	'react',
 	'react-dom',
+	'react-dom/client',
 	'react/jsx-runtime',
 	'react/jsx-dev-runtime',
 ];
 
 function sortUnique(values: Iterable<string>): string[] {
 	return Array.from(new Set(values)).sort();
+}
+
+function buildDefaultAssetPath(outputDir: string, entryKey: string): string {
+	return path.posix.join(outputDir, `${entryKey}.asset.json`);
+}
+
+type RollupDriverArtifactInputs = {
+	readonly externals: readonly string[];
+	readonly aliasRoot: string;
+	readonly version: string;
+	readonly normalizedNamespace: string;
+	readonly hasUi: boolean;
+	readonly entryKey: string;
+	readonly entryPoint: string;
+	readonly outputDir: string;
+	readonly assetPath: string;
+	readonly uiEntry?: AssetManifestUIEntry;
+	readonly assetDependencies: string[];
+};
+
+function createUiEntry(
+	normalizedNamespace: string,
+	entryKey: string,
+	outputDir: string,
+	assetPath: string
+): AssetManifestUIEntry {
+	return {
+		handle: toWordPressHandle(`${normalizedNamespace}-ui`),
+		asset: assetPath,
+		script: path.posix.join(outputDir, `${entryKey}.js`),
+	};
+}
+
+function resolveNamespaceData(
+	sanitizedNamespace: string | undefined,
+	hasUiOption: boolean | undefined
+): { normalizedNamespace: string; hasUi: boolean } {
+	const normalizedNamespace = sanitizedNamespace
+		? sanitizeNamespace(sanitizedNamespace)
+		: '';
+
+	return {
+		normalizedNamespace,
+		hasUi: hasUiOption === true && normalizedNamespace.length > 0,
+	};
+}
+
+function buildOptionalUiEntry(
+	hasUi: boolean,
+	normalizedNamespace: string,
+	entryKey: string,
+	outputDir: string,
+	assetPath: string
+): AssetManifestUIEntry | undefined {
+	if (!hasUi) {
+		return undefined;
+	}
+
+	return createUiEntry(normalizedNamespace, entryKey, outputDir, assetPath);
+}
+
+function resolveRollupDriverInputs(
+	pkg: PackageJsonLike | null,
+	options: {
+		readonly aliasRoot?: string;
+		readonly sanitizedNamespace?: string;
+		readonly hasUi?: boolean;
+		readonly entryPoint?: string;
+		readonly entryKey?: string;
+		readonly outputDir?: string;
+		readonly assetPath?: string;
+		readonly version?: string;
+	}
+): RollupDriverArtifactInputs {
+	const externals = buildExternalList(pkg);
+	const aliasRoot = (options.aliasRoot ?? DEFAULT_ALIAS_ROOT).replace(
+		/\\/g,
+		'/'
+	);
+	const version = options.version ?? pkg?.version ?? '0.0.0';
+	const { normalizedNamespace, hasUi } = resolveNamespaceData(
+		options.sanitizedNamespace,
+		options.hasUi
+	);
+	const entryKey = options.entryKey ?? DEFAULT_ENTRY_KEY;
+	const outputDir = options.outputDir ?? DEFAULT_OUTPUT_DIR;
+	const entryPoint = options.entryPoint ?? DEFAULT_ENTRY_POINT;
+	const assetPath =
+		options.assetPath ?? buildDefaultAssetPath(outputDir, entryKey);
+	const uiEntry = buildOptionalUiEntry(
+		hasUi,
+		normalizedNamespace,
+		entryKey,
+		outputDir,
+		assetPath
+	);
+	const assetDependencies = buildAssetDependencies(externals);
+
+	return {
+		externals,
+		aliasRoot,
+		version,
+		normalizedNamespace,
+		hasUi,
+		entryKey,
+		entryPoint,
+		outputDir,
+		assetPath,
+		uiEntry,
+		assetDependencies,
+	};
+}
+
+function buildRollupDriverConfig(
+	inputs: RollupDriverArtifactInputs
+): RollupDriverConfig {
+	return {
+		driver: 'rollup',
+		input: { [inputs.entryKey]: inputs.entryPoint },
+		outputDir: inputs.outputDir,
+		format: 'esm',
+		external: inputs.externals,
+		globals: buildGlobalsMap(inputs.externals),
+		alias: [
+			{
+				find: '@/',
+				replacement: normaliseAliasReplacement(inputs.aliasRoot),
+			},
+		],
+		sourcemap: {
+			development: true,
+			production: false,
+		},
+		optimizeDeps: {
+			exclude: inputs.externals,
+		},
+		assetManifest: {
+			path: inputs.assetPath,
+		},
+	};
+}
+
+function buildRollupDriverAssetManifest(
+	inputs: RollupDriverArtifactInputs
+): AssetManifest {
+	return {
+		entry: inputs.entryKey,
+		dependencies: inputs.assetDependencies,
+		version: inputs.version,
+		...(inputs.uiEntry ? { ui: inputs.uiEntry } : {}),
+	};
+}
+
+function mergeSection(
+	existing: Record<string, string> | undefined,
+	required: Record<string, string>
+): { merged: Record<string, string>; changed: boolean } {
+	const merged = { ...(existing ?? {}) };
+	let changed = false;
+
+	for (const [name, version] of Object.entries(required)) {
+		if (merged[name]) {
+			continue;
+		}
+
+		merged[name] = version;
+		changed = true;
+	}
+
+	return { merged, changed };
+}
+
+function scrubMonorepoDeps(
+	deps: Record<string, string>
+): Record<string, string> {
+	const cleaned: Record<string, string> = {};
+	for (const [key, value] of Object.entries(deps)) {
+		if (MONOREPO_DEP_DENYLIST.has(key)) {
+			continue;
+		}
+		cleaned[key] = value;
+	}
+	return cleaned;
+}
+
+function mergePackageJsonDependencies(options: {
+	readonly pkg: PackageJsonLike | null;
+	readonly resolved: DependencyResolution;
+	readonly namespace: string;
+	readonly version: string;
+}): { pkg: PackageJsonLike; changed: boolean } {
+	const base =
+		options.pkg ??
+		({
+			name: options.namespace || 'wpk-plugin',
+			version: options.version || '0.0.0',
+			private: true,
+			type: 'module',
+			dependencies: {},
+			devDependencies: {},
+			peerDependencies: {},
+			scripts: DEFAULT_PACKAGE_SCRIPTS,
+		} satisfies PackageJsonLike);
+
+	const previousScripts = base.scripts ?? {};
+	const scripts = { ...DEFAULT_PACKAGE_SCRIPTS, ...previousScripts };
+	const next = { ...base, scripts };
+	let changed = !options.pkg;
+
+	const deps = mergeSection(
+		base.dependencies,
+		scrubMonorepoDeps(options.resolved.dependencies)
+	);
+	const peerDeps = mergeSection(
+		base.peerDependencies,
+		scrubMonorepoDeps(options.resolved.peerDependencies)
+	);
+	const devDeps = mergeSection(
+		base.devDependencies,
+		scrubMonorepoDeps(options.resolved.devDependencies)
+	);
+
+	if (deps.changed || peerDeps.changed || devDeps.changed) {
+		changed = true;
+	}
+
+	next.dependencies = deps.merged;
+	next.peerDependencies = peerDeps.merged;
+	next.devDependencies = devDeps.merged;
+
+	return { pkg: next, changed };
+}
+
+function resolveUiEntryPoint(ir: IRv1 | null | undefined): string {
+	if (!ir?.layout) {
+		return DEFAULT_ENTRY_POINT;
+	}
+
+	try {
+		const uiGenerated = ir.layout.resolve('ui.generated');
+		return path.posix.join(uiGenerated, 'index.tsx');
+	} catch {
+		return DEFAULT_ENTRY_POINT;
+	}
+}
+
+function toRelativeImport(from: string, target: string): string {
+	const relative = path.posix
+		.relative(path.posix.dirname(from), target)
+		.replace(/\\/g, '/');
+	if (relative.startsWith('./') || relative.startsWith('../')) {
+		return relative;
+	}
+
+	return `./${relative}`;
+}
+
+function buildViteConfigSource(options: {
+	readonly bundlerConfigPath: string;
+	readonly driverConfig: RollupDriverConfig;
+}): string {
+	const importPath = toRelativeImport(
+		VITE_CONFIG_FILENAME,
+		options.bundlerConfigPath
+	);
+
+	return [
+		"import { defineConfig, type UserConfig } from 'vite';",
+		"import { v4wp } from '@kucrut/vite-for-wp';",
+		`import bundlerConfig from '${importPath}';`,
+		'',
+		'export default defineConfig((): UserConfig => ({',
+		'  plugins: [',
+		'    v4wp({',
+		'      input: bundlerConfig.input,',
+		'      outDir: bundlerConfig.outputDir,',
+		'    }),',
+		'  ],',
+		'  build: {',
+		'    sourcemap: bundlerConfig.sourcemap?.development ?? true,',
+		'    rollupOptions: {',
+		'      external: bundlerConfig.external,',
+		'      output: {',
+		"        entryFileNames: '[name].js',",
+		'        format: bundlerConfig.format,',
+		'        globals: bundlerConfig.globals,',
+		'      },',
+		'    },',
+		'  },',
+		'  optimizeDeps: bundlerConfig.optimizeDeps,',
+		'  resolve: { alias: bundlerConfig.alias },',
+		'}));',
+		'',
+	].join('\n');
 }
 
 /**
@@ -98,8 +418,13 @@ export function toWordPressHandle(slug: string): string {
  * @returns An array of unique, sorted external dependency names.
  */
 export function buildExternalList(pkg: PackageJsonLike | null): string[] {
-	const peerDeps = Object.keys(pkg?.peerDependencies ?? {});
-	const deps = Object.keys(pkg?.dependencies ?? {});
+	const isWordPressModule = (dependency: string): boolean =>
+		dependency.startsWith('@wordpress/');
+
+	const peerDeps = Object.keys(pkg?.peerDependencies ?? {}).filter(
+		isWordPressModule
+	);
+	const deps = Object.keys(pkg?.dependencies ?? {}).filter(isWordPressModule);
 
 	return sortUnique([
 		...peerDeps,
@@ -128,6 +453,11 @@ export function buildGlobalsMap(
 		}
 
 		if (dependency === 'react-dom') {
+			globals[dependency] = 'ReactDOM';
+			continue;
+		}
+
+		if (dependency === 'react-dom/client') {
 			globals[dependency] = 'ReactDOM';
 			continue;
 		}
@@ -173,6 +503,7 @@ export function buildAssetDependencies(externals: readonly string[]): string[] {
 
 		if (REACT_EXTERNALS.includes(dependency)) {
 			dependencies.add('wp-element');
+			continue;
 		}
 	}
 
@@ -208,6 +539,11 @@ export function normaliseAliasReplacement(replacement: string): string {
  * @param    options                    - Additional options for building the artifacts.
  * @param    options.sanitizedNamespace
  * @param    options.hasUi
+ * @param    options.entryPoint
+ * @param    options.entryKey
+ * @param    options.outputDir
+ * @param    options.assetPath
+ * @param    options.version
  * @param    options.aliasRoot          - The root path for alias replacements, defaults to './src'.
  * @returns An object containing the `RollupDriverConfig` and `AssetManifest`.
  */
@@ -217,61 +553,16 @@ export function buildRollupDriverArtifacts(
 		readonly aliasRoot?: string;
 		readonly sanitizedNamespace?: string;
 		readonly hasUi?: boolean;
+		readonly entryPoint?: string;
+		readonly entryKey?: string;
+		readonly outputDir?: string;
+		readonly assetPath?: string;
+		readonly version?: string;
 	} = {}
 ): RollupDriverArtifacts {
-	const externals = buildExternalList(pkg);
-	const globals = buildGlobalsMap(externals);
-	const assetDependencies = buildAssetDependencies(externals);
-	const aliasRoot = options.aliasRoot ?? './src';
-	const version = pkg?.version ?? '0.0.0';
-	const sanitizedNamespace = options.sanitizedNamespace ?? '';
-	const normalizedNamespace = sanitizedNamespace
-		? sanitizeNamespace(sanitizedNamespace)
-		: '';
-	const hasUi = options.hasUi === true && normalizedNamespace.length > 0;
-
-	const uiEntry = hasUi
-		? ({
-				handle: toWordPressHandle(`${normalizedNamespace}-ui`),
-				asset: DEFAULT_ASSET_PATH,
-				script: path.posix.join(
-					DEFAULT_OUTPUT_DIR,
-					`${DEFAULT_ENTRY_KEY}.js`
-				),
-			} satisfies AssetManifestUIEntry)
-		: undefined;
-
-	const config: RollupDriverConfig = {
-		driver: 'rollup',
-		input: { [DEFAULT_ENTRY_KEY]: DEFAULT_ENTRY_POINT },
-		outputDir: DEFAULT_OUTPUT_DIR,
-		format: 'esm',
-		external: externals,
-		globals,
-		alias: [
-			{
-				find: '@/',
-				replacement: normaliseAliasReplacement(aliasRoot),
-			},
-		],
-		sourcemap: {
-			development: true,
-			production: false,
-		},
-		optimizeDeps: {
-			exclude: externals,
-		},
-		assetManifest: {
-			path: DEFAULT_ASSET_PATH,
-		},
-	} satisfies RollupDriverConfig;
-
-	const assetManifest: AssetManifest = {
-		entry: DEFAULT_ENTRY_KEY,
-		dependencies: assetDependencies,
-		version,
-		...(uiEntry ? { ui: uiEntry } : {}),
-	} satisfies AssetManifest;
+	const inputs = resolveRollupDriverInputs(pkg, options);
+	const config = buildRollupDriverConfig(inputs);
+	const assetManifest = buildRollupDriverAssetManifest(inputs);
 
 	return { config, assetManifest };
 }
@@ -308,6 +599,135 @@ async function queueManifestWrites(
 	}
 }
 
+interface EnsureBundlerDependenciesArgs {
+	readonly workspaceRoot: string;
+	readonly pkg: PackageJsonLike | null;
+	readonly hasUiResources: boolean;
+	readonly namespace: string;
+	readonly version: string;
+}
+
+async function ensureBundlerDependencies(
+	args: EnsureBundlerDependenciesArgs
+): Promise<{ pkg: PackageJsonLike | null; changed: boolean }> {
+	if (!args.hasUiResources) {
+		return { pkg: args.pkg, changed: false };
+	}
+
+	const resolved = await resolveDependencyVersions(args.workspaceRoot);
+	return mergePackageJsonDependencies({
+		pkg: args.pkg,
+		resolved,
+		namespace: args.namespace,
+		version: args.version,
+	});
+}
+
+async function runBundlerGeneration({
+	context,
+	input,
+	output,
+	reporter,
+}: BuilderApplyOptions): Promise<void> {
+	const pkg = await readPackageJson(context.workspace);
+	const sanitizedNamespace = resolveBundlerNamespace(input);
+	const version = resolveBundlerVersion(input, pkg);
+	const hasUiResources = hasBundlerDataViews(input);
+	const entryPoint = resolveUiEntryPoint(input.ir);
+	const packageResult = await ensureBundlerDependencies({
+		workspaceRoot: context.workspace.root,
+		pkg,
+		hasUiResources,
+		namespace: input.options.config.namespace,
+		version,
+	});
+
+	const artifacts = buildRollupDriverArtifacts(packageResult.pkg, {
+		aliasRoot: context.workspace.resolve('src'),
+		sanitizedNamespace,
+		hasUi: hasUiResources,
+		entryPoint,
+		version,
+	});
+	const paths = resolveBundlerPaths(input.ir);
+
+	await persistBundlerArtifacts({
+		context,
+		output,
+		reporter,
+		artifacts,
+		paths,
+		packageResult,
+	});
+}
+
+interface PersistBundlerArtifactsArgs {
+	readonly context: PipelineContext;
+	readonly output: BuilderOutput;
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly artifacts: RollupDriverArtifacts;
+	readonly paths: ReturnType<typeof resolveBundlerPaths>;
+	readonly packageResult: {
+		readonly pkg: PackageJsonLike | null;
+		readonly changed: boolean;
+	};
+}
+
+async function persistBundlerArtifacts(
+	args: PersistBundlerArtifactsArgs
+): Promise<void> {
+	const { context, output, reporter, artifacts, paths, packageResult } = args;
+
+	await context.workspace.writeJson(paths.config, artifacts.config, {
+		pretty: true,
+	});
+	await context.workspace.writeJson(paths.assets, artifacts.assetManifest, {
+		pretty: true,
+	});
+
+	if (packageResult.changed && packageResult.pkg) {
+		await context.workspace.writeJson('package.json', packageResult.pkg, {
+			pretty: true,
+		});
+	}
+
+	const viteConfigSource = buildViteConfigSource({
+		bundlerConfigPath: paths.config,
+		driverConfig: artifacts.config,
+	});
+	await context.workspace.write(VITE_CONFIG_FILENAME, viteConfigSource, {
+		ensureDir: true,
+	});
+
+	const manifest = await context.workspace.commit(BUNDLER_TRANSACTION_LABEL);
+	await queueManifestWrites(context, output, manifest.writes);
+
+	reporter.debug('Bundler configuration generated.', {
+		files: manifest.writes,
+	});
+}
+
+function resolveBundlerNamespace(input: BuilderInput): string {
+	return (
+		input.ir?.meta?.sanitizedNamespace ??
+		input.options.config.namespace ??
+		''
+	);
+}
+
+function resolveBundlerVersion(
+	input: BuilderInput,
+	pkg: PackageJsonLike | null
+): string {
+	return input.ir?.meta?.plugin.version ?? pkg?.version ?? '0.0.0';
+}
+
+function hasBundlerDataViews(input: BuilderInput): boolean {
+	return (input.ir?.resources ?? []).some((resource: IRResource) =>
+		Boolean(resource.ui?.admin?.dataviews)
+	);
+}
+
 /**
  * Creates a builder helper for generating bundler configuration and asset manifests.
  *
@@ -334,41 +754,11 @@ export function createBundler(): BuilderHelper {
 			context.workspace.begin(BUNDLER_TRANSACTION_LABEL);
 
 			try {
-				const pkg = await readPackageJson(context.workspace);
-				const sanitizedNamespace =
-					input.ir?.meta?.sanitizedNamespace ??
-					input.options.config.namespace ??
-					'';
-				const hasUiResources = (input.ir?.resources ?? []).some(
-					(resource) => Boolean(resource.ui?.admin?.dataviews)
-				);
-				const artifacts = buildRollupDriverArtifacts(pkg, {
-					aliasRoot: './src',
-					sanitizedNamespace,
-					hasUi: hasUiResources,
-				});
-				const paths = resolveBundlerPaths(input.ir);
-
-				await context.workspace.writeJson(
-					paths.config,
-					artifacts.config,
-					{
-						pretty: true,
-					}
-				);
-				await context.workspace.writeJson(
-					paths.assets,
-					artifacts.assetManifest,
-					{ pretty: true }
-				);
-
-				const manifest = await context.workspace.commit(
-					BUNDLER_TRANSACTION_LABEL
-				);
-				await queueManifestWrites(context, output, manifest.writes);
-
-				reporter.debug('Bundler configuration generated.', {
-					files: manifest.writes,
+				await runBundlerGeneration({
+					context,
+					input,
+					output,
+					reporter,
 				});
 			} catch (error) {
 				await context.workspace.rollback(BUNDLER_TRANSACTION_LABEL);

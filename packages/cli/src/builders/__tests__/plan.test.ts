@@ -9,9 +9,13 @@ import {
 } from '../../apply/manifest';
 import { makeIr } from '@cli-tests/ir.test-support';
 import type { GenerationManifest } from '../../apply/manifest';
-import { loadTestLayout } from '@cli-tests/layout.test-support';
+import {
+	loadTestLayout,
+	loadTestLayoutSync,
+} from '@cli-tests/layout.test-support';
 import { createReporterMock } from '@cli-tests/reporter';
 import { buildOutput } from '@cli-tests/builders/builder-harness.test-support';
+import { resolvePlanPaths } from '../plan.paths';
 
 async function withTempWorkspace(
 	run: (context: {
@@ -82,6 +86,41 @@ describe('plan (orchestrator)', () => {
 			const generated = path.join(root, generatedRoot, 'demo');
 			await fs.mkdir(generated, { recursive: true });
 			await fs.writeFile(path.join(generated, 'index.tsx'), '// block');
+			// seed bundler + vite artifacts so plan builder picks them up
+			const planPaths = resolvePlanPaths({
+				context: {
+					workspace,
+					reporter: createReporterMock(),
+					phase: 'generate',
+					generationState: buildEmptyGenerationState(),
+				},
+				input: {
+					phase: 'generate',
+					options: {
+						config: {
+							version: 1,
+							namespace: 'demo',
+							schemas: {},
+							resources: {},
+						},
+						namespace: 'demo',
+						origin: 'wpk.config.ts',
+						sourcePath: path.join(root, 'wpk.config.ts'),
+					},
+					ir: makeIr(),
+				},
+				output: buildOutput(),
+				reporter: createReporterMock(),
+			} as unknown as Parameters<typeof resolvePlanPaths>[0]);
+
+			await workspace.writeJson(
+				planPaths.bundlerConfig,
+				{ driver: 'rollup' },
+				{ ensureDir: true }
+			);
+			await workspace.write(planPaths.viteConfig, '// vite config', {
+				ensureDir: true,
+			});
 
 			const ir = makeIr({
 				resources: [
@@ -141,11 +180,44 @@ describe('plan (orchestrator)', () => {
 					'src/blocks/demo/index.tsx'
 				),
 			});
+
+			const bundlerConfigInstruction = plan.instructions?.find(
+				(instr: any) => instr.file === layout.resolve('bundler.config')
+			);
+			expect(bundlerConfigInstruction).toMatchObject({
+				action: 'write',
+				base: path.posix.join(
+					layout.resolve('plan.base'),
+					layout.resolve('bundler.config')
+				),
+				incoming: path.posix.join(
+					layout.resolve('plan.incoming'),
+					layout.resolve('bundler.config')
+				),
+			});
+
+			const viteInstruction = plan.instructions?.find(
+				(instr: any) => instr.file === planPaths.viteConfig
+			);
+			expect(viteInstruction).toMatchObject({
+				action: 'write',
+				base: path.posix.join(
+					layout.resolve('plan.base'),
+					planPaths.viteConfig
+				),
+				incoming: path.posix.join(
+					layout.resolve('plan.incoming'),
+					planPaths.viteConfig
+				),
+			});
 		});
 	});
 
 	it('writes plan to custom layout paths and uses custom plugin loader path', async () => {
 		await withTempWorkspace(async ({ root, workspace }) => {
+			const layout = loadTestLayoutSync();
+			const bundlerConfigPath = layout.resolve('bundler.config');
+			const bundlerAssetsPath = layout.resolve('bundler.assets');
 			const ir = makeIr({
 				layout: {
 					resolve(id: string) {
@@ -157,11 +229,19 @@ describe('plan (orchestrator)', () => {
 							'blocks.applied': 'surfaced-blocks',
 							'php.generated': 'generated-php',
 							'plugin.loader': 'custom/plugin.php',
+							'bundler.config': bundlerConfigPath,
+							'bundler.assets': bundlerAssetsPath,
 						};
 						return map[id] ?? id;
 					},
 					all: {},
 				},
+			});
+			await workspace.write(ir.layout.resolve('bundler.config'), '{}', {
+				ensureDir: true,
+			});
+			await workspace.write('vite.config.ts', '// vite config', {
+				ensureDir: true,
 			});
 
 			const { plan } = await runPlan({

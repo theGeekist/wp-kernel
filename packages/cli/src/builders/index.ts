@@ -7,6 +7,7 @@ export {
 	createTsCapabilityBuilder,
 	createTsIndexBuilder,
 	createJsBlocksBuilder,
+	createUiEntryBuilder,
 	buildTsFormatter,
 } from './ts';
 export type {

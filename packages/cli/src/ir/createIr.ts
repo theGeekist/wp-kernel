@@ -10,6 +10,7 @@ import { createMetaFragment } from './fragments/meta';
 import { createLayoutFragment } from './fragments/layout';
 import { createSchemasFragment } from './fragments/schemas';
 import { createResourcesFragment } from './fragments/resources';
+import { createBundlerFragment } from './fragments/bundler';
 import { createUiFragment } from './fragments/ui';
 import { createCapabilitiesFragment } from './fragments/capabilities';
 import { createCapabilityMapFragment } from './fragments/capability-map';
@@ -27,6 +28,7 @@ import {
 	createTsCapabilityBuilder,
 	createTsIndexBuilder,
 	createTsBuilder,
+	createUiEntryBuilder,
 } from '../builders';
 import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
 import { buildEmptyGenerationState } from '../apply/manifest';
@@ -62,6 +64,7 @@ function registerCoreFragments(pipeline: Pipeline): void {
 	pipeline.ir.use(createMetaFragment());
 	pipeline.ir.use(createSchemasFragment());
 	pipeline.ir.use(createResourcesFragment());
+	pipeline.ir.use(createBundlerFragment());
 	pipeline.ir.use(createUiFragment());
 	pipeline.ir.use(createCapabilitiesFragment());
 	pipeline.ir.use(createCapabilityMapFragment());
@@ -81,12 +84,13 @@ function registerCoreFragments(pipeline: Pipeline): void {
  * @param    pipeline - The pipeline instance to register builders with.
  */
 function registerCoreBuilders(pipeline: Pipeline): void {
+	pipeline.builders.use(createJsBlocksBuilder());
+	pipeline.builders.use(createTsBuilder());
+	pipeline.builders.use(createUiEntryBuilder());
 	pipeline.builders.use(createBundler());
 	pipeline.builders.use(createPhpDriverInstaller());
-	pipeline.builders.use(createJsBlocksBuilder());
 	pipeline.builders.use(createPhpBuilder());
 	pipeline.builders.use(createApplyPlanBuilder());
-	pipeline.builders.use(createTsBuilder());
 	pipeline.builders.use(createTsCapabilityBuilder());
 	pipeline.builders.use(createTsIndexBuilder());
 	pipeline.builders.use(createPatcher());

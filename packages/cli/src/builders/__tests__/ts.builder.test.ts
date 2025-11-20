@@ -468,7 +468,7 @@ describe('createTsBuilder - orchestration', () => {
 				ui: {
 					admin: {
 						dataviews:
-							serializableTaskDataViews as SerializableResourceConfig['ui']['admin']['dataviews'],
+							serializableTaskDataViews as SerializableResourceConfig['ui'],
 					},
 				},
 			};

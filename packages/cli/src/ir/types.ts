@@ -11,6 +11,7 @@ import type {
 	IRResource,
 	IRReferenceSummary,
 	IRSchema,
+	IRBundler,
 	IRUiSurface,
 	IRv1,
 } from './publicTypes';
@@ -32,6 +33,7 @@ export interface MutableIr {
 	php: IRPhpProject | null;
 	layout: IRLayout | null;
 	ui: IRUiSurface | null;
+	bundler: IRBundler | null;
 	diagnostics: IRDiagnostic[];
 	references: IRReferenceSummary | null;
 	extensions: Record<string, unknown>;
@@ -49,6 +51,7 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 		php: null,
 		layout: null,
 		ui: null,
+		bundler: null,
 		diagnostics: [],
 		references: null,
 		extensions: Object.create(null),
@@ -65,6 +68,7 @@ const CORE_FRAGMENT_PREFIXES = [
 	'ir.capability-map.',
 	'ir.diagnostics.',
 	'ir.blocks.',
+	'ir.bundler.',
 	'ir.ordering.',
 	'ir.validation.',
 ] as const;
@@ -147,6 +151,7 @@ export function finalizeIrDraft(
 		capabilityMap: draft.capabilityMap,
 		blocks: draft.blocks,
 		php: draft.php,
+		bundler: draft.bundler ?? undefined,
 		layout: draft.layout,
 		ui: draft.ui ?? undefined,
 		diagnostics,
@@ -178,6 +183,7 @@ export function buildIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 				['php', partial.php],
 				['layout', partial.layout],
 				['ui', partial.ui],
+				['bundler', partial.bundler],
 				['diagnostics', partial.diagnostics],
 				['references', partial.references],
 				['extensions', partial.extensions],

@@ -5,7 +5,7 @@ import {
 	buildAutoRegisterModuleMetadata,
 	formatBlockVariableName,
 	generateBlockImportPath,
-	resolveKernelImport,
+	resolveWPKernelImport,
 	resolveResourceImport,
 	toCamelCase,
 	toPascalCase,
@@ -148,11 +148,11 @@ describe('ts shared helpers', () => {
 		});
 	});
 
-	describe('resolveKernelImport', () => {
+	describe('resolveWPKernelImport', () => {
 		it('returns configured wpk specifier when provided', async () => {
 			await withWorkspace(async ({ workspace }) => {
 				await expect(
-					resolveKernelImport({
+					resolveWPKernelImport({
 						workspace,
 						from: 'generated.tsx',
 						configured: '@/bootstrap/custom-kernel',
@@ -169,7 +169,7 @@ describe('ts shared helpers', () => {
 				);
 
 				await expect(
-					resolveKernelImport({
+					resolveWPKernelImport({
 						workspace,
 						from: path.join(
 							'.generated',
@@ -187,7 +187,7 @@ describe('ts shared helpers', () => {
 		it('falls back to the wpk alias when no module exists', async () => {
 			await withWorkspace(async ({ workspace }) => {
 				await expect(
-					resolveKernelImport({
+					resolveWPKernelImport({
 						workspace,
 						from: 'generated.ts',
 					})

@@ -13,6 +13,7 @@ export default createWPKLibConfig(
 	'@wpkernel/ui',
 	{
 		index: 'src/index.ts',
+		dataviews: 'src/dataviews/index.ts',
 	},
 	{
 		external,

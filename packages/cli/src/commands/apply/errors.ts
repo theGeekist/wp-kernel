@@ -32,11 +32,23 @@ export function reportFailure(
 	options: ReportFailureOptions = {}
 ): void {
 	const payload = serialiseError(error);
-	emitFatalError(message, payload);
-	reporter.error(message);
-	if (options.includeContext) {
-		reporter.error('Error context', payload);
-	} else {
+	const isValidation =
+		WPKernelError.isWPKernelError(error) &&
+		error.code === 'ValidationError';
+
+	if (isValidation) {
+		reporter.warn(message);
+		if (options.includeContext) {
+			reporter.debug('Error context', payload);
+		}
+		return;
+	}
+
+	emitFatalError(message, {
+		context: options.includeContext ? payload : undefined,
+		reporter,
+	});
+	if (!options.includeContext) {
 		reporter.debug('Error context', payload);
 	}
 }

@@ -40,6 +40,8 @@ const FALLBACK_PEER_VERSIONS: Record<string, string> = {
 	'@wordpress/element': '^6.32.0',
 	'@wordpress/hooks': '^4.32.0',
 	'@wordpress/i18n': '^6.5.0',
+	'@wordpress/blocks': '>=13.0.0',
+	'@wordpress/block-editor': '>=13.0.0',
 	loglayer: '>=6.7.2',
 	'@loglayer/shared': '>=2.4.0',
 	'@loglayer/transport': '>=2.3.0',

@@ -1,196 +1,203 @@
 /**
- * CLI-specific reporter implementation.
+ * CLI-specific reporter with Vite-like output.
  *
- * This module extends the core reporter with Node.js-specific transports like
- * SimplePrettyTerminalTransport for enhanced CLI output formatting.
- *
- * @module
+ * - Colorful, timestamp-free logs in TTYs (picocolors)
+ * - Plain text when piped/CI/non-TTY
+ * - Optional hooks emission for WP environments (via WPKernelHooksTransport)
+ * - Same Reporter surface used across the CLI
  */
-
-import { LogLayer, type LogLevelType, type LogLayerTransport } from 'loglayer';
-import { SimplePrettyTerminalTransport } from '@loglayer/transport-simple-pretty-terminal';
-import { WPKernelHooksTransport } from '@wpkernel/core/reporter';
+import pc from 'picocolors';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
-import { WPKernelError } from '@wpkernel/core/error';
+import { WPKernelHooksTransport } from '@wpkernel/core/reporter';
 import type {
+	ReporterChannel,
+	ReporterLevel,
 	Reporter,
 	ReporterOptions,
-	ReporterLevel,
-	ReporterChannel,
 } from '@wpkernel/core/reporter';
+
+type LogLevelType = ReporterLevel;
+type LogLayerTransportParams = {
+	logLevel: LogLevelType;
+	messages: unknown[];
+	data?: unknown;
+	hasData?: boolean;
+	context?: Record<string, unknown>;
+	metadata?: Record<string, unknown>;
+};
 
 const DEFAULT_NAMESPACE = WPK_NAMESPACE;
 const DEFAULT_CHANNEL: ReporterChannel = 'console';
 const DEFAULT_LEVEL: ReporterLevel = 'info';
 
-function mapLevelToLogLevel(level: ReporterLevel): LogLevelType {
-	switch (level) {
-		case 'debug':
-			return 'debug';
-		case 'warn':
-			return 'warn';
-		case 'error':
-			return 'error';
-		case 'info':
-		default:
-			return 'info';
-	}
-}
+const LEVEL_ORDER: Record<ReporterLevel, number> = {
+	error: 0,
+	warn: 1,
+	info: 2,
+	debug: 3,
+};
 
-function resolveEnvironmentEnabled(): boolean {
-	if (typeof process === 'undefined' || !process.env) {
-		return true;
-	}
+const SYMBOLS: Record<ReporterLevel, string> = {
+	info: pc.cyan('●'),
+	warn: pc.yellow('▲'),
+	error: pc.red('■'),
+	debug: pc.magenta('◆'),
+};
 
-	const env = process.env?.NODE_ENV;
-	if (!env) {
-		return true;
-	}
-
-	if (env === 'test') {
+function colorSupported(): boolean {
+	if (process.env.NO_COLOR) {
 		return false;
 	}
-
-	return env !== 'production';
+	// Default to colored output to match Vite-style UX even in subshells.
+	return true;
 }
 
-/**
- * Create CLI-specific transports with pretty terminal formatting.
- *
- * @param channel - Reporter channel
- * @param level   - Log level
- * @return Transport or array of transports
- */
-function createCLITransports(
-	channel: ReporterChannel,
-	level: LogLevelType
-): LogLayerTransport | LogLayerTransport[] {
-	const environmentEnabled = resolveEnvironmentEnabled();
-
-	switch (channel) {
-		case 'console':
-			return new SimplePrettyTerminalTransport({
-				runtime: 'node',
-				level,
-				enabled: environmentEnabled,
-			});
-		case 'hooks':
-			return new WPKernelHooksTransport(level);
-
-		case 'all':
-			return [
-				new SimplePrettyTerminalTransport({
-					runtime: 'node',
-					level,
-					enabled: environmentEnabled,
-				}),
-				new WPKernelHooksTransport(level),
-			];
-		case 'bridge':
-			throw new WPKernelError('NotImplementedError', {
-				message: 'Bridge transport is planned for a future sprint',
-				context: {
-					channel: 'bridge',
-				},
-			});
-
-		default:
-			return new SimplePrettyTerminalTransport({
-				runtime: 'node',
-				level,
-				enabled: environmentEnabled,
-			});
+function formatLevel(level: ReporterLevel, color: boolean): string {
+	if (!color) {
+		return `[${level.toUpperCase()}]`;
 	}
-}
-
-function logWithLevel(
-	logger: LogLayer,
-	level: ReporterLevel,
-	message: string,
-	context?: unknown
-): void {
-	const target =
-		typeof context === 'undefined'
-			? logger
-			: logger.withMetadata({ context });
-
+	const symbol = SYMBOLS[level] ?? SYMBOLS.info;
+	const label = level.toUpperCase();
 	switch (level) {
-		case 'debug':
-			target.debug(message);
-			break;
 		case 'warn':
-			target.warn(message);
-			break;
+			return `${symbol} ${pc.yellow(label)}`;
 		case 'error':
-			target.error(message);
-			break;
+			return `${symbol} ${pc.red(label)}`;
+		case 'debug':
+			return `${symbol} ${pc.magenta(label)}`;
 		case 'info':
 		default:
-			target.info(message);
-			break;
+			return `${symbol} ${pc.cyan(label)}`;
 	}
 }
 
-/**
- * Create a CLI reporter with pretty terminal output.
- *
- * This is the recommended reporter for CLI/Node.js environments. It uses
- * SimplePrettyTerminalTransport for enhanced formatting with colors and structure.
- *
- * For browser/WordPress environments, use `createReporter()` from `@wpkernel/core`.
- *
- * @param    options - Reporter configuration
- * @return Reporter instance with child helpers
- * @category Reporter
- * @example
- * ```typescript
- * import { createReporterCLI } from '@wpkernel/cli/utils/reporter';
- *
- * const reporter = createReporterCLI({ level: 'debug' });
- * reporter.info('Starting build process');
- * ```
- */
+function formatMessage(
+	level: ReporterLevel,
+	message: string,
+	color: boolean
+): string {
+	if (!color) {
+		return message;
+	}
+	switch (level) {
+		case 'warn':
+			return pc.yellow(message);
+		case 'error':
+			return pc.red(message);
+		case 'debug':
+			return pc.magenta(message);
+		case 'info':
+		default:
+			return pc.cyan(message);
+	}
+}
+
+function formatContext(context: unknown, color: boolean): string | null {
+	if (context === null || typeof context === 'undefined') {
+		return null;
+	}
+	const payload =
+		typeof context === 'string'
+			? context
+			: (() => {
+					try {
+						return JSON.stringify(context, null, 2);
+					} catch (error) {
+						return `<unserializable context: ${(error as Error)?.message ?? 'unknown'}>`;
+					}
+				})();
+	return color ? pc.dim(payload) : payload;
+}
+
+function shouldEmit(level: ReporterLevel, minLevel: ReporterLevel): boolean {
+	return (
+		(LEVEL_ORDER[level] ?? LEVEL_ORDER.info) <=
+		(LEVEL_ORDER[minLevel] ?? LEVEL_ORDER.info)
+	);
+}
+
+function toLogLayerParams(
+	level: ReporterLevel,
+	message: string,
+	namespace: string,
+	context?: unknown
+): LogLayerTransportParams {
+	return {
+		logLevel: level as LogLevelType,
+		messages: [message],
+		data: context,
+		hasData: typeof context !== 'undefined',
+		context: { namespace },
+		metadata: { context },
+	};
+}
+
 export function createReporterCLI(options: ReporterOptions = {}): Reporter {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const level = options.level ?? DEFAULT_LEVEL;
 	const channel = options.channel ?? DEFAULT_CHANNEL;
 	const enabled = options.enabled ?? true;
+	const color = colorSupported();
+	const hookTransport =
+		channel === 'hooks' || channel === 'all'
+			? new WPKernelHooksTransport(level as LogLevelType)
+			: null;
 
-	const transports = createCLITransports(channel, mapLevelToLogLevel(level));
-	const logger = new LogLayer({
-		transport: transports,
-	});
-
-	logger.withContext({ namespace });
-
-	if (!enabled) {
-		logger.disableLogging();
+	// Encourage colors in TTY like Vite
+	if (color && !process.env.FORCE_COLOR) {
+		process.env.FORCE_COLOR = '1';
 	}
 
-	const report = (
+	const emit = (
 		entryLevel: ReporterLevel,
 		message: string,
 		context?: unknown
 	) => {
-		if (!enabled) {
+		if (!enabled || !shouldEmit(entryLevel, level)) {
 			return;
 		}
+		const lvl = formatLevel(entryLevel, color);
+		const body = formatMessage(entryLevel, message, color);
+		const shouldPrintContext =
+			process.env.WPK_CONTEXT === '1' || entryLevel === 'debug';
+		const formattedContext =
+			shouldPrintContext && formatContext(context, color);
+		const lines = [`${lvl} ${body}`];
+		if (formattedContext) {
+			lines.push(formattedContext);
+		}
+		process.stdout.write(`${lines.join('\n')}\n`);
 
-		logWithLevel(logger, entryLevel, message, context);
+		if (hookTransport) {
+			try {
+				hookTransport.shipToLogger(
+					toLogLayerParams(
+						entryLevel,
+						message,
+						namespace,
+						context
+					) as unknown as Parameters<
+						typeof hookTransport.shipToLogger
+					>[0]
+				);
+			} catch {
+				// Hooks are best-effort; ignore failures
+			}
+		}
 	};
 
 	const reporter: Reporter = {
 		info(message, context) {
-			report('info', message, context);
+			emit('info', message, context);
 		},
 		warn(message, context) {
-			report('warn', message, context);
+			emit('warn', message, context);
 		},
 		error(message, context) {
-			report('error', message, context);
+			emit('error', message, context);
 		},
 		debug(message, context) {
-			report('debug', message, context);
+			emit('debug', message, context);
 		},
 		child(childNamespace) {
 			return createReporterCLI({

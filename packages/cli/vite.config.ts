@@ -25,6 +25,7 @@ const external = [
 	'chokidar',
 	'clipanion',
 	'cosmiconfig',
+	'picocolors',
 	'typanion',
 	'@wordpress/dataviews',
 	'@wordpress/data',
