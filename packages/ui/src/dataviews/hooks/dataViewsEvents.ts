@@ -25,7 +25,13 @@ import {
 	DATA_VIEWS_EVENT_VIEW_CHANGED,
 } from '../../runtime/dataviews/events';
 
-type ObservableRuntime =
+/**
+ * Represents an observable DataViews runtime, which can be either a full controller runtime
+ * or a more limited runtime context. Used for subscribing to DataViews events.
+ *
+ * @category DataViews
+ */
+export type ObservableRuntime =
 	| DataViewsControllerRuntime
 	| DataViewsRuntimeContext
 	| undefined;
@@ -112,6 +118,12 @@ type DataViewsEventPayloadMap = {
 
 type DataViewsEventName = keyof DataViewsEventPayloadMap;
 
+/**
+ * Generic event listener type for DataViews events.
+ *
+ * @template TName - The name of the DataViews event.
+ * @category DataViews Integration
+ */
 type Listener<TName extends DataViewsEventName> = (
 	payload: DataViewsEventPayloadMap[TName]
 ) => void;

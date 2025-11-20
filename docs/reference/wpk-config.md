@@ -58,7 +58,7 @@ resources: {
 
 **What builders do**
 The route planner records `list`, `get` and `create`. PHP builders then generate `REST`ful controllers with permission callbacks and JS builder emits a typed API client with `fetchList`, `fetch` and `create`.
-This is a brief overview. For a deep dive into these concepts, see the canonical guides: - **[Resources Guide](../guide/resources.md)** - **[Capabilities Guide](../guide/capability.md)**
+This is a brief overview. For a deep dive into these concepts, see the canonical guides: - **[Resources Guide](/guide/resources)** - **[Capabilities Guide](/guide/capability)**
 
 **What you get**
 
@@ -176,7 +176,7 @@ artifacts.
 
 ### Capability map (`resources.<key>.capabilities`)
 
-This section details the configuration options for defining capabilities within a resource. For a comprehensive explanation of WPKernel's capability system, including how these definitions generate both server-side enforcement and client-side checks, please refer to the canonical [Capabilities Guide](../guide/capability.md).
+This section details the configuration options for defining capabilities within a resource. For a comprehensive explanation of WPKernel's capability system, including how these definitions generate both server-side enforcement and client-side checks, please refer to the canonical [Capabilities Guide](/guide/capability).
 
 | Path                                            | Accepted values & defaults                                                                    | CLI & pipeline consumers                                                    | Generated files                                                                       | WordPress artifacts                                                      | Runtime usage                                                     |
 | ----------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------- |

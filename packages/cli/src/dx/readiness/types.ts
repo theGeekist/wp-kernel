@@ -2,6 +2,10 @@ import type { DxContext } from '../context';
 
 /**
  * Identifiers exposed by core readiness helpers shipped with the CLI.
+ *
+ * These keys represent standard checks performed by the `wpk doctor` command.
+ *
+ * @category Readiness
  */
 export type CoreReadinessKey =
 	| 'composer'
@@ -33,6 +37,11 @@ export type ReadinessScope =
 
 /**
  * Descriptive metadata attached to a readiness helper.
+ *
+ * This metadata provides human-readable labels, descriptions, and organizational
+ * tags for readiness helpers, which can be used by UI or reporting tools.
+ *
+ * @category Readiness
  */
 export interface ReadinessHelperMetadata {
 	readonly label: string;

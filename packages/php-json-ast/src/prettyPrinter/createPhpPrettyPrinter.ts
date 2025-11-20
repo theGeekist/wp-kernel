@@ -9,6 +9,11 @@ export interface PhpAstNode {
 	readonly nodeType: string;
 }
 
+/**
+ * Represents a PHP program as an array of abstract syntax tree nodes.
+ *
+ * @category AST Builders
+ */
 export type PhpProgram = ReadonlyArray<PhpAstNode>;
 
 export interface PhpPrettyPrintResult {
@@ -27,7 +32,13 @@ export interface PhpPrettyPrinter {
 	) => Promise<PhpPrettyPrintResult>;
 }
 
-interface CreatePhpPrettyPrinterOptions {
+/**
+ * Options for creating a PHP pretty printer.
+ *
+ * @category AST Builders
+ * @public
+ */
+export interface CreatePhpPrettyPrinterOptions {
 	readonly workspace: WorkspaceLike;
 	readonly phpBinary?: string;
 	readonly scriptPath?: string;

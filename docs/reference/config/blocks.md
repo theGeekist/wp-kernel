@@ -1,6 +1,6 @@
 # Resource Block Configuration (`blocks`)
 
-WPKernel's primary block development workflow is discovery-based: the CLI automatically finds and registers any `block.json` files in your project. This is the recommended approach for most blocks. For more details on this modern workflow, please see the **[Blocks Guide](../guide/blocks.md)**.
+WPKernel's primary block development workflow is discovery-based: the CLI automatically finds and registers any `block.json` files in your project. This is the recommended approach for most blocks. For more details on this modern workflow, please see the **[Blocks Guide](/guide/blocks)**.
 
 In addition to that, the `resources.<key>.blocks` object in `wpk.config.ts` provides an optional, config-driven way to generate a block scaffold that is explicitly tied to a specific resource. You can use this when you want WPKernel to create the initial block files for a resource you are defining.
 

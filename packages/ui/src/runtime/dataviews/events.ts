@@ -41,7 +41,17 @@ export type DataViewActionTriggeredPayload = {
 	reason?: string;
 };
 
+/**
+ * Defines the source of a permission check within a DataView.
+ *
+ * @category DataViews
+ */
 export type DataViewPermissionSource = 'screen' | 'action';
+/**
+ * Reasons why a DataView permission might be denied.
+ *
+ * @category DataViews
+ */
 export type DataViewPermissionDeniedReason =
 	| 'forbidden'
 	| 'error'

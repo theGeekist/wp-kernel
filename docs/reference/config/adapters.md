@@ -65,7 +65,7 @@ Extensions offer a high-level, friendly API: they receive the current IR, filesy
   Extension factories are composable, testable, and safe. They don’t require AST knowledge, and they mirror the philosophy of the rest of WPKernel: deterministic, declarative, and pipeline-driven.
 
 - **Further reading**
-  See the canonical **[Extensions Guide](../guide/extensions.md)** for a deep dive and real project examples.
+  See the canonical **[Extensions Guide](/guide/extensions)** for a deep dive and real project examples.
 
 **Schema:**
 

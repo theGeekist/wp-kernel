@@ -1,6 +1,11 @@
 import type { ErrorContext, ErrorData } from './types';
 import { WPKernelError } from './WPKernelError';
 
+/**
+ * Options for constructing an {@link EnvironmentalError}.
+ *
+ * @category Errors
+ */
 export interface EnvironmentalErrorOptions {
 	readonly message?: string;
 	readonly data?: ErrorData;

@@ -52,7 +52,7 @@ resources: {
 
 **What builders do**
 The route planner records `list`, `get` and `create`. PHP builders then generate `REST`ful controllers with permission callbacks and JS builder emits a typed API client with `fetchList`, `fetch` and `create`.
-This is a brief overview. For a deep dive into these concepts, see the canonical guides: - **[Resources Guide](../guide/resources.md)** - **[Capabilities Guide](../guide/capability.md)**
+This is a brief overview. For a deep dive into these concepts, see the canonical guides: - **[Resources Guide](/guide/resources)** - **[Capabilities Guide](/guide/capability)**
 
 **What you get**
 

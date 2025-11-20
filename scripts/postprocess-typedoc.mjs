@@ -19,8 +19,23 @@ function transformLine(line, inCodeFence) {
                 return { text: line, inCodeFence: !inCodeFence };
         }
 
-        // Escape all angle brackets, regardless of code fence state
-        return { text: line.replace(/</g, '&lt;').replace(/>/g, '&gt;'), inCodeFence };
+        let text = line;
+
+        if (!inCodeFence) {
+                text = text.replace(
+                        /^(\s*#\s+Type Alias:\s+[^(]+)\(\)(.*)$/u,
+                        '$1$2'
+                );
+        }
+
+        let escaped = text;
+        if (!inCodeFence) {
+                escaped = escaped.replace(/\\([<>])/g, '$1');
+        }
+
+        escaped = escaped.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        return { text: escaped, inCodeFence };
 }
 
 async function hasTrailingNewline(filePath) {

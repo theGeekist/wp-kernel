@@ -145,6 +145,11 @@ export interface TsFormatter {
  * @category AST Builders
  */
 
+/**
+ * Options for building a TypeScript formatter.
+ *
+ * @category Builders
+ */
 export interface BuildTsFormatterOptions {
 	/** Optional: A factory function to create a `ts-morph` Project instance. */
 	readonly projectFactory?: () => MaybePromise<Project>;

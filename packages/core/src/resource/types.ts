@@ -28,7 +28,13 @@ export type ResourceRoute = {
 	capability?: string;
 };
 
-type ExtractRouteCapability<TRoute> = TRoute extends {
+/**
+ * Extracts the capability string from a given ResourceRoute type.
+ *
+ * @template TRoute - The type of the resource route.
+ * @category Capability
+ */
+export type ExtractRouteCapability<TRoute> = TRoute extends {
 	capability?: infer TCapability;
 }
 	? NonNullable<TCapability> extends string
@@ -440,6 +446,14 @@ export interface ResourceDataViewsScreenConfig {
  *
  * @category Resource
  */
+/**
+ * Definition of a saved DataViews preset.
+ *
+ * These entries are forwarded to `@wordpress/dataviews` and can be used as
+ * initial layouts before user preferences are hydrated.
+ *
+ * @category DataViews Integration
+ */
 export interface ResourceDataViewsSavedViewConfig {
 	id: string;
 	label: string;
@@ -456,6 +470,14 @@ export interface ResourceDataViewsSavedViewConfig {
  * for WordPress Interactivity bindings.
  *
  * @category Resource
+ */
+/**
+ * Interactivity metadata for a DataViews screen.
+ *
+ * Used to derive stable `data-wp-interactive` namespaces and feature identifiers
+ * for WordPress Interactivity bindings.
+ *
+ * @category DataViews Integration
  */
 export interface ResourceDataViewsInteractivityConfig {
 	/** Optional feature identifier used for wp-interactivity namespaces. */

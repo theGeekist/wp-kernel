@@ -42,7 +42,12 @@ export interface BootstrapperResolutionState {
 	readonly lastRun?: BootstrapperRunResult;
 }
 
-interface BootstrapperRunResult {
+/**
+ * Represents the result of a bootstrapper execution.
+ *
+ * @category Readiness
+ */
+export interface BootstrapperRunResult {
 	readonly durationMs: number;
 	readonly stdout: string;
 	readonly stderr: string;

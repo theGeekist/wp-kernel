@@ -8,6 +8,14 @@ import type {
 import type { ScaffoldFileDescriptor, ScaffoldStatus } from './utils';
 import type { WorkspaceLanguage } from './workspace-language';
 
+/**
+ * Defines environment variables that can influence the initialization workflow.
+ *
+ * These variables provide fine-grained control over aspects like package manager preferences,
+ * registry URLs, and installation timeouts.
+ *
+ * @category Commands
+ */
 export interface InitWorkflowEnv {
 	readonly WPK_PREFER_REGISTRY_VERSIONS?: string;
 	readonly REGISTRY_URL?: string;
@@ -16,6 +24,11 @@ export interface InitWorkflowEnv {
 	readonly WPK_PACKAGE_MANAGER?: string;
 }
 
+/**
+ * Supported package managers for dependency installation.
+ *
+ * @category Commands
+ */
 export type PackageManager = 'npm' | 'pnpm' | 'yarn';
 
 export interface InitWorkflowOptions {
@@ -32,6 +45,11 @@ export interface InitWorkflowOptions {
 	readonly installers?: Partial<InitWorkflowInstallers>;
 }
 
+/**
+ * Summary of a scaffolded file, including its path and status.
+ *
+ * @category Commands
+ */
 export type ScaffoldSummary = { path: string; status: ScaffoldStatus };
 
 export interface InitWorkflowResult {
@@ -55,6 +73,12 @@ export interface StageMeasurement {
 	readonly budgetMs: number;
 }
 
+/**
+ * Represents measurements captured during dependency installation stages
+ * in the initialization workflow.
+ *
+ * @category Telemetry
+ */
 export interface InstallationMeasurements {
 	readonly node?: {
 		readonly manager: PackageManager;
@@ -63,6 +87,14 @@ export interface InstallationMeasurements {
 	readonly composer?: StageMeasurement;
 }
 
+/**
+ * Defines the contract for installer functions used during the initialization workflow.
+ *
+ * This allows for dependency injection of installation logic, making the workflow flexible
+ * and testable.
+ *
+ * @category Commands
+ */
 export interface InitWorkflowInstallers {
 	readonly installNodeDependencies: typeof installNodeDependencies;
 	readonly installComposerDependencies: typeof installComposerDependencies;

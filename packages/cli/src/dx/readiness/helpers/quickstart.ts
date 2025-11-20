@@ -28,7 +28,12 @@ type ResolveModule = ReturnType<typeof createModuleResolver>;
 
 type CommandArgs = readonly string[];
 
-interface CommandRunResult {
+/**
+ * Represents the result of executing a shell command within the quickstart readiness helper.
+ *
+ * @category Readiness
+ */
+export interface CommandRunResult {
 	readonly command: CommandArgs;
 	readonly cwd: string;
 	readonly durationMs: number;

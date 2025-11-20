@@ -34,6 +34,14 @@ export interface InitCommandState {
 	dependencySource: string | null;
 }
 
+/**
+ * Base class for CLI initialization commands (`init` and `create`).
+ *
+ * Provides common options, state management, and the core execution logic
+ * for bootstrapping WPKernel projects.
+ *
+ * @category Commands
+ */
 export abstract class InitCommandBase
 	extends Command
 	implements InitCommandState
