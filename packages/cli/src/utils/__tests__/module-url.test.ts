@@ -1,13 +1,23 @@
 import path from 'node:path';
+import { createMockFs } from '@cli-tests/mocks/fs';
+
+const mockedFs = createMockFs();
+jest.mock('node:fs', () => ({
+	...jest.requireActual('node:fs'),
+	...mockedFs,
+}));
 
 describe('module url utilities', () => {
-	afterEach(() => {
-		delete (globalThis as { __WPK_CLI_MODULE_URL__?: string | undefined })
+	beforeEach(() => {
+		// Clean up state before each test.
+		delete (globalThis as { __WPK_CLI_MODULE_URL__?: string })
 			.__WPK_CLI_MODULE_URL__;
 		delete process.env.WPK_CLI_IMPORT_META_URL;
+
+		mockedFs.files.clear();
+		mockedFs.readFileSync.mockClear();
 		jest.resetModules();
 		jest.restoreAllMocks();
-		jest.clearAllMocks();
 	});
 
 	it('returns the override when __WPK_CLI_MODULE_URL__ is defined', async () => {
@@ -30,58 +40,23 @@ describe('module url utilities', () => {
 		(
 			globalThis as { __WPK_CLI_MODULE_URL__?: string }
 		).__WPK_CLI_MODULE_URL__ = 'file:///repo/packages/cli/dist/index.js';
-
-		const readFileSync = jest.fn((target: string) => {
-			if (
-				target ===
-				path.join('/repo', 'packages', 'cli', 'dist', 'package.json')
-			) {
-				const error = new Error('missing') as NodeJS.ErrnoException;
-				error.code = 'ENOENT';
-				throw error;
-			}
-
-			if (
-				target === path.join('/repo', 'packages', 'cli', 'package.json')
-			) {
-				return JSON.stringify({ name: '@wpkernel/cli' });
-			}
-
-			const error = new Error(
-				`unexpected read: ${target}`
-			) as NodeJS.ErrnoException;
-			error.code = 'ENOENT';
-			throw error;
-		});
-
-		jest.doMock('node:fs', () => ({
-			...jest.requireActual('node:fs'),
-			readFileSync,
-		}));
+		mockedFs.files.set(
+			path.join('/repo', 'packages', 'cli', 'package.json'),
+			Buffer.from(JSON.stringify({ name: '@wpkernel/cli' }))
+		);
 
 		const { getCliPackageRoot } = await import('../module-url');
 
 		expect(getCliPackageRoot()).toBe(path.join('/repo', 'packages', 'cli'));
-		expect(readFileSync).toHaveBeenCalled();
+		expect(mockedFs.readFileSync).toHaveBeenCalled();
 	});
 
 	it('uses require.resolve fallback when walking the filesystem fails', async () => {
 		(
 			globalThis as { __WPK_CLI_MODULE_URL__?: string }
 		).__WPK_CLI_MODULE_URL__ = 'file:///repo/packages/cli/dist/index.js';
-
-		const readFileSync = jest.fn(() => {
-			const error = new Error('missing') as NodeJS.ErrnoException;
-			error.code = 'ENOENT';
-			throw error;
-		});
-
 		const resolve = jest.fn(() => '/resolved/@wpkernel/cli/package.json');
 
-		jest.doMock('node:fs', () => ({
-			...jest.requireActual('node:fs'),
-			readFileSync,
-		}));
 		jest.doMock('node:module', () => ({
 			createRequire: jest.fn(() => ({ resolve })),
 		}));
@@ -92,23 +67,13 @@ describe('module url utilities', () => {
 			path.join('/resolved', '@wpkernel/cli')
 		);
 		expect(resolve).toHaveBeenCalledWith('@wpkernel/cli/package.json');
+		expect(mockedFs.readFileSync).toHaveBeenCalled();
 	});
 
 	it('throws a developer error when the CLI package root cannot be resolved', async () => {
 		(
 			globalThis as { __WPK_CLI_MODULE_URL__?: string }
 		).__WPK_CLI_MODULE_URL__ = 'file:///repo/packages/cli/dist/index.js';
-
-		const readFileSync = jest.fn(() => {
-			const error = new Error('missing') as NodeJS.ErrnoException;
-			error.code = 'ENOENT';
-			throw error;
-		});
-
-		jest.doMock('node:fs', () => ({
-			...jest.requireActual('node:fs'),
-			readFileSync,
-		}));
 		jest.doMock('node:module', () => ({
 			createRequire: jest.fn(() => ({
 				resolve: jest.fn(() => {
@@ -128,7 +93,6 @@ describe('module url utilities', () => {
 		(
 			globalThis as { __WPK_CLI_MODULE_URL__?: string }
 		).__WPK_CLI_MODULE_URL__ = 'file:///repo/packages/cli/dist/index.js';
-
 		const resolve = jest.fn(() => '/packages/example/package.json');
 
 		jest.doMock('node:module', () => ({
@@ -149,7 +113,6 @@ describe('module url utilities', () => {
 		(
 			globalThis as { __WPK_CLI_MODULE_URL__?: string }
 		).__WPK_CLI_MODULE_URL__ = 'file:///repo/packages/cli/dist/index.js';
-
 		const resolve = jest.fn(() => '/packages/example/package.json');
 
 		jest.doMock('node:module', () => ({
@@ -171,7 +134,6 @@ describe('module url utilities', () => {
 		(
 			globalThis as { __WPK_CLI_MODULE_URL__?: string }
 		).__WPK_CLI_MODULE_URL__ = 'file:///repo/packages/cli/dist/index.js';
-
 		const resolve = jest.fn(() => '/resolved/module.js');
 
 		jest.doMock('node:module', () => ({

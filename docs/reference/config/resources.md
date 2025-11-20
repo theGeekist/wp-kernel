@@ -108,6 +108,8 @@ From this configuration WPKernel:
 
 When `resources.<key>.schema` is set to `"auto"`, this storage metadata also becomes the raw material for deriving a JSON Schema, so your REST handlers and clients reflect the shape of what you actually store.
 
+---
+
 ## `resources.<key>.schema`
 
 Schema bindings tell WPKernel how to validate and document the shape of the data that flows through this resource.
@@ -147,3 +149,117 @@ You have three main ways to express that relationship:
     • Runtime metadata – ResourceObject.schemaKey exposes which schema a resource uses so clients can introspect or cross-link docs.
 
 ⸻
+
+## `resources.<key>.capabilities`
+
+Capabilities define who is allowed to do what. The map under resources.<key>.capabilities ties your route-level capability hints to concrete WordPress capabilities.
+
+Each entry key should match a routes.\*.capability value. For example, if your create route has capability: "job.create", you’ll want a matching entry under capabilities["job.create"].
+
+The values can be: A simple string:
+
+````ts
+	capabilities: {
+	  'job.list': 'read',
+	  'job.get': 'read',
+	  'job.create': 'edit_posts',
+	}
+	```
+
+	•	Or a richer descriptor:
+
+capabilities: {
+  'job.create': {
+    capability: 'edit_posts',
+    appliesTo: 'resource',
+  },
+  'job.update': {
+    capability: 'edit_post',
+    appliesTo: 'object',
+    binding: 'id',
+  },
+}
+
+
+
+The descriptor form gives you control over:
+	•	capability – the WordPress capability string passed into current_user_can().
+	•	appliesTo – "resource" or "object". When set to "object", the check receives an object identifier as a second argument.
+	•	binding – which request parameter to treat as the object ID when appliesTo: "object" (commonly "id" or "slug").
+
+During generation, WPKernel:
+	•	Normalises this map and warns if there are routes.*.capability values without matching entries, or entries that are never used.
+	•	Emits PHP helpers that encapsulate the capability logic per resource.
+	•	Generates typed helpers and unions on the client side so you can write code against the exact set of capabilities without stringly-typed guessing.
+
+If you temporarily omit capability entries while sketching your API, WPKernel will keep your routes working by falling back to safe defaults, but production-grade configs should treat this map as the single source of truth for authorisation.
+
+⸻
+
+## `resources.<key>.queryParams`
+
+Not every resource needs query parameters, but when they appear repeatedly it’s worth describing them once and letting WPKernel do the plumbing.
+
+Under resources.<key>.queryParams you define a small descriptor per param:
+	•	type – currently 'string' or 'enum'. This drives both validation and documentation.
+	•	enum – when type: "enum", the list of allowed values.
+	•	optional – whether the param is required. Defaults to true; set false to mark it as required.
+	•	description – human-readable explanation that flows into REST arg docs and runtime metadata.
+
+For example:
+
+queryParams: {
+  status: {
+    type: 'enum',
+    enum: ['draft', 'published'],
+    description: 'Filter jobs by publication status.',
+  },
+  search: {
+    type: 'string',
+    optional: true,
+    description: 'Full-text search over job titles and descriptions.',
+  },
+}
+
+From here, WPKernel:
+	•	Generates the args configuration passed to register_rest_route().
+	•	Adds enum validation and required flags for you when registering routes.
+	•	Exposes the parameter metadata via resource.queryParams so clients can build UI controls and validate filters without duplicating config.
+
+⸻
+
+## `resources.<key>.blocks`
+
+Blocks are optional, but when you want a resource to surface as a Gutenberg block, it’s easier to let WPKernel wire the boring bits.
+
+resources.<key>.blocks lets you tell the generator which rendering mode you want:
+	•	mode: "js" – generates a client-side block. Rendering happens in JS; PHP just enqueues scripts and styles.
+	•	mode: "ssr" – generates both JS and a PHP render callback so the block has a server-side representation for better SEO and editor fidelity.
+
+If you omit the blocks section entirely, WPKernel still generates resource-level helpers; you simply won’t get any block scaffolding for that resource.
+
+When configured, the block builder:
+	•	Emits canonical artefacts under .generated/blocks/**.
+	•	Mirrors them into your chosen applied locations (via directories.blocks and directories.blocks.applied, if you use them).
+	•	Generates helper files like build/blocks-manifest.php, Blocks/Register.php, and (for SSR) render.php.
+
+The idea is that you describe the intent once — “this resource should have a block, rendered this way” — and then refine the generated code instead of starting from an empty file.
+
+⸻
+
+## `resources.<key>.ui`
+
+Finally, resources.<key>.ui is where resources grow a proper admin face.
+
+This section is intentionally thin at the top level. In most real projects you’ll be working with:
+	•	resources.<key>.ui.admin.view – selects which kind of admin experience you want. Today the canonical option is 'dataviews'.
+	•	resources.<key>.ui.admin.dataviews – the detailed configuration for fields, actions, layouts, and saved views.
+	•	resources.<key>.ui.admin.dataviews.screen – describes the admin screen: route, component, menu entry, and how it plugs into the plugin loader.
+
+Given enough metadata here, WPKernel can:
+	•	Generate DataView fixtures for the admin list/table UI.
+	•	Emit interactivity fixtures so actions, selection, and filters hook cleanly into the WordPress interactivity runtime.
+	•	Register admin menus with sensible defaults, wired to React entrypoints that are aware of your resources.
+
+Think of resources.<key>.ui as the bridge between “this resource exists” and “this resource has an opinionated, generated back-office”. The details live in the dedicated UI and DataViews documentation, but this is the one place in the config that connects the two worlds.
+````

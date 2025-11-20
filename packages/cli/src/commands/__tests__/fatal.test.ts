@@ -7,7 +7,7 @@ describe('emitFatalError', () => {
 	beforeEach(() => {
 		writeSpy = jest
 			.spyOn(process.stderr, 'write')
-			.mockImplementation(() => true as unknown as number);
+			.mockImplementation(() => true);
 	});
 
 	afterEach(() => {

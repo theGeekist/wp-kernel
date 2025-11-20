@@ -8,10 +8,7 @@ import {
 } from '../apply';
 import { createCommandReporterHarness } from '@cli-tests/cli';
 import { resolveFlags } from '../apply/flags';
-import type {
-	WPKernelConfigV1,
-	LoadedWPKernelConfig,
-} from '../../../config/types';
+import type { WPKernelConfigV1, LoadedWPKernelConfig } from '../../config';
 import type { Workspace } from '../../workspace';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { loadTestLayout } from '@cli-tests/layout.test-support';
@@ -167,6 +164,7 @@ describe('apply command helpers', () => {
 		const text = formatManifest({
 			summary: { applied: 0, conflicts: 0, skipped: 0 },
 			records: [],
+			actions: [],
 		});
 
 		expect(text).toContain('No files were patched.');

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import type * as fs from 'node:fs/promises';
-import { PassThrough } from 'node:stream';
+import { PassThrough, type Readable, type Writable } from 'node:stream';
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { FSWatcher, watch as ChokidarWatch } from 'chokidar';
 import type { Command } from 'clipanion';
@@ -70,8 +70,7 @@ export function setupStartCommandTest(): void {
 		() => new FakeWatcher() as unknown as FSWatcher
 	);
 	spawnViteProcess.mockImplementation(
-		() =>
-			new FakeChildProcess() as unknown as ChildProcessWithoutNullStreams
+		(): ChildProcessWithoutNullStreams => new FakeChildProcess()
 	);
 	reporterHarness.reset();
 }
@@ -200,22 +199,74 @@ export class FakeWatcher extends EventEmitter {
 	});
 }
 
-export class FakeChildProcess extends EventEmitter {
-	stdin = new PassThrough();
-	stdout = new PassThrough();
-	stderr = new PassThrough();
+export class FakeChildProcess
+	extends EventEmitter
+	implements ChildProcessWithoutNullStreams
+{
+	stdin: Writable;
+	stdout: Readable;
+	stderr: Readable;
+	stdio: [
+		Writable,
+		Readable,
+		Readable,
+		Writable | Readable | null,
+		Writable | Readable | null,
+	];
 	killed = false;
+	pid = Math.floor(Math.random() * 10000);
+	connected = true;
+	exitCode: number | null = null;
+	signalCode: NodeJS.Signals | null = null;
+	spawnargs: string[] = [];
+	spawnfile = 'vite';
 
-	kill = jest.fn((signal?: NodeJS.Signals) => {
-		if (this.killed) {
-			return false;
+	constructor() {
+		super();
+		this.stdin = new PassThrough();
+		this.stdout = new PassThrough();
+		this.stderr = new PassThrough();
+		this.stdio = [this.stdin, this.stdout, this.stderr, null, null];
+	}
+
+	kill: jest.MockedFunction<ChildProcessWithoutNullStreams['kill']> = jest.fn(
+		(signal?: number | NodeJS.Signals) => {
+			if (this.killed) {
+				return false;
+			}
+			this.killed = true;
+			queueMicrotask(() => {
+				this.exitCode = 0;
+				this.signalCode = typeof signal === 'string' ? signal : null;
+				this.emit('exit', this.exitCode, this.signalCode);
+			});
+			return true;
 		}
-		this.killed = true;
-		queueMicrotask(() => {
-			this.emit('exit', 0, signal ?? null);
-		});
-		return true;
-	});
+	) as jest.MockedFunction<ChildProcessWithoutNullStreams['kill']>;
+
+	send = jest.fn(
+		(
+			_message: unknown,
+			_handle?: unknown,
+			_options?: unknown,
+			callback?: (error: Error | null) => void
+		) => {
+			callback?.(null);
+			return true;
+		}
+	);
+
+	disconnect = jest.fn(() => undefined);
+	ref = jest.fn(() => this);
+	unref = jest.fn(() => this);
+	[Symbol.dispose](): void {
+		this.kill();
+	}
+
+	[Symbol.asyncDispose](): Promise<void> {
+		this.kill();
+		return Promise.resolve();
+	}
 }
 
 async function buildCommand({

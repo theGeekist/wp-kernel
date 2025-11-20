@@ -1,5 +1,7 @@
 import path from 'node:path';
-import type { ResourceConfig } from '@wpkernel/core/resource';
+import type { SerializableResourceConfig } from '../../config/types';
+import { makeHash } from '@cli-tests/builders/fixtures.test-support';
+import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 import {
 	createTsBuilder,
 	buildAdminScreenCreator,
@@ -21,6 +23,7 @@ import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { validateGeneratedImports } from '../../commands/run-generate/validation';
 import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -60,6 +63,7 @@ describe('createTsBuilder - orchestration', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -152,6 +156,7 @@ describe('createTsBuilder - orchestration', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -228,6 +233,7 @@ describe('createTsBuilder - orchestration', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -335,6 +341,7 @@ describe('createTsBuilder - orchestration', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -395,6 +402,7 @@ describe('createTsBuilder - orchestration', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -447,28 +455,42 @@ describe('createTsBuilder - orchestration', () => {
 					route: '/admin/tasks',
 				},
 			});
+			const {
+				mapQuery: _mapQuery,
+				getItemId: _getItemId,
+				...serializableTaskDataViews
+			} = taskDataViews;
 
-			const taskResource: ResourceConfig = {
+			const taskResource: SerializableResourceConfig = {
 				name: 'Task',
 				schema: 'auto',
 				routes: {},
-				cacheKeys: {},
-				ui: { admin: { dataviews: taskDataViews } },
-			} as ResourceConfig;
+				ui: {
+					admin: {
+						dataviews:
+							serializableTaskDataViews as SerializableResourceConfig['ui']['admin']['dataviews'],
+					},
+				},
+			};
 
 			options.config.resources.task = taskResource;
 			ir.config.resources.task = taskResource;
+			const baseResource = createDefaultResource();
 			ir.resources.push({
+				...baseResource,
+				id: 'res:task',
 				name: 'Task',
+				controllerClass: baseResource.controllerClass.replace(
+					'Thing',
+					'Task'
+				),
 				schemaKey: 'task',
-				schemaProvenance: 'manual',
 				routes: [],
 				cacheKeys: {
 					list: { segments: ['task', 'list'], source: 'config' },
 					get: { segments: ['task', 'get'], source: 'config' },
 				},
-				hash: 'task-hash',
-				warnings: [],
+				hash: makeHash('task-hash'),
 			});
 			const irWithLayout = { ...ir, layout: testLayout };
 
@@ -482,6 +504,7 @@ describe('createTsBuilder - orchestration', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',

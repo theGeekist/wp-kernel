@@ -1,66 +1,34 @@
-import { EventEmitter } from 'node:events';
 import { WPKernelError } from '@wpkernel/core/error';
 import {
 	installComposerDependencies,
 	installNodeDependencies,
 } from '../init/installers';
 import type { InstallerDependencies } from '../init/installers';
-
-function createSpawnMock({
-	onClose,
-	onError,
-}: {
-	onClose?: (emit: EventEmitter['emit']) => void;
-	onError?: (emit: EventEmitter['emit']) => void;
-} = {}) {
-	return jest.fn(() => {
-		const child = new EventEmitter();
-		process.nextTick(() => {
-			if (onClose) {
-				onClose(child.emit.bind(child));
-			} else {
-				child.emit('close', 0, null);
-			}
-		});
-
-		if (onError) {
-			process.nextTick(() => onError(child.emit.bind(child)));
-		}
-
-		return child as unknown as ReturnType<
-			NonNullable<InstallerDependencies['spawn']>
-		>;
-	});
-}
+import { createSpawnMock } from '@cli-tests/cli/process.test-support';
+import type { PackageManager } from '../init/types';
 
 describe('init installers', () => {
-	it('spawns npm install while streaming output', async () => {
-		const spawnMock = createSpawnMock();
-		await expect(
-			installNodeDependencies('/tmp/project', 'npm', {
-				spawn: spawnMock as unknown as InstallerDependencies['spawn'],
-			})
-		).resolves.toEqual({ stdout: '', stderr: '' });
-		expect(spawnMock).toHaveBeenCalledWith('npm', ['install'], {
-			cwd: '/tmp/project',
-			stdio: ['inherit', 'pipe', 'pipe'],
-		});
-	});
+	const nodeManagers: PackageManager[] = ['npm', 'pnpm'];
 
-	it('supports alternate package managers', async () => {
-		const spawnMock = createSpawnMock();
-		await installNodeDependencies('/tmp/project', 'pnpm', {
-			spawn: spawnMock as unknown as InstallerDependencies['spawn'],
-		});
-		expect(spawnMock).toHaveBeenCalledWith('pnpm', ['install'], {
-			cwd: '/tmp/project',
-			stdio: ['inherit', 'pipe', 'pipe'],
-		});
-	});
+	it.each(nodeManagers)(
+		'spawns %s install while streaming output',
+		async (manager) => {
+			const spawnMock = createSpawnMock();
+			await expect(
+				installNodeDependencies('/tmp/project', manager, {
+					spawn: spawnMock as unknown as InstallerDependencies['spawn'],
+				})
+			).resolves.toEqual({ stdout: '', stderr: '' });
+			expect(spawnMock).toHaveBeenCalledWith(manager, ['install'], {
+				cwd: '/tmp/project',
+				stdio: ['inherit', 'pipe', 'pipe'],
+			});
+		}
+	);
 
 	it('wraps npm installation failures in a developer wpk error', async () => {
 		const spawnMock = createSpawnMock({
-			onClose: (emit) => emit('close', 1, null),
+			close: { code: 1, signal: null },
 		});
 		await expect(
 			installNodeDependencies('/tmp/project', 'npm', {
@@ -98,12 +66,7 @@ describe('init installers', () => {
 		});
 
 		const failingSpawn = createSpawnMock({
-			onClose: () => undefined,
-			onError: (emit) =>
-				emit('error', {
-					message: 'composer failure',
-					exitCode: 127,
-				}),
+			error: { message: 'composer failure', exitCode: 127 },
 		});
 
 		await expect(

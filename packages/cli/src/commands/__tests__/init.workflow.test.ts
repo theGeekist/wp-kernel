@@ -3,99 +3,48 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import { runInitWorkflow } from '../init/workflow';
 import type { InitWorkflowOptions } from '../init/types';
-import {
-	installNodeDependencies,
-	installComposerDependencies,
-} from '../init/installers';
-import {
-	measureStage,
-	resolveInstallBudgets,
-	DEFAULT_NODE_INSTALL_BUDGET_MS,
-	DEFAULT_COMPOSER_INSTALL_BUDGET_MS,
-} from '../init/timing';
-import {
-	assertNoCollisions,
-	buildPathsReplacement,
-	buildReplacementMap,
-	buildScaffoldDescriptors,
-	writeScaffoldFiles,
-} from '../init/scaffold';
-import { writePackageJson } from '../init/package-json';
-import { resolveDependencyVersions } from '../init/dependency-versions';
-import type { DependencyResolution } from '../init/dependency-versions';
 import type { Workspace } from '../../workspace';
+import {
+	installComposerDependenciesMock,
+	installNodeDependenciesMock,
+	measureStageMock,
+	resetInitWorkflowMocks,
+	resolveDependencyVersionsMock,
+	resolveInstallBudgetsMock,
+	writeScaffoldFilesMock,
+} from '@cli-tests/cli/init-workflow.test-support';
 
-type WriteScaffoldFiles = typeof writeScaffoldFiles;
-type BuildScaffoldDescriptors = typeof buildScaffoldDescriptors;
-type BuildReplacementMap = typeof buildReplacementMap;
-type BuildPathsReplacement = typeof buildPathsReplacement;
-type WritePackageJson = typeof writePackageJson;
-
-type Resolver = typeof resolveDependencyVersions;
-
-jest.mock('../init/scaffold', () => ({
-	assertNoCollisions: jest.fn(),
-	buildPathsReplacement: jest.fn(),
-	buildReplacementMap: jest.fn(),
-	buildScaffoldDescriptors: jest.fn(),
-	writeScaffoldFiles: jest.fn(),
-}));
-
-jest.mock('../init/package-json', () => {
-	const actual = jest.requireActual('../init/package-json');
-	return {
-		...actual,
-		writePackageJson: jest.fn(),
-	} satisfies Partial<typeof actual>;
+jest.mock('../init/scaffold', () => {
+	const { scaffoldMocks } = jest.requireActual(
+		'@cli-tests/cli/init-workflow.test-support'
+	);
+	return scaffoldMocks;
 });
-
-jest.mock('../init/dependency-versions', () => ({
-	resolveDependencyVersions: jest.fn(),
-}));
-
-jest.mock('../init/installers', () => ({
-	installNodeDependencies: jest.fn(),
-	installComposerDependencies: jest.fn(),
-}));
-
+jest.mock('../init/package-json', () => {
+	const { packageJsonMocks } = jest.requireActual(
+		'@cli-tests/cli/init-workflow.test-support'
+	);
+	return packageJsonMocks;
+});
+jest.mock('../init/dependency-versions', () => {
+	const { dependencyMocks } = jest.requireActual(
+		'@cli-tests/cli/init-workflow.test-support'
+	);
+	return dependencyMocks;
+});
+jest.mock('../init/installers', () => {
+	const { installerMocks } = jest.requireActual(
+		'@cli-tests/cli/init-workflow.test-support'
+	);
+	return installerMocks;
+});
 jest.mock('../init/timing', () => {
 	const actual = jest.requireActual('../init/timing');
-	return {
-		...actual,
-		measureStage: jest.fn(),
-		resolveInstallBudgets: jest.fn(),
-	} satisfies Partial<typeof actual>;
+	const { timingMocks } = jest.requireActual(
+		'@cli-tests/cli/init-workflow.test-support'
+	);
+	return { ...actual, ...timingMocks };
 });
-
-const resolveDependencyVersionsMock =
-	resolveDependencyVersions as jest.MockedFunction<Resolver>;
-const writeScaffoldFilesMock =
-	writeScaffoldFiles as jest.MockedFunction<WriteScaffoldFiles>;
-const assertNoCollisionsMock = assertNoCollisions as jest.MockedFunction<
-	typeof assertNoCollisions
->;
-const buildScaffoldDescriptorsMock =
-	buildScaffoldDescriptors as jest.MockedFunction<BuildScaffoldDescriptors>;
-const buildReplacementMapMock =
-	buildReplacementMap as jest.MockedFunction<BuildReplacementMap>;
-const buildPathsReplacementMock =
-	buildPathsReplacement as jest.MockedFunction<BuildPathsReplacement>;
-const writePackageJsonMock =
-	writePackageJson as jest.MockedFunction<WritePackageJson>;
-const installNodeDependenciesMock =
-	installNodeDependencies as jest.MockedFunction<
-		typeof installNodeDependencies
-	>;
-const installComposerDependenciesMock =
-	installComposerDependencies as jest.MockedFunction<
-		typeof installComposerDependencies
-	>;
-const measureStageMock = measureStage as jest.MockedFunction<
-	typeof measureStage
->;
-const resolveInstallBudgetsMock = resolveInstallBudgets as jest.MockedFunction<
-	typeof resolveInstallBudgets
->;
 
 function createWorkspace(overrides: Partial<Workspace> = {}): Workspace {
 	return makeWorkspaceMock({
@@ -106,48 +55,8 @@ function createWorkspace(overrides: Partial<Workspace> = {}): Workspace {
 }
 
 describe('runInitWorkflow', () => {
-	const dependencyResolution: DependencyResolution = {
-		source: 'registry',
-		sources: ['fallback', 'registry'],
-		dependencies: {},
-		devDependencies: {},
-		peerDependencies: {},
-	};
-
 	beforeEach(() => {
-		jest.clearAllMocks();
-
-		buildScaffoldDescriptorsMock.mockReturnValue([
-			{
-				relativePath: 'wpk.config.ts',
-				templatePath: 'wpk/wpk.config.ts',
-				category: 'wpk',
-			},
-		]);
-		writeScaffoldFilesMock.mockResolvedValue([
-			{ path: 'wpk.config.ts', status: 'created' },
-		]);
-		assertNoCollisionsMock.mockResolvedValue({ skipped: [] });
-		buildPathsReplacementMock.mockResolvedValue('"{}"');
-		buildReplacementMapMock.mockReturnValue(new Map());
-		writePackageJsonMock.mockResolvedValue('updated');
-		resolveDependencyVersionsMock.mockResolvedValue(dependencyResolution);
-		installNodeDependenciesMock.mockResolvedValue({
-			stdout: '',
-			stderr: '',
-		});
-		installComposerDependenciesMock.mockResolvedValue({
-			stdout: '',
-			stderr: '',
-		});
-		resolveInstallBudgetsMock.mockReturnValue({
-			node: DEFAULT_NODE_INSTALL_BUDGET_MS,
-			composer: DEFAULT_COMPOSER_INSTALL_BUDGET_MS,
-		});
-		measureStageMock.mockImplementation(async ({ run, budgetMs }) => {
-			await run();
-			return { durationMs: 0, budgetMs };
-		});
+		resetInitWorkflowMocks();
 	});
 
 	it('logs dependency resolution details when verbose and env requests registry versions', async () => {

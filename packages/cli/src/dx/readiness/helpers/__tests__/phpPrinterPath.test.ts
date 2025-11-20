@@ -1,13 +1,16 @@
 import { createPhpPrinterPathReadinessHelper } from '../phpPrinterPath';
 import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
+import { resetPhpAssetsMock } from '@cli-tests/mocks';
 
-jest.mock('../../../../utils/phpAssets', () => ({
-	resolveBundledPhpDriverPrettyPrintPath: jest
-		.fn()
-		.mockReturnValue('/bundle/php-json-ast/php/pretty-print.php'),
-}));
+jest.mock('../../../../utils/phpAssets', () => {
+	const { phpAssetsMock } = jest.requireActual('@cli-tests/mocks/php-assets');
+	return phpAssetsMock;
+});
 
 describe('createPhpPrinterPathReadinessHelper', () => {
+	beforeEach(() => {
+		resetPhpAssetsMock();
+	});
 	it('reports ready when the bundled printer exists', async () => {
 		const access = jest.fn().mockResolvedValue(undefined);
 		const realpath = jest

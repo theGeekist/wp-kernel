@@ -1,98 +1,17 @@
-import { LogLayer } from 'loglayer';
-import { SimplePrettyTerminalTransport } from '@loglayer/transport-simple-pretty-terminal';
-import { type Reporter, WPKernelHooksTransport } from '@wpkernel/core/reporter';
-
+import type { Reporter } from '@wpkernel/core/reporter';
+import {
+	logLayerInstances,
+	mockedLogLayer,
+	mockedSimplePrettyTerminalTransport,
+	mockedWPKernelHooksTransport,
+	resetLogLayerMocks,
+} from '@cli-tests/mocks';
 import { createReporterCLI } from '../reporter';
-
-const logLayerInstances: Array<{
-	withContext: jest.Mock;
-	disableLogging: jest.Mock;
-	withMetadata: jest.Mock<
-		[metadata: { context: unknown }],
-		{ debug: jest.Mock; warn: jest.Mock; error: jest.Mock; info: jest.Mock }
-	>;
-	debug: jest.Mock;
-	warn: jest.Mock;
-	error: jest.Mock;
-	info: jest.Mock;
-	metadataTarget: {
-		debug: jest.Mock;
-		warn: jest.Mock;
-		error: jest.Mock;
-		info: jest.Mock;
-	};
-}> = [];
-
-jest.mock('loglayer', () => ({
-	LogLayer: jest.fn().mockImplementation(() => {
-		const metadataTarget = {
-			debug: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			info: jest.fn(),
-		};
-
-		const instance = {
-			withContext: jest.fn(),
-			disableLogging: jest.fn(),
-			withMetadata: jest.fn().mockReturnValue(metadataTarget),
-			debug: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			info: jest.fn(),
-			metadataTarget,
-		};
-
-		logLayerInstances.push(instance);
-		return instance;
-	}),
-}));
-
-jest.mock('@loglayer/transport-simple-pretty-terminal', () => ({
-	SimplePrettyTerminalTransport: jest
-		.fn()
-		.mockImplementation(
-			(options: {
-				runtime: string;
-				level: string;
-				enabled: boolean;
-			}) => ({
-				kind: 'terminal',
-				options,
-			})
-		),
-}));
-
-jest.mock('@wpkernel/core/reporter', () => ({
-	...jest.requireActual('@wpkernel/core/reporter'),
-	WPKernelHooksTransport: jest
-		.fn()
-		.mockImplementation((level: string) => ({ kind: 'hooks', level })),
-}));
-
-const mockedLogLayer = LogLayer as unknown as jest.MockedFunction<
-	typeof LogLayer
->;
-const mockedSimplePrettyTerminalTransport =
-	SimplePrettyTerminalTransport as unknown as jest.MockedFunction<
-		typeof SimplePrettyTerminalTransport
-	>;
-const mockedWPKernelHooksTransport =
-	WPKernelHooksTransport as unknown as jest.MockedFunction<
-		typeof WPKernelHooksTransport
-	>;
 
 describe('createReporterCLI', () => {
 	beforeEach(() => {
-		logLayerInstances.length = 0;
-		mockedLogLayer.mockClear();
-		mockedSimplePrettyTerminalTransport.mockClear();
-		mockedWPKernelHooksTransport.mockClear();
+		resetLogLayerMocks();
 		delete process.env.NODE_ENV;
-	});
-
-	afterEach(() => {
-		jest.clearAllMocks();
 	});
 
 	it('creates a console reporter with pretty terminal transport', () => {

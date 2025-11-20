@@ -1,28 +1,39 @@
 import { createGitReadinessHelper } from '../git';
 import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
+import {
+	createGitDepsMock,
+	type GitDepsMock,
+} from '@cli-tests/dx/git.test-support';
 
 describe('createGitReadinessHelper', () => {
+	let deps: GitDepsMock;
+
+	beforeEach(() => {
+		deps = createGitDepsMock();
+	});
+
 	it('detects an existing git repository', async () => {
-		const detectRepository = jest.fn().mockResolvedValue(true);
-		const helper = createGitReadinessHelper({ detectRepository });
+		deps.detectRepository.mockResolvedValue(true);
+		const helper = createGitReadinessHelper({
+			detectRepository: deps.detectRepository,
+		});
 
 		const detection = await helper.detect(
 			createReadinessTestContext({ workspace: null })
 		);
 
-		expect(detectRepository).toHaveBeenCalledWith('/tmp/project');
+		expect(deps.detectRepository).toHaveBeenCalledWith('/tmp/project');
 		expect(detection.status).toBe('ready');
 	});
 
 	it('initialises git when repository is missing', async () => {
-		const detectRepository = jest
-			.fn()
+		deps.detectRepository
 			.mockResolvedValueOnce(false)
 			.mockResolvedValueOnce(true);
-		const initRepository = jest.fn().mockResolvedValue(undefined);
+		deps.initRepository.mockResolvedValue(undefined);
 		const helper = createGitReadinessHelper({
-			detectRepository,
-			initRepository,
+			detectRepository: deps.detectRepository,
+			initRepository: deps.initRepository,
 		});
 
 		const context = createReadinessTestContext({ workspace: null });
@@ -30,7 +41,7 @@ describe('createGitReadinessHelper', () => {
 		expect(detection.status).toBe('pending');
 
 		await helper.execute?.(context, detection.state);
-		expect(initRepository).toHaveBeenCalledWith('/tmp/project');
+		expect(deps.initRepository).toHaveBeenCalledWith('/tmp/project');
 
 		const confirmation = await helper.confirm(context, detection.state);
 		expect(confirmation.status).toBe('ready');

@@ -5,18 +5,13 @@ import type { GenerationManifestDiff } from '../../apply/manifest';
 import { collectDeletionInstructions } from '../plan.cleanups';
 import { buildWorkspace } from '../../workspace';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
-
-const reporter = {
-	info: jest.fn(),
-	debug: jest.fn(),
-	warn: jest.fn(),
-	error: jest.fn(),
-};
+import { createReporterMock } from '@cli-tests/reporter';
 
 describe('plan.cleanups', () => {
 	it('deletes removed shims when base matches target', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-cleanups-'));
 		const layout = loadTestLayoutSync();
+		const reporter = createReporterMock();
 		try {
 			const shimPath = 'inc/Rest/JobsController.php';
 			const basePath = path.join(
@@ -32,9 +27,6 @@ describe('plan.cleanups', () => {
 			await fs.writeFile(targetPath, contents);
 
 			const diff: GenerationManifestDiff = {
-				added: [],
-				unchanged: [],
-				changed: [],
 				removed: [
 					{
 						resource: 'jobs',

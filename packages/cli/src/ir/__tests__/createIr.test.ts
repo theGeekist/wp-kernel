@@ -17,46 +17,11 @@ import {
 	makeWorkspaceMock,
 } from '@cli-tests/workspace.test-support';
 import { makeWPKernelConfigFixture } from '@cli-tests/printers.test-support';
-
 jest.mock('../../builders', () => {
-	const { createHelper } = jest.requireActual('../../runtime');
-	const createStubBuilder = (key: string) =>
-		createHelper({
-			key,
-			kind: 'builder',
-			async apply() {
-				// Intentionally left blank for offline test execution.
-			},
-		});
-
-	return {
-		createBundler: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.bundler')
-		),
-		createApplyPlanBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.plan')
-		),
-		createPatcher: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.patcher')
-		),
-		createPhpBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.php')
-		),
-		createJsBlocksBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.blocks')
-		),
-		createTsBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.ts')
-		),
-		createTsCapabilityBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.ts-capability')
-		),
-		createTsIndexBuilder: jest.fn(() =>
-			createStubBuilder('builder.generate.stub.ts-index')
-		),
-		createPhpDriverInstaller:
-			jest.requireActual('../../builders').createPhpDriverInstaller,
-	};
+	const { buildBuildersMock } = jest.requireActual(
+		'@cli-tests/builders/mock-builders'
+	);
+	return buildBuildersMock();
 });
 
 jest.setTimeout(60000);

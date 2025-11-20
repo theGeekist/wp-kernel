@@ -4,7 +4,7 @@ import { createPatcher } from '../patcher';
 import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import { buildEmptyGenerationState } from '../../apply/manifest';
-import { makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
 import {
 	withWorkspace as baseWithWorkspace,
 	buildReporter,
@@ -30,7 +30,8 @@ function buildIr(
 	namespace: string,
 	layout: ReturnType<typeof loadTestLayoutSync> = DEFAULT_LAYOUT
 ): IRv1 {
-	return {
+	return makeIr({
+		namespace,
 		meta: makeIrMeta(namespace, {
 			origin: 'wpk.config.ts',
 			sourcePath: 'wpk.config.ts',
@@ -41,24 +42,16 @@ function buildIr(
 			schemas: {},
 			resources: {},
 		},
-		schemas: [],
-		resources: [],
-		capabilities: [],
-		capabilityMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: { capability: 'manage_options', appliesTo: 'resource' },
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
+		layout,
 		php: {
 			namespace,
 			autoload: 'inc/',
 			outputDir: layout.resolve('php.generated'),
 		},
-	};
+		capabilityMap: {
+			fallback: { capability: 'manage_options', appliesTo: 'resource' },
+		},
+	});
 }
 
 describe('createPatcher', () => {

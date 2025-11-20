@@ -1,6 +1,9 @@
 import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { ResourceConfig } from '@wpkernel/core/resource';
+import type {
+	ResourceConfig,
+	ResourceDataViewsScreenConfig,
+} from '@wpkernel/core/resource';
 import { createReporterMock, type ReporterMock } from '@cli-tests/reporter';
 import {
 	validateWPKernelConfig,
@@ -185,16 +188,23 @@ describe('validateWPKernelConfig', () => {
 			table: { columns: ['title'] },
 		});
 		expect(resource.ui?.admin?.dataviews?.preferencesKey).toBe('ui/things');
-		expect(resource.ui?.admin?.dataviews?.views).toEqual([
+		const adminUi = resource.ui?.admin;
+		const dataviews = adminUi?.dataviews;
+		expect(dataviews?.views).toEqual([
 			expect.objectContaining({
 				id: 'all',
 				label: 'All things',
 				isDefault: true,
 			}),
 		]);
-		expect(resource.ui?.admin?.dataviews?.screen?.menu?.slug).toBe(
-			'thing-admin'
-		);
+		expect(dataviews).toBeDefined();
+		const screen = dataviews?.screen as
+			| ResourceDataViewsScreenConfig
+			| undefined;
+		if (!screen?.menu) {
+			throw new Error('Expected dataviews menu to be defined.');
+		}
+		expect(screen.menu.slug).toBe('thing-admin');
 	});
 
 	it('rejects cacheKeys declarations', () => {

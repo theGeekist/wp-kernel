@@ -23,6 +23,7 @@ import type {
 	ReadinessRegistry,
 } from '../../dx';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 
 function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 	const layout = loadTestLayoutSync();
@@ -33,6 +34,33 @@ function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 			sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 			origin: 'typescript',
 			sanitizedNamespace: 'Demo',
+			features: [],
+			ids: {
+				algorithm: 'sha256',
+				resourcePrefix: 'res:',
+				schemaPrefix: 'sch:',
+				blockPrefix: 'blk:',
+				capabilityPrefix: 'cap:',
+			},
+			redactions: [],
+			limits: {
+				maxConfigKB: 2048,
+				maxSchemaKB: 2048,
+				policy: 'truncate',
+			},
+			plugin: {
+				name: 'Demo',
+				description: 'Demo plugin',
+				version: '1.0.0',
+				requiresAtLeast: '6.0',
+				requiresPhp: '8.1',
+				textDomain: 'demo',
+				author: 'Demo',
+				license: 'GPL-2.0-or-later',
+				authorUri: 'https://example.com',
+				pluginUri: 'https://example.com',
+				licenseUri: 'https://example.com/license',
+			},
 		},
 		config: {
 			version: 1,
@@ -94,7 +122,7 @@ function createPipelineStub(
 		extensions: { use: jest.fn() },
 		use: jest.fn(),
 		run: executor as unknown as Pipeline['run'],
-	} as Pipeline;
+	} as unknown as Pipeline;
 
 	return { pipeline, runMock: executor };
 }
@@ -504,7 +532,7 @@ describe('GenerateCommand', () => {
 
 		const stderrSpy = jest
 			.spyOn(process.stderr, 'write')
-			.mockImplementation(() => true as unknown as number);
+			.mockImplementation(() => true);
 
 		const exitCode = await command.execute();
 
@@ -574,17 +602,15 @@ describe('GenerateCommand', () => {
 				await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 				const ir = buildIrArtifact(options.workspace.root);
+				const baseResource = createDefaultResource();
 				const resource = {
+					...baseResource,
 					name: 'books',
 					schemaKey: 'books',
-					schemaProvenance: 'manual' as const,
-					routes: [],
-					cacheKeys: {
-						list: { segments: [], source: 'default' as const },
-						get: { segments: [], source: 'default' as const },
+					hash: {
+						...baseResource.hash,
+						value: 'next',
 					},
-					hash: 'next',
-					warnings: [],
 				};
 
 				return {

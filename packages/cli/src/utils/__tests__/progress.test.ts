@@ -1,5 +1,5 @@
 import { runWithProgress, measureStageWithProgress } from '../progress';
-import type { Reporter } from '@wpkernel/core/reporter';
+import { createReporterMock, type ReporterMock } from '@cli-tests/reporter';
 
 jest.useFakeTimers();
 
@@ -12,24 +12,18 @@ jest.mock('../../commands/init/timing', () => ({
 
 const { measureStage } = jest.requireMock('../../commands/init/timing');
 
-function createReporterMock(): Reporter {
-	return {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn().mockReturnThis(),
-	};
-}
-
 describe('progress utilities', () => {
+	let reporter: ReporterMock;
+
+	beforeEach(() => {
+		reporter = createReporterMock();
+	});
+
 	afterEach(() => {
 		jest.clearAllTimers();
-		jest.clearAllMocks();
 	});
 
 	it('emits spinner ticks and success message', async () => {
-		const reporter = createReporterMock();
 		let resolveRun!: (value: string) => void;
 		const runPromise = new Promise<string>((resolve) => {
 			resolveRun = resolve;
@@ -60,7 +54,6 @@ describe('progress utilities', () => {
 	});
 
 	it('logs error message when the operation fails', async () => {
-		const reporter = createReporterMock();
 		const error = new Error('boom');
 
 		await expect(
@@ -81,7 +74,6 @@ describe('progress utilities', () => {
 	});
 
 	it('wraps measureStage with progress logging', async () => {
-		const reporter = createReporterMock();
 		const runMock = jest.fn().mockResolvedValue(undefined);
 
 		const measurement = await measureStageWithProgress({

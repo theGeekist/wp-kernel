@@ -1,10 +1,21 @@
 import { createPhpRuntimeReadinessHelper } from '../phpRuntime';
 import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
+import {
+	createQuickstartDepsMock,
+	type QuickstartDepsMock,
+} from '@cli-tests/dx/quickstart.test-support';
 
 describe('createPhpRuntimeReadinessHelper', () => {
+	let deps: QuickstartDepsMock;
+
+	beforeEach(() => {
+		deps = createQuickstartDepsMock();
+	});
+
 	it('detects php binary availability', async () => {
+		deps.exec.mockResolvedValue({ stdout: 'PHP 8.1.0' });
 		const helper = createPhpRuntimeReadinessHelper({
-			exec: jest.fn().mockResolvedValue({ stdout: 'PHP 8.1.0' }),
+			exec: deps.exec,
 		});
 		const context = createReadinessTestContext({ workspace: null });
 		const detection = await helper.detect(context);
@@ -17,8 +28,9 @@ describe('createPhpRuntimeReadinessHelper', () => {
 	});
 
 	it('flags missing php binary', async () => {
+		deps.exec.mockRejectedValue(new Error('not found'));
 		const helper = createPhpRuntimeReadinessHelper({
-			exec: jest.fn().mockRejectedValue(new Error('not found')),
+			exec: deps.exec,
 		});
 		const detection = await helper.detect(
 			createReadinessTestContext({ workspace: null })
@@ -35,8 +47,9 @@ describe('createPhpRuntimeReadinessHelper', () => {
 	});
 
 	it('handles unknown version output gracefully', async () => {
+		deps.exec.mockResolvedValue({ stdout: '' });
 		const helper = createPhpRuntimeReadinessHelper({
-			exec: jest.fn().mockResolvedValue({ stdout: '' }),
+			exec: deps.exec,
 		});
 		const context = createReadinessTestContext({ workspace: null });
 		const detection = await helper.detect(context);

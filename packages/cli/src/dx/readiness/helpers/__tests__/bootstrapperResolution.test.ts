@@ -1,5 +1,9 @@
 import path from 'node:path';
 import { type EnvironmentalError } from '@wpkernel/core/error';
+import {
+	createQuickstartDepsMock,
+	type QuickstartDepsMock,
+} from '@cli-tests/dx/quickstart.test-support';
 import { createBootstrapperResolutionReadinessHelper } from '../bootstrapperResolution';
 import {
 	createReadinessTestContext,
@@ -17,8 +21,14 @@ const bootstrapperPath = path.join(
 );
 
 describe('createBootstrapperResolutionReadinessHelper', () => {
+	let deps: QuickstartDepsMock;
+
+	beforeEach(() => {
+		deps = createQuickstartDepsMock();
+	});
+
 	it('reports pending when the compiled bootstrapper entry is missing', async () => {
-		const access = jest.fn(async (target: string) => {
+		deps.access.mockImplementation(async (target: string) => {
 			if (target === path.join(projectRoot, 'pnpm-workspace.yaml')) {
 				throw makeNoEntry(target);
 			}
@@ -42,12 +52,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 		});
 
 		const helper = createBootstrapperResolutionReadinessHelper({
-			dependencies: {
-				access,
-				mkdtemp: jest.fn(),
-				rm: jest.fn(),
-				exec: jest.fn(),
-			},
+			dependencies: deps,
 		});
 
 		const context = createReadinessTestContext({
@@ -69,13 +74,13 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 			'Bootstrapper resolution pending verification.'
 		);
 
-		expect(access).toHaveBeenCalledWith(
+		expect(deps.access).toHaveBeenCalledWith(
 			path.join(repoRoot, 'pnpm-workspace.yaml')
 		);
 	});
 
 	it('reports ready when the bootstrapper resolves bundled dependencies', async () => {
-		const access = jest.fn(async (target: string) => {
+		deps.access.mockImplementation(async (target: string) => {
 			if (target === path.join(projectRoot, 'pnpm-workspace.yaml')) {
 				throw makeNoEntry(target);
 			}
@@ -96,13 +101,11 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 
 			throw new Error(`Unexpected access: ${target}`);
 		});
-
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-bootstrapper-123');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest.fn(async () => ({ stdout: 'help', stderr: '' }));
+		deps.mkdtemp.mockResolvedValue('/tmp/wpk-bootstrapper-123');
+		deps.exec.mockResolvedValue({ stdout: 'help', stderr: '' });
 
 		const helper = createBootstrapperResolutionReadinessHelper({
-			dependencies: { access, mkdtemp, rm, exec },
+			dependencies: deps,
 		});
 
 		const context = createReadinessTestContext({
@@ -118,7 +121,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 			'Bootstrapper resolved CLI entrypoint via --help invocation.'
 		);
 
-		expect(exec).toHaveBeenCalledWith(
+		expect(deps.exec).toHaveBeenCalledWith(
 			process.execPath,
 			[bootstrapperPath, '--', '--help'],
 			expect.objectContaining({
@@ -127,7 +130,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 			})
 		);
 
-		expect(rm).toHaveBeenCalledWith('/tmp/wpk-bootstrapper-123', {
+		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-bootstrapper-123', {
 			recursive: true,
 			force: true,
 		});
@@ -140,7 +143,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 	});
 
 	it('throws an EnvironmentalError when bootstrapper resolution fails', async () => {
-		const access = jest.fn(async (target: string) => {
+		deps.access.mockImplementation(async (target: string) => {
 			if (target === path.join(projectRoot, 'pnpm-workspace.yaml')) {
 				throw makeNoEntry(target);
 			}
@@ -161,10 +164,8 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 
 			throw new Error(`Unexpected access: ${target}`);
 		});
-
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-bootstrapper-999');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest.fn(async () => {
+		deps.mkdtemp.mockResolvedValue('/tmp/wpk-bootstrapper-999');
+		deps.exec.mockImplementation(async () => {
 			const error = new Error(
 				'Cannot find module'
 			) as NodeJS.ErrnoException & {
@@ -179,7 +180,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 		});
 
 		const helper = createBootstrapperResolutionReadinessHelper({
-			dependencies: { access, mkdtemp, rm, exec },
+			dependencies: deps,
 		});
 
 		const context = createReadinessTestContext({
@@ -193,7 +194,7 @@ describe('createBootstrapperResolutionReadinessHelper', () => {
 			reason: 'bootstrapper.resolve',
 		} satisfies Partial<EnvironmentalError>);
 
-		expect(rm).toHaveBeenCalledWith('/tmp/wpk-bootstrapper-999', {
+		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-bootstrapper-999', {
 			recursive: true,
 			force: true,
 		});

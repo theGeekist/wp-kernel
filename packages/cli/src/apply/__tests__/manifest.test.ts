@@ -6,6 +6,7 @@ import path from 'node:path';
 import type { IRResource } from '../../ir/publicTypes';
 import type { SerializableResourceUIConfig } from '../../config/types';
 import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
+import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
 import {
 	buildEmptyGenerationState,
@@ -196,19 +197,22 @@ describe('generation manifest helpers', () => {
 				dataviews: dataviewsConfig,
 			},
 		};
+		const baseResource = createDefaultResource();
 		const resource: IRResource = {
+			...baseResource,
 			id: 'res:books',
 			name: 'books',
 			schemaKey: 'books',
 			schemaProvenance: 'manual',
 			routes: [],
 			cacheKeys: {
+				...baseResource.cacheKeys,
 				list: { segments: [], source: 'default' },
 				get: { segments: [], source: 'default' },
 			},
 			warnings: [],
 			hash: {
-				algo: 'sha256',
+				...baseResource.hash,
 				inputs: ['resource'],
 				value: 'abc123',
 			},
@@ -322,23 +326,27 @@ describe('generation manifest helpers', () => {
 			},
 			schemas: [],
 			resources: [
-				{
-					id: 'res:ignored',
-					name: '---',
-					schemaKey: 'ignored',
-					schemaProvenance: 'manual',
-					routes: [],
-					cacheKeys: {
-						list: { segments: [], source: 'default' },
-						get: { segments: [], source: 'default' },
-					},
-					warnings: [],
-					hash: {
-						algo: 'sha256',
-						inputs: ['resource'],
-						value: 'bad',
-					},
-				},
+				((): IRResource => {
+					const ignoredBase = createDefaultResource();
+					return {
+						...ignoredBase,
+						id: 'res:ignored',
+						name: '---',
+						schemaKey: 'ignored',
+						routes: [],
+						cacheKeys: {
+							...ignoredBase.cacheKeys,
+							list: { segments: [], source: 'default' },
+							get: { segments: [], source: 'default' },
+						},
+						warnings: [],
+						hash: {
+							...ignoredBase.hash,
+							inputs: ['resource'],
+							value: 'bad',
+						},
+					};
+				})(),
 			],
 			capabilities: [],
 			capabilityMap: {

@@ -12,7 +12,7 @@ import type { IRCapabilityScope, IRv1 } from '../../ir/publicTypes';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createReporterMock } from '@cli-tests/reporter';
-import { makeIrMeta } from '@cli-tests/ir.test-support';
+import { makeIr, makeIrMeta } from '@cli-tests/ir.test-support';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 
@@ -510,33 +510,25 @@ describe('runAdapterExtensions', () => {
 function createIr(): IRv1 {
 	const config = createConfig();
 
-	return {
+	return makeIr({
+		namespace: 'Demo\\Namespace',
 		meta: makeIrMeta('Demo\\Namespace', {
 			sourcePath: '/workspace/wpk.config.ts',
 			origin: 'file',
 		}),
 		config,
-		schemas: [],
-		resources: [],
-		capabilities: [],
-		capabilityMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: {
-				capability: 'manage_options',
-				appliesTo: 'resource' as IRCapabilityScope,
-			},
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
 		php: {
 			namespace: 'Demo\\Namespace',
 			autoload: 'inc/',
 			outputDir: '/fake/path',
 		},
-	};
+		capabilityMap: {
+			fallback: {
+				capability: 'manage_options',
+				appliesTo: 'resource' as IRCapabilityScope,
+			},
+		},
+	});
 }
 
 function createAdapterContext(reporter: Reporter, ir: IRv1): AdapterContext {

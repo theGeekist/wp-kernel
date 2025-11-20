@@ -1,10 +1,9 @@
 import path from 'node:path';
-import * as fs from 'node:fs/promises';
+import { createMockFs, type MockFs } from '@cli-tests/mocks';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
-jest.mock('node:fs/promises', () => ({
-	access: jest.fn(),
-	readFile: jest.fn(),
-}));
+
+jest.mock('node:fs/promises', () => createMockFs());
+const fsMock = jest.requireMock('node:fs/promises') as MockFs;
 import {
 	buildComposerPackageName,
 	buildPhpNamespace,
@@ -18,7 +17,8 @@ import {
 
 describe('init utils', () => {
 	afterEach(() => {
-		jest.resetAllMocks();
+		jest.clearAllMocks();
+		fsMock.files.clear();
 	});
 
 	it('slugifies values and falls back when input is empty', () => {
@@ -64,12 +64,20 @@ describe('init utils', () => {
 			),
 		});
 
-		const accessMock = fs.access as jest.MockedFunction<typeof fs.access>;
-		accessMock
-			.mockResolvedValueOnce(undefined)
-			.mockRejectedValueOnce(
-				Object.assign(new Error('missing'), { code: 'ENOENT' })
-			);
+		const accessMock = fsMock.access as jest.MockedFunction<
+			typeof fsMock.access
+		>;
+		fsMock.files.set(
+			path.join('/tmp/project', 'wpk.config.ts'),
+			Buffer.alloc(0)
+		);
+		accessMock.mockImplementation(async (target) => {
+			if (!fsMock.files.has(target.toString())) {
+				const error = new Error('missing') as NodeJS.ErrnoException;
+				error.code = 'ENOENT';
+				throw error;
+			}
+		});
 
 		await expect(fileExists(workspace, 'wpk.config.ts')).resolves.toBe(
 			true
@@ -99,7 +107,9 @@ describe('init utils', () => {
 			code: 'EACCES',
 		});
 
-		const accessMock = fs.access as jest.MockedFunction<typeof fs.access>;
+		const accessMock = fsMock.access as jest.MockedFunction<
+			typeof fsMock.access
+		>;
 		accessMock.mockRejectedValue(failure);
 
 		await expect(fileExists(workspace, 'wpk.config.ts')).rejects.toBe(
@@ -121,7 +131,9 @@ describe('init utils', () => {
 			path.join(repoRoot, 'tests', 'test-utils'),
 		]);
 
-		const accessMock = fs.access as jest.MockedFunction<typeof fs.access>;
+		const accessMock = fsMock.access as jest.MockedFunction<
+			typeof fsMock.access
+		>;
 		accessMock.mockImplementation(async (target) => {
 			const resolved = target.toString();
 			if (accessible.has(resolved)) {
@@ -153,7 +165,9 @@ describe('init utils', () => {
 	});
 
 	it('falls back to workspace defaults when repository markers are missing', async () => {
-		const accessMock = fs.access as jest.MockedFunction<typeof fs.access>;
+		const accessMock = fsMock.access as jest.MockedFunction<
+			typeof fsMock.access
+		>;
 		accessMock.mockRejectedValue(
 			Object.assign(new Error('missing'), { code: 'ENOENT' })
 		);
