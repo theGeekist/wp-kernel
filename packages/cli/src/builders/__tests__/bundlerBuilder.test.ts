@@ -247,9 +247,7 @@ describe('createBundler', () => {
 				])
 			);
 
-			expect(config.input.index).toBe(
-				path.posix.join(layout.resolve('ui.generated'), 'index.tsx')
-			);
+			expect(config.input.index).toBe('src/index.ts');
 
 			const viteConfig = await workspace.readText('vite.config.ts');
 			const relativeImport = path.posix

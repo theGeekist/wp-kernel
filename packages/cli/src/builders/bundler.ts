@@ -305,7 +305,14 @@ function mergePackageJsonDependencies(options: {
 	return { pkg: next, changed };
 }
 
-function resolveUiEntryPoint(ir: IRv1 | null | undefined): string {
+function resolveUiEntryPoint(
+	ir: IRv1 | null | undefined,
+	hasUiResources?: boolean
+): string {
+	if (hasUiResources === false) {
+		return DEFAULT_ENTRY_POINT;
+	}
+
 	if (!ir?.layout) {
 		return DEFAULT_ENTRY_POINT;
 	}
@@ -633,7 +640,7 @@ async function runBundlerGeneration({
 	const sanitizedNamespace = resolveBundlerNamespace(input);
 	const version = resolveBundlerVersion(input, pkg);
 	const hasUiResources = hasBundlerDataViews(input);
-	const entryPoint = resolveUiEntryPoint(input.ir);
+	const entryPoint = resolveUiEntryPoint(input.ir, hasUiResources);
 	const packageResult = await ensureBundlerDependencies({
 		workspaceRoot: context.workspace.root,
 		pkg,
