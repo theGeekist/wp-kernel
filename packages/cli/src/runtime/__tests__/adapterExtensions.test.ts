@@ -1,20 +1,11 @@
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
-import { createReporterMock as buildReporterMock } from '@cli-tests/reporter';
-import type { WPKernelConfigV1 } from '../../config/types';
-import type { IRv1 } from '../../ir/publicTypes';
-import type {
-	PipelineExtensionHook,
-	PipelineExtensionHookOptions,
-} from '../types';
-import { buildAdapterExtensionsExtension } from '../adapterExtensions';
 import { runAdapterExtensions } from '../../adapters';
 import { mkdir } from 'node:fs/promises';
 import { buildTsFormatter } from '../../builders/ts';
-import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
-import type { Workspace } from '../../workspace';
-import { buildEmptyGenerationState } from '../../apply/manifest';
-import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import type { WPKernelConfigV1 } from '../../config/types';
+import { buildAdapterExtensionHook } from '@cli-tests/runtime/adapter-extensions.test-support';
+import { type IRv1 } from '../../ir';
 
 jest.mock('../../adapters', () => ({
 	runAdapterExtensions: jest.fn(),
@@ -42,106 +33,6 @@ const buildTsFormatterMock = buildTsFormatter as jest.MockedFunction<
 	typeof buildTsFormatter
 >;
 
-function buildOptions(
-	overrides: Partial<PipelineExtensionHookOptions> = {}
-): PipelineExtensionHookOptions {
-	const config: WPKernelConfigV1 = {
-		version: 1,
-		namespace: 'test',
-		resources: {},
-		schemas: {},
-	} as WPKernelConfigV1;
-
-	const workspace = makeWorkspaceMock({
-		root: '/tmp/workspace',
-		resolve: jest
-			.fn<
-				ReturnType<Workspace['resolve']>,
-				Parameters<Workspace['resolve']>
-			>()
-			.mockImplementation((value?: string) =>
-				value ? path.join('/tmp/workspace', value) : '/tmp/workspace'
-			),
-		write: jest
-			.fn<
-				ReturnType<Workspace['write']>,
-				Parameters<Workspace['write']>
-			>()
-			.mockResolvedValue(undefined),
-	});
-	const reporter = buildReporterMock();
-
-	const artifact = {
-		meta: {
-			sanitizedNamespace: 'TestNamespace',
-			namespace: 'test',
-			origin: 'typescript',
-			sourcePath: '/tmp/workspace/wpk.config.ts',
-			version: 1,
-		},
-		layout: loadTestLayoutSync(),
-	} as unknown as IRv1;
-
-	const generationState = buildEmptyGenerationState();
-
-	const base: PipelineExtensionHookOptions = {
-		context: {
-			phase: 'generate',
-			workspace,
-			reporter,
-			generationState,
-		},
-		options: {
-			phase: 'generate',
-			config,
-			namespace: 'test',
-			origin: 'typescript',
-			sourcePath: '/tmp/workspace/wpk.config.ts',
-			workspace,
-			reporter,
-			generationState,
-		},
-		artifact,
-		lifecycle: 'after-fragments',
-	};
-
-	return {
-		...base,
-		...overrides,
-		context: {
-			...base.context,
-			...overrides.context,
-		},
-		options: {
-			...base.options,
-			...overrides.options,
-		},
-		lifecycle: overrides.lifecycle ?? base.lifecycle,
-	};
-}
-
-async function buildHook(config: WPKernelConfigV1): Promise<{
-	hook: PipelineExtensionHook;
-	options: PipelineExtensionHookOptions;
-}> {
-	const extension = buildAdapterExtensionsExtension();
-	const registration = await extension.register({} as never);
-	const hook =
-		typeof registration === 'function'
-			? registration
-			: (registration?.hook ?? (() => Promise.resolve()));
-	const options = buildOptions({
-		options: {
-			config,
-			namespace: config.namespace,
-			origin: 'typescript',
-			sourcePath: '/tmp/workspace/wpk.config.ts',
-		},
-	});
-
-	return { hook, options };
-}
-
 beforeEach(() => {
 	jest.clearAllMocks();
 	tsFormatterFormatMock.mockClear();
@@ -157,7 +48,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [factory] },
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		const result = await hook({
 			...options,
@@ -178,7 +69,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [] },
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		const result = await hook(options);
 
@@ -196,7 +87,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				extensions: [() => [{ name: ' ', apply: jest.fn() }]],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -221,7 +112,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [factory] },
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		const commit = jest.fn().mockResolvedValue(undefined);
 		const rollback = jest.fn().mockResolvedValue(undefined);
@@ -261,7 +152,7 @@ describe('buildAdapterExtensionsExtension', () => {
 		expect(args?.adapterContext.ir).toBe(ir);
 		expect(args?.outputDir).toBe(
 			options.options.workspace.resolve(
-				loadTestLayoutSync().resolve('js.generated')
+				options.artifact.layout.resolve('js.generated')
 			)
 		);
 		expect(args?.configDirectory).toBe(
@@ -303,7 +194,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -339,7 +230,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				schemas: {},
 				adapters: { extensions: [factory as never] },
 			} as WPKernelConfigV1;
-			const { hook, options } = await buildHook(config);
+			const { hook, options } = await buildAdapterExtensionHook(config);
 
 			await expect(hook(options)).rejects.toThrow(WPKernelError);
 			expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -360,7 +251,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [skip, empty] },
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		const result = await hook(options);
 
@@ -389,7 +280,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
 			ir: options.artifact,
@@ -425,7 +316,7 @@ describe('buildAdapterExtensionsExtension', () => {
 				extensions: [() => ({ name: 'single', apply })],
 			},
 		} as WPKernelConfigV1;
-		const { hook, options } = await buildHook(config);
+		const { hook, options } = await buildAdapterExtensionHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
 			ir: options.artifact,

@@ -36,19 +36,10 @@ const withWorkspace = (
 function materialiseArtifacts(
 	artifacts: ReturnType<typeof buildBuilderArtifacts>
 ): { buildOptions: BuildIrOptions; typedIr: ReturnType<typeof makeIr> } {
-	const buildOptions = artifacts.options as unknown as BuildIrOptions;
-	const typedIr = makeIr({
-		namespace: artifacts.ir.meta.namespace,
-		meta: artifacts.ir.meta as any,
-		config: buildOptions.config as any,
-		schemas: artifacts.ir.schemas as any,
-		resources: artifacts.ir.resources as any,
-		capabilityMap: artifacts.ir.capabilityMap as any,
-		php: artifacts.ir.php as any,
-		ui: artifacts.ir.ui as any,
-	});
-
-	return { buildOptions, typedIr };
+	return {
+		buildOptions: artifacts.options,
+		typedIr: makeIr(artifacts.ir),
+	};
 }
 
 describe('createTsBuilder - admin screen creator', () => {
@@ -67,14 +58,11 @@ describe('createTsBuilder - admin screen creator', () => {
 			await workspace.write('wpk.config.ts', configSource);
 
 			const dataviews = buildDataViewsConfig();
-			const { ir, options } = buildBuilderArtifacts({
+			const artifacts = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const { buildOptions, typedIr } = materialiseArtifacts({
-				ir,
-				options,
-			});
+			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -195,16 +183,13 @@ describe('createTsBuilder - admin screen creator', () => {
 			});
 			await workspace.write('wpk.config.ts', configSource);
 
-			const { ir, options } = buildBuilderArtifacts({
+			const artifacts = buildBuilderArtifacts({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const { buildOptions, typedIr } = materialiseArtifacts({
-				ir,
-				options,
-			});
+			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -266,16 +251,13 @@ describe('createTsBuilder - admin screen creator', () => {
 			await workspace.write('wpk.config.ts', configSource);
 
 			const dataviews = buildDataViewsConfig();
-			const { ir, options } = buildBuilderArtifacts({
+			const artifacts = buildBuilderArtifacts({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const { buildOptions, typedIr } = materialiseArtifacts({
-				ir,
-				options,
-			});
+			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -355,14 +337,11 @@ describe('createTsBuilder - admin screen creator', () => {
 			});
 			await workspace.write('wpk.config.ts', configSource);
 
-			const { ir, options } = buildBuilderArtifacts({
+			const artifacts = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const { buildOptions, typedIr } = materialiseArtifacts({
-				ir,
-				options,
-			});
+			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -421,16 +400,13 @@ describe('createTsBuilder - admin screen creator', () => {
 			const dataviews = buildDataViewsConfig();
 			delete (dataviews as { screen?: typeof dataviews.screen }).screen;
 
-			const { ir, options } = buildBuilderArtifacts({
+			const artifacts = buildBuilderArtifacts({
 				dataviews,
 				resourceName: 'Job Board',
 				resourceKey: 'job-board',
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const { buildOptions, typedIr } = materialiseArtifacts({
-				ir,
-				options,
-			});
+			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
 
 			const reporter = buildReporter();
 			const output = buildOutput();
@@ -502,14 +478,11 @@ describe('createTsBuilder - admin screen creator', () => {
 			});
 			await workspace.write('wpk.config.ts', configSource);
 
-			const { ir, options } = buildBuilderArtifacts({
+			const artifacts = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
-			const { buildOptions, typedIr } = materialiseArtifacts({
-				ir,
-				options,
-			});
+			const { buildOptions, typedIr } = materialiseArtifacts(artifacts);
 
 			const reporter = buildReporter();
 			const output = buildOutput();

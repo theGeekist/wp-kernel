@@ -2,12 +2,24 @@ import path from 'node:path';
 
 export interface MockFs {
 	readonly files: Map<string, Buffer>;
-	readFile: jest.Mock<Promise<Buffer>, [string | Buffer | URL | number]>;
+	readFile: jest.Mock<
+		Promise<Buffer | string>,
+		[string | Buffer | URL | number, BufferEncoding?]
+	>;
+	readFileSync: jest.Mock<
+		Buffer | string,
+		[string | Buffer | URL | number, BufferEncoding?]
+	>;
 	writeFile: jest.Mock<
 		Promise<void>,
-		[string | Buffer | URL | number, string | NodeJS.ArrayBufferView]
+		[
+			string | Buffer | URL | number,
+			string | NodeJS.ArrayBufferView,
+			BufferEncoding?,
+		]
 	>;
 	access: jest.Mock<Promise<void>, [string | Buffer | URL | number]>;
+	exists: jest.Mock<Promise<boolean>, [string | Buffer | URL | number]>;
 	existsSync: jest.Mock<boolean, [string | Buffer | URL | number]>;
 	stat: jest.Mock<
 		Promise<{ isDirectory: () => boolean; isFile: () => boolean }>,
@@ -46,25 +58,51 @@ export function createMockFs(
 		);
 	}
 
-	const readFile = jest.fn(async (file: string | Buffer | URL | number) => {
-		const key = toKey(file);
-		if (!files.has(key)) {
-			throw Object.assign(new Error(`ENOENT: ${key}`), {
-				code: 'ENOENT',
-			});
+	const readFile = jest.fn(
+		async (
+			file: string | Buffer | URL | number,
+			encoding?: BufferEncoding
+		) => {
+			const key = toKey(file);
+			if (!files.has(key)) {
+				throw Object.assign(new Error(`ENOENT: ${key}`), {
+					code: 'ENOENT',
+				});
+			}
+			const contents = files.get(key)!;
+			if (encoding) {
+				return contents.toString(encoding);
+			}
+			return contents;
 		}
-		return files.get(key)!;
-	});
+	);
+
+	const readFileSync = jest.fn(
+		(file: string | Buffer | URL | number, encoding?: BufferEncoding) => {
+			const key = toKey(file);
+			if (!files.has(key)) {
+				throw Object.assign(new Error(`ENOENT: ${key}`), {
+					code: 'ENOENT',
+				});
+			}
+			const contents = files.get(key)!;
+			if (encoding) {
+				return contents.toString(encoding);
+			}
+			return contents;
+		}
+	);
 
 	const writeFile = jest.fn(
 		async (
 			file: string | Buffer | URL | number,
-			data: string | NodeJS.ArrayBufferView
+			data: string | NodeJS.ArrayBufferView,
+			encoding?: BufferEncoding
 		) => {
 			const key = toKey(file);
 			const buffer = Buffer.isBuffer(data)
 				? Buffer.from(data)
-				: Buffer.from(data as string);
+				: Buffer.from(data as string, encoding);
 			files.set(key, buffer);
 		}
 	);
@@ -76,6 +114,11 @@ export function createMockFs(
 				code: 'ENOENT',
 			});
 		}
+	});
+
+	const exists = jest.fn(async (file: string | Buffer | URL | number) => {
+		const key = toKey(file);
+		return files.has(key);
 	});
 
 	const existsSync = jest.fn((file: string | Buffer | URL | number) =>
@@ -99,5 +142,15 @@ export function createMockFs(
 		files.delete(toKey(file));
 	});
 
-	return { files, readFile, writeFile, access, existsSync, stat, rm };
+	return {
+		files,
+		readFile,
+		readFileSync,
+		writeFile,
+		access,
+		exists,
+		existsSync,
+		stat,
+		rm,
+	};
 }

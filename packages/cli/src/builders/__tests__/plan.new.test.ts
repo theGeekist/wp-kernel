@@ -6,15 +6,7 @@ import { buildWorkspace } from '../../workspace';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { makeIr } from '@cli-tests/ir.test-support';
 import { loadTestLayout } from '@cli-tests/layout.test-support';
-
-function buildReporter() {
-	return {
-		info: jest.fn(),
-		debug: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-	};
-}
+import { createReporterMock } from '@cli-tests/reporter';
 
 async function withTempWorkspace(
 	populate: (root: string) => Promise<void>,
@@ -31,7 +23,7 @@ async function withTempWorkspace(
 
 async function runPlanBuilder(root: string, ir = makeIr()): Promise<void> {
 	const workspace = buildWorkspace(root);
-	const reporter = buildReporter();
+	const reporter = createReporterMock();
 	const actions: unknown[] = [];
 	const helper = createApplyPlanBuilder();
 

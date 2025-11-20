@@ -1,5 +1,20 @@
 import { initialiseGitRepository, isGitRepository } from '../init/git';
 
+type GitExecError = NodeJS.ErrnoException & {
+	stderr?: string;
+	stdout?: string;
+	code?: number | string;
+};
+
+function createGitError(overrides: Partial<GitExecError> = {}): GitExecError {
+	const error = new Error(overrides.message ?? 'git failed') as GitExecError;
+	Object.assign(error, overrides);
+	if (typeof overrides.code !== 'undefined') {
+		error.code = overrides.code;
+	}
+	return error;
+}
+
 describe('init git helpers', () => {
 	it('detects git repositories when rev-parse succeeds', async () => {
 		const exec = jest.fn().mockResolvedValue({ stdout: 'true\n' });
@@ -15,36 +30,21 @@ describe('init git helpers', () => {
 		);
 	});
 
-	it('returns false when git reports missing repository via stderr output', async () => {
-		const exec = jest.fn().mockRejectedValue(
-			Object.assign(new Error('stderr path'), {
-				stderr: 'fatal: not a git repository',
-			})
-		);
-
-		await expect(isGitRepository('/repo/demo', { exec })).resolves.toBe(
-			false
-		);
-	});
-
-	it('returns false when git reports missing repository via error message', async () => {
-		const exec = jest.fn().mockRejectedValue(
-			Object.assign(new Error('fatal: not a git repository'), {
-				message: 'fatal: not a git repository',
-			})
-		);
-
-		await expect(isGitRepository('/repo/demo', { exec })).resolves.toBe(
-			false
-		);
-	});
-
-	it('returns false when git exits with missing repository status code', async () => {
-		const exec = jest.fn().mockRejectedValue(
-			Object.assign(new Error('unknown failure'), {
-				code: 128,
-			})
-		);
+	it.each([
+		[
+			'stderr indicates missing repo',
+			createGitError({ stderr: 'fatal: not a git repository' }),
+		],
+		[
+			'error message indicates missing repo',
+			createGitError({ message: 'fatal: not a git repository' }),
+		],
+		[
+			'exit code 128 indicates missing repo',
+			createGitError({ code: '128' }),
+		],
+	])('returns false when %s', async (_label, error) => {
+		const exec = jest.fn().mockRejectedValue(error);
 
 		await expect(isGitRepository('/repo/demo', { exec })).resolves.toBe(
 			false
@@ -53,9 +53,10 @@ describe('init git helpers', () => {
 
 	it('wraps unexpected git errors in a developer wpk error', async () => {
 		const exec = jest.fn().mockRejectedValue(
-			Object.assign(new Error('permission denied'), {
+			createGitError({
+				message: 'permission denied',
 				stderr: 'fatal: permission denied',
-				code: 1,
+				code: '1',
 			})
 		);
 
@@ -72,12 +73,13 @@ describe('init git helpers', () => {
 
 		await expect(
 			initialiseGitRepository('/repo/demo', { exec })
-		).resolves.toBe(undefined);
+		).resolves.toBeUndefined();
 		expect(exec).toHaveBeenCalledWith('git', ['init'], {
 			cwd: '/repo/demo',
 		});
 
-		const failure = Object.assign(new Error('git init failed'), {
+		const failure = createGitError({
+			message: 'git init failed',
 			stderr: 'fatal: permission denied',
 		});
 

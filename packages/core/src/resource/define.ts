@@ -79,7 +79,14 @@ function buildResourceDefinitionOptions<
 	} satisfies ResourcePipelineRunOptions<T, TQuery>;
 }
 
-type InferResourceDefinition<
+/**
+ * Infers the entity, query, and routes types from a given ResourceConfig.
+ * This utility type is used to provide strong typing for the `defineResource` function.
+ *
+ * @template Config - The ResourceConfig type to infer from.
+ * @category Resource
+ */
+export type InferResourceDefinition<
 	Config extends ResourceConfig<unknown, unknown, ResourceRoutes>,
 > =
 	Config extends ResourceConfig<infer Entity, infer Query, infer Routes>
@@ -102,7 +109,14 @@ type ConfigCapabilityMap<Config> = Partial<
 	Record<ConfigCapabilityKeys<Config>, string | ResourceCapabilityDescriptor>
 >;
 
-type ConfigWithInferredCapabilities<
+/**
+ * A utility type for `defineResource` that infers capabilities from the provided ResourceConfig.
+ * This type allows the `capabilities` property to be automatically typed based on the routes defined in the config.
+ *
+ * @template Config - The ResourceConfig type to infer capabilities from.
+ * @category Resource
+ */
+export type ConfigWithInferredCapabilities<
 	Config extends ResourceConfig<unknown, unknown, ResourceRoutes>,
 > = Config & {
 	readonly capabilities?: ConfigCapabilityMap<Config>;

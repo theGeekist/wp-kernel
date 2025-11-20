@@ -2,6 +2,7 @@ import { createReporterMock as buildReporterMock } from '@cli-tests/reporter';
 import type { WPKernelConfigV1 } from '../../../config/types';
 import { createDiagnosticsFragment } from '../diagnostics';
 import { buildIrDraft, buildIrFragmentOutput } from '../../types';
+import { buildEmptyGenerationState } from '../../../apply/manifest';
 
 function buildDraft(): ReturnType<typeof buildIrDraft> {
 	const config = {
@@ -58,6 +59,7 @@ describe('createDiagnosticsFragment', () => {
 					workspace: { root: '/tmp/workspace' } as never,
 					phase: 'generate',
 					reporter,
+					generationState: buildEmptyGenerationState(),
 				},
 				input: {
 					options: {
@@ -113,6 +115,7 @@ describe('createDiagnosticsFragment', () => {
 					workspace: { root: '/tmp/workspace' } as never,
 					phase: 'generate',
 					reporter,
+					generationState: buildEmptyGenerationState(),
 				},
 				input: {
 					options: {

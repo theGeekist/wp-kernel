@@ -1,14 +1,17 @@
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createPhpCodemodIngestionReadinessHelper } from '../phpCodemodIngestion';
 import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
+import { resetPhpAssetsMock } from '@cli-tests/mocks';
 
-jest.mock('../../../../utils/phpAssets', () => ({
-	resolveBundledPhpJsonAstIngestionPath: jest
-		.fn()
-		.mockReturnValue('/bundle/php-json-ast/php/ingest-program.php'),
-}));
+jest.mock('../../../../utils/phpAssets', () => {
+	const { phpAssetsMock } = jest.requireActual('@cli-tests/mocks/php-assets');
+	return phpAssetsMock;
+});
 
 describe('createPhpCodemodIngestionReadinessHelper', () => {
+	beforeEach(() => {
+		resetPhpAssetsMock();
+	});
 	it('reports ready when the bundled script exists', async () => {
 		const access = jest.fn().mockResolvedValue(undefined);
 		const realpath = jest

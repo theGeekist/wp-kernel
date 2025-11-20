@@ -3,14 +3,27 @@ import { WPKernelError } from '@wpkernel/core/error';
 import type { PackageManager } from './types';
 
 export interface InstallerDependencies {
+	/**
+	 * A custom spawn function, typically from 'node:child_process'.
+	 */
 	readonly spawn?: typeof spawnProcess;
 }
 
+/**
+ * Represents the result of an installer command execution.
+ *
+ * @category CLI Helpers
+ */
 export interface InstallerResult {
 	stdout: string;
 	stderr: string;
 }
 
+/**
+ * Options for running an installer command.
+ *
+ * @category CLI Helpers
+ */
 export interface InstallerRunOptions {
 	readonly verbose?: boolean;
 }

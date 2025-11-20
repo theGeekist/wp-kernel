@@ -1,22 +1,11 @@
 import { createResourcesFragment } from '../resources';
 import { WPKernelError } from '@wpkernel/core/error';
-
-jest.mock('../../shared/resource-builder', () => ({
-	buildResources: jest.fn(async () => [
-		{
-			name: 'Thing',
-			schemaKey: 's',
-			schemaProvenance: 'manual',
-			routes: [],
-			cacheKeys: {
-				list: { segments: [], source: 'default' },
-				get: { segments: [], source: 'default' },
-			},
-			hash: '',
-			warnings: [],
-		},
-	]),
-}));
+jest.mock('../../shared/resource-builder', () => {
+	const { createResourceBuilderMock } = jest.requireActual(
+		'@cli-tests/ir/resource-builder.mock'
+	);
+	return createResourceBuilderMock();
+});
 
 import { buildResources } from '../../shared/resource-builder';
 

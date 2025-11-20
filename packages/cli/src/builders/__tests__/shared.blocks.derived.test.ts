@@ -11,6 +11,7 @@ import type {
 import type { WPKernelConfigV1 } from '../../config/types';
 import path from 'path';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { createDefaultResource } from '@cli-tests/ir/resource-builder.mock';
 
 const layout = loadTestLayoutSync();
 
@@ -356,10 +357,12 @@ function makeResource(
 	schemaKey: string,
 	overrides?: ResourceOverrides
 ): IRResource {
+	const base = createDefaultResource();
 	const routes = overrides?.routes ?? [makeRoute()];
 	const cacheKeys = buildCacheKeys(overrides?.cacheKeys);
 
 	return {
+		...base,
 		id: overrides?.id ?? `res:${name}`,
 		name,
 		schemaKey,

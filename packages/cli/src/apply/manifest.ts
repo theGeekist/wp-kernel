@@ -53,6 +53,11 @@ export interface GenerationManifest {
 	readonly ui?: GenerationManifestUiState;
 }
 
+/**
+ * Represents the UI state within the {@link GenerationManifest}.
+ *
+ * @category CLI
+ */
 export interface GenerationManifestUiState {
 	readonly handle: string;
 }

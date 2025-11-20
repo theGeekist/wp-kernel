@@ -21,26 +21,30 @@ function makeOptions(root: string) {
 	};
 	const layout = loadTestLayoutSync();
 	const ir = { ...makeIr(), layout };
-	return {
+	const options = {
 		reporter,
-		input: {
-			phase: 'generate' as const,
-			options: {
-				config: ir.config,
-				namespace: ir.meta.namespace,
-				origin: ir.meta.origin,
-				sourcePath: path.join(root, 'wpk.config.ts'),
-			},
-			ir,
-		},
-		context: {
-			workspace,
+		options: {
 			reporter,
-			phase: 'generate' as const,
-			generationState: buildEmptyGenerationState(),
+			input: {
+				phase: 'generate' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(root, 'wpk.config.ts'),
+				},
+				ir,
+			},
+			context: {
+				workspace,
+				reporter,
+				phase: 'generate' as const,
+				generationState: buildEmptyGenerationState(),
+			},
+			output: { actions: [], queueWrite: jest.fn() },
 		},
-		output: { actions: [], queueWrite: jest.fn() },
-	} as unknown as Parameters<typeof collectBlockSurfaceInstructions>[0];
+	};
+	return options;
 }
 
 describe('plan.blocks', () => {
@@ -56,9 +60,9 @@ describe('plan.blocks', () => {
 			await fs.mkdir(generated, { recursive: true });
 			await fs.writeFile(path.join(generated, 'index.tsx'), '// block');
 
-			const { instructions } = await collectBlockSurfaceInstructions({
-				options: makeOptions(root),
-			});
+			const { instructions } = await collectBlockSurfaceInstructions(
+				makeOptions(root)
+			);
 
 			expect(instructions).toEqual(
 				expect.arrayContaining([
@@ -105,7 +109,7 @@ describe('plan.blocks', () => {
 
 			const { instructions, skippedDeletions } =
 				await collectBlockDeletionInstructions({
-					options: makeOptions(root),
+					options: makeOptions(root).options,
 					generatedSuffixes: new Set(),
 				});
 

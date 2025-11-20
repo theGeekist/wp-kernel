@@ -125,6 +125,14 @@ export type SerializableResourceUIConfig = Omit<
 
 export type SerializableSchemaReference = string | Record<string, unknown>;
 
+/**
+ * A resource configuration that is safe to serialize, suitable for use in a `wpk.config.ts` file.
+ *
+ * This type omits properties that are not serializable, such as functions or complex objects.
+ *
+ * @category Config
+ * @public
+ */
 export type SerializableResourceConfig = ResourceConfigBase & {
 	/**
 	 * Resource name. Optional; defaults to the map key when omitted.
@@ -166,6 +174,11 @@ export interface AdaptersConfig {
 
 /**
  * Optional readiness helper configuration provided by a wpk project.
+ */
+/**
+ * Optional readiness helper configuration provided by a WPKernel project.
+ *
+ * @category Config
  */
 export interface ReadinessConfig {
 	/**
@@ -287,6 +300,14 @@ export type PhpAdapterFactory = (
 	context: AdapterContext
 ) => PhpAdapterConfig | void;
 
+/**
+ * Configuration for PHP codemod operations within the PHP adapter.
+ *
+ * This allows defining files to be processed by codemods, their configuration,
+ * and optional diagnostic settings.
+ *
+ * @category Adapters
+ */
 export interface PhpCodemodAdapterConfig {
 	readonly files: readonly string[];
 	readonly configurationPath?: string;

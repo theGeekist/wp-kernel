@@ -1,9 +1,14 @@
 import { EnvironmentalError } from '@wpkernel/core/error';
 import { createNoopReporter } from '@wpkernel/core/reporter';
+import {
+	createQuickstartDepsMock,
+	type QuickstartDepsMock,
+} from '@cli-tests/dx/quickstart.test-support';
 import type { DxContext } from '../../../context';
 import { createQuickstartReadinessHelper } from '../quickstart';
 
 describe('quickstart readiness helper', () => {
+	let deps: QuickstartDepsMock;
 	const baseContext: DxContext = {
 		reporter: createNoopReporter(),
 		workspace: null,
@@ -13,6 +18,10 @@ describe('quickstart readiness helper', () => {
 			workspaceRoot: null,
 		},
 	};
+
+	beforeEach(() => {
+		deps = createQuickstartDepsMock();
+	});
 
 	function createError(
 		code: string,
@@ -34,15 +43,8 @@ describe('quickstart readiness helper', () => {
 	}
 
 	it('throws EnvironmentalError when wpk binary is missing', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-123');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest.fn(async () => ({ stdout: '', stderr: '' }));
-		const access = jest.fn().mockRejectedValue(createError('ENOENT'));
-		const resolve = jest.fn();
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		deps.access.mockRejectedValue(createError('ENOENT'));
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await helper.detect(baseContext).catch((error) => {
 			expect(error).toBeInstanceOf(EnvironmentalError);
@@ -51,108 +53,70 @@ describe('quickstart readiness helper', () => {
 			);
 		});
 
-		expect(exec).toHaveBeenCalledTimes(1);
-		expect(rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-123', {
+		expect(deps.exec).toHaveBeenCalledTimes(1);
+		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-mock', {
 			recursive: true,
 			force: true,
 		});
 	});
 
 	it('throws EnvironmentalError when tsx runtime is missing', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-456');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest.fn(async () => ({ stdout: '', stderr: '' }));
-		const access = jest.fn(async () => undefined);
-		const resolve = jest.fn().mockImplementation(() => {
+		deps.resolve.mockImplementation(() => {
 			throw new Error("Cannot find module 'tsx'");
 		});
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await helper.detect(baseContext).catch((error) => {
 			expect((error as EnvironmentalError).reason).toBe('tsx.missing');
 		});
 
-		expect(exec).toHaveBeenCalledTimes(1);
-		expect(rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-456', {
+		expect(deps.exec).toHaveBeenCalledTimes(1);
+		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-mock', {
 			recursive: true,
 			force: true,
 		});
 	});
 
 	it('reports ready when create and generate succeed', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-789');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest
-			.fn()
+		deps.exec
 			.mockResolvedValueOnce({ stdout: 'scaffold', stderr: '' })
 			.mockResolvedValueOnce({ stdout: 'generate', stderr: '' });
-		const access = jest.fn(async () => undefined);
-		const resolve = jest
-			.fn()
-			.mockReturnValue(
-				'/tmp/wpk-quickstart-789/quickstart/node_modules/tsx'
-			);
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		const detection = await helper.detect(baseContext);
 
 		expect(detection.status).toBe('ready');
 		expect(detection.message).toContain('Quickstart scaffolding verified');
-		expect(exec).toHaveBeenCalledTimes(2);
-		expect(exec.mock.calls[0][0]).toBe('npm');
-		expect(exec.mock.calls[0][1]).toEqual([
+		expect(deps.exec).toHaveBeenCalledTimes(2);
+		expect(deps.exec.mock.calls[0][0]).toBe('npm');
+		expect(deps.exec.mock.calls[0][1]).toEqual([
 			'create',
 			'@wpkernel/wpk',
 			'quickstart',
 		]);
-		expect(resolve).toHaveBeenCalled();
+		expect(deps.resolve).toHaveBeenCalled();
 
 		const confirmation = await helper.confirm(baseContext, detection.state);
 		expect(confirmation.status).toBe('ready');
-		expect(rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-789', {
+		expect(deps.rm).toHaveBeenCalledWith('/tmp/wpk-quickstart-mock', {
 			recursive: true,
 			force: true,
 		});
 	});
 
 	it('rethrows unexpected access errors when resolving binary candidates', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-999');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest.fn(async () => ({ stdout: '', stderr: '' }));
 		const accessError = createError('EACCES');
-		const access = jest.fn().mockRejectedValue(accessError);
-		const resolve = jest.fn();
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		deps.access.mockRejectedValue(accessError);
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await expect(helper.detect(baseContext)).rejects.toBe(accessError);
 	});
 
 	it('throws cli.binary.missing when the generate invocation cannot resolve the binary', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-111');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest
-			.fn()
+		deps.exec
 			.mockResolvedValueOnce({ stdout: '', stderr: '' })
 			.mockRejectedValueOnce(createError('ENOENT'));
-		const access = jest.fn(async () => undefined);
-		const resolve = jest
-			.fn()
-			.mockReturnValue(
-				'/tmp/wpk-quickstart-111/quickstart/node_modules/tsx'
-			);
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await helper.detect(baseContext).catch((error) => {
 			expect((error as EnvironmentalError).reason).toBe(
@@ -162,24 +126,12 @@ describe('quickstart readiness helper', () => {
 	});
 
 	it('surfaces tsx missing errors when generate stdout reports module absence', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-222');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest
-			.fn()
+		deps.exec
 			.mockResolvedValueOnce({ stdout: '', stderr: '' })
 			.mockRejectedValueOnce(
 				createError('EFAIL', "Cannot find module 'tsx'", '')
 			);
-		const access = jest.fn(async () => undefined);
-		const resolve = jest
-			.fn()
-			.mockReturnValue(
-				'/tmp/wpk-quickstart-222/quickstart/node_modules/tsx'
-			);
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await helper.detect(baseContext).catch((error) => {
 			expect((error as EnvironmentalError).reason).toBe('tsx.missing');
@@ -187,24 +139,12 @@ describe('quickstart readiness helper', () => {
 	});
 
 	it('wraps unexpected generate failures in cli.quickstart.failed errors', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-333');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest
-			.fn()
+		deps.exec
 			.mockResolvedValueOnce({ stdout: '', stderr: '' })
 			.mockRejectedValueOnce(
 				createError('EFAIL', 'unexpected', 'generate failed')
 			);
-		const access = jest.fn(async () => undefined);
-		const resolve = jest
-			.fn()
-			.mockReturnValue(
-				'/tmp/wpk-quickstart-333/quickstart/node_modules/tsx'
-			);
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await helper.detect(baseContext).catch((error) => {
 			expect((error as EnvironmentalError).reason).toBe(
@@ -214,22 +154,10 @@ describe('quickstart readiness helper', () => {
 	});
 
 	it('checks Windows binary candidates when resolving the CLI entrypoint', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-444');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest
-			.fn()
-			.mockResolvedValueOnce({ stdout: '', stderr: '' })
-			.mockResolvedValueOnce({ stdout: 'generate', stderr: '' });
-		const access = jest
-			.fn()
+		deps.access
 			.mockRejectedValueOnce(createError('ENOENT'))
 			.mockRejectedValueOnce(createError('ENOENT'))
 			.mockResolvedValueOnce(undefined);
-		const resolve = jest
-			.fn()
-			.mockReturnValue(
-				'/tmp/wpk-quickstart-444/quickstart/node_modules/tsx'
-			);
 		const originalDescriptor = Object.getOwnPropertyDescriptor(
 			process,
 			'platform'
@@ -238,9 +166,7 @@ describe('quickstart readiness helper', () => {
 			value: 'win32',
 		});
 
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		try {
 			const detection = await helper.detect(baseContext);
@@ -253,41 +179,19 @@ describe('quickstart readiness helper', () => {
 	});
 
 	it('propagates unexpected tsx resolution failures', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-555');
-		const rm = jest.fn(async () => undefined);
-		const exec = jest.fn(async () => ({ stdout: '', stderr: '' }));
-		const access = jest.fn(async () => undefined);
 		const unexpected = new Error('resolution boom');
-		const resolve = jest.fn(() => {
+		deps.resolve.mockImplementation(() => {
 			throw unexpected;
 		});
 
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		await expect(helper.detect(baseContext)).rejects.toBe(unexpected);
 	});
 
 	it('suppresses cleanup failures when removing the temp workspace', async () => {
-		const mkdtemp = jest.fn(async () => '/tmp/wpk-quickstart-666');
-		const rm = jest.fn(async () => {
-			throw new Error('cleanup failed');
-		});
-		const exec = jest
-			.fn()
-			.mockResolvedValueOnce({ stdout: '', stderr: '' })
-			.mockResolvedValueOnce({ stdout: 'generate', stderr: '' });
-		const access = jest.fn(async () => undefined);
-		const resolve = jest
-			.fn()
-			.mockReturnValue(
-				'/tmp/wpk-quickstart-666/quickstart/node_modules/tsx'
-			);
-
-		const helper = createQuickstartReadinessHelper({
-			dependencies: { mkdtemp, rm, exec, access, resolve },
-		});
+		deps.rm.mockRejectedValue(new Error('cleanup failed'));
+		const helper = createQuickstartReadinessHelper({ dependencies: deps });
 
 		const detection = await helper.detect(baseContext);
 		expect(detection.status).toBe('ready');

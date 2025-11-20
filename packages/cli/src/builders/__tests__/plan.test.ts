@@ -10,15 +10,8 @@ import {
 import { makeIr } from '@cli-tests/ir.test-support';
 import type { GenerationManifest } from '../../apply/manifest';
 import { loadTestLayout } from '@cli-tests/layout.test-support';
-
-function makeReporter() {
-	return {
-		info: jest.fn(),
-		debug: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-	};
-}
+import { createReporterMock } from '@cli-tests/reporter';
+import { buildOutput } from '@cli-tests/builders/builder-harness.test-support';
 
 async function withTempWorkspace(
 	run: (context: {
@@ -41,14 +34,14 @@ async function runPlan(options: {
 	ir?: ReturnType<typeof makeIr> | null;
 	generationState?: GenerationManifest;
 	planPath?: string;
-}): Promise<{ plan: any; reporter: ReturnType<typeof makeReporter> }> {
+}): Promise<{ plan: any; reporter: ReturnType<typeof createReporterMock> }> {
 	const irArg =
 		options.ir === undefined
 			? makeIr()
 			: (options.ir as ReturnType<typeof makeIr> | null);
 	const optsSeed = irArg ?? makeIr();
-	const reporter = makeReporter();
-	const actions: unknown[] = [];
+	const reporter = createReporterMock();
+	const output = buildOutput();
 	const helper = createApplyPlanBuilder();
 	const generationState =
 		options.generationState ?? buildEmptyGenerationState();
@@ -70,7 +63,7 @@ async function runPlan(options: {
 			},
 			ir: irArg,
 		},
-		output: { actions, queueWrite: () => {} },
+		output,
 		reporter,
 	});
 

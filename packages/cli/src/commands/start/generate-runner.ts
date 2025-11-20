@@ -6,6 +6,14 @@ import type {
 import { buildGenerateDependencies } from '../generate/dependencies';
 import { runGenerateWorkflow } from '../generate';
 
+/**
+ * A function type that represents a runner for the WPKernel generate workflow.
+ *
+ * This abstraction allows the `start` command to trigger artifact generation
+ * without directly depending on the `generate` command's implementation details.
+ *
+ * @category CLI Helpers
+ */
 export type GenerateRunner = (options: {
 	readonly reporter: Reporter;
 	readonly verbose: boolean;

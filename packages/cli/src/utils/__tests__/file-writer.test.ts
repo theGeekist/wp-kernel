@@ -1,53 +1,34 @@
 import path from 'node:path';
-import * as fs from 'node:fs';
 
+import { createMockFs, type MockFs } from '@cli-tests/mocks';
 import { FileWriter } from '../file-writer';
-import { toWorkspaceRelative } from '../path';
-
-jest.mock('../path', () => ({
-	toWorkspaceRelative: jest.fn((absolute: string) =>
-		absolute.replace(/^\//, 'workspace/')
-	),
-}));
 
 jest.mock('node:fs', () => ({
-	promises: {
-		readFile: jest.fn(),
-		writeFile: jest.fn(),
-	},
+	promises: createMockFs(),
 }));
 
-const mockedToWorkspaceRelative = jest.mocked(toWorkspaceRelative);
-const fsPromises = fs.promises as unknown as {
-	readFile: jest.Mock;
-	writeFile: jest.Mock;
-};
+const mockFs = (jest.requireMock('node:fs') as { promises: MockFs }).promises;
 
 describe('FileWriter', () => {
-	function makeEnoent(): NodeJS.ErrnoException {
-		const error = new Error('missing') as NodeJS.ErrnoException;
-		error.code = 'ENOENT';
-		return error;
+	const target = 'src/example.ts';
+	const absolute = path.resolve(target);
+
+	function seedFile(contents: string, file = target): void {
+		mockFs.files.set(path.resolve(file), Buffer.from(contents, 'utf8'));
 	}
 
 	beforeEach(() => {
-		fsPromises.readFile.mockReset();
-		fsPromises.writeFile.mockReset();
-		mockedToWorkspaceRelative.mockClear();
+		mockFs.files.clear();
+		mockFs.readFile.mockClear();
+		mockFs.writeFile.mockClear();
 	});
 
 	it('writes files when contents change', async () => {
-		fsPromises.readFile.mockRejectedValue(makeEnoent());
-
 		const writer = new FileWriter();
-		const status = await writer.write(
-			'src/example.ts',
-			'export const value = 1;'
-		);
+		const status = await writer.write(target, 'export const value = 1;');
 
 		expect(status).toBe('written');
-		const absolute = path.resolve('src/example.ts');
-		expect(fsPromises.writeFile).toHaveBeenCalledWith(
+		expect(mockFs.writeFile).toHaveBeenCalledWith(
 			absolute,
 			expect.stringContaining('export const value = 1;'),
 			'utf8'
@@ -63,16 +44,13 @@ describe('FileWriter', () => {
 	});
 
 	it('avoids writing unchanged files', async () => {
-		fsPromises.readFile.mockResolvedValue('export const value = 2;\n');
+		seedFile('export const value = 2;\n');
 
 		const writer = new FileWriter();
-		const status = await writer.write(
-			'src/example.ts',
-			'export const value = 2;'
-		);
+		const status = await writer.write(target, 'export const value = 2;');
 
 		expect(status).toBe('unchanged');
-		expect(fsPromises.writeFile).not.toHaveBeenCalled();
+		expect(mockFs.writeFile).not.toHaveBeenCalled();
 
 		const summary = writer.summarise();
 		expect(summary.counts).toEqual({
@@ -83,13 +61,11 @@ describe('FileWriter', () => {
 	});
 
 	it('records dry-run writes as skipped when contents differ', async () => {
-		fsPromises.readFile.mockRejectedValue(makeEnoent());
-
 		const writer = new FileWriter({ dryRun: true });
-		const status = await writer.write('src/example.ts', 'const value = 3;');
+		const status = await writer.write(target, 'const value = 3;');
 
 		expect(status).toBe('skipped');
-		expect(fsPromises.writeFile).not.toHaveBeenCalled();
+		expect(mockFs.writeFile).not.toHaveBeenCalled();
 
 		const summary = writer.summarise();
 		expect(summary.counts.skipped).toBe(1);
@@ -97,21 +73,21 @@ describe('FileWriter', () => {
 	});
 
 	it('marks dry-run operations as unchanged when hashes match', async () => {
-		fsPromises.readFile.mockResolvedValue('const value = 4;\n');
+		seedFile('const value = 4;\n');
 
 		const writer = new FileWriter({ dryRun: true });
-		const status = await writer.write('src/example.ts', 'const value = 4;');
+		const status = await writer.write(target, 'const value = 4;');
 
 		expect(status).toBe('unchanged');
-		expect(fsPromises.writeFile).not.toHaveBeenCalled();
+		expect(mockFs.writeFile).not.toHaveBeenCalled();
 	});
 
 	it('propagates unexpected read errors', async () => {
-		fsPromises.readFile.mockRejectedValue(new Error('permission denied'));
+		mockFs.readFile.mockRejectedValueOnce(new Error('permission denied'));
 
 		const writer = new FileWriter();
-		await expect(
-			writer.write('src/example.ts', 'const x = 1;')
-		).rejects.toThrow('permission denied');
+		await expect(writer.write(target, 'const x = 1;')).rejects.toThrow(
+			'permission denied'
+		);
 	});
 });

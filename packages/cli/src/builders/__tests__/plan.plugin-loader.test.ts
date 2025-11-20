@@ -11,6 +11,7 @@ import { makeIr } from '@cli-tests/ir.test-support';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-json-ast/php-driver';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { createReporterMock } from '@cli-tests/reporter';
 
 const prettyPrinter = buildPhpPrettyPrinter({
 	workspace: buildWorkspace(process.cwd()),
@@ -18,12 +19,7 @@ const prettyPrinter = buildPhpPrettyPrinter({
 
 function makeOptions(root: string, ir = makeIr()) {
 	const workspace = buildWorkspace(root);
-	const reporter = {
-		info: jest.fn(),
-		debug: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-	};
+	const reporter = createReporterMock();
 	return {
 		reporter,
 		context: {

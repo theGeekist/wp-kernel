@@ -15,6 +15,7 @@ import {
 import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace';
 import { loadTestLayout } from '@cli-tests/layout.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
@@ -51,6 +52,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -117,6 +119,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -193,6 +196,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -257,6 +261,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 						workspace,
 						phase: 'generate',
 						reporter,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate',
@@ -312,6 +317,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 							workspace,
 							phase: 'generate',
 							reporter,
+							generationState: buildEmptyGenerationState(),
 						},
 						input: {
 							phase: 'generate',

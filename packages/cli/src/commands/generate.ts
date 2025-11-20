@@ -47,6 +47,9 @@ export { runGenerateWorkflow };
  */
 export type CommandConstructor = new () => Command & {
 	summary: GenerationSummary | null;
+	dryRun: boolean | undefined;
+	verbose: boolean | undefined;
+	allowDirty: boolean | undefined;
 };
 
 const TRANSACTION_LABEL = 'generate';

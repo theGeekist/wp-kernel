@@ -88,6 +88,12 @@
 		"Diagnostics",
 		"*"
 	],
+	"externalSymbolLinkMappings": {
+		"@wpkernel/core": {
+			"defineInteraction": "#",
+			"WPK_INFRASTRUCTURE.WP_HOOKS_NAMESPACE_UI_DATAVIEWS": "#"
+		}
+	},
 	"validation": {
 		"notExported": true,
 		"invalidLink": true,

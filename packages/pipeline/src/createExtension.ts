@@ -11,7 +11,13 @@ interface CreatePipelineExtensionBaseOptions {
 	readonly key?: string;
 }
 
-interface CreatePipelineExtensionWithRegister<
+/**
+ * Options for creating a pipeline extension using the dynamic register pattern.
+ *
+ * @category Pipeline
+ * @public
+ */
+export interface CreatePipelineExtensionWithRegister<
 	TPipeline,
 	TContext,
 	TOptions,

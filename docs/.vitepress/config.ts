@@ -4,6 +4,27 @@ import { withMermaid } from 'vitepress-plugin-mermaid';
 import tabsMarkdownPlugin from '@red-asuka/vitepress-plugin-tabs';
 import { configSidebar } from './sidebars/config';
 
+console.log('[docs] loading VitePress config');
+
+function escapeAngleBracketsPlugin(md: import('markdown-it')) {
+	console.log('[docs] escapeAngleBracketsPlugin enabled');
+	md.core.ruler.after('inline', 'escape-angle-brackets', (state) => {
+		for (const token of state.tokens) {
+			if (token.type !== 'inline' || !token.children) {
+				continue;
+			}
+
+			for (const child of token.children) {
+				if (child.type === 'text') {
+					child.content = child.content
+						.replace(/</g, '&lt;')
+						.replace(/>/g, '&gt;');
+				}
+			}
+		}
+	});
+}
+
 // Fast mode for pre-commit hooks (MPA mode + no minification)
 // Defaults to enabled locally unless DOCS_FAST=0/false.
 const rawCI = process.env.CI;
@@ -58,9 +79,11 @@ export default withMermaid(
 		// Fast path for pre-commit; set to true for PROD if you can live without SPA nav
 		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too		// Big win: limit Shiki languages (reduces client+server bundle a lot)
 		markdown: {
+			html: false,
 			theme: { light: 'github-light', dark: 'github-dark' },
 			config(md) {
 				md.use(tabsMarkdownPlugin);
+				md.use(escapeAngleBracketsPlugin);
 			},
 		},
 

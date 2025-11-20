@@ -11,6 +11,7 @@ import type {
 	ReadinessRegistry,
 	ReadinessDetection,
 	ReadinessConfirmation,
+	ReadinessKey,
 } from '../../dx';
 
 describe('buildDoctorCommand', () => {

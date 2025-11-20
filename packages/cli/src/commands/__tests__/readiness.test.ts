@@ -114,6 +114,9 @@ describe('runCommandReadiness', () => {
 			async detect() {
 				throw new Error('should not run');
 			},
+			async confirm(_context, state) {
+				return { status: 'ready', message: 'ready', state };
+			},
 		});
 
 		const buildRegistry = () => {

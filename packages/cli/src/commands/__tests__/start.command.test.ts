@@ -1,7 +1,8 @@
 import path from 'node:path';
 import type { FSWatcher } from 'chokidar';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext, type ReporterMock } from '@cli-tests/cli';
+import { assignCommandContext } from '@cli-tests/cli';
+import type { ReporterMock } from '@cli-tests/reporter.js';
 import { buildStartCommand } from '../start';
 import {
 	advanceBy,
@@ -482,7 +483,7 @@ describe('buildStartCommand', () => {
 	});
 
 	it('logs debug output when the Vite dev server is already stopped', async () => {
-		spawnViteProcess.mockImplementationOnce(() => {
+		spawnViteProcess.mockImplementationOnce((_manager) => {
 			const child = new FakeChildProcess();
 			child.kill.mockImplementation(() => {
 				queueMicrotask(() => child.emit('exit', 0, null));
@@ -503,7 +504,7 @@ describe('buildStartCommand', () => {
 	});
 
 	it('warns when the Vite dev server requires SIGTERM to exit', async () => {
-		spawnViteProcess.mockImplementationOnce(() => {
+		spawnViteProcess.mockImplementationOnce((_manager) => {
 			const child = new FakeChildProcess();
 			let sigintHandled = false;
 			child.kill.mockImplementation((signal?: NodeJS.Signals) => {
@@ -537,7 +538,7 @@ describe('buildStartCommand', () => {
 	});
 
 	it('skips killing the Vite dev server when it already exited', async () => {
-		spawnViteProcess.mockImplementationOnce(() => {
+		spawnViteProcess.mockImplementationOnce((_manager) => {
 			const child = new FakeChildProcess();
 			child.killed = true;
 			queueMicrotask(() => child.emit('exit', 0, null));
@@ -571,7 +572,7 @@ describe('buildStartCommand', () => {
 
 	it('returns error exit code when Vite fails to launch', async () => {
 		const error = new Error('spawn failure');
-		spawnViteProcess.mockImplementation(() => {
+		spawnViteProcess.mockImplementation((_manager) => {
 			throw error;
 		});
 
@@ -719,7 +720,7 @@ describe('buildStartCommand', () => {
 					mkdir: fsMkdir,
 					cp: fsCp,
 				},
-				spawnViteProcess: () => new FakeChildProcess(),
+				spawnViteProcess: (_manager) => new FakeChildProcess(),
 			});
 
 			const command = new StartCommand();
@@ -758,7 +759,7 @@ describe('buildStartCommand', () => {
 			);
 
 			const spawnProcess = jest
-				.fn(() => new FakeChildProcess())
+				.fn((_manager) => new FakeChildProcess())
 				.mockName('child-process');
 
 			const StartCommand = importBuildStartCommand({
@@ -807,7 +808,7 @@ describe('buildStartCommand', () => {
 					mkdir: fsMkdir,
 					cp: fsCp,
 				},
-				spawnViteProcess: () => new FakeChildProcess(),
+				spawnViteProcess: (_manager) => new FakeChildProcess(),
 			});
 
 			const firstCommand = new StartCommand();

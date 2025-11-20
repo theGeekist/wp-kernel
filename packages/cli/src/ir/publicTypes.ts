@@ -191,6 +191,11 @@ export interface IRResource {
 	warnings: IRWarning[];
 }
 
+/**
+ * Configuration for resource-related blocks within the Intermediate Representation (IR).
+ *
+ * @category IR
+ */
 export interface IRResourceBlocksConfig {
 	mode: 'js' | 'ssr';
 }
@@ -229,6 +234,11 @@ export interface IRUiLoader {
 
 /**
  * Aggregated UI metadata derived from the configuration.
+ *
+ * @category IR
+ */
+/**
+ * Aggregated UI metadata derived from the configuration within the IR.
  *
  * @category IR
  */
@@ -383,6 +393,11 @@ export interface IRAdapterChange {
  *
  * @category IR
  */
+/**
+ * Adapter mutation audit envelope stored on the IR.
+ *
+ * @category IR
+ */
 export interface IRAdapterAudit {
 	/** Change operations detected while running adapter extensions. */
 	changes: IRAdapterChange[];
@@ -405,6 +420,11 @@ export interface IRReferenceIssue {
  *
  * @category IR
  */
+/**
+ * Resolved workspace layout mapping for generated and applied artifacts within the IR.
+ *
+ * @category IR
+ */
 export interface IRLayout {
 	resolve: (id: string) => string;
 	all: Record<string, string>;
@@ -412,6 +432,11 @@ export interface IRLayout {
 
 /**
  * Summary of reference issues used by CI or tooling.
+ *
+ * @category IR
+ */
+/**
+ * Summary of cross-reference integrity issues used by CI or tooling.
  *
  * @category IR
  */
@@ -424,6 +449,11 @@ export interface IRReferenceSummary {
 
 /**
  * WordPress plugin metadata normalised for IR consumers.
+ *
+ * @category IR
+ */
+/**
+ * WordPress plugin metadata normalized for IR consumers.
  *
  * @category IR
  */

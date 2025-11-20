@@ -30,7 +30,7 @@ export function createDefaultError(code: string, message: string): Error {
 /**
  * Creates an error factory that wraps a custom error class.
  *
- * @param ErrorClass - Custom error class constructor
+ * @param create - A function that creates an Error instance based on a code and message.
  * @param create
  * @returns An error factory function
  *

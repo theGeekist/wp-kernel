@@ -44,45 +44,70 @@
 
 ### Task 3:
 
-**Issue:** Jest global setup and mocking are fragmented.
+**Issue:** Jest global setup and mocking are fragmented, contributing to >27 k test SLOC.
 
 **Centralize Jest globals and mocks for CLI suites**:
 
-- Collapse the dual global setups into a single ESM entry that handles composer bootstrapping once and exports commonly used mocks (FS, reporters, timers) via `setupFilesAfterEnv`.
+- Maintain the single ESM global setup (`tests/jest-global-setup.js`) and ensure everything else runs via `tests/jest.setup.ts` through `setupFilesAfterEnv`.
+- Move all reusable mocks (FS, reporters, debounce utilities, workspace runners) into `packages/cli/tests` and import them through the `@cli-tests/*` alias so individual suites stop rolling their own stubs.
+- Every change in this task must **DROP SLOC** meaningfully by deleting bespoke mocks/fixtures inside suites and replacing them with the shared helpers.
 
-- Move shared mocks (reporter harness, file-system fakes, debounce utilities) into `packages/cli/tests` and re-export them so command tests stop declaring their own variants.
+**Subtasks & File Clusters**
 
-- Update suite imports to consume the central mocks, trimming per-suite setup/teardown boilerplate to reduce SLOC and improve change resilience.
+- **Task 3.1 – Shared filesystem & reporter mocks**  
+  Target files:  
+  `packages/cli/src/utils/__tests__/file-writer.test.ts`,  
+  `packages/cli/src/utils/__tests__/progress.test.ts`,  
+  `packages/cli/src/utils/__tests__/reporter.test.ts`.  
+  `packages/cli/src/utils/__tests__/path.test.ts`,
+  `packages/cli/src/utils/__tests__/module-url.test.ts`,
+  `packages/cli/src/__tests__/bundler-config.test.ts`,
+  Actions: expose enriched `createMockFs`/reporter harnesses under `packages/cli/tests/mocks`, update suites to consume them, convert repeated setup into helpers/table tests.  
+  Status:
+    - ✓ `tests/mocks/fs.ts` now mirrors `fs.promises` signatures; `file-writer.test.ts` consumes it directly, deleting bespoke ENOENT helpers.
+    - ✓ `progress.test.ts` imports `createReporterMock` from `@cli-tests/reporter`, shrinking per-test reporter scaffolding.
+    - ✓ `src/utils/__tests__/reporter.test.ts` now consumes shared LogLayer/transport mocks from `packages/cli/tests/mocks/logging.ts`, eliminating ~120 lines of inline Jest mocking.  
+      Completion placeholder: _Pending final stats/PR link (Task 3.1 effectively complete)._
 
-**Completion Notes**:
+- **Task 3.2 – IR & readiness helper mocks**  
+  Files: `src/ir/__tests__/createIr.test.ts`, `src/ir/fragments/__tests__/resources.test.ts`, `src/dx/readiness/helpers/__tests__/phpPrinterPath.test.ts`, `src/dx/readiness/helpers/__tests__/phpCodemodIngestion.test.ts`.  
+  Actions: move builder/readiness stubs into `packages/cli/tests/ir` and `tests/readiness.test-support.ts`; drop per-file jest.mock boilerplate.  
+  Status:
+    - ✓ Added `tests/builders/mock-builders.ts` and `tests/mocks/php-assets.ts`; `createIr` + both readiness helpers now reference those shared mocks via `jest.requireActual`, removing 150+ SLOC of inline factories.
+    - ✓ `resources.test.ts` consumes the shared resource-builder mock factory rather than embedding its own accumulator stub.  
+      Completion placeholder: _Pending aggregated SLOC delta / PR link._
 
-- Removed the duplicate CJS global setup; the ESM `tests/jest-global-setup.js` remains, and a unified `tests/jest.setup.ts` now resets mocks/timers via `setupFilesAfterEnv` (wired in `packages/cli/jest.config.js`).
-- Added `@cli-tests/*` alias to TS/Jest for shared test helpers and aligned readiness/apply tests to use it.
-- Current per-suite mocks to consolidate:
-    - Mock usage is widespread: 55 test files contain `.mock*` calls (503 instances). Highest counts include `src/commands/__tests__/generate.command.test.ts` (55), `start.command.test.ts` (35), `workspace-hygiene.test.ts` (29), `dx/readiness/helpers/__tests__/quickstart.test.ts` (26), and `commands/__tests__/init.workflow.test.ts` (24).
-    - `src/utils/__tests__/file-writer.test.ts`: mocks `../path`, `node:fs`.
-    - `src/ir/__tests__/createIr.test.ts`: mocks `../../builders`.
-    - `src/dx/readiness/helpers/__tests__/phpPrinterPath.test.ts`: mocks `../../../../utils/phpAssets`.
-    - `src/commands/__tests__/init.utils.test.ts`: mocks `node:fs/promises`.
-    - `src/__tests__/bundler-config.test.ts`: mocks `vite`, `vite-plugin-dts`, `@kucrut/vite-for-wp/utils`.
-    - `src/ir/fragments/__tests__/resources.test.ts`: mocks `../../shared/resource-builder`.
-    - `src/dx/readiness/helpers/__tests__/phpCodemodIngestion.test.ts`: mocks `../../../../utils/phpAssets`.
-    - `src/runtime/__tests__/adapterExtensions.test.ts`: mocks `../../adapters`, `../../builders/ts`, `node:fs/promises`.
-    - `src/utils/__tests__/progress.test.ts`: mocks `../../commands/init/timing`.
-    - `src/utils/__tests__/reporter.test.ts`: mocks `loglayer`, `@loglayer/transport-simple-pretty-terminal`, `@wpkernel/core/reporter`.
-    - `src/builders/ts/__tests__/pipeline.formatter.test.ts`: mocks `../pipeline.builder`.
-    - `src/commands/__tests__/init.workflow.test.ts`: mocks `../init/scaffold`, `../init/package-json`, `../init/dependency-versions`, `../init/installers`, `../init/timing`.
-    - `src/builders/__tests__/builders.test.ts`: mocks `node:child_process`.
-    - `src/builders/__tests__/ts.admin-screen.test.ts`: mocks `../../commands/run-generate/validation`.
-    - `src/builders/__tests__/ts.dataview-fixture.test.ts`: mocks `../../commands/run-generate/validation`.
-    - `src/builders/__tests__/ts.builder.test.ts`: mocks `../../commands/run-generate/validation`.
-    - `src/builders/__tests__/phpBuilder.test.ts`: mocks `@wpkernel/php-json-ast/php-driver`.
-    - `src/builders/php/__tests__/pipeline.builder.test.ts`: mocks `../pipeline.codemods`, `../pipeline.writer`.
-    - `src/builders/php/__tests__/blocks.test.ts`: mocks `@wpkernel/wp-json-ast`.
-    - `src/builders/php/__tests__/controller.storageArtifacts.test.ts`: mocks `@wpkernel/wp-json-ast`.
-    - `src/builders/php/__tests__/writer.test.ts`: mocks `@wpkernel/php-json-ast/php-driver`.
-    - `src/builders/php/__tests__/generate.integration.test.ts`: mocks `@wpkernel/php-json-ast`.
-    - `src/builders/php/__tests__/pipeline.codemods.test.ts`: mocks `@wpkernel/php-json-ast`.
+- **Task 3.3 – Command workflow/installers mocks**  
+  Files: `src/commands/__tests__/init.utils.test.ts`, `src/commands/__tests__/init.workflow.test.ts`, `src/commands/__tests__/init.installers.test.ts`, `src/commands/__tests__/init.git.test.ts`.  
+  Actions: centralise Clipanion context, spawn/exec mocks, and readiness harness usage inside `packages/cli/tests/cli`; refactor suites into table tests consuming those helpers.  
+  Status:
+    - ✓ Added `tests/cli/init-workflow.test-support.ts` and `tests/cli/process.test-support.ts` to host shared mocks for scaffold/dependency installers and spawn stubs.
+    - ✓ `init.workflow.test.ts`, `init.installers.test.ts`, `init.git.test.ts`, and `init.utils.test.ts` now import the shared helpers, replacing ~300 lines of bespoke mocks with shared setup + table-driven assertions.  
+      Completion placeholder: _Pending final SLOC delta / PR link._
+
+- **Task 3.4 – Runtime / adapter mocks**  
+  Files: `src/runtime/__tests__/adapterExtensions.test.ts`, `src/commands/__tests__/workspace-hygiene.test.ts`, `src/commands/__tests__/start.command.test.ts`.  
+  Actions: reuse shared adapter/run harnesses (from `tests/runtime` and `tests/start.command.test-support.ts`) so suites no longer define their own fake timers/process shims.  
+  Status:
+    - ✓ Added `tests/runtime/adapter-extensions.test-support.ts`; `runtime/__tests__/adapterExtensions.test.ts` now consumes these helpers and drops ~120 lines of inline workspace/reporter setup.
+    - ☐ `workspace-hygiene.test.ts` and `start.command.test.ts` already rely on shared harnesses but still have bespoke readiness mocking - follow-up to consolidate.  
+      Completion placeholder: _Pending final roll-up once remaining suites migrate._
+
+- **Task 3.5 – Builder (TS & PHP) mocks**  
+  Files: `src/builders/__tests__/builders.test.ts`, `src/builders/ts/__tests__/pipeline.formatter.test.ts`, `src/builders/ts/__tests__/ts.admin-screen.test.ts`, `src/builders/ts/__tests__/ts.dataview-fixture.test.ts`, `src/builders/ts/__tests__/ts.builder.test.ts`, `src/builders/php/__tests__/phpBuilder.test.ts`, `src/builders/php/__tests__/pipeline.builder.test.ts`, `src/builders/php/__tests__/blocks.test.ts`, `src/builders/php/__tests__/controller.storageArtifacts.test.ts`, `src/builders/php/__tests__/writer.test.ts`, `src/builders/php/__tests__/generate.integration.test.ts`, `src/builders/php/__tests__/pipeline.codemods.test.ts`.  
+  Actions: extend `packages/cli/tests/builders/*` fixtures to cover TS validation + PHP driver mocks, wire suites to import them, and collapse repeated codemod/writer setups.  
+  Completion placeholder: _Pending._
+
+- **Task 3.6 – Tooling & bundler mocks**  
+  Files: `src/__tests__/bundler-config.test.ts`, `src/utils/__tests__/file-writer.test.ts` (already underway), `src/utils/__tests__/progress.test.ts`, `src/utils/__tests__/reporter.test.ts`.  
+  Actions: provide shared stubs for Vite/loglayer/timing modules and remove inline mock definitions.  
+  Completion placeholder: _Pending._
+
+**Completion Notes**
+
+- Removed the duplicate CJS global setup; `tests/jest-global-setup.js` + `tests/jest.setup.ts` now reset mocks/timers for every suite.
+- Added the `@cli-tests/*` alias for shared helpers.
+- Subtask completion details (SLOC deltas, PR links, regression notes) will be recorded inline above once each cluster lands.
 
 ### Task 4:
 
