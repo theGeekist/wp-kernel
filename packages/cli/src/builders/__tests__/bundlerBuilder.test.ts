@@ -407,6 +407,15 @@ describe('createBundler', () => {
 				sanitizedNamespace: 'bundler-plugin',
 				workspaceRoot,
 				phase: 'generate',
+				resources: [
+					makeResource({
+						ui: {
+							admin: {
+								dataviews: {},
+							},
+						},
+					}),
+				],
 			});
 
 			await expect(
