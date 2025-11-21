@@ -199,6 +199,14 @@ describe('createBundler', () => {
 				find: '@/',
 				replacement: `${aliasRoot}/`,
 			});
+			expect(updatedPkg.scripts).toEqual(
+				expect.objectContaining({
+					start: 'wpk start',
+					build: 'vite build',
+					generate: 'wpk generate',
+					apply: 'wpk apply',
+				})
+			);
 			expect(config.assetManifest.path).toBe('build/index.asset.json');
 			expect(config.sourcemap).toEqual({
 				development: true,

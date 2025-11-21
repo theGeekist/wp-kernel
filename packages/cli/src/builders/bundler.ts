@@ -244,6 +244,25 @@ function mergeSection(
 	return { merged, changed };
 }
 
+function scriptsHaveChanged(
+	previous: Record<string, string> | undefined,
+	next: Record<string, string>
+): boolean {
+	const base = previous ?? {};
+	const prevKeys = new Set(Object.keys(base));
+	const nextKeys = Object.keys(next);
+
+	for (const key of nextKeys) {
+		if (base[key] !== next[key]) {
+			return true;
+		}
+		prevKeys.delete(key);
+	}
+
+	// Any remaining previous keys were removed, so scripts changed.
+	return prevKeys.size > 0;
+}
+
 function scrubMonorepoDeps(
 	deps: Record<string, string>
 ): Record<string, string> {
@@ -278,8 +297,9 @@ function mergePackageJsonDependencies(options: {
 
 	const previousScripts = base.scripts ?? {};
 	const scripts = { ...DEFAULT_PACKAGE_SCRIPTS, ...previousScripts };
+	const scriptChanged = scriptsHaveChanged(previousScripts, scripts);
 	const next = { ...base, scripts };
-	let changed = !options.pkg;
+	let changed = !options.pkg || scriptChanged;
 
 	const deps = mergeSection(
 		base.dependencies,
@@ -630,6 +650,33 @@ async function ensureBundlerDependencies(
 	});
 }
 
+function ensureBundlerScripts(pkg: PackageJsonLike | null): {
+	pkg: PackageJsonLike;
+	changed: boolean;
+} {
+	const base =
+		pkg ??
+		({
+			name: 'wpk-plugin',
+			version: '0.0.0',
+			private: true,
+			type: 'module',
+			dependencies: {},
+			devDependencies: {},
+			peerDependencies: {},
+			scripts: DEFAULT_PACKAGE_SCRIPTS,
+		} satisfies PackageJsonLike);
+	const previousScripts = base.scripts ?? {};
+	const scripts = { ...DEFAULT_PACKAGE_SCRIPTS, ...previousScripts };
+	const scriptChanged = scriptsHaveChanged(previousScripts, scripts);
+	const next = { ...base, scripts };
+
+	return {
+		pkg: next,
+		changed: !pkg || scriptChanged,
+	};
+}
+
 async function runBundlerGeneration({
 	context,
 	input,
@@ -641,7 +688,7 @@ async function runBundlerGeneration({
 	const version = resolveBundlerVersion(input, pkg);
 	const hasUiResources = hasBundlerDataViews(input);
 	const entryPoint = resolveUiEntryPoint(input.ir, hasUiResources);
-	const packageResult = await ensureBundlerDependencies({
+	const dependencyResult = await ensureBundlerDependencies({
 		workspaceRoot: context.workspace.root,
 		pkg,
 		hasUiResources,
@@ -649,7 +696,8 @@ async function runBundlerGeneration({
 		version,
 	});
 
-	const artifacts = buildRollupDriverArtifacts(packageResult.pkg, {
+	const scriptResult = ensureBundlerScripts(dependencyResult.pkg);
+	const artifacts = buildRollupDriverArtifacts(scriptResult.pkg, {
 		aliasRoot: context.workspace.resolve('src'),
 		sanitizedNamespace,
 		hasUi: hasUiResources,
@@ -664,7 +712,10 @@ async function runBundlerGeneration({
 		reporter,
 		artifacts,
 		paths,
-		packageResult,
+		packageResult: {
+			pkg: scriptResult.pkg,
+			changed: dependencyResult.changed || scriptResult.changed,
+		},
 	});
 }
 
