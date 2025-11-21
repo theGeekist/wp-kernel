@@ -1,4 +1,3 @@
-import { EnvironmentalError } from '@wpkernel/core/error';
 import { createWorkspaceHygieneReadinessHelper } from '../workspaceHygiene';
 import { createReadinessTestContext } from '@cli-tests/readiness.test-support';
 import { makeWorkspaceMock } from '@cli-tests/workspace.test-support';
@@ -59,9 +58,12 @@ describe('createWorkspaceHygieneReadinessHelper', () => {
 				]),
 		});
 
-		await expect(
-			helper.detect(createReadinessTestContext({ workspace }))
-		).rejects.toBeInstanceOf(EnvironmentalError);
+		const result = await helper.detect(
+			createReadinessTestContext({ workspace })
+		);
+
+		expect(result.status).toBe('blocked');
+		expect(result.message).toContain('Commit, stash');
 	});
 
 	it('allows dirty workspace when allowDirty flag is set', async () => {

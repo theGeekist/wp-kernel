@@ -304,6 +304,13 @@ function isRelevantDiagnostic(
 	generatedPathSet: Set<string>,
 	projectRoot: string
 ): boolean {
+	if (
+		diagnostic.file &&
+		isApplyArtifact(projectRoot, diagnostic.file.fileName)
+	) {
+		return false;
+	}
+
 	if (diagnostic.category !== ts.DiagnosticCategory.Error) {
 		return false;
 	}
@@ -361,6 +368,17 @@ function normaliseRelativePath(projectRoot: string, filePath: string): string {
 		return path.basename(filePath);
 	}
 	return relative.split(path.sep).join('/');
+}
+
+function isApplyArtifact(projectRoot: string, filePath: string): boolean {
+	const normalisedRoot = path.resolve(projectRoot);
+	const applyRoot = path.resolve(path.join(normalisedRoot, '.wpk', 'apply'));
+	const normalisedFilePath = path.resolve(filePath);
+
+	return (
+		normalisedFilePath === applyRoot ||
+		normalisedFilePath.startsWith(`${applyRoot}${path.sep}`)
+	);
 }
 
 function extractModuleSpecifier(diagnostic: Diagnostic): string | null {

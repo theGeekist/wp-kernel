@@ -5,7 +5,10 @@ import {
 	type TsBuilderCreator,
 } from '../types';
 import { loadTsMorph } from './runtime.loader';
-import { resolveResourceImport, resolveKernelImport } from './shared.imports';
+import {
+	resolveResourceImport,
+	resolveAdminRuntimeImport,
+} from './shared.imports';
 import { toPascalCase, toCamelCase } from './shared.metadata';
 
 export type AdminDataViewsWithInteractivity = AdminDataViews & {
@@ -46,6 +49,51 @@ export function toLowerCamelIdentifier(value: string): string {
 		return value;
 	}
 	return value.charAt(0).toLowerCase() + value.slice(1);
+}
+
+function slugifyRouteSegment(value: string, fallback: string): string {
+	const cleaned = value
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9]+/gu, '-')
+		.replace(/-+/gu, '-')
+		.replace(/^-+|-+$/gu, '');
+
+	if (cleaned.length > 0) {
+		return cleaned;
+	}
+
+	const fallbackSlug = fallback
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9]+/gu, '-')
+		.replace(/-+/gu, '-')
+		.replace(/^-+|-+$/gu, '');
+
+	return fallbackSlug.length > 0 ? fallbackSlug : 'admin-screen';
+}
+
+export function resolveAdminScreenRoute(
+	descriptor: ResourceDescriptor
+): string {
+	const dataviews = descriptor.dataviews as AdminDataViewsWithInteractivity;
+	const screenConfig = dataviews.screen ?? {};
+	const configuredRoute = screenConfig.route;
+	const menuSlug = screenConfig.menu?.slug;
+
+	let candidate: string;
+	if (
+		typeof configuredRoute === 'string' &&
+		configuredRoute.trim().length > 0
+	) {
+		candidate = configuredRoute;
+	} else if (typeof menuSlug === 'string' && menuSlug.trim().length > 0) {
+		candidate = menuSlug;
+	} else {
+		candidate = `${descriptor.config.namespace ?? descriptor.name}-${descriptor.name}`;
+	}
+
+	return slugifyRouteSegment(candidate, descriptor.name);
 }
 
 export function resolveAdminScreenComponentMetadata(
@@ -131,7 +179,8 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				toLowerCamelIdentifier(componentIdentifier);
 			const resourceSymbol =
 				screenConfig.resourceSymbol ?? toCamelCase(descriptor.name);
-			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
+			const wpkernelSymbol =
+				screenConfig.wpkernelSymbol ?? 'adminScreenRuntime';
 
 			const screenDir = path.join(
 				context.paths.uiGenerated,
@@ -154,7 +203,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 					resourceSymbol,
 					configPath: context.sourcePath,
 				}),
-				resolveKernelImport({
+				resolveAdminRuntimeImport({
 					workspace: context.workspace,
 					from: screenPath,
 					configured: screenConfig.wpkernelImport,
@@ -193,21 +242,19 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 				namedImports: [{ name: resourceSymbol }],
 			});
 
-			const route = screenConfig.route;
-			if (route) {
-				sourceFile.addVariableStatement({
-					isExported: true,
-					declarationKind: VariableDeclarationKind.Const,
-					declarations: [
-						{
-							name: `${componentIdentifierCamel}Route`,
-							initializer: (writer) => {
-								writer.quote(route);
-							},
+			const route = resolveAdminScreenRoute(descriptor);
+			sourceFile.addVariableStatement({
+				isExported: true,
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: `${componentIdentifierCamel}Route`,
+						initializer: (writer) => {
+							writer.quote(route);
 						},
-					],
-				});
-			}
+					},
+				],
+			});
 
 			const contentComponentName = `${componentIdentifier}Content`;
 			const interactivityFeature =

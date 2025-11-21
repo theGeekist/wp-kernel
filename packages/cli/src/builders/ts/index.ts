@@ -11,9 +11,11 @@ export { createTsCapabilityBuilder } from './entry.capabilities';
 export { printCapabilityModule } from './entry.capability';
 export { createTsIndexBuilder } from './entry.index';
 export { createJsBlocksBuilder } from './block.artifacts';
+export { createUiEntryBuilder } from './ui.entry';
 export {
 	resolveResourceImport,
-	resolveKernelImport,
+	resolveWPKernelImport,
+	resolveAdminRuntimeImport,
 	buildModuleSpecifier,
 } from './shared.imports';
 export {

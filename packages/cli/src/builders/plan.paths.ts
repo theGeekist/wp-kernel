@@ -9,6 +9,8 @@ export type PlanLayoutPaths = {
 	blocksApplied: string;
 	phpGenerated: string;
 	pluginLoader: string;
+	bundlerConfig: string;
+	viteConfig: string;
 };
 
 export function resolvePlanPaths(
@@ -37,5 +39,7 @@ export function resolvePlanPaths(
 		blocksApplied: layout.resolve('blocks.applied'),
 		phpGenerated: layout.resolve('php.generated'),
 		pluginLoader: layout.resolve('plugin.loader'),
+		bundlerConfig: layout.resolve('bundler.config'),
+		viteConfig: 'vite.config.ts',
 	};
 }

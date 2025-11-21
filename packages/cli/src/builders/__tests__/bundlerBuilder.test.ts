@@ -23,6 +23,7 @@ import { withWorkspace as baseWithWorkspace } from '@cli-tests/builders/builder-
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 
 describe('createBundler', () => {
 	type BundlerWorkspaceContext = BuilderHarnessContext<
@@ -103,6 +104,9 @@ describe('createBundler', () => {
 
 	it('writes rollup driver configuration and asset metadata', async () => {
 		await withWorkspace(async ({ workspace, root: workspaceRoot }) => {
+			const layout = loadTestLayoutSync();
+			const bundlerConfigPath = layout.resolve('bundler.config');
+			const bundlerAssetsPath = layout.resolve('bundler.assets');
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -132,6 +136,23 @@ describe('createBundler', () => {
 				sanitizedNamespace: 'bundler-plugin',
 				workspaceRoot,
 				phase: 'generate',
+				resources: [
+					makeResource({
+						name: 'jobs',
+						ui: {
+							admin: {
+								dataviews: {
+									fields: [{ id: 'title', label: 'Title' }],
+									defaultView: {
+										type: 'table',
+										fields: ['title'],
+									},
+									mapQuery: () => ({ search: undefined }),
+								},
+							},
+						},
+					}),
+				],
 			});
 
 			await builder.apply(
@@ -167,6 +188,12 @@ describe('createBundler', () => {
 			const assetManifest = JSON.parse(
 				await fs.readFile(assetPath, 'utf8')
 			);
+			const updatedPkg = JSON.parse(
+				await fs.readFile(
+					path.join(workspaceRoot, 'package.json'),
+					'utf8'
+				)
+			);
 
 			expect(config.driver).toBe('rollup');
 			expect(config.external).toEqual(
@@ -174,18 +201,30 @@ describe('createBundler', () => {
 					'@wordpress/data',
 					'@wordpress/components',
 					'@wordpress/dataviews',
+					'@wordpress/block-editor',
+					'@wordpress/blocks',
 					'@wordpress/hooks',
 					'@wordpress/i18n',
 					'@wordpress/interactivity',
 					'@wordpress/api-fetch',
 					'react',
 					'react-dom',
+					'react-dom/client',
 				])
 			);
+			const aliasRoot = workspace.resolve('src').replace(/\\/g, '/');
 			expect(config.alias).toContainEqual({
 				find: '@/',
-				replacement: './src/',
+				replacement: `${aliasRoot}/`,
 			});
+			expect(updatedPkg.scripts).toEqual(
+				expect.objectContaining({
+					start: 'wpk start',
+					build: 'vite build',
+					generate: 'wpk generate',
+					apply: 'wpk apply',
+				})
+			);
 			expect(config.assetManifest.path).toBe('build/index.asset.json');
 			expect(config.sourcemap).toEqual({
 				development: true,
@@ -195,13 +234,15 @@ describe('createBundler', () => {
 
 			expect(assetManifest).toMatchObject({
 				entry: 'index',
-				version: '1.2.3',
+				version: '0.1.0',
 			});
 			expect(assetManifest.dependencies).toEqual(
 				expect.arrayContaining([
 					'wp-data',
 					'wp-components',
 					'wp-dataviews',
+					'wp-block-editor',
+					'wp-blocks',
 					'wp-hooks',
 					'wp-i18n',
 					'wp-interactivity',
@@ -209,7 +250,20 @@ describe('createBundler', () => {
 					'wp-element',
 				])
 			);
-			expect(assetManifest.ui).toBeUndefined();
+			expect(assetManifest.ui).toEqual(
+				expect.objectContaining({
+					handle: 'wp-bundler-plugin-ui',
+				})
+			);
+			expect(updatedPkg.dependencies ?? {}).not.toHaveProperty(
+				'loglayer'
+			);
+			expect(updatedPkg.devDependencies ?? {}).not.toHaveProperty(
+				'loglayer'
+			);
+			expect(updatedPkg.peerDependencies ?? {}).not.toHaveProperty(
+				'loglayer'
+			);
 
 			expect(output.queueWrite).toHaveBeenCalled();
 			const queuedFiles = queueWrite.mock.calls.map(
@@ -217,14 +271,31 @@ describe('createBundler', () => {
 			);
 			expect(queuedFiles).toEqual(
 				expect.arrayContaining([
-					path.posix.join('.wpk', 'bundler', 'config.json'),
-					path.posix.join(
-						'.wpk',
-						'bundler',
-						'assets',
-						'index.asset.json'
-					),
+					bundlerConfigPath,
+					bundlerAssetsPath,
+					'vite.config.ts',
 				])
+			);
+
+			const uiGenerated = layout.resolve('ui.generated');
+			expect(config.input.index).toBe(
+				path.posix.join(uiGenerated, 'index.tsx')
+			);
+
+			const viteConfig = await workspace.readText('vite.config.ts');
+			const relativeImport = path.posix
+				.relative(
+					path.posix.dirname('vite.config.ts'),
+					bundlerConfigPath
+				)
+				.replace(/\\/g, '/');
+			const normalizedImport =
+				relativeImport.startsWith('./') ||
+				relativeImport.startsWith('../')
+					? relativeImport
+					: `./${relativeImport}`;
+			expect(viteConfig).toContain(
+				`import bundlerConfig from '${normalizedImport}';`
 			);
 		});
 	});
@@ -336,6 +407,15 @@ describe('createBundler', () => {
 				sanitizedNamespace: 'bundler-plugin',
 				workspaceRoot,
 				phase: 'generate',
+				resources: [
+					makeResource({
+						ui: {
+							admin: {
+								dataviews: {},
+							},
+						},
+					}),
+				],
 			});
 
 			await expect(

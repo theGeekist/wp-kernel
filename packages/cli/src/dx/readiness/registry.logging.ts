@@ -92,7 +92,7 @@ export function logDetectionResult(
 			target.warn('Detect phase reported pending readiness.', context);
 			break;
 		case 'blocked':
-			target.error('Detect phase blocked readiness.', context);
+			target.warn('Detect phase blocked readiness.', context);
 			break;
 	}
 }
@@ -133,7 +133,7 @@ export function logOutcome(
 			reporter.warn('Readiness helper pending follow-up.', context);
 			break;
 		case 'blocked':
-			reporter.error('Readiness helper blocked.', context);
+			reporter.warn('Readiness helper blocked.', context);
 			break;
 		case 'failed':
 			reporter.error('Readiness helper failed.', context);

@@ -26,7 +26,7 @@
 		"build:packages": "node ./scripts/workspace-build.run.mjs",
 		"clean": "pnpm --recursive run clean && rm -rf node_modules",
 		"clean:dist": "pnpm --recursive run clean",
-		"lint": "pnpm run lint:peers && pnpm run lint:dts-imports && eslint --max-warnings=0 --cache --cache-location node_modules/.cache/eslint --cache-strategy=content --report-unused-disable-directives packages/ examples/",
+		"lint": "pnpm run lint:peers && pnpm run lint:dts-imports && eslint --max-warnings=0 --cache --cache-location node_modules/.cache/eslint --cache-strategy=content --report-unused-disable-directives packages/",
 		"lint:fix": "eslint --cache --cache-location node_modules/.cache/eslint --cache-strategy=content --fix packages/ examples/",
 		"lint:branching": "eslint --rulesdir ./eslint-rules --rule 'no-else-return:error' packages/ examples/",
 		"lint:peers": "pnpm exec tsx scripts/check-framework-peers.ts",

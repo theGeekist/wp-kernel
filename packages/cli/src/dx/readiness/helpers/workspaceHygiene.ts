@@ -1,4 +1,3 @@
-import { EnvironmentalError } from '@wpkernel/core/error';
 import { createReadinessHelper } from '../helper';
 import type {
 	ReadinessDetection,
@@ -110,14 +109,17 @@ export function createWorkspaceHygieneReadinessHelper(
 			}
 
 			if (!allowDirty) {
-				throw new EnvironmentalError('workspace.dirty', {
-					message:
-						'Workspace contains uncommitted changes. Revert or commit before continuing.',
-					context: {
-						workspace: workspace.root,
-						changes: gitStatus.map((entry) => entry.raw),
+				return {
+					status: 'blocked',
+					state: {
+						workspace,
+						workspaceRoot,
+						gitStatus,
+						gitRepositoryDetected: true,
+						allowDirty,
 					},
-				});
+					message: `${formatDirtyMessage(gitStatus)} Commit, stash, or re-run with --allow-dirty to continue.`,
+				};
 			}
 
 			return {

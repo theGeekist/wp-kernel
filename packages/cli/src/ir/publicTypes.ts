@@ -248,6 +248,18 @@ export interface IRUiSurface {
 }
 
 /**
+ * Resolved bundler surface for UI assets.
+ *
+ * @category IR
+ */
+export interface IRBundler {
+	readonly entryPath: string;
+	readonly configPath: string;
+	readonly assetsPath: string;
+	readonly viteConfigPath: string;
+}
+
+/**
  * Represents an Intermediate Representation (IR) for a capability hint.
  *
  * @category IR
@@ -526,6 +538,8 @@ export interface IRv1 {
 	blocks: IRBlock[];
 	/** The PHP project IR. */
 	php: IRPhpProject;
+	/** Bundler surface paths for UI assets. */
+	bundler?: IRBundler;
 	/** Resolved layout map for internal/applied artifacts. */
 	layout: IRLayout;
 	/** Optional: UI metadata derived from resources. */

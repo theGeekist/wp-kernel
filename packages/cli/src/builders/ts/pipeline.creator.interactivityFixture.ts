@@ -6,7 +6,10 @@ import {
 	toLowerCamelIdentifier,
 } from './pipeline.creator.adminScreen';
 import { loadTsMorph } from './runtime.loader';
-import { resolveResourceImport, resolveKernelImport } from './shared.imports';
+import {
+	resolveResourceImport,
+	resolveAdminRuntimeImport,
+} from './shared.imports';
 import { toCamelCase } from './shared.metadata';
 
 /**
@@ -47,7 +50,8 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 				toLowerCamelIdentifier(componentIdentifier);
 			const resourceSymbol =
 				screenConfig.resourceSymbol ?? toCamelCase(descriptor.name);
-			const wpkernelSymbol = screenConfig.wpkernelSymbol ?? 'kernel';
+			const wpkernelSymbol =
+				screenConfig.wpkernelSymbol ?? 'adminScreenRuntime';
 			const interactivityFeature =
 				resolveInteractivityFeature(descriptor);
 
@@ -67,7 +71,7 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 					resourceSymbol,
 					configPath: context.sourcePath,
 				}),
-				resolveKernelImport({
+				resolveAdminRuntimeImport({
 					workspace: context.workspace,
 					from: fixturePath,
 					configured: screenConfig.wpkernelImport,
@@ -94,7 +98,7 @@ export function buildDataViewInteractivityFixtureCreator(): TsBuilderCreator {
 				],
 			});
 			sourceFile.addImportDeclaration({
-				moduleSpecifier: '@wpkernel/core/interactivity',
+				moduleSpecifier: '@wpkernel/core',
 				namedImports: [
 					{
 						name: 'InteractionActionsRecord',

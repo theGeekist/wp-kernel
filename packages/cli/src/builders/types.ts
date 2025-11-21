@@ -290,6 +290,10 @@ export interface PackageJsonLike {
 	readonly version?: string;
 	readonly peerDependencies?: Record<string, string>;
 	readonly dependencies?: Record<string, string>;
+	readonly devDependencies?: Record<string, string>;
+	readonly scripts?: Record<string, string>;
+	readonly private?: boolean;
+	readonly type?: string;
 }
 export interface RollupDriverConfig {
 	readonly driver: 'rollup';

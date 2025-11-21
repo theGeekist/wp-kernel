@@ -1,3 +1,5 @@
+import packageJson from '../package.json';
+
 /**
  * Package semantic version.
  *
@@ -5,6 +7,6 @@
  * and include it in generated artifacts or `--version` output.
  */
 export const VERSION: string =
-	typeof process === 'undefined'
-		? '0.0.0'
-		: (process.env.npm_package_version ?? '0.0.0');
+	typeof packageJson?.version === 'string' && packageJson.version.length > 0
+		? packageJson.version
+		: '0.0.0';

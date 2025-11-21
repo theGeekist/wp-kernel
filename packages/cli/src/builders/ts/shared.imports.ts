@@ -2,7 +2,8 @@ import path from 'node:path';
 import type { Workspace } from '../../workspace/types';
 import {
 	type ResolveResourceImportOptions,
-	type ResolveKernelImportOptions,
+	type ResolveWPKernelImportOptions,
+	type ResolveAdminRuntimeImportOptions,
 	type ModuleSpecifierOptions,
 } from './types';
 import { toCamelCase } from './shared.metadata';
@@ -87,11 +88,11 @@ export async function resolveResourceImport({
  * @param    root0.configured
  * @category Builders
  */
-export async function resolveKernelImport({
+export async function resolveWPKernelImport({
 	workspace,
 	from,
 	configured,
-}: ResolveKernelImportOptions): Promise<string> {
+}: ResolveWPKernelImportOptions): Promise<string> {
 	if (configured) {
 		return configured;
 	}
@@ -105,6 +106,27 @@ export async function resolveKernelImport({
 	}
 
 	return '@/bootstrap/kernel';
+}
+
+/**
+ * Resolves the admin runtime module import path, creating a stub if needed.
+ *
+ * @param    root0
+ * @param    root0.workspace
+ * @param    root0.from
+ * @param    root0.configured
+ * @category Builders
+ */
+export async function resolveAdminRuntimeImport({
+	workspace,
+	configured,
+}: ResolveAdminRuntimeImportOptions): Promise<string> {
+	if (configured) {
+		return configured;
+	}
+
+	await ensureAdminRuntimeModule({ workspace });
+	return '@/admin/runtime';
 }
 
 /**
@@ -214,6 +236,36 @@ async function ensureResourceModule({
 
 	await workspace.write(resourcePath, contents, { ensureDir: true });
 	return resourcePath;
+}
+
+async function ensureAdminRuntimeModule({
+	workspace,
+}: {
+	readonly workspace: Workspace;
+}): Promise<string> {
+	const runtimePath = path.join('src', 'admin', 'runtime.ts');
+	if (await workspace.exists(runtimePath)) {
+		return runtimePath;
+	}
+
+	const contents = [
+		"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
+		'',
+		'let runtime: WPKernelUIRuntime | undefined;',
+		'',
+		'export const adminScreenRuntime = {',
+		'	setUIRuntime(next: WPKernelUIRuntime) {',
+		'		runtime = next;',
+		'	},',
+		'	getUIRuntime() {',
+		'		return runtime;',
+		'	},',
+		'};',
+		'',
+	].join('\n');
+
+	await workspace.write(runtimePath, contents, { ensureDir: true });
+	return runtimePath;
 }
 
 function buildResourceAccessor(resourceKey: string): string {

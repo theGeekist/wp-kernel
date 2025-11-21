@@ -32,6 +32,38 @@ This log is the authoritative proof that the showcase plugin validates every maj
 
 ---
 
+## 2025-02-15 — CLI polish (version + logging UX)
+
+- Problem: `wpk --version` always reported `0.0.0` when invoked from the workspace because the CLI relied on `process.env.npm_package_version`, which is unset for direct executions.
+- Action: `packages/cli/src/version.ts` now imports `../package.json` during bundling so the built artifacts stamp the actual semver. Rebuilt the CLI and confirmed `./node_modules/.bin/wpk --version` prints `0.12.2-beta.0` inside `examples/showcase`.
+- Problem: Fatal errors ignored the LogLayer reporter pipeline, so dirty-workspace failures dumped `[wpk.cli][fatal] ... {json}` blobs with no readiness progress logs.
+- Action: `emitFatalError` now routes through the CLI reporter (with a `stderr` fallback for tests) and `runCommandReadiness` emits start/completion breadcrumbs. The readiness failure for uncommitted changes now surfaces via the pretty transport so errors are legible and consistently namespaced.
+
+---
+
+## 2025-02-16 — Friendlier readiness + Vite-like logs
+
+- Problem: CLI output felt noisy/cheap: namespaces, JSON blobs, and bright-red “errors” for expected cases like dirty worktrees.
+- Action:
+    - Replaced LogLayer console output with a Vite-style reporter (picocolors), no namespaces or timestamps, message text colored by level.
+    - Readiness “blocked” (dirty workspace) downgrades to WARN with a clear hint: “Commit, stash, or re-run with --allow-dirty to continue.”
+    - Validation errors now warn instead of fatal-dumping unless `--verbose` asks for context.
+    - Updated tests/mocks accordingly and re-ran the full CLI test suite.
+
+Result: `wpk generate` in a dirty repo now prints concise warnings instead of fatal JSON dumps.
+
+---
+
+## 2025-02-17 — Plugin metadata (`meta`) validation
+
+- Goal: exercise the new `meta` block so plugin.php headers reflect project branding instead of namespace-derived defaults.
+- Action: set `meta` in `wpk.config.ts` (name, description, text domain, author URI, plugin URI, GPL-3.0 license) and rebuilt the CLI.
+- Commands: `pnpm exec wpk generate --allow-dirty`, `pnpm exec wpk apply --allow-dirty --yes`, `pnpm exec wpk --version`.
+- Result: `plugin.php` now stamps the custom metadata (Acme Careers branding + URIs + GPL-3.0-or-later); apply reported a clean merge with no conflicts. `wpk --version` still reports `0.12.2-beta.0`.
+- Notes: readiness still warns about pending changes when running in the dirty showcase workspace; block render stubs continue to be scaffolded where no templates exist.
+
+---
+
 ## Milestone Tracker
 
 > Each milestone captures the intended config addition, the validation commands, discoveries/fixes, and completion status. Update these sections as we progress.

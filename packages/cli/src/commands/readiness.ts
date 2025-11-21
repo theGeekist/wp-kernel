@@ -75,13 +75,23 @@ export async function runCommandReadiness(
 		.map((helper) => helper.key)
 		.filter((key) => (allowedKeys ? allowedKeys.has(key) : true));
 
-	if (orderedKeys.length === 0) {
+	const readinessCount = orderedKeys.length;
+
+	if (readinessCount === 0) {
+		options.reporter.info('No readiness checks to run.');
 		return;
 	}
+
+	const label =
+		readinessCount === 1
+			? 'Running 1 readiness check...'
+			: `Running ${readinessCount} readiness checks...`;
+	options.reporter.info(label);
 
 	const plan = registry.plan(orderedKeys);
 	const context = buildContext(options);
 	const result = await plan.run(context);
 
 	assertReadinessRun(result);
+	options.reporter.info('Readiness checks completed.');
 }

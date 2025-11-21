@@ -46,8 +46,16 @@ describe('createTsBuilder - admin screen creator', () => {
 	it('generates admin screens with resolved relative imports', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			await workspace.write(
-				'src/bootstrap/kernel.ts',
-				'export const kernel = { getUIRuntime: () => ({}) };\n'
+				'src/admin/runtime.ts',
+				[
+					"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
+					'',
+					'export const adminScreenRuntime = {',
+					'  setUIRuntime: (_: WPKernelUIRuntime) => {},',
+					'  getUIRuntime: () => ({} as WPKernelUIRuntime),',
+					'};',
+					'',
+				].join('\n')
 			);
 			await workspace.write(
 				'src/resources/job.ts',
@@ -132,23 +140,14 @@ describe('createTsBuilder - admin screen creator', () => {
 					)
 					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
 			);
-			const expectedKernelImport = normalise(
-				path
-					.relative(
-						path.dirname(workspace.resolve(screenPathFs)),
-						workspace.resolve('src/bootstrap/kernel.ts')
-					)
-					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
-			);
-
 			expect(screenContents).toContain(
 				`import { job } from '${prefixRelative(expectedResourceImport)}';`
 			);
 			expect(screenContents).toContain(
-				`import { kernel } from '${prefixRelative(expectedKernelImport)}';`
+				"import { adminScreenRuntime } from '@/admin/runtime';"
 			);
 			expect(screenContents).toContain(
-				"export const jobsAdminScreenRoute = '/admin/jobs';"
+				"export const jobsAdminScreenRoute = 'admin-jobs';"
 			);
 			expect(screenContents).toContain('context: {');
 			expect(screenContents).toContain("resourceName: 'job'");
@@ -165,8 +164,16 @@ describe('createTsBuilder - admin screen creator', () => {
 	it('uses the resource key when resolving default imports', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			await workspace.write(
-				'src/bootstrap/kernel.ts',
-				'export const kernel = { getUIRuntime: () => ({}) };\n'
+				'src/admin/runtime.ts',
+				[
+					"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
+					'',
+					'export const adminScreenRuntime = {',
+					'  setUIRuntime: (_: WPKernelUIRuntime) => {},',
+					'  getUIRuntime: () => ({} as WPKernelUIRuntime),',
+					'};',
+					'',
+				].join('\n')
 			);
 			await workspace.write(
 				'src/resources/job-board.ts',
@@ -305,7 +312,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				`import { jobBoard } from '${prefixRelative(expectedResourceImport)}';`
 			);
 			expect(screenContents).toContain(
-				"import { kernel } from '@/bootstrap/kernel';"
+				"import { adminScreenRuntime } from '@/admin/runtime';"
 			);
 		});
 	});
@@ -386,7 +393,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				'<JobsAdminCustomScreenContent />'
 			);
 			expect(screenContents).toContain(
-				"export const jobsAdminCustomScreenRoute = '/custom/jobs';"
+				"export const jobsAdminCustomScreenRoute = 'custom-jobs';"
 			);
 			expect(screenContents).toContain(
 				'const runtime = customKernel.getUIRuntime?.();'
@@ -447,15 +454,25 @@ describe('createTsBuilder - admin screen creator', () => {
 			expect(screenContents).toContain(
 				'export function JobBoardAdminScreen('
 			);
-			expect(screenContents).not.toContain('Route =');
+			expect(screenContents).toContain(
+				"export const jobBoardAdminScreenRoute = 'job-board-job-board';"
+			);
 		});
 	});
 
 	it('sanitizes scoped component identifiers for generated admin screens', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			await workspace.write(
-				'src/bootstrap/kernel.ts',
-				'export const kernel = { getUIRuntime: () => ({}) };\n'
+				'src/admin/runtime.ts',
+				[
+					"import type { WPKernelUIRuntime } from '@wpkernel/core/data';",
+					'',
+					'export const adminScreenRuntime = {',
+					'  setUIRuntime: (_: WPKernelUIRuntime) => {},',
+					'  getUIRuntime: () => ({} as WPKernelUIRuntime),',
+					'};',
+					'',
+				].join('\n')
 			);
 			await workspace.write(
 				'src/resources/job.ts',
@@ -522,7 +539,7 @@ describe('createTsBuilder - admin screen creator', () => {
 			const screenContents = await workspace.readText(screenPath);
 
 			expect(screenContents).toContain(
-				"export const jobListScreenRoute = '/scoped/jobs';"
+				"export const jobListScreenRoute = 'scoped-jobs';"
 			);
 			expect(screenContents).toContain(
 				"const jobListScreenInteractivityFeature = 'admin-screen';"

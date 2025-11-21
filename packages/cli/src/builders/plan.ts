@@ -16,6 +16,7 @@ import {
 import { type PlanFile, type PlanInstruction } from './types';
 import { addPluginLoaderInstruction } from './plan.plugin-loader';
 import { collectResourceInstructions } from './plan.shims';
+import { addBundlerInstructions } from './plan.bundler';
 import {
 	collectBlockSurfaceInstructions,
 	collectBlockDeletionInstructions,
@@ -106,6 +107,7 @@ async function collectPlanInstructions({
 	const paths = resolvePlanPaths(options);
 
 	await addPluginLoaderInstruction({ options, prettyPrinter, instructions });
+	await addBundlerInstructions({ options, instructions });
 
 	if ((input.ir?.resources?.length ?? 0) === 0) {
 		reporter.debug(

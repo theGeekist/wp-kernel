@@ -27,7 +27,13 @@ export interface ResolveResourceImportOptions {
 	readonly configured?: string;
 }
 
-export interface ResolveKernelImportOptions {
+export interface ResolveWPKernelImportOptions {
+	readonly workspace: Workspace;
+	readonly from: string;
+	readonly configured?: string;
+}
+
+export interface ResolveAdminRuntimeImportOptions {
 	readonly workspace: Workspace;
 	readonly from: string;
 	readonly configured?: string;
