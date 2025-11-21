@@ -24,8 +24,8 @@ describe('createReporterCLI', () => {
 		const logged = writeSpy.mock.calls.map(([value]) =>
 			(value as string).replace(/\u001b\[[0-9;]*m/g, '')
 		);
-		expect(logged).toContainEqual(expect.stringContaining('INFO hello'));
-		expect(logged).toContainEqual(expect.stringContaining('WARN warn'));
+		expect(logged).toContainEqual(expect.stringMatching(/INFO.*hello/));
+		expect(logged).toContainEqual(expect.stringMatching(/WARN.*warn/));
 	});
 
 	it('does nothing when disabled', () => {
@@ -62,6 +62,6 @@ describe('createReporterCLI', () => {
 		const logged = writeSpy.mock.calls.map(([value]) =>
 			(value as string).replace(/\u001b\[[0-9;]*m/g, '')
 		);
-		expect(logged).toContainEqual(expect.stringContaining('INFO child'));
+		expect(logged).toContainEqual(expect.stringMatching(/INFO.*child/));
 	});
 });

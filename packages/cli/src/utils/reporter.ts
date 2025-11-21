@@ -48,8 +48,13 @@ function colorSupported(): boolean {
 	if (process.env.NO_COLOR) {
 		return false;
 	}
-	// Default to colored output to match Vite-style UX even in subshells.
-	return true;
+	if (process.env.FORCE_COLOR === '0') {
+		return false;
+	}
+	if (process.env.FORCE_COLOR === '1') {
+		return true;
+	}
+	return Boolean(process.stdout?.isTTY);
 }
 
 function formatLevel(level: ReporterLevel, color: boolean): string {
