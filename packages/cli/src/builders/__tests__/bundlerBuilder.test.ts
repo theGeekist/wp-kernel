@@ -23,6 +23,7 @@ import { withWorkspace as baseWithWorkspace } from '@cli-tests/builders/builder-
 import type { BuilderHarnessContext } from '@cli-tests/builders/builder-harness.test-support';
 import { buildEmptyGenerationState } from '../../apply/manifest';
 import { loadTestLayoutSync } from '@cli-tests/layout.test-support';
+import { makeResource } from '@cli-tests/builders/fixtures.test-support';
 
 describe('createBundler', () => {
 	type BundlerWorkspaceContext = BuilderHarnessContext<
@@ -135,6 +136,23 @@ describe('createBundler', () => {
 				sanitizedNamespace: 'bundler-plugin',
 				workspaceRoot,
 				phase: 'generate',
+				resources: [
+					makeResource({
+						name: 'jobs',
+						ui: {
+							admin: {
+								dataviews: {
+									fields: [{ id: 'title', label: 'Title' }],
+									defaultView: {
+										type: 'table',
+										fields: ['title'],
+									},
+									mapQuery: () => ({ search: undefined }),
+								},
+							},
+						},
+					}),
+				],
 			});
 
 			await builder.apply(
@@ -232,7 +250,11 @@ describe('createBundler', () => {
 					'wp-element',
 				])
 			);
-			expect(assetManifest.ui).toBeUndefined();
+			expect(assetManifest.ui).toEqual(
+				expect.objectContaining({
+					handle: 'wp-bundler-plugin-ui',
+				})
+			);
 			expect(updatedPkg.dependencies ?? {}).not.toHaveProperty(
 				'loglayer'
 			);
@@ -255,7 +277,10 @@ describe('createBundler', () => {
 				])
 			);
 
-			expect(config.input.index).toBe('src/index.ts');
+			const uiGenerated = layout.resolve('ui.generated');
+			expect(config.input.index).toBe(
+				path.posix.join(uiGenerated, 'index.tsx')
+			);
 
 			const viteConfig = await workspace.readText('vite.config.ts');
 			const relativeImport = path.posix

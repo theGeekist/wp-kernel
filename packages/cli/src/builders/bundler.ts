@@ -692,6 +692,12 @@ async function runBundlerGeneration({
 	const sanitizedNamespace = resolveBundlerNamespace(input);
 	const version = resolveBundlerVersion(input, pkg);
 	const hasUiResources = hasBundlerDataViews(input);
+	if (!hasUiResources) {
+		reporter.debug(
+			'runBundlerGeneration: no UI resources detected; skipping bundler artifacts.'
+		);
+		return;
+	}
 	const entryPoint = resolveUiEntryPoint(input.ir, hasUiResources);
 	const dependencyResult = await ensureBundlerDependencies({
 		workspaceRoot: context.workspace.root,
