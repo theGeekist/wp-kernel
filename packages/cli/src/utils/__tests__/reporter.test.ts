@@ -21,12 +21,11 @@ describe('createReporterCLI', () => {
 		reporter.info('hello');
 		reporter.warn('warn', { foo: 'bar' });
 
-		expect(writeSpy).toHaveBeenCalledWith(
-			expect.stringContaining('INFO hello\n')
+		const logged = writeSpy.mock.calls.map(([value]) =>
+			(value as string).replace(/\u001b\[[0-9;]*m/g, '')
 		);
-		expect(writeSpy).toHaveBeenCalledWith(
-			expect.stringContaining('WARN warn')
-		);
+		expect(logged).toContainEqual(expect.stringContaining('INFO hello'));
+		expect(logged).toContainEqual(expect.stringContaining('WARN warn'));
 	});
 
 	it('does nothing when disabled', () => {
@@ -60,8 +59,9 @@ describe('createReporterCLI', () => {
 
 		reporter.child('dx').info('child');
 
-		expect(writeSpy).toHaveBeenCalledWith(
-			expect.stringContaining('INFO child')
+		const logged = writeSpy.mock.calls.map(([value]) =>
+			(value as string).replace(/\u001b\[[0-9;]*m/g, '')
 		);
+		expect(logged).toContainEqual(expect.stringContaining('INFO child'));
 	});
 });
