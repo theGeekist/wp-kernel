@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceStore
 
-# Type Alias: ResourceStore\<T, TQuery\>
+# Type Alias: ResourceStore<T, TQuery>
 
 ```ts
 type ResourceStore<T, TQuery> = object;
@@ -60,7 +60,7 @@ Reducer function for state updates.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\> | `undefined`
+[`ResourceState`](ResourceState.md)<`T`> | `undefined`
 
 ##### action
 
@@ -68,7 +68,7 @@ Reducer function for state updates.
 
 #### Returns
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 ---
 

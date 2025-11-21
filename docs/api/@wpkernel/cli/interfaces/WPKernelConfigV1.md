@@ -16,6 +16,10 @@ Shape of a v1 wpk configuration object.
 namespace: string;
 ```
 
+Short, slug-style identifier for this plugin or feature.
+Used as a prefix for generated PHP namespaces, JS store keys,
+and WordPress capability names.
+
 ---
 
 ### resources
@@ -24,6 +28,9 @@ namespace: string;
 resources: ResourceRegistry;
 ```
 
+Registry of resource descriptors keyed by identifier.
+Required and drives routes, storage, capabilities, UI, and builders.
+
 ---
 
 ### schemas
@@ -31,6 +38,9 @@ resources: ResourceRegistry;
 ```ts
 schemas: SchemaRegistry;
 ```
+
+Registry of shared schema descriptors keyed by identifier.
+Required but may be empty.
 
 ---
 
@@ -48,7 +58,8 @@ version: 1;
 optional $schema: string;
 ```
 
-Optional JSON schema reference to enable IDE validation.
+Optional JSON Schema URI used by editors and tooling.
+Ignored by WPKernel at runtime.
 
 ---
 
@@ -57,6 +68,30 @@ Optional JSON schema reference to enable IDE validation.
 ```ts
 optional adapters: AdaptersConfig;
 ```
+
+---
+
+### directories?
+
+```ts
+optional directories: Record<string, string>;
+```
+
+Optional mapping of applied artifact identifiers to workspace-relative
+directories (omit the ".applied" suffix). Supported keys:
+blocks, blocks.applied, controllers, controllers.applied, plugin,
+plugin.loader.
+
+---
+
+### meta?
+
+```ts
+optional meta: PluginMetaConfig;
+```
+
+Optional plugin metadata used for generated plugin headers. When omitted,
+sane defaults are derived from the namespace.
 
 ---
 

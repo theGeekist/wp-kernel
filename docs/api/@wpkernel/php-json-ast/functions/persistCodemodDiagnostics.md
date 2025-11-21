@@ -35,4 +35,4 @@ function persistCodemodDiagnostics(
 
 ## Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

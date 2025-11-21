@@ -4,14 +4,14 @@
 
 [@wpkernel/ui](../README.md) / DataViewInteractionResult
 
-# Interface: DataViewInteractionResult\<TItem, TQuery\>
+# Interface: DataViewInteractionResult<TItem, TQuery>
 
 Contract returned by [createDataViewInteraction](../functions/createDataViewInteraction.md) that exposes the controller,
 underlying interaction, and convenience helpers to inspect and mutate the bridge state.
 
 ## Extends
 
-- `DefinedInteraction`\<`InteractivityStoreResult`\>
+- `DefinedInteraction`<`InteractivityStoreResult`>
 
 ## Type Parameters
 
@@ -67,7 +67,7 @@ Returns the latest computed DataView interaction state.
 
 #### Returns
 
-[`DataViewInteractionState`](../type-aliases/DataViewInteractionState.md)\<`TQuery`\>
+[`DataViewInteractionState`](../type-aliases/DataViewInteractionState.md)<`TQuery`>
 
 ---
 

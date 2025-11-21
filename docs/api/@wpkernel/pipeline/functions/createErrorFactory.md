@@ -18,6 +18,8 @@ Creates an error factory that wraps a custom error class.
 
 (`code`, `message`) => `Error`
 
+A function that creates an Error instance based on a code and message.
+
 ## Returns
 
 [`ErrorFactory`](../type-aliases/ErrorFactory.md)

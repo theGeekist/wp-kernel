@@ -19,7 +19,7 @@ a scroll and resize listener.
 
 ### ref
 
-`RefObject`\<`Element`\>
+`RefObject`<`Element`>
 
 A React ref to the element to monitor.
 

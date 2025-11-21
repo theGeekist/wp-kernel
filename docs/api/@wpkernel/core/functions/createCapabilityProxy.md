@@ -29,7 +29,7 @@ Action metadata captured during middleware execution
 
 ## Returns
 
-`Pick`\<[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)\<`Record`\<`string`, `unknown`\>\>, `"assert"` \| `"can"`\>
+`Pick`<[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)<`Record`<`string`, `unknown`>>, `"assert"` \| `"can"`>
 
 Capability helpers restricted to `assert` and `can`
 

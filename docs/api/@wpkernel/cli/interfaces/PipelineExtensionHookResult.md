@@ -30,7 +30,7 @@ Optional: A function to commit changes made by the hook.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -44,4 +44,4 @@ Optional: A function to rollback changes made by the hook.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / CommandConstructor
 
-# Type Alias: CommandConstructor()
+# Type Alias: CommandConstructor
 
 ```ts
 type CommandConstructor = () => Command & object;

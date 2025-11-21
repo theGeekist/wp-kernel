@@ -47,13 +47,13 @@ Query parameters type for list operations (e.g., { search?: string })
 
 #### config
 
-[`ResourceConfig`](../type-aliases/ResourceConfig.md)\<`T`, `TQuery`, `TRoutes`\>
+[`ResourceConfig`](../type-aliases/ResourceConfig.md)<`T`, `TQuery`, `TRoutes`>
 
 Resource configuration
 
 ### Returns
 
-[`ResourceObject`](../type-aliases/ResourceObject.md)\<`T`, `TQuery`, `TRoutes`\>
+[`ResourceObject`](../type-aliases/ResourceObject.md)<`T`, `TQuery`, `TRoutes`>
 
 Resource object with client methods and metadata
 
@@ -88,19 +88,19 @@ Creates a resource object with:
 
 #### Config
 
-`Config` _extends_ [`ResourceConfig`](../type-aliases/ResourceConfig.md)\<`unknown`, `unknown`, [`ResourceRoutes`](../type-aliases/ResourceRoutes.md)\>
+`Config` _extends_ [`ResourceConfig`](../type-aliases/ResourceConfig.md)<`unknown`, `unknown`, [`ResourceRoutes`](../type-aliases/ResourceRoutes.md)>
 
 ### Parameters
 
 #### config
 
-`ConfigWithInferredCapabilities`\<`Config`\>
+`ConfigWithInferredCapabilities`<`Config`>
 
 Resource configuration
 
 ### Returns
 
-[`ResourceObject`](../type-aliases/ResourceObject.md)\<`InferResourceDefinition`\<`Config`\>\[`"entity"`\], `InferResourceDefinition`\<`Config`\>\[`"query"`\], `InferResourceDefinition`\<`Config`\>\[`"routes"`\]\>
+[`ResourceObject`](../type-aliases/ResourceObject.md)<`InferResourceDefinition`<`Config`>\[`"entity"`\], `InferResourceDefinition`<`Config`>\[`"query"`\], `InferResourceDefinition`<`Config`>\[`"routes"`\]>
 
 Resource object with client methods and metadata
 

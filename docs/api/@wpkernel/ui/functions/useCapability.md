@@ -22,8 +22,8 @@ developer error so plugin authors remember to bootstrap via `defineCapability()`
 
 ### K
 
-`K` _extends_ `Record`\<`string`, `unknown`\>
+`K` _extends_ `Record`<`string`, `unknown`>
 
 ## Returns
 
-`UseCapabilityResult`\<`K`\>
+`UseCapabilityResult`<`K`>

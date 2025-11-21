@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / CacheKeyFn
 
-# Type Alias: CacheKeyFn()\<TParams\>
+# Type Alias: CacheKeyFn<TParams>
 
 ```ts
 type CacheKeyFn<TParams> = (

@@ -10,7 +10,7 @@ Ambient interface exposed by `@wordpress/interactivity`.
 
 ## Extends
 
-- `InteractivityCore`.`Record`\<`string`, `unknown`\>
+- `InteractivityCore`.`Record`<`string`, `unknown`>
 
 ## Indexable
 
@@ -48,7 +48,7 @@ store: (namespace, definition?) => InteractivityStoreResult;
 
 ##### definition?
 
-`Record`\<`string`, `unknown`\>
+`Record`<`string`, `unknown`>
 
 #### Returns
 

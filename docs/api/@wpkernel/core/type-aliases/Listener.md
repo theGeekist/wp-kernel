@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / Listener
 
-# Type Alias: Listener()\<T\>
+# Type Alias: Listener<T>
 
 ```ts
 type Listener<T> = (payload) => void;

@@ -52,7 +52,7 @@ list(): readonly ReadinessHelper<unknown>[];
 
 #### Returns
 
-readonly [`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<`unknown`\>[]
+readonly [`ReadinessHelper`](../interfaces/ReadinessHelper.md)<`unknown`>[]
 
 ---
 
@@ -90,7 +90,7 @@ register<State>(helper): void;
 
 ##### helper
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<`State`\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<`State`>
 
 #### Returns
 

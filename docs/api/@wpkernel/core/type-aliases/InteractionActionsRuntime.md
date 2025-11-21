@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / InteractionActionsRuntime
 
-# Type Alias: InteractionActionsRuntime\<TActions\>
+# Type Alias: InteractionActionsRuntime<TActions>
 
 ```ts
 type InteractionActionsRuntime<TActions> = {

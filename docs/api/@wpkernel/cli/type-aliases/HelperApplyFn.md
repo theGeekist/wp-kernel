@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / HelperApplyFn
 
-# Type Alias: HelperApplyFn()\<TContext, TInput, TOutput, TReporter\>
+# Type Alias: HelperApplyFn<TContext, TInput, TOutput, TReporter>
 
 ```ts
 type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (
@@ -48,18 +48,18 @@ The type of the reporter used for logging.
 
 ### options
 
-[`HelperApplyOptions`](../interfaces/HelperApplyOptions.md)\<`TContext`, `TInput`, `TOutput`, `TReporter`\>
+[`HelperApplyOptions`](../interfaces/HelperApplyOptions.md)<`TContext`, `TInput`, `TOutput`, `TReporter`>
 
 Options for the apply function, including context, input, output, and reporter.
 
 ### next?
 
-() => `MaybePromise`\<`void`\>
+() => `MaybePromise`<`void`>
 
 Optional function to call the next helper in the pipeline.
 
 ## Returns
 
-`MaybePromise`\<`void`\>
+`MaybePromise`<`void`>
 
 A promise that resolves when the helper has finished its work.

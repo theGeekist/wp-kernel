@@ -24,7 +24,7 @@ apply: (context) => void | Promise<void>;
 
 #### Returns
 
-`void` \| `Promise`\<`void`\>
+`void` \| `Promise`<`void`>
 
 ---
 

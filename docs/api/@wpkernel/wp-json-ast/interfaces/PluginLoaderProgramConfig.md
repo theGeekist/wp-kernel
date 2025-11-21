@@ -24,6 +24,14 @@ readonly origin: string;
 
 ---
 
+### plugin
+
+```ts
+readonly plugin: PluginLoaderMeta;
+```
+
+---
+
 ### resourceClassNames
 
 ```ts

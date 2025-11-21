@@ -15,8 +15,8 @@ TsxRuntimeState & gt;
 
 ### overrides
 
-`Partial`\<[`TsxRuntimeDependencies`](../interfaces/TsxRuntimeDependencies.md)\> = `{}`
+`Partial`<[`TsxRuntimeDependencies`](../interfaces/TsxRuntimeDependencies.md)> = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`TsxRuntimeState`](../interfaces/TsxRuntimeState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`TsxRuntimeState`](../interfaces/TsxRuntimeState.md)>

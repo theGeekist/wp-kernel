@@ -26,11 +26,11 @@ Creates an immutable readiness helper definition.
 
 ##### helper
 
-[`ReadinessHelper`](ReadinessHelper.md)\<`State`\>
+[`ReadinessHelper`](ReadinessHelper.md)<`State`>
 
 #### Returns
 
-[`ReadinessHelper`](ReadinessHelper.md)\<`State`\>
+[`ReadinessHelper`](ReadinessHelper.md)<`State`>
 
 ---
 

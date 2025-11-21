@@ -30,7 +30,7 @@ Optional configuration for the declare statement (statements).
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

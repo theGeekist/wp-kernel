@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceSelectors
 
-# Type Alias: ResourceSelectors\<T, TQuery\>
+# Type Alias: ResourceSelectors<T, TQuery>
 
 ```ts
 type ResourceSelectors<T, TQuery> = object;
@@ -40,7 +40,7 @@ Get error for a cache key.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -70,7 +70,7 @@ Get a single item by ID.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -100,7 +100,7 @@ Get items from a list query.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -130,7 +130,7 @@ Get list response with metadata.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -142,7 +142,7 @@ Query parameters
 
 #### Returns
 
-[`ListResponse`](ListResponse.md)\<`T`\>
+[`ListResponse`](ListResponse.md)<`T`>
 
 List response with items and metadata
 
@@ -160,7 +160,7 @@ Get the error message for a list query, if any.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -190,7 +190,7 @@ Get the status for a list query.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -223,7 +223,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -262,7 +262,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 
@@ -301,7 +301,7 @@ We include it here for type completeness.
 
 ##### state
 
-[`ResourceState`](ResourceState.md)\<`T`\>
+[`ResourceState`](ResourceState.md)<`T`>
 
 Store state
 

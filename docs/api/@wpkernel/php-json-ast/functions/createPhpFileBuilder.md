@@ -30,8 +30,8 @@ function createPhpFileBuilder<TContext, TInput, TOutput>(
 
 ### options
 
-[`CreatePhpFileBuilderOptions`](../interfaces/CreatePhpFileBuilderOptions.md)\<`TContext`, `TInput`, `TOutput`\>
+[`CreatePhpFileBuilderOptions`](../interfaces/CreatePhpFileBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>
 
 ## Returns
 
-[`BuilderHelper`](../type-aliases/BuilderHelper.md)\<`TContext`, `TInput`, `TOutput`\>
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)<`TContext`, `TInput`, `TOutput`>

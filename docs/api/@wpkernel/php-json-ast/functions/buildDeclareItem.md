@@ -28,7 +28,7 @@ The expression representing the value of the declare item.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

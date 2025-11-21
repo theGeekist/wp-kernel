@@ -10,46 +10,6 @@ Options for building the `create` command.
 
 ## Properties
 
-### Reporter
-
-#### buildReporter()?
-
-```ts
-readonly optional buildReporter: (options) => Reporter;
-```
-
-Optional: Custom reporter builder function.
-
-Create a CLI reporter with pretty terminal output.
-
-This is the recommended reporter for CLI/Node.js environments. It uses
-SimplePrettyTerminalTransport for enhanced formatting with colors and structure.
-
-For browser/WordPress environments, use `createReporter()` from `@wpkernel/core`.
-
-##### Parameters
-
-###### options
-
-`ReporterOptions` = `{}`
-
-Reporter configuration
-
-##### Returns
-
-`Reporter`
-
-Reporter instance with child helpers
-
-##### Example
-
-```typescript
-import { createReporterCLI } from '@wpkernel/cli/utils/reporter';
-
-const reporter = createReporterCLI({ level: 'debug' });
-reporter.info('Starting build process');
-```
-
 ### Workspace
 
 #### ensureCleanDirectory()?
@@ -75,7 +35,7 @@ Options for ensuring the directory is clean.
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ##### Throws
 
@@ -100,6 +60,26 @@ Optional: Custom readiness registry builder.
 ##### Returns
 
 [`ReadinessRegistry`](../classes/ReadinessRegistry.md)
+
+---
+
+#### buildReporter()?
+
+```ts
+readonly optional buildReporter: (options) => Reporter;
+```
+
+Optional: Custom reporter builder function.
+
+##### Parameters
+
+###### options
+
+`ReporterOptions` = `{}`
+
+##### Returns
+
+`Reporter`
 
 ---
 
@@ -147,7 +127,7 @@ Optional: Custom Composer dependency installer function.
 
 ##### Returns
 
-`Promise`\<`InstallerResult`\>
+`Promise`<`InstallerResult`>
 
 ---
 
@@ -179,7 +159,7 @@ Optional: Custom Node.js dependency installer function.
 
 ##### Returns
 
-`Promise`\<`InstallerResult`\>
+`Promise`<`InstallerResult`>
 
 ---
 
@@ -193,7 +173,7 @@ Optional: Custom kernel config loader.
 
 ##### Returns
 
-`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
+`Promise`<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)>
 
 ---
 
@@ -213,4 +193,4 @@ Optional: Custom workflow runner function.
 
 ##### Returns
 
-`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>
+`Promise`<[`InitWorkflowResult`](InitWorkflowResult.md)>

@@ -22,4 +22,4 @@ readonly readGitStatus: (workspace) => Promise<WorkspaceGitStatus | null>;
 
 #### Returns
 
-`Promise`\<[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`\>
+`Promise`<[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`>

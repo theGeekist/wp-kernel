@@ -7,7 +7,8 @@
 # Function: readWorkspaceGitStatus()
 
 ```ts
-function readWorkspaceGitStatus(workspace): Promise<WorkspaceGitStatus | null>;
+function readWorkspaceGitStatus(workspace): Promise & lt;
+WorkspaceGitStatus | (null & gt);
 ```
 
 ## Parameters
@@ -18,4 +19,4 @@ function readWorkspaceGitStatus(workspace): Promise<WorkspaceGitStatus | null>;
 
 ## Returns
 
-`Promise`\<[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`\>
+`Promise`<[`WorkspaceGitStatus`](../type-aliases/WorkspaceGitStatus.md) \| `null`>

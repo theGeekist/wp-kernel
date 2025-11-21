@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceStorageAccessors
 
-# Interface: ResourceStorageAccessors\<TStorageKind\>
+# Interface: ResourceStorageAccessors<TStorageKind>
 
 ## Extends
 

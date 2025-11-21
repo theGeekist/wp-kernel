@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceState
 
-# Type Alias: ResourceState\<T\>
+# Type Alias: ResourceState<T>
 
 ```ts
 type ResourceState<T> = object;

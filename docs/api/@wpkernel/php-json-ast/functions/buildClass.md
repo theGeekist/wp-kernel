@@ -50,7 +50,7 @@ Optional configuration for the class (flags, extends, implements, statements, at
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

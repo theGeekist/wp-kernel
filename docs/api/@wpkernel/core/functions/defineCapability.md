@@ -257,7 +257,7 @@ In React components, async rules return `false` during evaluation and update whe
 
 ### K
 
-`K` _extends_ `Record`\<`string`, `unknown`\>
+`K` _extends_ `Record`<`string`, `unknown`>
 
 Capability map type defining capability keys and their parameter types
 
@@ -265,13 +265,13 @@ Capability map type defining capability keys and their parameter types
 
 ### config
 
-[`CapabilityDefinitionConfig`](../type-aliases/CapabilityDefinitionConfig.md)\<`K`\>
+[`CapabilityDefinitionConfig`](../type-aliases/CapabilityDefinitionConfig.md)<`K`>
 
 Configuration object mapping capability keys to rule functions and runtime options
 
 ## Returns
 
-[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)\<`K`\>
+[`CapabilityHelpers`](../type-aliases/CapabilityHelpers.md)<`K`>
 
 Capability helpers object with can(), assert(), keys(), extend(), and cache API
 

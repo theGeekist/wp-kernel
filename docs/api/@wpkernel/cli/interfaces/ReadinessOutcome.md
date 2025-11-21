@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / ReadinessOutcome
 
-# Interface: ReadinessOutcome\<State\>
+# Interface: ReadinessOutcome<State>
 
 Aggregated outcome for a readiness unit after orchestrator execution.
 

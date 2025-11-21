@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / AdapterExtensionFactory
 
-# Type Alias: AdapterExtensionFactory()
+# Type Alias: AdapterExtensionFactory
 
 ```ts
 type AdapterExtensionFactory = (

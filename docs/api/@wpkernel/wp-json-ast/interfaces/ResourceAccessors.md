@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceAccessors
 
-# Interface: ResourceAccessors\<TStorageKind\>
+# Interface: ResourceAccessors<TStorageKind>
 
 ## Type Parameters
 

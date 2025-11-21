@@ -40,4 +40,4 @@ function persistProgramArtifacts(
 
 ## Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

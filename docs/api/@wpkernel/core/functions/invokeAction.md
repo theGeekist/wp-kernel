@@ -45,7 +45,7 @@ Return type from the action
 
 ### action
 
-[`DefinedAction`](../type-aliases/DefinedAction.md)\<`TArgs`, `TResult`\>
+[`DefinedAction`](../type-aliases/DefinedAction.md)<`TArgs`, `TResult`>
 
 The defined WPKernel action to execute
 
@@ -57,13 +57,13 @@ Arguments to pass to the action function
 
 ### meta
 
-`Record`\<`string`, `unknown`\> = `{}`
+`Record`<`string`, `unknown`> = `{}`
 
 Optional metadata for middleware coordination
 
 ## Returns
 
-[`ActionEnvelope`](../type-aliases/ActionEnvelope.md)\<`TArgs`, `TResult`\>
+[`ActionEnvelope`](../type-aliases/ActionEnvelope.md)<`TArgs`, `TResult`>
 
 Action envelope ready for Redux dispatch
 

@@ -27,6 +27,6 @@ Options for building the IR, including the project configuration and source deta
 
 ## Returns
 
-`Promise`\<[`IRv1`](../interfaces/IRv1.md)\>
+`Promise`<[`IRv1`](../interfaces/IRv1.md)>
 
 A promise that resolves with the generated `IRv1` object.

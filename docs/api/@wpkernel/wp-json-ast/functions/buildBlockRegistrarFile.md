@@ -30,4 +30,4 @@ function buildBlockRegistrarFile(
 
 ## Returns
 
-[`BlockModuleFile`](../interfaces/BlockModuleFile.md)\<[`BlockRegistrarMetadata`](../type-aliases/BlockRegistrarMetadata.md)\>
+[`BlockModuleFile`](../interfaces/BlockModuleFile.md)<[`BlockRegistrarMetadata`](../type-aliases/BlockRegistrarMetadata.md)>

@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / RouteCapabilityKeys
 
-# Type Alias: RouteCapabilityKeys\<TRoutes\>
+# Type Alias: RouteCapabilityKeys<TRoutes>
 
 ```ts
 type RouteCapabilityKeys<TRoutes> = Extract<

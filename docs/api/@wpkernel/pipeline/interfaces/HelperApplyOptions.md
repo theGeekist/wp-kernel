@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / HelperApplyOptions
 
-# Interface: HelperApplyOptions\<TContext, TInput, TOutput, TReporter\>
+# Interface: HelperApplyOptions<TContext, TInput, TOutput, TReporter>
 
 Options passed to a helper's apply function.
 

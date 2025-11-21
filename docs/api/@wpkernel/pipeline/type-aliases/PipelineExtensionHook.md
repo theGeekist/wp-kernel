@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionHook
 
-# Type Alias: PipelineExtensionHook()\<TContext, TOptions, TArtifact\>
+# Type Alias: PipelineExtensionHook<TContext, TOptions, TArtifact>
 
 ```ts
 type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
@@ -32,10 +32,10 @@ A pipeline extension hook function.
 
 ### options
 
-[`PipelineExtensionHookOptions`](../interfaces/PipelineExtensionHookOptions.md)\<`TContext`, `TOptions`, `TArtifact`\>
+[`PipelineExtensionHookOptions`](../interfaces/PipelineExtensionHookOptions.md)<`TContext`, `TOptions`, `TArtifact`>
 
 ## Returns
 
-[`MaybePromise`](MaybePromise.md)\<
-\| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)\<`TArtifact`\>
-\| `void`\>
+[`MaybePromise`](MaybePromise.md)<
+\| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)<`TArtifact`>
+\| `void`>

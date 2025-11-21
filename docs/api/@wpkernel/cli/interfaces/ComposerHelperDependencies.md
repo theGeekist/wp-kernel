@@ -22,4 +22,4 @@ readonly pathExists: (candidate) => Promise<boolean>;
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>

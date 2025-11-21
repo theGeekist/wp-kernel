@@ -66,7 +66,7 @@ Server error options
 
 ###### serverData?
 
-`Record`\<`string`, `unknown`\>
+`Record`<`string`, `unknown`>
 
 #### Returns
 

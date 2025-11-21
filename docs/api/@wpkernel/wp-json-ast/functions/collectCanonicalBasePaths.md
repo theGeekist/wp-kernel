@@ -22,4 +22,4 @@ readonly [`RouteDefinition`](../interfaces/RouteDefinition.md)[]
 
 ## Returns
 
-`Set`\<`string`\>
+`Set`<`string`>

@@ -24,10 +24,10 @@ readonly absolutePath: string;
 
 ---
 
-### contents
+### program
 
 ```ts
-readonly contents: string;
+readonly program: PhpProgram;
 ```
 
 ---

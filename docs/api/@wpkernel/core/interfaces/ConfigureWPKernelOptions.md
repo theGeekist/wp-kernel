@@ -27,7 +27,7 @@ optional namespace: string;
 ### registry?
 
 ```ts
-optional registry: WPKernelRegistry;
+optional registry: any;
 ```
 
 ---

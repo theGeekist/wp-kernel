@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / CreateDataViewInteractionOptions
 
-# Interface: CreateDataViewInteractionOptions\<TItem, TQuery, TActions\>
+# Interface: CreateDataViewInteractionOptions<TItem, TQuery, TActions>
 
 Configuration required to bridge a DataView controller into the interactivity runtime.
 
@@ -100,7 +100,7 @@ enabled.
 
 ##### input
 
-`HydrateServerStateInput`\<`TItem`, `TQuery`\>
+`HydrateServerStateInput`<`TItem`, `TQuery`>
 
 #### Returns
 
@@ -115,14 +115,14 @@ optional namespace: string;
 ```
 
 Optional namespace override that will be forwarded to
-defineInteraction. Defaults to the runtime namespace.
+[defineInteraction](#). Defaults to the runtime namespace.
 
 ---
 
 ### registry?
 
 ```ts
-optional registry: WPKernelRegistry;
+optional registry: any;
 ```
 
 Custom registry implementation to use for dispatch and selectors. Defaults
@@ -137,7 +137,7 @@ optional resource: ResourceObject<TItem, TQuery>;
 ```
 
 Optional resource reference that will be passed through to
-defineInteraction. Provide it when the controller does not embed the
+[defineInteraction](#). Provide it when the controller does not embed the
 resource definition.
 
 ---
@@ -160,4 +160,4 @@ optional store: Record<string, unknown>;
 ```
 
 Optional store object that will be extended with the DataView state before
-being provided to defineInteraction.
+being provided to [defineInteraction](#).

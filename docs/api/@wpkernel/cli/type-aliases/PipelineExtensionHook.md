@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / PipelineExtensionHook
 
-# Type Alias: PipelineExtensionHook()
+# Type Alias: PipelineExtensionHook
 
 ```ts
 type PipelineExtensionHook = (
@@ -22,6 +22,6 @@ Represents a pipeline extension hook function.
 
 ## Returns
 
-`Promise`\<
+`Promise`<
 \| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)
-\| `void`\>
+\| `void`>

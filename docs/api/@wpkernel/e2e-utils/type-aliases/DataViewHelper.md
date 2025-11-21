@@ -24,7 +24,7 @@ Clear the search control.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -58,7 +58,7 @@ Read the bulk selection counter rendered in the footer.
 
 #### Returns
 
-`Promise`\<`number`\>
+`Promise`<`number`>
 
 ---
 
@@ -72,7 +72,7 @@ Read the total item count exposed by the wrapper metadata.
 
 #### Returns
 
-`Promise`\<`number`\>
+`Promise`<`number`>
 
 ---
 
@@ -106,7 +106,7 @@ Trigger a bulk action button by its visible label.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -126,7 +126,7 @@ Fill the toolbar search control.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -146,7 +146,7 @@ Toggle selection for a row that matches the provided text.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -160,4 +160,4 @@ Wait until the DataView reports that loading has finished.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

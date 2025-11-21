@@ -30,13 +30,13 @@ The query parameter type for list operations
 
 ### config
 
-[`ResourceStoreConfig`](../type-aliases/ResourceStoreConfig.md)\<`T`, `TQuery`\>
+[`ResourceStoreConfig`](../type-aliases/ResourceStoreConfig.md)<`T`, `TQuery`>
 
 Store configuration
 
 ## Returns
 
-[`ResourceStore`](../type-aliases/ResourceStore.md)\<`T`, `TQuery`\>
+[`ResourceStore`](../type-aliases/ResourceStore.md)<`T`, `TQuery`>
 
 Complete store descriptor
 

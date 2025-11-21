@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceCapabilityMap
 
-# Type Alias: ResourceCapabilityMap\<TRoutes\>
+# Type Alias: ResourceCapabilityMap<TRoutes>
 
 ```ts
 type ResourceCapabilityMap<TRoutes> = Partial<

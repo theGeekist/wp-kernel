@@ -34,4 +34,4 @@ function createPhpProgramWriterHelper<TContext, TInput, TOutput>(
 
 ## Returns
 
-[`BuilderHelper`](../type-aliases/BuilderHelper.md)\<`TContext`, `TInput`, `TOutput`\>
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)<`TContext`, `TInput`, `TOutput`>

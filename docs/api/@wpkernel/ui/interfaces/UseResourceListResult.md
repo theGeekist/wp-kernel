@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / UseResourceListResult
 
-# Interface: UseResourceListResult\<T\>
+# Interface: UseResourceListResult<T>
 
 Result shape for list resource hooks
 

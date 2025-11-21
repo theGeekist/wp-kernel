@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / ReadinessHelper
 
-# Interface: ReadinessHelper\<State\>
+# Interface: ReadinessHelper<State>
 
 Contract implemented by readiness helpers.
 
@@ -34,7 +34,7 @@ readonly confirm: (context, state) => Promise<ReadinessConfirmation<State>>;
 
 #### Returns
 
-`Promise`\<[`ReadinessConfirmation`](ReadinessConfirmation.md)\<`State`\>\>
+`Promise`<[`ReadinessConfirmation`](ReadinessConfirmation.md)<`State`>>
 
 ---
 
@@ -52,7 +52,7 @@ readonly detect: (context) => Promise<ReadinessDetection<State>>;
 
 #### Returns
 
-`Promise`\<[`ReadinessDetection`](ReadinessDetection.md)\<`State`\>\>
+`Promise`<[`ReadinessDetection`](ReadinessDetection.md)<`State`>>
 
 ---
 
@@ -90,7 +90,7 @@ readonly optional execute: (context, state) => Promise<ReadinessStepResult<State
 
 #### Returns
 
-`Promise`\<[`ReadinessStepResult`](ReadinessStepResult.md)\<`State`\>\>
+`Promise`<[`ReadinessStepResult`](ReadinessStepResult.md)<`State`>>
 
 ---
 
@@ -112,7 +112,7 @@ readonly optional prepare: (context, state) => Promise<ReadinessStepResult<State
 
 #### Returns
 
-`Promise`\<[`ReadinessStepResult`](ReadinessStepResult.md)\<`State`\>\>
+`Promise`<[`ReadinessStepResult`](ReadinessStepResult.md)<`State`>>
 
 ---
 
@@ -134,4 +134,4 @@ readonly optional rollback: (context, state) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

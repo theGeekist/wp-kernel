@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / RestControllerRouteStatementsBuilder
 
-# Type Alias: RestControllerRouteStatementsBuilder()
+# Type Alias: RestControllerRouteStatementsBuilder
 
 ```ts
 type RestControllerRouteStatementsBuilder = (

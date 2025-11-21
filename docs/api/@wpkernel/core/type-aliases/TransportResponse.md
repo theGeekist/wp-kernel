@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / TransportResponse
 
-# Type Alias: TransportResponse\<T\>
+# Type Alias: TransportResponse<T>
 
 ```ts
 type TransportResponse<T> = object;

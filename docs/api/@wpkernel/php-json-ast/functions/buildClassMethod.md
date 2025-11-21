@@ -50,7 +50,7 @@ Optional configuration for the method (by reference, flags, parameters, return t
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

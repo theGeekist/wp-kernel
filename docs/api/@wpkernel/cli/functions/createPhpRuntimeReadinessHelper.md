@@ -15,8 +15,8 @@ PhpRuntimeState & gt;
 
 ### overrides
 
-`Partial`\<[`PhpRuntimeDependencies`](../interfaces/PhpRuntimeDependencies.md)\> = `{}`
+`Partial`<[`PhpRuntimeDependencies`](../interfaces/PhpRuntimeDependencies.md)> = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`PhpRuntimeState`](../interfaces/PhpRuntimeState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`PhpRuntimeState`](../interfaces/PhpRuntimeState.md)>

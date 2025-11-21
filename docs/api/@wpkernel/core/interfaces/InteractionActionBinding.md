@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / InteractionActionBinding
 
-# Interface: InteractionActionBinding\<TArgs, TResult\>
+# Interface: InteractionActionBinding<TArgs, TResult>
 
 Declarative binding describing an action exposed to the runtime.
 

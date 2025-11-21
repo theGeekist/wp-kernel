@@ -22,8 +22,8 @@ function buildResourceAccessors<TStorageKind>(
 
 ### options
 
-[`BuildResourceAccessorsOptions`](../interfaces/BuildResourceAccessorsOptions.md)\<`TStorageKind`\>
+[`BuildResourceAccessorsOptions`](../interfaces/BuildResourceAccessorsOptions.md)<`TStorageKind`>
 
 ## Returns
 
-[`ResourceAccessors`](../interfaces/ResourceAccessors.md)\<`TStorageKind`\>
+[`ResourceAccessors`](../interfaces/ResourceAccessors.md)<`TStorageKind`>

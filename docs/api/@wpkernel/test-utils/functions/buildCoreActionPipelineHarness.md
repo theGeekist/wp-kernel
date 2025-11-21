@@ -28,12 +28,12 @@ Builds a harness for testing core action pipelines.
 
 ### options
 
-[`BuildCoreActionPipelineHarnessOptions`](../interfaces/BuildCoreActionPipelineHarnessOptions.md)\<`TArgs`, `TResult`\> = `{}`
+[`BuildCoreActionPipelineHarnessOptions`](../interfaces/BuildCoreActionPipelineHarnessOptions.md)<`TArgs`, `TResult`> = `{}`
 
 Options for configuring the harness.
 
 ## Returns
 
-[`CoreActionPipelineHarness`](../interfaces/CoreActionPipelineHarness.md)\<`TArgs`, `TResult`\>
+[`CoreActionPipelineHarness`](../interfaces/CoreActionPipelineHarness.md)<`TArgs`, `TResult`>
 
 A `CoreActionPipelineHarness` instance.

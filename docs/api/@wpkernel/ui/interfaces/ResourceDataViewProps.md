@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewProps
 
-# Interface: ResourceDataViewProps\<TItem, TQuery\>
+# Interface: ResourceDataViewProps<TItem, TQuery>
 
 Props for the ResourceDataView component.
 
@@ -70,7 +70,7 @@ An optional function to fetch a list of items, overriding the resource's fetchLi
 
 #### Returns
 
-`Promise`\<`ListResponse`\<`TItem`\>\>
+`Promise`<`ListResponse`<`TItem`>>
 
 ---
 

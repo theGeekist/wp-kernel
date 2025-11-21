@@ -15,8 +15,8 @@ PhpPrinterPathState & gt;
 
 ### overrides
 
-`Partial`\<[`PhpPrinterPathDependencies`](../interfaces/PhpPrinterPathDependencies.md)\> = `{}`
+`Partial`<[`PhpPrinterPathDependencies`](../interfaces/PhpPrinterPathDependencies.md)> = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`PhpPrinterPathState`](../interfaces/PhpPrinterPathState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`PhpPrinterPathState`](../interfaces/PhpPrinterPathState.md)>

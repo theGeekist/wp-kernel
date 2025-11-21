@@ -4,7 +4,7 @@
 
 [@wpkernel/e2e-utils](../README.md) / StoreUtils
 
-# Type Alias: StoreUtils\<T\>
+# Type Alias: StoreUtils<T>
 
 ```ts
 type StoreUtils<T> = object;
@@ -30,7 +30,7 @@ Get current store state
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 Current state object
 
@@ -46,7 +46,7 @@ Invalidate store cache to trigger refetch
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -80,6 +80,6 @@ Max wait time in ms (default: 5000)
 
 #### Returns
 
-`Promise`\<`R`\>
+`Promise`<`R`>
 
 Resolved data from selector

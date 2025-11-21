@@ -28,4 +28,4 @@ Mapping of relative paths to file contents.
 
 ## Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

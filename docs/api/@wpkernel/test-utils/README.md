@@ -4,12 +4,6 @@
 
 # @wpkernel/test-utils v0.12.2-beta.0
 
-## Classes
-
-### CLI Helpers
-
-- [MemoryStream](classes/MemoryStream.md)
-
 ## Interfaces
 
 ### WordPress Harness
@@ -29,19 +23,6 @@
 - [WPKernelUITestHarness](interfaces/WPKernelUITestHarness.md)
 - [WPKernelUITestHarnessOptions](interfaces/WPKernelUITestHarnessOptions.md)
 
-### CLI Helpers
-
-- [ApplyLogEntry](interfaces/ApplyLogEntry.md)
-- [ApplyLogFlags](interfaces/ApplyLogFlags.md)
-- [ApplyLogRecord](interfaces/ApplyLogRecord.md)
-- [ApplyLogSummary](interfaces/ApplyLogSummary.md)
-- [BaseContext](interfaces/BaseContext.md)
-- [BuildLoadedConfigOptions](interfaces/BuildLoadedConfigOptions.md)
-- [CommandContextHarness](interfaces/CommandContextHarness.md)
-- [CommandContextOptions](interfaces/CommandContextOptions.md)
-- [FlushAsyncOptions](interfaces/FlushAsyncOptions.md)
-- [ReporterMockOptions](interfaces/ReporterMockOptions.md)
-
 ### Integration
 
 - [WorkspaceOptions](interfaces/WorkspaceOptions.md)
@@ -59,19 +40,11 @@
 ### Other
 
 - [BuildNodeOptionsConfig](interfaces/BuildNodeOptionsConfig.md)
-- [CommandReporterHarness](interfaces/CommandReporterHarness.md)
-- [CommandWorkspaceHarness](interfaces/CommandWorkspaceHarness.md)
-- [CommandWorkspaceHarnessOptions](interfaces/CommandWorkspaceHarnessOptions.md)
-- [LoadedWPKConfigV1Like](interfaces/LoadedWPKConfigV1Like.md)
-- [ResourceConfigLike](interfaces/ResourceConfigLike.md)
-- [ResourceRegistryLike](interfaces/ResourceRegistryLike.md)
 - [RunNodeProcessOptions](interfaces/RunNodeProcessOptions.md)
 - [RunProcessOptions](interfaces/RunProcessOptions.md)
 - [RunProcessResult](interfaces/RunProcessResult.md)
-- [SchemaConfigLike](interfaces/SchemaConfigLike.md)
-- [SchemaRegistryLike](interfaces/SchemaRegistryLike.md)
+- [TestLayout](interfaces/TestLayout.md)
 - [WordPressPackage](interfaces/WordPressPackage.md)
-- [WPKConfigV1Like](interfaces/WPKConfigV1Like.md)
 
 ## Type Aliases
 
@@ -83,22 +56,9 @@
 
 - [WPKernelUIProviderComponent](type-aliases/WPKernelUIProviderComponent.md)
 
-### CLI Helpers
-
-- [ApplyLogStatus](type-aliases/ApplyLogStatus.md)
-- [ReporterLike](type-aliases/ReporterLike.md)
-- [ReporterMock](type-aliases/ReporterMock.md)
-
 ### Other
 
-- [ReporterFactoryMock](type-aliases/ReporterFactoryMock.md)
 - [WordPressData](type-aliases/WordPressData.md)
-
-## Variables
-
-### CLI Helpers
-
-- [TMP_PREFIX](variables/TMP_PREFIX.md)
 
 ## Functions
 
@@ -117,19 +77,6 @@
 
 - [createWPKernelUITestHarness](functions/createWPKernelUITestHarness.md)
 
-### CLI Helpers
-
-- [assignCommandContext](functions/assignCommandContext.md)
-- [buildLoadedConfig](functions/buildLoadedConfig.md)
-- [createCommandContext](functions/createCommandContext.md)
-- [createMemoryStream](functions/createMemoryStream.md)
-- [createReporterMock](functions/createReporterMock.md)
-- [ensureDirectory](functions/ensureDirectory.md)
-- [flushAsync](functions/flushAsync.md)
-- [readApplyLogEntries](functions/readApplyLogEntries.md)
-- [seedPlan](functions/seedPlan.md)
-- [toFsPath](functions/toFsPath.md)
-
 ### Integration
 
 - [buildPhpIntegrationEnv](functions/buildPhpIntegrationEnv.md)
@@ -147,11 +94,10 @@
 - [buildCliIntegrationEnv](functions/buildCliIntegrationEnv.md)
 - [buildNodeOptions](functions/buildNodeOptions.md)
 - [clearNamespaceState](functions/clearNamespaceState.md)
-- [createCommandReporterHarness](functions/createCommandReporterHarness.md)
-- [createCommandWorkspaceHarness](functions/createCommandWorkspaceHarness.md)
 - [createMockWpPackage](functions/createMockWpPackage.md)
-- [createReporterFactory](functions/createReporterFactory.md)
+- [ensureLayoutManifest](functions/ensureLayoutManifest.md)
 - [ensureWpData](functions/ensureWpData.md)
+- [loadDefaultLayout](functions/loadDefaultLayout.md)
 - [runNodeProcess](functions/runNodeProcess.md)
 - [runProcess](functions/runProcess.md)
 - [sanitizePhpIntegrationEnv](functions/sanitizePhpIntegrationEnv.md)

@@ -26,7 +26,7 @@ readonly detectRepository: (cwd, __namedParameters) => Promise<boolean>;
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>
 
 ---
 
@@ -48,4 +48,4 @@ readonly initRepository: (cwd, __namedParameters) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

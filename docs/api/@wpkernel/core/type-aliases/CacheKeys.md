@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / CacheKeys
 
-# Type Alias: CacheKeys\<TListParams\>
+# Type Alias: CacheKeys<TListParams>
 
 ```ts
 type CacheKeys<TListParams> = object;

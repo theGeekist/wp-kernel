@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / QueryMapping
 
-# Type Alias: QueryMapping()\<TQuery\>
+# Type Alias: QueryMapping<TQuery>
 
 ```ts
 type QueryMapping<TQuery> = (state) => TQuery;

@@ -22,8 +22,8 @@ Creates an immutable readiness helper definition.
 
 ### helper
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<`State`\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<`State`>
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<`State`\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<`State`>

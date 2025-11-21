@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / QueueModuleFilesOptions
 
-# Interface: QueueModuleFilesOptions\<TFile\>
+# Interface: QueueModuleFilesOptions<TFile>
 
 ## Type Parameters
 

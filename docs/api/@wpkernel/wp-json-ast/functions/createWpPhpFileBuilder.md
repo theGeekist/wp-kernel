@@ -35,13 +35,13 @@ such as automatic generation of file headers and guards.
 
 ### options
 
-[`CreateWpPhpFileBuilderOptions`](../type-aliases/CreateWpPhpFileBuilderOptions.md)\<`TContext`, `TInput`, `TOutput`\>
+[`CreateWpPhpFileBuilderOptions`](../type-aliases/CreateWpPhpFileBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>
 
 Options for creating the builder.
 
 ## Returns
 
-`BuilderHelper`\<`TContext`, `TInput`, `TOutput`\>
+`BuilderHelper`<`TContext`, `TInput`, `TOutput`>
 
 A builder helper.
 

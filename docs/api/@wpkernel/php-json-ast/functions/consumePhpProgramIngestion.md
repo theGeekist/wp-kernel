@@ -18,4 +18,4 @@ function consumePhpProgramIngestion(options): Promise<void>;
 
 ## Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

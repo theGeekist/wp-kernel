@@ -18,7 +18,7 @@ assign: (partial) => void;
 
 ##### partial
 
-`Partial`\<[`MutableIr`](MutableIr.md)\>
+`Partial`<[`MutableIr`](MutableIr.md)>
 
 #### Returns
 

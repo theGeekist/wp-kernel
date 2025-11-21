@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / ModuleIndexAugmentor
 
-# Type Alias: ModuleIndexAugmentor()
+# Type Alias: ModuleIndexAugmentor
 
 ```ts
 type ModuleIndexAugmentor = (entries) => readonly ModuleIndexEntry[];

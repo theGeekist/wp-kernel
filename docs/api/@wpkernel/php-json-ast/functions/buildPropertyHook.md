@@ -48,7 +48,7 @@ Optional configuration for the property hook (attribute groups, flags, by refere
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

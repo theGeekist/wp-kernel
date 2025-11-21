@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceClient
 
-# Type Alias: ResourceClient\<T, TQuery\>
+# Type Alias: ResourceClient<T, TQuery>
 
 ```ts
 type ResourceClient<T, TQuery> = object;
@@ -43,13 +43,13 @@ Create a new resource
 
 ##### data
 
-`Partial`\<`T`\>
+`Partial`<`T`>
 
 Resource data to create
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 Promise resolving to created resource
 
@@ -81,7 +81,7 @@ Resource identifier
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 Promise resolving to resource entity
 
@@ -113,7 +113,7 @@ Query parameters (filters, pagination, etc.)
 
 #### Returns
 
-`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
+`Promise`<[`ListResponse`](ListResponse.md)<`T`>>
 
 Promise resolving to list response
 
@@ -145,7 +145,7 @@ Resource identifier
 
 #### Returns
 
-`Promise`\<`void` \| `T`\>
+`Promise`<`void` \| `T`>
 
 Promise resolving to void or deleted resource
 
@@ -187,13 +187,13 @@ Resource identifier
 
 ##### data
 
-`Partial`\<`T`\>
+`Partial`<`T`>
 
 Partial resource data to update
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 Promise resolving to updated resource
 

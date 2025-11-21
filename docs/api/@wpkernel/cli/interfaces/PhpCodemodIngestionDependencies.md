@@ -54,7 +54,7 @@ the error raised if the file is not accessible.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 Fulfills with `undefined` upon success.
 
@@ -69,8 +69,8 @@ v10.0.0
 ```ts
 readonly realpath: {
   (path, options?): Promise<string>;
-  (path, options): Promise<Buffer<ArrayBufferLike>>;
-  (path, options?): Promise<string | Buffer<ArrayBufferLike>>;
+  (path, options): Promise<NonSharedBuffer>;
+  (path, options?): Promise<string | NonSharedBuffer>;
 };
 ```
 
@@ -105,7 +105,7 @@ this restriction.
 
 ##### Returns
 
-`Promise`\<`string`\>
+`Promise`<`string`>
 
 Fulfills with the resolved path upon success.
 
@@ -116,7 +116,7 @@ v10.0.0
 #### Call Signature
 
 ```ts
-(path, options): Promise<Buffer<ArrayBufferLike>>;
+(path, options): Promise<NonSharedBuffer>;
 ```
 
 Asynchronous realpath(3) - return the canonicalized absolute pathname.
@@ -137,12 +137,12 @@ The encoding (or an object specifying the encoding), used as the encoding of the
 
 ##### Returns
 
-`Promise`\<`Buffer`\<`ArrayBufferLike`\>\>
+`Promise`<`NonSharedBuffer`>
 
 #### Call Signature
 
 ```ts
-(path, options?): Promise<string | Buffer<ArrayBufferLike>>;
+(path, options?): Promise<string | NonSharedBuffer>;
 ```
 
 Asynchronous realpath(3) - return the canonicalized absolute pathname.
@@ -163,4 +163,4 @@ The encoding (or an object specifying the encoding), used as the encoding of the
 
 ##### Returns
 
-`Promise`\<`string` \| `Buffer`\<`ArrayBufferLike`\>\>
+`Promise`<`string` \| `NonSharedBuffer`>

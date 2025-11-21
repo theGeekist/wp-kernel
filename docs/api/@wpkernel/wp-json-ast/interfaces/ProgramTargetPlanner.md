@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / ProgramTargetPlanner
 
-# Interface: ProgramTargetPlanner\<TFile\>
+# Interface: ProgramTargetPlanner<TFile>
 
 ## Type Parameters
 

@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / DefinedAction
 
-# Type Alias: DefinedAction()\<TArgs, TResult\>
+# Type Alias: DefinedAction<TArgs, TResult>
 
 ```ts
 type DefinedAction<TArgs, TResult> = Promise<TResult>;
@@ -72,7 +72,7 @@ After wrapping with `defineAction()`, actions become callable functions that:
 
 ## Returns
 
-`Promise`\<`TResult`\>
+`Promise`<`TResult`>
 
 ## Example
 

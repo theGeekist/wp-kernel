@@ -51,7 +51,7 @@ Preference key (e.g., 'job-listings')
 
 #### Returns
 
-`Promise`\<`unknown`\>
+`Promise`<`unknown`>
 
 Preference value or undefined if not found
 
@@ -83,7 +83,7 @@ Preference value to persist
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 

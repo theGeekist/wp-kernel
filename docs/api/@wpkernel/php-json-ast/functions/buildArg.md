@@ -38,7 +38,7 @@ Optional configuration for the argument (by reference, unpack, name).
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

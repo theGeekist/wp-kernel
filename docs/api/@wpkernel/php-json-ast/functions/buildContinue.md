@@ -22,7 +22,7 @@ The optional number of loops to continue (e.g., `continue 2`).
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

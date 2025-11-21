@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / ReadinessHelperFactory
 
-# Type Alias: ReadinessHelperFactory()
+# Type Alias: ReadinessHelperFactory
 
 ```ts
 type ReadinessHelperFactory = (
@@ -22,4 +22,4 @@ type ReadinessHelperFactory = (
 
 \| `void`
 \| [`ReadinessHelper`](../interfaces/ReadinessHelper.md)
-\| `ReadonlyArray`\<[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\>
+\| `ReadonlyArray`<[`ReadinessHelper`](../interfaces/ReadinessHelper.md)>

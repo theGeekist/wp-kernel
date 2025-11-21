@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / DataViewInteractionState
 
-# Type Alias: DataViewInteractionState\<TQuery\>
+# Type Alias: DataViewInteractionState<TQuery>
 
 ```ts
 type DataViewInteractionState<TQuery> = object;

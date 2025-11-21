@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / DefineInteractionOptions
 
-# Interface: DefineInteractionOptions\<TEntity, TQuery, TStore, TActions\>
+# Interface: DefineInteractionOptions<TEntity, TQuery, TStore, TActions>
 
 Options accepted by `defineInteraction`.
 
@@ -20,7 +20,7 @@ Options accepted by `defineInteraction`.
 
 ### TStore
 
-`TStore` _extends_ `Record`\<`string`, `unknown`\>
+`TStore` _extends_ `Record`<`string`, `unknown`>
 
 ### TActions
 
@@ -70,7 +70,7 @@ readonly optional hydrateServerState: (input) => void;
 
 ##### input
 
-[`HydrateServerStateInput`](HydrateServerStateInput.md)\<`TEntity`, `TQuery`\>
+[`HydrateServerStateInput`](HydrateServerStateInput.md)<`TEntity`, `TQuery`>
 
 #### Returns
 
@@ -89,7 +89,7 @@ readonly optional namespace: string;
 ### registry?
 
 ```ts
-readonly optional registry: WPKernelRegistry;
+readonly optional registry: any;
 ```
 
 ---

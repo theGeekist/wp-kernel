@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ParamsOf
 
-# Type Alias: ParamsOf\<K, Key\>
+# Type Alias: ParamsOf<K, Key>
 
 ```ts
 type ParamsOf<K, Key> = K[Key] extends void ? [] : [K[Key]];

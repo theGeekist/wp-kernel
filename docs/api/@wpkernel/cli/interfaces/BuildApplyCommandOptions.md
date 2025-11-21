@@ -75,7 +75,7 @@ readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -141,7 +141,7 @@ readonly optional createBackups: (options) => Promise<void>;
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -159,7 +159,7 @@ readonly optional ensureGitRepository: (workspace) => Promise<void>;
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -171,7 +171,7 @@ readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 
 ##### Returns
 
-`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
+`Promise`<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)>
 
 ---
 
@@ -203,7 +203,7 @@ readonly optional promptConfirm: (options) => Promise<boolean>;
 
 ##### Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>
 
 ---
 
@@ -221,7 +221,7 @@ readonly optional readManifest: (workspace) => Promise<PatchManifest | null>;
 
 ##### Returns
 
-`Promise`\<[`PatchManifest`](PatchManifest.md) \| `null`\>
+`Promise`<[`PatchManifest`](PatchManifest.md) \| `null`>
 
 ---
 

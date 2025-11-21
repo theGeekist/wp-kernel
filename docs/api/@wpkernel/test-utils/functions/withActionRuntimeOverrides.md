@@ -28,12 +28,12 @@ The overrides to apply to the action runtime.
 
 ### callback
 
-() => `T` \| `Promise`\<`T`\>
+() => `T` \| `Promise`<`T`>
 
 The function to execute with the modified runtime.
 
 ## Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 The return value of the callback.

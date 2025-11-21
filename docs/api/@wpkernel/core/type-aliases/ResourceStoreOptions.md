@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceStoreOptions
 
-# Type Alias: ResourceStoreOptions\<T, TQuery\>
+# Type Alias: ResourceStoreOptions<T, TQuery>
 
 ```ts
 type ResourceStoreOptions<T, TQuery> = object;

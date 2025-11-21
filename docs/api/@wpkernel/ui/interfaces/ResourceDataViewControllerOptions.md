@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewControllerOptions
 
-# Interface: ResourceDataViewControllerOptions\<TItem, TQuery\>
+# Interface: ResourceDataViewControllerOptions<TItem, TQuery>
 
 Options for creating a `ResourceDataViewController`.
 
@@ -76,7 +76,7 @@ A function to fetch a list of items.
 
 #### Returns
 
-`Promise`\<`ListResponse`\<`TItem`\>\>
+`Promise`<`ListResponse`<`TItem`>>
 
 ---
 
@@ -126,7 +126,7 @@ A function to prefetch a list of items.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 

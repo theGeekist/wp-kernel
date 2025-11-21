@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceActions
 
-# Type Alias: ResourceActions\<T\>
+# Type Alias: ResourceActions<T>
 
 ```ts
 type ResourceActions<T> = object & Record<string, AnyFn>;

@@ -89,11 +89,11 @@ This design enables:
 
 ### options
 
-[`CreateHelperOptions`](../interfaces/CreateHelperOptions.md)\<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`\>
+[`CreateHelperOptions`](../interfaces/CreateHelperOptions.md)<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`>
 
 ## Returns
 
-[`Helper`](../interfaces/Helper.md)\<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`\>
+[`Helper`](../interfaces/Helper.md)<`TContext`, `TInput`, `TOutput`, `TReporter`, `TKind`>
 
 ## Examples
 

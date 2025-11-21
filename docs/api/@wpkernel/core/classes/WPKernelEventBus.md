@@ -82,7 +82,7 @@ listener that was never registered is a no-op.
 
 ##### listener
 
-[`Listener`](../type-aliases/Listener.md)\<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]\>
+[`Listener`](../type-aliases/Listener.md)<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]>
 
 #### Returns
 
@@ -113,7 +113,7 @@ function is called.
 
 ##### listener
 
-[`Listener`](../type-aliases/Listener.md)\<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]\>
+[`Listener`](../type-aliases/Listener.md)<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]>
 
 #### Returns
 
@@ -150,7 +150,7 @@ the event and then tears itself down.
 
 ##### listener
 
-[`Listener`](../type-aliases/Listener.md)\<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]\>
+[`Listener`](../type-aliases/Listener.md)<[`WPKernelEventMap`](../type-aliases/WPKernelEventMap.md)\[`K`\]>
 
 #### Returns
 

@@ -18,4 +18,4 @@ function runPhpCodemodIngestion(options): Promise<PhpCodemodIngestionResult>;
 
 ## Returns
 
-`Promise`\<[`PhpCodemodIngestionResult`](../interfaces/PhpCodemodIngestionResult.md)\>
+`Promise`<[`PhpCodemodIngestionResult`](../interfaces/PhpCodemodIngestionResult.md)>

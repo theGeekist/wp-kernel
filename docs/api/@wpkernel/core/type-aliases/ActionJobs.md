@@ -61,7 +61,7 @@ enqueue: <TPayload>(jobName, payload) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -97,4 +97,4 @@ wait: <TPayload, TResult>(jobName, payload, options?) => Promise<TResult>;
 
 #### Returns
 
-`Promise`\<`TResult`\>
+`Promise`<`TResult`>

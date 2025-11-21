@@ -28,7 +28,7 @@ The dimension (key) being accessed, or `null` for appending.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

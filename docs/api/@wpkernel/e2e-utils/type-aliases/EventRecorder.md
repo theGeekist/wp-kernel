@@ -4,7 +4,7 @@
 
 [@wpkernel/e2e-utils](../README.md) / EventRecorder
 
-# Type Alias: EventRecorder\<P\>
+# Type Alias: EventRecorder<P>
 
 ```ts
 type EventRecorder<P> = object;
@@ -30,7 +30,7 @@ Clear all captured events
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -52,7 +52,7 @@ Event type to search for
 
 #### Returns
 
-`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\> \| `undefined`\>
+`Promise`<[`CapturedEvent`](CapturedEvent.md)<`P`> \| `undefined`>
 
 First matching event or undefined
 
@@ -76,7 +76,7 @@ Event type to search for
 
 #### Returns
 
-`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\>[]\>
+`Promise`<[`CapturedEvent`](CapturedEvent.md)<`P`>[]>
 
 Array of matching events
 
@@ -92,7 +92,7 @@ Get all captured events
 
 #### Returns
 
-`Promise`\<[`CapturedEvent`](CapturedEvent.md)\<`P`\>[]\>
+`Promise`<[`CapturedEvent`](CapturedEvent.md)<`P`>[]>
 
 ---
 
@@ -106,4 +106,4 @@ Stop recording events
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

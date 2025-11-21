@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / ProgramTargetPlannerOptions
 
-# Type Alias: ProgramTargetPlannerOptions\<TFile\>
+# Type Alias: ProgramTargetPlannerOptions<TFile>
 
 ```ts
 type ProgramTargetPlannerOptions<TFile> = object;

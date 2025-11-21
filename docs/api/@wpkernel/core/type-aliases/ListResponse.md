@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ListResponse
 
-# Type Alias: ListResponse\<T\>
+# Type Alias: ListResponse<T>
 
 ```ts
 type ListResponse<T> = object;

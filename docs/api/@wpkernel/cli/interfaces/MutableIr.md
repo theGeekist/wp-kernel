@@ -16,6 +16,14 @@ blocks: IRBlock[];
 
 ---
 
+### bundler
+
+```ts
+bundler: IRBundler | null;
+```
+
+---
+
 ### capabilities
 
 ```ts
@@ -56,6 +64,14 @@ extensions: Record<string, unknown>;
 
 ---
 
+### layout
+
+```ts
+layout: IRLayout | null;
+```
+
+---
+
 ### meta
 
 ```ts
@@ -76,6 +92,7 @@ meta:
   };
   namespace: string;
   origin: string;
+  plugin: IRPluginMeta;
   redactions: string[];
   sanitizedNamespace: string;
   sourcePath: string;
@@ -83,6 +100,145 @@ meta:
 }
   | null;
 ```
+
+#### Type Declaration
+
+```ts
+{
+  features: string[];
+  ids: {
+     algorithm: "sha256";
+     blockPrefix: "blk:";
+     capabilityPrefix: "cap:";
+     resourcePrefix: "res:";
+     schemaPrefix: "sch:";
+  };
+  limits: {
+     maxConfigKB: number;
+     maxSchemaKB: number;
+     policy: "truncate" | "error";
+  };
+  namespace: string;
+  origin: string;
+  plugin: IRPluginMeta;
+  redactions: string[];
+  sanitizedNamespace: string;
+  sourcePath: string;
+  version: 1;
+}
+```
+
+#### features
+
+```ts
+features: string[];
+```
+
+#### ids
+
+```ts
+ids: object;
+```
+
+##### ids.algorithm
+
+```ts
+algorithm: 'sha256';
+```
+
+##### ids.blockPrefix
+
+```ts
+blockPrefix: 'blk:';
+```
+
+##### ids.capabilityPrefix
+
+```ts
+capabilityPrefix: 'cap:';
+```
+
+##### ids.resourcePrefix
+
+```ts
+resourcePrefix: 'res:';
+```
+
+##### ids.schemaPrefix
+
+```ts
+schemaPrefix: 'sch:';
+```
+
+#### limits
+
+```ts
+limits: object;
+```
+
+##### limits.maxConfigKB
+
+```ts
+maxConfigKB: number;
+```
+
+##### limits.maxSchemaKB
+
+```ts
+maxSchemaKB: number;
+```
+
+##### limits.policy
+
+```ts
+policy: 'truncate' | 'error';
+```
+
+#### namespace
+
+```ts
+namespace: string;
+```
+
+#### origin
+
+```ts
+origin: string;
+```
+
+#### plugin
+
+```ts
+plugin: IRPluginMeta;
+```
+
+WordPress plugin metadata derived from config.
+
+#### redactions
+
+```ts
+redactions: string[];
+```
+
+#### sanitizedNamespace
+
+```ts
+sanitizedNamespace: string;
+```
+
+#### sourcePath
+
+```ts
+sourcePath: string;
+```
+
+#### version
+
+```ts
+version: 1;
+```
+
+`null`
 
 ---
 

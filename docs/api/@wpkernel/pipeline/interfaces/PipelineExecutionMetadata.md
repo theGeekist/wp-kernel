@@ -4,13 +4,13 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineExecutionMetadata
 
-# Interface: PipelineExecutionMetadata\<TFragmentKind, TBuilderKind\>
+# Interface: PipelineExecutionMetadata<TFragmentKind, TBuilderKind>
 
 Complete execution metadata for all helper phases.
 
 ## Extends
 
-- [`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)\<`TFragmentKind`\>
+- [`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)<`TFragmentKind`>
 
 ## Type Parameters
 

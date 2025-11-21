@@ -33,11 +33,11 @@ Run a callback against a disposable workspace rooted on disk.
 
 #### callback
 
-[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)\<`TResult`\>
+[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)<`TResult`>
 
 ### Returns
 
-`Promise`\<`TResult`\>
+`Promise`<`TResult`>
 
 ## Call Signature
 
@@ -57,8 +57,8 @@ Run a callback against a disposable workspace rooted on disk.
 
 #### callback
 
-[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)\<`TResult`\>
+[`WithWorkspaceCallback`](../type-aliases/WithWorkspaceCallback.md)<`TResult`>
 
 ### Returns
 
-`Promise`\<`TResult`\>
+`Promise`<`TResult`>

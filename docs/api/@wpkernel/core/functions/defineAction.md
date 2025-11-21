@@ -183,13 +183,13 @@ Type of value returned by the action
 
 ### config
 
-[`ActionConfig`](../type-aliases/ActionConfig.md)\<`TArgs`, `TResult`\>
+[`ActionConfig`](../type-aliases/ActionConfig.md)<`TArgs`, `TResult`>
 
 Configuration describing the action.
 
 ## Returns
 
-[`DefinedAction`](../type-aliases/DefinedAction.md)\<`TArgs`, `TResult`\>
+[`DefinedAction`](../type-aliases/DefinedAction.md)<`TArgs`, `TResult`>
 
 Callable action function with metadata attached
 

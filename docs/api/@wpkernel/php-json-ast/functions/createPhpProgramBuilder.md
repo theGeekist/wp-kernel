@@ -30,8 +30,8 @@ function createPhpProgramBuilder<TContext, TInput, TOutput>(
 
 ### options
 
-[`CreatePhpProgramBuilderOptions`](../interfaces/CreatePhpProgramBuilderOptions.md)\<`TContext`, `TInput`, `TOutput`\>
+[`CreatePhpProgramBuilderOptions`](../interfaces/CreatePhpProgramBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>
 
 ## Returns
 
-[`BuilderHelper`](../type-aliases/BuilderHelper.md)\<`TContext`, `TInput`, `TOutput`\>
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)<`TContext`, `TInput`, `TOutput`>

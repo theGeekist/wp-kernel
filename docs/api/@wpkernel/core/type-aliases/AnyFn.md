@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / AnyFn
 
-# Type Alias: AnyFn()
+# Type Alias: AnyFn
 
 ```ts
 type AnyFn = (...args) => unknown;

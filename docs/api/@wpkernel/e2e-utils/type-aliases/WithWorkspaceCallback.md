@@ -4,7 +4,7 @@
 
 [@wpkernel/e2e-utils](../README.md) / WithWorkspaceCallback
 
-# Type Alias: WithWorkspaceCallback()\<TResult\>
+# Type Alias: WithWorkspaceCallback<TResult>
 
 ```ts
 type WithWorkspaceCallback<TResult> = (workspace) => Promise<TResult> | TResult;
@@ -26,4 +26,4 @@ Callback executed with an isolated workspace instance.
 
 ## Returns
 
-`Promise`\<`TResult`\> \| `TResult`
+`Promise`<`TResult`> \| `TResult`

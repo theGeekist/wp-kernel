@@ -27,7 +27,7 @@ Command-line arguments (without the node and script path)
 
 ## Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 A promise that resolves when the CLI invocation completes.
 

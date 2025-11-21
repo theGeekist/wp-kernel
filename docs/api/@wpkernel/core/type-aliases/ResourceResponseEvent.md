@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceResponseEvent
 
-# Type Alias: ResourceResponseEvent\<T\>
+# Type Alias: ResourceResponseEvent<T>
 
 ```ts
 type ResourceResponseEvent<T> = object;

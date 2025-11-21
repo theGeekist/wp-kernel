@@ -33,7 +33,7 @@ Redux store state type
 
 ## Returns
 
-[`ReduxMiddleware`](../type-aliases/ReduxMiddleware.md)\<`TState`\>
+[`ReduxMiddleware`](../type-aliases/ReduxMiddleware.md)<`TState`>
 
 Redux middleware function
 

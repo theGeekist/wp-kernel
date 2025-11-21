@@ -4,7 +4,7 @@
 
 [@wpkernel/e2e-utils](../README.md) / CapturedEvent
 
-# Type Alias: CapturedEvent\<P\>
+# Type Alias: CapturedEvent<P>
 
 ```ts
 type CapturedEvent<P> = object;

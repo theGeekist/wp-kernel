@@ -28,4 +28,4 @@ readonly `string`[]
 
 ## Returns
 
-[`PhpPrintable`](../interfaces/PhpPrintable.md)\<`TNode`\>
+[`PhpPrintable`](../interfaces/PhpPrintable.md)<`TNode`>

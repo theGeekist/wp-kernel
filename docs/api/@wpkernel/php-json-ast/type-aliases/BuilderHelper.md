@@ -4,7 +4,7 @@
 
 [@wpkernel/php-json-ast](../README.md) / BuilderHelper
 
-# Type Alias: BuilderHelper\<TContext, TInput, TOutput\>
+# Type Alias: BuilderHelper<TContext, TInput, TOutput>
 
 ```ts
 type BuilderHelper<TContext, TInput, TOutput> = Helper<

@@ -39,7 +39,7 @@ The event name to subscribe to.
 
 ### listener
 
-`Listener`\<`TName`\>
+`Listener`<`TName`>
 
 Callback invoked when the event fires.
 

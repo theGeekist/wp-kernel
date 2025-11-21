@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionHookResult
 
-# Interface: PipelineExtensionHookResult\<TArtifact\>
+# Interface: PipelineExtensionHookResult<TArtifact>
 
 Result from a pipeline extension hook.
 
@@ -32,7 +32,7 @@ readonly optional commit: () => MaybePromise<void>;
 
 #### Returns
 
-[`MaybePromise`](../type-aliases/MaybePromise.md)\<`void`\>
+[`MaybePromise`](../type-aliases/MaybePromise.md)<`void`>
 
 ---
 
@@ -44,4 +44,4 @@ readonly optional rollback: () => MaybePromise<void>;
 
 #### Returns
 
-[`MaybePromise`](../type-aliases/MaybePromise.md)\<`void`\>
+[`MaybePromise`](../type-aliases/MaybePromise.md)<`void`>

@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / CreatePipelineExtensionOptions
 
-# Type Alias: CreatePipelineExtensionOptions\<TPipeline, TContext, TOptions, TArtifact\>
+# Type Alias: CreatePipelineExtensionOptions<TPipeline, TContext, TOptions, TArtifact>
 
 ```ts
 type CreatePipelineExtensionOptions<TPipeline, TContext, TOptions, TArtifact> =

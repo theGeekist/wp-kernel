@@ -21,4 +21,4 @@ BootstrapperResolutionState & gt;
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`BootstrapperResolutionState`](../interfaces/BootstrapperResolutionState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`BootstrapperResolutionState`](../interfaces/BootstrapperResolutionState.md)>

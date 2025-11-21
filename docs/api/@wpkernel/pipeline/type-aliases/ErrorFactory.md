@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / ErrorFactory
 
-# Type Alias: ErrorFactory()
+# Type Alias: ErrorFactory
 
 ```ts
 type ErrorFactory = (code, message) => Error;

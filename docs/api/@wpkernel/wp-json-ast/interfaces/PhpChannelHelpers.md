@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / PhpChannelHelpers
 
-# Interface: PhpChannelHelpers\<TContext, TInput, TOutput\>
+# Interface: PhpChannelHelpers<TContext, TInput, TOutput>
 
 ## Type Parameters
 

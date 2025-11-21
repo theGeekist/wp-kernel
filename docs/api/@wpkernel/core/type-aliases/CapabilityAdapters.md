@@ -70,7 +70,7 @@ optional restProbe: (key) => Promise<boolean>;
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>
 
 ---
 
@@ -104,4 +104,4 @@ canUser: (action, resource) => boolean | Promise<boolean>;
 
 ##### Returns
 
-`boolean` \| `Promise`\<`boolean`\>
+`boolean` \| `Promise`<`boolean`>

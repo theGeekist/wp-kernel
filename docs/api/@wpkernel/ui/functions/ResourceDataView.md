@@ -34,7 +34,7 @@ The type of the query parameters for the resource.
 
 ### props
 
-[`ResourceDataViewProps`](../interfaces/ResourceDataViewProps.md)\<`TItem`, `TQuery`\>
+[`ResourceDataViewProps`](../interfaces/ResourceDataViewProps.md)<`TItem`, `TQuery`>
 
 The props for the component.
 

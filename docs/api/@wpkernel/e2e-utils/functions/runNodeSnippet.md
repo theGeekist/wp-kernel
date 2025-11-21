@@ -20,4 +20,4 @@ Execute a JavaScript snippet using the shared CLI runner harness.
 
 ## Returns
 
-`Promise`\<[`CliTranscript`](../interfaces/CliTranscript.md)\>
+`Promise`<[`CliTranscript`](../interfaces/CliTranscript.md)>

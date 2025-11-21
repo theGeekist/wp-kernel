@@ -8,7 +8,7 @@
 
 ## Extends
 
-- `Omit`\<[`RequestParamAssignmentOptions`](RequestParamAssignmentOptions.md), `"requestVariable"`\>
+- `Omit`<[`RequestParamAssignmentOptions`](RequestParamAssignmentOptions.md), `"requestVariable"`>
 
 ## Properties
 

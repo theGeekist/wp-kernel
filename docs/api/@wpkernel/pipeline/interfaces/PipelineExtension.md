@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineExtension
 
-# Interface: PipelineExtension\<TPipeline, TContext, TOptions, TArtifact\>
+# Interface: PipelineExtension<TPipeline, TContext, TOptions, TArtifact>
 
 A pipeline extension descriptor.
 
@@ -45,7 +45,7 @@ register: (pipeline) =>
 
 #### Returns
 
-[`MaybePromise`](../type-aliases/MaybePromise.md)\<[`PipelineExtensionRegisterOutput`](../type-aliases/PipelineExtensionRegisterOutput.md)\<`TContext`, `TOptions`, `TArtifact`\>\>
+[`MaybePromise`](../type-aliases/MaybePromise.md)<[`PipelineExtensionRegisterOutput`](../type-aliases/PipelineExtensionRegisterOutput.md)<`TContext`, `TOptions`, `TArtifact`>>
 
 ---
 

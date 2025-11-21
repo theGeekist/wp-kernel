@@ -140,13 +140,13 @@ createPipelineExtension({
 
 ### options
 
-[`CreatePipelineExtensionOptions`](../type-aliases/CreatePipelineExtensionOptions.md)\<`TPipeline`, `TContext`, `TOptions`, `TArtifact`\>
+[`CreatePipelineExtensionOptions`](../type-aliases/CreatePipelineExtensionOptions.md)<`TPipeline`, `TContext`, `TOptions`, `TArtifact`>
 
 Extension configuration with either `register` (dynamic) or `setup`/`hook` (static)
 
 ## Returns
 
-[`PipelineExtension`](../interfaces/PipelineExtension.md)\<`TPipeline`, `TContext`, `TOptions`, `TArtifact`\>
+[`PipelineExtension`](../interfaces/PipelineExtension.md)<`TPipeline`, `TContext`, `TOptions`, `TArtifact`>
 
 ## Examples
 

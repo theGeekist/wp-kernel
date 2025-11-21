@@ -60,7 +60,7 @@ Optional configuration for event filtering
 
 #### Returns
 
-`Promise`\<[`EventRecorder`](EventRecorder.md)\<`P`\>\>
+`Promise`<[`EventRecorder`](EventRecorder.md)<`P`>>
 
 Event recorder with capture and query methods
 
@@ -90,7 +90,7 @@ Resource configuration from defineResource
 
 #### Returns
 
-[`ResourceUtils`](ResourceUtils.md)\<`T`\>
+[`ResourceUtils`](ResourceUtils.md)<`T`>
 
 Resource utilities with typed methods
 
@@ -120,6 +120,6 @@ WordPress data store key (e.g., 'wpk/job')
 
 #### Returns
 
-[`StoreUtils`](StoreUtils.md)\<`T`\>
+[`StoreUtils`](StoreUtils.md)<`T`>
 
 Store utilities with typed methods

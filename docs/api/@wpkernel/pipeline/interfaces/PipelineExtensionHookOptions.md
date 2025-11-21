@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionHookOptions
 
-# Interface: PipelineExtensionHookOptions\<TContext, TOptions, TArtifact\>
+# Interface: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>
 
 ## Type Parameters
 

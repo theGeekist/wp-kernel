@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / UseActionOptions
 
-# Interface: UseActionOptions\<TInput, TResult\>
+# Interface: UseActionOptions<TInput, TResult>
 
 Options for the useAction hook.
 

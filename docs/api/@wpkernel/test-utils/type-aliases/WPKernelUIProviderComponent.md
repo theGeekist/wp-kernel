@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / WPKernelUIProviderComponent
 
-# Type Alias: WPKernelUIProviderComponent()
+# Type Alias: WPKernelUIProviderComponent
 
 ```ts
 type WPKernelUIProviderComponent = (props) => ReturnType<typeof createElement>;
@@ -26,4 +26,4 @@ Component type for WPKernel UI Provider.
 
 ## Returns
 
-`ReturnType`\<_typeof_ `createElement`\>
+`ReturnType`<_typeof_ `createElement`>

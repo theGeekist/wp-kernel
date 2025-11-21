@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / BuildCoreResourcePipelineHarnessOptions
 
-# Interface: BuildCoreResourcePipelineHarnessOptions\<T, TQuery\>
+# Interface: BuildCoreResourcePipelineHarnessOptions<T, TQuery>
 
 Options for building a `CoreResourcePipelineHarness`.
 
@@ -40,7 +40,7 @@ A factory function to create the resource pipeline.
 
 #### Returns
 
-`ResourcePipeline`\<`T`, `TQuery`\>
+`ResourcePipeline`<`T`, `TQuery`>
 
 ---
 

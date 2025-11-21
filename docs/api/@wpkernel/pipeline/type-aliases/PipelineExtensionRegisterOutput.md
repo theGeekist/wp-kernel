@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionRegisterOutput
 
-# Type Alias: PipelineExtensionRegisterOutput\<TContext, TOptions, TArtifact\>
+# Type Alias: PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact>
 
 ```ts
 type PipelineExtensionRegisterOutput<TContext, TOptions, TArtifact> =

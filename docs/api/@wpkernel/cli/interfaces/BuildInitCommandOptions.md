@@ -10,49 +10,7 @@ Options for building the `init` command.
 
 ## Properties
 
-### Reporter
-
-#### buildReporter()?
-
-```ts
-readonly optional buildReporter: (options) => Reporter;
-```
-
-Optional: Custom reporter builder function.
-
-Create a CLI reporter with pretty terminal output.
-
-This is the recommended reporter for CLI/Node.js environments. It uses
-SimplePrettyTerminalTransport for enhanced formatting with colors and structure.
-
-For browser/WordPress environments, use `createReporter()` from `@wpkernel/core`.
-
-##### Parameters
-
-###### options
-
-`ReporterOptions` = `{}`
-
-Reporter configuration
-
-##### Returns
-
-`Reporter`
-
-Reporter instance with child helpers
-
-##### Example
-
-```typescript
-import { createReporterCLI } from '@wpkernel/cli/utils/reporter';
-
-const reporter = createReporterCLI({ level: 'debug' });
-reporter.info('Starting build process');
-```
-
-### Other
-
-#### buildReadinessRegistry()?
+### buildReadinessRegistry()?
 
 ```ts
 readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
@@ -60,19 +18,39 @@ readonly optional buildReadinessRegistry: (options?) => ReadinessRegistry;
 
 Optional: Custom readiness registry builder.
 
-##### Parameters
+#### Parameters
 
-###### options?
+##### options?
 
 [`BuildDefaultReadinessRegistryOptions`](BuildDefaultReadinessRegistryOptions.md)
 
-##### Returns
+#### Returns
 
 [`ReadinessRegistry`](../classes/ReadinessRegistry.md)
 
 ---
 
-#### buildWorkspace()?
+### buildReporter()?
+
+```ts
+readonly optional buildReporter: (options) => Reporter;
+```
+
+Optional: Custom reporter builder function.
+
+#### Parameters
+
+##### options
+
+`ReporterOptions` = `{}`
+
+#### Returns
+
+`Reporter`
+
+---
+
+### buildWorkspace()?
 
 ```ts
 readonly optional buildWorkspace: (root) => Workspace;
@@ -80,19 +58,19 @@ readonly optional buildWorkspace: (root) => Workspace;
 
 Optional: Custom workspace builder function.
 
-##### Parameters
+#### Parameters
 
-###### root
+##### root
 
 `string` = `...`
 
-##### Returns
+#### Returns
 
 [`Workspace`](Workspace.md)
 
 ---
 
-#### checkGitRepository()?
+### checkGitRepository()?
 
 ```ts
 readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolean>;
@@ -100,23 +78,23 @@ readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolea
 
 Optional: Custom git repository checker function.
 
-##### Parameters
+#### Parameters
 
-###### cwd
+##### cwd
 
 `string`
 
-###### \_\_namedParameters
+##### \_\_namedParameters
 
 [`GitDependencies`](GitDependencies.md) = `{}`
 
-##### Returns
+#### Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>
 
 ---
 
-#### runWorkflow()?
+### runWorkflow()?
 
 ```ts
 readonly optional runWorkflow: (options) => Promise<InitWorkflowResult>;
@@ -124,12 +102,12 @@ readonly optional runWorkflow: (options) => Promise<InitWorkflowResult>;
 
 Optional: Custom workflow runner function.
 
-##### Parameters
+#### Parameters
 
-###### options
+##### options
 
 [`InitWorkflowOptions`](InitWorkflowOptions.md)
 
-##### Returns
+#### Returns
 
-`Promise`\<[`InitWorkflowResult`](InitWorkflowResult.md)\>
+`Promise`<[`InitWorkflowResult`](InitWorkflowResult.md)>

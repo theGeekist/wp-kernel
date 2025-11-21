@@ -6,7 +6,8 @@
 
 # Interface: SchemaRegistry
 
-Mapping of schema identifiers to their configuration.
+Registry of schema descriptors keyed by identifier. May be empty but is
+always present in the config object.
 
 ## Indexable
 

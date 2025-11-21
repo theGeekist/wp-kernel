@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / UseResourceItemResult
 
-# Interface: UseResourceItemResult\<T\>
+# Interface: UseResourceItemResult<T>
 
 Result shape for single-item resource hooks
 

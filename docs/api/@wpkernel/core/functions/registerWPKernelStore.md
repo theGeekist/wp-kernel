@@ -30,7 +30,7 @@ consistent middleware ordering and return the created store for further wiring.
 
 ### Actions
 
-`Actions` _extends_ `Record`\<`string`, (...`args`) => `unknown`\>
+`Actions` _extends_ `Record`<`string`, (...`args`) => `unknown`>
 
 ### Selectors
 
@@ -46,12 +46,12 @@ Store key used for registration
 
 ### config
 
-`ReduxStoreConfig`\<`State`, `Actions`, `Selectors`\>
+`ReduxStoreConfig`<`State`, `Actions`, `Selectors`>
 
 Store configuration passed to `createReduxStore`
 
 ## Returns
 
-`StoreDescriptor`\<`ReduxStoreConfig`\<`State`, `Actions`, `Selectors`\>\>
+`StoreDescriptor`<`ReduxStoreConfig`<`State`, `Actions`, `Selectors`>>
 
 Registered WordPress data store

@@ -40,4 +40,4 @@ Optional: A factory function to create a `ts-morph` Project instance.
 
 #### Returns
 
-`MaybePromise`\<`Project`\>
+`MaybePromise`<`Project`>

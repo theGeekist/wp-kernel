@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineRunState
 
-# Interface: PipelineRunState\<TArtifact, TDiagnostic\>
+# Interface: PipelineRunState<TArtifact, TDiagnostic>
 
 State returned from a pipeline run.
 

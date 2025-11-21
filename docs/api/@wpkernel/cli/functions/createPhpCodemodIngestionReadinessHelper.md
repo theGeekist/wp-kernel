@@ -17,8 +17,8 @@ PhpCodemodIngestionState & gt;
 
 ### overrides
 
-`Partial`\<[`PhpCodemodIngestionDependencies`](../interfaces/PhpCodemodIngestionDependencies.md)\> = `{}`
+`Partial`<[`PhpCodemodIngestionDependencies`](../interfaces/PhpCodemodIngestionDependencies.md)> = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`PhpCodemodIngestionState`](../interfaces/PhpCodemodIngestionState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`PhpCodemodIngestionState`](../interfaces/PhpCodemodIngestionState.md)>

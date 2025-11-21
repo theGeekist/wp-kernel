@@ -34,4 +34,4 @@ function createWpProgramWriterHelper<TContext, TInput, TOutput>(
 
 ## Returns
 
-`BuilderHelper`\<`TContext`, `TInput`, `TOutput`\>
+`BuilderHelper`<`TContext`, `TInput`, `TOutput`>

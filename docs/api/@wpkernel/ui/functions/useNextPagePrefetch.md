@@ -24,13 +24,13 @@ Prefetches the next page of a paginated resource.
 
 ### TQuery
 
-`TQuery` _extends_ `Record`\<`string`, `unknown`\>
+`TQuery` _extends_ `Record`<`string`, `unknown`>
 
 ## Parameters
 
 ### resource
 
-`ResourceObject`\<`TRecord`, `TQuery`\>
+`ResourceObject`<`TRecord`, `TQuery`>
 
 The resource to prefetch.
 
@@ -42,7 +42,7 @@ The current query.
 
 ### options
 
-[`NextPagePrefetchOptions`](../interfaces/NextPagePrefetchOptions.md)\<`TQuery`\> = `{}`
+[`NextPagePrefetchOptions`](../interfaces/NextPagePrefetchOptions.md)<`TQuery`> = `{}`
 
 Options for the hook.
 

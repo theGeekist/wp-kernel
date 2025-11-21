@@ -22,7 +22,7 @@ The name of the variable, either a string or a `PhpExpr` for dynamic variable na
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

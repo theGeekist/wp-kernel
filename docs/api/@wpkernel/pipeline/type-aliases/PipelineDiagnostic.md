@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineDiagnostic
 
-# Type Alias: PipelineDiagnostic\<TKind\>
+# Type Alias: PipelineDiagnostic<TKind>
 
 ```ts
 type PipelineDiagnostic<TKind> =

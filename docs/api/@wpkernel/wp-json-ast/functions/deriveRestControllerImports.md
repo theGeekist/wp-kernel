@@ -22,4 +22,4 @@ readonly [`RestRouteConfig`](../interfaces/RestRouteConfig.md)[]
 
 ## Returns
 
-`ReadonlySet`\<`string`\>
+`ReadonlySet`<`string`>

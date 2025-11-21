@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / PrefetchList
 
-# Type Alias: PrefetchList()\<TQuery\>
+# Type Alias: PrefetchList<TQuery>
 
 ```ts
 type PrefetchList<TQuery> = (query?) => void;

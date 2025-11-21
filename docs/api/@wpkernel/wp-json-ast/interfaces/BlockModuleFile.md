@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / BlockModuleFile
 
-# Interface: BlockModuleFile\<TMetadata\>
+# Interface: BlockModuleFile<TMetadata>
 
 ## Type Parameters
 

@@ -34,7 +34,7 @@ A function that takes a test function and optional overrides, and runs it within
 
 #### run
 
-(`workspace`) => `Promise`\<`void`\>
+(`workspace`) => `Promise`<`void`>
 
 #### overrides?
 
@@ -42,4 +42,4 @@ A function that takes a test function and optional overrides, and runs it within
 
 ### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

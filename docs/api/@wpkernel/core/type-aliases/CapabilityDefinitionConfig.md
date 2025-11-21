@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / CapabilityDefinitionConfig
 
-# Type Alias: CapabilityDefinitionConfig\<K\>
+# Type Alias: CapabilityDefinitionConfig<K>
 
 ```ts
 type CapabilityDefinitionConfig<K> = object;
@@ -16,7 +16,7 @@ Configuration object accepted by `defineCapability()`.
 
 ### K
 
-`K` _extends_ `Record`\<`string`, `unknown`\>
+`K` _extends_ `Record`<`string`, `unknown`>
 
 ## Properties
 

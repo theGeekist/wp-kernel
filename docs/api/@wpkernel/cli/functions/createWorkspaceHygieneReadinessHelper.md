@@ -7,17 +7,16 @@
 # Function: createWorkspaceHygieneReadinessHelper()
 
 ```ts
-function createWorkspaceHygieneReadinessHelper(
-	overrides
-): ReadinessHelper<WorkspaceHygieneState>;
+function createWorkspaceHygieneReadinessHelper(overrides): ReadinessHelper & lt;
+WorkspaceHygieneState & gt;
 ```
 
 ## Parameters
 
 ### overrides
 
-`Partial`\<[`WorkspaceHygieneDependencies`](../interfaces/WorkspaceHygieneDependencies.md)\> = `{}`
+`Partial`<[`WorkspaceHygieneDependencies`](../interfaces/WorkspaceHygieneDependencies.md)> = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`WorkspaceHygieneState`](../interfaces/WorkspaceHygieneState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`WorkspaceHygieneState`](../interfaces/WorkspaceHygieneState.md)>

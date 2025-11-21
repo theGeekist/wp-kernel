@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / ResourceStorageRegistration
 
-# Interface: ResourceStorageRegistration\<TStorageKind\>
+# Interface: ResourceStorageRegistration<TStorageKind>
 
 ## Type Parameters
 

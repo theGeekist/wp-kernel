@@ -22,7 +22,7 @@ Creates a new `WPKernelUIRuntime` instance.
 
 ##### overrides?
 
-`Partial`\<`WPKernelUIRuntime`\>
+`Partial`<`WPKernelUIRuntime`>
 
 #### Returns
 
@@ -61,8 +61,8 @@ Creates a React wrapper component for the WPKernel UI runtime.
 
 ##### Returns
 
-`ReactElement`\<\{
-\}\>
+`ReactElement`<\{
+\}>
 
 ---
 

@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ActionFn
 
-# Type Alias: ActionFn()\<TArgs, TResult\>
+# Type Alias: ActionFn<TArgs, TResult>
 
 ```ts
 type ActionFn<TArgs, TResult> = (ctx, args) => Promise<TResult>;
@@ -45,7 +45,7 @@ Return type (value returned by the action)
 
 ## Returns
 
-`Promise`\<`TResult`\>
+`Promise`<`TResult`>
 
 ## Example
 

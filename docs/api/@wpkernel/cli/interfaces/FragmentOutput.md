@@ -22,7 +22,7 @@ Assigns a partial `MutableIr` to the current draft.
 
 ##### partial
 
-`Partial`\<[`MutableIr`](MutableIr.md)\>
+`Partial`<[`MutableIr`](MutableIr.md)>
 
 The partial IR to assign.
 

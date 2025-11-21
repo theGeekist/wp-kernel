@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / CreateDataFormControllerOptions
 
-# Interface: CreateDataFormControllerOptions\<TInput, TResult, TQuery\>
+# Interface: CreateDataFormControllerOptions<TInput, TResult, TQuery>
 
 Options for creating a `DataFormController`.
 

@@ -50,6 +50,16 @@ optional update: IRResourceCacheKey;
 
 ---
 
+### controllerClass
+
+```ts
+controllerClass: string;
+```
+
+Fully-qualified PHP controller class name for this resource.
+
+---
+
 ### hash
 
 ```ts

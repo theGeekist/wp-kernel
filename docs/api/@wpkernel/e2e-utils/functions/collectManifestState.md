@@ -24,4 +24,4 @@ Seed files into a workspace and collect a manifest snapshot.
 
 ## Returns
 
-`Promise`\<[`FileManifest`](../interfaces/FileManifest.md)\>
+`Promise`<[`FileManifest`](../interfaces/FileManifest.md)>

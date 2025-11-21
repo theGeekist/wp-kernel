@@ -46,7 +46,7 @@ commit: (label?) => Promise<FileManifest>;
 
 #### Returns
 
-`Promise`\<[`FileManifest`](FileManifest.md)\>
+`Promise`<[`FileManifest`](FileManifest.md)>
 
 ---
 
@@ -82,14 +82,14 @@ dryRun: <T>(fn) =>
 
 ##### fn
 
-() => `Promise`\<`T`\>
+() => `Promise`<`T`>
 
 #### Returns
 
-`Promise`\<\{
+`Promise`<\{
 `manifest`: [`FileManifest`](FileManifest.md);
 `result`: `T`;
-\}\>
+\}>
 
 ---
 
@@ -107,7 +107,7 @@ exists: (target) => Promise<boolean>;
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>
 
 #### Inherited from
 
@@ -131,7 +131,7 @@ glob: (pattern) => Promise<string[]>;
 
 #### Returns
 
-`Promise`\<`string`[]\>
+`Promise`<`string`[]>
 
 ---
 
@@ -149,7 +149,7 @@ read: (file) => Promise<Buffer<ArrayBufferLike> | null>;
 
 #### Returns
 
-`Promise`\<`Buffer`\<`ArrayBufferLike`\> \| `null`\>
+`Promise`<`Buffer`<`ArrayBufferLike`> \| `null`>
 
 ---
 
@@ -167,7 +167,7 @@ readText: (file) => Promise<string | null>;
 
 #### Returns
 
-`Promise`\<`string` \| `null`\>
+`Promise`<`string` \| `null`>
 
 ---
 
@@ -213,7 +213,7 @@ rm: (target, options?) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -231,7 +231,7 @@ rollback: (label?) => Promise<FileManifest>;
 
 #### Returns
 
-`Promise`\<[`FileManifest`](FileManifest.md)\>
+`Promise`<[`FileManifest`](FileManifest.md)>
 
 ---
 
@@ -280,7 +280,7 @@ threeWayMerge: (file, base, current, incoming, options?) =>
 
 #### Returns
 
-`Promise`\<`"conflict"` \| `"clean"`\>
+`Promise`<`"conflict"` \| `"clean"`>
 
 ---
 
@@ -298,7 +298,7 @@ tmpDir: (prefix?) => Promise<string>;
 
 #### Returns
 
-`Promise`\<`string`\>
+`Promise`<`string`>
 
 ---
 
@@ -316,7 +316,7 @@ write: (file, data, options?) => Promise<void>;
 
 ##### data
 
-`string` | `Buffer`\<`ArrayBufferLike`\>
+`string` | `Buffer`<`ArrayBufferLike`>
 
 ##### options?
 
@@ -324,7 +324,7 @@ write: (file, data, options?) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -356,4 +356,4 @@ writeJson: <T>(file, value, options?) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

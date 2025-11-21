@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ActionEnvelope
 
-# Type Alias: ActionEnvelope\<TArgs, TResult\>
+# Type Alias: ActionEnvelope<TArgs, TResult>
 
 ```ts
 type ActionEnvelope<TArgs, TResult> = object;

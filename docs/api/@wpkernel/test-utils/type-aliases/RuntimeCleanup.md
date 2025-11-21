@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / RuntimeCleanup
 
-# Type Alias: RuntimeCleanup()
+# Type Alias: RuntimeCleanup
 
 ```ts
 type RuntimeCleanup = () => void;

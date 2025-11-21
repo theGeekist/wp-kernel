@@ -12,7 +12,7 @@ function createTsCapabilityBuilder(): BuilderHelper;
 
 Creates the TypeScript capability-module builder helper.
 
-Emits `.generated/js/capabilities.(ts|d.ts)` files that mirror the IR capability map.
+Emits `.wpk/generate/js/capabilities.(ts|d.ts)` files that mirror the IR capability map.
 
 ## Returns
 

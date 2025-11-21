@@ -25,11 +25,11 @@ Hook executed after a creator generates an artifact.
 
 ##### context
 
-`Omit`\<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\>
+`Omit`<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`>
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -49,7 +49,7 @@ Hook executed after all TypeScript files have been emitted.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -65,8 +65,8 @@ Hook executed before a creator generates an artifact.
 
 ##### context
 
-`Omit`\<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`\>
+`Omit`<[`TsBuilderCreatorContext`](TsBuilderCreatorContext.md), `"hooks"`>
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

@@ -103,6 +103,7 @@
 - [CreatePhpProgramBuilderOptions](interfaces/CreatePhpProgramBuilderOptions.md)
 - [CreatePhpProgramWriterHelperOptions](interfaces/CreatePhpProgramWriterHelperOptions.md)
 - [DelimitedLinesResult](interfaces/DelimitedLinesResult.md)
+- [DriverContext](interfaces/DriverContext.md)
 - [FlushBufferedMessageResult](interfaces/FlushBufferedMessageResult.md)
 - [Helper](interfaces/Helper.md)
 - [HelperApplyOptions](interfaces/HelperApplyOptions.md)
@@ -142,6 +143,9 @@
 - [PhpNodeFinderQueryMatch](interfaces/PhpNodeFinderQueryMatch.md)
 - [PhpNodeFinderQueryResult](interfaces/PhpNodeFinderQueryResult.md)
 - [PhpNodeFinderQueryResultEntry](interfaces/PhpNodeFinderQueryResultEntry.md)
+- [PhpPrettyPrinter](interfaces/PhpPrettyPrinter.md)
+- [PhpPrettyPrintPayload](interfaces/PhpPrettyPrintPayload.md)
+- [PhpPrettyPrintResult](interfaces/PhpPrettyPrintResult.md)
 - [PhpPrintable](interfaces/PhpPrintable.md)
 - [PhpProgramAction](interfaces/PhpProgramAction.md)
 - [PhpProgramCodemodDiagnostics](interfaces/PhpProgramCodemodDiagnostics.md)
@@ -155,6 +159,7 @@
 - [ResolvePhpCodemodIngestionScriptOptions](interfaces/ResolvePhpCodemodIngestionScriptOptions.md)
 - [RunPhpCodemodIngestionOptions](interfaces/RunPhpCodemodIngestionOptions.md)
 - [Workspace](interfaces/Workspace.md)
+- [WorkspaceLike](interfaces/WorkspaceLike.md)
 - [WorkspaceWriteOptions](interfaces/WorkspaceWriteOptions.md)
 
 ## Type Aliases
@@ -177,6 +182,8 @@
 ### Other
 
 - [BuilderHelper](type-aliases/BuilderHelper.md)
+- [DriverHelper](type-aliases/DriverHelper.md)
+- [DriverWorkspace](type-aliases/DriverWorkspace.md)
 - [HelperApplyFn](type-aliases/HelperApplyFn.md)
 - [HelperKind](type-aliases/HelperKind.md)
 - [HelperMode](type-aliases/HelperMode.md)
@@ -323,3 +330,9 @@
 - [serialisePhpNodeFinderQueryConfiguration](functions/serialisePhpNodeFinderQueryConfiguration.md)
 - [setNamespaceParts](functions/setNamespaceParts.md)
 - [toAsyncIterable](functions/toAsyncIterable.md)
+
+### PHP Driver
+
+- [buildPhpPrettyPrinter](functions/buildPhpPrettyPrinter.md)
+- [createPhpDriverInstaller](functions/createPhpDriverInstaller.md)
+- [resolvePrettyPrintScriptPath](functions/resolvePrettyPrintScriptPath.md)

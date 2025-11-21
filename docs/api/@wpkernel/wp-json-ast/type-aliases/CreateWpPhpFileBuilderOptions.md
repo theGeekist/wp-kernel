@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / CreateWpPhpFileBuilderOptions
 
-# ~~Type Alias: CreateWpPhpFileBuilderOptions\<TContext, TInput, TOutput\>~~
+# ~~Type Alias: CreateWpPhpFileBuilderOptions<TContext, TInput, TOutput>~~
 
 ```ts
 type CreateWpPhpFileBuilderOptions<TContext, TInput, TOutput> =

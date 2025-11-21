@@ -44,7 +44,7 @@ formatPhp: (filePath, contents) => Promise<string>;
 
 #### Returns
 
-`Promise`\<`string`\>
+`Promise`<`string`>
 
 ---
 
@@ -66,7 +66,7 @@ formatTs: (filePath, contents) => Promise<string>;
 
 #### Returns
 
-`Promise`\<`string`\>
+`Promise`<`string`>
 
 ---
 
@@ -120,7 +120,7 @@ queueFile: (filePath, contents) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 

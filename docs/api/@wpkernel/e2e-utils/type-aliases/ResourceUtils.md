@@ -4,7 +4,7 @@
 
 [@wpkernel/e2e-utils](../README.md) / ResourceUtils
 
-# Type Alias: ResourceUtils\<T\>
+# Type Alias: ResourceUtils<T>
 
 ```ts
 type ResourceUtils<T> = object;
@@ -31,7 +31,7 @@ WARNING: This will delete all resources of this type
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -53,7 +53,7 @@ Resource ID to delete
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -69,13 +69,13 @@ Seed a single resource via REST API
 
 ##### data
 
-`Partial`\<`T`\>
+`Partial`<`T`>
 
 Resource data to create
 
 #### Returns
 
-`Promise`\<`T` & `object`\>
+`Promise`<`T` & `object`>
 
 Created resource with ID
 
@@ -93,12 +93,12 @@ Seed multiple resources in bulk
 
 ##### items
 
-`Partial`\<`T`\>[]
+`Partial`<`T`>[]
 
 Array of resource data to create
 
 #### Returns
 
-`Promise`\<`T` & `object`[]\>
+`Promise`<`T` & `object`[]>
 
 Array of created resources with IDs

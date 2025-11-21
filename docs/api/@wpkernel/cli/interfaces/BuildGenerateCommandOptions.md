@@ -158,7 +158,7 @@ readonly optional buildWorkspace: (root) => Workspace;
 #### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
+readonly optional loadWPKernelConfig: (options?) => Promise<LoadedWPKernelConfig>;
 ```
 
 Locate and load the project's wpk configuration.
@@ -167,9 +167,17 @@ The function searches for supported config files, executes them via
 cosmiconfig loaders, validates the resulting structure, and returns the
 canonicalised configuration metadata.
 
+##### Parameters
+
+###### options?
+
+###### cwd?
+
+`string`
+
 ##### Returns
 
-`Promise`\<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\>
+`Promise`<[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)>
 
 The validated wpk config and associated metadata.
 
@@ -182,7 +190,7 @@ WPKernelError when discovery, parsing or validation fails.
 #### renderSummary()?
 
 ```ts
-readonly optional renderSummary: (summary, dryRun, verbose) => string;
+readonly optional renderSummary: (summary, dryRun, verbose, paths?) => string;
 ```
 
 ##### Parameters
@@ -198,6 +206,20 @@ readonly optional renderSummary: (summary, dryRun, verbose) => string;
 ###### verbose
 
 `boolean`
+
+###### paths?
+
+###### js
+
+`string`
+
+###### php
+
+`string`
+
+###### ui
+
+`string`
 
 ##### Returns
 
@@ -219,4 +241,4 @@ readonly optional validateGeneratedImports: (__namedParameters) => Promise<void>
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

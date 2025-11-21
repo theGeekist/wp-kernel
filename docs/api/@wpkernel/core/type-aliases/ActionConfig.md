@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ActionConfig
 
-# Type Alias: ActionConfig\<TArgs, TResult\>
+# Type Alias: ActionConfig<TArgs, TResult>
 
 ```ts
 type ActionConfig<TArgs, TResult> = object;

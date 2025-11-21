@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / BuildCoreActionPipelineHarnessOptions
 
-# Interface: BuildCoreActionPipelineHarnessOptions\<TArgs, TResult\>
+# Interface: BuildCoreActionPipelineHarnessOptions<TArgs, TResult>
 
 Options for building a `CoreActionPipelineHarness`.
 
@@ -40,7 +40,7 @@ A factory function to create the action pipeline.
 
 #### Returns
 
-`ActionPipeline`\<`TArgs`, `TResult`\>
+`ActionPipeline`<`TArgs`, `TResult`>
 
 ---
 

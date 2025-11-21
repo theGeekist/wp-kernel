@@ -7,7 +7,8 @@
 # Function: promptConfirm()
 
 ```ts
-function promptConfirm(options): Promise<boolean>;
+function promptConfirm(options): Promise & lt;
+boolean & gt;
 ```
 
 Prompts the user for a yes/no confirmation.
@@ -22,6 +23,6 @@ Options for the confirmation prompt.
 
 ## Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>
 
 A promise that resolves to `true` for yes, `false` for no.

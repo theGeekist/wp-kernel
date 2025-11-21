@@ -50,6 +50,16 @@ The original WPKernel configuration.
 
 ---
 
+### layout
+
+```ts
+layout: IRLayout;
+```
+
+Resolved layout map for internal/applied artifacts.
+
+---
+
 ### meta
 
 ```ts
@@ -136,6 +146,14 @@ namespace: string;
 origin: string;
 ```
 
+#### plugin
+
+```ts
+plugin: IRPluginMeta;
+```
+
+WordPress plugin metadata derived from config.
+
 #### redactions
 
 ```ts
@@ -199,6 +217,16 @@ optional adapterAudit: IRAdapterAudit;
 ```
 
 Optional: Adapter change audit trail.
+
+---
+
+### bundler?
+
+```ts
+optional bundler: IRBundler;
+```
+
+Bundler surface paths for UI assets.
 
 ---
 

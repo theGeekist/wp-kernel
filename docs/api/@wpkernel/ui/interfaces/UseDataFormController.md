@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / UseDataFormController
 
-# Interface: UseDataFormController\<TResult\>
+# Interface: UseDataFormController<TResult>
 
 Interface for the Data Form Controller hook.
 
@@ -74,6 +74,6 @@ The input data for the form.
 
 #### Returns
 
-`Promise`\<`TResult`\>
+`Promise`<`TResult`>
 
 A promise that resolves with the action's result.

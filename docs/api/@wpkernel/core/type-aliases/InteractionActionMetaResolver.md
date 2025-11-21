@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / InteractionActionMetaResolver
 
-# Type Alias: InteractionActionMetaResolver()\<TArgs\>
+# Type Alias: InteractionActionMetaResolver<TArgs>
 
 ```ts
 type InteractionActionMetaResolver<TArgs> = (
@@ -28,4 +28,4 @@ Optional metadata resolver attached to interaction action bindings.
 
 ## Returns
 
-`Record`\<`string`, `unknown`\> \| `undefined`
+`Record`<`string`, `unknown`> \| `undefined`

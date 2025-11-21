@@ -4,7 +4,7 @@
 
 [@wpkernel/test-utils](../README.md) / CoreActionPipelineHarness
 
-# Interface: CoreActionPipelineHarness\<TArgs, TResult\>
+# Interface: CoreActionPipelineHarness<TArgs, TResult>
 
 A harness for testing action pipelines.
 

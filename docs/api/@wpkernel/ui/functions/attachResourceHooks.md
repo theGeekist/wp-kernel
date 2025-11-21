@@ -38,7 +38,7 @@ Query parameter type
 
 ### resource
 
-`ResourceObject`\<`T`, `TQuery`\>
+`ResourceObject`<`T`, `TQuery`>
 
 Resource definition to augment with hooks
 
@@ -50,6 +50,6 @@ Active Kernel UI runtime (unused placeholder for API symmetry)
 
 ## Returns
 
-`ResourceObject`\<`T`, `TQuery`\>
+`ResourceObject`<`T`, `TQuery`>
 
 The same resource object with hooks attached

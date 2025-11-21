@@ -36,12 +36,12 @@ The type of the query parameters for the resource.
 
 ### options
 
-[`ResourceDataViewControllerOptions`](../interfaces/ResourceDataViewControllerOptions.md)\<`TItem`, `TQuery`\>
+[`ResourceDataViewControllerOptions`](../interfaces/ResourceDataViewControllerOptions.md)<`TItem`, `TQuery`>
 
 Configuration options for the controller.
 
 ## Returns
 
-[`ResourceDataViewController`](../interfaces/ResourceDataViewController.md)\<`TItem`, `TQuery`\>
+[`ResourceDataViewController`](../interfaces/ResourceDataViewController.md)<`TItem`, `TQuery`>
 
 A `ResourceDataViewController` instance.

@@ -54,7 +54,7 @@ the error raised if the file is not accessible.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 Fulfills with `undefined` upon success.
 
@@ -102,8 +102,8 @@ readonly exec: {
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -124,8 +124,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -146,8 +146,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -175,8 +175,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -197,8 +197,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -226,8 +226,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -248,8 +248,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -277,8 +277,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 ---
 
@@ -287,8 +287,8 @@ readonly `string`[] | `null` | `undefined`
 ```ts
 readonly mkdtemp: {
   (prefix, options?): Promise<string>;
-  (prefix, options): Promise<Buffer<ArrayBufferLike>>;
-  (prefix, options?): Promise<string | Buffer<ArrayBufferLike>>;
+  (prefix, options): Promise<NonSharedBuffer>;
+  (prefix, options?): Promise<string | NonSharedBuffer>;
 };
 ```
 
@@ -336,7 +336,7 @@ platform-specific path separator
 
 ##### Returns
 
-`Promise`\<`string`\>
+`Promise`<`string`>
 
 Fulfills with a string containing the file system path of the newly created temporary directory.
 
@@ -347,7 +347,7 @@ v10.0.0
 #### Call Signature
 
 ```ts
-(prefix, options): Promise<Buffer<ArrayBufferLike>>;
+(prefix, options): Promise<NonSharedBuffer>;
 ```
 
 Asynchronously creates a unique temporary directory.
@@ -367,12 +367,12 @@ The encoding (or an object specifying the encoding), used as the encoding of the
 
 ##### Returns
 
-`Promise`\<`Buffer`\<`ArrayBufferLike`\>\>
+`Promise`<`NonSharedBuffer`>
 
 #### Call Signature
 
 ```ts
-(prefix, options?): Promise<string | Buffer<ArrayBufferLike>>;
+(prefix, options?): Promise<string | NonSharedBuffer>;
 ```
 
 Asynchronously creates a unique temporary directory.
@@ -392,7 +392,7 @@ The encoding (or an object specifying the encoding), used as the encoding of the
 
 ##### Returns
 
-`Promise`\<`string` \| `Buffer`\<`ArrayBufferLike`\>\>
+`Promise`<`string` \| `NonSharedBuffer`>
 
 ---
 
@@ -440,7 +440,7 @@ Removes files and directories (modeled on the standard POSIX `rm` utility).
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 Fulfills with `undefined` upon success.
 

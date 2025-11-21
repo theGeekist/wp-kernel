@@ -44,7 +44,7 @@ Configuration for the arrow function (static, by reference, parameters, return t
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

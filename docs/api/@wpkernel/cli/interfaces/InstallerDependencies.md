@@ -35,6 +35,8 @@ readonly optional spawn: {
 };
 ```
 
+A custom spawn function, typically from 'node:child_process'.
+
 #### Call Signature
 
 ```ts
@@ -307,11 +309,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioPipe`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioPipe`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `Readable`, `Readable`\>
+`ChildProcessByStdio`<`Writable`, `Readable`, `Readable`>
 
 ##### Since
 
@@ -448,11 +450,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioPipe`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioPipe`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `Readable`, `null`\>
+`ChildProcessByStdio`<`Writable`, `Readable`, `null`>
 
 ##### Since
 
@@ -589,11 +591,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioNull`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioNull`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `null`, `Readable`\>
+`ChildProcessByStdio`<`Writable`, `null`, `Readable`>
 
 ##### Since
 
@@ -730,11 +732,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioPipe`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioPipe`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `Readable`, `Readable`\>
+`ChildProcessByStdio`<`null`, `Readable`, `Readable`>
 
 ##### Since
 
@@ -871,11 +873,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioNull`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioNull`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `null`, `null`\>
+`ChildProcessByStdio`<`Writable`, `null`, `null`>
 
 ##### Since
 
@@ -1012,11 +1014,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioPipe`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioPipe`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `Readable`, `null`\>
+`ChildProcessByStdio`<`null`, `Readable`, `null`>
 
 ##### Since
 
@@ -1153,11 +1155,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioNull`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioNull`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `null`, `Readable`\>
+`ChildProcessByStdio`<`null`, `null`, `Readable`>
 
 ##### Since
 
@@ -1294,11 +1296,11 @@ The command to run.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioNull`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioNull`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `null`, `null`\>
+`ChildProcessByStdio`<`null`, `null`, `null`>
 
 ##### Since
 
@@ -1735,11 +1737,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioPipe`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioPipe`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `Readable`, `Readable`\>
+`ChildProcessByStdio`<`Writable`, `Readable`, `Readable`>
 
 ##### Since
 
@@ -1885,11 +1887,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioPipe`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioPipe`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `Readable`, `null`\>
+`ChildProcessByStdio`<`Writable`, `Readable`, `null`>
 
 ##### Since
 
@@ -2035,11 +2037,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioNull`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioNull`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `null`, `Readable`\>
+`ChildProcessByStdio`<`Writable`, `null`, `Readable`>
 
 ##### Since
 
@@ -2185,11 +2187,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioPipe`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioPipe`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `Readable`, `Readable`\>
+`ChildProcessByStdio`<`null`, `Readable`, `Readable`>
 
 ##### Since
 
@@ -2335,11 +2337,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioPipe`, `StdioNull`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioPipe`, `StdioNull`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`Writable`, `null`, `null`\>
+`ChildProcessByStdio`<`Writable`, `null`, `null`>
 
 ##### Since
 
@@ -2485,11 +2487,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioPipe`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioPipe`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `Readable`, `null`\>
+`ChildProcessByStdio`<`null`, `Readable`, `null`>
 
 ##### Since
 
@@ -2635,11 +2637,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioNull`, `StdioPipe`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioNull`, `StdioPipe`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `null`, `Readable`\>
+`ChildProcessByStdio`<`null`, `null`, `Readable`>
 
 ##### Since
 
@@ -2785,11 +2787,11 @@ List of string arguments.
 
 ###### options
 
-`SpawnOptionsWithStdioTuple`\<`StdioNull`, `StdioNull`, `StdioNull`\>
+`SpawnOptionsWithStdioTuple`<`StdioNull`, `StdioNull`, `StdioNull`>
 
 ##### Returns
 
-`ChildProcessByStdio`\<`null`, `null`, `null`\>
+`ChildProcessByStdio`<`null`, `null`, `null`>
 
 ##### Since
 

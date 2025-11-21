@@ -15,8 +15,8 @@ GitReadinessState & gt;
 
 ### overrides
 
-`Partial`\<[`GitHelperDependencies`](../interfaces/GitHelperDependencies.md)\> = `{}`
+`Partial`<[`GitHelperDependencies`](../interfaces/GitHelperDependencies.md)> = `{}`
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`GitReadinessState`](../interfaces/GitReadinessState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`GitReadinessState`](../interfaces/GitReadinessState.md)>

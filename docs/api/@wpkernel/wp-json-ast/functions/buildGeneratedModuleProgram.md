@@ -20,7 +20,7 @@ function buildGeneratedModuleProgram<TMetadata>(program): PhpProgram;
 
 ### program
 
-[`ModuleProgramFile`](../interfaces/ModuleProgramFile.md)\<`TMetadata`\>
+[`ModuleProgramFile`](../interfaces/ModuleProgramFile.md)<`TMetadata`>
 
 ## Returns
 

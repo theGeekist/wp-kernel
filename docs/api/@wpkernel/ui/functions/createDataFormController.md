@@ -43,7 +43,7 @@ The type of the query parameters for the associated resource (if any).
 
 ### options
 
-[`CreateDataFormControllerOptions`](../interfaces/CreateDataFormControllerOptions.md)\<`TInput`, `TResult`, `TQuery`\>
+[`CreateDataFormControllerOptions`](../interfaces/CreateDataFormControllerOptions.md)<`TInput`, `TResult`, `TQuery`>
 
 Configuration options for the data form controller.
 
@@ -57,4 +57,4 @@ A function that returns a `UseDataFormController` hook.
 
 ### Returns
 
-[`UseDataFormController`](../interfaces/UseDataFormController.md)\<`TResult`\>
+[`UseDataFormController`](../interfaces/UseDataFormController.md)<`TResult`>

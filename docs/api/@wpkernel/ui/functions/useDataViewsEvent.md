@@ -28,7 +28,7 @@ function useDataViewsEvent<TName>(runtime, eventName, listener, options): void;
 
 ### listener
 
-`Listener`\<`TName`\>
+`Listener`<`TName`>
 
 ### options
 

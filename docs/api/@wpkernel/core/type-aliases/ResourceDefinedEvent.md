@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceDefinedEvent
 
-# Type Alias: ResourceDefinedEvent\<T, TQuery\>
+# Type Alias: ResourceDefinedEvent<T, TQuery>
 
 ```ts
 type ResourceDefinedEvent<T, TQuery> = object;

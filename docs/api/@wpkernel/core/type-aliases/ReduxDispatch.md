@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ReduxDispatch
 
-# Type Alias: ReduxDispatch()
+# Type Alias: ReduxDispatch
 
 ```ts
 type ReduxDispatch = (action) => unknown;

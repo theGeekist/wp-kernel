@@ -38,11 +38,11 @@ Optional interactivity actions map to augment the interaction.
 
 ### options
 
-[`CreateDataViewInteractionOptions`](../interfaces/CreateDataViewInteractionOptions.md)\<`TItem`, `TQuery`, `TActions`\>
+[`CreateDataViewInteractionOptions`](../interfaces/CreateDataViewInteractionOptions.md)<`TItem`, `TQuery`, `TActions`>
 
 ## Returns
 
-[`DataViewInteractionResult`](../interfaces/DataViewInteractionResult.md)\<`TItem`, `TQuery`\>
+[`DataViewInteractionResult`](../interfaces/DataViewInteractionResult.md)<`TItem`, `TQuery`>
 
 ## Example
 

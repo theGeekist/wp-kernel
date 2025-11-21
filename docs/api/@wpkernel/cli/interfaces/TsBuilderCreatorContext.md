@@ -46,7 +46,7 @@ A function to emit a generated TypeScript file.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -57,6 +57,34 @@ readonly ir: IRv1;
 ```
 
 The Intermediate Representation (IR) of the project.
+
+---
+
+### paths
+
+```ts
+readonly paths: object;
+```
+
+Resolved layout paths required for TS generation.
+
+#### blocksGenerated
+
+```ts
+readonly blocksGenerated: string;
+```
+
+#### jsGenerated
+
+```ts
+readonly jsGenerated: string;
+```
+
+#### uiGenerated
+
+```ts
+readonly uiGenerated: string;
+```
 
 ---
 

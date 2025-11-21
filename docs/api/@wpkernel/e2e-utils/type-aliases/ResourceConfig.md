@@ -4,7 +4,7 @@
 
 [@wpkernel/e2e-utils](../README.md) / ResourceConfig
 
-# Type Alias: ResourceConfig\<T, TQuery, TRoutes, \_TTypes\>
+# Type Alias: ResourceConfig<T, TQuery, TRoutes, \_TTypes>
 
 ```ts
 type ResourceConfig<T, TQuery, TRoutes, _TTypes> = object;

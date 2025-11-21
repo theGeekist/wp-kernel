@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / InitCommandConstructor
 
-# Type Alias: InitCommandConstructor()
+# Type Alias: InitCommandConstructor
 
 ```ts
 type InitCommandConstructor = () => InitCommandInstance;

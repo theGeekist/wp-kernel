@@ -16,7 +16,7 @@ Triggers a prefetch when the user hovers over an element.
 
 ### ref
 
-`RefObject`\<`HTMLElement`\>
+`RefObject`<`HTMLElement`>
 
 A React ref to the element to monitor.
 

@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / HelperDescriptor
 
-# Interface: HelperDescriptor\<TKind\>
+# Interface: HelperDescriptor<TKind>
 
 Base descriptor for a pipeline helper.
 

@@ -31,13 +31,13 @@ The type of the PHP AST node.
 
 ### props
 
-`Omit`\<`T`, `"nodeType"` \| `"attributes"`\>
+`Omit`<`T`, `"nodeType"` \| `"attributes"`>
 
 The properties of the node, excluding `nodeType` and `attributes`.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

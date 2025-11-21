@@ -19,4 +19,4 @@ ReleasePackState & gt;
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`ReleasePackState`](../interfaces/ReleasePackState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`ReleasePackState`](../interfaces/ReleasePackState.md)>

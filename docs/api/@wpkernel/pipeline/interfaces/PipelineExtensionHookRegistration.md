@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / PipelineExtensionHookRegistration
 
-# Interface: PipelineExtensionHookRegistration\<TContext, TOptions, TArtifact\>
+# Interface: PipelineExtensionHookRegistration<TContext, TOptions, TArtifact>
 
 Hook registration returned by an extension.
 

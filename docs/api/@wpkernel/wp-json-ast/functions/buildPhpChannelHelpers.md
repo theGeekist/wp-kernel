@@ -34,4 +34,4 @@ function buildPhpChannelHelpers<TContext, TInput, TOutput>(
 
 ## Returns
 
-[`PhpChannelHelpers`](../interfaces/PhpChannelHelpers.md)\<`TContext`, `TInput`, `TOutput`\>
+[`PhpChannelHelpers`](../interfaces/PhpChannelHelpers.md)<`TContext`, `TInput`, `TOutput`>

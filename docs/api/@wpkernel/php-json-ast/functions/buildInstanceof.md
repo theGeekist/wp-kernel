@@ -28,7 +28,7 @@ The class name to check against, either a `PhpName` or an expression.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

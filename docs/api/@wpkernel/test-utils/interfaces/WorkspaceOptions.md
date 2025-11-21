@@ -56,7 +56,7 @@ A setup function to run before the test.
 
 #### Returns
 
-`void` \| `Promise`\<`void`\>
+`void` \| `Promise`<`void`>
 
 ---
 
@@ -76,4 +76,4 @@ A teardown function to run after the test.
 
 #### Returns
 
-`void` \| `Promise`\<`void`\>
+`void` \| `Promise`<`void`>

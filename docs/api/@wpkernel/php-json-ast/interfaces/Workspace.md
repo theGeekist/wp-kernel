@@ -34,7 +34,7 @@ exists: (target) => Promise<boolean>;
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`<`boolean`>
 
 ---
 
@@ -78,7 +78,7 @@ write: (file, contents, options?) => Promise<void>;
 
 ##### contents
 
-`string` | `Buffer`\<`ArrayBufferLike`\>
+`string` | `Buffer`<`ArrayBufferLike`>
 
 ##### options?
 
@@ -86,4 +86,4 @@ write: (file, contents, options?) => Promise<void>;
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

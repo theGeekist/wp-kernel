@@ -37,7 +37,7 @@ Request configuration
 
 ## Returns
 
-`Promise`\<[`TransportResponse`](../type-aliases/TransportResponse.md)\<`T`\>\>
+`Promise`<[`TransportResponse`](../type-aliases/TransportResponse.md)<`T`>>
 
 Promise resolving to response with data and metadata
 

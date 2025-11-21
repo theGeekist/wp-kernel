@@ -29,7 +29,7 @@ The function that creates the TypeScript artifact.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 

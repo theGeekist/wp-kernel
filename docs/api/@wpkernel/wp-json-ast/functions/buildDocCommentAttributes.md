@@ -24,6 +24,6 @@ The lines to add to the doc comment.
 
 ## Returns
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\> \| `undefined`
+`Readonly`<`Record`<`string`, `unknown`>> \| `undefined`
 
 PHP attributes, or undefined if there are no lines.

@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceAdminUIConfig
 
-# Interface: ResourceAdminUIConfig\<TItem, TQuery\>
+# Interface: ResourceAdminUIConfig<TItem, TQuery>
 
 Admin UI configuration for a resource.
 

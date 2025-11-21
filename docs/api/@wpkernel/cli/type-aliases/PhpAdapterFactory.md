@@ -4,7 +4,7 @@
 
 [@wpkernel/cli](../README.md) / PhpAdapterFactory
 
-# Type Alias: PhpAdapterFactory()
+# Type Alias: PhpAdapterFactory
 
 ```ts
 type PhpAdapterFactory = (context) => PhpAdapterConfig | void;

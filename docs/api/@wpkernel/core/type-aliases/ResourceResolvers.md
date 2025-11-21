@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceResolvers
 
-# Type Alias: ResourceResolvers\<\_T, TQuery\>
+# Type Alias: ResourceResolvers<\_T, TQuery>
 
 ```ts
 type ResourceResolvers<_T, TQuery> = object & Record<string, AnyFn>;
@@ -33,7 +33,7 @@ Item ID
 
 #### Returns
 
-`Generator`\<`unknown`, `void`, `unknown`\>
+`Generator`<`unknown`, `void`, `unknown`>
 
 ### getItems()
 
@@ -54,7 +54,7 @@ Query parameters
 
 #### Returns
 
-`Generator`\<`unknown`, `void`, `unknown`\>
+`Generator`<`unknown`, `void`, `unknown`>
 
 ### getList()
 
@@ -75,7 +75,7 @@ Query parameters
 
 #### Returns
 
-`Generator`\<`unknown`, `void`, `unknown`\>
+`Generator`<`unknown`, `void`, `unknown`>
 
 ## Type Parameters
 

@@ -4,13 +4,13 @@
 
 [@wpkernel/ui](../README.md) / UseActionResult
 
-# Interface: UseActionResult\<TInput, TResult\>
+# Interface: UseActionResult<TInput, TResult>
 
 The result of the useAction hook.
 
 ## Extends
 
-- `UseActionState`\<`TResult`\>
+- `UseActionState`<`TResult`>
 
 ## Type Parameters
 
@@ -86,7 +86,7 @@ The input to the action.
 
 #### Returns
 
-`Promise`\<`TResult`\>
+`Promise`<`TResult`>
 
 A promise that resolves with the result of the action.
 

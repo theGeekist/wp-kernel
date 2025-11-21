@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewActionConfig
 
-# Interface: ResourceDataViewActionConfig\<TItem, TInput, TResult\>
+# Interface: ResourceDataViewActionConfig<TItem, TInput, TResult>
 
 Action configuration for ResourceDataView.
 
@@ -102,7 +102,7 @@ Optional meta object included in action triggered events.
 
 #### Returns
 
-`Record`\<`string`, `unknown`\> \| `undefined`
+`Record`<`string`, `unknown`> \| `undefined`
 
 ---
 

@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewController
 
-# Interface: ResourceDataViewController\<TItem, TQuery\>
+# Interface: ResourceDataViewController<TItem, TQuery>
 
 Controller for a ResourceDataView.
 
@@ -124,7 +124,7 @@ Emits an action event.
 
 ###### meta?
 
-`Record`\<`string`, `unknown`\>
+`Record`<`string`, `unknown`>
 
 ###### reason?
 
@@ -148,7 +148,7 @@ Emits a boundary transition event.
 
 ##### payload
 
-`Omit`\<[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md), `"resource"`\>
+`Omit`<[`DataViewBoundaryTransitionPayload`](../type-aliases/DataViewBoundaryTransitionPayload.md), `"resource"`>
 
 #### Returns
 
@@ -168,7 +168,7 @@ Emits a fetch failed event.
 
 ##### payload
 
-`Omit`\<[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md), `"resource"`\>
+`Omit`<[`DataViewFetchFailedPayload`](../type-aliases/DataViewFetchFailedPayload.md), `"resource"`>
 
 #### Returns
 
@@ -188,7 +188,7 @@ Emits a permission denied event.
 
 ##### payload
 
-`Omit`\<[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md), `"resource"`\>
+`Omit`<[`DataViewPermissionDeniedPayload`](../type-aliases/DataViewPermissionDeniedPayload.md), `"resource"`>
 
 #### Returns
 
@@ -280,7 +280,7 @@ Loads the stored view from preferences.
 
 #### Returns
 
-`Promise`\<`View` \| `undefined`\>
+`Promise`<`View` \| `undefined`>
 
 ---
 
@@ -370,7 +370,7 @@ Saves the view to preferences.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 
@@ -400,7 +400,7 @@ A function to fetch a list of items.
 
 #### Returns
 
-`Promise`\<`ListResponse`\<`TItem`\>\>
+`Promise`<`ListResponse`<`TItem`>>
 
 ---
 
@@ -440,7 +440,7 @@ A function to prefetch a list of items.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ---
 

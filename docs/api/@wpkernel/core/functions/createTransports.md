@@ -32,6 +32,6 @@ Log level
 
 ## Returns
 
-`LogLayerTransport`\<`any`\> \| `LogLayerTransport`\<`any`\>[]
+`LogLayerTransport`<`any`> \| `LogLayerTransport`<`any`>[]
 
 Transport or array of transports

@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / CreateWpPhpProgramBuilderOptions
 
-# Interface: CreateWpPhpProgramBuilderOptions\<TContext, TInput, TOutput\>
+# Interface: CreateWpPhpProgramBuilderOptions<TContext, TInput, TOutput>
 
 Options for creating a WordPress PHP program builder.
 
@@ -29,7 +29,7 @@ const builder = createWpPhpProgramBuilder({
 
 ## Extends
 
-- `Omit`\<`BaseCreatePhpProgramBuilderOptions`\<`TContext`, `TInput`, `TOutput`\>, `"metadata"` \| `"build"`\>
+- `Omit`<`BaseCreatePhpProgramBuilderOptions`<`TContext`, `TInput`, `TOutput`>, `"metadata"` \| `"build"`>
 
 ## Type Parameters
 
@@ -71,7 +71,7 @@ The PHP AST context entry.
 
 #### Returns
 
-`void` \| `Promise`\<`void`\>
+`void` \| `Promise`<`void`>
 
 ---
 

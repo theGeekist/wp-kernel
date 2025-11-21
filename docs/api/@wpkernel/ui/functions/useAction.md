@@ -37,18 +37,18 @@ The type of the result returned by the action.
 
 ### action
 
-`DefinedAction`\<`TInput`, `TResult`\>
+`DefinedAction`<`TInput`, `TResult`>
 
 The `DefinedAction` to be invoked.
 
 ### options
 
-[`UseActionOptions`](../interfaces/UseActionOptions.md)\<`TInput`, `TResult`\> = `{}`
+[`UseActionOptions`](../interfaces/UseActionOptions.md)<`TInput`, `TResult`> = `{}`
 
 Configuration options for the action invocation, including concurrency and invalidation.
 
 ## Returns
 
-[`UseActionResult`](../interfaces/UseActionResult.md)\<`TInput`, `TResult`\>
+[`UseActionResult`](../interfaces/UseActionResult.md)<`TInput`, `TResult`>
 
 An object containing the action's current state (`status`, `error`, `result`, `inFlight`) and control functions (`run`, `cancel`, `reset`).

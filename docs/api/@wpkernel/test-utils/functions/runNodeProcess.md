@@ -26,4 +26,4 @@ readonly `string`[] = `[]`
 
 ## Returns
 
-`Promise`\<[`RunProcessResult`](../interfaces/RunProcessResult.md)\>
+`Promise`<[`RunProcessResult`](../interfaces/RunProcessResult.md)>

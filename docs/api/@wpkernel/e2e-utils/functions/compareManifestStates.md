@@ -31,8 +31,8 @@ Apply mutations and collect before/after manifests for comparison.
 
 ## Returns
 
-`Promise`\<\{
+`Promise`<\{
 `after`: [`FileManifest`](../interfaces/FileManifest.md);
 `before`: [`FileManifest`](../interfaces/FileManifest.md);
 `diff`: [`FileManifestDiff`](../interfaces/FileManifestDiff.md);
-\}\>
+\}>

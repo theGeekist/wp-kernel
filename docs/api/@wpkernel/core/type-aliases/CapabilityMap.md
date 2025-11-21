@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / CapabilityMap
 
-# Type Alias: CapabilityMap\<Keys\>
+# Type Alias: CapabilityMap<Keys>
 
 ```ts
 type CapabilityMap<Keys> = { [K in keyof Keys]: CapabilityRule<Keys[K]> };
@@ -16,4 +16,4 @@ Mapping from capability key to rule implementation.
 
 ### Keys
 
-`Keys` _extends_ `Record`\<`string`, `unknown`\>
+`Keys` _extends_ `Record`<`string`, `unknown`>

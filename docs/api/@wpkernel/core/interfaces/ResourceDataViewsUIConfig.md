@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceDataViewsUIConfig
 
-# Interface: ResourceDataViewsUIConfig\<TItem, TQuery\>
+# Interface: ResourceDataViewsUIConfig<TItem, TQuery>
 
 DataViews integration contract for a resource's admin UI.
 
@@ -138,7 +138,7 @@ This function is the primary bridge between UI filters and REST queries.
 
 ##### viewState
 
-`Record`\<`string`, `unknown`\>
+`Record`<`string`, `unknown`>
 
 #### Returns
 

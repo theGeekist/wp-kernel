@@ -4,7 +4,7 @@
 
 [@wpkernel/wp-json-ast](../README.md) / BuildRouteFallbackStatements
 
-# Type Alias: BuildRouteFallbackStatements()
+# Type Alias: BuildRouteFallbackStatements
 
 ```ts
 type BuildRouteFallbackStatements = (definition) => readonly PhpStmt[];

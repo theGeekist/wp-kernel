@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / PrefetchGet
 
-# Type Alias: PrefetchGet()
+# Type Alias: PrefetchGet
 
 ```ts
 type PrefetchGet = (id) => void;

@@ -46,8 +46,8 @@ readonly exec: {
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -68,8 +68,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -90,8 +90,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -119,8 +119,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -141,8 +141,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -170,8 +170,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -192,8 +192,8 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>
 
 #### Call Signature
 
@@ -221,5 +221,5 @@ readonly `string`[] | `null` | `undefined`
 
 ##### Returns
 
-`PromiseWithChild`\<\{
-\}\>
+`PromiseWithChild`<\{
+\}>

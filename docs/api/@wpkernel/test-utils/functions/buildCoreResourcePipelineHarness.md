@@ -28,12 +28,12 @@ Builds a harness for testing core resource pipelines.
 
 ### options
 
-[`BuildCoreResourcePipelineHarnessOptions`](../interfaces/BuildCoreResourcePipelineHarnessOptions.md)\<`T`, `TQuery`\> = `{}`
+[`BuildCoreResourcePipelineHarnessOptions`](../interfaces/BuildCoreResourcePipelineHarnessOptions.md)<`T`, `TQuery`> = `{}`
 
 Options for configuring the harness.
 
 ## Returns
 
-[`CoreResourcePipelineHarness`](../interfaces/CoreResourcePipelineHarness.md)\<`T`, `TQuery`\>
+[`CoreResourcePipelineHarness`](../interfaces/CoreResourcePipelineHarness.md)<`T`, `TQuery`>
 
 A `CoreResourcePipelineHarness` instance.

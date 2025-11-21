@@ -30,10 +30,10 @@ re-creating callback instances on every render.
 
 ### resource
 
-`ResourceObject`\<`TRecord`, `TQuery`\>
+`ResourceObject`<`TRecord`, `TQuery`>
 
 Kernel resource exposing optional prefetch helpers.
 
 ## Returns
 
-[`Prefetcher`](../interfaces/Prefetcher.md)\<`TQuery`\>
+[`Prefetcher`](../interfaces/Prefetcher.md)<`TQuery`>

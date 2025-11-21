@@ -34,7 +34,7 @@ An array of `PhpStmtUseUse` nodes within the group.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

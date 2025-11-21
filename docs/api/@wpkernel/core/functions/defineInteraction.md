@@ -47,7 +47,7 @@ await TestimonialReview.store.actions.approve({ id: 101 });
 
 ### TStore
 
-`TStore` _extends_ `Record`\<`string`, `unknown`\> = `Record`\<`string`, `unknown`\>
+`TStore` _extends_ `Record`<`string`, `unknown`> = `Record`<`string`, `unknown`>
 
 ### TActions
 
@@ -57,8 +57,8 @@ await TestimonialReview.store.actions.approve({ id: 101 });
 
 ### options
 
-[`DefineInteractionOptions`](../interfaces/DefineInteractionOptions.md)\<`TEntity`, `TQuery`, `TStore`, `TActions`\>
+[`DefineInteractionOptions`](../interfaces/DefineInteractionOptions.md)<`TEntity`, `TQuery`, `TStore`, `TActions`>
 
 ## Returns
 
-[`DefinedInteraction`](../interfaces/DefinedInteraction.md)\<[`InteractivityStoreResult`](../type-aliases/InteractivityStoreResult.md)\>
+[`DefinedInteraction`](../interfaces/DefinedInteraction.md)<[`InteractivityStoreResult`](../type-aliases/InteractivityStoreResult.md)>

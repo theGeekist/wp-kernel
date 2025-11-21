@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ReduxMiddleware
 
-# Type Alias: ReduxMiddleware()\<TState\>
+# Type Alias: ReduxMiddleware<TState>
 
 ```ts
 type ReduxMiddleware<TState> = (api) => (next) => (action) => unknown;
@@ -22,7 +22,7 @@ Redux compatible middleware type without depending on redux package.
 
 ### api
 
-[`ReduxMiddlewareAPI`](ReduxMiddlewareAPI.md)\<`TState`\>
+[`ReduxMiddlewareAPI`](ReduxMiddlewareAPI.md)<`TState`>
 
 ## Returns
 

@@ -19,4 +19,4 @@ QuickstartState & gt;
 
 ## Returns
 
-[`ReadinessHelper`](../interfaces/ReadinessHelper.md)\<[`QuickstartState`](../interfaces/QuickstartState.md)\>
+[`ReadinessHelper`](../interfaces/ReadinessHelper.md)<[`QuickstartState`](../interfaces/QuickstartState.md)>

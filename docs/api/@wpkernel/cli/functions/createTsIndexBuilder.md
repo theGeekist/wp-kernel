@@ -10,7 +10,7 @@
 function createTsIndexBuilder(): BuilderHelper;
 ```
 
-Creates the builder helper that writes `.generated/js/index.(ts|d.ts)`.
+Creates the builder helper that writes `.wpk/generate/js/index.(ts|d.ts)`.
 
 ## Returns
 

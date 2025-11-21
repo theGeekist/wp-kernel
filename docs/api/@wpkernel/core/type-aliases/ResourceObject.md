@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceObject
 
-# Type Alias: ResourceObject\<T, TQuery, TRoutes\>
+# Type Alias: ResourceObject<T, TQuery, TRoutes>
 
 ```ts
 type ResourceObject<T, TQuery, TRoutes> = object & ResourceClient<T, TQuery>;
@@ -99,7 +99,7 @@ Generate cache key
 
 ###### params?
 
-`TQuery` | `string` | `number` | `Partial`\<`T`\>
+`TQuery` | `string` | `number` | `Partial`<`T`>
 
 ##### Returns
 
@@ -129,7 +129,7 @@ Prefetch single item into cache
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 #### cache.prefetch.list()
 
@@ -147,7 +147,7 @@ Prefetch list into cache
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ### cacheKeys
 
@@ -217,7 +217,7 @@ Operation name ('list', 'get', etc.)
 
 Parameters for the operation
 
-`TQuery` | `string` | `number` | `Partial`\<`T`\>
+`TQuery` | `string` | `number` | `Partial`<`T`>
 
 #### Returns
 
@@ -379,7 +379,7 @@ Item identifier
 
 ##### Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 Promise resolving to the item
 
@@ -404,7 +404,7 @@ Optional query parameters
 
 ##### Returns
 
-`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
+`Promise`<[`ListResponse`](ListResponse.md)<`T`>>
 
 Promise resolving to list response
 
@@ -430,11 +430,11 @@ Create new item
 
 ###### data
 
-`Partial`\<`T`\>
+`Partial`<`T`>
 
 ##### Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 #### mutate.remove()
 
@@ -452,7 +452,7 @@ Delete item
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 #### mutate.update()
 
@@ -470,11 +470,11 @@ Update existing item
 
 ###### data
 
-`Partial`\<`T`\>
+`Partial`<`T`>
 
 ##### Returns
 
-`Promise`\<`T`\>
+`Promise`<`T`>
 
 ### prefetchGet()?
 
@@ -497,7 +497,7 @@ Item identifier
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 Promise resolving when prefetch completes
 
@@ -531,7 +531,7 @@ Query parameters
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 Promise resolving when prefetch completes
 

@@ -28,7 +28,7 @@ An array of `PhpStmtUseUse` nodes representing the used items.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

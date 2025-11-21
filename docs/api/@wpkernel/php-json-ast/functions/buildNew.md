@@ -28,7 +28,7 @@ An array of `PhpArg` nodes representing the constructor arguments.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 Optional attributes for the node.
 

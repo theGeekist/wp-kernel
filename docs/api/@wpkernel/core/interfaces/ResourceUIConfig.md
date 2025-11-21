@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ResourceUIConfig
 
-# Interface: ResourceUIConfig\<TItem, TQuery\>
+# Interface: ResourceUIConfig<TItem, TQuery>
 
 Top-level UI metadata attached to a resource.
 

@@ -25,7 +25,7 @@ Options for ensuring the directory is clean.
 
 ## Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 ## Throws
 

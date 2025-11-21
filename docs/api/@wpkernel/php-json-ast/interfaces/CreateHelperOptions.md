@@ -4,7 +4,7 @@
 
 [@wpkernel/php-json-ast](../README.md) / CreateHelperOptions
 
-# Interface: CreateHelperOptions\<TContext, TInput, TOutput, TReporter, TKind\>
+# Interface: CreateHelperOptions<TContext, TInput, TOutput, TReporter, TKind>
 
 Options for creating a new helper.
 

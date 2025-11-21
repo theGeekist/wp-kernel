@@ -14,10 +14,10 @@ Creates a builder helper for generating TypeScript artifacts.
 
 Orchestrates:
 
-- Admin screens under `.generated/ui/app/...`
-- DataView fixtures under `.generated/ui/fixtures/dataviews/...`
-- Interactivity fixtures under `.generated/ui/fixtures/interactivity/...`
-- Registry metadata under `.generated/ui/registry/dataviews/...`
+- Admin screens under `.wpk/generate/ui/app/...`
+- DataView fixtures under `.wpk/generate/ui/fixtures/dataviews/...`
+- Interactivity fixtures under `.wpk/generate/ui/fixtures/interactivity/...`
+- Registry metadata under `.wpk/generate/ui/registry/dataviews/...`
 
 ## Parameters
 

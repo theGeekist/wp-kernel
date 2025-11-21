@@ -20,4 +20,4 @@ function toAsyncIterable(
 
 ## Returns
 
-`AsyncIterable`\<`string` \| `Buffer`\<`ArrayBufferLike`\>\>
+`AsyncIterable`<`string` \| `Buffer`<`ArrayBufferLike`>>

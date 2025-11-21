@@ -41,7 +41,7 @@ Preference key
 
 #### Returns
 
-`Promise`\<`unknown`\>
+`Promise`<`unknown`>
 
 Preference value or undefined
 
@@ -87,4 +87,4 @@ Preference value
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>

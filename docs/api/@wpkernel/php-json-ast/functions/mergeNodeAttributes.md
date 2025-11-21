@@ -31,7 +31,7 @@ The original PHP AST node.
 
 ### attributes?
 
-`Readonly`\<`Record`\<`string`, `unknown`\>\>
+`Readonly`<`Record`<`string`, `unknown`>>
 
 The attributes to merge into the node.
 

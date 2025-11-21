@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / InteractionActionInput
 
-# Type Alias: InteractionActionInput\<TArgs, TResult\>
+# Type Alias: InteractionActionInput<TArgs, TResult>
 
 ```ts
 type InteractionActionInput<TArgs, TResult> =

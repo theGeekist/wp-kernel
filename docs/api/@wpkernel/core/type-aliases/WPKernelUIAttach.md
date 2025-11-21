@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / WPKernelUIAttach
 
-# Type Alias: WPKernelUIAttach()
+# Type Alias: WPKernelUIAttach
 
 ```ts
 type WPKernelUIAttach = (wpk, options?) => WPKernelUIRuntime;

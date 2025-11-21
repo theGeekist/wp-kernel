@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / CapabilityRule
 
-# Type Alias: CapabilityRule()\<P\>
+# Type Alias: CapabilityRule<P>
 
 ```ts
 type CapabilityRule<P> = (ctx, params) => boolean | Promise<boolean>;
@@ -39,7 +39,7 @@ Parameters required by the rule. `void` indicates no params needed.
 
 ## Returns
 
-`boolean` \| `Promise`\<`boolean`\>
+`boolean` \| `Promise`<`boolean`>
 
 ## Example
 

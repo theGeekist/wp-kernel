@@ -20,7 +20,7 @@ dispose: () => void | Promise<void>;
 
 #### Returns
 
-`void` \| `Promise`\<`void`\>
+`void` \| `Promise`<`void`>
 
 #### Inherited from
 
@@ -80,7 +80,7 @@ spawn overrides
 
 #### Returns
 
-`Promise`\<[`CliTranscript`](CliTranscript.md)\>
+`Promise`<[`CliTranscript`](CliTranscript.md)>
 
 ---
 

@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / DeepReadonly
 
-# Type Alias: DeepReadonly\<T\>
+# Type Alias: DeepReadonly<T>
 
 ```ts
 type DeepReadonly<T> = T extends (...args) => infer TResult

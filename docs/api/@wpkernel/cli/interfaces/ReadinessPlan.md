@@ -32,4 +32,4 @@ readonly run: (context) => Promise<ReadinessRunResult>;
 
 #### Returns
 
-`Promise`\<[`ReadinessRunResult`](ReadinessRunResult.md)\>
+`Promise`<[`ReadinessRunResult`](ReadinessRunResult.md)>

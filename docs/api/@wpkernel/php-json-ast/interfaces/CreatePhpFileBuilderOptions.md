@@ -4,11 +4,11 @@
 
 [@wpkernel/php-json-ast](../README.md) / CreatePhpFileBuilderOptions
 
-# Interface: CreatePhpFileBuilderOptions\<TContext, TInput, TOutput\>
+# Interface: CreatePhpFileBuilderOptions<TContext, TInput, TOutput>
 
 ## Extends
 
-- `Omit`\<[`CreatePhpProgramBuilderOptions`](CreatePhpProgramBuilderOptions.md)\<`TContext`, `TInput`, `TOutput`\>, `"build"`\>
+- `Omit`<[`CreatePhpProgramBuilderOptions`](CreatePhpProgramBuilderOptions.md)<`TContext`, `TInput`, `TOutput`>, `"build"`>
 
 ## Type Parameters
 
@@ -44,7 +44,7 @@ readonly build: (builder, entry) => void | Promise<void>;
 
 #### Returns
 
-`void` \| `Promise`\<`void`\>
+`void` \| `Promise`<`void`>
 
 ---
 

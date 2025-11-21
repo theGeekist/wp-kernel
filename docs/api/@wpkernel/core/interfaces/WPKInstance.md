@@ -50,11 +50,11 @@ defineResource: <T, TQuery>(config) => ResourceObject<T, TQuery>;
 
 ##### config
 
-[`ResourceConfig`](../type-aliases/ResourceConfig.md)\<`T`, `TQuery`\>
+[`ResourceConfig`](../type-aliases/ResourceConfig.md)<`T`, `TQuery`>
 
 #### Returns
 
-[`ResourceObject`](../type-aliases/ResourceObject.md)\<`T`, `TQuery`\>
+[`ResourceObject`](../type-aliases/ResourceObject.md)<`T`, `TQuery`>
 
 ---
 
@@ -103,12 +103,12 @@ getNamespace: () => string;
 ### getRegistry()
 
 ```ts
-getRegistry: () => WPKernelRegistry | undefined;
+getRegistry: () => any;
 ```
 
 #### Returns
 
-[`WPKernelRegistry`](../type-aliases/WPKernelRegistry.md) \| `undefined`
+`any`
 
 ---
 

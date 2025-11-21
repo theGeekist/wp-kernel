@@ -4,7 +4,7 @@
 
 [@wpkernel/ui](../README.md) / ResourceDataViewConfig
 
-# Interface: ResourceDataViewConfig\<TItem, TQuery\>
+# Interface: ResourceDataViewConfig<TItem, TQuery>
 
 Resource DataView configuration.
 

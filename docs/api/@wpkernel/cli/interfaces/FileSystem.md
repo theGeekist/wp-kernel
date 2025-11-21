@@ -56,7 +56,7 @@ the error raised if the file is not accessible.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 Fulfills with `undefined` upon success.
 
@@ -96,7 +96,7 @@ behavior is similar to `cp dir1/ dir2/`.
 
 #### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 Fulfills with `undefined` upon success.
 
@@ -154,7 +154,7 @@ try {
 
 ##### Returns
 
-`Promise`\<`string` \| `undefined`\>
+`Promise`<`string` \| `undefined`>
 
 Upon success, fulfills with `undefined` if `recursive` is `false`, or the first directory path created if `recursive` is `true`.
 
@@ -187,7 +187,7 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 
 ##### Returns
 
-`Promise`\<`void`\>
+`Promise`<`void`>
 
 #### Call Signature
 
@@ -214,4 +214,4 @@ should be created. If a string is passed, it is parsed as an octal integer. If n
 
 ##### Returns
 
-`Promise`\<`string` \| `undefined`\>
+`Promise`<`string` \| `undefined`>

@@ -4,7 +4,7 @@
 
 [@wpkernel/pipeline](../README.md) / MaybePromise
 
-# Type Alias: MaybePromise\<T\>
+# Type Alias: MaybePromise<T>
 
 ```ts
 type MaybePromise<T> = T | Promise<T>;

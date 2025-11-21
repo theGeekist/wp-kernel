@@ -4,7 +4,7 @@
 
 [@wpkernel/core](../README.md) / ReduxMiddlewareAPI
 
-# Type Alias: ReduxMiddlewareAPI\<TState\>
+# Type Alias: ReduxMiddlewareAPI<TState>
 
 ```ts
 type ReduxMiddlewareAPI<TState> = object;
