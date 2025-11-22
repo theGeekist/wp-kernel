@@ -31,6 +31,7 @@ export interface MakeWPKernelConfigFixtureOptions {
 	readonly schemas?: WPKernelConfigV1['schemas'];
 	readonly resources?: WPKernelConfigV1['resources'];
 	readonly adapters?: WPKernelConfigV1['adapters'];
+	readonly directories?: WPKernelConfigV1['directories'];
 }
 
 export function makeWPKernelConfigFixture(
@@ -52,6 +53,7 @@ export function makeWPKernelConfigFixture(
 		schemas,
 		resources,
 		adapters,
+		directories,
 	} = options;
 
 	return {
@@ -60,6 +62,7 @@ export function makeWPKernelConfigFixture(
 		schemas: schemas ?? defaultSchemas,
 		resources: resources ?? defaultResources,
 		...(adapters ? { adapters } : {}),
+		...(directories ? { directories } : {}),
 	} satisfies WPKernelConfigV1;
 }
 

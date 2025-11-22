@@ -129,6 +129,8 @@ function buildLoaderConfig({
 		sanitizedNamespace: ir.meta.sanitizedNamespace,
 		plugin: ir.meta.plugin,
 		resourceClassNames,
+		phpGeneratedPath:
+			ir.layout?.resolve('php.generated') ?? ir.php.outputDir,
 	};
 
 	return uiConfig ? { ...base, ui: uiConfig } : base;

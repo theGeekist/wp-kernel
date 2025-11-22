@@ -1,8 +1,10 @@
+import { buildPluginLoaderProgram } from '../loader';
+import { loadLayoutForTests } from '../../../tests/layout.test-support';
 import type { PhpProgram } from '@wpkernel/php-json-ast';
 
-import { buildPluginLoaderProgram } from '../loader';
-
 describe('buildPluginLoaderProgram', () => {
+	const phpGeneratedPath = loadLayoutForTests().resolve('php.generated');
+
 	it('emits plugin loader with controller registrations', () => {
 		const plugin = {
 			name: 'Demo Plugin',
@@ -27,6 +29,7 @@ describe('buildPluginLoaderProgram', () => {
 				'Demo\\Plugin\\Generated\\Rest\\BooksController',
 				'Demo\\Plugin\\Generated\\Rest\\AuthorsController',
 			],
+			phpGeneratedPath,
 		});
 
 		expect(program).toMatchSnapshot('plugin-loader-program');
@@ -50,8 +53,32 @@ describe('buildPluginLoaderProgram', () => {
 			sanitizedNamespace: 'jobs-plugin',
 			plugin,
 			resourceClassNames: [],
+			phpGeneratedPath,
 		});
 
 		expect(program).toMatchSnapshot('plugin-loader-program-empty');
+	});
+
+	it('honours custom generated PHP directory for classmap', () => {
+		const customPhpGeneratedPath = `${phpGeneratedPath}/custom`;
+		const program = buildPluginLoaderProgram({
+			origin: 'wpk.config.ts',
+			namespace: 'Demo\\Plugin',
+			sanitizedNamespace: 'demo-plugin',
+			plugin: {
+				name: 'Demo Plugin',
+				description: 'Bootstrap loader for Demo Plugin.',
+				version: '1.0.0',
+				requiresAtLeast: '6.7',
+				requiresPhp: '8.1',
+				textDomain: 'demo-plugin',
+				author: 'Demo',
+				license: 'GPL-2.0-or-later',
+			},
+			resourceClassNames: [],
+			phpGeneratedPath: customPhpGeneratedPath,
+		});
+
+		expect(program).toMatchSnapshot('plugin-loader-program-custom-path');
 	});
 });

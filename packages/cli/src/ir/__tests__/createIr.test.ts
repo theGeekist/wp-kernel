@@ -199,6 +199,42 @@ describe('createIr', () => {
 		);
 	});
 
+	it('derives autoload root from controllers layout override', async () => {
+		await withWorkspace(
+			async (workspaceRoot) => {
+				await fs.cp(FIXTURE_ROOT, workspaceRoot, { recursive: true });
+
+				const config = makeWPKernelConfigFixture({
+					namespace: 'todo-app',
+					directories: {
+						controllers: 'src/custom-controllers',
+					},
+					schemas: {},
+					resources: {},
+				});
+
+				const options = {
+					config,
+					namespace: config.namespace,
+					origin: 'typescript',
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				} as const;
+
+				const workspace = buildWorkspace(workspaceRoot);
+				const ir = await createIr(options, {
+					workspace,
+					reporter: buildNoopReporter(),
+				});
+
+				expect(ir.layout.resolve('controllers.applied')).toBe(
+					'src/custom-controllers'
+				);
+				expect(ir.php.autoload).toBe('src/');
+			},
+			{ chdir: false }
+		);
+	});
+
 	it('uses provided pipeline, environment workspace and reporter overrides', async () => {
 		const config = createBaseConfig();
 		const options = {

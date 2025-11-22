@@ -31,18 +31,14 @@ export const DEFAULT_PACKAGE_SCRIPTS: Record<string, string> = {
 };
 
 export const DEFAULT_WORDPRESS_EXTERNALS = [
-	'@wordpress/dataviews',
 	'@wordpress/data',
 	'@wordpress/components',
-	'@wordpress/element',
-	'@wordpress/element/jsx-runtime',
-	'@wordpress/element/jsx-dev-runtime',
 	'@wordpress/hooks',
 	'@wordpress/i18n',
-	'@wordpress/interactivity',
 	'@wordpress/api-fetch',
 	'@wordpress/block-editor',
 	'@wordpress/blocks',
+	'@wordpress/private-apis',
 ];
 
 export const REACT_EXTERNALS = [

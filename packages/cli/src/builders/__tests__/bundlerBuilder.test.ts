@@ -207,9 +207,8 @@ describe('createBundler', () => {
 					'@wordpress/i18n',
 					'@wordpress/interactivity',
 					'@wordpress/api-fetch',
-					'react',
-					'react-dom',
-					'react-dom/client',
+					'@wordpress/private-apis',
+					'@wordpress/element',
 				])
 			);
 			const aliasRoot = workspace.resolve('src').replace(/\\/g, '/');
@@ -449,7 +448,12 @@ describe('createBundler', () => {
 			expect.arrayContaining([
 				'@wordpress/data',
 				'@wordpress/components',
-				'react',
+				'@wordpress/hooks',
+				'@wordpress/api-fetch',
+				'@wordpress/block-editor',
+				'@wordpress/blocks',
+				'@wordpress/i18n',
+				'@wordpress/private-apis',
 			])
 		);
 		expect(artifacts.assetManifest.version).toBe('0.0.0');
@@ -511,11 +515,12 @@ describe('bundler helper exports', () => {
 		const externals = buildExternalList({
 			peerDependencies: {
 				'@wordpress/data': '^10.0.0',
-				react: '^18.0.0',
 			},
 			dependencies: {
 				'@wordpress/data': '^10.0.0',
 				'@wordpress/components': '^30.0.0',
+				'@wordpress/api-fetch': '^7.0.0',
+				'@wordpress/private-apis': '^1.0.0',
 				lodash: '^4.17.21',
 			},
 		});
@@ -525,8 +530,8 @@ describe('bundler helper exports', () => {
 				'@wordpress/components',
 				'@wordpress/data',
 				'@wordpress/hooks',
-				'react',
-				'react-dom',
+				'@wordpress/api-fetch',
+				'@wordpress/private-apis',
 			])
 		);
 		expect(new Set(externals).size).toBe(externals.length);
@@ -556,12 +561,14 @@ describe('bundler helper exports', () => {
 		const dependencies = buildAssetDependencies([
 			'@wordpress/data',
 			'@wordpress/hooks',
-			'react',
-			'react/jsx-runtime',
-			'lodash',
+			'@wordpress/private-apis',
 		]);
 
-		expect(dependencies).toEqual(['wp-data', 'wp-element', 'wp-hooks']);
+		expect(dependencies).toEqual([
+			'wp-data',
+			'wp-hooks',
+			'wp-private-apis',
+		]);
 	});
 
 	it('formats WordPress globals and handles trailing slashes for aliases', () => {

@@ -22,6 +22,10 @@ import type {
 	PhpProgram,
 	PhpStmtNamespace,
 	PhpStmtUse,
+	PhpStmtClass,
+	PhpStmtClassMethod,
+	PhpStmtReturn,
+	PhpExprArray,
 } from '@wpkernel/php-json-ast';
 import {
 	makeWpPostResource,
@@ -116,6 +120,63 @@ function hasUseImport(
 					)
 			)
 		);
+}
+
+function getClassMethods(program: PhpProgram): PhpStmtClassMethod[] {
+	const namespaceNode = findNamespace(program);
+	const classNode = namespaceNode?.stmts.find(
+		(stmt): stmt is PhpStmtClass => stmt.nodeType === 'Stmt_Class'
+	);
+	if (!classNode) {
+		return [];
+	}
+	return (
+		classNode.stmts?.filter(
+			(stmt): stmt is PhpStmtClassMethod =>
+				stmt.nodeType === 'Stmt_ClassMethod'
+		) ?? []
+	);
+}
+
+function findReturnScalar(
+	methods: PhpStmtClassMethod[],
+	name: string
+): string | undefined {
+	const method = methods.find((candidate) => candidate.name?.name === name);
+	if (!method) {
+		return undefined;
+	}
+	const returnStmt = (method.stmts ?? []).find(
+		(stmt): stmt is PhpStmtReturn => stmt.nodeType === 'Stmt_Return'
+	);
+	const expr = returnStmt?.expr;
+	return expr && expr.nodeType === 'Scalar_String'
+		? (expr.value as string)
+		: undefined;
+}
+
+function findReturnArray(
+	methods: PhpStmtClassMethod[],
+	name: string
+): string[] {
+	const method = methods.find((candidate) => candidate.name?.name === name);
+	if (!method) {
+		return [];
+	}
+	const returnStmt = (method.stmts ?? []).find(
+		(stmt): stmt is PhpStmtReturn => stmt.nodeType === 'Stmt_Return'
+	);
+	const expr = returnStmt?.expr;
+	if (!expr || expr.nodeType !== 'Expr_Array') {
+		return [];
+	}
+	return ((expr as PhpExprArray).items ?? [])
+		.map((item) =>
+			item && item.value && item.value.nodeType === 'Scalar_String'
+				? (item.value.value as string)
+				: undefined
+		)
+		.filter((value): value is string => typeof value === 'string');
 }
 
 describe('createPhpResourceControllerHelper', () => {
@@ -269,6 +330,47 @@ describe('createPhpResourceControllerHelper', () => {
 		);
 	});
 
+	it('emits wp-post helpers derived from storage config', async () => {
+		const ir = buildIr();
+		const applyOptions = buildApplyOptions(ir);
+		await runResourceControllerPipeline(applyOptions);
+
+		const channel = getPhpBuilderChannel(applyOptions.context);
+		const entry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata?.kind === 'resource-controller' &&
+					candidate.metadata.name === 'books'
+			);
+
+		expect(entry).toBeDefined();
+		if (!entry || entry.metadata.kind !== 'resource-controller') {
+			throw new Error('Expected resource controller entry.');
+		}
+
+		const methods = getClassMethods(entry.program);
+		const methodNames = methods.map((method) => method.name?.name);
+
+		expect(methodNames).toEqual(
+			expect.arrayContaining([
+				'getBooksPostType',
+				'getBooksStatuses',
+				'normaliseBooksStatus',
+				'resolveBooksPost',
+				'syncBooksMeta',
+				'syncBooksTaxonomies',
+				'prepareBooksResponse',
+			])
+		);
+
+		expect(findReturnScalar(methods, 'getBooksPostType')).toBe('book');
+		expect(findReturnArray(methods, 'getBooksStatuses')).toEqual([
+			'draft',
+			'publish',
+		]);
+	});
+
 	it('imports the generated capability namespace for protected routes', async () => {
 		const ir = createMinimalIr({
 			resources: [makeCapabilityProtectedResource()],
@@ -325,6 +427,42 @@ describe('createPhpResourceControllerHelper', () => {
 				'Capability',
 			])
 		).toBe(true);
+	});
+
+	it('enforces capabilities inside handlers while permission_callback stays open', async () => {
+		const ir = createMinimalIr({
+			resources: [makeCapabilityProtectedResource()],
+			php: { namespace: 'Demo\\Plugin' },
+		});
+		const applyOptions = buildApplyOptions(ir);
+		const { context } = applyOptions;
+
+		await runResourceControllerPipeline(applyOptions);
+
+		const channel = getPhpBuilderChannel(context);
+		const entry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata.kind === 'resource-controller' &&
+					candidate.metadata.name === 'books'
+			);
+
+		expect(entry).toBeDefined();
+		if (!entry || entry.metadata.kind !== 'resource-controller') {
+			throw new Error('Expected resource controller entry.');
+		}
+
+		const printer = phpPrinter.buildPhpPrettyPrinter({
+			workspace: context.workspace,
+		});
+		const { code } = await printer.prettyPrint({
+			filePath: context.workspace.resolve('Rest/BooksController.php'),
+			program: entry.program,
+		});
+
+		expect(code).toContain("'permission_callback' => '__return_true'");
+		expect(code).toContain('Capability::enforce');
 	});
 
 	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
