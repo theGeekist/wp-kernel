@@ -299,7 +299,7 @@ export interface RollupDriverConfig {
 	readonly driver: 'rollup';
 	readonly input: Record<string, string>;
 	readonly outputDir: string;
-	readonly format: 'esm';
+	readonly format: 'esm' | 'iife';
 	readonly external: readonly string[];
 	readonly globals: Record<string, string>;
 	readonly alias: readonly {

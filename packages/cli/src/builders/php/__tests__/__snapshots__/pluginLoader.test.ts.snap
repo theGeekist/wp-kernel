@@ -168,6 +168,280 @@ exports[`createPhpPluginLoaderHelper emits UI asset registration when dataview m
             "attributes": {},
             "expr": {
               "attributes": {},
+              "expr": {
+                "attributes": {},
+                "left": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "__FILE__",
+                          ],
+                        },
+                        "nodeType": "Expr_ConstFetch",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "plugin_dir_path",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Expr_BinaryOp_Concat",
+                "right": {
+                  "attributes": {},
+                  "nodeType": "Scalar_String",
+                  "value": "/.wpk/generate/php/index.php",
+                },
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "classmapPath",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "classmapPath",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "file_exists",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "classmapPath",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "require",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "classmap",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": "classmap",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "is_array",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "expr": {
+                      "attributes": {},
+                      "name": "classmap",
+                      "nodeType": "Expr_Variable",
+                    },
+                    "keyVar": {
+                      "attributes": {},
+                      "name": "class",
+                      "nodeType": "Expr_Variable",
+                    },
+                    "nodeType": "Stmt_Foreach",
+                    "stmts": [
+                      {
+                        "attributes": {},
+                        "cond": {
+                          "attributes": {},
+                          "left": {
+                            "attributes": {},
+                            "expr": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "name": "class",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              ],
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "class_exists",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
+                            },
+                            "nodeType": "Expr_BooleanNot",
+                          },
+                          "nodeType": "Expr_BinaryOp_BooleanAnd",
+                          "right": {
+                            "args": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "path",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            ],
+                            "attributes": {},
+                            "name": {
+                              "attributes": {},
+                              "nodeType": "Name",
+                              "parts": [
+                                "file_exists",
+                              ],
+                            },
+                            "nodeType": "Expr_FuncCall",
+                          },
+                        },
+                        "else": null,
+                        "elseifs": [],
+                        "nodeType": "Stmt_If",
+                        "stmts": [
+                          {
+                            "attributes": {},
+                            "expr": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "name": "path",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              ],
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "require_once",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
+                            },
+                            "nodeType": "Stmt_Expression",
+                          },
+                        ],
+                      },
+                    ],
+                    "valueVar": {
+                      "attributes": {},
+                      "name": "path",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
               "items": [
                 {
                   "attributes": {},
@@ -633,6 +907,280 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
           "nodeType": "Identifier",
         },
         "stmts": [
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "left": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "__FILE__",
+                          ],
+                        },
+                        "nodeType": "Expr_ConstFetch",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "plugin_dir_path",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Expr_BinaryOp_Concat",
+                "right": {
+                  "attributes": {},
+                  "nodeType": "Scalar_String",
+                  "value": "/.wpk/generate/php/index.php",
+                },
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "classmapPath",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "classmapPath",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "file_exists",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "classmapPath",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "require",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "classmap",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": "classmap",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "is_array",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "expr": {
+                      "attributes": {},
+                      "name": "classmap",
+                      "nodeType": "Expr_Variable",
+                    },
+                    "keyVar": {
+                      "attributes": {},
+                      "name": "class",
+                      "nodeType": "Expr_Variable",
+                    },
+                    "nodeType": "Stmt_Foreach",
+                    "stmts": [
+                      {
+                        "attributes": {},
+                        "cond": {
+                          "attributes": {},
+                          "left": {
+                            "attributes": {},
+                            "expr": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "name": "class",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              ],
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "class_exists",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
+                            },
+                            "nodeType": "Expr_BooleanNot",
+                          },
+                          "nodeType": "Expr_BinaryOp_BooleanAnd",
+                          "right": {
+                            "args": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "path",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            ],
+                            "attributes": {},
+                            "name": {
+                              "attributes": {},
+                              "nodeType": "Name",
+                              "parts": [
+                                "file_exists",
+                              ],
+                            },
+                            "nodeType": "Expr_FuncCall",
+                          },
+                        },
+                        "else": null,
+                        "elseifs": [],
+                        "nodeType": "Stmt_If",
+                        "stmts": [
+                          {
+                            "attributes": {},
+                            "expr": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "name": "path",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              ],
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "require_once",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
+                            },
+                            "nodeType": "Stmt_Expression",
+                          },
+                        ],
+                      },
+                    ],
+                    "valueVar": {
+                      "attributes": {},
+                      "name": "path",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
           {
             "attributes": {},
             "expr": {
@@ -1126,6 +1674,280 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
           "nodeType": "Identifier",
         },
         "stmts": [
+          {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "expr": {
+                "attributes": {},
+                "left": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "__FILE__",
+                          ],
+                        },
+                        "nodeType": "Expr_ConstFetch",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "plugin_dir_path",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "nodeType": "Expr_BinaryOp_Concat",
+                "right": {
+                  "attributes": {},
+                  "nodeType": "Scalar_String",
+                  "value": "/.wpk/generate/php/index.php",
+                },
+              },
+              "nodeType": "Expr_Assign",
+              "var": {
+                "attributes": {},
+                "name": "classmapPath",
+                "nodeType": "Expr_Variable",
+              },
+            },
+            "nodeType": "Stmt_Expression",
+          },
+          {
+            "attributes": {},
+            "cond": {
+              "args": [
+                {
+                  "attributes": {},
+                  "byRef": false,
+                  "name": null,
+                  "nodeType": "Arg",
+                  "unpack": false,
+                  "value": {
+                    "attributes": {},
+                    "name": "classmapPath",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+              ],
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "nodeType": "Name",
+                "parts": [
+                  "file_exists",
+                ],
+              },
+              "nodeType": "Expr_FuncCall",
+            },
+            "else": null,
+            "elseifs": [],
+            "nodeType": "Stmt_If",
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "args": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "name": null,
+                        "nodeType": "Arg",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "name": "classmapPath",
+                          "nodeType": "Expr_Variable",
+                        },
+                      },
+                    ],
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "require",
+                      ],
+                    },
+                    "nodeType": "Expr_FuncCall",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "classmap",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": "classmap",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "is_array",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "byRef": false,
+                    "expr": {
+                      "attributes": {},
+                      "name": "classmap",
+                      "nodeType": "Expr_Variable",
+                    },
+                    "keyVar": {
+                      "attributes": {},
+                      "name": "class",
+                      "nodeType": "Expr_Variable",
+                    },
+                    "nodeType": "Stmt_Foreach",
+                    "stmts": [
+                      {
+                        "attributes": {},
+                        "cond": {
+                          "attributes": {},
+                          "left": {
+                            "attributes": {},
+                            "expr": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "name": "class",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              ],
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "class_exists",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
+                            },
+                            "nodeType": "Expr_BooleanNot",
+                          },
+                          "nodeType": "Expr_BinaryOp_BooleanAnd",
+                          "right": {
+                            "args": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "path",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            ],
+                            "attributes": {},
+                            "name": {
+                              "attributes": {},
+                              "nodeType": "Name",
+                              "parts": [
+                                "file_exists",
+                              ],
+                            },
+                            "nodeType": "Expr_FuncCall",
+                          },
+                        },
+                        "else": null,
+                        "elseifs": [],
+                        "nodeType": "Stmt_If",
+                        "stmts": [
+                          {
+                            "attributes": {},
+                            "expr": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "name": "path",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                },
+                              ],
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "require_once",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
+                            },
+                            "nodeType": "Stmt_Expression",
+                          },
+                        ],
+                      },
+                    ],
+                    "valueVar": {
+                      "attributes": {},
+                      "name": "path",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
           {
             "attributes": {},
             "expr": {

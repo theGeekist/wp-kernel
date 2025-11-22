@@ -47,8 +47,8 @@ describe('plan.plugin-loader', () => {
 	it('emits loader instruction using layout paths', async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wpk-loader-'));
 		try {
-			const options = makeOptions(root);
 			const layout = loadTestLayoutSync();
+			const options = makeOptions(root, makeIr({ layout }));
 			const instructions: PlanInstruction[] = [];
 			await addPluginLoaderInstruction({
 				options,

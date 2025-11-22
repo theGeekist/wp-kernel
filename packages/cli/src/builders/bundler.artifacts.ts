@@ -6,7 +6,6 @@ import {
 	DEFAULT_ENTRY_POINT,
 	DEFAULT_OUTPUT_DIR,
 	DEFAULT_WORDPRESS_EXTERNALS,
-	REACT_EXTERNALS,
 } from './bundler.constants';
 import type {
 	AssetManifest,
@@ -138,7 +137,7 @@ function buildRollupDriverConfig(
 		driver: 'rollup',
 		input: { [inputs.entryKey]: inputs.entryPoint },
 		outputDir: inputs.outputDir,
-		format: 'esm',
+		format: 'iife',
 		external: inputs.externals,
 		globals: buildGlobalsMap(inputs.externals),
 		alias: [
@@ -225,12 +224,7 @@ export function buildExternalList(pkg: PackageJsonLike | null): string[] {
 	);
 	const deps = Object.keys(pkg?.dependencies ?? {}).filter(isWordPressModule);
 
-	return sortUnique([
-		...peerDeps,
-		...deps,
-		...DEFAULT_WORDPRESS_EXTERNALS,
-		...REACT_EXTERNALS,
-	]);
+	return sortUnique([...peerDeps, ...deps, ...DEFAULT_WORDPRESS_EXTERNALS]);
 }
 
 /**
@@ -288,11 +282,6 @@ export function buildAssetDependencies(externals: readonly string[]): string[] {
 			if (slug) {
 				dependencies.add(toWordPressHandle(slug));
 			}
-			continue;
-		}
-
-		if (REACT_EXTERNALS.includes(dependency)) {
-			dependencies.add('wp-element');
 			continue;
 		}
 	}

@@ -46,7 +46,7 @@ use WP_Query;
 use WP_REST_Request;
 use function is_wp_error;
 // WPK:BEGIN AUTO
-final class BooksController extends BaseController
+class BooksController extends BaseController
 {
     public function get_resource_name(): string
     {
@@ -59,6 +59,18 @@ final class BooksController extends BaseController
     public function get_rest_args(): array
     {
         return [];
+    }
+    /**
+     * Register REST routes for this controller.
+     * Capability enforcement happens inside each handler via Capability::enforce,
+     * so permission_callback is intentionally __return_true here.
+     */
+    public function register_routes(): void
+    {
+        // permission_callback is __return_true; capabilities enforced inside handlers.
+        register_rest_route('wpk/v1', '/books', [['methods' => 'GET', 'callback' => [$this, 'getWpkV1Books'], 'permission_callback' => '__return_true'], ['methods' => 'POST', 'callback' => [$this, 'postWpkV1Books'], 'permission_callback' => '__return_true']]);
+        // permission_callback is __return_true; capabilities enforced inside handlers.
+        register_rest_route('wpk/v1', '/books/(?P<slug>[\\\\\\\\w-]+)', [['methods' => 'GET', 'callback' => [$this, 'getWpkV1BooksSlug'], 'permission_callback' => '__return_true'], ['methods' => 'PUT', 'callback' => [$this, 'putWpkV1BooksSlug'], 'permission_callback' => '__return_true'], ['methods' => 'DELETE', 'callback' => [$this, 'deleteWpkV1BooksSlug'], 'permission_callback' => '__return_true']]);
     }
     /**
      * Handle [GET] /wpk/v1/books.
@@ -267,14 +279,56 @@ final class BooksController extends BaseController
         }
         return ['deleted' => true, 'id' => (int) $post->ID, 'previous' => $previous];
     }
+    protected function getBooksPostType(): string
+    {
+        return 'book';
+    }
+    protected function getBooksStatuses(): array
+    {
+        return ['draft', 'publish'];
+    }
+    protected function normaliseBooksStatus($status): string
+    {
+        $allowed = $this->getBooksStatuses();
+        $candidate = is_string($status) ? strtolower($status) : '';
+        foreach ($allowed as $value) {
+            if ($candidate === strtolower($value)) {
+                return $value;
+            }
+        }
+        $fallback = 'draft';
+        if (!in_array('draft', $allowed, true)) {
+            if (!empty($allowed)) {
+                $fallback = $allowed[0];
+            }
+        }
+        return $fallback;
+    }
+    protected function resolveBooksPost($slug)
+    {
+        $post_type = $this->getBooksPostType();
+        $slug = is_string($slug) ? trim($slug) : '';
+        if ($slug === '') {
+            return null;
+        }
+        $posts = get_posts(['post_type' => $post_type, 'posts_per_page' => 1, 'fields' => 'all', 'meta_key' => 'uuid', 'meta_value' => $slug]);
+        if (!empty($posts)) {
+            return $posts[0];
+        }
+        $post = get_page_by_path($slug, 'OBJECT', $post_type);
+        if ($post instanceof WP_Post) {
+            return $post;
+        }
+        return null;
+    }
     private function syncBooksMeta(int $post_id, WP_REST_Request $request): void
     {
-        $statusMeta = $request->get_param('status');
+        $statusMeta = rest_sanitize_value_from_request('status', $request);
         if (null !== $statusMeta) {
             $statusMeta = is_string($statusMeta) ? $statusMeta : (string) $statusMeta;
             update_post_meta($post_id, 'status', $statusMeta);
         }
-        $tagsMeta = $request->get_param('tags');
+        $tagsMeta = rest_sanitize_value_from_request('tags', $request);
         if (null !== $tagsMeta) {
             $tagsMeta = array_values((array) $tagsMeta);
             delete_post_meta($post_id, 'tags');
@@ -283,15 +337,15 @@ final class BooksController extends BaseController
             }
         }
     }
-    private function syncBooksTaxonomies(int $post_id, WP_REST_Request $request)
+    function syncBooksTaxonomies(int $post_id, WP_REST_Request $request)
     {
         $result = true;
-        $genresTerms = $request->get_param('genres');
+        $genresTerms = rest_sanitize_value_from_request('genres', $request);
         if (null !== $genresTerms) {
             if (!is_array($genresTerms)) {
                 $genresTerms = [$genresTerms];
             }
-            $genresTerms = array_filter(array_map('intval', (array) $genresTerms));
+            $genresTerms = array_filter(array_map('intval', $genresTerms));
             $result = wp_set_object_terms($post_id, $genresTerms, 'book_genre', false);
             if (is_wp_error($result)) {
                 return $result;
@@ -299,21 +353,19 @@ final class BooksController extends BaseController
         }
         return $result;
     }
-    private function prepareBooksResponse(WP_Post $post, WP_REST_Request $request): array
+    function prepareBooksResponse(WP_Post $post, WP_REST_Request $request): array
     {
         $data = ['id' => (int) $post->ID, 'slug' => (string) $post->post_name, 'status' => (string) $post->post_status];
         $data['title'] = (string) $post->post_title;
         $statusMeta = get_post_meta($post->ID, 'status', true);
-        $statusMeta = is_string($statusMeta) ? $statusMeta : (string) $statusMeta;
         $data['status'] = $statusMeta;
         $tagsMeta = get_post_meta($post->ID, 'tags', false);
-        $tagsMeta = array_values((array) $tagsMeta);
         $data['tags'] = $tagsMeta;
         $genresTerms = wp_get_object_terms($post->ID, 'book_genre', ['fields' => 'ids']);
         if (is_wp_error($genresTerms)) {
             $genresTerms = [];
         }
-        $genresTerms = array_map('intval', (array) $genresTerms);
+        $genresTerms = array_map('intval', $genresTerms);
         $data['genres'] = $genresTerms;
         return $data;
     }
@@ -424,7 +476,7 @@ use WP_Error;
 use WP_REST_Request;
 use function is_wp_error;
 // WPK:BEGIN AUTO
-final class DemoOptionController extends BaseController
+class DemoOptionController extends BaseController
 {
     public function get_resource_name(): string
     {
@@ -437,6 +489,16 @@ final class DemoOptionController extends BaseController
     public function get_rest_args(): array
     {
         return [];
+    }
+    /**
+     * Register REST routes for this controller.
+     * Capability enforcement happens inside each handler via Capability::enforce,
+     * so permission_callback is intentionally __return_true here.
+     */
+    public function register_routes(): void
+    {
+        // permission_callback is __return_true; capabilities enforced inside handlers.
+        register_rest_route('wpk/v1', '/demo-option', [['methods' => 'GET', 'callback' => [$this, 'getWpkV1DemoOption'], 'permission_callback' => '__return_true'], ['methods' => 'PUT', 'callback' => [$this, 'putWpkV1DemoOption'], 'permission_callback' => '__return_true']]);
     }
     /**
      * Handle [GET] /wpk/v1/demo-option.
@@ -523,7 +585,7 @@ use WP_Error;
 use WP_REST_Request;
 use function is_wp_error;
 // WPK:BEGIN AUTO
-final class JobCacheController extends BaseController
+class JobCacheController extends BaseController
 {
     public function get_resource_name(): string
     {
@@ -536,6 +598,16 @@ final class JobCacheController extends BaseController
     public function get_rest_args(): array
     {
         return [];
+    }
+    /**
+     * Register REST routes for this controller.
+     * Capability enforcement happens inside each handler via Capability::enforce,
+     * so permission_callback is intentionally __return_true here.
+     */
+    public function register_routes(): void
+    {
+        // permission_callback is __return_true; capabilities enforced inside handlers.
+        register_rest_route('wpk/v1', '/job-cache', [['methods' => 'GET', 'callback' => [$this, 'getWpkV1JobCache'], 'permission_callback' => '__return_true'], ['methods' => 'PUT', 'callback' => [$this, 'putWpkV1JobCache'], 'permission_callback' => '__return_true'], ['methods' => 'DELETE', 'callback' => [$this, 'deleteWpkV1JobCache'], 'permission_callback' => '__return_true']]);
     }
     /**
      * Handle [GET] /wpk/v1/job-cache.

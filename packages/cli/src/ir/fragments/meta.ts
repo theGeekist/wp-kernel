@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
@@ -79,7 +80,7 @@ export function createMetaFragment(): IrFragment {
 				meta,
 				php: {
 					namespace: createPhpNamespace(sanitizedNamespace),
-					autoload: 'inc/',
+					autoload: deriveAutoloadRoot(input.draft.layout.resolve),
 					outputDir: input.draft.layout.resolve('php.generated'),
 				},
 			});
@@ -87,4 +88,18 @@ export function createMetaFragment(): IrFragment {
 			input.draft.extensions[META_EXTENSION_KEY] = { sanitizedNamespace };
 		},
 	});
+}
+
+function deriveAutoloadRoot(resolveLayout: (id: string) => string): string {
+	try {
+		const controllersPath = resolveLayout('controllers.applied');
+		const dirname = path.posix.dirname(controllersPath);
+		if (!dirname || dirname === '.') {
+			return '';
+		}
+		return dirname.endsWith('/') ? dirname : `${dirname}/`;
+	} catch {
+		// Default to legacy autoload root when layout lacks a controllers entry.
+		return 'inc/';
+	}
 }

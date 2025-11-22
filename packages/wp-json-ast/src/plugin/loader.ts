@@ -51,6 +51,7 @@ export interface PluginLoaderProgramConfig {
 	readonly namespace: string;
 	readonly sanitizedNamespace: string;
 	readonly plugin: PluginLoaderMeta;
+	readonly phpGeneratedPath: string;
 	readonly resourceClassNames: readonly string[];
 	readonly ui?: PluginLoaderUiConfig;
 }
@@ -217,6 +218,14 @@ function buildAccessGuardStatement(): PhpStmt {
 function buildGetControllersFunction(
 	config: PluginLoaderProgramConfig
 ): PhpStmtFunction {
+	const phpGeneratedPath = normaliseRelativeDirectory(
+		config.phpGeneratedPath
+	);
+	const classmapPathSuffix =
+		phpGeneratedPath.length > 0
+			? `${phpGeneratedPath}/index.php`
+			: 'index.php';
+
 	const returnArray = buildArray(
 		config.resourceClassNames.map((className) =>
 			buildArrayItem(
@@ -225,11 +234,90 @@ function buildGetControllersFunction(
 		)
 	);
 
-	const returnStatement = buildReturn(returnArray);
-
 	const fn = buildNodeFunction('get_wpkernel_controllers', {
 		returnType: buildIdentifier('array'),
-		statements: [returnStatement],
+		statements: [
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('classmapPath'),
+					buildBinaryOperation(
+						'Concat',
+						buildFuncCall(buildName(['plugin_dir_path']), [
+							buildArg(buildConstFetchExpression('__FILE__')),
+						]),
+						buildScalarString(`/${classmapPathSuffix}`)
+					)
+				)
+			),
+			buildIfStatement(
+				buildFuncCall(buildName(['file_exists']), [
+					buildArg(buildVariable('classmapPath')),
+				]),
+				[
+					buildExpressionStatement(
+						buildAssign(
+							buildVariable('classmap'),
+							buildFuncCall(buildName(['require']), [
+								buildArg(buildVariable('classmapPath')),
+							])
+						)
+					),
+					buildIfStatement(
+						buildFuncCall(buildName(['is_array']), [
+							buildArg(buildVariable('classmap')),
+						]),
+						[
+							buildForeach(buildVariable('classmap'), {
+								keyVar: buildVariable('class'),
+								valueVar: buildVariable('path'),
+								stmts: [
+									buildIfStatement(
+										buildBinaryOperation(
+											'BooleanAnd',
+											buildBooleanNot(
+												buildFuncCall(
+													buildName(['class_exists']),
+													[
+														buildArg(
+															buildVariable(
+																'class'
+															)
+														),
+													]
+												)
+											),
+											buildFuncCall(
+												buildName(['file_exists']),
+												[
+													buildArg(
+														buildVariable('path')
+													),
+												]
+											)
+										),
+										[
+											buildExpressionStatement(
+												buildFuncCall(
+													buildName(['require_once']),
+													[
+														buildArg(
+															buildVariable(
+																'path'
+															)
+														),
+													]
+												)
+											),
+										]
+									),
+								],
+							}),
+						]
+					),
+				]
+			),
+			buildReturn(returnArray),
+		],
 	});
 
 	return mergeNodeAttributes(fn, {
@@ -386,6 +474,80 @@ function buildRegisterUiAssetsFunction(
 		]
 	);
 
+	const coreBundlesAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('core_bundles'),
+			buildArray([
+				buildArrayItem(buildScalarString('element.min.js'), {
+					key: buildScalarString('wp-element'),
+				}),
+				buildArrayItem(buildScalarString('dataviews.min.js'), {
+					key: buildScalarString('wp-dataviews'),
+				}),
+				buildArrayItem(buildScalarString('interactivity.min.js'), {
+					key: buildScalarString('wp-interactivity'),
+				}),
+				buildArrayItem(buildScalarString('private-apis.min.js'), {
+					key: buildScalarString('wp-private-apis'),
+				}),
+			])
+		)
+	);
+
+	const ensureCoreBundles = buildForeach(buildVariable('core_bundles'), {
+		keyVar: buildVariable('handle'),
+		valueVar: buildVariable('filename'),
+		stmts: [
+			buildIfStatement(
+				buildBooleanNot(
+					buildFuncCall(buildName(['in_array']), [
+						buildArg(buildVariable('handle')),
+						buildArg(buildVariable('dependencies')),
+						buildArg(buildConstFetchExpression('true')),
+					])
+				),
+				[buildContinue()]
+			),
+			buildIfStatement(
+				buildBinaryOperation(
+					'BooleanOr',
+					buildFuncCall(buildName(['wp_script_is']), [
+						buildArg(buildVariable('handle')),
+						buildArg(buildScalarString('registered')),
+					]),
+					buildFuncCall(buildName(['wp_script_is']), [
+						buildArg(buildVariable('handle')),
+						buildArg(buildScalarString('enqueued')),
+					])
+				),
+				[buildContinue()]
+			),
+			buildExpressionStatement(
+				buildFuncCall(buildName(['wp_register_script']), [
+					buildArg(buildVariable('handle')),
+					buildArg(
+						buildFuncCall(buildName(['includes_url']), [
+							buildArg(
+								buildBinaryOperation(
+									'Concat',
+									buildScalarString('js/dist/'),
+									buildVariable('filename')
+								)
+							),
+						])
+					),
+					buildArg(buildArray([])),
+					buildArg(
+						buildFuncCall(buildName(['get_bloginfo']), [
+							buildArg(buildScalarString('version')),
+						])
+					),
+					buildArg(buildConstFetchExpression('true')),
+				])
+			),
+		],
+	});
+
 	const initialiseVersion = buildExpressionStatement(
 		buildAssign(
 			buildVariable('version'),
@@ -462,6 +624,8 @@ function buildRegisterUiAssetsFunction(
 		decodeAsset,
 		initialiseDependencies,
 		dependenciesGuard,
+		coreBundlesAssign,
+		ensureCoreBundles,
 		initialiseVersion,
 		versionGuard,
 		scriptUrlAssign,
@@ -1004,4 +1168,9 @@ function buildConstFetchExpression(name: string): PhpExprConstFetch {
 
 function splitNamespace(value: string): string[] {
 	return value.split('\\').filter(Boolean);
+}
+
+function normaliseRelativeDirectory(value: string): string {
+	const trimmed = value.replace(/^\.?\//, '').replace(/\/+$/, '');
+	return trimmed;
 }

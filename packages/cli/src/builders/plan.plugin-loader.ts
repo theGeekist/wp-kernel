@@ -73,6 +73,8 @@ export async function emitPluginLoader({
 	});
 
 	const uiConfig = buildUiConfig(ir);
+	const phpGeneratedPath =
+		ir.layout?.resolve('php.generated') ?? ir.php.outputDir;
 
 	const program = buildPluginLoaderProgram({
 		origin: ir.meta.origin,
@@ -80,6 +82,7 @@ export async function emitPluginLoader({
 		sanitizedNamespace: ir.meta.sanitizedNamespace,
 		plugin: ir.meta.plugin,
 		resourceClassNames,
+		phpGeneratedPath,
 		...(uiConfig ? { ui: uiConfig } : {}),
 	});
 
